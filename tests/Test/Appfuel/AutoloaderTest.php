@@ -41,6 +41,12 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
 	public function setUp()
 	{
 		$this->backupIncludePath();
+		$path = AF_TEST_PATH . DIRECTORY_SEPARATOR . 
+				'example'    . DIRECTORY_SEPARATOR . 
+				'autoload'   . DIRECTORY_SEPARATOR .
+				'classes';
+
+		set_include_path(get_include_path() . PATH_SEPARATOR . $path);
 		$this->loader = new Autoloader();
 	}
 
@@ -49,6 +55,7 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function tearDown()
 	{
+		$this->restoreIncludePath();
 		unset($this->loader);
 	}
 
@@ -90,10 +97,12 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
 	 * The constructor assigns the namespace separator for php 5.3
 	 *
 	 * Assert: 	getNamespaceSeparator returns '\\'
+	 * Assert:	getFileExtension returns 'php'
 	 */
 	public function testConstructor()
 	{
-		$this->assertEquals('\\', $this->loader->getNamespaceSeparator());	
+		$this->assertEquals('\\', $this->loader->getNamespaceSeparator());
+		$this->assertEquals('.php', $this->loader->getFileExtension());	
 	}
 
 	/**
@@ -127,6 +136,36 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
 		$nsSep = new \stdClass();
 		
 		$this->loader->setNamespaceSeparator($nsSep);
+	}
+
+	/**
+	 * Test getFileExtension setFileExtension
+	 *
+	 * Assert: 	setFileExtension will return a reference to Autolaoder AND
+	 * 			getFileExtension will returns the string set
+	 */
+	public function testGetSetFileExtension()
+	{
+		$ext = 'phtml';
+		$this->assertSame(
+			$this->loader, 
+			$this->loader->setFileExtension($ext)
+		);
+
+		$this->assertEquals($ext, $this->loader->getFileExtension());
+	}
+
+	/**
+	 * Test setNamespaceSeparator
+	 * Only strings are allowed to be set
+	 *
+	 * @expectedException 	\Exception
+	 */
+	public function testSetBadFileExtension()
+	{
+		$ext = array('php');
+		
+		$this->loader->setFileExtension($ext);
 	}
 
 	/**
