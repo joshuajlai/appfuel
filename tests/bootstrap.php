@@ -24,6 +24,5 @@ $pathString = get_include_path() . PATH_SEPARATOR .
 			  $afDir . PATH_SEPARATOR . $tDir;	  
 
 set_include_path($pathString);
-
 define ('AF_TEST_PATH', $tDir);
 

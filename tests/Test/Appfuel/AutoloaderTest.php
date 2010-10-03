@@ -190,5 +190,58 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
 
 		$this->assertEquals($expected, $result);
 	}
+
+	/**
+	 * Test loadClass
+	 *
+	 * Assert: 	the class we are loading is not loaded AND
+	 * 			isLoaded returns FALSE
+	 * Assert: 	loadClass returns NULL AND
+	 * 			the class name now exists AND 
+	 * 			isLoaded returns TRUE
+	 */
+	public function testLoadClass()
+	{
+		$className = 'My\TestClassA\Instance';
+		$this->assertFalse(class_exists($className));
+		$this->assertFalse($this->loader->isLoaded($className));
+
+		$result    = $this->loader->loadClass($className);
+		$this->assertNull($result);
+		$this->assertTrue(class_exists($className));
+		$this->assertTrue($this->loader->isLoaded($className));
+	}
+
+	/**
+	 * Test register unregister
+	 * These methods wrap the spl_autoload_register/spl_autoload_unregister
+	 * functions
+	 *
+	 * Assert: 	register adds array of object,method name onto the the
+	 * 			existing methods AND that object is an Autoloader AND method
+	 * 			is the same method name from getRegisteredMethodName
+	 * Assert: 	unregister removes that entry
+	 */
+	public function testRegisterUnRegister()
+	{
+		$alFunctions = spl_autoload_functions();
+		$this->assertTrue($this->loader->register());
+		$alFunctions = spl_autoload_functions();
+		$total = count($alFunctions);
+
+		$result = end($alFunctions);
+		$this->assertTrue(is_array($result));
+		$this->assertArrayHasKey(0, $result);
+		$this->assertArrayHasKey(1, $result);
+		$this->assertTrue($result[0] instanceof Autoloader);
+		$this->assertEquals(
+			$this->loader->getRegisteredMethodName(),
+			$result[1]
+		);
+
+		//$this->assertTrue($this->loader->unregister());
+		//$this->assertEquals($total - 1, count(spl_autoload_functions()));
+		$this->assertType('array', 'adsasd');
+	}
 }
 

@@ -32,12 +32,11 @@ class Autoloader
 	protected $fileExt = NULL;
 
 	/**
-	 * Path
-	 * These are the paths used in the include path at the time
-	 * of registration
-	 * @var array
+	 * Registered Method
+	 * Name of the method to register
+	 * @var string
 	 */
-	protected $paths = array();
+	protected $registeredMethodName = NULL;
 
 	/**
 	 * Constructor
@@ -49,6 +48,7 @@ class Autoloader
 	{
 		$this->setNamespaceSeparator('\\');
 		$this->setFileExtension('.php');
+		$this->setRegisteredMethodName('loadClass');
 	}
 
 	/**
@@ -100,6 +100,31 @@ class Autoloader
 	}
 
 	/**
+	 * @return 	string
+	 */
+	public function getRegisteredMethodName()
+	{
+		return $this->registeredMethodName;
+	}
+
+	/**
+	 * @param 	string 	$chars 	characters making up the file extension
+	 * @return 	Autoloader
+	 */
+	public function setRegisteredMethodName($chars)
+	{
+		if (! is_string($chars)) {
+			throw new \Exception(
+				"Namespace separator must by a string"
+			);
+		}
+
+		$this->registeredMethodName = $chars;
+		return $this;
+	}
+
+
+	/**
 	 * Assign Include Paths
 	 * This saves the include path to be used to determine if files exist
 	 * or not
@@ -141,9 +166,11 @@ class Autoloader
 	 *
 	 * @return 	bool
 	 */
-	public function register()
+	public function register($throw = TRUE, $prepend = FALSE)
 	{
-		return spl_autoload_register(array($this, 'loadClass'));
+		$methodName = $this->getRegisteredMethodName();
+		$params = array($this, $methodName);
+		return spl_autoload_register($params, $thow, $prepend);
 	}
 
 	/**
@@ -154,7 +181,8 @@ class Autoloader
 	 */
 	public function unregister()
 	{
-		return spl_autoload_unregister(array($this, 'loadClass'));
+		$methodName = $this->getRegisteredMethodName();
+		return spl_autoload_unregister(array($this, $methodName));
 	}
 
 	/**
@@ -174,11 +202,11 @@ class Autoloader
 	 */
 	public function loadClass($className)
 	{
-		if ($this->isLoaded()) {
+		if ($this->isLoaded($className)) {
 			return;
 		}
 
-		$ext  = $this->getExtension();
+		$ext  = $this->getFileExtension();
 		$file = $this->resolveClassPath($className) . $ext;
 		if (file_exists($file)) {
 			require $file;
@@ -195,7 +223,7 @@ class Autoloader
 		}
 
 		throw new \Exception(
-			"Autoload Error: could not file for class $className for file
+			"Autoload Error: could not find class: $className for file
 			$file"
 		);
 	}
