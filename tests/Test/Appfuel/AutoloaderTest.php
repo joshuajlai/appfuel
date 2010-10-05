@@ -169,7 +169,7 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * Test resolveClassPath
+	 * Test decodeNamespaceToPath
 	 * This basically turns the namespace separator into directory
 	 * separators.
 	 *
@@ -177,13 +177,13 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
 	 * 		 appfuel is primarly made to run on posix compliant systems
 	 *
 	 * Assert: 	given a name My\Class\Instance and assuming the constant
-	 * 			DIRECTORY_SEPARATOR is '/' then resolveClassPath will return
+	 * 			DIRECTORY_SEPARATOR is '/' then decodeNamespaceToPath will return
 	 * 			string 'My/Class/Instance'
 	 */ 
-	public function testResolveClassPath()
+	public function testDecodeNamespaceToPath()
 	{
 		$className = 'My\Class\Instance';
-		$result    = $this->loader->resolveClassPath($className);
+		$result    = $this->loader->decodeNamespaceToPath($className);
 		$expected  = 'My'    . DIRECTORY_SEPARATOR . 
 					 'Class' . DIRECTORY_SEPARATOR .
 					 'Instance';

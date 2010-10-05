@@ -154,7 +154,7 @@ class Autoloader
 	 * @param 	string 	$className 	
 	 * @return 	string
 	 */
-	public function resolveClassPath($className)
+	public function decodeNamespaceToPath($className)
 	{
 		$ns = $this->getNamespaceSeparator();
 		return str_replace($ns, DIRECTORY_SEPARATOR, $className);
@@ -207,7 +207,7 @@ class Autoloader
 		}
 
 		$ext  = $this->getFileExtension();
-		$file = $this->resolveClassPath($className) . $ext;
+		$file = $this->decodeNamespaceToPath($className) . $ext;
 		if (file_exists($file)) {
 			require $file;
 			return;
