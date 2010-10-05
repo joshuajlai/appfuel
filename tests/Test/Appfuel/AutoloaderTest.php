@@ -239,9 +239,8 @@ class AutoloaderTest extends \PHPUnit_Framework_TestCase
 			$result[1]
 		);
 
-		//$this->assertTrue($this->loader->unregister());
-		//$this->assertEquals($total - 1, count(spl_autoload_functions()));
-		$this->assertType('array', 'adsasd');
+		$this->assertTrue($this->loader->unregister());
+		$this->assertEquals($total - 1, count(spl_autoload_functions()));
 	}
 }
 
