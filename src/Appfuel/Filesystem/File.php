@@ -13,8 +13,9 @@
 namespace 	Appfuel\Filesystem;
 
 /**
- * Exception
- *
+ * File
+ * Used to encapsulate php basic file operations arround a single object
+ * 
  * @package 	Appfuel
  */
 class File
@@ -35,7 +36,7 @@ class File
 	 */
 	public function __construct($path)
 	{
-		$this->setPath = $path;
+		$this->path = $path;
 	}
 
 	/**
