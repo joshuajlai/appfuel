@@ -16,6 +16,7 @@ namespace Test\Appfuel\Filesystem;
  * Autoloading has not been established so we need to manaully 
  * include this file
  */
+require_once 'Appfuel/Filesystem/IFile.php';
 require_once 'Appfuel/Filesystem/File.php';
 
 /* import */

@@ -18,7 +18,7 @@ namespace 	Appfuel\Filesystem;
  * 
  * @package 	Appfuel
  */
-class File
+class File implements IFile
 {
 	/**
 	 * Path

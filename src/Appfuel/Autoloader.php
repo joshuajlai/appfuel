@@ -11,6 +11,8 @@
  */
 namespace 	Appfuel;
 
+use Appfuel\Filesystem\Manager 	as FileManager;
+
 /**
  * Autoloader
  *
@@ -19,24 +21,11 @@ namespace 	Appfuel;
 class Autoloader
 {
 	/**
-	 * Namespace Separator
-	 * Used to resolve the incoming class name
-	 * @var string
-	 */
-	protected $nsSeparator = NULL;
-	
-	/**
-	 * File Extension
-	 * @var string
-	 */
-	protected $fileExt = NULL;
-
-	/**
 	 * Registered Method
 	 * Name of the method to register
 	 * @var string
 	 */
-	protected $registeredMethodName = NULL;
+	protected $registeredMethod = NULL;
 
 	/**
 	 * Constructor
@@ -46,48 +35,22 @@ class Autoloader
 	 */
 	public function __construct()
 	{
-		$this->setNamespaceSeparator('\\');
-		$this->setFileExtension('.php');
-		$this->setRegisteredMethodName('loadClass');
+		$this->setRegisteredMethod('loadClass');
 	}
 
 	/**
 	 * @return 	string
 	 */
-	public function getNamespaceSeparator()
+	public function getRegisteredMethod()
 	{
-		return $this->nsSeparator;
-	}
-
-	/**
-	 * @param 	string 	$chars 	characters making up the namespace separator
-	 * @return 	Autoloader
-	 */
-	public function setNamespaceSeparator($chars)
-	{
-		if (! is_string($chars)) {
-			throw new \Exception(
-				"Namespace separator must by a string"
-			);
-		}
-
-		$this->nsSeparator = $chars;
-		return $this;
-	}
-
-	/**
-	 * @return 	string
-	 */
-	public function getFileExtension()
-	{
-		return $this->fileExt;
+		return $this->registeredMethod;
 	}
 
 	/**
 	 * @param 	string 	$chars 	characters making up the file extension
 	 * @return 	Autoloader
 	 */
-	public function setFileExtension($chars)
+	public function setRegisteredMethod($chars)
 	{
 		if (! is_string($chars)) {
 			throw new \Exception(
@@ -95,69 +58,8 @@ class Autoloader
 			);
 		}
 
-		$this->fileExt = $chars;
+		$this->registeredMethod = $chars;
 		return $this;
-	}
-
-	/**
-	 * @return 	string
-	 */
-	public function getRegisteredMethodName()
-	{
-		return $this->registeredMethodName;
-	}
-
-	/**
-	 * @param 	string 	$chars 	characters making up the file extension
-	 * @return 	Autoloader
-	 */
-	public function setRegisteredMethodName($chars)
-	{
-		if (! is_string($chars)) {
-			throw new \Exception(
-				"Namespace separator must by a string"
-			);
-		}
-
-		$this->registeredMethodName = $chars;
-		return $this;
-	}
-
-
-	/**
-	 * Assign Include Paths
-	 * This saves the include path to be used to determine if files exist
-	 * or not
-	 *
-	 * @param 	array 	$paths
-	 * @return 	Autolaoder
-	 */
-	public function assignIncludePath(array $paths)
-	{
-		$this->paths = $paths;
-		return $this;
-	}
-
-	/**
-	 * @return 	array
-	 */
-	public function getIncludePath()
-	{
-		return $this->paths;
-	}
-
-	/**
-	 * Resolve Class Path
-	 * Will convert PHP 5.3+ namespace separators to directory 
-	 * separators
-	 *
-	 * @param 	string 	$className 	
-	 * @return 	string
-	 */
-	public function decodeNamespaceToPath($className)
-	{
-		$ns = $this->getNamespaceSeparator();
-		return str_replace($ns, DIRECTORY_SEPARATOR, $className);
 	}
 
 	/**
@@ -168,7 +70,7 @@ class Autoloader
 	 */
 	public function register($throw = TRUE, $prepend = FALSE)
 	{
-		$methodName = $this->getRegisteredMethodName();
+		$methodName = $this->getRegisteredMethod();
 		$params = array($this, $methodName);
 		return spl_autoload_register($params, $thow, $prepend);
 	}
@@ -181,7 +83,7 @@ class Autoloader
 	 */
 	public function unregister()
 	{
-		$methodName = $this->getRegisteredMethodName();
+		$methodName = $this->getRegisteredMethod();
 		return spl_autoload_unregister(array($this, $methodName));
 	}
 
@@ -206,26 +108,17 @@ class Autoloader
 			return;
 		}
 
-		$ext  = $this->getFileExtension();
-		$file = $this->decodeNamespaceToPath($className) . $ext;
-		if (file_exists($file)) {
-			require $file;
-			return;
+		$fileName = FileManager::classNameToFileName($className);
+		$filePath = FileManager::getAbsolutePath($fileName);
+
+		if (FALSE === $filePath) {
+			throw new \Exception(
+				"Autoload Error: could not find class: $className for file
+				$fileName"
+			);
 		}
 
-		$paths = explode(':', get_include_path());
-		foreach ($paths as $path) {
-			$filePath = $path . DIRECTORY_SEPARATOR . $file;
-			if (file_exists($filePath)) {
-				require $filePath;
-				return;
-			}
-		}
-
-		throw new \Exception(
-			"Autoload Error: could not find class: $className for file
-			$file"
-		);
+		require_once $filePath;
 	}
 }
 
