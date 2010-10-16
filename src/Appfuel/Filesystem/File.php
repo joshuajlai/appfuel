@@ -18,35 +18,8 @@ namespace 	Appfuel\Filesystem;
  * 
  * @package 	Appfuel
  */
-class File implements IFile
+class File extends \SplFileInfo
 {
-	/**
-	 * Path
-	 * Location of of file on dist
-	 * @var string
-	 */
-	protected $path = NULL;
-
-	/**
-	 * Constructor
-	 * Assign path as readonly
-	 *
-	 * @param 	string 	$path
-	 * @return	File
-	 */
-	public function __construct($path)
-	{
-		$this->path = $path;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getPath()
-	{
-		return $this->path;
-	}
-
 	/**
 	 * Exists
 	 * Wrapper for PHP file_exists call
@@ -55,7 +28,7 @@ class File implements IFile
 	 */
 	public function exists()
 	{
-		return file_exists($this->getPath());
+		return $this->isFile();
 	}
 }
 

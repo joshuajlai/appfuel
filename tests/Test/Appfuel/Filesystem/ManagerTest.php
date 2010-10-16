@@ -140,12 +140,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 	{
 		$file = $this->getMock(
 			'\Appfuel\Filesystem\File',
-			array('exists'),
+			array('isFile'),
 			array('/path/to/knowwhere')
 		);
 		
 		$file->expects($this->once())
-			->method('exists')
+			->method('isFile')
 			->will($this->returnValue(FALSE));
 
 		$this->assertFalse(FilesystemManager::requireFile($file));
@@ -154,12 +154,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
 		$file = $this->getMock(
 			'\Appfuel\Filesystem\File',
-			array('exists', 'getPath'),
+			array('isFile', 'getRealPath'),
 			array('/path/to/knowwhere')
 		);
 		
 		$file->expects($this->once())
-			->method('exists')
+			->method('isFile')
 			->will($this->returnValue(TRUE));
 
 		/* file that is known to exist */
@@ -169,7 +169,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 				  'text_file.txt';
 
 		$file->expects($this->once())
-			 ->method('getPath')
+			 ->method('getRealPath')
 			 ->will($this->returnValue($abPath));
 
 		/* prove this file has not already been loaded */

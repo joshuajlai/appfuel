@@ -64,13 +64,12 @@ class Manager
 	 * @param 	File 	$file
 	 * @return 	void
 	 */ 
-	static public function requireFile(IFile $file)
+	static public function requireFile(\SplFileInfo $file)
 	{
-		if (! $file->exists()) {
+		if (! $file->isFile()) {
 			return FALSE;
 		}
-
-		require_once $file->getPath();
+		require_once $file->getRealPath();
 		return TRUE;
 	}
 }

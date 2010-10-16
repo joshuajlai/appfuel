@@ -16,7 +16,7 @@ namespace Test\Appfuel\Filesystem;
  * Autoloading has not been established so we need to manaully 
  * include this file
  */
-require_once 'Appfuel/Filesystem/IFile.php';
+
 require_once 'Appfuel/Filesystem/File.php';
 
 /* import */
@@ -74,7 +74,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testConstructorGetPath()
 	{
-		$this->assertEquals($this->path, $this->file->getPath());
+		$this->assertEquals($this->path, $this->file->getRealPath());
 	}
 
 	/**
@@ -89,7 +89,7 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	public function testExists()
 	{
 		$this->assertTrue($this->file->exists());
-		$this->assertTrue(file_exists($this->file->getPath()));
+		$this->assertTrue(file_exists($this->file->getRealPath()));
 
 		/* prove path does not exist */
 		$path = '/path/to/nowhere.txt';
