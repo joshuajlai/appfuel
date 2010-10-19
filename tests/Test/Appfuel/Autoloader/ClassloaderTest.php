@@ -10,24 +10,26 @@
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace Test\Appfuel;
+namespace Test\Appfuel\Autoloader;
 
 /*
  * Autoloading has not been established so we need to manaully 
  * include this file
  */
 require_once 'Appfuel/Filesystem/Manager.php';
-require_once 'Appfuel/Autoloader.php';
+
+require_once 'Appfuel/Autoloader/LoaderInterface.php';
+require_once 'Appfuel/Autoloader/Classloader.php';
 
 /* import */
-use Appfuel\Autoloader as Autoloader;
+use Appfuel\Autoloader\Classloader as Autoloader;
 
 /**
  * Autoloader
  *
  * @package 	Appfuel
  */
-class AutoloaderTest extends \PHPUnit_Framework_TestCase
+class ClassLoaderTest extends \PHPUnit_Framework_TestCase
 {
 	/**
 	 * Auto Loader

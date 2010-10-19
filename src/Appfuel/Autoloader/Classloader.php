@@ -9,7 +9,7 @@
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace 	Appfuel;
+namespace 	Appfuel\Autoloader;
 
 use Appfuel\Filesystem\Manager 	as FileManager;
 
@@ -18,7 +18,7 @@ use Appfuel\Filesystem\Manager 	as FileManager;
  *
  * @package 	Appfuel
  */
-class Autoloader
+class Classloader implements LoaderInterface
 {
 	/**
 	 * Registered Method
