@@ -140,8 +140,11 @@ class ClassLoaderTest extends \PHPUnit_Framework_TestCase
 	 */
 	public function testLoadClass()
 	{
+		$declared  = get_declared_classes();
 		$className = 'My\TestClassA\Instance';
-		$this->assertFalse(class_exists($className));
+
+		$this->assertNotContains($className, $declared);
+		$this->assertFalse(class_exists($classNamei, FALSE));
 		$this->assertFalse($this->loader->isLoaded($className));
 
 		$result    = $this->loader->loadClass($className);

@@ -13,10 +13,20 @@
 namespace Appfuel\App;
 
 use Appfuel\Autoloader\LoaderInterface	as LoaderInterface;
+use Appfuel\Autoloader\Classloader		as Classloader;
+
+require_once 'PHPUnit/Util/Type.php';
+require_once 'PHPUnit/Framework/Constraint/IsInstanceOf.php';
+require_once 'PHPUnit/Framework/Constraint/IsEqual.php';
+require_once 'PHPUnit/Framework/ExpectationFailedException.php';
+require_once 'PHPUnit/Framework/ComparisonFailure.php';
+require_once 'PHPUnit/Framework/ComparisonFailure/Scalar.php';
+require_once 'PHPUnit/Framework/TestFailure.php';
+require_once 'PHPUnit/Framework/MockObject/Matcher/InvokedCount.php';
 
 /**
  * App Manager
- *
+ 
  */
 class Manager
 {
@@ -25,7 +35,7 @@ class Manager
 	 * Autoloader
 	 * @var 	\Appfuel\Autoloader\LoaderInterface
 	 */
-	protected $autoloader = NULL;
+	static protected $autoloader = NULL;
 
 	/**
 	 * @param 	\Appfuel\Autoloader\LoaderInterface
@@ -33,7 +43,7 @@ class Manager
 	 */	
 	static public function setAutoloader(LoaderInterface $loader)
 	{
-		self::$autoloader = $loader
+		self::$autoloader = $loader;
 	}
 
 	/**
@@ -49,7 +59,7 @@ class Manager
 	 */
 	static public function isAutoloader()
 	{
-		return self::getAutoloader instanceof LoaderInterface;
+		return self::getAutoloader() instanceof LoaderInterface;
 	}
 
 	/**
@@ -57,10 +67,17 @@ class Manager
 	 */
 	static public function clearAutoloader()
 	{
-		unset(self::$autoloader;);
+		self::$autoloader = NULL;
 	}
 
-	static public enableAutoloader()
+	/**
+	 * When no autoloader is available we will create a 
+	 * Appfuel\Autoloader\Classloader and register it otherwise we will
+	 * get whatever autoloader is set and register that
+	 *
+	 * @return void
+	 */
+	static public function enableAutoloader()
 	{
 		if (! self::isAutoloader()) {
 			self::setAutoloader(new ClassLoader());
@@ -70,6 +87,11 @@ class Manager
 		$autoloader->register();
 	}
 
+	/**
+	 * Unregister the current autoloader
+	 *
+	 * @return void
+	 */
 	static public function disableAutoloader()
 	{
 		if (! self::isAutoloader()) {
