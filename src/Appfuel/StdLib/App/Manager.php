@@ -15,15 +15,6 @@ namespace Appfuel\App;
 use Appfuel\Autoloader\LoaderInterface	as LoaderInterface;
 use Appfuel\Autoloader\Classloader		as Classloader;
 
-require_once 'PHPUnit/Util/Type.php';
-require_once 'PHPUnit/Framework/Constraint/IsInstanceOf.php';
-require_once 'PHPUnit/Framework/Constraint/IsEqual.php';
-require_once 'PHPUnit/Framework/ExpectationFailedException.php';
-require_once 'PHPUnit/Framework/ComparisonFailure.php';
-require_once 'PHPUnit/Framework/ComparisonFailure/Scalar.php';
-require_once 'PHPUnit/Framework/TestFailure.php';
-require_once 'PHPUnit/Framework/MockObject/Matcher/InvokedCount.php';
-
 /**
  * App Manager
  
