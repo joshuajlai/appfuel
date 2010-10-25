@@ -10,10 +10,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace Appfuel\App;
+namespace Appfuel\StdLib\App;
 
-use Appfuel\Autoloader\LoaderInterface	as LoaderInterface;
-use Appfuel\Autoloader\Classloader		as Classloader;
+use Appfuel\StdLib\Autoloader\LoaderInterface	as LoaderInterface;
+use Appfuel\StdLib\Autoloader\Classloader		as Classloader;
 
 /**
  * App Manager

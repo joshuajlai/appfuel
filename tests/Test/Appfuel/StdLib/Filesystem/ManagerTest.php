@@ -10,19 +10,17 @@
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace Test\Appfuel\Filesystem;
+namespace Test\Appfuel\StdLib\Filesystem;
 
 /*
  * Autoloading has not been established so we need to manaully 
  * include this file
  */
-require_once 'Appfuel/Filesystem/IFile.php';
-require_once 'Appfuel/Filesystem/File.php';
+require_once 'Appfuel/StdLib/Filesystem/IFile.php';
+require_once 'Appfuel/StdLib/Filesystem/File.php';
 
 /* import */
-use Appfuel\Filesystem\Manager 	as FilesystemManager;
-use Appfuel\Filesystem\IFile 	as IFile;
-
+use Appfuel\StdLib\Filesystem\Manager 	as FilesystemManager;
 /**
  * @package 	Appfuel
  */
@@ -139,7 +137,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 	public function testRequireFile()
 	{
 		$file = $this->getMock(
-			'\Appfuel\Filesystem\File',
+			'\Appfuel\StdLib\Filesystem\File',
 			array('isFile'),
 			array('/path/to/knowwhere')
 		);
@@ -153,7 +151,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 		$this->assertNotContains('/path/to/knowehere', $files);
 
 		$file = $this->getMock(
-			'\Appfuel\Filesystem\File',
+			'\Appfuel\StdLib\Filesystem\File',
 			array('isFile', 'getRealPath'),
 			array('/path/to/knowwhere')
 		);

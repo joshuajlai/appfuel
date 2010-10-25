@@ -10,19 +10,19 @@
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace Test\Appfuel\Autoloader;
+namespace Test\Appfuel\StdLib\Autoloader;
 
 /*
  * Autoloading has not been established so we need to manaully 
  * include this file
  */
-require_once 'Appfuel/Filesystem/Manager.php';
+require_once 'Appfuel/StdLib/Filesystem/Manager.php';
 
-require_once 'Appfuel/Autoloader/LoaderInterface.php';
-require_once 'Appfuel/Autoloader/Classloader.php';
+require_once 'Appfuel/StdLib/Autoloader/LoaderInterface.php';
+require_once 'Appfuel/StdLib/Autoloader/Classloader.php';
 
 /* import */
-use Appfuel\Autoloader\Classloader as Autoloader;
+use Appfuel\StdLib\Autoloader\Classloader as Autoloader;
 
 /**
  * Autoloader

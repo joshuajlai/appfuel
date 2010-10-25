@@ -10,17 +10,17 @@
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace Test\Appfuel\Filesystem;
+namespace Test\Appfuel\StdLib\Filesystem;
 
 /*
  * Autoloading has not been established so we need to manaully 
  * include this file
  */
 
-require_once 'Appfuel/Filesystem/File.php';
+require_once 'Appfuel/StdLib/Filesystem/File.php';
 
 /* import */
-use Appfuel\Filesystem\File as afFile;
+use Appfuel\StdLib\Filesystem\File as afFile;
 
 /**
  * Autoloader

@@ -10,20 +10,20 @@
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace Test\Appfuel\Manager;
+namespace Test\Appfuel\StdLib\Filesystem\Manager;
 
 /*
  * Autoloading has not been established so we need to manaully 
  * include this file
  */
-require_once 'Appfuel/App/Manager.php';
+require_once 'Appfuel/StdLib/App/Manager.php';
 
-require_once 'Appfuel/Autoloader/LoaderInterface.php';
-require_once 'Appfuel/Autoloader/Classloader.php';
+require_once 'Appfuel/StdLib/Autoloader/LoaderInterface.php';
+require_once 'Appfuel/StdLib/Autoloader/Classloader.php';
 
 /* import */
-use Appfuel\App\Manager 			as AppManager;
-use Appfuel\Autoloader\Classloader 	as Autoloader;
+use Appfuel\StdLib\App\Manager				as AppManager;
+use Appfuel\StdLib\Autoloader\Classloader 	as Autoloader;
 
 /**
  * Autoloader
@@ -49,7 +49,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse(AppManager::isAutoloader());
 		$this->assertNull(AppManager::getAutoloader());
 
-		$loader = $this->getMock('\Appfuel\Autoloader\Classloader');
+		$loader = $this->getMock('\Appfuel\StdLib\Autoloader\Classloader');
 		$this->assertNull(AppManager::setAutoloader($loader));
 		$this->assertTrue(AppManager::isAutoloader());
 		$this->assertSame($loader, AppManager::getAutoloader());
@@ -93,7 +93,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue(AppManager::isAutoloader());
 		$loader = AppManager::getAutoloader();
 		$this->assertType(
-			'\Appfuel\Autoloader\Classloader',
+			'\Appfuel\StdLib\Autoloader\Classloader',
 			$loader
 		);
 
@@ -107,7 +107,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 		$newFunctions = end($alFunctions);	
 		//echo "\n", print_r($rMethods,1), "\n";exit;	
 		$this->assertType(
-			'\Appfuel\Autoloader\Classloader',
+			'\Appfuel\StdLib\Autoloader\Classloader',
 			$newFunctions[0]
 		);
 

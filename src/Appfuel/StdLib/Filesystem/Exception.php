@@ -10,15 +10,13 @@
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace 	Appfuel\Filesystem;
-
-use Appfuel\Exception 	as AppfuelException;
+namespace 	Appfuel\StdLib\Filesystem;
 
 /**
  * Exception
  *
  * @package 	Appfuel
  */
-class Exception extends AppfuelException
+class Exception extends \Appfuel\StdLib\Exception
 {}
 

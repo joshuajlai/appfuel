@@ -9,9 +9,9 @@
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace 	Appfuel\Autoloader;
+namespace 	Appfuel\StdLib\Autoloader;
 
-use Appfuel\Filesystem\Manager 	as FileManager;
+use Appfuel\StdLib\Filesystem\Manager 	as FileManager;
 
 /**
  * Autoloader
