@@ -1,6 +1,26 @@
 <?php
+/**
+ * Appfuel
+ * PHP object oriented MVC framework use to support developement with 
+ * doman driven design.
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rob@rsbdev.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
+ * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
+ */
+namespace   Appfuel\AfIterator;
 
-class AfIterator implements \Countable, \Iterator
+/**
+ * Basic Iterator
+ * This is a basic iterator that wraps the php native next(), current(), key()
+ * functions. Valid is determined by the return value of key(). 
+ * 
+ * @package		Appfuel
+ * @category	Stdlib
+ * @subcategory	AfIterator
+ */
+class Basic implements \Countable, \Iterator
 {
     /**
      * Data
@@ -17,25 +37,7 @@ class AfIterator implements \Countable, \Iterator
      */
     public function __construct(array $data = array()) 
     {
-        $this->loadData($data); 
-    }
-
-    /**
-     * Get
-     * Acts as the getter method for data items. Also allows the default
-     * return value to be set when data item is not found
-     *
-     * @param   string  $key        data label 
-     * @param   mixed   $default    value returned used when data not found
-     * @return  mixed
-     */
-    public function get($key, $default = NULL)
-    {
-        if (! $this->exists($key)) {
-            return $default;
-        }
-
-        return $this->data[$key];
+        $this->load($data); 
     }
 
     /**
@@ -49,7 +51,6 @@ class AfIterator implements \Countable, \Iterator
     }
 
     /**
-     * Current
      * Iterator implementation that return array item in $_data
      * 
      * @return  mixed
@@ -60,7 +61,6 @@ class AfIterator implements \Countable, \Iterator
     }
 
     /**
-     * Key
      * Iterator implementation that returns the index element of the current 
      * position in $_data
      * 
@@ -72,7 +72,6 @@ class AfIterator implements \Countable, \Iterator
     }
 
     /**
-     * Next
      * Iterator implementation that advances the internal array pointer of 
      * $_data and increments index
      *
@@ -84,7 +83,6 @@ class AfIterator implements \Countable, \Iterator
     }
 
     /**
-     * Rewind
      * Iterator implementation that moves the internal array pointer of
      * $_data to the beginning
      *
@@ -96,14 +94,16 @@ class AfIterator implements \Countable, \Iterator
     }
 
     /**
-     * Valid
      * Iterator implementation that checks if index is in range
-     *
+     * I choose empty because the return value for key() when the internal
+	 * array pointer has passed the end of the array is NULL and an
+	 * empty string is an invalid key
+	 * 
      * @return  bool
      */
     public function valid()
     {
-        return ;
+        return ! empty($this->key());
     }
 
     /**
@@ -111,44 +111,29 @@ class AfIterator implements \Countable, \Iterator
      * @param   bool    $modify can this data be changed
      * @return  void
      */
-    protected function loadData(array $data)
+    public function load(array $data)
     {
         foreach ($data as $key => $value) {
-            $this->add($key, $value, $readOnly);
+            $this->add($key, $value);
         }
 
+		return $this;
     }
 
     /**
-     * Add
-     * Introduces a new item into the config data. Add does not
-     * update the count of config items
-     *
      * @param   string  $key        label for config data item
      * @param   mixed   $value      config item
      * @param   bool    $readOnly   determine if this item can change
      * @return  void
      */
-    protected function add($key, $value)
+    public function add($key, $value)
     {
-        
-        if (is_array($value)) {
-            $this->data[$key] = $this->createConfig($value, $readOnly);
-        } else {
-            $this->data[$key] = $value;
-        }
+		if (! is_string($key)) {
+			throw new Exception("Key must be a string");
+		}
+
+		$this->data[$key] = $value;
+		return $this;
     }
 
-    /**
-     * Create 
-     * Factory method used to create a config object
-     *
-     * @param   array   $data
-     * @param   bool    $readOnly     determines if this is read-only
-     * @return  Config
-     */
-    protected function create(array $data)
-    {
-        return new self($data, $readOnly);
-    }
 }
