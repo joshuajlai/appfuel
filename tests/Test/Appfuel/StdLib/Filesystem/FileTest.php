@@ -12,13 +12,6 @@
  */
 namespace Test\Appfuel\StdLib\Filesystem;
 
-/*
- * Autoloading has not been established so we need to manaully 
- * include this file
- */
-
-require_once 'Appfuel/StdLib/Filesystem/File.php';
-
 /* import */
 use Appfuel\StdLib\Filesystem\File as afFile;
 

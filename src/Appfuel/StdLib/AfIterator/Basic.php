@@ -9,7 +9,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace   Appfuel\AfIterator;
+namespace Appfuel\StdLib\AfIterator;
 
 /**
  * Basic Iterator
@@ -37,7 +37,9 @@ class Basic implements \Countable, \Iterator
      */
     public function __construct(array $data = array()) 
     {
-        $this->load($data); 
+		if (! empty($data)) {
+			$this->load($data);
+		} 
     }
 
     /**
@@ -103,7 +105,8 @@ class Basic implements \Countable, \Iterator
      */
     public function valid()
     {
-        return ! empty($this->key());
+        $result = $this->key();
+		return ! empty($result);
     }
 
     /**

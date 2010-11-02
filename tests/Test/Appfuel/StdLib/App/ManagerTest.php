@@ -12,15 +12,6 @@
  */
 namespace Test\Appfuel\StdLib\Filesystem\Manager;
 
-/*
- * Autoloading has not been established so we need to manaully 
- * include this file
- */
-require_once 'Appfuel/StdLib/App/Manager.php';
-
-require_once 'Appfuel/StdLib/Autoloader/LoaderInterface.php';
-require_once 'Appfuel/StdLib/Autoloader/Classloader.php';
-
 /* import */
 use Appfuel\StdLib\App\Manager				as AppManager;
 use Appfuel\StdLib\Autoloader\Classloader 	as Autoloader;
