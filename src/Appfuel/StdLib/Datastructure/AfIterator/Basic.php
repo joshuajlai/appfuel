@@ -9,7 +9,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace Appfuel\StdLib\AfIterator;
+namespace Appfuel\StdLib\Datastructure\AfIterator;
 
 /**
  * Basic Iterator
@@ -132,7 +132,7 @@ class Basic implements \Countable, \Iterator
     public function add($key, $value)
     {
 		if (! is_scalar($key)) {
-			throw new Exception("Key must be a string");
+			throw new Exception("Key must be a scalar value");
 		}
 
 		$this->data[$key] = $value;

@@ -10,10 +10,10 @@
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace Test\Appfuel\StdLib\AfIterator;
+namespace Test\Appfuel\StdLib\Datastructure\AfIterator;
 
 /* import */
-use Appfuel\StdLib\AfIterator\Basic as BasicIterator;
+use Appfuel\StdLib\Datastructure\AfIterator\Basic as BasicIterator;
 
 /**
  * Autoloader
@@ -105,7 +105,7 @@ class BasicTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test add
 	 * Keys can only be alpha numberic
-	 * @expectedException	\Appfuel\StdLib\afIterator\Exception
+	 * @expectedException	\Appfuel\StdLib\Datastructure\AfIterator\Exception
 	 */
 	public function testAddKeyIsArray()
 	{
@@ -115,7 +115,7 @@ class BasicTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test add 
 	 * Keys can only be a scalar value
-	 * @expectedException	\Appfuel\StdLib\afIterator\Exception
+	 * @expectedException	\Appfuel\StdLib\Datastructure\AfIterator\Exception
 	 */
 	public function testAddKeyIsObject()
 	{
