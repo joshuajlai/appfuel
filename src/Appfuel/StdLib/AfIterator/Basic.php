@@ -105,8 +105,8 @@ class Basic implements \Countable, \Iterator
      */
     public function valid()
     {
-        $result = $this->key();
-		return ! empty($result);
+        $key = $this->key();
+		return is_string($key) && strlen($key) > 0;
     }
 
     /**
@@ -116,7 +116,7 @@ class Basic implements \Countable, \Iterator
      */
     public function load(array $data)
     {
-        foreach ($data as $key => $value) {
+		foreach ($data as $key => $value) {
             $this->add($key, $value);
         }
 
@@ -131,12 +131,11 @@ class Basic implements \Countable, \Iterator
      */
     public function add($key, $value)
     {
-		if (! is_string($key)) {
+		if (! is_scalar($key)) {
 			throw new Exception("Key must be a string");
 		}
 
 		$this->data[$key] = $value;
 		return $this;
     }
-
 }
