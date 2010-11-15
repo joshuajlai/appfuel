@@ -27,7 +27,7 @@ class Basic implements \Countable, \Iterator
      * Holds the elements of the list
      * @var array
      */
-    private $data = array();
+    protected $data = array();
 
     /**
      * 
@@ -108,6 +108,17 @@ class Basic implements \Countable, \Iterator
         $key = $this->key();
 		return is_string($key) && strlen($key) > 0;
     }
+
+	/**
+	 * keys maintained in this iterator must be scalar in nature
+	 *
+	 * @param	string	$key 
+	 * @return	bool
+	 */
+	public function isKeyType($key)
+	{
+		return is_scalar($key);
+	}
 
     /**
      * @param   array   $data   config data
