@@ -13,7 +13,7 @@
 namespace Test\Appfuel\StdLib\Datastructure\AfList;
 
 /* import */
-use Appfuel\StdLib\Datastructure\AfList\Basic as BasicList;
+use Appfuel\StdLib\Ds\AfList\Basic as BasicList;
 
 /**
  * Autoloader

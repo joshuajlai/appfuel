@@ -13,7 +13,7 @@
 namespace Test\Appfuel\StdLib\Datastructure\AfIterator;
 
 /* import */
-use Appfuel\StdLib\Datastructure\AfIterator\Basic as BasicIterator;
+use Appfuel\StdLib\Ds\AfIterator\Basic as BasicIterator;
 
 /**
  * Autoloader
@@ -105,7 +105,7 @@ class BasicTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test add
 	 * Keys can only be alpha numberic
-	 * @expectedException	\Appfuel\StdLib\Datastructure\AfIterator\Exception
+	 * @expectedException	\Appfuel\StdLib\Ds\AfIterator\Exception
 	 */
 	public function testAddKeyIsArray()
 	{
@@ -115,13 +115,11 @@ class BasicTest extends \PHPUnit_Framework_TestCase
 	/**
 	 * Test add 
 	 * Keys can only be a scalar value
-	 * @expectedException	\Appfuel\StdLib\Datastructure\AfIterator\Exception
+	 * @expectedException	\Appfuel\StdLib\Ds\AfIterator\Exception
 	 */
 	public function testAddKeyIsObject()
 	{
 		$this->basic->add(new \stdClass(), 'bar');
 	}
-
-
 }
 

@@ -9,9 +9,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace Appfuel\StdLib\Datastructure\AfList;
+namespace Appfuel\StdLib\Ds\AfList;
 
-use Appfuel\StdLib\Datastructure\AfIterator\Basic as BasicIterator;
+use Appfuel\StdLib\Ds\AfIterator\Basic as BasicIterator;
 
 /**
  * Basic List
