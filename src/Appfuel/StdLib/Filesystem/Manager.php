@@ -61,16 +61,24 @@ class Manager
 	}
 
 	/**
-	 * @param 	File 	$file
-	 * @return 	void
-	 */ 
-	static public function requireFile(\SplFileInfo $file)
+	 * @param	File	$file	points to configuration file
+	 * @param	bool	$sec	process sections TRUE gives you an array with
+	 *							section names and settings 
+	 * @param	int		$mode   controls behavior of parsing
+	 */
+	static public function parseIni(File    $file, 
+									$sec  = FALSE, 
+									$mode = INI_SCANNER_NORMAL)
 	{
 		if (! $file->isFile()) {
-			return FALSE;
+			throw new Exception("Failed operation: parseIni
+				File given is not readable or does not exist"
+			);
 		}
-		require_once $file->getRealPath();
-		return TRUE;
+	
+		$sec  = (bool) $sec;
+		$path = $file->getRealPath();
+		return parse_ini_file($path, $section, $mode);
 	}
 }
 

@@ -14,6 +14,7 @@ namespace Test\Appfuel\StdLib\Filesystem;
 
 /* import */
 use Appfuel\StdLib\Filesystem\Manager 	as FilesystemManager;
+use Appfuel\StdLib\Filesystem\File		as AfFile;
 
 /**
  * @package 	Appfuel
@@ -21,29 +22,39 @@ use Appfuel\StdLib\Filesystem\Manager 	as FilesystemManager;
 class ManagerTest extends \PHPUnit_Framework_TestCase
 {
 
-	/**
-	 * File Path
-	 * @var string
-	 */
-	protected $path = NULL;
+    /**
+     * Directory where all the sample files are kept
+     * @var string
+     */
+    protected $fileDir = NULL;
 
-	/**
-	 * @return void
-	 */
-	public function setUp()
-	{
-		$this->path = 'example'      . DIRECTORY_SEPARATOR . 
-					  'filesystem'   . DIRECTORY_SEPARATOR .
-					  'text_file.txt';
+    /**
+     * Path to Ini file used to test ini parsing
+     * @var string
+     */
+    protected $iniFile = NULL;
 
-	}
+    /**
+     * @return void
+     */
+    public function setUp()
+    {
+        $this->fileDir = AF_TEST_PATH   . DIRECTORY_SEPARATOR .
+                         'example'      . DIRECTORY_SEPARATOR .
+                         'filesystem';
+
+        $this->iniFile = $this->fileDir . DIRECTORY_SEPARATOR .
+                         'sample_a.ini';
+
+        $this->file = new afFile($this->iniFile);
+    }
 
 	/**
 	 * @return void
 	 */
 	public function tearDown()
 	{
-		unset($this->path);
+		unset($this->file);
 	}
 
 	/**
@@ -118,65 +129,5 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse($path);
 	}
 
-	/**
-	 * Test requireFile
-	 * This uses the FileInterface
-	 * php get_included_files is used to prove or disprove the existence
-	 * of included files
-	 *
-	 * Assert: 	a file that does not exists returns FALSE
-	 * Assert:	a file that does exists returns TRUE AND
-	 * 			the file is included into mememory.
-	 */
-	public function testRequireFile()
-	{
-		$file = $this->getMock(
-			'\Appfuel\StdLib\Filesystem\File',
-			array('isFile'),
-			array('/path/to/knowwhere')
-		);
-		
-		$file->expects($this->once())
-			->method('isFile')
-			->will($this->returnValue(FALSE));
-
-		$this->assertFalse(FilesystemManager::requireFile($file));
-		$files = get_included_files();
-		$this->assertNotContains('/path/to/knowehere', $files);
-
-		$file = $this->getMock(
-			'\Appfuel\StdLib\Filesystem\File',
-			array('isFile', 'getRealPath'),
-			array('/path/to/knowwhere')
-		);
-		
-		$file->expects($this->once())
-			->method('isFile')
-			->will($this->returnValue(TRUE));
-
-		/* file that is known to exist */
-		$abPath = AF_TEST_PATH   . DIRECTORY_SEPARATOR .	
-				  'example'      . DIRECTORY_SEPARATOR . 
-				  'filesystem'   . DIRECTORY_SEPARATOR .
-				  'text_file.txt';
-
-		$file->expects($this->once())
-			 ->method('getRealPath')
-			 ->will($this->returnValue($abPath));
-
-		/* prove this file has not already been loaded */
-		$files = get_included_files();
-		$this->assertNotContains($abPath, $files);
-
-		/* this is a text file so we don't want the text
-		 * sent as output
-		 */
-		ob_start();	
-		$this->assertTrue(FilesystemManager::requireFile($file));
-		ob_end_clean();
-		
-		$files = get_included_files();
-		$this->assertContains($abPath, $files);
-	}
 }
 

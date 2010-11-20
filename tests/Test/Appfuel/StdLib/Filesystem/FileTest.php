@@ -30,23 +30,30 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	protected $file = NULL;
 
 	/**
-	 * File Path
-	 * Used in the constructor: location of file on disk
+	 * Directory where all the sample files are kept
 	 * @var string
 	 */
-	protected $path = NULL;
+	protected $fileDir = NULL;
+
+	/**
+	 * Path to Ini file used to test ini parsing
+	 * @var string
+	 */
+	protected $iniFile = NULL;
 
 	/**
 	 * @return void
 	 */
 	public function setUp()
 	{
-		$this->path = AF_TEST_PATH   . DIRECTORY_SEPARATOR . 
-					  'example'      . DIRECTORY_SEPARATOR . 
-					  'filesystem'   . DIRECTORY_SEPARATOR .
-					  'text_file.txt';
+		$this->fileDir = AF_TEST_PATH   . DIRECTORY_SEPARATOR . 
+						 'example'      . DIRECTORY_SEPARATOR . 
+						 'filesystem';
 
-		$this->file = new afFile($this->path);
+		$this->iniFile = $this->fileDir . DIRECTORY_SEPARATOR .
+						 'sample_a.ini';
+
+		$this->file = new afFile($this->iniFile);
 	}
 
 	/**
@@ -56,18 +63,6 @@ class FileTest extends \PHPUnit_Framework_TestCase
 	{
 		unset($this->file);
 		unset($this->path);
-	}
-
-	/**
-	 * Test __construct and getPath
-	 * The constructor assigns path. Path is immutable so only the
-	 * public getter is available
-	 *
-	 * Assert: 	getPath return then path used in the constructor 
-	 */
-	public function testConstructorGetPath()
-	{
-		$this->assertEquals($this->path, $this->file->getRealPath());
 	}
 
 	/**

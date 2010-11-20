@@ -5,7 +5,8 @@
  * doman driven design.
  *
  * @category 	Appfuel
- * @package 	Util
+ * @package 	StdLib
+ * @subpackage	Filesystem
  * @author 		Robert Scott-Buccleuch <rob@rsbdev.com>
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
@@ -13,22 +14,11 @@
 namespace 	Appfuel\StdLib\Filesystem;
 
 /**
- * File
- * Used to encapsulate php basic file operations arround a single object
- * 
- * @package 	Appfuel
+ * @category 	Appfuel
+ * @package		StdLib
+ * @subpackage	Filesystem
  */
 class File extends \SplFileInfo
 {
-	/**
-	 * Exists
-	 * Wrapper for PHP file_exists call
-	 *
-	 * @return 	bool
-	 */
-	public function exists()
-	{
-		return $this->isFile();
-	}
 }
 
