@@ -45,6 +45,10 @@ class BasicTest extends \PHPUnit_Framework_TestCase
 		unset($this->list);
 	}
 
+	/**
+	 * Test isItem
+	 * prove items that exist return TRUE and those that don't return FALSE	
+	 */
 	public function testIsItem()
 	{
 		$this->assertEquals(0, $this->list->count());
@@ -63,5 +67,42 @@ class BasicTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse($this->list->isItem('no_item'));
 	}
 
+	/**
+	 * Test get
+	 * Prove that items that exist can be retrieved and items that don't
+	 * get will return whatever value is given in the second parameter
+	 */
+	public function testGet()
+	{
+		$this->assertEquals(0, $this->list->count());
+		$data = array(
+			'item_1'=>'value_1',
+			'item_2'=>'value_2'
+		);
+		$this->list->load($data);
+
+		$this->assertTrue($this->list->isItem('item_1'));
+		$this->assertEquals($data['item_1'], $this->list->get('item_1'));
+		
+		$this->assertTrue($this->list->isItem('item_2'));
+		$this->assertEquals($data['item_2'], $this->list->get('item_2'));
+
+		/* test default value returned when item is not found */
+		$this->assertFalse($this->list->isItem('item_not_there'));
+		$this->assertNull($this->list->get('item_not_there'));
+	
+		$default = FALSE;	
+		$this->assertFalse($this->list->get('item_not_there', $default));
+	
+		$default = TRUE;	
+		$this->assertTrue($this->list->get('item_not_there', $default));
+	
+		$default = 'custom';	
+		$this->assertEquals(
+			$default, 
+			$this->list->get('item_not_there', $default)
+		);
+		
+	}
 }
 

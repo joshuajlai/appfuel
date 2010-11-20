@@ -142,7 +142,7 @@ class Basic implements \Countable, \Iterator
      */
     public function add($key, $value)
     {
-		if (! is_scalar($key)) {
+		if (! $this->isKeyType($key)) {
 			throw new Exception("Key must be a scalar value");
 		}
 
