@@ -129,5 +129,60 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 		$this->assertFalse($path);
 	}
 
+	/**
+	 * Test parseIni
+	 * Testing the default parameters of section False meaning combine all data into one array AND
+	 * mode is normal the php constant INI_SCANNER_NORMAL. Also making basic assertions that the 
+	 * data is coming back correctly. Techinally not necessary cause php handles this, more of a
+	 * for piece of mind
+	 */ 
+	public function testParseIniNoSectionNoContants()
+	{
+		$data = FilesystemManager::parseIni($this->file);
+		$this->assertInternalType('array', $data);
+		$this->assertArrayHasKey('one', $data);
+		$this->assertArrayHasKey('five', $data);
+		$this->assertArrayHasKey('animal', $data);
+		$this->assertArrayHasKey('url', $data);
+		$this->assertArrayHasKey('path', $data);
+		$this->assertArrayHasKey('phpversion', $data);
+
+		$this->assertEquals(1, $data['one']);
+		$this->assertEquals(5, $data['five']);
+	
+		/* this is a constant in the ini file but
+		 * never defined so its just a string
+		 */
+		$this->assertEquals('BIRD', $data['animal']);
+
+		$this->assertEquals("/usr/local/bin", $data['path']);
+		$this->assertEquals("http://www.example.com/~username", $data['url']);
+
+		$data = $data['phpversion'];
+		$this->assertInternalType('array', $data);
+		$this->assertEquals(4, count($data));
+		$this->assertEquals(5.0, $data[0]);
+		$this->assertEquals(5.1, $data[1]);
+		$this->assertEquals(5.2, $data[2]);
+		$this->assertEquals(5.3, $data[3]);
+	}
+
+	/**
+	 * Test parseIni
+	 * Assert Constants can be used in ini file
+	 */
+	public function testParseIniNoSectionsWithConstant()
+	{
+		define('BIRD', 'hawk');
+		$data = FilesystemManager::parseIni($this->file);
+
+		$this->assertEquals('hawk', $data['animal']);
+	}
+
+	public function testParseIniWithSections()
+	{
+		$data = FilesystemManager::parseIni($this->file, TRUE, INI_SCANNER_RAW);
+		echo "\n", print_r($data, 1), "\n";exit;	
+	}
 }
 

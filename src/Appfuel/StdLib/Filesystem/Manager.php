@@ -78,7 +78,7 @@ class Manager
 	
 		$sec  = (bool) $sec;
 		$path = $file->getRealPath();
-		return parse_ini_file($path, $section, $mode);
+		return parse_ini_file($path, $sec, $mode);
 	}
 }
 

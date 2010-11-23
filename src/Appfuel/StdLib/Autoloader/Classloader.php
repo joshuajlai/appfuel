@@ -110,7 +110,6 @@ class Classloader implements LoaderInterface
 
 		$fileName = FileManager::classNameToFileName($className);
 		$filePath = FileManager::getAbsolutePath($fileName);
-
 		if (FALSE === $filePath) {
 			throw new \Exception(
 				"Autoload Error: could not find class: $className for file
