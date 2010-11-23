@@ -165,6 +165,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(5.1, $data[1]);
 		$this->assertEquals(5.2, $data[2]);
 		$this->assertEquals(5.3, $data[3]);
+
 	}
 
 	/**
@@ -179,10 +180,54 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals('hawk', $data['animal']);
 	}
 
+	/**
+	 * Test parseIni 
+	 * When section is TRUE parseIni will return all sections in 
+	 * an associative array. We also test that the data is parsed to
+	 * how we expect it.
+	 */
 	public function testParseIniWithSections()
 	{
-		$data = FilesystemManager::parseIni($this->file, TRUE, INI_SCANNER_RAW);
-		echo "\n", print_r($data, 1), "\n";exit;	
+		$animal = 'BIRD';
+		if (defined('BIRD')) {
+			$animal = BIRD;
+		}
+		$data = FilesystemManager::parseIni($this->file, TRUE);
+		$this->assertInternalType('array', $data);
+		$this->assertArrayHasKey('first_section', $data);
+		$this->assertArrayHasKey('second_section', $data);
+		$this->assertArrayHasKey('third_section', $data);
+
+		$sec = $data['first_section'];
+		$this->assertInternalType('array', $data);
+		
+		$this->assertArrayHasKey('one', $sec);
+		$this->assertArrayHasKey('five', $sec);
+		$this->assertArrayHasKey('animal', $sec);
+
+        $this->assertEquals(1, $sec['one']);
+        $this->assertEquals(5, $sec['five']);
+        $this->assertEquals($animal, $sec['animal']);
+
+		$sec = $data['second_section'];
+		$this->assertInternalType('array', $sec);
+		
+		$this->assertArrayHasKey('path', $sec);
+		$this->assertArrayHasKey('url', $sec);
+		$this->assertEquals("/usr/local/bin", $sec['path']);
+		$this->assertEquals("http://www.example.com/~username", $sec['url']);
+
+
+		$sec = $data['third_section'];
+		$this->assertArrayHasKey('phpversion', $sec);
+
+		$sec = $sec['phpversion'];
+		$this->assertInternalType('array', $sec);
+		$this->assertEquals(4, count($sec));
+		$this->assertEquals(5.0, $sec[0]);
+		$this->assertEquals(5.1, $sec[1]);
+		$this->assertEquals(5.2, $sec[2]);
+		$this->assertEquals(5.3, $sec[3]);
 	}
 }
 
