@@ -28,6 +28,7 @@ $pathString = get_include_path() . PATH_SEPARATOR .
 set_include_path($pathString);
 
 define ('AF_TEST_PATH', $tDir);
+define ('AF_TEST_EXAMPLE_PATH', $tDir . DIRECTORY_SEPARATOR . 'example');
 
 $dependFile = $afDir   . DIRECTORY_SEPARATOR .
 			 'Appfuel' . DIRECTORY_SEPARATOR .

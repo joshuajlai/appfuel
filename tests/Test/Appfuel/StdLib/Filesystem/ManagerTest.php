@@ -63,8 +63,6 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 	 * It also handles the legacy pre PHP 5.3 naming convention using the 
 	 * underscore to seperate namespaces
 	 *
-	 * Assert:	regular namespaces are decoded correctly
-	 * Assert:	legacy namespace are decoded correctly
 	 */
 	public function testClassNameToFileName()
 	{  
@@ -81,6 +79,8 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 		
 		$this->assertEquals($expected, $result);
 
+		$result = FilesystemManager::classNameToFileName('');
+		$this->assertFalse($result);
 	}
 
 	/**
@@ -131,10 +131,11 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
 	/**
 	 * Test parseIni
-	 * Testing the default parameters of section False meaning combine all data into one array AND
-	 * mode is normal the php constant INI_SCANNER_NORMAL. Also making basic assertions that the 
-	 * data is coming back correctly. Techinally not necessary cause php handles this, more of a
-	 * for piece of mind
+	 * Testing the default parameters of section False meaning combine all 
+	 * data into one array AND  mode is normal the php constant 
+	 * INI_SCANNER_NORMAL. Also making basic assertions that the 
+	 * data is coming back correctly. Techinally not necessary cause php 
+	 * handles this, more of a for piece of mind
 	 */ 
 	public function testParseIniNoSectionNoContants()
 	{
@@ -184,15 +185,12 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 	 * Test parseIni 
 	 * When section is TRUE parseIni will return all sections in 
 	 * an associative array. We also test that the data is parsed to
-	 * how we expect it.
+	 * how we expect it. Also the no options will be parsed to the 
+	 * constant BIRD will not resolve only to BIRD
 	 */
-	public function testParseIniWithSections()
+	public function testParseIniWithSectionsScannerRaw()
 	{
-		$animal = 'BIRD';
-		if (defined('BIRD')) {
-			$animal = BIRD;
-		}
-		$data = FilesystemManager::parseIni($this->file, TRUE);
+		$data = FilesystemManager::parseIni($this->file, TRUE, INI_SCANNER_RAW);
 		$this->assertInternalType('array', $data);
 		$this->assertArrayHasKey('first_section', $data);
 		$this->assertArrayHasKey('second_section', $data);
@@ -207,7 +205,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(1, $sec['one']);
         $this->assertEquals(5, $sec['five']);
-        $this->assertEquals($animal, $sec['animal']);
+        $this->assertEquals('BIRD', $sec['animal']);
 
 		$sec = $data['second_section'];
 		$this->assertInternalType('array', $sec);
@@ -229,5 +227,7 @@ class ManagerTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals(5.2, $sec[2]);
 		$this->assertEquals(5.3, $sec[3]);
 	}
+
+
 }
 

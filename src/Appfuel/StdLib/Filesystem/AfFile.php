@@ -18,8 +18,24 @@ namespace 	Appfuel\StdLib\Filesystem;
  * @package		StdLib
  * @subpackage	Filesystem
  */
-class File extends \SplFileInfo
+class AfFile extends File
 {
 	
+	/**
+	 * @return	NULL
+	 */
+	public function	__construct($filePath)
+	{
+		$path = $this->getBasePath() . DIRECTORY_SEPARATOR . $filePath;
+		parent::__construct($path);
+	}
+
+	/**
+	 * @return	string
+	 */	
+	public function getBasePath()
+	{
+		return Manager::classNameToDir(get_class($this));
+	}
 }
 

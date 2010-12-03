@@ -48,17 +48,35 @@ class Manager
 	/**
 	 * convert the class name to its relative path in the filesystem
 	 *
-	 * @param 	string 	$className
+	 * @param 	string 	$cname	class name
 	 * @return 	string
 	 */
-	static public function classNameToFilename($className)
+	static public function classNameToFilename($cname)
 	{
-		return str_replace(
-			array('\\','_'), 
-			DIRECTORY_SEPARATOR, 
-			$className
-		) . '.php';
+		if (empty($cname)) {
+			return FALSE;
+		}
+
+		return str_replace(array('\\','_'),DIRECTORY_SEPARATOR,$cname) . '.php';
 	}
+
+	/**
+	 * convert the class name to its relative path in the filesystem
+	 *
+	 * @param 	string 	$cname	class name
+	 * @return 	string
+	 */
+	static public function classNameToDir($cname)
+	{
+		if (empty($cname)) {
+			return FALSE;
+		}
+
+		$path = str_replace(array('\\','_'),DIRECTORY_SEPARATOR,$cname);
+        return substr($path, 0, strrpos($path, DIRECTORY_SEPARATOR));
+	}
+
+
 
 	/**
 	 * @param	File	$file	points to configuration file

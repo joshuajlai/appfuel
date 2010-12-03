@@ -4,22 +4,18 @@
  * PHP object oriented MVC framework use to support developement with 
  * doman driven design.
  *
- * @category 	Appfuel
- * @package 	StdLib
- * @subpackage	Filesystem
+ * @package 	Appfuel
  * @author 		Robert Scott-Buccleuch <rob@rsbdev.com>
  * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace 	Appfuel\StdLib\Filesystem;
+namespace 	Appfuel\App;
 
 /**
- * @category 	Appfuel
- * @package		StdLib
- * @subpackage	Filesystem
+ * Exception
+ *
+ * @package 	Appfuel
  */
-class File extends \SplFileInfo
-{
-	
-}
+class Exception extends \Exception
+{}
 
