@@ -60,11 +60,11 @@ class BasicTest extends \PHPUnit_Framework_TestCase
 
 		/* items that are in the list must be found */
 		$this->list->load($data);
-		$this->assertTrue($this->list->isItem('item_1'));
-		$this->assertTrue($this->list->isItem('item_2'));
+		$this->assertTrue($this->list->isKey('item_1'));
+		$this->assertTrue($this->list->isKey('item_2'));
 
 		/* items that are not in the list are not found */
-		$this->assertFalse($this->list->isItem('no_item'));
+		$this->assertFalse($this->list->isKey('no_item'));
 	}
 
 	/**
@@ -81,14 +81,14 @@ class BasicTest extends \PHPUnit_Framework_TestCase
 		);
 		$this->list->load($data);
 
-		$this->assertTrue($this->list->isItem('item_1'));
+		$this->assertTrue($this->list->isKey('item_1'));
 		$this->assertEquals($data['item_1'], $this->list->get('item_1'));
 		
-		$this->assertTrue($this->list->isItem('item_2'));
+		$this->assertTrue($this->list->isKey('item_2'));
 		$this->assertEquals($data['item_2'], $this->list->get('item_2'));
 
 		/* test default value returned when item is not found */
-		$this->assertFalse($this->list->isItem('item_not_there'));
+		$this->assertFalse($this->list->isKey('item_not_there'));
 		$this->assertNull($this->list->get('item_not_there'));
 	
 		$default = FALSE;	

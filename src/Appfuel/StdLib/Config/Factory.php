@@ -12,6 +12,7 @@
 namespace 	Appfuel\StdLib\Config;
 
 use Appfuel\StdLib\Filesystem\AfFile as AfFile;
+use Appfuel\StdLib\Ds\AfList\Basic	 as ConfigList;
 
 /**
  *
@@ -39,6 +40,14 @@ class Factory
 	static public function createFile($filePath)
 	{
 		return new AfFile($filePath);
+	}
+
+	/**
+	 * @return	ConfigList
+	 */
+	static public function createConfigList(array $data = array())
+	{
+		return new ConfigList($data);
 	}
 }
 

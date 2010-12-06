@@ -33,24 +33,16 @@ class Builder implements BuilderInterface
 	protected $isInheritance = TRUE;
 
 	/**
-	 * Flag to determine if we are checking datatype. A hint is located in the label
-	 * and has the form of bool:label. When enabled the builder will parse the label 
-	 * and use the hint to cast the value
-	 * @var
-	 */
-	protected $isDatatypeHint = TRUE;
-
-	/**
-	 * Path that points to the config file
-	 * @var string
-	 */
-	protected $filePath = NULL;
-
-	/**
 	 * Used to determine the configuration strategy based on type of file
 	 * @var string
 	 */
 	protected $fileStrategy = 'ini';
+
+	/**
+	 * The current section this config will represent
+	 * @var string
+	 */
+	protected $section = 'default';
 
 
 	/**
@@ -112,39 +104,6 @@ class Builder implements BuilderInterface
 	}
 
 	/**
-	 * @return	Builder
-	 */
-	public function	enableDatatypeHint()
-	{
-		return $this->setDatatypeHintFlag(TRUE);
-	}
-
-	/**
-	 * @return	Builder
-	 */
-	public function	disableDatatypeHint()
-	{
-		return $this->setDatatypeHintFlag(FALSE);
-	}
-
-	/**
-	 * @return	Builder
-	 */
-	public function	setDatatypeHintFlag($flag)
-	{
-		$this->isDatatypeHint = (bool) $flag;
-		return $this;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function	isDatatypeHint()
-	{
-		return $this->isDatatypeHint;
-	}
-
-	/**
 	 * @return	AdapterInterface
 	 */
 	public function	getFileAdapter()
@@ -159,6 +118,14 @@ class Builder implements BuilderInterface
 	{
 		$this->adapter = $adapter;
 		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */ 
+	public function isFileAdapter()
+	{
+		return $this->adapter instanceof Adapter\AdapterInterface;
 	}
 
 	/**
@@ -182,17 +149,17 @@ class Builder implements BuilderInterface
 	/**
 	 * @return	string
 	 */
-	public function	getFilePath()
+	public function	getSection()
 	{
-		return $this->filePath;
+		return $this->section;
 	}
 
 	/**
 	 * @return	Builder
 	 */	
-	public function setFilePath($path)
+	public function setSection($name)
 	{
-		$this->filePath = $path;
+		$this->section = $name;
 		return $this;
 	}
 
@@ -200,45 +167,42 @@ class Builder implements BuilderInterface
 	/**
 	 * @return	NULL
 	 */
-	public function build($file = NULL)
+	public function build(File $file)
 	{
-		$file = $this->processFile($file);
-		if (! $file instanceof File) {
-			$type = "\Appfuel\StdLib\\Filesystem\\File";
-			throw new Exception("File must be of type $type");  
-		}
-
 		$adapter = $this->getFileAdapter();
-		if (! $adapter instanceof Adapter\AdapterInterface) {
-			$type = __NAMESPACE__ . "\\Adapter\\AdapterInterface";
-			throw new Exception("File adapter must be of type $type");  
+		if (! $this->isFileAdapter()) {
+			throw new Exception(
+				"A correct file strategy has not set or the file adapter has
+				not manually been set"
+			);  
 		}
 	
-		$data = $adapter->parse($file);
-		echo "\n", print_r($data,1), "\n";exit; 
-	}
+		$data    = $adapter->parse($file);
+		$section = $this->getSection();
 
-	protected function processFile($file)
-	{
-		if ($file instanceof File) {
-			return $file;
-		} 
-
-		$isString      = is_string($file);
-		$isEmpty	   = empty($file);
-		$isValidString = is_string($file) && ! $isEmpty;
-
-		if ($isValidString) {
-			return Factory::createFile($file);
+		if (! array_key_exists($section, $data)) {
+			throw new Exception(
+				'Can not build a config from a section that does not exist'
+			);
 		}
 
-		$file = $this->getFilePath();
-		$isValidString = is_string($file) && ! $isEmpty;
-		if ($isValidString) {
-			return Factory::createFile($file);
+		if ($this->isInheritance()) {
+
+			$isection = $this->getInheritSection();
+			if (! array_key_exists($isection, $data)) {
+				throw new Exception(
+					'Can not inherit from a section that does not exist'
+				);
+			}
+			$data = array_merge($data[$isection], $data[$section]);
+
+		} else {
+			$data = $data[$section];
 		}
 
-		throw new Exception('failed: no filepath was set or given');
+			
+		return Factory::createConfigList($data);
+
 	}
+
 }
-

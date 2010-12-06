@@ -15,7 +15,7 @@ namespace Test\Appfuel\StdLib\Config;
 /* import */
 use Appfuel\StdLib\Config\Builder			as ConfigBuilder;
 use Appfuel\StdLib\Filesystem\File			as File;
-
+use Appfuel\StdLib\Filesystem\Manager		as FileManager;
 /**
  * Autoloader
  *
@@ -93,30 +93,6 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * Test isDatatypeHint, enableDatatypeHint, disableDatatypeHint
-	 * @return	NULL
-	 */
-	public function testIsDatatypeHint()
-	{
-		/* prove default value for flag */
-		$this->assertTrue($this->builder->isDatatypeHint());
-
-		/* prove fluent interface and setter */
-		$this->assertSame(
-			$this->builder, 
-			$this->builder->disableDatatypeHint()
-		);
-		$this->assertFalse($this->builder->isDatatypeHint());
-
-		/* prove fluent interface and setter */
-		$this->assertSame(
-			$this->builder, 
-			$this->builder->enableDatatypeHint()
-		);
-		$this->assertTrue($this->builder->isDatatypeHint());
-	}
-
-	/**
 	 * Test getFileStrategy, setFileStategy
 	 * Testing strategies with adapters known to exist. 
 	 * @return	NULL
@@ -171,33 +147,49 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
-	 * Test getFilePath, setFilePath
+	 * The config file we are using in this test has four sections
+	 * production, qa, dev, local. Production has the following keys
+	 * label_1, label_2, label_3. All the other sections contain at least
+	 * one of these keys with different values.
+	 *
 	 * @return	NULL
 	 */
-	public function testFilePath()
-	{
-		/* prove default file path */
-		$this->assertNull($this->builder->getFilePath());
-
-		/* prove fluent interface and setter */
-		$path = '/some/path';
-		$this->assertSame(
-			$this->builder, 
-			$this->builder->setFilePath($path)
-		);
-		$this->assertEquals($path, $this->builder->getFilePath());
-	}
-
-
-
-	/**
-	 * @return	NULL
-	 */
-	public function testBuild()
+	public function testBuildWithInheritence()
 	{
 		$file = new File($this->configPath);
-		$result = $this->builder->build($file);
-		echo "\n", print_r($file->isFile(),1), "\n";exit; 
+
+		/* 
+		 * parse the config ini to test against
+		 * check for the inherit section and the 
+		 * current section
+		 */
+		$config = FileManager::parseIni($file, TRUE);
+		$this->assertInternalType('array', $config);
+		$this->assertArrayHasKey('production', $config);
+		$this->assertArrayHasKey('dev', $config);
+
+		$list = $this->builder
+					 ->enableInheritance()
+					 ->inherit('production')
+					 ->setSection('dev')
+					 ->build($file);
+
+		$type = '\Appfuel\StdLib\Ds\AfList\Basic';
+		$this->assertType($type, $list);
+		
+		/* because of inheritance all the labels from
+		 * production will be availiable
+		 */
+		$this->assertTrue($list->isKey('label_1'));
+		$this->assertTrue($list->isKey('label_2'));
+		$this->assertTrue($list->isKey('label_3'));
+
+		/* inherited value*/
+		$prod = $config['production'];
+		$dev  = $config['dev'];
+		$this->assertEquals($prod['label_1'], $list->get('label_1'));
+		$this->assertEquals($prod['label_2'], $list->get('label_2'));
+		$this->assertEquals($dev['label_3'], $list->get('label_3'));
 	}
 }
 

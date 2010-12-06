@@ -29,7 +29,7 @@ class Basic extends BasicIterator
 	 */
 	public function get($key, $default = NULL)
 	{
-		if (! $this->isItem($key)) {
+		if (! $this->isKey($key)) {
 			return $default;
 		}
 
@@ -40,7 +40,7 @@ class Basic extends BasicIterator
 	 * @param	$key	used to identified item in list
 	 * @return	bool
 	 */
-	public function isItem($key)
+	public function isKey($key)
 	{
 		if (! $this->isKeyType($key)) {
 			throw new Exception("Fail function call isItem:

@@ -50,36 +50,6 @@ interface BuilderInterface
 	 */
 	public function	isInheritance();
 
-	/**
-	 * @return	BuilderInterface
-	 */
-	public function	enableDatatypeHint();
-
-	/**
-	 * @return	BuilderInterface
-	 */
-	public function	disableDatatypeHint();
-
-	/**
-	 * @return	BuilderInterface
-	 */
-	public function	setDatatypeHintFlag($flag);
-
-	/**
-	 * @return	BuilderInterface
-	 */
-	public function	isDatatypeHint();
-
-	/**
-	 * @return	BuilderInterface
-	 */
-	public function	getFilePath();
-
-	/**
-	 * @return	BuilderInterface
-	 */
-	public function	setFilePath($path);
-
     /**
      * @return  AdapterInterface
      */
@@ -103,6 +73,6 @@ interface BuilderInterface
 	/**
 	 * @return	AfList\Basic
 	 */
-	public function build($file);
+	public function build(File $file);
 }
 
