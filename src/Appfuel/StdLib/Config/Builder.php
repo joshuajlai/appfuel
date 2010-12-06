@@ -46,6 +46,7 @@ class Builder implements BuilderInterface
 
 
 	/**
+	 * @param	string	$fileType	default config file is ini
 	 * @return	Builder
 	 */	
 	public function __construct($fileType = 'ini')
@@ -54,6 +55,7 @@ class Builder implements BuilderInterface
 	}
 
 	/**
+	 * @param	string	$section	section used in the config file
 	 * @return	Builder
 	 */
 	public function	inherit($section = 'production')
@@ -87,6 +89,7 @@ class Builder implements BuilderInterface
 	}
 
 	/**
+	 * @param	bool	$flag
 	 * @return	Builder
 	 */
 	public function	setInheritanceFlag($flag)
@@ -112,6 +115,7 @@ class Builder implements BuilderInterface
 	}
 
 	/**
+	 * @param	Adapter\AdapterInterface	$adapter
 	 * @return	Builder
 	 */	
 	public function setFileAdapter(Adapter\AdapterInterface $adapter)
@@ -137,6 +141,10 @@ class Builder implements BuilderInterface
 	}
 
 	/**
+	 * This method will create a file adapter for the given file type.
+	 * 
+	 * @throws	Exception	when adapter does not exist
+	 * @param	string	$fileType	type of file the config is ex) ini, xml
 	 * @return	Builder
 	 */	
 	public function setFileStrategy($fileType)
@@ -165,7 +173,11 @@ class Builder implements BuilderInterface
 
 
 	/**
-	 * @return	NULL
+	 * Create a list object from the configuration array produced by the
+	 * file adapter create when setFileStrategy is used. The default strategy
+	 * is an ini file
+	 *
+	 * @return Appfuel\StdLib\Ds\AfList\Basic
 	 */
 	public function build(File $file)
 	{

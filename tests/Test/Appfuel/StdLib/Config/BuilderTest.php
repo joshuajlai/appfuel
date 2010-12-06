@@ -234,7 +234,6 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 					 ->setFileStrategy('doesNotExist')
 					 ->setSection('dev')
 					 ->build($file);
-
 	}
 
 
@@ -250,7 +249,6 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 		$file = new File($this->configPath);
 		$list = $this->builder
 					 ->build($file);
-
 	}
 
 	/**
@@ -267,11 +265,9 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 					 ->inherit('doesNotExist')
 					 ->setSection('dev')
 					 ->build($file);
-
 	}
 
 	/**
-	 *
 	 * @expectedException	\Appfuel\StdLib\Filesystem\Exception
 	 */
 	public function testBuildFileDoesNotExist()
@@ -281,8 +277,6 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 					 ->disableInheritance()
 					 ->setSection('dev')
 					 ->build($file);
-
-	
 	}
 
 }
