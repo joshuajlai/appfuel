@@ -191,5 +191,99 @@ class BuilderTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($prod['label_2'], $list->get('label_2'));
 		$this->assertEquals($dev['label_3'], $list->get('label_3'));
 	}
+
+	/**
+	 * @return NULL
+	 */
+	public function testBuildNoInheritance()
+	{
+		$file = new File($this->configPath);
+
+		/* 
+		 * parse the config ini to test against
+		 * check for the inherit section and the 
+		 * current section
+		 */
+		$config = FileManager::parseIni($file, TRUE);
+		$this->assertInternalType('array', $config);
+		$this->assertArrayHasKey('dev', $config);
+
+		$list = $this->builder
+					 ->disableInheritance()
+					 ->setSection('dev')
+					 ->build($file);
+
+		$type = '\Appfuel\StdLib\Ds\AfList\Basic';
+		$this->assertType($type, $list);
+		$this->assertEquals(1, $list->count());
+		$this->assertEquals('value_c', $list->get('label_3'));	
+	}
+
+	/**
+	 * The first check in build is for the file adapter which
+	 * is based on the method call setFileStrategy. The name
+	 * given is check against that class name in the adapter dir
+	 * when nothing is found an exception is thrown. 
+	 *
+	 * @expectedException	\Appfuel\StdLib\Config\Exception
+	 */
+	public function testBuildNoFileAdapter()
+	{
+		$file = new File($this->configPath);
+		$list = $this->builder
+					 ->setFileStrategy('doesNotExist')
+					 ->setSection('dev')
+					 ->build($file);
+
+	}
+
+
+
+	/**
+	 * The second check in build is for the section. If the section
+	 * you want in the file is not there an exception is thrown
+	 *
+	 * @expectedException	\Appfuel\StdLib\Config\Exception
+	 */
+	public function testBuildNoSection()
+	{
+		$file = new File($this->configPath);
+		$list = $this->builder
+					 ->build($file);
+
+	}
+
+	/**
+	 * The third check happens when inheritance is enabled and the section
+	 * you want to inherit from is not available. 
+	 *
+	 * @expectedException	\Appfuel\StdLib\Config\Exception
+	 */
+	public function testBuildNoInheritSection()
+	{
+		$file = new File($this->configPath);
+		$list = $this->builder
+					 ->enableInheritance()
+					 ->inherit('doesNotExist')
+					 ->setSection('dev')
+					 ->build($file);
+
+	}
+
+	/**
+	 *
+	 * @expectedException	\Appfuel\StdLib\Filesystem\Exception
+	 */
+	public function testBuildFileDoesNotExist()
+	{
+		$file = new File('/path/to/nowhere');
+		$list = $this->builder
+					 ->disableInheritance()
+					 ->setSection('dev')
+					 ->build($file);
+
+	
+	}
+
 }
 
