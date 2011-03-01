@@ -61,8 +61,7 @@ class PhpError
 	 */
 	public function enableDisplay()
 	{
-		ini_set('display_errors', 1);
-		return $this;
+		return $this->setDisplayStatus('on');
 	}
 
 	/**
@@ -70,7 +69,36 @@ class PhpError
 	 */
 	public function disableDisplay()
 	{
-		ini_set('display_errors', 0);
+		return $this->setDisplayStatus('off');
+	}
+
+	/**
+	 * consolidate many values into 1 for display and 0 for no display
+	 * @return	
+	 */
+	public function setDisplayStatus($flag)
+	{
+		if (is_string($flag)) {
+			$flag = strtolower($flag);
+		}
+
+		$result = NULL;
+		switch($flag) {
+			case 'on':
+			case TRUE:
+			case 1:
+			case 'yes':
+				$result = ini_set('display_errors', 1);
+				break;
+			case 'off':
+			case FALSE:
+			case 0:
+			case 'no':
+				$result =ini_set('display_errors', 0);
+				break;
+		}
+
+		return $result;
 	}
 
     /**
@@ -82,6 +110,10 @@ class PhpError
         return (1 === $result) ? TRUE : FALSE;
     }
 
+	/**
+	 * Maps a set of labels to th php constants for errors. The main reason
+	 * for this is the use of contants in the ini file
+	 */
 	public function setReportingLevel($level, $raw = FALSE)
 	{
 		if (TRUE === $raw) {

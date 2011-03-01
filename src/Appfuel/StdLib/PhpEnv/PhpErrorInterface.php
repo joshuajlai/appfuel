@@ -18,7 +18,10 @@ namespace Appfuel\App;
  */
 interface PhpErrorInterface
 {
-	public function enableDisplayErrors();
-	public function disableDisplayErrors();
-    public function getDisplayErrorStatus();
+	public function enableDisplay();
+	public function disableDisplay();
+	public function setDisplayStatus($flag);
+    public function getDisplayStatus();
+	public function setReporting($level);
+	public function getReporting();
 }

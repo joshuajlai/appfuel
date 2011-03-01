@@ -10,12 +10,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-namespace Appfuel\PhpEnv;
+namespace Appfuel\StdLib\PhpEnv;
 
 
 /**
- * App Php Error
- 
+ * Customize the include spath to your own needs
  */
 class IncludePath implements IncludePathInterface
 {
@@ -50,11 +49,17 @@ class IncludePath implements IncludePathInterface
 		$this->paths = implode(PATH_SEPARATOR,$paths);
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getPaths()
 	{
 		return $this->paths;
 	}
 
+	/**
+	 * @return string	the old include path
+	 */
 	public function enable()
 	{
 		$this->backup();
@@ -67,30 +72,32 @@ class IncludePath implements IncludePathInterface
 		return $result;
 	}
 
+	/**
+	 * @return string
+	 */
 	public function getBackup()
 	{
 		return $this->backupPaths;
 	}
 
+	/**
+	 * @return NULL
+	 */
 	public function backup()
 	{
 		$this->backupPaths = get_include_path();
 	}
 
+	/**
+	 * @return	FALSE | string 
+	 */
 	public function restore()
 	{
 		$paths = $this->getBackup();
 		if (empty($paths)) {
-			throw new Exception(
-				"Can not restore an empty backup"
-			);
+			return FALSE;
 		}
 
-		$result = set_include_path($paths);
-		if (FALSE === $result) {
-			throw new Exception("Could not restore backup paths");
-		}
-
-		return $result;
+		return set_include_path($paths);
 	}
 }
