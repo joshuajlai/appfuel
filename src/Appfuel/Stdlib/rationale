@@ -19,16 +19,19 @@ reason for this is rooted in two main problems:
 
 The aim of the standard library is not wrap every php function but rather
 to provide a set of general modules that can be easily tested and changed
-
-
 responsibly.
--------------------------------------------------------------------------------
-Module List:
 
-Filesystem	-	Filesystem operations such as move, copy, delete etc...
-PhpEnv		-	Handle ini directives, errors, things that change the server's
-				environment
-Data		-	Standardize general list operations. We are not wrapping arrays
-				directory, these are iterators etc ...
-Console		-	Commandline terminal operations
+
+Module List:
+-------------------------------------------------------------------------------
+
+Filesystem:	Filesystem operations such as move, copy, delete etc...
+
+PhpEnv:		Handle ini directives, errors, things that change the server's
+			environment
+
+Data:		Standardize general list operations. We are not wrapping arrays
+			directory, these are iterators etc ...
+
+Console:	Commandline terminal operations
 
