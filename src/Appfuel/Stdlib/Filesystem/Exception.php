@@ -1,22 +1,18 @@
 <?php
 /**
  * Appfuel
- * PHP object oriented MVC framework use to support developement with 
- * doman driven design.
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
- * @category 	Appfuel
- * @package 	Util
- * @author 		Robert Scott-Buccleuch <rob@rsbdev.com>
- * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
- * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace 	Appfuel\StdLib\Filesystem;
+namespace Appfuel\Stdlib\Filesystem;
 
 /**
- * Exception
- *
- * @package 	Appfuel
+ * Appfeul Stdlib Filesystem Exception
  */
-class Exception extends \Appfuel\StdLib\Exception
+class Exception extends \Appfuel\Stdlib\Exception
 {}
 

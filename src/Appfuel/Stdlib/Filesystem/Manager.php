@@ -1,22 +1,18 @@
 <?php
 /**
  * Appfuel
- * PHP object oriented MVC framework use to support developement with 
- * doman driven design.
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
- * @category 	Appfuel
- * @package 	Filesystem
- * @author 		Robert Scott-Buccleuch <rob@rsbdev.com>
- * @copyright	2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
- * @license    	http://www.opensource.org/licenses/bsd-license.php  BSD License
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace 	Appfuel\StdLib\Filesystem;
+namespace Appfuel\Stdlib\Filesystem;
 
 /**
- * Filesystem Manager
- * Provides a interface for filesystem operations
- * 
- * @package 	Appfuel
+ * Aims to provide a common interface that can work on both file paths
+ * as a string or as an SplFileInfo object 
  */
 class Manager
 {
@@ -84,18 +80,28 @@ class Manager
 	 *							section names and settings 
 	 * @param	int		$mode   controls behavior of parsing
 	 */
-	static public function parseIni(File    $file, 
-									$sec  = FALSE, 
+	static public function parseIni($file, 
+									$sec = FALSE,
 									$mode = INI_SCANNER_NORMAL)
 	{
-		if (! $file->isFile()) {
-			throw new Exception("Failed operation: parseIni
-				File given is not readable or does not exist"
-			);
+		$notFound = 'Faild operation:' .
+					 'parseIni File given is not readable or does not exist';
+
+		if (is_string($file)) {
+			if (! file_exists($file)) {
+				throw new Exception($notFound);
+			}
+			$path = $file;
+		} else ($file instanceof \SplFileInfo) {
+			if (! $file->isFile()) {
+				throw new Exception($notFound);
+			}
+			$path = $file->getRealPath();
+		} else {
+			throw new Exception("Invalid Parameter file");
 		}
 	
 		$sec  = (bool) $sec;
-		$path = $file->getRealPath();
 		return parse_ini_file($path, $sec, $mode);
 	}
 }

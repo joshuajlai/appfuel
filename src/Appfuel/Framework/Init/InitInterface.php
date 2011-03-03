@@ -6,14 +6,18 @@
  * @package     Appfuel
  * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace 	Appfuel\Stdlib\Filesystem;
+namespace Appfuel\Framework\Init;
 
 /**
+ * Interface used for framework initialization strategies
  */
-class File extends \SplFileInfo
+interface InitInterface
 {
-		
+	/**
+	 * @param	array	$params	
+	 * @return	mixed
+	 */
+	public function init(array $params = array());
 }
-
