@@ -45,6 +45,8 @@ class PHPError
      * @var array
      */
     protected $displayCodes = array(
+		'1'			=> '1',
+		'0'         => '1',
         'on'        => '1',
         'yes'       => '1',
         'off'       => '0',
@@ -123,7 +125,7 @@ class PHPError
             $value = $flag;
         } else {
 
-            if (is_string($flag)) {
+            if (is_scalar($flag)) {
                 $flag = strtolower($flag);
             }
 
