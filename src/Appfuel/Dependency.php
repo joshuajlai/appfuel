@@ -41,6 +41,7 @@ class Dependency
 			"{$std}Exception.php",
 			"{$fw}Exception.php",
 			"{$fw}Autoloader.php",
+			"{$fw}StartupFactoryInterface.php",
 			"{$fw}Init{$sep}Exception.php",
 			"{$fw}Init{$sep}InitInterface.php",
 			"{$fw}Init{$sep}Config.php",

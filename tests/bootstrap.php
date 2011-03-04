@@ -9,8 +9,8 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-use Appfuel\StdLib\App\Dependency			as AppDependency;
-use Appfuel\StdLib\Autoloader\ClassLoader   as ClassLoader;
+use Appfuel\Dependency					as AppDependency;
+use Appfuel\StdLib\Autoload\Autoloader  as AutoLoader;
  
 /*
  * setup include paths so that we can autoload. This bootstrap script
@@ -32,13 +32,12 @@ define ('AF_TEST_EXAMPLE_PATH', $tDir . DIRECTORY_SEPARATOR . 'example');
 
 $dependFile = $afDir   . DIRECTORY_SEPARATOR .
 			 'Appfuel' . DIRECTORY_SEPARATOR .
-			 'StdLib'  . DIRECTORY_SEPARATOR .
-			 'App'     . DIRECTORY_SEPARATOR .
 			 'Dependency.php';
 
 require_once $dependFile;
 
-AppDependency::load($afDir);
+$depend = new AppDependency($afDir);
+$depend->load();
 
-$loader = new \Appfuel\StdLib\Autoloader\ClassLoader();
+$loader = new Autoloader();
 $loader->register();
