@@ -10,7 +10,7 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
 use Appfuel\Dependency					as AppDependency;
-use Appfuel\StdLib\Autoload\Autoloader  as AutoLoader;
+use Appfuel\Stdlib\Autoload\Autoloader  as Autoloader;
  
 /*
  * setup include paths so that we can autoload. This bootstrap script
@@ -20,7 +20,7 @@ use Appfuel\StdLib\Autoload\Autoloader  as AutoLoader;
  * phpunit files
  */
 $tDir  = dirname(__FILE__);
-$afDir = realpath($tDir . '/../') . '/src';
+$afDir = realpath($tDir . '/../');
 
 $pathString = get_include_path() . PATH_SEPARATOR .
 			  $afDir . PATH_SEPARATOR . $tDir;	  

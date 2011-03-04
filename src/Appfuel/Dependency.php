@@ -39,8 +39,9 @@ class Dependency
 		$this->files = array(
 			"{$path}Exception.php",
 			"{$std}Exception.php",
+			"{$std}Autoload{$sep}Exception.php",
+			"{$std}Autoload{$sep}Autoloader.php",
 			"{$fw}Exception.php",
-			"{$fw}Autoloader.php",
 			"{$fw}StartupFactoryInterface.php",
 			"{$fw}Init{$sep}Exception.php",
 			"{$fw}Init{$sep}InitInterface.php",
@@ -77,6 +78,8 @@ class Dependency
 					"Required file could not be found $file"
 				);
 			}
+
+			require_once $file;
 		}
 	}
 

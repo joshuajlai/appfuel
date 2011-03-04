@@ -92,7 +92,7 @@ class Manager
 				throw new Exception($notFound);
 			}
 			$path = $file;
-		} else ($file instanceof \SplFileInfo) {
+		} elseif ($file instanceof \SplFileInfo) {
 			if (! $file->isFile()) {
 				throw new Exception($notFound);
 			}
@@ -100,6 +100,7 @@ class Manager
 		} else {
 			throw new Exception("Invalid Parameter file");
 		}
+		
 	
 		$sec  = (bool) $sec;
 		return parse_ini_file($path, $sec, $mode);
