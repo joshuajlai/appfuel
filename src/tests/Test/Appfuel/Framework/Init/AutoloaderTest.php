@@ -153,6 +153,36 @@ class IncludepathTest extends \PHPUnit_Framework_TestCase
     }
 
 	/**
+	 * We are now going to initialize with the paths as a string and not
+	 * an array of strings
+	 *
+	 * @return NULL
+	 */
+    public function testInitializeParamPathIsString()
+    {
+		/* notice this is a single path and not many */
+		$params = array(
+			'paths'  => '/path_1',
+		);
+
+		
+		$expected = $params['paths'];
+		$result   = $this->includePath->init($params);
+	
+		$newPathString = get_include_path();
+
+		/* restore the real include path to ensure phpunit runs */
+		$this->restoreIncludePath();
+		
+		/* assert that the return value is the old path */
+        $this->assertEquals($this->bkPaths, $result);
+
+		/* assert the side effect of the init is the expected value */
+        $this->assertEquals($expected, $newPathString);
+    }
+
+
+	/**
 	 * False is returned when the paths are not identified by the 
 	 * label 'paths'
 	 *
@@ -182,6 +212,41 @@ class IncludepathTest extends \PHPUnit_Framework_TestCase
 		$result = $this->includePath->init();
 		$this->assertFalse($result);	
 	}
+
+	/**
+	 * False is returned when the paths are not identified with an empty
+	 * array
+	 *
+	 * @return NULL
+	 */
+	public function testInializePathsEmptyArray()
+	{
+		$params = array(
+			'paths' => array(),
+			'action' => 'prepend'
+		);
+
+		$result = $this->includePath->init($params);
+		$this->assertFalse($result);	
+	}
+
+	/**
+	 * False is returned when the paths are not identified with an empty string
+	 *
+	 * @return NULL
+	 */
+	public function testInializePathsEmptyString()
+	{
+		$params = array(
+			'paths' => '',
+			'action' => 'prepend'
+		);
+
+		$result = $this->includePath->init($params);
+		$this->assertFalse($result);	
+	}
+
+
 
 
 

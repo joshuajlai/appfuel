@@ -11,11 +11,18 @@
 namespace Appfuel\Framework\Init;
 
 /**
- * Initialization strategy used to alter the servers php include_path
+ * Initialization strategy used to alter the server's php include_path
  */
 class Includepath implements InitInterface
 {
 	/**
+	 * Looks for an array or a string in with the label 'paths' and uses
+	 * that string or converts an array of string into paths for the 
+	 * include path. If a label is include with the string 'append' or
+	 * 'prepend' then the paths are appended or prepended to the original
+	 * include path accordingly. When no action is include the paths will
+	 * replace the original include path
+	 *
 	 * @param	array	$params	
 	 * @return	mixed
 	 */
@@ -33,6 +40,8 @@ class Includepath implements InitInterface
 			$pathString = $paths;
 		} else if (is_array($paths) && ! empty($paths)) {
 			$pathString = implode(PATH_SEPARATOR, $paths);
+		} else {
+			return FALSE;
 		}
 	
 		/*
