@@ -28,27 +28,21 @@ class Includepath implements InitInterface
 		$paths  = $params['paths'];
 		$action = $params['action'];
 
-		/* how to treat the existing include path */
-		$validActions = array('append', 'prepend', 'replace');
-
-		/* 
-		 * when nothing is given we will override the current 
-		 * includepath
-		 */
-		if (! in_array($action, $validActions)) {
-			$action = 'replace';
-		}
-
 		/* a single path was passed in */
 		if (is_string($paths) && ! empty($paths)) {
-			$pathString = $paths);
+			$pathString = $paths;
 		} else if (is_array($paths) && ! empty($paths)) {
 			$pathString = implode(PATH_SEPARATOR, $paths);
 		}
-
+	
+		/*
+		 * The default action is to replace the include path. If
+		 * action is given with either append or prepend the 
+		 * paths will be concatenated accordingly
+		 */
 		$includePath = get_include_path();
 		if ('append' === $action) {
-			$pathString = $includePath PATH_SEPARATOR $pathString;
+			$pathString = $includePath . PATH_SEPARATOR . $pathString;
 		} else if ('prepend' === $action) {
 			$pathString .= PATH_SEPARATOR . $includePath;
 		}
