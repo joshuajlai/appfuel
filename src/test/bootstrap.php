@@ -20,7 +20,7 @@ use Appfuel\Stdlib\Autoload\Autoloader  as Autoloader;
  * phpunit files
  */
 $tDir  = dirname(__FILE__);
-$afDir = realpath($tDir . '/../');
+$afDir = realpath($tDir . '/../') . DIRECTORY_SEPARATOR . 'lib';
 
 $pathString = get_include_path() . PATH_SEPARATOR .
 			  $afDir . PATH_SEPARATOR . $tDir;	  
