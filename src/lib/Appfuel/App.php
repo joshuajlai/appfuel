@@ -6,13 +6,12 @@
  * @package     Appfuel
  * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test;
+namespace Appfuel;
 
 /**
- * Appfuel Standard Library Exception
  */
-class AfCase extends \PHPUnit_Framework_TestCase
-{}
-
+class App
+{
+}

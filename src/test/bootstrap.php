@@ -20,23 +20,30 @@ use Appfuel\Stdlib\Autoload\Autoloader  as Autoloader;
  * phpunit files
  */
 $tDir  = dirname(__FILE__);
-$afDir = realpath($tDir . '/../') . DIRECTORY_SEPARATOR . 'lib';
+$afDir = realpath($tDir . '/../');
+
+$afDirLib = $afDir . DIRECTORY_SEPARATOR . 'lib';
+if (! defined('TEST_AF_BASE_PATH')) {
+	define('TEST_AF_BASE_PATH', $afDir);
+}
 
 $pathString = get_include_path() . PATH_SEPARATOR .
-			  $afDir . PATH_SEPARATOR . $tDir;	  
-
+			  $afDirLib          . PATH_SEPARATOR . 
+			  $tDir				 . PATH_SEPARATOR . 
+			  $afDir;
+	  
 set_include_path($pathString);
 
 define ('AF_TEST_PATH', $tDir);
 define ('AF_TEST_EXAMPLE_PATH', $tDir . DIRECTORY_SEPARATOR . 'example');
 
-$dependFile = $afDir   . DIRECTORY_SEPARATOR .
-			 'Appfuel' . DIRECTORY_SEPARATOR .
+$dependFile = $afDirLib   . DIRECTORY_SEPARATOR .
+			 'Appfuel'    . DIRECTORY_SEPARATOR .
 			 'Dependency.php';
 
 require_once $dependFile;
 
-$depend = new AppDependency($afDir);
+$depend = new AppDependency($afDirLib);
 $depend->load();
 
 $loader = new Autoloader();
