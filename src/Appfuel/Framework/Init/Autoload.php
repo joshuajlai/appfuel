@@ -10,17 +10,35 @@
  */
 namespace Appfuel\Framework\Init;
 
+use Appfuel\Framework\StartupFactoryInterface;
+use Appfuel\Framework\AutoloadInterface;
+
 /**
- * Initialization strategy used to startup the autoloader
+ * Initialization strategy used to register the autoloader
  */
-class Autoloader implements InitInterface
+class Autoload implements InitInterface
 {
 	/**
 	 * @param	array	$params	
-	 * @return	mixed
+	 * @return	bool
 	 */
 	public function init(array $params = array())
-	{
+	{		
+		if (! array_key_exists('startFactory', $params)) {
+			return FALSE;
+		}
+		
+		$factory = $params['startupFactory'];
+		if (! $factory instanceof StartupFactoryInterface) {
+			return FALSE;
+		}
 
+		$autoloader = $factory->createStartupFactory();
+		if (! $autoloader instanceof AutoloadInterface) {
+			return FALSE;
+		}
+
+		$autoloader->register();
+		return TRUE;
 	}
 }

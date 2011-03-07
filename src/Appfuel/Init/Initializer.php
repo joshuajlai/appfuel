@@ -8,10 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\Init;
+
+use Appfuel\Framework\Init\IntitializerInterface;
 
 /**
- * Appfuel Framework Exception
  */
-class Exception extends \Appfuel\Exception
-{}
+class Initializer implements InitializerInterface
+{
+}

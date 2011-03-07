@@ -13,7 +13,7 @@ namespace Test\Appfuel\Stdlib\Autoload;
 use Appfuel\Stdlib\Autoload\Autoloader;
 
 /**
- * 
+ * The autoloader wraps the php spl_autoload_* functionality
  */
 class TestAutoloader extends \PHPUnit_Framework_TestCase
 {
@@ -23,18 +23,24 @@ class TestAutoloader extends \PHPUnit_Framework_TestCase
 	 */
 	protected $loader = NULL;
 
+	/**
+	 * @return NULL
+	 */
 	public function setUp()
 	{
 		$this->loader = new Autoloader();
 	}
 
+	/**
+	 * @return NULL
+	 */
 	public function tearDown()
 	{
 		unset($this->loader);
 	}
 
     /**
-     * @return void
+     * @return NULL
      */
     public function testGetRegistered()
     {
@@ -117,7 +123,7 @@ class TestAutoloader extends \PHPUnit_Framework_TestCase
      * When you clear the autoloaders without backup and try to restore 
      * them nothing happens because there is nothing to restore.
      *
-     * @return void
+     * @return NULL
      */
     public function testClearLoadersRestoreNoBackup()
     {
@@ -169,7 +175,7 @@ class TestAutoloader extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return void
+     * @return NULL
      */
     public function testRegisterUnRegister()
     {

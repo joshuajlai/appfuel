@@ -133,7 +133,7 @@ class Autoloader
     /**
      * Will be registered to handle autoload requested class names
      * @param   string  $className  
-     * @return  void
+     * @return  NULL
      */
     public function loadClass($className)
     {
