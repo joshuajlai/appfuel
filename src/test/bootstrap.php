@@ -9,8 +9,6 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-use Appfuel\Dependency					as AppDependency;
-use Appfuel\Stdlib\Autoload\Autoloader  as Autoloader;
  
 /*
  * setup include paths so that we can autoload. This bootstrap script
@@ -27,24 +25,17 @@ if (! defined('TEST_AF_BASE_PATH')) {
 	define('TEST_AF_BASE_PATH', $afDir);
 }
 
-$pathString = get_include_path() . PATH_SEPARATOR .
-			  $afDirLib          . PATH_SEPARATOR . 
-			  $tDir				 . PATH_SEPARATOR . 
-			  $afDir;
-	  
-set_include_path($pathString);
-
 define ('AF_TEST_PATH', $tDir);
 define ('AF_TEST_EXAMPLE_PATH', $tDir . DIRECTORY_SEPARATOR . 'example');
 
-$dependFile = $afDirLib   . DIRECTORY_SEPARATOR .
-			 'Appfuel'    . DIRECTORY_SEPARATOR .
-			 'Dependency.php';
+$managerFile = $afDirLib   . DIRECTORY_SEPARATOR .
+			  'Appfuel'    . DIRECTORY_SEPARATOR .
+			  'AppManager.php';
 
-require_once $dependFile;
+require_once $managerFile;
 
-$depend = new AppDependency($afDirLib);
-$depend->load();
-
-$loader = new Autoloader();
-$loader->register();
+$configFile = 'test'   . DIRECTORY_SEPARATOR . 
+			  'config' . DIRECTORY_SEPARATOR .
+			  'test.ini';
+ 
+\Appfuel\AppManager::init($afDir, $configFile);
