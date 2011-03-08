@@ -52,8 +52,6 @@ class Dependency
 			"{$std}Filesystem{$sep}Exception.php",
 			"{$std}Filesystem{$sep}Manager.php",
 			"{$std}Filesystem{$sep}File.php",
-			"{$path}App.php",
-			"{$path}AppBuilder.php",
 		);
 	}
 

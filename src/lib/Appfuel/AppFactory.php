@@ -12,6 +12,10 @@ namespace Appfuel;
 
 /**
  */
-class App
+class AppFactory
 {
+	public function createInitializer()
+	{
+		new Initializer();
+	}
 }

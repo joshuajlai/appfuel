@@ -19,30 +19,29 @@ namespace Appfuel;
 class AppBuilder
 {
 	/**
+	 * Flag to determine if dependencies have been loaded
+	 * @var bool
+	 */
+	static protected $isLoaded = FALSE;
+
+	/**
 	 * Root path of the application
 	 * @var string
 	 */
 	protected $basePath = NULL;
 
 	/**
-	 * Used to override appfuel's env class
-	 * @var string
+	 * Factory class used to create objects needed in Initialization, 
+	 * Bootstrapping and Dispatching
+	 * @var	Framework\AppFactoryInterface
 	 */
-	protected $envClass = NULL;
+	protected $appFactory = NULL;
 
 	/**
-	 * Used to override appfuel's app factory
+	 * Config file used when no file is given
 	 * @var string
 	 */
-	protected $appFactoryClass = NULL;
-
-	/**
-	 * Used to override appfuel's initializer
-	 * @var string
-	 */
-	protected $initClass = NULL;
-
-
+	protected $defaultConfig = NULL;
 
 	/**
 	 * @param	string	$path 
@@ -57,6 +56,62 @@ class AppBuilder
 			define('AF_BASE_PATH', $path);
 		}
 
+		$this->defaultConfig = $path    . DIRECTORY_SEPARATOR .
+							   'config' . DIRECTORY_SEPARATOR .
+							   'app.ini';
+	}
+
+	/**
+	 * 
+	 */
+	public function init($configFile = NULL)
+	{
+		if (NULL === $configFile) {
+			$configFile = $this->getDefaultConfigPath();
+		}
+
+		if (! file_exists($configFile)) {
+			throw new Exception("Could not find config file ($configFile)");
+		}
+
+		$ini = Stdlib\Filesystem\Manager::parseIni($configFile);
+		if (isset($ini['include_path']) && ! empty($ini['include_path'])) {
+			$action = NULL;
+			if (isset($ini['include_path_action'])) {
+				$action = $ini['include_path_action'];
+			}
+			$this->initIncludePath($ini['include_path'], $action);
+		}
+
+		
+		
+		echo "\n", print_r(get_include_path(),1), "\n";exit; 
+	}
+
+	public function initIncludePath($paths, $action = 'replace')
+	{
+        /* a single path was passed in */
+        if (is_string($paths) && ! empty($paths)) {
+            $pathString = $paths;
+        } else if (is_array($paths) && ! empty($paths)) {
+            $pathString = implode(PATH_SEPARATOR, $paths);
+        } else {
+            return FALSE;
+        }
+
+        /*
+         * The default action is to replace the include path. If
+         * action is given with either append or prepend the 
+         * paths will be concatenated accordingly
+         */
+        $includePath = get_include_path();
+        if ('append' === $action) {
+            $pathString = $includePath . PATH_SEPARATOR . $pathString;
+        } else if ('prepend' === $action) {
+            $pathString .= PATH_SEPARATOR . $includePath;
+        }
+
+        return set_include_path($pathString);
 	}
 
 	/**
@@ -66,63 +121,24 @@ class AppBuilder
 	{
 		return $this->basePath;
 	}
-
+	
 	/**
-	 * @return	mixed	NULL|string
+	 * @return string
 	 */
-	public function getEnvClass()
+	public function getDefaultConfigPath()
 	{
-		return $this->envClass;
+		return $this->defaultConfig;
 	}
 
 	/**
-	 * @param	string	$name
+	 * @param	string	$path
 	 * @return	AppBuilder
 	 */
-	public function setEnvClass($name)
+	protected function setBasePath($path)
 	{
-		$errMsg = "Env class must be a string";
-		$this->envClass = $this->validateString($name, $errMsg);
-		$this->envClass = $name;
-		return $this;		
-	}
-
-	/**
-	 * @return	mixed	NULL|string
-	 */
-	public function getAppFactoryClass()
-	{
-		return $this->appFactoryClass;
-	}
-
-	/**
-	 * @param	string	$name
-	 * @return	AppBuilder
-	 */
-	public function setAppFactoryClass($name)
-	{
-		$errMsg = "App Factory class must be a string";
-		$this->appFactoryClass = $this->validateString($name, $errMsg);
-		return $this;		
-	}
-
-	/**
-	 * @return	mixed	NULL|string
-	 */
-	public function getInitializerClass()
-	{
-		return $this->initClass;
-	}
-
-	/**
-	 * @param	string	$name
-	 * @return	AppBuilder
-	 */
-	public function setInitializerClass($name)
-	{
-		$errMsg = "Initializer class must be a string";
-		$this->initClass = $this->validateString($name, $errMsg);
-		return $this;		
+		$errMsg = "Base path must be a string";
+		$this->basePath = $this->validateString($path, $errMsg);
+		return $this;
 	}
 
 	/**
@@ -140,14 +156,11 @@ class AppBuilder
 	}
 
 	/**
-	 * @param	string	$path
-	 * @return	AppBuilder
+	 * @return bool
 	 */
-	protected function setBasePath($path)
+	static public function isDependenciesLoaded()
 	{
-		$errMsg = "Base path must be a string";
-		$this->basePath = $this->validateString($path, $errMsg);
-		return $this;
+		return self::$isLoaded;
 	}
 
 	/**
@@ -160,6 +173,10 @@ class AppBuilder
 	 */
 	protected function loadDependencies($basePath)
 	{
+		if (self::isDependenciesLoaded()) {
+			return;
+		}
+
 		$path = $basePath . DIRECTORY_SEPARATOR . 'lib';
 		$file = $path     . DIRECTORY_SEPARATOR . 
 				'Appfuel' . DIRECTORY_SEPARATOR . 'Dependency.php';
@@ -172,6 +189,7 @@ class AppBuilder
 
 		$depend = new Dependency($path);
 		$depend->load();
-	}
 
+		self::$isLoaded = TRUE;
+	}
 }

@@ -16,7 +16,7 @@ $base = realpath(dirname(__FILE__) . '/..');
 
 $file = $base     . DIRECTORY_SEPARATOR . 
 		'Appfuel' . DIRECTORY_SEPARATOR .
-		'AppBuilder.php';
+		'Manager.php';
 
 if (! file_exists($file)) {
 	$err = "Could not locate App Builder file at ($file)\n";
@@ -24,21 +24,7 @@ if (! file_exists($file)) {
 	exit;
 }
 
-/* location of application configuration file */
-$config = 'config' . DIRECTORY_SEPARATOR . 'app.ini'; 
-$appBuilder = new \Appfuel\AppBuilder($base);
-$appBuilder->init($config);
+\Appfuel\Manager::init();
 
-/* 
- * The message is needed as a container that holds all information 
- * collected though the various stages of handling a request. 
- */ 
-$msg = $appBuilder->createMessage();
-
-/* 
- * The App object is responsible for running the request which includes
- * bootstrapping, dispatching, and outputting
- */
-$app = $appBuilder->create();
-$app->run($msg);
-
+$msg = \Appfuel\Manager::createMessage();
+\Appfuel\Manager::run($msg);

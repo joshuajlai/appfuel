@@ -47,13 +47,13 @@ class Manager
 	 * @param 	string 	$cname	class name
 	 * @return 	string
 	 */
-	static public function classNameToFilename($cname)
+	static public function classNameToFileName($cname)
 	{
 		if (empty($cname)) {
 			return FALSE;
 		}
-
-		return str_replace(array('\\','_'),DIRECTORY_SEPARATOR,$cname) . '.php';
+		$file = str_replace(array('\\','_'), DIRECTORY_SEPARATOR, $cname);
+		return trim($file, DIRECTORY_SEPARATOR) . '.php';
 	}
 
 	/**

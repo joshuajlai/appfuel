@@ -60,83 +60,25 @@ class AppBuilderTest extends AfCase
     }
 
 	/**
-	 * This allows the builder to use a different class for resolving the
-	 * which environment the server is on
-	 *
-	 * @return NULL
+	 * The path to appfuel's config file is used when no other config file 
+	 * is given.
 	 */
-	public function testGetSetEnvClass()
-	{
-		$this->assertNull(
-			$this->builder->getEnvClass(),
-			'Initial value of getEnv should be NULL'
-		);
-
-		$class = 'someClass';
-		$this->assertSame(
-			$this->builder,
-			$this->builder->setEnvClass($class),
-			'Should be a fluent interface'
-		);
+	public function testDefaultConfigFile()
+	{	
+		$expected = $this->basePath . DIRECTORY_SEPARATOR .
+					'config' . DIRECTORY_SEPARATOR . 'app.ini';
 
 		$this->assertEquals(
-			$class, 
-			$this->builder->getEnvClass(),
-			'Should be the string just set'
+			$expected,
+			$this->builder->getDefaultConfigPath()
 		);
 	}
 
-	/**
-	 * This allows the builder to override a factory class for create objects
-	 *
-	 * @return NULL
-	 */
-	public function testGetSetAppFactoryClass()
+	public function testInit()
 	{
-		$this->assertNull(
-			$this->builder->getAppFactoryClass(),
-			'Initial value of getAppFactoryClass should be NULL'
-		);
-
-		$class = 'someClass';
-		$this->assertSame(
-			$this->builder,
-			$this->builder->setAppFactoryClass($class),
-			'Should be a fluent interface'
-		);
-
-		$this->assertEquals(
-			$class, 
-			$this->builder->getAppFactoryClass(),
-			'Should be the string just set'
-		);
+		$result = $this->builder->init();
+		echo "\n", print_r('insert here',1), "\n";exit;			
 	}
 
-	/**
-	 * This allows the builder to override an initializer class used to run
-	 * initialization strategies.
-	 *
-	 * @return NULL
-	 */
-	public function testGetSetInitializerClass()
-	{
-		$this->assertNull(
-			$this->builder->getInitializerClass(),
-			'Initial value of getInitialize Class should be NULL'
-		);
-
-		$class = 'someClass';
-		$this->assertSame(
-			$this->builder,
-			$this->builder->setInitializerClass($class),
-			'Should be a fluent interface'
-		);
-
-		$this->assertEquals(
-			$class, 
-			$this->builder->getInitializerClass(),
-			'Should be the string just set'
-		);
-	}
 }
 
