@@ -147,7 +147,7 @@ class AppManager
 	public function initAutoload($class = NULL)
 	{
 		if (empty($class) || empty($path)) {
-			$autoloader = new Stdlib\Autoload\Autoloader();
+			$autoloader = new Framework\Autoloader();
 		} else {
 			$file = Stdlib\Filesystem\Manager::classNameToFileName($class);
 			$file = self::getBasePath() . DIRECTORY_SEPARATOR . 
@@ -161,7 +161,7 @@ class AppManager
 			$autoloader = new $class();
 		}
 
-		$type = '\Appfuel\Framework\AutoloaderInterface';
+		$type = '\Appfuel\Framework\AutoloadInterface';
 		if (! is_a($autoloader, $type)) {
 			throw new Exception("Autoloader must implement $type");
 		}
