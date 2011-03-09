@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\Framework\Autoload;
 
 /**
  * Describes the necessary method's need for an autoloader to work with 

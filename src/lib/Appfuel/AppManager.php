@@ -69,7 +69,10 @@ class AppManager
 		$autoload = self::getRegistryItem('autoload_class', NULL);
 		self::initAutoload($autoload);
 
-		$errors = self::getRegistryItem('errors', array());
+		$errors = self::getRegistryItem('errors', NULL);
+		if (! is_array($errors)) {
+			$errors = NULL;
+		}
 		self::initErrorSettings($errors);
 
 		echo "\n", print_r($errors,1), "\n";exit; 
@@ -99,6 +102,18 @@ class AppManager
 
 
 		return Stdlib\Filesystem\Manager::parseIni($file);
+	}
+
+	/**
+	 * Change the php ini setting for display_errors. Also change the
+	 * error_reporting
+	 *
+	 * @param	array	$errors
+	 * @return	NULL
+	 */
+	public function initErrorSettings(array $errors = NULL)
+	{
+		echo "\n", print_r($errors,1), "\n";exit; 	
 	}
 
 	/**
@@ -147,7 +162,7 @@ class AppManager
 	public function initAutoload($class = NULL)
 	{
 		if (empty($class) || empty($path)) {
-			$autoloader = new Framework\Autoloader();
+			$autoloader = new Framework\Autoload\Autoloader();
 		} else {
 			$file = Stdlib\Filesystem\Manager::classNameToFileName($class);
 			$file = self::getBasePath() . DIRECTORY_SEPARATOR . 
@@ -161,7 +176,7 @@ class AppManager
 			$autoloader = new $class();
 		}
 
-		$type = '\Appfuel\Framework\AutoloadInterface';
+		$type = '\Appfuel\Framework\Autoload\AutoloadInterface';
 		if (! is_a($autoloader, $type)) {
 			throw new Exception("Autoloader must implement $type");
 		}
