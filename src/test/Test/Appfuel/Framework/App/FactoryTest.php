@@ -44,17 +44,6 @@ class FactoryTest extends ParentTestCase
 	/**
 	 * @return NULL
 	 */
-	public function testCreateInitializer()
-	{
-		$this->assertInstanceOf(
-			'\Appfuel\Framework\App\InitializeInterface',
-			$this->factory->createInitializer('/some/base/path')
-		);
-	}
-
-	/**
-	 * @return NULL
-	 */
 	public function testCreatePhpError()
 	{
 		$this->assertInstanceOf(
@@ -69,7 +58,7 @@ class FactoryTest extends ParentTestCase
 	public function testCreateAutoloader()
 	{
 		$this->assertInstanceOf(
-			'\Appfuel\Framework\Autoload\AutoloadInterface',
+			'\Appfuel\Framework\App\AutoloadInterface',
 			$this->factory->createAutoloader()
 		);
 	}

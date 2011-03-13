@@ -54,8 +54,8 @@ class Dependency
 			"{$fw}App{$sep}Initializer.php",
 			"{$fw}App{$sep}PHPErrorInterface.php",
 			"{$fw}App{$sep}PHPError.php",
-			"{$fw}Autoload{$sep}AutoloaderInterface.php",
-			"{$fw}Autoload{$sep}Autoloader.php",
+			"{$fw}App{$sep}AutoloadInterface.php",
+			"{$fw}App{$sep}Autoloader.php",
 			"{$path}Registry.php",
 			"{$path}AppManager.php"
 		);

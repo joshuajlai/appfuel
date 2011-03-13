@@ -40,19 +40,18 @@ class Initializer implements InitializeInterface
     protected $autoloader = NULL;
 
 	/**
-	 * @param	string				$basePath
-	 * @param	PHPErrorInterface	$err
-	 * @param	LoaderInterface		$al
+	 * Creates objects necessary to Initialize, Bootstrap, Dispatch, and Output
+	 * @var FactoryInterface
+	 */
+	protected $factory = NULL;
+
+	/**
+	 * @param	string	$basePath
 	 * @return	Initializer
 	 */
-	public function __construct($basePath, 
-								PHPErrorInterface $err, 
-								LoaderInterface $al)
+	public function __construct($basePath)
 	{
-		$this->basePath   = $basePath;
-		$this->phpError   = $err;
-		$this->autoloader = $al;
-
+		$this->basePath = $basePath;
 	}
 
     /**
@@ -65,14 +64,27 @@ class Initializer implements InitializeInterface
 	 *
      * @param   string  $configfile
      */
-	public function initialize($configFile)
+	public function initialize($file = NULL, array $data = NULL)
 	{
-		$data = $this->getConfigData($configFile);
-		Registry::init();
-
-		if (is_array($data)) {
-			Registry::load($data);
+		if (is_string($file) && ! empty($file)) {
+			$this->initRegistryConfig($file);
+		} else if (is_array($data) && ! empty($data)) {
+			$this->initRegistry($data);
+		} else {
+			$defaultConfig = 'config' . DIRECTORY_SEPARATOR . 'app.ini';
+			$this->initRegistryConfig($default);
 		}
+
+		$factoryClass = Registry::get(
+			'app_factory', 
+			'\Appfuel\Framework\App\Factory'
+		);
+		$factory = $this->createFactory($factoryClass);
+		self::setFactory($factory);
+		self::setPHPError($factory->createPHPError());
+
+		$autoloader = $factory->createAutoloader();
+		self::setAutoloader($autoloader);
 
         $paths  = Registry::get('include_path', '');
         $action = Registry::get('include_path_action', 'replace');
@@ -83,6 +95,26 @@ class Initializer implements InitializeInterface
         self::errorSettings($display, $level);
 
 		self::registerAutoloader();
+	}
+
+	public function initRegistryConfig($file)
+	{
+		$data = $this->getConfigData($file);
+		if (! is_array($data)) {
+			$data = array();
+		}
+		$this->initRegistry($data);	
+	}
+
+	/**
+	 * Initialize the Appfuel\Registry with or without data
+	 *
+	 * @param	array	$data
+	 * @return	NULL
+	 */
+	public function initRegistry(array $data = array())
+	{
+		Registry::init($data);
 	}
 
     /**
@@ -163,6 +195,46 @@ class Initializer implements InitializeInterface
 			 ->register();
 	}
 
+    /**
+     * @return  FactoryInterface
+     */
+    public function getFactory()
+    {
+        return $this->factory;
+    }
+
+    /**
+     * @return  FactoryInterface
+     */
+    public function setFactory(FactoryInterface $factory)
+    {
+		$this->factory = $factory;
+        return $this->this;
+    }
+
+	/**
+	 * Create the app factory by converting namespaces into directory paths
+	 * locating the file adding it into memory then instantiating the class.
+	 * This is done because it generally happens before the autoloader has
+	 * been registered.
+	 *
+	 * @throws	\Exception	when the class file does not exist
+	 * @param	string	classnName
+	 * @return	FactoryInterface
+	 */
+	public function createFactory($className)
+	{
+		$root = $this->getBasePath() . DIRECTORY_SEPARATOR . 'lib';
+		$path = FileManager::classNameToFileName($className);
+		$file = $root . DIRECTORY_SEPARATOR . $path;
+		if (! file_exists($file)) {
+			throw new \Exception("could not find app factory file ($file)");
+		}
+		require_once $file;
+
+		return new $className();
+	}
+
 	/**
 	 * @return	string
 	 */
@@ -172,7 +244,7 @@ class Initializer implements InitializeInterface
 	}
 
     /**
-     * @return  Framework\Autoload\AutoloadInterface
+     * @return  AutoloadInterface
      */
     public function getAutoloader()
     {
@@ -180,10 +252,29 @@ class Initializer implements InitializeInterface
     }
 
     /**
-     * @return  Framework\Autoload\Autoloader
+     * @return  AutoloadInterface
+     */
+    public function setAutoloader(AutoloadInterface $autoloader)
+    {
+		$this->autoloader = $autoloader;
+        return $this->this;
+    }
+
+    /**
+     * @return  PHPErrorInterface
      */
     public function getPHPError()
     {
         return $this->phpError;
     }
+
+	/**
+	 * @param	PHPErrorInterface	$error
+	 * @return	Initializer
+	 */
+	public function setPHPError(PHPErrorInterface $error)
+	{
+		$this->phpError = $error;
+		return $this;
+	}
 }

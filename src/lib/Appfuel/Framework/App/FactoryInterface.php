@@ -23,7 +23,6 @@ interface FactoryInterface
 	 * @param	string	$basePath	path to app root dir
 	 * @return	InitializerInterface
 	 */
-	public function createInitializer($basePath);
 	public function createAutoloader();
 	public function createPhpError();
 	public function createBootstrapper($type);

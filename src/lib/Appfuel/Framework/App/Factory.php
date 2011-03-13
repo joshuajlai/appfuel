@@ -10,28 +10,12 @@
  */
 namespace Appfuel\Framework\App;
 
-use Appfuel\Framework\Autoload\Autoloader;
-
 /**
  */
 class Factory implements FactoryInterface
 {
 	/**
-	 * Initializer is responsible for putting the system in a known state
-	 * globally by setting the autoloader ini settings for errors and 
-	 * include paths etc..
-	 *
-	 * @return	Initializer
-	 */
-    public function createInitializer($basePath)
-	{
-		$loader = $this->createAutoloader();
-		$err    = $this->createPhpError();
-		return new Initializer($basePath, $err, $loader);
-	}
-
-	/**
-	 * @return	Appfuel\Framework\Autoload\Autoloader
+	 * @return	Autoloader
 	 */
 	public function createAutoloader()
 	{

@@ -10,28 +10,19 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
  
-/*
- * setup include paths so that we can autoload. This bootstrap script
- * has positional importance and thus should not be moved. The two
- * paths currently assumed are the appfuel and the test dir path. We 
- * also keep the original include path otherwise we need to include 
- * phpunit files
- */
-$tDir  = dirname(__FILE__);
-$dependFile = realpath($tDir . '/../') . DIRECTORY_SEPARATOR . 
-			  'include'                . DIRECTORY_SEPARATOR .
-			  'appfuel.php';
+$tDir = realpath(dirname(__FILE__) . '/../');
+$file = $tDir	  . DIRECTORY_SEPARATOR . 
+		'include' . DIRECTORY_SEPARATOR .
+		'appfuel.php';
 
-if (! file_exists($dependFile)) {
-	throw new \Exception("Could not locate appfuel dependency script");
+if (! file_exists($file)) {
+	throw new \Exception("Could not locate appfuel dependency script ($file)");
 }
-require_once $dependFile;
+require_once $file;
 
 $configFile = 'test'   . DIRECTORY_SEPARATOR . 
 			  'config' . DIRECTORY_SEPARATOR .
 			  'test.ini';
  
-$factory     = new \Appfuel\Framework\App\Factory();
-$initializer = $factory->createInitializer($basePath);
-
+$initializer = new \Appfuel\Framework\App\Initializer($basePath);
 $initializer->initialize($configFile);

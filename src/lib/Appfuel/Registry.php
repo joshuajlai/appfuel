@@ -32,9 +32,18 @@ class Registry
 	 * @param	BagInterface	$bag
 	 * @return	NULL
 	 */
-	static public function init(BagInterface $bag = NULL)
+	static public function init($data = NULL)
 	{
-		if (NULL === $bag) {
+		/*
+		 * check is there is an array data with the initialization or if
+		 * a Bag structure is manually being passed in otherwise create an 
+		 * empty bag
+		 */
+		if (is_array($data)) {
+			$bag = new Bag($data);
+		} else if ($data instanceof BagInterface) {
+			$bag = $data;
+		} else {
 			$bag = new Bag();
 		}
 
@@ -78,6 +87,15 @@ class Registry
 
 		self::getBag()->add($key, $value);
 		return TRUE;
+	}
+
+	static public function getAll()
+	{
+		if (! self::isInit()) {
+			return array();
+		}
+
+		return self::getBag()->getAll();
 	}
 
 	/**

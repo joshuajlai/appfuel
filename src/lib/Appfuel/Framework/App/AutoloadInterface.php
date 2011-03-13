@@ -11,11 +11,15 @@
 namespace Appfuel\Framework\App;
 
 /**
- * Used to describe the methods needed in the factory to create 
- * the necessary objects used in starup, bootstrapping, dispatching and
- * Output rendering
+ * Describes the necessary method's need for an autoloader to work with 
+ * Appfuel
  */
-interface InitializeInterface
+interface AutoloadInterface
 {
-	public function initialize();
+	/**
+	 * Used to register the autoloader
+	 * @return	bool
+	 */
+	public function register();
+	public function unregister();
 }
