@@ -8,16 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Init;
+namespace Appfuel\Framework\App;
 
 /**
- * Interface used for framework initialization strategies
+ * Used to describe the methods needed in the factory to create 
+ * the necessary objects used in starup, bootstrapping, dispatching and
+ * Output rendering
  */
-interface InitInterface
+interface InitializeInterface
 {
-	/**
-	 * @param	array	$params	
-	 * @return	mixed
-	 */
-	public function init(array $params = array());
 }

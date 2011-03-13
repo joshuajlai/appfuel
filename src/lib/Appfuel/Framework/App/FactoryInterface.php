@@ -8,16 +8,24 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\Framework\App;
 
 /**
  * Used to describe the methods needed in the factory to create 
  * the necessary objects used in starup, bootstrapping, dispatching and
  * Output rendering
  */
-interface StartupFactoryInterface
+interface FactoryInterface
 {
-	public function createInitializer();
+	/**
+	 * Used to initialize the framework before startup
+	 * 
+	 * @param	string	$basePath	path to app root dir
+	 * @return	InitializerInterface
+	 */
+	public function createInitializer($basePath);
+	public function createAutoloader();
+	public function createPhpError();
 	public function createBootstrapper($type);
 	public function createStartupStrategy($type);
 	public function createFrontController();

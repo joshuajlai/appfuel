@@ -24,35 +24,40 @@ class Dependency
 
 	/**
 	 * add the base path to complete the absolute path to each 
-	 * necessary file then assign the files
+	 * necessary file then assign the files. must take into account
+	 * that from the base path all php classes are located in the lib 
+	 * folder.
 	 *
-	 * @param	string	$base	root path of the application
+	 * @param	string	$libDir	root path to appfuel classes 
 	 * @return	Dependency
 	 */
-	public function __construct($base)
+	public function __construct($libDir)
 	{
 		$sep  = DIRECTORY_SEPARATOR;
-		$path = "{$base}{$sep}Appfuel{$sep}";
+		$path = "{$libDir}{$sep}Appfuel{$sep}";
 		$fw   = "{$path}Framework{$sep}";
 		$std  = "{$path}Stdlib{$sep}";
 
 		$this->files = array(
 			"{$path}Exception.php",
 			"{$fw}Exception.php",
-			"{$fw}StartupFactoryInterface.php",
-			"{$fw}Autoload{$sep}AutoloaderInterface.php",
-			"{$fw}Autoload{$sep}Autoloader.php",
-			"{$fw}Init{$sep}Exception.php",
-			"{$fw}Init{$sep}InitInterface.php",
-			"{$fw}Init{$sep}Config.php",
-			"{$fw}Init{$sep}Includepath.php",
-			"{$fw}Init{$sep}Autoload.php",
 			"{$std}Exception.php",
-			"{$std}Autoload{$sep}Exception.php",
-			"{$std}Autoload{$sep}Autoloader.php",
+			"{$std}Data{$sep}Exception.php",
+			"{$std}Data{$sep}BagInterface.php",
+			"{$std}Data{$sep}Bag.php",
 			"{$std}Filesystem{$sep}Exception.php",
 			"{$std}Filesystem{$sep}Manager.php",
 			"{$std}Filesystem{$sep}File.php",
+			"{$fw}App{$sep}FactoryInterface.php",
+			"{$fw}App{$sep}Factory.php",
+			"{$fw}App{$sep}InitializeInterface.php",
+			"{$fw}App{$sep}Initializer.php",
+			"{$fw}App{$sep}PHPErrorInterface.php",
+			"{$fw}App{$sep}PHPError.php",
+			"{$fw}Autoload{$sep}AutoloaderInterface.php",
+			"{$fw}Autoload{$sep}Autoloader.php",
+			"{$path}Registry.php",
+			"{$path}AppManager.php"
 		);
 	}
 

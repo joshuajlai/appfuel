@@ -8,16 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\StdLib\Error;
+namespace Appfuel\Framework\App;
 
 /**
  * Map php error codes to more readable interface
  */
-class PHPError
+class PHPError implements PHPErrorInterface
 {
     /**
-     * Levels
-     * Translation from constants to more easily readable name
+     * Translation from constants to more easily usable names
      * @var array
      */
     protected $levels = array(
@@ -48,7 +47,7 @@ class PHPError
      */
     public function __construct()
     {
-        $this->levels['simple']     = E_ERROR | E_WARNING | E_PARSE;
+        $this->levels['standard']   = E_ERROR | E_WARNING | E_PARSE;
         $this->levels['all_strict'] = E_ALL | E_STRICT;
     }
 

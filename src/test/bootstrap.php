@@ -18,24 +18,20 @@
  * phpunit files
  */
 $tDir  = dirname(__FILE__);
-$afDir = realpath($tDir . '/../');
+$dependFile = realpath($tDir . '/../') . DIRECTORY_SEPARATOR . 
+			  'include'                . DIRECTORY_SEPARATOR .
+			  'appfuel.php';
 
-$afDirLib = $afDir . DIRECTORY_SEPARATOR . 'lib';
-if (! defined('TEST_AF_BASE_PATH')) {
-	define('TEST_AF_BASE_PATH', $afDir);
+if (! file_exists($dependFile)) {
+	throw new \Exception("Could not locate appfuel dependency script");
 }
-
-define ('AF_TEST_PATH', $tDir);
-define ('AF_TEST_EXAMPLE_PATH', $tDir . DIRECTORY_SEPARATOR . 'example');
-
-$managerFile = $afDirLib   . DIRECTORY_SEPARATOR .
-			  'Appfuel'    . DIRECTORY_SEPARATOR .
-			  'AppManager.php';
-
-require_once $managerFile;
+require_once $dependFile;
 
 $configFile = 'test'   . DIRECTORY_SEPARATOR . 
 			  'config' . DIRECTORY_SEPARATOR .
 			  'test.ini';
  
-\Appfuel\AppManager::init($afDir, $configFile);
+$factory     = new \Appfuel\Framework\App\Factory();
+$initializer = $factory->createInitializer($basePath);
+
+$initializer->initialize($configFile);

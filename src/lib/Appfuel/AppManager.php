@@ -10,6 +10,10 @@
  */
 namespace Appfuel;
 
+use Appfuel\Framework\Autoload\AutoloadInterface,
+	Appfuel\Framework\App\FactoryInterface,
+	Appfuel\Framework\App\Factory as AppFactory;
+
 /**
  * The AppManager is used to encapsulate the logic need to build an App object,
  * the application object used to run a user request. Because This is the fist
@@ -33,9 +37,21 @@ class AppManager
 	/**
 	 * Factory class used to create objects needed in Initialization, 
 	 * Bootstrapping and Dispatching
-	 * @var	Framework\AppFactoryInterface
+	 * @var	Framework\App\FactoryInterface
 	 */
-	protected $appFactory = NULL;
+	static protected $appFactory = NULL;
+
+	/**
+	 * Used to map and change the php error display_errors and error_reporting
+	 * @var	Stdlib\Error\PHPError
+	 */
+	static protected $phpError = NULL;
+
+	/**
+	 * Autoloader use is loading classes into memory
+	 * @var	Framework\Autoload\AutoloadInterface
+	 */
+	static protected $autoloader = NULL;
 
 	/**
 	 * Store name value pairs in this simple registry
@@ -48,14 +64,7 @@ class AppManager
 	 */
 	public function init($basePath, $configFile = NULL)
 	{
-		self::setBasePath($basePath);
-
-		if (! defined('AF_BASE_PATH')) {
-			define('AF_BASE_PATH', $basePath);
-		}
-		
-		self::loadDependencies($basePath);		
-
+		self::preInit($basePath);
 		$ini = self::getConfigData($configFile);
 		if (! is_array($ini)) {
 			return;
@@ -65,18 +74,56 @@ class AppManager
 		$iPaths  = self::getRegistryItem('include_path', '');
 		$iAction = self::getRegistryItem('include_path_action', 'replace');
 		self::initIncludePath($iPaths, $iAction);
-		
-		$autoload = self::getRegistryItem('autoload_class', NULL);
-		self::initAutoload($autoload);
+	
+		$errDisplay   = self::getRegistryItem('display_error',   'off');
+		$errReporting = self::getRegistryItem('error_reporting', 'none');	
+		self::initErrorSettings($errDisplay, $errReporting);
 
-		$errors = self::getRegistryItem('errors', NULL);
-		if (! is_array($errors)) {
-			$errors = NULL;
+		if (self::isAutoloader()) {
+			$autoloader = self::getAutoloader();
+			$autoloader->register();
 		}
-		self::initErrorSettings($errors);
-
-		echo "\n", print_r($errors,1), "\n";exit; 
 	}
+
+	/**
+	 * Initialize the core dependencies needed to begin initalization.	
+	 * 1) setBasePath		ensures the base path is available to the system.
+	 * 2) loadDependencies	allows dependent files to be loaded into memory
+	 * 3) setPhpError		makes the setting display_errors available
+	 * 4) setAutoloader		makes autoloading available
+	 *
+	 * @param	string	$basePath
+	 */
+	public function preInit($basePath)
+	{
+		self::setBasePath($basePath);
+
+		if (! defined('AF_BASE_PATH')) {
+			define('AF_BASE_PATH', $basePath);
+		}
+		
+		self::loadDependencies($basePath);		
+
+		/*
+		 * check to see if someone has there own app factory
+		 */
+		if (! self::isAppFactory()) {
+			self::setAppFactory(self::createAppFactory());
+		}
+
+		/*
+		 * check to see if someone has there own autoloader
+		 */
+		if (! self::isAutoloader()) {
+			self::setAutoloader(self::createAutoloader());
+		}
+	
+		/* 
+		 * assign the php error oject used in
+		 * initialization
+		 */
+		self::setPhpError(self::createPhpError());
+	}	
 	
 	/**
 	 * Parse the ini file given. When the parameter is empty use the
@@ -111,9 +158,16 @@ class AppManager
 	 * @param	array	$errors
 	 * @return	NULL
 	 */
-	public function initErrorSettings(array $errors = NULL)
+	public function initErrorSettings($display, $level)
 	{
-		echo "\n", print_r($errors,1), "\n";exit; 	
+		$phpError = self::getPhpError();
+		if (! $phpError) {
+			return FALSE;
+		}
+
+		$phpError->setDisplayStatus($display);
+		$phpError->setReportingLevel($level);
+		return;
 	}
 
 	/**
@@ -161,19 +215,9 @@ class AppManager
 	 */
 	public function initAutoload($class = NULL)
 	{
-		if (empty($class) || empty($path)) {
-			$autoloader = new Framework\Autoload\Autoloader();
-		} else {
-			$file = Stdlib\Filesystem\Manager::classNameToFileName($class);
-			$file = self::getBasePath() . DIRECTORY_SEPARATOR . 
-					'lib'               . DIRECTORY_SEPARATOR .
-					$file;
-			if (! file_exists($file)) {
-				throw new Exception("Could not find autoloader class ($file)");
-			}
-			require_once $file;
-
-			$autoloader = new $class();
+		$autoloader = self::getAutoloader();
+		if (! $autoloader) {
+			return;
 		}
 
 		$type = '\Appfuel\Framework\Autoload\AutoloadInterface';
@@ -185,13 +229,124 @@ class AppManager
 	}
 
 	/**
-	 * @return	string
+	 * @return	Stdlib\Error\PHPError
 	 */
-	static public function getBasePath()
+	static public function getPhpError()
 	{
-		return self::$basePath;
+		return self::$phpError;	
+	}
+
+	/**
+	 * @param	Stdlib\Error\PHPError
+	 * @return	NULL
+	 */
+	static public function setPhpError(Stdlib\Error\PHPError $error)
+	{
+		self::$phpError = $error;
 	}
 	
+	/**
+	 * @return	Stdlib\Error\PHPError
+	 */
+	static public function createPHPError()
+	{
+		return new Stdlib\Error\PHPError();
+	}
+
+	/**
+	 * The php error object is static so this allows you to clear it out
+	 * if needed
+	 *
+	 * @return	NULL
+	 */
+	static public function clearPHPError()
+	{
+		self::$phpError = NULL;
+	}
+
+	/**
+	 * @return	Framework\Autoload\Autoloader
+	 */
+	static public function getAutoloader()
+	{
+		return self::$autoloader;
+	}
+
+	/**
+	 * @return	Framework\Autoload\Autoloader
+	 */
+	static public function setAutoloader(AutoloadInterface $loader)
+	{
+		self::$autoloader = $loader;
+	}
+
+	/**
+	 * Determines if a valid autoloader has been set
+	 *
+	 * @return	bool
+	 */
+	static public function isAutoloader()
+	{
+		return self::$autoloader instanceof AutoloadInterface;
+	}
+
+	/**
+	 * Release the autoloader from memory. Used in testing.
+	 * @return	Framework\Autoload\Autoloader
+	 */
+	static public function clearAutoloader()
+	{
+		self::$autoloader = NULL;
+	}
+
+	/**
+	 * @return	Framework\Autoload\Autoloader
+	 */
+	static public function createAutoloader()
+	{
+		return new Framework\Autoload\Autoloader();
+	}
+
+	/**
+	 * @return	Framework\App\FactoryInterface
+	 */
+	static public function getAppFactory()
+	{
+		return self::$appFactory;
+	}
+
+	/**
+	 * @return	NULL
+	 */
+	static public function setAppFactory(FactoryInterface $factory)
+	{
+		return self::$appFactory = $factory;
+	}
+
+	/**
+	 * @return	Framework\App\FactoryInterface
+	 */
+	static public function createAppFactory()
+	{
+		return new AppFactory();
+	}
+
+	/**
+	 * @return	NULL
+	 */
+	static public function clearAppFactory()
+	{
+		self::$appFactory = NULL;
+	}
+
+	/**
+	 * @return	Framework\App\FactoryInterface
+	 */
+	static public function isAppFactory()
+	{
+		return self::$appFactory instanceof FactoryInterface;
+	}
+
 	/**
 	 * @return string
 	 */
@@ -200,6 +355,14 @@ class AppManager
 		return 'config' . DIRECTORY_SEPARATOR . 'app.ini';
 	}
 
+	/**
+	 * @return	string
+	 */
+	static public function getBasePath()
+	{
+		return self::$basePath;
+	}
+	
 	/**
 	 * @param	string	$path
 	 * @return	NULL
