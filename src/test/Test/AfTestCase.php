@@ -10,8 +10,11 @@
  */
 namespace Test;
 
+use Appfuel\Stdlib\Filesystem\Manager as FileManager;
+
 /**
- * 
+ * All Appfuel test cases will extend this class which provides features like
+ * path locations, backup/restore autoloader, backup/restore include paths. 
  */
 class AfTestCase extends \PHPUnit_Framework_TestCase
 {
@@ -30,7 +33,13 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 	 * Used to backup the current state of autoloaders
 	 * @var array
 	 */
-	protected $autoloadFunctions = array();
+	protected $bkAutoloadFunctions = array();
+
+	/**
+	 * Used to backup the include path
+	 * @var string
+	 */
+	protected $bkIncludePath = NULL;
 
 	/**
 	 * @return null
@@ -53,7 +62,7 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function backupAutoloaders()
 	{
-		$this->autoloadFunctions = spl_autoload_functions();
+		$this->bkAutoloadFunctions = spl_autoload_functions();
 		return $this;
 	}
 
@@ -82,7 +91,7 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function getBackedUpAutoloaders()
 	{
-		return $this->autoloadFunctions;
+		return $this->bkAutoloadFunctions;
 	}
 
 	/**
@@ -102,5 +111,51 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 		return $this;
 	}
 
+	/**
+	 * @return AfTestCase
+	 */
+	public function backupIncludePath()
+	{
+		$this->bkIncludePath = get_include_path();
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function restoreIncludePath()
+	{
+		$path = $this->getBackedUpIncludePath();
+		if (! is_string($path) || empty($path)) {
+			return  FALSE;
+		}
+
+		set_include_path($path);
+		return TRUE;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getBackedUpIncludePath()
+	{
+		return $this->bkIncludePath;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getCurrentPath($relPath = NULL)
+	{
+		$class = get_class($this);
+		$testPath = $this->getTestBase();
+		$dir  = FileManager::classNameToDir($class);
+
+		$full = $testPath . DIRECTORY_SEPARATOR . $dir;
+		if (NULL !== $relPath && is_string($relPath) && ! empty($relPath)) {
+			$full .= DIRECTORY_SEPARATOR . $relPath;
+		}
+		return $full;
+	}
 }
 

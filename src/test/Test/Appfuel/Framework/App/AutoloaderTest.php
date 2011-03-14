@@ -16,7 +16,7 @@ use Test\AfTestCase	as ParentTestCase,
 /**
  * 
  */
-class loaderTest extends ParentTestCase
+class AutoloaderTest extends ParentTestCase
 {
 	/**
 	 * System Under Test
@@ -122,5 +122,37 @@ class loaderTest extends ParentTestCase
 		/* class known not to exist */
 		$class = '\Known\Not\To\Exist';
 		$this->assertFalse($this->loader->isLoaded($class));
+	}
+
+	/**
+	 * In order to test the class loader we have a directory located in the 
+	 * same directory as this test class called files. In that directory 
+	 * includes the namespace we will try to load. First we clear any 
+	 * autoloaders to prevent loading of this file. then we set the include
+	 * path to only the directory with the namespace. We prove the file is not
+	 * loaded. We then load it and prove with isLoaded that it worked and 
+	 * finally restore the include path
+	 *
+	 * @return NULL
+	 */
+	public function testLoadClass()
+	{
+		/* clear the autoloaders so nothing else tries to load this class */
+		$this->clearAutoloaders();
+		$this->backupIncludePath();
+		
+		/* prove class does not exist */
+		$class = '\AutoloadExample\Instance';
+		$this->assertFalse($this->loader->isLoaded($class));
+
+		/* location of example class to find */
+		$path = $this->getCurrentPath('files');
+		set_include_path($path);
+
+		$this->loader->loadClass($class);
+	
+		$this->restoreIncludePath();
+		$this->restoreAutoloaders();
+		$this->assertTrue($this->loader->isLoaded($class));
 	}
 }
