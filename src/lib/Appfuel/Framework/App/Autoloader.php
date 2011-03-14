@@ -42,7 +42,8 @@ class Autoloader implements AutoloadInterface
      */
     public function isLoaded($className)
     {
-        return class_exists($className, FALSE) || interface_exists($className);
+        return class_exists($className, FALSE) || 
+			   interface_exists($className, FALSE);
     }
 
     /**
