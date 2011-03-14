@@ -8,47 +8,40 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\App;
-
-use Test\AfTestCase as ParentTestCase,
-	Appfuel\Framework\App\Factory	as AppFactory;
+namespace Test;
 
 /**
  * 
  */
-class InitializerTest extends ParentTestCase
+class AfTestCase extends \PHPUnit_Framework_TestCase
 {
 	/**
-	 * System Under Test
-	 * @var Appfuel\Framework\App\Factory
+	 * Absolute path to the testing directory
 	 */
-	protected $factory = NULL;
+	protected $testPath = NULL;
 
 	/**
 	 * Root path of the application
 	 * @var string
 	 */
-	protected $basePath = NULL;
+	protected $basePath = AF_BASE_PATH;
 
 	/**
 	 * @return null
 	 */
-	public function setUp()
+	public function getBasePath()
 	{
-		$this->basePath = AF_BASE_PATH;
+		return $this->basePath;
 	}
 
 	/**
 	 * @return null
 	 */
-	public function tearDown()
+	public function getTestBase()
 	{
+		return $this->basePath . DIRECTORY_SEPARATOR . 'test';
 	}
 
-	public function testInit()
-	{
-		$this->assertTrue(TRUE);
-	}
 
 }
 

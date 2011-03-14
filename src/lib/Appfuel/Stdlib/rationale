@@ -27,9 +27,6 @@ Module List:
 
 Filesystem:	Filesystem operations such as move, copy, delete etc...
 
-PhpEnv:		Handle ini directives, errors, things that change the server's
-			environment
-
 Data:		Standardize general list operations. We are not wrapping arrays
 			directory, these are iterators etc ...
 

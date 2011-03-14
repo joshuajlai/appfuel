@@ -10,7 +10,7 @@
  */
 namespace Test\Appfuel\Framework\App;
 
-use PHPUnit_Framework_TestCase		as ParentTestCase,
+use Test\AfTestCase					as ParentTestCase,
 	Appfuel\Framework\App\Factory	as AppFactory;
 
 /**

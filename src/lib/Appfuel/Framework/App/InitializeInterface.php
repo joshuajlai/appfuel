@@ -17,5 +17,5 @@ namespace Appfuel\Framework\App;
  */
 interface InitializeInterface
 {
-	public function initialize();
+	public function initialize($file);
 }

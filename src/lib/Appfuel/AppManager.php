@@ -10,7 +10,7 @@
  */
 namespace Appfuel;
 
-use Appfuel\Framework\Autoload\AutoloadInterface,
+use Appfuel\Framework\App\Initializer,
 	Appfuel\Framework\App\FactoryInterface,
 	Appfuel\Framework\App\Factory as AppFactory;
 
@@ -35,6 +35,13 @@ class AppManager
 	static protected $basePath = NULL;
 
 	/**
+	 * Name of the environment the server is deployed
+	 * @var	string
+	 */
+	static protected $env = NULL;
+
+
+	/**
 	 * Factory class used to create objects needed in Initialization, 
 	 * Bootstrapping and Dispatching
 	 * @var	Framework\App\FactoryInterface
@@ -42,269 +49,22 @@ class AppManager
 	static protected $appFactory = NULL;
 
 	/**
-	 * Used to map and change the php error display_errors and error_reporting
-	 * @var	Stdlib\Error\PHPError
-	 */
-	static protected $phpError = NULL;
-
-	/**
-	 * Autoloader use is loading classes into memory
-	 * @var	Framework\Autoload\AutoloadInterface
-	 */
-	static protected $autoloader = NULL;
-
-	/**
-	 * Store name value pairs in this simple registry
-	 * @var array
-	 */
-	static protected $data = NULL;
-
-	/**
 	 * 
 	 */
-	public function init($basePath, $configFile = NULL)
-	{
-		self::preInit($basePath);
-		$ini = self::getConfigData($configFile);
-		if (! is_array($ini)) {
-			return;
-		}
-		self::setRegistry($ini);
-
-		$iPaths  = self::getRegistryItem('include_path', '');
-		$iAction = self::getRegistryItem('include_path_action', 'replace');
-		self::initIncludePath($iPaths, $iAction);
-	
-		$errDisplay   = self::getRegistryItem('display_error',   'off');
-		$errReporting = self::getRegistryItem('error_reporting', 'none');	
-		self::initErrorSettings($errDisplay, $errReporting);
-
-		if (self::isAutoloader()) {
-			$autoloader = self::getAutoloader();
-			$autoloader->register();
-		}
-	}
-
-	/**
-	 * Initialize the core dependencies needed to begin initalization.	
-	 * 1) setBasePath		ensures the base path is available to the system.
-	 * 2) loadDependencies	allows dependent files to be loaded into memory
-	 * 3) setPhpError		makes the setting display_errors available
-	 * 4) setAutoloader		makes autoloading available
-	 *
-	 * @param	string	$basePath
-	 */
-	public function preInit($basePath)
+	public function initialize($basePath, $file)
 	{
 		self::setBasePath($basePath);
-
-		if (! defined('AF_BASE_PATH')) {
-			define('AF_BASE_PATH', $basePath);
-		}
-		
 		self::loadDependencies($basePath);		
-
-		/*
-		 * check to see if someone has there own app factory
-		 */
-		if (! self::isAppFactory()) {
-			self::setAppFactory(self::createAppFactory());
-		}
-
-		/*
-		 * check to see if someone has there own autoloader
-		 */
-		if (! self::isAutoloader()) {
-			self::setAutoloader(self::createAutoloader());
-		}
+		$initializer = self::createInitializer($basePath);
+		$initializer->initialize($file);
 	
-		/* 
-		 * assign the php error oject used in
-		 * initialization
-		 */
-		self::setPhpError(self::createPhpError());
-	}	
-	
-	/**
-	 * Parse the ini file given. When the parameter is empty use the
-	 * default location
-	 *
-	 * @param	string	$configFile		path the ini file
-	 * @param	bool	$useBase		use base path to resolve absolute path
-	 * @return	mixed	FALSE|array
-	 */
-	static public function getConfigData($file = NULL, $useBase = TRUE)
-	{
-		if (NULL === $file) {
-			$file = $this->getDefaultConfigPath();
+		self::setAppFactory($initializer->getFactory());
+
+		$envName = Registry::get('env', FALSE);
+		if (! $envName) {
+			throw new Exception('Initialize error: env not found in Registry');
 		}
-
-		if (TRUE === $useBase) {
-			$file = self::getBasePath() . DIRECTORY_SEPARATOR . $file;
-		}
-
-		if (! file_exists($file)) {
-			throw new Exception("Could not find config file ($file)");
-		}
-
-
-		return Stdlib\Filesystem\Manager::parseIni($file);
-	}
-
-	/**
-	 * Change the php ini setting for display_errors. Also change the
-	 * error_reporting
-	 *
-	 * @param	array	$errors
-	 * @return	NULL
-	 */
-	public function initErrorSettings($display, $level)
-	{
-		$phpError = self::getPhpError();
-		if (! $phpError) {
-			return FALSE;
-		}
-
-		$phpError->setDisplayStatus($display);
-		$phpError->setReportingLevel($level);
-		return;
-	}
-
-	/**
-	 * Initialize the php include path. Handles a single string or an
-	 * array of strings. The action parameter is used to determine how
-	 * how to deal with the original include path. should we append, prepend,
-	 * or replace it
-	 * 
-	 * @param	mixed	$paths
-	 * @param	string	$action		how to deal with the original path
-	 * @return	NULL	
-	 */
-	public function initIncludePath($paths, $action = 'replace')
-	{
-        /* a single path was passed in */
-        if (is_string($paths) && ! empty($paths)) {
-            $pathString = $paths;
-        } else if (is_array($paths) && ! empty($paths)) {
-            $pathString = implode(PATH_SEPARATOR, $paths);
-        } else {
-            return FALSE;
-        }
-
-        /*
-         * The default action is to replace the include path. If
-         * action is given with either append or prepend the 
-         * paths will be concatenated accordingly
-         */
-        $includePath = get_include_path();
-        if ('append' === $action) {
-            $pathString = $includePath . PATH_SEPARATOR . $pathString;
-        } else if ('prepend' === $action) {
-            $pathString .= PATH_SEPARATOR . $includePath;
-        }
-
-        return set_include_path($pathString);
-	}
-
-	/**
-	 * Initalize the autoload class given. If no class is given use
-	 * the appfuel autoloader. 
-	 *
-	 * @param	string	$class
-	 * @return	NULL
-	 */
-	public function initAutoload($class = NULL)
-	{
-		$autoloader = self::getAutoloader();
-		if (! $autoloader) {
-			return;
-		}
-
-		$type = '\Appfuel\Framework\Autoload\AutoloadInterface';
-		if (! is_a($autoloader, $type)) {
-			throw new Exception("Autoloader must implement $type");
-		}
-
-		$autoloader->register();
-	}
-
-	/**
-	 * @return	Stdlib\Error\PHPError
-	 */
-	static public function getPhpError()
-	{
-		return self::$phpError;	
-	}
-
-	/**
-	 * @param	Stdlib\Error\PHPError
-	 * @return	NULL
-	 */
-	static public function setPhpError(Stdlib\Error\PHPError $error)
-	{
-		self::$phpError = $error;
-	}
-	
-	/**
-	 * @return	Stdlib\Error\PHPError
-	 */
-	static public function createPHPError()
-	{
-		return new Stdlib\Error\PHPError();
-	}
-
-	/**
-	 * The php error object is static so this allows you to clear it out
-	 * if needed
-	 *
-	 * @return	NULL
-	 */
-	static public function clearPHPError()
-	{
-		self::$phpError = NULL;
-	}
-
-	/**
-	 * @return	Framework\Autoload\Autoloader
-	 */
-	static public function getAutoloader()
-	{
-		return self::$autoloader;
-	}
-
-	/**
-	 * @return	Framework\Autoload\Autoloader
-	 */
-	static public function setAutoloader(AutoloadInterface $loader)
-	{
-		self::$autoloader = $loader;
-	}
-
-	/**
-	 * Determines if a valid autoloader has been set
-	 *
-	 * @return	bool
-	 */
-	static public function isAutoloader()
-	{
-		return self::$autoloader instanceof AutoloadInterface;
-	}
-
-	/**
-	 * Release the autoloader from memory. Used in testing.
-	 * @return	Framework\Autoload\Autoloader
-	 */
-	static public function clearAutoloader()
-	{
-		self::$autoloader = NULL;
-	}
-
-	/**
-	 * @return	Framework\Autoload\Autoloader
-	 */
-	static public function createAutoloader()
-	{
-		return new Framework\Autoload\Autoloader();
+		self::setEnvName($envName);
 	}
 
 	/**
@@ -324,14 +84,6 @@ class AppManager
 	}
 
 	/**
-	 * @return	Framework\App\FactoryInterface
-	 */
-	static public function createAppFactory()
-	{
-		return new AppFactory();
-	}
-
-	/**
 	 * @return	NULL
 	 */
 	static public function clearAppFactory()
@@ -348,11 +100,20 @@ class AppManager
 	}
 
 	/**
-	 * @return string
+	 * @return	string
 	 */
-	static public function getDefaultConfigPath()
+	static public function getEnvName()
 	{
-		return 'config' . DIRECTORY_SEPARATOR . 'app.ini';
+		return self::$env;
+	}
+
+	/**
+	 * @param	string
+	 * @return	NULL
+	 */
+	static public function setEnvName($name)
+	{
+		self::$env = $name;
 	}
 
 	/**
@@ -372,8 +133,21 @@ class AppManager
 		if (empty($path) || ! is_string($path)) {
 			throw new \Exception("Param Error: Base path must be a string");
 		}
-		
-		self::$basePath = $path;
+	
+		if (! defined('AF_BASE_PATH')) {
+			define('AF_BASE_PATH', $path);
+		}
+
+		self::$basePath = AF_BASE_PATH;
+	}
+
+	/**
+	 * @param	string	$basePath
+	 * @return	Initializer
+	 */
+	public function createInitializer($basePath)
+	{
+		return new Initializer($basePath);
 	}
 
 	/**
@@ -412,53 +186,5 @@ class AppManager
 		$depend->load();
 
 		self::$isLoaded = TRUE;
-	}
-
-	/**
-	 * @param	array	$data
-	 * @return	NULL
-	 */
-	static public function setRegistry(array $data)
-	{
-		self::$data = $data;
-	}
-
-	/**
-	 * @return array
-	 */
-	static public function getRegistry()
-	{
-		return self::$data;
-	}
-
-	/**
-	 * Merge data into the registry
-	 *
-	 * @param	array $data
-	 * @return	NULL
-	 */
-	static public function loadRegistry(array $data)
-	{
-		self::$data = array_merge(self::$data, $data);
-	}
-
-	/**
-	 * Get an item out of the registry
-	 *
-	 * @param	string	$name
-	 * @param	mixed	$default	return when not found
-	 * @return	mixed
-	 */
-	static public function getRegistryItem($name, $default = NULL)
-	{
-		if (! is_string($name) || empty($name)) {
-			return $default;
-		}
-
-		if (! array_key_exists($name, self::$data)) {
-			return $default;
-		}
-
-		return self::$data[$name];
 	}
 }

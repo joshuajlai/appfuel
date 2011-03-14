@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Stdlib\Autoload;
+namespace Test\Appfuel\Framework\App;
 
-use PHPUnit_Framework_TestCase		as ParentTestCase,
-	Appfuel\Stdlib\Error\PHPError;
+use Test\AfTestCase	as ParentTestCase,
+	Appfuel\Framework\App\PHPError;
 
 /**
  * 
@@ -20,7 +20,7 @@ class PHPErrorTest extends ParentTestCase
 {
 	/**
 	 * System Under Test
-	 * @var Appfuel\Stdlib\Error\Error
+	 * @var Appfuel\Framework\App\PHPError
 	 */
 	protected $error = NULL;
 
@@ -66,11 +66,11 @@ class PHPErrorTest extends ParentTestCase
         /*
          * simple and all_strict are masks created in constructor
          */
-        $this->assertContains('simple', $levels);
+        $this->assertContains('standard', $levels);
         $this->assertContains('all_strict', $levels);
 
         $simpleNbr =  E_ERROR | E_WARNING | E_PARSE;
-        $this->assertEquals($simpleNbr, $levels['simple']);
+        $this->assertEquals($simpleNbr, $levels['standard']);
 
         $allStrictNbr = E_ALL | E_STRICT;
         $this->assertEquals($allStrictNbr, $levels['all_strict']);

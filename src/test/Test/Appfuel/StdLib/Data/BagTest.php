@@ -10,32 +10,27 @@
  */
 namespace Test\Appfuel\Stdlib\Autoload;
 
-use PHPUnit_Framework_TestCase as ParentTestCase,
-	Appfuel\AppManager;
+use Test\AfTestCase	as ParentTestCase,
+	Appfuel\Stdlib\BagInterface,
+	Appfuel\Stdlib\Data\Bag;
 
 /**
  * 
  */
-class AppManagerTest extends ParentTestCase
+class BagTest extends ParentTestCase
 {
 	/**
 	 * System Under Test
-	 * @var Appfuel\AppBuilder
+	 * @var Appfuel\Stdlib\Data\Bag
 	 */
-	protected $builder = NULL;
-
-	/**
-	 * Root path of the application
-	 * @var string
-	 */
-	protected $basePath = NULL;
+	protected $bag = NULL;
 
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->basePath = AF_BASE_PATH;
+		$this->bag = new Bag();
 	}
 
 	/**
@@ -43,12 +38,14 @@ class AppManagerTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
+		unset($this->bag);
 	}
 
-	public function testInit()
-	{
+    /**
+     * @return null
+     */
+    public function testConstructor()
+    {
 		$this->assertTrue(TRUE);
-	}
-
+    }
 }
-

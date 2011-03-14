@@ -8,21 +8,21 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\App;
+namespace Test\Appfuel\Stdlib\Autoload;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\Framework\App\Factory	as AppFactory;
+	Appfuel\AppManager;
 
 /**
  * 
  */
-class InitializerTest extends ParentTestCase
+class AppManagerTest extends ParentTestCase
 {
 	/**
 	 * System Under Test
-	 * @var Appfuel\Framework\App\Factory
+	 * @var Appfuel\AppBuilder
 	 */
-	protected $factory = NULL;
+	protected $builder = NULL;
 
 	/**
 	 * Root path of the application

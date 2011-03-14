@@ -10,13 +10,17 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
  
-$tDir = realpath(dirname(__FILE__) . '/../');
-$file = $tDir	  . DIRECTORY_SEPARATOR . 
-		'include' . DIRECTORY_SEPARATOR .
-		'appfuel.php';
+use Appfuel\AppManager;
+
+$basePath = realpath(dirname(__FILE__) . '/../');
+ 
+$file = $basePath . DIRECTORY_SEPARATOR . 
+		'lib'     . DIRECTORY_SEPARATOR .
+		'Appfuel' . DIRECTORY_SEPARATOR .
+		'AppManager.php';
 
 if (! file_exists($file)) {
-	throw new \Exception("Could not locate appfuel dependency script ($file)");
+	throw new \Exception("Could not find app manager file at $file");
 }
 require_once $file;
 
@@ -24,5 +28,4 @@ $configFile = 'test'   . DIRECTORY_SEPARATOR .
 			  'config' . DIRECTORY_SEPARATOR .
 			  'test.ini';
  
-$initializer = new \Appfuel\Framework\App\Initializer($basePath);
-$initializer->initialize($configFile);
+AppManager::Initialize($basePath, $configFile);

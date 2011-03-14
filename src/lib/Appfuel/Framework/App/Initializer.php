@@ -12,7 +12,8 @@ namespace Appfuel\Framework\App;
 
 use Appfuel\Framework\Autoload\AutoloadInterface as LoaderInterface,
 	Appfuel\Stdlib\Filesystem\Manager			 as FileManager,
-	Appfuel\Registry;
+	Appfuel\Registry,
+	Appfuel\AppManager;
 
 /**
  * The Initializer is used to put the framework into a known state for the
@@ -51,52 +52,58 @@ class Initializer implements InitializeInterface
 	 */
 	public function __construct($basePath)
 	{
+		if (! is_string($basePath) || empty($basePath)) {
+			throw new \Exception("Base path should be non empty string");
+		}
 		$this->basePath = $basePath;
+
 	}
 
     /**
      * Initialize the core dependencies needed to begin initalization.  
      * 1) parse config file into an array of data 
      * 2) initialize the registry and load the config data into it
-     * 3) pull out include paths to initialize the include path
-     * 4) pull out error variables to initialize error settings
-     * 5) register the autoloader
+	 * 3) pull out the app factory class and create it then 
+	 *	  assign the PHPError and Autoloader classes 
+     * 4) initialize the include path
+     * 5) initialize error settings
+     * 6) register the autoloader
 	 *
-     * @param   string  $configfile
+     * @param   string  $file	file path to config ini
+	 * @return	NULL
      */
-	public function initialize($file = NULL, array $data = NULL)
+	public function initialize($file)
 	{
-		if (is_string($file) && ! empty($file)) {
-			$this->initRegistryConfig($file);
-		} else if (is_array($data) && ! empty($data)) {
-			$this->initRegistry($data);
-		} else {
-			$defaultConfig = 'config' . DIRECTORY_SEPARATOR . 'app.ini';
-			$this->initRegistryConfig($default);
-		}
+		$this->initRegistryConfig($file);
 
-		$factoryClass = Registry::get(
-			'app_factory', 
-			'\Appfuel\Framework\App\Factory'
-		);
+		$defaultFactory = '\Appfuel\Framework\App\Factory';
+		$factoryClass   = Registry::get('app_factory', $defaultFactory);
 		$factory = $this->createFactory($factoryClass);
-		self::setFactory($factory);
-		self::setPHPError($factory->createPHPError());
+
+		$this->setFactory($factory);
+		$this->setPHPError($factory->createPHPError());
 
 		$autoloader = $factory->createAutoloader();
-		self::setAutoloader($autoloader);
+		$this->setAutoloader($autoloader);
 
         $paths  = Registry::get('include_path', '');
         $action = Registry::get('include_path_action', 'replace');
-        self::includePath($paths, $action);
+        $this->includePath($paths, $action);
 
         $display = Registry::get('display_error',   'off');
         $level   = Registry::get('error_reporting', 'none');
-        self::errorSettings($display, $level);
+        $this->errorSettings($display, $level);
 
-		self::registerAutoloader();
+		$this->registerAutoloader();
 	}
 
+	/**
+	 * Convert ini file into an array of data and use that to initialize
+	 * The application registry
+	 *
+	 * @param	string	$file	path to config file
+	 * @return	NULL
+	 */
 	public function initRegistryConfig($file)
 	{
 		$data = $this->getConfigData($file);
