@@ -29,7 +29,7 @@ class FactoryTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->basePath = AF_BASE_PATH;
+		$this->basePath = $this->getBasePath();
 		$this->factory  = new AppFactory();
 	}
 

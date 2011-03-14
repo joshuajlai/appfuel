@@ -19,15 +19,10 @@ use Appfuel\Stdlib\Filesystem\Manager as FileManager;
 class AfTestCase extends \PHPUnit_Framework_TestCase
 {
 	/**
-	 * Absolute path to the testing directory
-	 */
-	protected $testPath = NULL;
-
-	/**
 	 * Root path of the application
 	 * @var string
 	 */
-	protected $basePath = AF_BASE_PATH;
+	private $afBasePath = AF_BASE_PATH;
 
 	/**
 	 * Used to backup the current state of autoloaders
@@ -46,7 +41,7 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function getBasePath()
 	{
-		return $this->basePath;
+		return $this->afBasePath;
 	}
 
 	/**
@@ -54,7 +49,7 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function getTestBase()
 	{
-		return $this->basePath . DIRECTORY_SEPARATOR . 'test';
+		return $this->afBasePath . DIRECTORY_SEPARATOR . 'test';
 	}
 
 	/**

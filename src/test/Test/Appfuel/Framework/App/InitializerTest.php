@@ -11,7 +11,7 @@
 namespace Test\Appfuel\Framework\App;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\Framework\App\Factory	as AppFactory;
+	Appfuel\Framework\App\Initializer;
 
 /**
  * 
@@ -20,9 +20,9 @@ class InitializerTest extends ParentTestCase
 {
 	/**
 	 * System Under Test
-	 * @var Appfuel\Framework\App\Factory
+	 * @var Appfuel\Framework\App\Initializer
 	 */
-	protected $factory = NULL;
+	protected $initializer = NULL;
 
 	/**
 	 * Root path of the application
@@ -35,7 +35,9 @@ class InitializerTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->basePath = AF_BASE_PATH;
+		$this->basePath = $this->getBasePath();
+		
+		$this->initializer = new Initializer($this->basePath);
 	}
 
 	/**
@@ -43,12 +45,63 @@ class InitializerTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
+		unset($this->initializer);
 	}
 
-	public function testInit()
+	/**
+	 * @return null
+	 */
+	public function testGetSetFactory()
 	{
-		$this->assertTrue(TRUE);
+		$this->assertNull(
+			$this->initializer->getFactory(),
+			'Initial value of getFactory should be null'
+		);
+
+		$factory = $this->getMock(
+			'\\Appfuel\\Framework\\App\\FactoryInterface'
+		);
+
+		$result = $this->initializer->setFactory($factory);
+		$this->assertSame(
+			$this->initializer,
+			$result,
+			'Should support fluent interface'
+		);
+
+		$this->assertSame(
+			$factory,
+			$this->initializer->getFactory(),
+			'Should be the factory that was set'
+		);
 	}
 
+	/**
+	 * @return null
+	 */
+	public function testGetSetAutoloader()
+	{
+		$this->assertNull(
+			$this->initializer->getAutoloader(),
+			'Initial value of getAutoloader should be null'
+		);
+
+		$loader = $this->getMock(
+			'\\Appfuel\\Framework\\App\\AutoloadInterface'
+		);
+
+		$result = $this->initializer->setAutoloader($loader);
+		$this->assertSame(
+			$this->initializer,
+			$result,
+			'Should support fluent interface'
+		);
+
+		$this->assertSame(
+			$loader,
+			$this->initializer->getAutoloader(),
+			'Should be the Autoloader that was set'
+		);
+	}
 }
 

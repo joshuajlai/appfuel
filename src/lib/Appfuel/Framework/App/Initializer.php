@@ -53,7 +53,7 @@ class Initializer implements InitializeInterface
 	public function __construct($basePath)
 	{
 		if (! is_string($basePath) || empty($basePath)) {
-			throw new \Exception("Base path should be non empty string");
+			throw new \Exception("Base path should be none empty string");
 		}
 		$this->basePath = $basePath;
 
@@ -216,7 +216,7 @@ class Initializer implements InitializeInterface
     public function setFactory(FactoryInterface $factory)
     {
 		$this->factory = $factory;
-        return $this->this;
+        return $this;
     }
 
 	/**
@@ -264,7 +264,7 @@ class Initializer implements InitializeInterface
     public function setAutoloader(AutoloadInterface $autoloader)
     {
 		$this->autoloader = $autoloader;
-        return $this->this;
+        return $this;
     }
 
     /**
