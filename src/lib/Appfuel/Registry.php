@@ -61,6 +61,18 @@ class Registry
 	}
 
 	/**
+	 * @return int
+	 */
+	static public function count()
+	{
+		if (! self::isInit()) {
+			return 0;
+		}
+
+		return self::getBag()->count();
+	}
+
+	/**
 	 * @param	string	$key
 	 * @param	mixed	$default	returned when key is not found
 	 * @return	mixed

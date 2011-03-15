@@ -10,7 +10,9 @@
  */
 namespace Test\Appfuel\Framework\App;
 
-use Test\AfTestCase as ParentTestCase,
+use Test\AfTestCase					  as ParentTestCase,
+	Appfuel\Stdlib\Filesystem\Manager as FileManager,
+	Appfuel\Registry,
 	Appfuel\Framework\App\Initializer;
 
 /**
@@ -31,20 +33,31 @@ class InitializerTest extends ParentTestCase
 	protected $basePath = NULL;
 
 	/**
+	 * Used to back up the registery
+	 * @var array
+	 */
+	protected $registryData = array();
+
+	/**
+	 * Save the include path and registry settings
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->basePath = $this->getBasePath();
-		
+		$this->backupIncludePath();
+		$this->basePath      = $this->getBasePath();
+		$this->registeryData = Registry::getAll();
 		$this->initializer = new Initializer($this->basePath);
 	}
 
 	/**
+	 * Restore the include path and registry settings
 	 * @return null
 	 */
 	public function tearDown()
 	{
+		$this->restoreIncludePath();
+		Registry::init($this->registryData);
 		unset($this->initializer);
 	}
 
@@ -153,7 +166,212 @@ class InitializerTest extends ParentTestCase
 			'Should be the Error Object that was set'
 		);
 	}
+	
+	/**
+	 * @return null
+	 */
+	public function testIncludePathDefault()
+	{
+		$paths = array(
+			'path_1',
+			'path_2'
+		);
+
+		$oldPath	 = get_include_path();
+		$expected    = 'path_1' . PATH_SEPARATOR . 'path_2';
+		$result      = $this->initializer->includePath($paths);
+		$includePath = get_include_path();
+		$this->restoreIncludePath();
+
+		$this->assertEquals($result, $oldPath);
+		$this->assertEquals($expected, $includePath);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testIncludePathAppend()
+	{
+		$paths = array(
+			'path_1',
+			'path_2'
+		);
+
+		$oldPath	 = get_include_path();
+		$expected    = $oldPath . PATH_SEPARATOR . 
+					   'path_1' . PATH_SEPARATOR . 'path_2';
+		$result      = $this->initializer->includePath($paths, 'append');
+		$includePath = get_include_path();
+		$this->restoreIncludePath();
+
+		$this->assertEquals($result, $oldPath);
+		$this->assertEquals($expected, $includePath);
+	}
 
 
+	/**
+	 * @return null
+	 */
+	public function testIncludePathPrepend()
+	{
+		$paths = array(
+			'path_1',
+			'path_2'
+		);
+
+		$oldPath	 = get_include_path();
+		$expected    = 'path_1' . PATH_SEPARATOR . 
+					   'path_2' . PATH_SEPARATOR .
+					   $oldPath;
+		$result      = $this->initializer->includePath($paths, 'prepend');
+		$includePath = get_include_path();
+		$this->restoreIncludePath();
+
+		$this->assertEquals($result, $oldPath);
+		$this->assertEquals($expected, $includePath);
+	}
+
+	/**
+	 * Same as default
+	 * @return null
+	 */
+	public function testIncludePathReplace()
+	{
+		$paths = array(
+			'path_1',
+			'path_2'
+		);
+		$oldPath	 = get_include_path();
+		$expected    = 'path_1' . PATH_SEPARATOR . 
+					   'path_2';
+
+		$result      = $this->initializer->includePath($paths, 'replace');
+		$includePath = get_include_path();
+		
+		$this->restoreIncludePath();
+		$this->assertEquals($result, $oldPath);
+		$this->assertEquals($expected, $includePath);
+	}
+	
+	/**
+	 * This method will try to append the base path onto to path you give
+	 * it to get the full path to the config. Reason for this is to allow 
+	 * developers to never care where the base path is and how to get it.
+	 *
+	 * @return null
+	 */
+	public function testGetConfigData()
+	{
+		/* relative path to config file */
+		$path = 'test' . DIRECTORY_SEPARATOR . 
+				FileManager::classNameToDir(get_class($this)) 
+				. DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR 
+				. 'config.ini';
+
+		$result = $this->initializer->getConfigData($path);
+		$this->assertInternalType('array', $result);
+		$this->assertArrayHasKey('label_1', $result);
+		$this->assertArrayHasKey('label_2', $result);
+		$this->assertArrayHasKey('label_3', $result);
+
+		$this->assertEquals('value_1', $result['label_1']);
+		$this->assertEquals('value_2', $result['label_2']);
+		$this->assertEquals('value_3', $result['label_3']);
+	}
+
+	/**
+	 * @expectedException	\Appfuel\Framework\App\Exception
+	 */
+	public function testGetConfigDataFileDoesNotExist()
+	{
+		/* relative path to config file */
+		$path = 'test' . DIRECTORY_SEPARATOR . 'asdasdasd';
+
+		$result = $this->initializer->getConfigData($path);
+	}
+
+	/**
+	 * Test to ensure we can initialize data into the registery
+	 *
+	 * @return null
+	 */
+	public function testInitRegistry()
+	{
+		Registry::init();
+		$this->assertEquals(0, Registry::count());
+
+		$this->initializer->initRegistry(array());	
+		$this->assertEquals(0, Registry::count());
+
+		$data = array(
+			'label_1' => 'value_1',
+			'label_2' => 'value_2'
+		);
+
+		$this->initializer->initRegistry($data);	
+		$this->assertEquals(2, Registry::count());
+
+		$this->assertEquals($data['label_1'], Registry::get('label_1'));
+		$this->assertEquals($data['label_2'], Registry::get('label_2'));
+	}
+
+	/**
+	 * This method will try to append the base path onto to path you give
+	 * it to get the full path to the config. Reason for this is to allow 
+	 * developers to never care where the base path is and how to get it.
+	 *
+	 * @return null
+	 */
+	public function testInitRegistryWithConfig()
+	{
+		/* clear out the registry */
+		Registry::init();
+
+		/* relative path to config file */
+		$path = 'test' . DIRECTORY_SEPARATOR . 
+				FileManager::classNameToDir(get_class($this)) 
+				. DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR 
+				. 'config.ini';
+
+		$result = $this->initializer->initRegistryWithConfig($path);
+		$this->assertNull($result);
+		$this->assertEquals('value_1', Registry::get('label_1'));
+		$this->assertEquals('value_2', Registry::get('label_2'));
+		$this->assertEquals('value_3', Registry::get('label_3'));
+	}
+
+	public function testInitFromRegistry()
+	{
+		/* clear out any objects set during initialization */
+		$this->initializer->reset();
+		Registry::add('app_factory', '\Appfuel\Framework\App\Factory');
+		
+		$paths = array('path_1', 'path_2');
+		Registry::add('include_path', $paths);
+		Registry::add('include_path_action', 'replace');
+
+		Registry::add('display_error', 1);
+		Registry::add('error_reporting', 'all');
+
+		
+		$result = $this->initializer->initFromRegistry();
+
+		$includePath    = get_include_path();
+		$displayError   = ini_get('display_errors');
+		$errorReporting = error_reporting();
+
+		/* 
+		 * must restore the settings so we can test the results 
+		 * we backed up the actual registry so we can restore 
+		 */
+		$this->initializer->reset();
+		Registry::init($this->registryData);
+		$this->initializer->initFromRegistry();
+	
+		$expectedInclude = 'path_1' . PATH_SEPARATOR . 'path_2';
+		$this->assertEquals($expectedInclude, $includePath);	
+		$this->assertEquals(1, $displayError);
+		$this->assertEquals(E_ALL, $errorReporting);
+	}
 }
 

@@ -59,15 +59,39 @@ class Initializer implements InitializeInterface
 
 	}
 
-    /**
-     * Initialize the core dependencies needed to begin initalization.  
-     * 1) parse config file into an array of data 
-     * 2) initialize the registry and load the config data into it
-	 * 3) pull out the app factory class and create it then 
+    /**  
+	 * Parse the config file into an array and use that array to initalize
+	 * (load) the Registry. Then use the registry to put the framework into
+	 * a known state
+	 *
+     * @param   string  $file	file path to config ini
+	 * @return	NULL
+     */
+	public function initialize($file)
+	{
+		$this->initRegistryWithConfig($file);
+		$this->initFromRegistry();
+	}
+	
+	/**
+	 * Clear all init objects and reset the registery
+	 * 
+	 * @return null
+	 */
+	public function reset()
+	{
+		$this->factory    = NULL;
+		$this->phpError   = NULL;
+		$this->autoloader = NULL;
+		Registry::init();
+	}
+	    
+	/**
+	 * 1) pull out the app factory class and create it then 
 	 *	  assign the PHPError and Autoloader classes 
-     * 4) initialize the include path
-     * 5) initialize error settings
-     * 6) register the autoloader
+     * 2) initialize the include path
+     * 3) initialize error settings
+     * 4) register the autoloader
 	 *
 	 * We set the Factory, PHPError and Error so the Manager can have access
 	 * to them through this object
@@ -75,30 +99,39 @@ class Initializer implements InitializeInterface
      * @param   string  $file	file path to config ini
 	 * @return	NULL
      */
-	public function initialize($file)
+	public function initFromRegistry()
 	{
-		$this->initRegistryConfig($file);
-
-		$defaultFactory = '\Appfuel\Framework\App\Factory';
-		$factoryClass   = Registry::get('app_factory', $defaultFactory);
-		$factory = $this->createFactory($factoryClass);
-
-		$this->setFactory($factory);
-
-        $paths  = Registry::get('include_path', '');
-        $action = Registry::get('include_path_action', 'replace');
-        $this->includePath($paths, $action);
-
-		$error   = $factory->createPHPError();
-        $display = Registry::get('display_error',   'off');
-        $level   = Registry::get('error_reporting', 'none');
 		
-		$this->setPHPError($error);
+		$factory = $this->getFactory();
+		if (! $factory instanceof FactoryInterface) {
+			$defaultFactory = '\Appfuel\Framework\App\Factory';
+			$fClass  = Registry::get('app_factory', $defaultFactory);
+			$factory = $this->createFactory($fClass);
+			$this->setFactory($factory);
+		}
+
+		$paths  = Registry::get('include_path', FALSE);
+        $action = Registry::get('include_path_action', 'replace');
+	
+		if ($paths) {
+			$this->includePath($paths, $action);
+		}
+
+		$error = $this->getPHPError();
+		if (! $error instanceof PHPErrorInterface) {       
+			$error   = $factory->createPHPError();
+			$display = Registry::get('display_error',   'off');
+			$level   = Registry::get('error_reporting', 'none');
+			$this->setPHPError($error);
+		}
 		$error->setDisplayStatus($display);
         $error->setReportingLevel($level);
- 
-		$autoloader = $factory->createAutoloader();
-		$this->setAutoloader($autoloader);
+ 	
+		$autoloader = $this->getAutoloader();
+		if (! $autoloader instanceof AutoloadInterface) {
+			$autoloader = $factory->createAutoloader();
+			$this->setAutoloader($autoloader);
+		}
 		$autoloader->register();
 	}
 
@@ -109,7 +142,7 @@ class Initializer implements InitializeInterface
 	 * @param	string	$file	path to config file
 	 * @return	NULL
 	 */
-	public function initRegistryConfig($file)
+	public function initRegistryWithConfig($file)
 	{
 		$data = $this->getConfigData($file);
 		if (! is_array($data)) {
