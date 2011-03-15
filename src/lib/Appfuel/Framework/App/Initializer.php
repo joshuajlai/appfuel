@@ -69,6 +69,9 @@ class Initializer implements InitializeInterface
      * 5) initialize error settings
      * 6) register the autoloader
 	 *
+	 * We set the Factory, PHPError and Error so the Manager can have access
+	 * to them through this object
+	 *
      * @param   string  $file	file path to config ini
 	 * @return	NULL
      */
@@ -81,20 +84,22 @@ class Initializer implements InitializeInterface
 		$factory = $this->createFactory($factoryClass);
 
 		$this->setFactory($factory);
-		$this->setPHPError($factory->createPHPError());
-
-		$autoloader = $factory->createAutoloader();
-		$this->setAutoloader($autoloader);
 
         $paths  = Registry::get('include_path', '');
         $action = Registry::get('include_path_action', 'replace');
         $this->includePath($paths, $action);
 
+		$error   = $factory->createPHPError();
         $display = Registry::get('display_error',   'off');
         $level   = Registry::get('error_reporting', 'none');
-        $this->errorSettings($display, $level);
-
-		$this->registerAutoloader();
+		
+		$this->setPHPError($error);
+		$error->setDisplayStatus($display);
+        $error->setReportingLevel($level);
+ 
+		$autoloader = $factory->createAutoloader();
+		$this->setAutoloader($autoloader);
+		$autoloader->register();
 	}
 
 	/**
@@ -178,29 +183,6 @@ class Initializer implements InitializeInterface
         return set_include_path($pathString);
     }
 
-    /**
-     * Change the php ini setting for display_errors. Also change the
-     * error_reporting
-     *
-     * @param   array   $errors
-     * @return  NULL
-     */
-    public function errorSettings($display, $level)
-    {
-        $phpError = $this->getPhpError();
-        $phpError->setDisplayStatus($display);
-        $phpError->setReportingLevel($level);
-        return;
-    }
-
-	/**
-	 * @return NULL
-	 */
-	public function registerAutoloader()
-	{
-		$this->getAutoloader()
-			 ->register();
-	}
 
     /**
      * @return  FactoryInterface
