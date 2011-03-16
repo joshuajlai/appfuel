@@ -74,18 +74,6 @@ class Initializer implements InitializeInterface
 	}
 	
 	/**
-	 * Clear all init objects and reset the registery
-	 * 
-	 * @return null
-	 */
-	public function reset()
-	{
-		$this->factory    = NULL;
-		$this->phpError   = NULL;
-		$this->autoloader = NULL;
-	}
-	    
-	/**
 	 * 1) pull out the app factory class and create it then 
 	 *	  assign the PHPError and Autoloader classes 
      * 2) initialize the include path
@@ -214,7 +202,6 @@ class Initializer implements InitializeInterface
 
         return set_include_path($pathString);
     }
-
 
     /**
      * @return  FactoryInterface

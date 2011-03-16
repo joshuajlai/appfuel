@@ -130,6 +130,7 @@ class InitializerTest extends ParentTestCase
 			$this->initializer->getAutoloader(),
 			'Should be the Autoloader that was set'
 		);
+
 	}
 
 	/**
@@ -333,10 +334,15 @@ class InitializerTest extends ParentTestCase
 		$this->assertEquals('value_3', Registry::get('label_3'));
 	}
 
+	/**
+	 * Test initializing with the registry. We create a new intializer
+	 * because new factory will be create from those registry settings
+	 *
+	 */
 	public function testInitFromRegistry()
 	{
 		/* clear out any objects set during initialization */
-		$this->initializer->reset();
+		$initializer = new Initializer($this->basePath);
 		Registry::add('app_factory', '\Appfuel\Framework\App\Factory');
 		
 		$paths = array('path_1', 'path_2');
@@ -347,7 +353,7 @@ class InitializerTest extends ParentTestCase
 		Registry::add('error_reporting', 'all');
 
 		
-		$result = $this->initializer->initFromRegistry();
+		$result = $initializer->initFromRegistry();
 
 		$includePath    = get_include_path();
 		$displayError   = ini_get('display_errors');
@@ -362,32 +368,11 @@ class InitializerTest extends ParentTestCase
 		$this->assertEquals($expectedInclude, $includePath);	
 		$this->assertEquals(1, $displayError);
 		$this->assertEquals(E_ALL, $errorReporting);
-
-	}
-
-	public function testReset()
-	{
-		$factory = $this->getMock(
-			'\\Appfuel\\Framework\\App\\FactoryInterface'
+	
+		$this->assertInstanceOf(
+			'\\Appfuel\\Framework\\App\\FactoryInterface',
+			$initializer->getFactory()
 		);
-
-		$error = $this->getMock(
-			'\\Appfuel\\Framework\\App\\PHPErrorInterface'
-		);
-
-		$autoloader = $this->getMock(
-			'\\Appfuel\\Framework\\App\\AutoloadInterface'
-		);
-
-		$this->initializer->setFactory($factory);
-		$this->initializer->setPHPError($error);
-		$this->initializer->setAutoloader($autoloader);
-		$result = $this->initializer->reset();
-		$this->assertNull($result);
-		$this->assertNull($this->initializer->getFactory());
-		$this->assertNull($this->initializer->getPHPError());
-		$this->assertNull($this->initializer->getAutoloader());
-
 	}
 }
 
