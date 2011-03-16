@@ -69,6 +69,15 @@ class Bag implements BagInterface
 	}
 
 	/**
+	 * @param	string $key
+	 * @return	bool
+	 */
+	public function exists($key)
+	{
+		return array_key_exists($key, $this->items);
+	}
+
+	/**
 	 * Return the entire dataset
 	 * 
 	 * @return array
