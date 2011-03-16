@@ -33,12 +33,6 @@ class InitializerTest extends ParentTestCase
 	protected $basePath = NULL;
 
 	/**
-	 * Used to back up the registery
-	 * @var array
-	 */
-	protected $registryData = array();
-
-	/**
 	 * Save the include path and registry settings
 	 * @return null
 	 */
@@ -46,7 +40,6 @@ class InitializerTest extends ParentTestCase
 	{
 		$this->backupIncludePath();
 		$this->basePath      = $this->getBasePath();
-		$this->registeryData = Registry::getAll();
 		$this->initializer = new Initializer($this->basePath);
 	}
 
@@ -57,8 +50,8 @@ class InitializerTest extends ParentTestCase
 	public function tearDown()
 	{
 		$this->restoreIncludePath();
-		Registry::init($this->registryData);
 		unset($this->initializer);
+		$this->restoreAppfuelSettings();
 	}
 
 	/**
@@ -364,14 +357,37 @@ class InitializerTest extends ParentTestCase
 		 * must restore the settings so we can test the results 
 		 * we backed up the actual registry so we can restore 
 		 */
-		$this->initializer->reset();
-		Registry::init($this->registryData);
-		$this->initializer->initFromRegistry();
-	
+		$this->restoreAppfuelSettings();	
 		$expectedInclude = 'path_1' . PATH_SEPARATOR . 'path_2';
 		$this->assertEquals($expectedInclude, $includePath);	
 		$this->assertEquals(1, $displayError);
 		$this->assertEquals(E_ALL, $errorReporting);
+
+	}
+
+	public function testReset()
+	{
+		$factory = $this->getMock(
+			'\\Appfuel\\Framework\\App\\FactoryInterface'
+		);
+
+		$error = $this->getMock(
+			'\\Appfuel\\Framework\\App\\PHPErrorInterface'
+		);
+
+		$autoloader = $this->getMock(
+			'\\Appfuel\\Framework\\App\\AutoloadInterface'
+		);
+
+		$this->initializer->setFactory($factory);
+		$this->initializer->setPHPError($error);
+		$this->initializer->setAutoloader($autoloader);
+		$result = $this->initializer->reset();
+		$this->assertNull($result);
+		$this->assertNull($this->initializer->getFactory());
+		$this->assertNull($this->initializer->getPHPError());
+		$this->assertNull($this->initializer->getAutoloader());
+
 	}
 }
 

@@ -10,7 +10,8 @@
  */
 namespace Test;
 
-use Appfuel\Stdlib\Filesystem\Manager as FileManager;
+use Appfuel\Stdlib\Filesystem\Manager as FileManager,
+	Appfuel\AppManager;
 
 /**
  * All Appfuel test cases will extend this class which provides features like
@@ -18,6 +19,12 @@ use Appfuel\Stdlib\Filesystem\Manager as FileManager;
  */
 class AfTestCase extends \PHPUnit_Framework_TestCase
 {
+	/**
+	 * Holds the original include path when the system starts up
+	 * @var string
+	 */
+	static protected $originalIncludePath = NULL;
+
 	/**
 	 * Root path of the application
 	 * @var string
@@ -37,6 +44,23 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 	protected $bkIncludePath = NULL;
 
 	/**
+	 * @return string
+	 */
+	static public function getOriginalIncludePath()
+	{
+		return self::$originalIncludePath;
+	}
+
+	/**
+	 * @param	string	$path
+	 * @return	null
+	 */
+	static public function setOriginalIncludePath($path)
+	{
+		self::$originalIncludePath = $path;
+	}
+
+	/**
 	 * @return null
 	 */
 	public function getBasePath()
@@ -50,6 +74,16 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 	public function getTestBase()
 	{
 		return $this->afBasePath . DIRECTORY_SEPARATOR . 'test';
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getTestConfigFile()
+	{
+		return 'test'		. DIRECTORY_SEPARATOR . 
+			   'config'     . DIRECTORY_SEPARATOR .
+			   'test.ini';
 	}
 
 	/**
@@ -79,6 +113,21 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 
 		}
 
+	}
+	
+	/**
+	 * Restore all settings from the config file. The original include path 
+	 * that was used to initialize app fuel is also restored prior to reset.
+	 * 
+	 * @return null
+	 */
+	public function restoreAppfuelSettings()
+	{
+		set_include_path(self::getOriginalIncludePath());
+		AppManager::initialize(
+			$this->getBasePath(), 
+			$this->getTestConfigFile()
+		);	
 	}
 
 	/**

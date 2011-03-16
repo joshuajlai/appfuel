@@ -25,6 +25,16 @@ class Autoloader implements AutoloadInterface
      */
     public function register()
     {
+		$functions = spl_autoload_functions();
+		foreach ($functions as $data) {
+			if (is_string($data)) {
+				continue;
+			} else if (is_array($data) && 2 === count($data)) {
+				if ($data[0] instanceof Autoloader && 'loadClass' === $data[1]) {
+					return FALSE;
+				} 
+			}
+		}
         return spl_autoload_register(array($this, 'loadClass'));
     }
 

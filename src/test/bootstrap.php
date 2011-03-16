@@ -10,7 +10,8 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
  
-use Appfuel\AppManager;
+use Appfuel\AppManager,
+	Test\AfTestCase;
 
 $basePath = realpath(dirname(__FILE__) . '/../');
  
@@ -27,5 +28,8 @@ require_once $file;
 $configFile = 'test'   . DIRECTORY_SEPARATOR . 
 			  'config' . DIRECTORY_SEPARATOR .
 			  'test.ini';
- 
+
+$oPath = get_include_path();
 AppManager::Initialize($basePath, $configFile);
+
+AfTestCase::setOriginalIncludePath($oPath);

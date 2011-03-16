@@ -83,7 +83,6 @@ class Initializer implements InitializeInterface
 		$this->factory    = NULL;
 		$this->phpError   = NULL;
 		$this->autoloader = NULL;
-		Registry::init();
 	}
 	    
 	/**

@@ -51,7 +51,7 @@ class AppManager
 	/**
 	 * 
 	 */
-	public function initialize($basePath, $file)
+	static public function initialize($basePath, $file)
 	{
 		self::setBasePath($basePath);
 		self::loadDependencies($basePath);		
@@ -128,7 +128,7 @@ class AppManager
 	 * @param	string	$path
 	 * @return	NULL
 	 */
-	protected function setBasePath($path)
+	static protected function setBasePath($path)
 	{
 		if (empty($path) || ! is_string($path)) {
 			throw new \Exception("Param Error: Base path must be a string");
@@ -145,7 +145,7 @@ class AppManager
 	 * @param	string	$basePath
 	 * @return	Initializer
 	 */
-	public function createInitializer($basePath)
+	static public function createInitializer($basePath)
 	{
 		return new Initializer($basePath);
 	}
@@ -166,7 +166,7 @@ class AppManager
 	 * @param	string	$basePath
 	 * @return	NULL
 	 */
-	public function loadDependencies($basePath)
+	static public function loadDependencies($basePath)
 	{
 		if (self::isDependenciesLoaded()) {
 			return;
