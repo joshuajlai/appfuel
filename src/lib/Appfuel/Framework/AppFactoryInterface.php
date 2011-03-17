@@ -8,14 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\App;
+namespace Appfuel\Framework;
 
 /**
  * Used to describe the methods needed in the factory to create 
  * the necessary objects used in starup, bootstrapping, dispatching and
  * Output rendering
  */
-interface FactoryInterface
+interface AppFactoryInterface
 {
 	/**
 	 * Used to initialize the framework before startup

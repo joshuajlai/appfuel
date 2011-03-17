@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\App;
+namespace Test\Appfuel\Framework;
 
 use Test\AfTestCase	as ParentTestCase,
-	Appfuel\Framework\App\PHPError;
+	Appfuel\Framework\PHPError;
 
 /**
  * 

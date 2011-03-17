@@ -10,9 +10,10 @@
  */
 namespace Appfuel;
 
-use Appfuel\Framework\App\Initializer,
-	Appfuel\Framework\App\FactoryInterface,
-	Appfuel\Framework\App\Factory as AppFactory;
+use Appfuel\Framework\Initializer,
+	Appfuel\Framework\InitializerInterface,
+	Appfuel\Framework\AppFactoryInterface,
+	Appfuel\Framework\AppFactory;
 
 /**
  * The AppManager is used to encapsulate the logic need to build an App object,
@@ -40,6 +41,12 @@ class AppManager
 	 */
 	static protected $env = NULL;
 
+	/**
+	 * Used to put the framework in a known state, effects errors, 
+	 * include path and autoloading
+	 * @var Framework\Initializer
+	 */
+	static protected $initializer = NULL;
 
 	/**
 	 * Factory class used to create objects needed in Initialization, 
@@ -78,7 +85,7 @@ class AppManager
 	/**
 	 * @return	NULL
 	 */
-	static public function setAppFactory(FactoryInterface $factory)
+	static public function setAppFactory(AppFactoryInterface $factory)
 	{
 		return self::$appFactory = $factory;
 	}
@@ -96,7 +103,7 @@ class AppManager
 	 */
 	static public function isAppFactory()
 	{
-		return self::$appFactory instanceof FactoryInterface;
+		return self::$appFactory instanceof AppFactoryInterface;
 	}
 
 	/**
@@ -149,6 +156,24 @@ class AppManager
 	{
 		return new Initializer($basePath);
 	}
+
+	/**
+	 * @return Framework\Initializer
+	 */
+	static public function getInitializer()
+	{
+		return self::$initializer;
+	}
+
+	/**
+	 * @param 	Framework\Initializer
+	 * @return	null	
+	 */
+	static public function setInitializer()
+	{
+		return self::$initializer;
+	}
+
 
 	/**
 	 * @return bool

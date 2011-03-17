@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\App;
+namespace Test\Appfuel\Framework;
 
 use Test\AfTestCase					  as ParentTestCase,
 	Appfuel\Stdlib\Filesystem\Manager as FileManager,
 	Appfuel\Registry,
-	Appfuel\Framework\App\Initializer;
+	Appfuel\Framework\Initializer;
 
 /**
  * 
@@ -39,7 +39,7 @@ class InitializerTest extends ParentTestCase
 	public function setUp()
 	{
 		$this->backupIncludePath();
-		$this->basePath      = $this->getBasePath();
+		$this->basePath    = $this->getBasePath();
 		$this->initializer = new Initializer($this->basePath);
 	}
 
@@ -79,7 +79,7 @@ class InitializerTest extends ParentTestCase
 		);
 
 		$factory = $this->getMock(
-			'\\Appfuel\\Framework\\App\\FactoryInterface'
+			'\\Appfuel\\Framework\\AppFactoryInterface'
 		);
 
 		$result = $this->initializer->setFactory($factory);
@@ -95,7 +95,7 @@ class InitializerTest extends ParentTestCase
 			'Should be the factory that was set'
 		);
 
-		$class  = 'Appfuel\\Framework\\App\\Factory';
+		$class  = 'Appfuel\\Framework\\AppFactory';
 		$result = $this->initializer->createFactory($class);
 		$this->assertInstanceOf(
 			$class,
@@ -115,7 +115,7 @@ class InitializerTest extends ParentTestCase
 		);
 
 		$loader = $this->getMock(
-			'\\Appfuel\\Framework\\App\\AutoloadInterface'
+			'\\Appfuel\\Framework\\AutoloadInterface'
 		);
 
 		$result = $this->initializer->setAutoloader($loader);
@@ -144,7 +144,7 @@ class InitializerTest extends ParentTestCase
 		);
 
 		$error = $this->getMock(
-			'\\Appfuel\\Framework\\App\\PHPErrorInterface'
+			'\\Appfuel\\Framework\\PHPErrorInterface'
 		);
 
 		$result = $this->initializer->setPHPError($error);
@@ -274,7 +274,7 @@ class InitializerTest extends ParentTestCase
 	}
 
 	/**
-	 * @expectedException	\Appfuel\Framework\App\Exception
+	 * @expectedException	\Appfuel\Framework\Exception
 	 */
 	public function testGetConfigDataFileDoesNotExist()
 	{
@@ -343,7 +343,7 @@ class InitializerTest extends ParentTestCase
 	{
 		/* clear out any objects set during initialization */
 		$initializer = new Initializer($this->basePath);
-		Registry::add('app_factory', '\Appfuel\Framework\App\Factory');
+		Registry::add('app_factory', '\Appfuel\Framework\AppFactory');
 		
 		$paths = array('path_1', 'path_2');
 		Registry::add('include_path', $paths);
@@ -370,7 +370,7 @@ class InitializerTest extends ParentTestCase
 		$this->assertEquals(E_ALL, $errorReporting);
 	
 		$this->assertInstanceOf(
-			'\\Appfuel\\Framework\\App\\FactoryInterface',
+			'\\Appfuel\\Framework\\AppFactoryInterface',
 			$initializer->getFactory()
 		);
 	}

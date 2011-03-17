@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\App;
+namespace Test\Appfuel\Framework;
 
-use Test\AfTestCase					as ParentTestCase,
-	Appfuel\Framework\App\Factory	as AppFactory;
+use Test\AfTestCase	as ParentTestCase,
+	Appfuel\Framework\AppFactory;
 
 /**
  * 
@@ -47,7 +47,7 @@ class FactoryTest extends ParentTestCase
 	public function testCreatePhpError()
 	{
 		$this->assertInstanceOf(
-			'\Appfuel\Framework\App\PHPErrorInterface',
+			'\Appfuel\Framework\PHPErrorInterface',
 			$this->factory->createPHPError()
 		);
 	}
@@ -58,7 +58,7 @@ class FactoryTest extends ParentTestCase
 	public function testCreateAutoloader()
 	{
 		$this->assertInstanceOf(
-			'\Appfuel\Framework\App\AutoloadInterface',
+			'\Appfuel\Framework\AutoloadInterface',
 			$this->factory->createAutoloader()
 		);
 	}

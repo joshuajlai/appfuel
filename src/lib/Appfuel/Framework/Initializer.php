@@ -8,10 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\App;
+namespace Appfuel\Framework;
 
-use Appfuel\Framework\Autoload\AutoloadInterface as LoaderInterface,
-	Appfuel\Stdlib\Filesystem\Manager			 as FileManager,
+use Appfuel\Stdlib\Filesystem\Manager	as FileManager,
 	Appfuel\Registry,
 	Appfuel\AppManager;
 
@@ -90,8 +89,8 @@ class Initializer implements InitializeInterface
 	{
 		
 		$factory = $this->getFactory();
-		if (! $factory instanceof FactoryInterface) {
-			$defaultFactory = '\Appfuel\Framework\App\Factory';
+		if (! $factory instanceof AppFactoryInterface) {
+			$defaultFactory = '\Appfuel\Framework\AppFactory';
 			$fClass  = Registry::get('app_factory', $defaultFactory);
 			$factory = $this->createFactory($fClass);
 			$this->setFactory($factory);
@@ -214,7 +213,7 @@ class Initializer implements InitializeInterface
     /**
      * @return  FactoryInterface
      */
-    public function setFactory(FactoryInterface $factory)
+    public function setFactory(AppFactoryInterface $factory)
     {
 		$this->factory = $factory;
         return $this;

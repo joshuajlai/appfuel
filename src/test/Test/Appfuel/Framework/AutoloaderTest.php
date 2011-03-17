@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\App;
+namespace Test\Appfuel\Framework;
 
 use Test\AfTestCase	as ParentTestCase,
-	Appfuel\Framework\App\Autoloader;
+	Appfuel\Framework\Autoloader;
 
 /**
  * 
@@ -86,7 +86,7 @@ class AutoloaderTest extends ParentTestCase
 		$this->assertEquals(2, count($registerLoaders[0]));
 
 		$this->assertInstanceof(
-			'\Appfuel\Framework\App\Autoloader',
+			'\Appfuel\Framework\Autoloader',
 			$registerLoaders[0][0],
 			'The registered loader should be an appfuel loader'
 		);

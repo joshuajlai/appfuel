@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\App;
+namespace Appfuel\Framework;
 
 /**
  */
-class Factory implements FactoryInterface
+class AppFactory implements AppFactoryInterface
 {
 	/**
 	 * @return	Autoloader
