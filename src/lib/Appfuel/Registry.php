@@ -23,16 +23,16 @@ class Registry
 	 * List of the necessary files before autoloading
 	 * @var array
 	 */
-	static protected $bag = NULL;
+	static protected $bag = null;
 
 	/**
 	 * Reset the registry with a new dataset and if one is not given
 	 * then create an empty one
 	 *
 	 * @param	BagInterface	$bag
-	 * @return	NULL
+	 * @return	null
 	 */
-	static public function init($data = NULL)
+	static public function init($data = null)
 	{
 		/*
 		 * check is there is an array data with the initialization or if
@@ -53,11 +53,11 @@ class Registry
 	/**
 	 * Alias to initialize to help readability
 	 *
-	 * @return NULL
+	 * @return null
 	 */
 	static public function clear()
 	{
-		self::init();
+		self::$bag = null;
 	}
 
 	/**
@@ -89,18 +89,23 @@ class Registry
 	/**
 	 *	@param	string	$key
 	 *	@param	mixed	$value
-	 *  @return	NULL
+	 *  @return	null
 	 */
 	static public function add($key, $value)
 	{
 		if (! self::isInit() || ! is_scalar($key)) {
-			return FALSE;
+			return false;
 		}
 
 		self::getBag()->add($key, $value);
-		return TRUE;
+		return true;
 	}
 
+	/**
+	 * Get all data
+	 *
+	 * @return array
+	 */
 	static public function getAll()
 	{
 		if (! self::isInit()) {
@@ -113,14 +118,29 @@ class Registry
 	/**
 	 * Load a dataset into the bag
 	 * @param	array	$data	
-	 * @return	NULL
+	 * @return	null
 	 */
 	static public function load(array $data)
 	{
 		if (! self::isInit()) {
-			return FALSE;
+			return false;
 		}
+		
 		self::getBag()->load($data);
+		return true;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	bool
+	 */
+	static public function exists($key)
+	{
+		if (! self::isInit()) {
+			return false;
+		}
+
+		return self::getBag()->exists($key);
 	}
 
 	/**
@@ -128,7 +148,7 @@ class Registry
 	 * 
 	 * @return bool
 	 */
-	static protected function isInit()
+	static public function isInit()
 	{
 		return self::$bag instanceof BagInterface;
 	}
