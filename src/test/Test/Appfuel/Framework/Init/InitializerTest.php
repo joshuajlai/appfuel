@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework;
+namespace Test\Appfuel\Framework\Init;
 
 use Test\AfTestCase					  as ParentTestCase,
 	Appfuel\Stdlib\Filesystem\Manager as FileManager,
@@ -104,63 +104,6 @@ class InitializerTest extends ParentTestCase
 		);
 	}
 
-	/**
-	 * @return null
-	 */
-	public function testGetSetRegisterAutoloader()
-	{
-		$this->assertNull(
-			$this->initializer->getAutoloader(),
-			'Initial value of getAutoloader should be null'
-		);
-
-		$loader = $this->getMock(
-			'\Appfuel\Framework\Init\AutoloadInterface'
-		);
-
-		$result = $this->initializer->setAutoloader($loader);
-		$this->assertSame(
-			$this->initializer,
-			$result,
-			'Should support fluent interface'
-		);
-
-		$this->assertSame(
-			$loader,
-			$this->initializer->getAutoloader(),
-			'Should be the Autoloader that was set'
-		);
-
-	}
-
-	/**
-	 * @return null
-	 */
-	public function testGetSetPHPError()
-	{
-		$this->assertNull(
-			$this->initializer->getPHPError(),
-			'Initial value of getPHPError should be null'
-		);
-
-		$error = $this->getMock(
-			'\Appfuel\Framework\Init\PHPErrorInterface'
-		);
-
-		$result = $this->initializer->setPHPError($error);
-		$this->assertSame(
-			$this->initializer,
-			$result,
-			'Should support fluent interface'
-		);
-
-		$this->assertSame(
-			$error,
-			$this->initializer->getPHPError(),
-			'Should be the Error Object that was set'
-		);
-	}
-	
 	/**
 	 * @return null
 	 */

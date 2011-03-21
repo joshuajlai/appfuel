@@ -11,6 +11,7 @@
 namespace Appfuel\Framework\Init;
 
 use Appfuel\Stdlib\Filesystem\Manager	as FileManager,
+	Appfuel\Framework\AppFactoryInterface,
 	Appfuel\Registry;
 
 /**
@@ -25,18 +26,6 @@ class Initializer implements InitializeInterface
 	 * @var string
 	 */
 	protected $basePath = NULL;
-
-    /**
-     * Used to map and change the php error display_errors and error_reporting
-     * @var Stdlib\Error\PHPError
-     */
-    protected $phpError = NULL;
-
-    /**
-     * Autoloader use is loading classes into memory
-     * @var Framework\Autoload\AutoloadInterface
-     */
-    protected $autoloader = NULL;
 
 	/**
 	 * Creates objects necessary to Initialize, Bootstrap, Dispatch, and Output
@@ -63,12 +52,12 @@ class Initializer implements InitializeInterface
 	 * a known state
 	 *
      * @param   string  $file	file path to config ini
-	 * @return	NULL
+	 * @return	Appfuel\Framework\AppFactoryInterface
      */
 	public function initialize($file)
 	{
 		$this->initRegistryWithConfig($file);
-		$this->initFromRegistry();
+		return $this->initFromRegistry();
 	}
 	
 	/**
@@ -82,7 +71,7 @@ class Initializer implements InitializeInterface
 	 * to them through this object
 	 *
      * @param   string  $file	file path to config ini
-	 * @return	NULL
+	 * @return	AppFactoryInterface
      */
 	public function initFromRegistry()
 	{
@@ -102,22 +91,17 @@ class Initializer implements InitializeInterface
 			$this->includePath($paths, $action);
 		}
 
-		$error = $this->getPHPError();
-		if (! $error instanceof PHPErrorInterface) {       
-			$error   = $factory->createPHPError();
-			$display = Registry::get('display_error',   'off');
-			$level   = Registry::get('error_reporting', 'none');
-			$this->setPHPError($error);
-		}
+		$error   = $factory->createPHPError();
+		$display = Registry::get('display_error',   'off');
+		$level   = Registry::get('error_reporting', 'all_strict');
+
 		$error->setDisplayStatus($display);
-        $error->setReportingLevel($level);
- 	
-		$autoloader = $this->getAutoloader();
-		if (! $autoloader instanceof AutoloadInterface) {
-			$autoloader = $factory->createAutoloader();
-			$this->setAutoloader($autoloader);
-		}
+		$error->setReportingLevel($level);
+
+		$autoloader = $factory->createAutoloader();
 		$autoloader->register();
+
+		return $factory;
 	}
 
 	/**
@@ -212,7 +196,7 @@ class Initializer implements InitializeInterface
     /**
      * @return  FactoryInterface
      */
-    public function setFactory(\Appfuel\Framework\AppFactoryInterface $factory)
+    public function setFactory(AppFactoryInterface $factory)
     {
 		$this->factory = $factory;
         return $this;
@@ -247,40 +231,5 @@ class Initializer implements InitializeInterface
 	public function getBasePath()
 	{
 		return $this->basePath;
-	}
-
-    /**
-     * @return  AutoloadInterface
-     */
-    public function getAutoloader()
-    {
-        return $this->autoloader;
-    }
-
-    /**
-     * @return  AutoloadInterface
-     */
-    public function setAutoloader(AutoloadInterface $autoloader)
-    {
-		$this->autoloader = $autoloader;
-        return $this;
-    }
-
-    /**
-     * @return  PHPErrorInterface
-     */
-    public function getPHPError()
-    {
-        return $this->phpError;
-    }
-
-	/**
-	 * @param	PHPErrorInterface	$error
-	 * @return	Initializer
-	 */
-	public function setPHPError(PHPErrorInterface $error)
-	{
-		$this->phpError = $error;
-		return $this;
 	}
 }
