@@ -56,22 +56,59 @@ class AppManager
 	static protected $appFactory = NULL;
 
 	/**
-	 * 
+	 * Puts the framework into a known state
 	 */
 	static public function initialize($basePath, $file)
 	{
 		self::setBasePath($basePath);
-		self::loadDependencies($basePath);		
-		$initializer = self::createInitializer($basePath);
+		if (! self::isDependenciesLoaded()) {
+			self::loadDependencies($basePath);		
+		}
+
+		if (self::isInitializer()) {
+			$initializer = self::getInitializer();
+		} else {
+			$initializer = self::createInitializer($basePath);
+			self::setInitializer($initializer);
+		}
+
 		$initializer->initialize($file);
 	
+		/*
+		 * The initializer is responsible for the app factory because
+		 * you can specify an alternate factory in the config and the 
+		 * initializer controls the processing of the config
+		 */
 		self::setAppFactory($initializer->getFactory());
 
+		/*
+		 * During the app install a master ini file which contains sections 
+		 * for each environment is reduced to the environment the app is
+		 * is installed on. The install then puts the env name in the config
+		 * for which we use to bootstrap the framework
+		 */
 		$envName = Registry::get('env', FALSE);
 		if (! $envName) {
 			throw new Exception('Initialize error: env not found in Registry');
 		}
 		self::setEnvName($envName);
+	}
+
+	/**
+	 * @param	MessageInterface $msg
+	 * @return	MessageInterface
+	 */
+	static public function bootstrap(MessageInterface $msg = NULL)
+	{
+		if (NULL === $msg) {
+			$msg = self::createMessage();
+		}
+
+		$env       = self::getEnvName();
+		$factory   = self::getFactory();
+		$bootstrap = $factory->createBootstrap($env); 
+
+		return $msg;
 	}
 
 	/**
@@ -174,6 +211,13 @@ class AppManager
 		return self::$initializer;
 	}
 
+	/**
+	 * @return bool
+	 */
+	static public function isInitializer()
+	{
+		self::$initializer instanceof InitializerInterface;
+	}
 
 	/**
 	 * @return bool
@@ -193,10 +237,6 @@ class AppManager
 	 */
 	static public function loadDependencies($basePath)
 	{
-		if (self::isDependenciesLoaded()) {
-			return;
-		}
-
 		$path = $basePath . DIRECTORY_SEPARATOR . 'lib';
 		$file = $path     . DIRECTORY_SEPARATOR . 
 				'Appfuel' . DIRECTORY_SEPARATOR . 'Dependency.php';
