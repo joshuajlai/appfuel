@@ -11,7 +11,7 @@
 namespace Test\Appfuel\Framework;
 
 use Test\AfTestCase	as ParentTestCase,
-	Appfuel\Framework\PHPError;
+	Appfuel\Framework\Init\PHPError;
 
 /**
  * 

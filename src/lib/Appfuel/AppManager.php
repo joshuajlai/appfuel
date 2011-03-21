@@ -10,8 +10,8 @@
  */
 namespace Appfuel;
 
-use Appfuel\Framework\Initializer,
-	Appfuel\Framework\InitializerInterface,
+use Appfuel\Framework\Init\Initializer,
+	Appfuel\Framework\Init\InitializerInterface,
 	Appfuel\Framework\AppFactoryInterface,
 	Appfuel\Framework\AppFactory;
 

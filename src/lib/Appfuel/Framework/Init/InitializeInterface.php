@@ -8,18 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\Framework\Init;
 
 /**
- * Describes the necessary method's need for an autoloader to work with 
- * Appfuel
+ * Used to describe the methods needed in the factory to create 
+ * the necessary objects used in starup, bootstrapping, dispatching and
+ * Output rendering
  */
-interface AutoloadInterface
+interface InitializeInterface
 {
-	/**
-	 * Used to register the autoloader
-	 * @return	bool
-	 */
-	public function register();
-	public function unregister();
+	public function initialize($file);
 }

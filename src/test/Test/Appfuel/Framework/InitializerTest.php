@@ -13,7 +13,7 @@ namespace Test\Appfuel\Framework;
 use Test\AfTestCase					  as ParentTestCase,
 	Appfuel\Stdlib\Filesystem\Manager as FileManager,
 	Appfuel\Registry,
-	Appfuel\Framework\Initializer;
+	Appfuel\Framework\Init\Initializer;
 
 /**
  * 
@@ -79,7 +79,7 @@ class InitializerTest extends ParentTestCase
 		);
 
 		$factory = $this->getMock(
-			'\\Appfuel\\Framework\\AppFactoryInterface'
+			'\Appfuel\Framework\AppFactoryInterface'
 		);
 
 		$result = $this->initializer->setFactory($factory);
@@ -95,7 +95,7 @@ class InitializerTest extends ParentTestCase
 			'Should be the factory that was set'
 		);
 
-		$class  = 'Appfuel\\Framework\\AppFactory';
+		$class  = 'Appfuel\Framework\AppFactory';
 		$result = $this->initializer->createFactory($class);
 		$this->assertInstanceOf(
 			$class,
@@ -115,7 +115,7 @@ class InitializerTest extends ParentTestCase
 		);
 
 		$loader = $this->getMock(
-			'\\Appfuel\\Framework\\AutoloadInterface'
+			'\Appfuel\Framework\Init\AutoloadInterface'
 		);
 
 		$result = $this->initializer->setAutoloader($loader);
@@ -144,7 +144,7 @@ class InitializerTest extends ParentTestCase
 		);
 
 		$error = $this->getMock(
-			'\\Appfuel\\Framework\\PHPErrorInterface'
+			'\Appfuel\Framework\Init\PHPErrorInterface'
 		);
 
 		$result = $this->initializer->setPHPError($error);

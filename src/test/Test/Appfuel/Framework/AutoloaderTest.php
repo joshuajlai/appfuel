@@ -11,7 +11,7 @@
 namespace Test\Appfuel\Framework;
 
 use Test\AfTestCase	as ParentTestCase,
-	Appfuel\Framework\Autoloader;
+	Appfuel\Framework\Init\Autoloader;
 
 /**
  * 
@@ -86,7 +86,7 @@ class AutoloaderTest extends ParentTestCase
 		$this->assertEquals(2, count($registerLoaders[0]));
 
 		$this->assertInstanceof(
-			'\Appfuel\Framework\Autoloader',
+			'\Appfuel\Framework\Init\Autoloader',
 			$registerLoaders[0][0],
 			'The registered loader should be an appfuel loader'
 		);

@@ -8,11 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\Framework\Init;
 
 use Appfuel\Stdlib\Filesystem\Manager	as FileManager,
-	Appfuel\Registry,
-	Appfuel\AppManager;
+	Appfuel\Registry;
 
 /**
  * The Initializer is used to put the framework into a known state for the
@@ -213,7 +212,7 @@ class Initializer implements InitializeInterface
     /**
      * @return  FactoryInterface
      */
-    public function setFactory(AppFactoryInterface $factory)
+    public function setFactory(\Appfuel\Framework\AppFactoryInterface $factory)
     {
 		$this->factory = $factory;
         return $this;

@@ -47,7 +47,7 @@ class FactoryTest extends ParentTestCase
 	public function testCreatePhpError()
 	{
 		$this->assertInstanceOf(
-			'\Appfuel\Framework\PHPErrorInterface',
+			'\Appfuel\Framework\Init\PHPErrorInterface',
 			$this->factory->createPHPError()
 		);
 	}
@@ -58,7 +58,7 @@ class FactoryTest extends ParentTestCase
 	public function testCreateAutoloader()
 	{
 		$this->assertInstanceOf(
-			'\Appfuel\Framework\AutoloadInterface',
+			'\Appfuel\Framework\Init\AutoloadInterface',
 			$this->factory->createAutoloader()
 		);
 	}

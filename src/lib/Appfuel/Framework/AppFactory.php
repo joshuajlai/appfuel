@@ -19,7 +19,7 @@ class AppFactory implements AppFactoryInterface
 	 */
 	public function createAutoloader()
 	{
-		return new Autoloader();
+		return new Init\Autoloader();
 	}
 
 	/**
@@ -27,7 +27,7 @@ class AppFactory implements AppFactoryInterface
 	 */
 	public function createPhpError()
 	{
-		return new PHPError();
+		return new Init\PHPError();
 	}
 
 
