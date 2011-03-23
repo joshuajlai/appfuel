@@ -39,7 +39,7 @@ class AppManager
 	 * Name of the environment the server is deployed
 	 * @var	string
 	 */
-	static protected $env = NULL;
+	static protected $envName = NULL;
 
 	/**
 	 * Used to put the framework in a known state, effects errors, 
@@ -47,6 +47,18 @@ class AppManager
 	 * @var Framework\Initializer
 	 */
 	static protected $initializer = NULL;
+
+    /**
+     * Flag used to determine if the framework has been initialized
+     * @return bool
+     */
+    static protected $isInitialized = FALSE;
+
+    /**
+     * Type of application being started Cli, Web, Api
+     * @var string
+     */
+    static protected $type = NULL;
 
 	/**
 	 * Factory class used to create objects needed in Initialization, 
@@ -72,14 +84,16 @@ class AppManager
 			self::setInitializer($initializer);
 		}
 
-		$initializer->initialize($file);
-	
+		$factory = $initializer->initialize($file);
 		/*
-		 * The initializer is responsible for the app factory because
-		 * you can specify an alternate factory in the config and the 
-		 * initializer controls the processing of the config
+		 * The initializer returns an app factory after it initializes. This
+		 * this factory can be specified in the config as a class or manually
+		 * set in the initializer or manually set in the this manager. So check
+		 * if it has already been set
 		 */
-		self::setAppFactory($initializer->getFactory());
+		if (! self::isAppFactory()) {
+			self::setAppFactory($factory);
+		}
 
 		/*
 		 * During the app install a master ini file which contains sections 
@@ -98,17 +112,53 @@ class AppManager
 	 * @param	MessageInterface $msg
 	 * @return	MessageInterface
 	 */
-	static public function bootstrap(MessageInterface $msg = NULL)
+	static public function startUp($type, MessageInterface $msg = NULL)
 	{
+		self::validateInitialization();
 		if (NULL === $msg) {
 			$msg = self::createMessage();
 		}
 
 		$env       = self::getEnvName();
 		$factory   = self::getFactory();
-		$bootstrap = $factory->createBootstrap($env); 
+		$startup   = $factory->createStartup($type); 
+		$params    = $msg->get('startupParams', array());
 
-		return $msg;
+		$uri = $factory->createUri($startup->getUriString());
+		$request = $factory->createRequest($uri, $startup->getRequestParams());
+	
+		$response = DomainHandler::getData(
+			'Appfuel\\Domain\\Route',
+			'Find',
+			array('routeString' => $request->getRouteString())
+		);
+
+		$msg->setRequest($request)
+			->setRoute($route);
+
+		return $startup->bootstrap($msg);;
+	}
+
+	static public function dispatch(MessageInterface $msg)
+	{
+		self::validateInitialization();
+
+	}
+
+	static public function render(MessageInterface $msg)
+	{
+		self::validateInitialization();
+
+	}
+
+    /**
+     * @param   mixed   $data
+     * @return  Message
+     */
+	static public function createMessage($data = NULL)
+	{
+		self::validateInitialization();
+        return self::getAppFactory()->createMessage($data);
 	}
 
 	/**
@@ -148,7 +198,7 @@ class AppManager
 	 */
 	static public function getEnvName()
 	{
-		return self::$env;
+		return self::$envName;
 	}
 
 	/**
@@ -157,7 +207,7 @@ class AppManager
 	 */
 	static public function setEnvName($name)
 	{
-		self::$env = $name;
+		self::$envName = $name;
 	}
 
 	/**
@@ -218,6 +268,36 @@ class AppManager
 	{
 		self::$initializer instanceof InitializerInterface;
 	}
+
+    /**
+     * Has the system been initialized through the initializer
+     *
+     * @return  bool
+     */
+    static public function isInitialized()
+    {
+        return self::$isInitialized;
+    }
+
+    /**
+	 * Validate that initialization has occured and the app factory is set
+	 *
+     * @return  TRUE
+     */
+    static public function validateInitialization()
+    {
+        if (! self::isInitialized()) {
+            throw new \Exception(
+                "Framework must be intialized before createMessage can be used"
+            );
+        }
+
+        if (! self::isAppFactory()) {
+            throw new \Exception("AppFactory does not exist");
+        }
+
+        return TRUE;
+    }
 
 	/**
 	 * @return bool
