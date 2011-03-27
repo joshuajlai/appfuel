@@ -11,13 +11,11 @@
 namespace Appfuel\Framework;
 
 /**
- * The uri represents the string making the request to the server. All requests
- * must have a uri string that holds at min the route information.
+ * tba
  */
-interface UriInterface
+interface BootstrapInterface
 {
-	public function getUriString();
-	public function getRouteString();
-	public function getParams();
-	public function getParamString();
+	public function getRequestParams();
+	public function getRequestUri();
+	public function bootstrap(MessageInterface $msg);
 }
