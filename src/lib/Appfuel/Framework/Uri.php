@@ -149,7 +149,7 @@ class UriInterface implements UriInterface
             $route = substr($uri, $pos + 1);
 
             return array(
-                'mvc'           => $route,
+                'route'         => $route,
                 'params'        => $params,
                 'paramString'   => $pstring
             );

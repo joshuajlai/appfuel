@@ -10,21 +10,21 @@
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
 
+use Appfuel\AppManager;
+
 /* we kmow we are in the bin directory and one level up is the base path */
 $base = realpath(dirname(__FILE__) . '/..');
-
-
 $file = $base     . DIRECTORY_SEPARATOR . 
+		'lib'	  . DIRECTORY_SEPARATOR .
 		'Appfuel' . DIRECTORY_SEPARATOR .
-		'Manager.php';
+		'AppManager.php';
 
 if (! file_exists($file)) {
-	$err = "Could not locate App Builder file at ($file)\n";
+	$err = "Could not locate Manager file at ($file)\n";
 	fwrite(STDERR, $err);
 	exit;
 }
+require_once $file;
 
-\Appfuel\Manager::init();
-
-$msg = \Appfuel\Manager::createMessage();
-\Appfuel\Manager::run($msg);
+AppManager::initialize($base, 'config/app.ini');
+echo "\n", print_r($_SERVER,1), "\n";exit; 

@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Stdlib\Autoload;
+namespace Test\Appfuel\Stdlib\Data;
 
 use Test\AfTestCase	as ParentTestCase,
 	Appfuel\Stdlib\BagInterface,
