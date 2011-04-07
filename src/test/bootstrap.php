@@ -25,8 +25,9 @@ if (! file_exists($file)) {
 }
 require_once $file;
 
-$configFile = 'test'   . DIRECTORY_SEPARATOR . 
-			  'config' . DIRECTORY_SEPARATOR .
+$configFile = $basePath . DIRECTORY_SEPARATOR .
+			  'test'    . DIRECTORY_SEPARATOR . 
+			  'config'  . DIRECTORY_SEPARATOR .
 			  'test.ini';
 
 $oPath = get_include_path();

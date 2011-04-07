@@ -10,8 +10,7 @@
  */
 namespace Appfuel;
 
-use Appfuel\Framework\Init\Initializer,
-	Appfuel\Framework\Init\InitializerInterface,
+use Appfuel\Framework\Env\Initializer,
 	Appfuel\Framework\AppFactoryInterface,
 	Appfuel\Framework\AppFactory;
 
@@ -41,13 +40,6 @@ class AppManager
 	 */
 	static protected $envName = NULL;
 
-	/**
-	 * Used to put the framework in a known state, effects errors, 
-	 * include path and autoloading
-	 * @var Framework\Initializer
-	 */
-	static protected $initializer = NULL;
-
     /**
      * Flag used to determine if the framework has been initialized
      * @return bool
@@ -61,13 +53,6 @@ class AppManager
     static protected $type = NULL;
 
 	/**
-	 * Factory class used to create objects needed in Initialization, 
-	 * Bootstrapping and Dispatching
-	 * @var	Framework\App\FactoryInterface
-	 */
-	static protected $appFactory = NULL;
-
-	/**
 	 * Puts the framework into a known state
 	 */
 	static public function initialize($basePath, $file)
@@ -77,24 +62,7 @@ class AppManager
 			self::loadDependencies($basePath);		
 		}
 
-		if (self::isInitializer()) {
-			$initializer = self::getInitializer();
-		} else {
-			$initializer = self::createInitializer($basePath);
-			self::setInitializer($initializer);
-		}
-
-		$factory = $initializer->initialize($file);
-		/*
-		 * The initializer returns an app factory after it initializes. This
-		 * this factory can be specified in the config as a class or manually
-		 * set in the initializer or manually set in the this manager. So check
-		 * if it has already been set
-		 */
-		if (! self::isAppFactory()) {
-			self::setAppFactory($factory);
-		}
-
+		Initializer::initialize($basePath, $file);
 		/*
 		 * During the app install a master ini file which contains sections 
 		 * for each environment is reduced to the environment the app is
@@ -162,38 +130,6 @@ class AppManager
 	}
 
 	/**
-	 * @return	Framework\App\FactoryInterface
-	 */
-	static public function getAppFactory()
-	{
-		return self::$appFactory;
-	}
-
-	/**
-	 * @return	NULL
-	 */
-	static public function setAppFactory(AppFactoryInterface $factory)
-	{
-		return self::$appFactory = $factory;
-	}
-
-	/**
-	 * @return	NULL
-	 */
-	static public function clearAppFactory()
-	{
-		self::$appFactory = NULL;
-	}
-
-	/**
-	 * @return	Framework\App\FactoryInterface
-	 */
-	static public function isAppFactory()
-	{
-		return self::$appFactory instanceof AppFactoryInterface;
-	}
-
-	/**
 	 * @return	string
 	 */
 	static public function getEnvName()
@@ -235,40 +171,6 @@ class AppManager
 		self::$basePath = AF_BASE_PATH;
 	}
 
-	/**
-	 * @param	string	$basePath
-	 * @return	Initializer
-	 */
-	static public function createInitializer($basePath)
-	{
-		return new Initializer($basePath);
-	}
-
-	/**
-	 * @return Framework\Initializer
-	 */
-	static public function getInitializer()
-	{
-		return self::$initializer;
-	}
-
-	/**
-	 * @param 	Framework\Initializer
-	 * @return	null	
-	 */
-	static public function setInitializer()
-	{
-		return self::$initializer;
-	}
-
-	/**
-	 * @return bool
-	 */
-	static public function isInitializer()
-	{
-		self::$initializer instanceof InitializerInterface;
-	}
-
     /**
      * Has the system been initialized through the initializer
      *
@@ -277,26 +179,6 @@ class AppManager
     static public function isInitialized()
     {
         return self::$isInitialized;
-    }
-
-    /**
-	 * Validate that initialization has occured and the app factory is set
-	 *
-     * @return  TRUE
-     */
-    static public function validateInitialization()
-    {
-        if (! self::isInitialized()) {
-            throw new \Exception(
-                "Framework must be intialized before createMessage can be used"
-            );
-        }
-
-        if (! self::isAppFactory()) {
-            throw new \Exception("AppFactory does not exist");
-        }
-
-        return TRUE;
     }
 
 	/**

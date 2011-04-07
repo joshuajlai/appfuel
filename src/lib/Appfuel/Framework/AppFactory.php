@@ -11,23 +11,39 @@
 namespace Appfuel\Framework;
 
 /**
+ * Responsible for creating objects required by the framework for 
+ * initializaion, bootstrapping, dispatching and outputting.
  */
-class AppFactory implements AppFactoryInterface
+class AppFactory
 {
 	/**
-	 * @return	Autoloader
+	 * Used to register spl autoloader for the framework
+	 *
+	 * @return	Env\Autoloader
 	 */
-	public function createAutoloader()
+	static public function createAutoloader()
 	{
-		return new Init\Autoloader();
+		return new Env\Autoloader();
 	}
 
 	/**
-	 * @return	PHPError
+	 * Use to set display_error and error reporting
+	 *
+	 * @return	Env\PHPError
 	 */
-	public function createPhpError()
+	static public function createPhpError()
 	{
-		return new Init\PHPError();
+		return new Env\PHPError();
+	}
+
+	/**
+	 * Used to change the php include_path
+	 *
+	 * @return Env\IncludePath
+	 */
+	static public function createIncludePath()
+	{
+		return new Env\IncludePath();
 	}
 
 

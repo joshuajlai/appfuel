@@ -81,8 +81,8 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 	 */
 	public function getTestConfigFile()
 	{
-		return 'test'		. DIRECTORY_SEPARATOR . 
-			   'config'     . DIRECTORY_SEPARATOR .
+		return $this->getTestBase() . DIRECTORY_SEPARATOR .
+			   'config'             . DIRECTORY_SEPARATOR .
 			   'test.ini';
 	}
 

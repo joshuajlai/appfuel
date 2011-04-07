@@ -14,33 +14,10 @@ use Test\AfTestCase	as ParentTestCase,
 	Appfuel\Framework\AppFactory;
 
 /**
- * 
+ * Test this class's static methods are able to create the correct objects
  */
 class FactoryTest extends ParentTestCase
 {
-	/**
-	 * System Under Test
-	 * @var Appfuel\Framework\App\Factory
-	 */
-	protected $factory = NULL;
-
-	/**
-	 * @return null
-	 */
-	public function setUp()
-	{
-		$this->basePath = $this->getBasePath();
-		$this->factory  = new AppFactory();
-	}
-
-	/**
-	 * @return null
-	 */
-	public function tearDown()
-	{
-		unset($this->factory);
-	}
-
 	/**
 	 * @return NULL
 	 */
@@ -48,7 +25,7 @@ class FactoryTest extends ParentTestCase
 	{
 		$this->assertInstanceOf(
 			'\Appfuel\Framework\Init\PHPErrorInterface',
-			$this->factory->createPHPError()
+			AppFactory::createPHPError()
 		);
 	}
 
@@ -59,7 +36,18 @@ class FactoryTest extends ParentTestCase
 	{
 		$this->assertInstanceOf(
 			'\Appfuel\Framework\Init\AutoloadInterface',
-			$this->factory->createAutoloader()
+			AppFactory::createAutoloader()
+		);
+	}
+
+	/**
+	 * @return NULL
+	 */
+	public function testCreateIncludePath()
+	{
+		$this->assertInstanceOf(
+			'\Appfuel\Framework\Init\IncludePath',
+			AppFactory::createIncludePath()
 		);
 	}
 }

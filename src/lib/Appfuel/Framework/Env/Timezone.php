@@ -6,16 +6,17 @@
  * @package     Appfuel
  * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Framework\Init;
 
 /**
- * Used to describe the methods needed in the factory to create 
- * the necessary objects used in starup, bootstrapping, dispatching and
- * Output rendering
+ * Set the timezone to be used by the framework
  */
-interface InitializeInterface
+class Timezone 
 {
-	public function initialize($file);
+	public function setDefault($zone)
+	{
+		return date_default_timezone_set($zone);
+	}
 }

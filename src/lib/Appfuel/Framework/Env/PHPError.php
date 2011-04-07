@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Init;
+namespace Appfuel\Framework\Env;
 
 /**
  * Map php error codes to more readable interface
@@ -19,52 +19,57 @@ class PHPError implements PHPErrorInterface
      * Translation from constants to more easily usable names
      * @var array
      */
-    protected $levels = array(
-        'none'              => 0,
-        'error'             => E_ERROR,
-        'warning'           => E_WARNING,
-        'parse'             => E_PARSE,
-        'notice'            => E_NOTICE,
-        'strict'            => E_STRICT,
-        'coreError'         => E_CORE_ERROR,
-        'coreWarning'       => E_CORE_WARNING,
-        'complileError'     => E_COMPILE_ERROR,
-        'complileWarning'   => E_COMPILE_WARNING,
-        'userError'         => E_USER_ERROR,
-        'userWarning'       => E_USER_WARNING,
-        'userNotice'        => E_USER_NOTICE,
-        'userdeprecated'    => E_USER_DEPRECATED,
-        'recoverableError'  => E_RECOVERABLE_ERROR,
-        'deprecated'        => E_DEPRECATED,
-        'all'               => E_ALL
-    );
+    protected $levels =  array(
+		'none'              => 0,
+		'error'             => E_ERROR,
+		'warning'           => E_WARNING,
+		'parse'             => E_PARSE,
+		'notice'            => E_NOTICE,
+		'coreError'         => E_CORE_ERROR,
+		'coreWarning'       => E_CORE_WARNING,
+		'complileError'     => E_COMPILE_ERROR,
+		'complileWarning'   => E_COMPILE_WARNING,
+		'userError'         => E_USER_ERROR,
+		'userWarning'       => E_USER_WARNING,
+		'userNotice'        => E_USER_NOTICE,
+		'strict'            => E_STRICT,
+		'recoverableError'  => E_RECOVERABLE_ERROR,
+		'deprecated'        => E_DEPRECATED,
+		'userdeprecated'    => E_USER_DEPRECATED,
+		'all'               => E_ALL
+	);
+
+	/**
+	 * White list of acceptable values for display_errors directive
+	 * 
+	 * @var array
+	 */
+	protected $displayWhiteList = array(
+		'on',
+		'off', 
+		'yes',
+		'no',
+		'1',
+		'0',
+		1,
+		0,
+		'stderr',
+	);
 
     /**
-     * We can not assign with a bitwise mask in a member definition so
-     * make the assignment here
-     *
-     * @return  PhpError
+     * @return  string  returns the previous display status
      */
-    public function __construct()
+    public function enableErrorDisplay()
     {
-        $this->levels['standard']   = E_ERROR | E_WARNING | E_PARSE;
-        $this->levels['all_strict'] = E_ALL | E_STRICT;
+        return $this->setDisplayStatus('on');
     }
 
     /**
      * @return  string  returns the previous display status
      */
-    public function enableDisplay()
+    public function disableErrorDisplay()
     {
-        return $this->setDisplayStatus('1');
-    }
-
-    /**
-     * @return  string  returns the previous display status
-     */
-    public function disableDisplay()
-    {
-        return $this->setDisplayStatus('0');
+        return $this->setDisplayStatus('off');
     }
 
     /**
@@ -75,22 +80,36 @@ class PHPError implements PHPErrorInterface
         return $this->setDisplayStatus('stderr');
     }
 
+	/**
+	 * @param	string	$value
+	 * @return	bool
+	 */
+	public function isValidDisplayValue($value)
+	{
+		$value = strtolower($value);
+		return in_array($value, $this->displayWhiteList, true);
+	}
+
     /**
-     * consolidate many values into 1 for display and 0 for no display
+     * check the value against a white list of on and off values and
+	 * sets the status to the result of that check. If the value is not
+	 * mapped or the php call fails false is returned
      *
-	 * @param	string	$flag
-	 * @return  string
+	 * @param	string	$value
+	 * @return  bool
      */
-    public function setDisplayStatus($flag)
+    public function setDisplayStatus($value)
     {
-		$flag = (string) $flag;
-		$valid = array('1', '0', 'stderr');
-		
-		if (! in_array($flag, $valid)) {
-			$flag = '0';
+		if (! $this->isValidDisplayValue($value)) {
+			return false;
 		}
 
-        return ini_set('display_errors', $flag);
+        $result = ini_set('display_errors', $value);
+		if (false === $result) {
+			return false;
+		}
+
+		return true;
     }
 
     /**
@@ -110,14 +129,15 @@ class PHPError implements PHPErrorInterface
      */
     public function setReportingLevel($code, $raw = FALSE)
     {
-        if (TRUE === $raw) {
+        if (true === $raw) {
             return error_reporting($code);
         }
 
         $level = $this->getLevel($code);
         if (FALSE === $level) {
-			$level = $this->getLevel('none');
+			return false;
         }
+
         return error_reporting($level);
     }
 
@@ -183,4 +203,14 @@ class PHPError implements PHPErrorInterface
     {
         return $this->levels;
     }
+
+	protected function checkBit($value, $bitNumber, $size = '32')
+	{
+		$value =(int) $value;
+		if ($value & (1 << ($size - $bitNumber))) {
+			return true;
+		}
+
+		return false;
+	}
 }
