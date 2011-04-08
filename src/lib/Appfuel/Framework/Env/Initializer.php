@@ -23,12 +23,12 @@ use Appfuel\Framework\AppFactory,
 class Initializer
 {
     /**  
-	 * Parse the config file into an array and use that array to initalize
-	 * (load) the Registry. Then use the registry to put the framework into
-	 * a known state
+	 * Parse the config file into an array and use that to initialize a central registry
+	 * then use the registry to initialize the framework. The config file must exist
+	 * or an exception is throw.
 	 *
-     * @param   string  $file	file path to config ini
-	 * @return	Appfuel\Framework\AppFactoryInterface
+     * @param   string		$file	file path to config ini
+	 * @return	Env\State 
      */
 	static public function initialize($basePath, $file)
 	{
@@ -36,8 +36,20 @@ class Initializer
 		if (! $data) {
 			$data = array();
 		}
+
+		/*
+		 * The registry is central for allowing the system to share configuration information.
+		 * I try to use it only within the framework startup (initalization and bootstrapping)
+		 * after that you have enough tools to create the appropriate object relationships
+		 */
 		self::initRegistry($data);
-		self::initFromRegistry();
+
+		/*
+		 * Initializing from the registry allows us to use the Registry interface to 
+		 * easily collect togather config data that may or may not be there. No need
+		 * to check array indexes
+		 */
+		return self::initFromRegistry();
 	}
 	
 	/**
@@ -61,7 +73,8 @@ class Initializer
 			'default_timezone'
 		);
 
-		$data = Registry::collect($keys);
+		/* grab all the items with these keys as an array */
+		$data  = Registry::collect($keys);
 		$state = AppFactory::createEnvState($data);
 		self::initState($state);
 		return $state;

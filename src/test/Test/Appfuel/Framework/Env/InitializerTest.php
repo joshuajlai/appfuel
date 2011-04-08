@@ -23,19 +23,12 @@ use Test\AfTestCase					  as ParentTestCase,
 class InitializerTest extends ParentTestCase
 {
 	/**
-	 * Root path of the application
-	 * @var string
-	 */
-	protected $basePath = NULL;
-
-	/**
-	 * Save the include path and registry settings
+	 * Save the include path
 	 * @return null
 	 */
 	public function setUp()
 	{
 		$this->backupIncludePath();
-		$this->basePath = $this->getBasePath();
 	}
 
 	/**
@@ -260,8 +253,6 @@ class InitializerTest extends ParentTestCase
 		$this->assertEquals($oldInclude, $result);
 		$this->assertEquals($expected, $newInclude);
 	}
-
-
 
 	/**
 	 * This method will try to append the base path onto to path you give
