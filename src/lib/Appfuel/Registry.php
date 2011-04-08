@@ -144,6 +144,29 @@ class Registry
 	}
 
 	/**
+	 * Collect a series of name value pairs 
+	 * 
+	 * @param	array	$list		of keys to collect
+	 * @return	array
+	 */
+	static public function collect(array $list)
+	{
+		if (! self::isInit()) {
+			return false;
+		}
+
+		$result = array();
+		foreach ($list as $index => $key) {
+			if (! self::exists($key)) {
+				continue;
+			}
+			$result[$key] = self::get($key);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * Has the registry been initialized, so a data bag is ready to use
 	 * 
 	 * @return bool

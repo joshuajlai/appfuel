@@ -49,6 +49,7 @@ class Dependency
 			"{$std}Filesystem{$sep}Manager.php",
 			"{$std}Filesystem{$sep}File.php",
 			"{$fw}AppFactory.php",
+			"{$fw}Env{$sep}State.php",
 			"{$fw}Env{$sep}Initializer.php",
 			"{$fw}Env{$sep}PHPErrorInterface.php",
 			"{$fw}Env{$sep}PHPError.php",

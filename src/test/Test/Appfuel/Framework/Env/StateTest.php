@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\Init;
+namespace Test\Appfuel\Framework\Env;
 
 use Test\AfTestCase	as ParentTestCase,
 	Appfuel\Framework\Env\State;
@@ -17,7 +17,7 @@ use Test\AfTestCase	as ParentTestCase,
  * State is a value object used to hold the current state of the frameworks
  * environment.
  */
-class PHPErrorTest extends ParentTestCase
+class StateTest extends ParentTestCase
 {
 	/**
 	 * System Under Test
@@ -26,47 +26,24 @@ class PHPErrorTest extends ParentTestCase
 	protected $state = NULL;
 	
 	/**
-	 * Value used for displaying errors 1st param in constructor
 	 * @var string
 	 */
-	protected $displayErrors = 'on';
-
-	/**
-	 * Value used to error reporting 2nd param in constructor
-	 * @var string
-	 */
-	protected $errorReporting = 'all_strict';
-
-	/**
-	 * Value used for default timezone 3rd param in constructor
-	 * @var string
-	 */
-	protected $timezone = 'America\Los_Angeles';
-
-	/**
-	 * Value used for the autoload stack 4th param in constructor
-	 * @var array
-	 */
-	protected $autoloadStack = array(1,2,3);
-
-	/**
-	 * Value used to hold the include path 5th and final param in constuctor
-	 * @var string
-	 */
-	protected $includePath = 'some:path';
+	protected $stateData = null;
 
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->state = new State(
-			$this->displayErrors,
-			$this->errorReporting,
-			$this->timezone,
-			$this->autoloadStack,
-			$this->includePath
+		$this->stateData = array(
+            'include_path'			 => 'somepath',
+            'include_path_action'	 => 'replace',
+            'display_errors'		 => true,
+            'error_reporting'		 => 'all_strict',
+            'enable_autoloader'		 => 'true',
+            'default_timezone'       => 'America\Los_Angeles'
 		);
+		$this->state = new State($this->stateData);
 	}
 
 	/**
@@ -78,58 +55,99 @@ class PHPErrorTest extends ParentTestCase
 	}
 
     /**
+	 * Test the conditions when error configuration exists. This is used by
+	 * the state object in setup. We create an empty state object to prove
+	 * what happens when no configuration exists
+	 *
 	 * @return null
      */
-    public function testDisplayErrors()
+    public function testErrorConfiguration()
     {
 
+		$this->assertTrue($this->state->isErrorConfiguration());
+
 		$this->assertEquals(
-			$this->displayErrors,
+			$this->stateData['display_errors'],
 			$this->state->displayErrors(),
 			'should be the same value given to the constructor'
 		);
-    }
-
-    /**
-	 * @return null
-     */
-    public function testErrorReporting()
-    {
 
 		$this->assertEquals(
-			$this->errorReporting,
+			$this->stateData['error_reporting'],
 			$this->state->errorReporting(),
 			'should be the same value given to the constructor'
 		);
+
+	
+		$state = new State(array());
+		$this->assertFalse($state->isErrorConfiguration());
+		$this->assertNull($state->displayErrors());
+		$this->assertNull($state->errorReporting());
     }
 
     /**
+	 * Test the conditions when the default timezone configuration exists
+	 * and when it doesn't
+	 *
 	 * @return null
      */
     public function testTimezone()
     {
+		$this->assertTrue($this->state->isTimezoneConfiguration());
 
 		$this->assertEquals(
-			$this->timezone,
+			$this->stateData['default_timezone'],
 			$this->state->defaultTimezone(),
 			'should be the same value given to the constructor'
 		);
+		
+		$state = new State(array());
+		$this->assertFalse($state->isTimezoneConfiguration());
+		$this->assertNull($state->defaultTimezone());
     }
 
     /**
-	 * We are testing the autoload stack with a simple array of ints because
-	 * this is a value object that only needs to pass back the values passed in
+	 * Test the conditions when the autoload stack needs to be restored. Which
+	 * means the autoload stack is present in the state. This is not the case
+	 * in setup so we will create a new state to test that condition
 	 *
 	 * @return null
      */
     public function testAutoloadStack()
     {
-
-		$this->assertEquals(
-			$this->autoloadStack,
+		$this->assertFalse($this->state->isRestoreAutoloaders());
+		$this->assertNull(
 			$this->state->autoloadStack(),
-			'should be the same value given to the constructor'
+			'we did not include the autoload stack so this should be null'
 		);
+
+		$data = array(
+			'autoload_stack' => array(
+				'load' => 'some_load_method'
+			)
+		);
+		$state = new State($data);
+		$this->assertTrue($state->isRestoreAutoloaders());
+		$this->assertEquals(
+			$data['autoload_stack'],
+			$state->autoloadStack(),
+			'should be the autoload_stack array passed into the constructor'
+		);
+    }
+
+    /**
+	 * More commonly used than the autoloadStack is the isEnableAutoloader flag
+	 * which is used by the framework during initialization to determine is the
+	 * framework should enable the autoloader. This flag is given in setup.
+	 *
+	 * @return null
+     */
+    public function testIsEnableAutoloader()
+    {
+		$this->assertTrue($this->state->isEnableAutoloader());
+		
+		$state = new State(array());
+		$this->assertFalse($state->isEnableAutoloader());
     }
 
     /**
@@ -137,11 +155,22 @@ class PHPErrorTest extends ParentTestCase
      */
     public function testIncludeaPath()
     {
-
+		$this->assertTrue($this->state->isIncludePathConfiguration());
 		$this->assertEquals(
-			$this->includePath,
+			$this->stateData['include_path'],
 			$this->state->includePath(),
 			'should be the same value given to the constructor'
 		);
+
+		$this->assertEquals(
+			$this->stateData['include_path_action'],
+			$this->state->includePathAction(),
+			'should be the same value given to the constructor'
+		);
+
+		$state = new State(array());
+		$this->assertFalse($state->isIncludePathConfiguration());
+		$this->assertNull($state->includePath());
+		$this->assertNull($state->includePathAction());
     }
 }

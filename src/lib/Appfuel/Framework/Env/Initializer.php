@@ -52,27 +52,51 @@ class Initializer
      */
 	static public function initFromRegistry()
 	{
-		$paths  = Registry::get('include_path', FALSE);
-        $action = Registry::get('include_path_action', 'replace');
+		$keys = array(
+			'include_path',
+			'include_path_action', 
+			'display_errors', 
+			'error_reporting',
+			'enable_autoloader',
+			'default_timezone'
+		);
+
+		$data = Registry::collect($keys);
+		$state = AppFactory::createEnvState($data);
+		self::initState($state);
+		return $state;
+	}
 	
-		if ($paths) {
-			self::initIncludePath($paths, $action);
+	/**
+	 * Initialize the enviroment based on the state settings
+	 * 
+	 * @param	State	$state
+	 * @return	null
+	 */
+	public function initState(State $state)
+	{
+		if ($state->isErrorConfiguration()) {
+			$errDisplay = $state->displayErrors();
+			$errReport  = $state->errorReporting();
+			self::initPHPError($errDisplay, $errReport);
 		}
 
-		$display = Registry::get('display_errors',   NULL);
-		$level   = Registry::get('error_reporting', NULL);
-		if (! empty($display) || ! empty($level)) {
-			self::initPHPError($display, $level);
+		if ($state->isIncludePathConfiguration()) {
+			$path   = $state->includePath();
+			$action = $state->includePathAction();
+			self::initIncludePath($path, $action);
 		}
 
-		$isAutoloader = Registry::get('enable_autoloader', TRUE);
-		if ($isAutoloader) {
+		if ($state->isTimezoneConfiguration()) {
+			self::initDefaultTimezone($state->defaultTimezone());
+		}
+
+		if ($state->isRestoreAutoloaders()) {
+			$loaders = $state->autoloaders();
+			self::restoreAutoloaders($loaders);
+		} 
+		else if ($state->isEnableAutoloader()) {
 			self::initAutoloader();
-		}
-
-		$timezone = Registry::get('default_timezone', NULL);
-		if (! empty($timezone)) {
-			self::initTimezone($timezone);
 		}
 	}
 

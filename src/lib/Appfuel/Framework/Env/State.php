@@ -10,59 +10,77 @@
  */
 namespace Appfuel\Framework\Env;
 
+use Appfuel\Framework\Exception,
+	Appfuel\Stdlib\Data\BagInterface,
+	Appfuel\Stdlib\Data\Bag;
+
 /**
- * Value object used to hold the current state of the frameworks environment settings.
+ * Value object used to hold the current state of the frameworks environment 
+ * settings.
  */
 class State
 {
 	/**
-	 * Indicates if errors are displayed 
+	 * Used to hold the data which represents state properties 
 	 * @return string
 	 */
-	protected $displayErrors  = null;
+	protected $bag  = null;
 	
 	/**
-	 * Indicates the current level of error reporting. Uses the frameworks
-	 * mapped values not the constant integer
-	 * @var string
-	 */
-	protected $errorReporting = null;
-
-	/**
-	 * Indicated the frameworks current timezone settings
-	 * @var string
-	 */
-	protected $timezone = null;
-
-	/**
-	 * The autoload stack used to autoloading
-	 * @var array
-	 */
-	protected $autoloadStack = array();
-	
-	/**
-	 * The frameworks includepath
-	 * @var string
-	 */
-	protected $includePath = null;
-
-
-	/**
-	 * @param	string	$eshow		setting for display errors
-	 * @param	string	$ereport	setting for error reporting
-	 * @param	string	$tz			setting for default timzezone
-	 * @param	array	$loaders	autoloader stack
-	 * @param	string	$paths		include paths
+	 * Validate if the data is an array or BagInterface and assign.
 	 * 
+	 * @param	mixed	$data
 	 * @return	State
 	 */
-	public function __construct($eshow, $ereport, $tz, array $loaders, $path)
+	public function __construct($data)
 	{
-		$this->displayErrors  = $eshow;
-		$this->errorReporting = $ereport;
-		$this->timezone       = $tz;
-		$this->autoloadStack  = $loaders;
-		$this->includePath	  = $path;
+		if (is_array($data)) {
+			$this->bag = new Bag($data);
+		}
+		else if ($data instanceof BagInterface) {
+			$this->bag = $data;
+		} 
+		else {
+			$err = 'Invalid argument given to the constructor. ' .
+				   'Must be an array or object that implements a ' .
+				   'Appfuel\\Stdlib\\Data\\BagInterface';
+			throw new Exception($err);
+		} 
+	}
+
+	/**
+	 * Get any property in the bag if it exists, return default when 
+	 * it doen't
+	 *
+	 * @param	string	$name
+	 * @param	mixed	$default
+	 * @return	mixed
+	 */
+	public function get($name, $default = null)
+	{
+		return $this->getBag()
+					->get($name, $default);
+	}
+
+	/**
+	 * Check if the property is located in the bag
+	 * 
+	 * @param	string	$name
+	 * @return	bool
+	 */
+	public function exists($name) 
+	{
+		return $this->getBag()
+					->exists($name);
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isErrorConfiguration()
+	{
+        return $this->exists('display_errors') ||
+			   $this->exists('error_reporting');
 	}
 
 	/**
@@ -70,7 +88,7 @@ class State
 	 */
 	public function displayErrors()
 	{
-		return $this->displayErrors;
+		return $this->get('display_errors', null);
 	}
 
 	/**
@@ -78,7 +96,15 @@ class State
 	 */
 	public function errorReporting()
 	{
-		return $this->errorReporting;
+		return $this->get('error_reporting', null);
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isTimezoneConfiguration()
+	{
+		return $this->exists('default_timezone');
 	}
 
 	/**
@@ -86,15 +112,15 @@ class State
 	 */
 	public function defaultTimezone()
 	{
-		return $this->timezone;
+		return $this->get('default_timezone', null);
 	}
 
 	/**
-	 * @return array
+	 * @return bool
 	 */
-	public function autoloadStack()
+	public function isIncludePathConfiguration()
 	{
-		return $this->autoloadStack;
+		return $this->exists('include_path');
 	}
 
 	/**
@@ -102,6 +128,53 @@ class State
 	 */
 	public function includePath()
 	{
-		return $this->includePath;
+		return $this->get('include_path', null);
+	}
+
+	/**
+	 * @return 
+	 */
+	public function includePathAction()
+	{
+		return $this->get('include_path_action', null);
+	}
+
+	public function isRestoreAutoloaders()
+	{
+		$loaders = $this->get('autoload_stack', false);
+		if (! is_array($loaders)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isEnableAutoloader()
+	{
+		$isEnable = $this->get('enable_autoloader', false);
+		if ($isEnable) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function autoloadStack()
+	{
+		return $this->get('autoload_stack', null);
+	}
+
+	/**
+	 * @return	BagInterface
+	 */
+	protected function getBag()
+	{
+		return $this->bag;
 	}
 }

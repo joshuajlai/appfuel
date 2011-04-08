@@ -10,6 +10,7 @@
 				<file>./Test/Appfuel/Framework/Env/PHPErrorTest.php</file>
 				<file>./Test/Appfuel/Framework/Env/AutoloaderTest.php</file>
 				<file>./Test/Appfuel/Framework/Env/IncludePathTest.php</file>
+				<file>./Test/Appfuel/Framework/Env/InitializerTest.php</file>
 			</testsuite>
 		</testsuites>
 </phpunit>

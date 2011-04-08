@@ -86,7 +86,7 @@ class InitializerTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function xtestInitRegistry()
+	public function testInitRegistry()
 	{
 		Registry::init();
 		$this->assertEquals(0, Registry::count());
@@ -136,11 +136,9 @@ class InitializerTest extends ParentTestCase
 	 * because new factory will be create from those registry settings
 	 *
 	 */
-	public function xtestInitFromRegistry()
+	public function testInitFromRegistry()
 	{
 		/* clear out any objects set during initialization */
-		$initializer = new Initializer($this->basePath);
-		Registry::add('app_factory', '\Appfuel\Framework\AppFactory');
 		
 		$paths = array('path_1', 'path_2');
 		Registry::add('include_path', $paths);
@@ -150,7 +148,7 @@ class InitializerTest extends ParentTestCase
 		Registry::add('error_reporting', 'all');
 
 		
-		$result = $initializer->initFromRegistry();
+		$result = Initializer::initFromRegistry();
 
 		$includePath    = get_include_path();
 		$displayError   = ini_get('display_errors');
@@ -165,11 +163,6 @@ class InitializerTest extends ParentTestCase
 		$this->assertEquals($expectedInclude, $includePath);	
 		$this->assertEquals(1, $displayError);
 		$this->assertEquals(E_ALL, $errorReporting);
-	
-		$this->assertInstanceOf(
-			'\\Appfuel\\Framework\\AppFactoryInterface',
-			$initializer->getFactory()
-		);
 	}
 }
 

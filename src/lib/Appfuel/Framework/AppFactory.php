@@ -45,7 +45,14 @@ class AppFactory
 	{
 		return new Env\IncludePath();
 	}
-
+	
+	/**
+	 * @return Env\State
+	 */
+	static public function createEnvState(array $data)
+	{
+		return new Env\State($data);
+	}
 
     public function createBootstrapper($type)
 	{

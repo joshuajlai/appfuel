@@ -32,5 +32,4 @@ $configFile = $basePath . DIRECTORY_SEPARATOR .
 
 $oPath = get_include_path();
 AppManager::Initialize($basePath, $configFile);
-
 AfTestCase::setOriginalIncludePath($oPath);
