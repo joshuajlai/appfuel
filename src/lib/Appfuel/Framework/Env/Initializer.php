@@ -126,11 +126,11 @@ class Initializer
 	{
 		$error = AppFactory::createPHPError();
 		
-		if (! empty($display)) {
+		if (null !== $display) {
 			$error->setDisplayStatus($display);
 		}
 
-		if (! empty($reporting)) {
+		if (null !== $reporting) {
 			$error->setReportingLevel($reporting);
 		}
 	}
@@ -152,10 +152,10 @@ class Initializer
 	 * @param	string	$timezone
 	 * @return	bool
 	 */
-	static public function initTimezone($timezone)
+	static public function initDefaultTimezone($timezone)
 	{
-		$timezone = AppFactory::createTimezone();
-		return $timezone->setDefault($timezone);
+		$envTz = AppFactory::createTimezone();
+		return $envTz->setDefault($timezone);
 	}
 
 	/**

@@ -54,6 +54,14 @@ class AppFactory
 		return new Env\State($data);
 	}
 
+	/**
+	 * @return Env\Timezone
+	 */
+	static public function createTimezone()
+	{
+		return new Env\Timezone();
+	}
+
     public function createBootstrapper($type)
 	{
 	

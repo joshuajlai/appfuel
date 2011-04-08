@@ -16,7 +16,9 @@ use Test\AfTestCase					  as ParentTestCase,
 	Appfuel\Framework\Env\Initializer;
 
 /**
- * 
+ * The initializer is responsible for configuration of errors: if they show,
+ * and at what level, php include_path, enabling the autoloader, and
+ * default timezone. As more configurations are needed they will be added.
  */
 class InitializerTest extends ParentTestCase
 {
@@ -33,7 +35,7 @@ class InitializerTest extends ParentTestCase
 	public function setUp()
 	{
 		$this->backupIncludePath();
-		$this->basePath    = $this->getBasePath();
+		$this->basePath = $this->getBasePath();
 	}
 
 	/**
@@ -82,29 +84,184 @@ class InitializerTest extends ParentTestCase
 	}
 
 	/**
-	 * Test to ensure we can initialize data into the registery
+	 * This is a wrapper for Appfuel\Framework\Env\Timezone. We 
+	 * will be testing the side effect.
 	 *
 	 * @return null
 	 */
-	public function testInitRegistry()
+	public function testInitTimezone()
 	{
-		Registry::init();
-		$this->assertEquals(0, Registry::count());
+		$this->assertTrue(date_default_timezone_set('Antarctica/Casey'));
 
-		Initializer::initRegistry(array());	
-		$this->assertEquals(0, Registry::count());
+		$timezone = 'Arctic/Longyearbyen';
+		$this->assertTrue(Initializer::initDefaultTimezone($timezone));
+		$this->assertEquals($timezone, date_default_timezone_get());
 
-		$data = array(
-			'label_1' => 'value_1',
-			'label_2' => 'value_2'
+		$this->assertFalse(Initializer::initDefaultTimezone('blahs'));
+		$this->assertEquals($timezone, date_default_timezone_get());
+	}
+
+	/**
+	 * This is a wrapper for the Appfuel\Framework\Env\Autoloader
+	 *
+	 * @return	null
+	 */	
+	public function testInitAutoloader()
+	{
+		$this->clearAutoloaders();
+		$loaders = spl_autoload_functions();
+		$this->assertInternalType('array', $loaders);
+		$this->assertEmpty($loaders);
+
+		$this->assertNull(Initializer::initAutoloader());
+		$loaders = spl_autoload_functions();
+		$this->assertInternalType('array', $loaders);
+		$this->assertEquals(1, count($loaders));
+
+		$loader = current($loaders);
+		$this->assertInternalType('array', $loader);
+		$this->assertEquals(2, count($loader));
+
+		$this->assertInstanceof(
+			'Appfuel\Framework\Env\Autoloader',
+			$loader[0]
 		);
 
-		Initializer::initRegistry($data);	
-		$this->assertEquals(2, Registry::count());
-
-		$this->assertEquals($data['label_1'], Registry::get('label_1'));
-		$this->assertEquals($data['label_2'], Registry::get('label_2'));
+		$this->assertEquals('loadClass', $loader[1]);
 	}
+
+	/**
+	 * This is a wrapper for Appfuel\Framework\Env\PHPError
+	 *
+	 * @return null
+	 */
+	public function testInitPHPError()
+	{
+		ini_set('display_errors', 0);
+		$this->assertEquals(0, ini_get('display_errors'));
+		
+		error_reporting(0);
+		$this->assertEquals(0, error_reporting());
+
+		$this->assertNull(Initializer::initPHPError(1, 'all'));
+		$this->assertEquals(1, ini_get('display_errors'));
+		$this->assertEquals(E_ALL, error_reporting());
+
+		/* 
+		 * the display_errors wont change when null is given
+		 * as a parameter
+		 */
+		Initializer::initPHPError(1, 'parse');
+		$this->assertEquals(1, ini_get('display_errors'));
+		$this->assertEquals(E_PARSE, error_reporting());
+
+		/*
+		 * the error_reporting wont change when null is given
+		 */
+		Initializer::initPHPError(0, NULL);
+		$this->assertEquals(0, ini_get('display_errors'));
+		$this->assertEquals(E_PARSE, error_reporting());
+
+		/*
+		 * when both are not changes nothing happens
+		 */
+		Initializer::initPHPError(0, NULL);
+		$this->assertEquals(0, ini_get('display_errors'));
+		$this->assertEquals(E_PARSE, error_reporting());
+	
+	}
+
+	/**
+	 * This is a wrapper arround Appfuel\Framework\Env\IncludePath
+	 *
+	 * @return null
+	 */
+	public function testInitIncludePathDefaultAction()
+	{
+		$oldInclude = get_include_path();
+		$paths = array(
+			'my_path',
+			'your_path'
+		);
+
+		/* 
+		 * when the second parameter is ommited the action performed with
+		 * the paths is to replace the old include path with the paths given
+		 */
+		$result     = Initializer::initIncludePath($paths);
+		$expected   = $paths[0] . PATH_SEPARATOR . $paths[1];
+		$newInclude = get_include_path();
+
+		/* 
+		 * we always need the include path for phpunit be for we test 
+		 */
+		$this->restoreIncludePath();
+
+		/* init returns the old include path or false on failure */
+		$this->assertEquals($oldInclude, $result);
+		$this->assertEquals($expected, $newInclude);
+	}
+
+	/**
+	 * Test the wrapper with an append action
+	 *
+	 * @return null
+	 */
+	public function testInitIncludePathAppendAction()
+	{
+		$oldInclude = get_include_path();
+		$paths = array(
+			'my_path',
+			'your_path'
+		);
+
+		$result   = Initializer::initIncludePath($paths, 'append');
+		$expected = $oldInclude . PATH_SEPARATOR .
+				    $paths[0]	. PATH_SEPARATOR . 
+				    $paths[1];
+		$newInclude = get_include_path();
+
+		/* 
+		 * we always need the include path for phpunit be for we test 
+		 */
+		$this->restoreIncludePath();
+
+		/* init returns the old include path or false on failure */
+		$this->assertEquals($oldInclude, $result);
+		$this->assertEquals($expected, $newInclude);
+	}
+
+	/**
+	 * Test the wrapper with an prepend action
+	 *
+	 * @return null
+	 */
+	public function testInitIncludePathPrependAction()
+	{
+		$oldInclude = get_include_path();
+		$paths = array(
+			'my_path',
+			'your_path'
+		);
+
+		$result   = Initializer::initIncludePath($paths, 'prepend');
+		$expected = $paths[0]   . PATH_SEPARATOR . 
+				    $paths[1]   . PATH_SEPARATOR .
+					$oldInclude;
+
+		$newInclude = get_include_path();
+
+		/* 
+		 * we always need the include path for phpunit be for we test 
+		 */
+		$this->restoreIncludePath();
+
+		/* init returns the old include path or false on failure */
+		$this->assertEquals($oldInclude, $result);
+		$this->assertEquals($expected, $newInclude);
+	}
+
+
 
 	/**
 	 * This method will try to append the base path onto to path you give
@@ -129,40 +286,6 @@ class InitializerTest extends ParentTestCase
 		$this->assertEquals('value_1', Registry::get('label_1'));
 		$this->assertEquals('value_2', Registry::get('label_2'));
 		$this->assertEquals('value_3', Registry::get('label_3'));
-	}
-
-	/**
-	 * Test initializing with the registry. We create a new intializer
-	 * because new factory will be create from those registry settings
-	 *
-	 */
-	public function testInitFromRegistry()
-	{
-		/* clear out any objects set during initialization */
-		
-		$paths = array('path_1', 'path_2');
-		Registry::add('include_path', $paths);
-		Registry::add('include_path_action', 'replace');
-
-		Registry::add('display_error', 1);
-		Registry::add('error_reporting', 'all');
-
-		
-		$result = Initializer::initFromRegistry();
-
-		$includePath    = get_include_path();
-		$displayError   = ini_get('display_errors');
-		$errorReporting = error_reporting();
-
-		/* 
-		 * must restore the settings so we can test the results 
-		 * we backed up the actual registry so we can restore 
-		 */
-		$this->restoreAppfuelSettings();	
-		$expectedInclude = 'path_1' . PATH_SEPARATOR . 'path_2';
-		$this->assertEquals($expectedInclude, $includePath);	
-		$this->assertEquals(1, $displayError);
-		$this->assertEquals(E_ALL, $errorReporting);
 	}
 }
 
