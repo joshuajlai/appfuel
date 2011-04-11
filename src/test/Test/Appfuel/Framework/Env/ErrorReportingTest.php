@@ -156,84 +156,359 @@ class ErrorReportingTest extends ParentTestCase
 		$this->assertFalse($this->error->mapLevel($level));
 	}
 
-	public function testGetLevel()
-	{
-		$enabled  = null;
-		$disabled = null;
-		$result = $this->error->setLevel($enabled, $disabled);
-		echo "\n", print_r($result,1), "\n";exit;
-	}
-
 	/**
-	 * Test the ability to set/get the error_reporting. Loop through all codes
-	 * and use to the level with setReportingLevel and compare the results
-	 * of getReportingLevel with raw parameter set to true. They should be the
-	 * same as what error_reporting shows
+	 * This is a convience method used so you don't need to specify all
+	 * 15 codes to turn off
 	 *
 	 * @return null
 	 */
-	public function xtestGetSetReportingLevelRaw()
+	public function testDisableAll()
 	{
-		/* get reporting level should return the same as the current level */
-		$useRaw = true; 
-		$currentLevel = error_reporting();
-		$level = $this->error->getReportingLevel($useRaw);
-		$this->assertEquals($currentLevel, $level);
-
-		/* set the level manually and see if getReportingLevel is corrects */
-		$codes  = $this->error->getCodes();
-		foreach ($codes as $code => $level) {
-			$previous = error_reporting();
-			$result   = $this->error->setReportingLevel($level, $useRaw);
-			$this->assertEquals($previous, $result);
-			
-			$result = $this->error->getReportingLevel($useRaw);
-			$this->assertEquals(error_reporting(), $result);
-		}
-
-		$currentLevel = error_reporting();
-		$result = $this->error->setReportingLevel(12345);
-		$this->assertFalse($result);
-
-		/* prove the current level has not been altered */
-		$this->assertEquals($currentLevel, error_reporting());
-	}
-
-	/**
-	 * Test the ability to set/get the error_reporting. Loop through all codes
-	 * and use to code with setReportingLevel and compare the results
-	 * of getReportingLevel with raw parameter set to false. They should be the
-	 * same as what error_reporting shows
-	 *
-	 * @return null
-	 */
-	public function xtestGetSetReportingLevel()
-	{
-		/* set the level manually and see if getReportingLevel is corrects */
-		$codes  = $this->error->getCodes();
-		$useRaw = false; 
-		foreach ($codes as $code => $level) {
-			$previous = error_reporting();
-			$result   = $this->error->setReportingLevel($code, $useRaw);
-			$this->assertEquals($previous, $result);
-			
-			$result = $this->error->getReportingLevel($useRaw);
-			$this->assertEquals($result, $code);
-			$this->assertEquals(error_reporting(), $level);
-		}
-
-		$currentLevel = error_reporting();
-		$currentCode  = $this->error->getCode($currentLevel);
-		$result = $this->error->setReportingLevel('not_mapped');
-		$this->assertFalse($result);
+		/* set error reporting to something known */
+		error_reporting(E_ALL | E_STRICT);
+		
+		$this->assertNull($this->error->disableAll());
+		$this->assertEquals(0, error_reporting());
+		
+		$result = $this->error->getLevel();
+		$this->assertInternalType('array', $result);
+		$this->assertArrayHasKey('enabled', $result);
+		$this->assertArrayHasKey('disabled', $result);
+		$this->assertEmpty($result['enabled']);
+		
+		/* all 15 codes should appear in the disabled array */
+		$this->assertEquals(15, count($result['disabled']));
 
 		/* 
-		 * when a code is not mapped it is ignored so this should return
-		 * the curent code for the current error level
-		 */
-		$this->assertEquals($currentCode, $this->error->getReportingLevel());
+		 * each code in the disabled array should be a valid php error
+		 * constant
+		 */		
+		foreach ($result['disabled'] as $code) {
+			$this->assertContains($code, $this->levels);
+		}
 
-		/* prove the current level has not been altered */
-		$this->assertEquals($currentLevel, error_reporting());
+	}
+
+	/**
+	 * setLevel accepts codes as comma separated strings, but it will also
+	 * detect two integers 0, and -1. We will focus on 0 for this test
+	 * which will disable error reporting
+	 *
+	 * @return	null
+	 */ 
+	public function testSetLevelDisableAll()
+	{
+		/* set error reporting to a known value */
+		error_reporting(E_ALL | E_STRICT);
+		$this->assertNull($this->error->setLevel(0));
+		$this->assertEquals(0, error_reporting());
+
+		$result = $this->error->getLevel();
+		$this->assertInternalType('array', $result);
+		$this->assertArrayHasKey('enabled', $result);
+		$this->assertArrayHasKey('disabled', $result);
+		$this->assertEmpty($result['enabled']);
+		
+		/* all 15 codes should appear in the disabled array */
+		$this->assertEquals(15, count($result['disabled']));
+
+		/* 
+		 * each code in the disabled array should be a valid php error
+		 * constant
+		 */		
+		foreach ($result['disabled'] as $code) {
+			$this->assertContains($code, $this->levels);
+		}
+	}
+
+	/**
+	 * This is a convience method used so you don't need to specify all
+	 * 15 codes to turn on
+	 *
+	 * @return null
+	 */
+	public function testEnableAll()
+	{
+		/* disable error reporting */
+		error_reporting(0);
+		
+		$this->assertNull($this->error->enableAll());
+		$this->assertEquals(-1, error_reporting());
+		
+		$result = $this->error->getLevel();
+		$this->assertInternalType('array', $result);
+		$this->assertArrayHasKey('enabled', $result);
+		$this->assertArrayHasKey('disabled', $result);
+		$this->assertEmpty($result['disabled']);
+		
+		/* all 15 codes should appear in the disabled array */
+		$this->assertEquals(15, count($result['enabled']));
+
+		/* 
+		 * each code in the disabled array should be a valid php error
+		 * constant
+		 */		
+		foreach ($result['enabled'] as $code) {
+			$this->assertContains($code, $this->levels);
+		}
+
+	}
+
+	/**
+	 * setLevel accepts codes as comma separated strings, but it will also
+	 * detect two integers 0, and -1. We will focus on -1 for this test
+	 * which will enable all error reporting
+	 *
+	 * @return	null
+	 */ 
+	public function testSetLevelEnableAll()
+	{
+		/* disable error reporting */
+		error_reporting(0);
+		$this->assertNull($this->error->setLevel(-1));
+		$this->assertEquals(-1, error_reporting());
+
+		$result = $this->error->getLevel();
+		$this->assertInternalType('array', $result);
+		$this->assertArrayHasKey('enabled', $result);
+		$this->assertArrayHasKey('disabled', $result);
+		$this->assertEmpty($result['disabled']);
+		
+		/* all 15 codes should appear in the enabled array */
+		$this->assertEquals(15, count($result['enabled']));
+
+		/* 
+		 * each code in the disabled array should be a valid php error
+		 * constant
+		 */		
+		foreach ($result['enabled'] as $code) {
+			$this->assertContains($code, $this->levels);
+		}
+
+	}
+
+	/**
+	 * Included in the constant is the code all which will include
+	 * all other codes except strict so if we do 'all,strict' its the
+	 * same as using including all 15 codes
+	 *
+	 * @return null
+	 */ 
+	public function testSetLevelAllWithCodesShortHand()
+	{
+		/* disable error reporting */
+		error_reporting(0);
+		$this->assertNull($this->error->setLevel('all,strict'));
+		$this->assertEquals(E_ALL|E_STRICT, error_reporting());
+
+		$result = $this->error->getLevel();
+		$this->assertInternalType('array', $result);
+		$this->assertArrayHasKey('enabled', $result);
+		$this->assertArrayHasKey('disabled', $result);
+		$this->assertEmpty($result['disabled']);
+		
+		/* all 15 codes should appear in the enabled array */
+		$this->assertEquals(15, count($result['enabled']));
+
+		/* 
+		 * each code in the disabled array should be a valid php error
+		 * constant
+		 */		
+		foreach ($result['enabled'] as $code) {
+			$this->assertContains($code, $this->levels);
+		}
+	}
+
+	/**
+	 * Use all 14 codes which is like uses enableAll call accept its done
+	 * manually with bitwise ORs of each codes value
+	 *
+	 * @return null
+	 */ 
+	public function testSetLevelAllWithCodesAllCodes()
+	{
+		/* disable error reporting */
+		error_reporting(0);
+
+		/* 
+		 * list of 15 codes. there are 15 but the last on all is
+		 * special to indicate all codes but strict should be used
+		 */
+		$codes = 'error, warning, parse, notice, core_error,'     .   
+				 'core_warning, compile_error, compile_warning, ' .
+				 'user_error, user_warning, user_notice, strict,' .
+				 'recoverable_error, deprecated, user_deprecated';
+
+		$this->assertNull($this->error->setLevel($codes));
+		$this->assertEquals(E_ALL|E_STRICT, error_reporting());
+
+		$result = $this->error->getLevel();
+		$this->assertInternalType('array', $result);
+		$this->assertArrayHasKey('enabled', $result);
+		$this->assertArrayHasKey('disabled', $result);
+		$this->assertEmpty($result['disabled']);
+		
+		/* all 15 codes should appear in the enabled array */
+		$this->assertEquals(15, count($result['enabled']));
+
+		/* 
+		 * each code in the disabled array should be a valid php error
+		 * constant
+		 */		
+		foreach ($result['enabled'] as $code) {
+			$this->assertContains($code, $this->levels);
+		}
+
+	}
+
+	/**
+	 * Test the ability to add all codes using all and strict. Also disable
+	 * the error code and check to make sure real error level reflects.
+	 * Test getLevel reports the one code in the disabled array and 14 in
+	 * the enabled array
+	 *
+	 * @return null
+	 */
+	public function testSetLevelEnableDisableCode()
+	{
+		/* disable error reporting */
+		error_reporting(0);
+
+		$codes = 'all,strict,-error';
+		$this->assertNull($this->error->setLevel($codes));
+
+		$level = (E_ALL | E_STRICT) & ~E_ERROR; 
+		$this->assertEquals($level, error_reporting());
+		
+		$result = $this->error->getLevel();
+		$this->assertInternalType('array', $result);
+		$this->assertArrayHasKey('enabled', $result);
+		$this->assertArrayHasKey('disabled', $result);
+
+		$this->assertInternalType('array', $result['enabled']);
+		$this->assertInternalType('array', $result['disabled']);
+
+		$this->assertEquals(1, count($result['disabled']));
+		$this->assertContains('error', $result['disabled']);
+
+
+		$expected = array(
+			'warning',
+			'parse',
+			'notice',
+			'core_error',
+			'core_warning',
+			'compile_error',
+			'compile_warning',
+			'user_error',
+			'user_warning',
+			'user_notice',
+			'strict',
+			'recoverable_error',
+			'deprecated',
+			'user_deprecated'
+		);
+
+		$this->assertEquals(count($expected), count($result['enabled']));
+		foreach ($expected as $code) {
+			$this->assertContains($code, $result['enabled']);
+		}
+	}
+
+	/**
+	 * Test what happens when the codes given to setLevel is an empty string
+	 * 
+	 * @return null
+	 */	
+	public function testSetGetLevelWithNoCodes()
+	{
+		error_reporting(E_ALL | E_STRICT);
+		$this->assertNull($this->error->setLevel(''));
+
+		/* prove nothing has changed */
+		$this->assertEquals(E_ALL | E_STRICT, error_reporting());
+
+		$result = $this->error->getLevel();
+		$this->assertInternalType('array', $result);
+		$this->assertArrayHasKey('enabled', $result);
+		$this->assertArrayHasKey('disabled', $result);
+		$this->assertEmpty($result['disabled']);
+		
+		/* all 15 codes should appear in the enabled array */
+		$this->assertEquals(15, count($result['enabled']));
+
+		/* 
+		 * each code in the disabled array should be a valid php error
+		 * constant
+		 */		
+		foreach ($result['enabled'] as $code) {
+			$this->assertContains($code, $this->levels);
+		}
+	}
+
+	/**
+	 * When you have codes that indicate they are to be disabled and
+	 * there are no coded given from which to disable them from the
+	 * setLevel will use the current reporting level instead
+	 *
+	 * @return null
+	 */
+	public function testSetGetLevelNoEnableWithDisable()
+	{
+		/* set current reporting level */
+		error_reporting(E_ALL | E_STRICT);
+		
+		$codes = '-error, -warning, -parse';
+		$this->assertNull($this->error->setLevel($codes));
+
+		$level = (E_ALL | E_STRICT) & ~(E_ERROR | E_WARNING | E_PARSE);
+		$this->assertEquals($level, error_reporting());
+
+
+		$result = $this->error->getLevel();
+		$this->assertInternalType('array', $result);
+		$this->assertArrayHasKey('enabled', $result);
+		$this->assertArrayHasKey('disabled', $result);
+		$this->assertInternalType('array', $result['enabled']);
+		$this->assertInternalType('array', $result['disabled']);
+
+		$this->assertEquals(3, count($result['disabled']));
+		$this->assertEquals(12, count($result['enabled']));
+
+		$this->assertContains('error', $result['disabled']);	
+		$this->assertContains('warning', $result['disabled']);	
+		$this->assertContains('parse', $result['disabled']);	
+
+
+		$expected = array(
+			'notice',
+			'core_error',
+			'core_warning',
+			'compile_error',
+			'compile_warning',
+			'user_error',
+			'user_warning',
+			'user_notice',
+			'strict',
+			'recoverable_error',
+			'deprecated',
+			'user_deprecated'
+		);
+
+		$this->assertEquals(count($expected), count($result['enabled']));
+		foreach ($expected as $code) {
+			$this->assertContains($code, $result['enabled']);
+		}
+
+	}
+
+	/**
+	 * When given 0, setLevel will disable error_reporting
+	 *
+	 * @return	null
+	 */
+	public function xtestGetSetLevelNumbericCodes()
+	{
+
 	}
 }

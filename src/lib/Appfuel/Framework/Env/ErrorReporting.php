@@ -27,8 +27,8 @@ class ErrorReporting
 		'notice'             => E_NOTICE,
 		'core_error'         => E_CORE_ERROR,
 		'core_warning'       => E_CORE_WARNING,
-		'complile_error'     => E_COMPILE_ERROR,
-		'complile_warning'   => E_COMPILE_WARNING,
+		'compile_error'      => E_COMPILE_ERROR,
+		'compile_warning'    => E_COMPILE_WARNING,
 		'user_error'         => E_USER_ERROR,
 		'user_warning'       => E_USER_WARNING,
 		'user_notice'        => E_USER_NOTICE,
@@ -37,7 +37,6 @@ class ErrorReporting
 		'deprecated'         => E_DEPRECATED,
 		'user_deprecated'    => E_USER_DEPRECATED,
 		'all'                => E_ALL,
-		'future_all'		 => -1
 	);
 
 	/**
@@ -57,25 +56,90 @@ class ErrorReporting
 	}
 
     /**
+	 * Wraps the functionality of error_reporting. Excepts a comma separated
+	 * string of codes that correspond to the php error constants. If -1 is
+	 * is passed in then all codes will be used and if 0 is passed in then 
+	 * all codes will be disabled. When a code in the comma separated list
+	 * is prefixed with a dash then that code is treated as one to be disabled.
 	 *
-	 * @param	string	$enabledCodes	comma separated string to be included
-	 * @param	string	$disabledCodes	comman separated codes to be excluded
+	 * @param	string	$codes	comma separated string to be included
 	 * @return	null
      */
-    public function setLevel($enabledCodes = 'all', $disabledCodes = '')
+    public function setLevel($codes)
     {
+		/*
+		 * special treatment includes the following:
+		 * empty string:	bail cause it makes no sense
+		 * -1:				enable all
+		 *  0:				disable all
+		 */
+		if (is_string($codes)  && empty($codes)) {
+			return;
+		}
+		else if (-1 === $codes) {
+			$this->enableAll();
+			return;
+		}
+		else if (0 === $codes) {
+			$this->disableAll();
+			return;
+		}
+
+        $codes = explode(',', $codes, 15);
+	
+		/*
+		 * separate out the codes into enabled and disabled. All disabled codes
+		 * are prefixed with a '-' everthing else is considered enabled.
+		 */
+		$enabledCodes  = array();
+		$disabledCodes = array();	
+		foreach ($codes as $code) {
+			$code = trim($code);
+			if ('-' === $code[0]) {
+				$code = substr($code, 1);
+				/* trim to remove spaces between dash if they exist */
+				$disabledCodes[] = trim($code);
+			} else {
+				$enabledCodes[] = $code;
+			}
+			
+		}
+
+		/* both sets of codes can not be empty */		
+		if (empty($enabledCodes) && empty($disabledCodes)) {
+			return;
+		}
+
+		/*
+		 * perform bitwise OR operations to collect all coded into a single
+		 * integer value for both enabled and disabled coded
+		 */
+		$disabled = null;
 		$enabled  = $this->getBitValue($enabledCodes);
-		$disabled = NULL;
 		if (! empty($disabledCodes)) {
 			$disabled = $this->getBitValue($disabledCodes);
 		}
-	
-		if (NULL !== $disabled) {
-			$level = $enabled & ~$disabled;
-		} else {
+
+		/*
+		 * The truth table for enabled disabled states is as follows:
+		 * enable disabled
+		 *  null	null	invalid state return
+		 *  null	int		replace enable with current state negate disabled
+		 *  int		null	use enabled as the level ignore disabled
+		 *  int     int     use enabled and negate it with disabled
+		 */
+		if (null === $enabled && null === $disabled) {
+			return;
+		}
+		else if (! is_int($enabled) && is_int($disabled)) {
+			$level = error_reporting() & ~ $disabled;
+		}
+		else if (is_int($enabled) && ! is_int($disabled)) {
 			$level = $enabled;
 		}
-
+		else if (is_int($enabled) && is_int($disabled)) {
+			$level = $enabled & ~$disabled;
+		} 
 
 		error_reporting($level);
     }
@@ -84,8 +148,7 @@ class ErrorReporting
      * Map the current reporting level into an array of enabled and disabled
 	 * levels
 	 *
-	 * @param   bool    $raw    ignore our mapping
-     * @return  string
+     * @return  array
      */
     public function getLevel()
     {
@@ -162,12 +225,17 @@ class ErrorReporting
 		return $this->map;
 	}
 
-	protected function getBitValue($codes)
+	/**
+	 * Bitwise OR all codes that can be mapped into there error levels
+	 *
+	 * @param	array	$codes
+	 * @return	mixed	int|null
+	 */
+	protected function getBitValue(array $codes)
 	{
-        $codes    = explode(',', $codes, 15);
 		$bitValue = NULL;
 		foreach ($codes as $code) {
-			$level = $this->mapCode(trim($code));
+			$level = $this->mapCode($code);
 			if (false === $level) {
 				continue;
 			}
