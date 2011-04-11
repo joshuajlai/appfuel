@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -27,7 +27,7 @@ class BitTest extends ParentTestCase
 		$b = 1 << 5;
 
 		$bitCount = 15;
-		$target = E_ALL | E_ALL;
+		$target = E_ALL | E_STRICT;
 
 		$result = array();
 		for($i = 0; $i < $bitCount; $i++) {

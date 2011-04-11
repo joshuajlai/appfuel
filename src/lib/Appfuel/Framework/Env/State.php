@@ -25,6 +25,19 @@ class State
 	 * @return string
 	 */
 	protected $bag  = null;
+
+	/**
+	 * Key to be used to identify the various state settings
+	 * @var array
+	 */
+	protected $keys = array(
+		'include_path',
+        'include_path_action',
+        'display_errors',
+        'error_reporting',
+        'enable_autoloader',
+        'default_timezone'
+	);
 	
 	/**
 	 * Validate if the data is an array or BagInterface and assign.
@@ -46,6 +59,17 @@ class State
 				   'Appfuel\\Stdlib\\Data\\BagInterface';
 			throw new Exception($err);
 		} 
+	}
+
+	/**
+	 * Generally used when you need to automate pulling these settings out
+	 * of a array
+	 * 
+	 * @return	array
+	 */
+	public function getkeys()
+	{
+		return $this->keys;
 	}
 
 	/**
@@ -139,6 +163,9 @@ class State
 		return $this->get('include_path_action', null);
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function isRestoreAutoloaders()
 	{
 		$loaders = $this->get('autoload_stack', false);
