@@ -27,14 +27,22 @@ class AppFactory
 	}
 
 	/**
-	 * Use to set display_error and error reporting
-	 *
-	 * @return	Env\PHPError
+	 * @return	Env\ErrorReporting
 	 */
-	static public function createPhpError()
+	static public function createErrorReporting()
 	{
-		return new Env\PHPError();
+		return new Env\ErrorReporting();
 	}
+
+	/**
+	 * @return	Env\ErrorDisplay
+	 */
+	static public function createErrorDisplay()
+	{
+		return new Env\ErrorDisplay();
+	}
+
+
 
 	/**
 	 * Used to change the php include_path

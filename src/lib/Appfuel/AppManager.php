@@ -104,7 +104,7 @@ class AppManager
 		$msg->setRequest($request)
 			->setRoute($route);
 
-		return $startup->bootstrap($msg);;
+		return $startup->bootstrap($msg);
 	}
 
 	static public function dispatch(MessageInterface $msg)

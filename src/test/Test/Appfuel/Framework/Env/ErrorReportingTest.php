@@ -501,14 +501,4 @@ class ErrorReportingTest extends ParentTestCase
 		}
 
 	}
-
-	/**
-	 * When given 0, setLevel will disable error_reporting
-	 *
-	 * @return	null
-	 */
-	public function xtestGetSetLevelNumbericCodes()
-	{
-
-	}
 }

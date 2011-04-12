@@ -77,6 +77,7 @@ class Autoloader implements AutoloadInterface
     public function loadClass($className)
     {
         if ($this->isLoaded($className)) {
+		echo "\n", print_r($className,1), "\n";exit;
             return;
         }
 

@@ -9,9 +9,8 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
- 
 use Appfuel\AppManager,
-	Test\AfTestCase;
+	Test\AfTestCase as TestCase;
 
 $basePath = realpath(dirname(__FILE__) . '/../');
  
@@ -32,4 +31,5 @@ $configFile = $basePath . DIRECTORY_SEPARATOR .
 
 $oPath = get_include_path();
 AppManager::Initialize($basePath, $configFile);
-AfTestCase::setOriginalIncludePath($oPath);
+TestCase::setOriginalIncludePath($oPath);
+

@@ -82,7 +82,7 @@ class InitializerTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testInitTimezone()
+	public function xtestInitTimezone()
 	{
 		$this->assertTrue(date_default_timezone_set('Antarctica/Casey'));
 
@@ -99,7 +99,7 @@ class InitializerTest extends ParentTestCase
 	 *
 	 * @return	null
 	 */	
-	public function testInitAutoloader()
+	public function xtestInitAutoloader()
 	{
 		$this->clearAutoloaders();
 		$loaders = spl_autoload_functions();
@@ -128,7 +128,7 @@ class InitializerTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testInitPHPError()
+	public function xtestInitPHPError()
 	{
 		ini_set('display_errors', 0);
 		$this->assertEquals(0, ini_get('display_errors'));
@@ -169,7 +169,7 @@ class InitializerTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testInitIncludePathDefaultAction()
+	public function xtestInitIncludePathDefaultAction()
 	{
 		$oldInclude = get_include_path();
 		$paths = array(
@@ -200,7 +200,7 @@ class InitializerTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testInitIncludePathAppendAction()
+	public function xtestInitIncludePathAppendAction()
 	{
 		$oldInclude = get_include_path();
 		$paths = array(
@@ -229,7 +229,7 @@ class InitializerTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testInitIncludePathPrependAction()
+	public function xtestInitIncludePathPrependAction()
 	{
 		$oldInclude = get_include_path();
 		$paths = array(

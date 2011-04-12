@@ -11,12 +11,24 @@
 namespace Appfuel\Framework\Env;
 
 /**
- * Set the timezone to be used by the framework
+ * Wrapper for the using the pair date_default_timezone_(get/set)
  */
 class Timezone 
 {
+	/**
+	 * @param	string	$zone	timezone identifier
+	 * @return	bool	return false if timezone identifier is invalid
+	 */
 	public function setDefault($zone)
 	{
 		return date_default_timezone_set($zone);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDefault()
+	{
+		return date_default_timezone_get();
 	}
 }

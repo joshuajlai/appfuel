@@ -7,9 +7,8 @@
 			<testsuite name="Appfuel">
 				<!-- <directory suffix="Test.php">./Test/Appfuel/Framework/Init</directory> -->
 				<file>./Test/Appfuel/Framework/Env/StateTest.php</file>
-				<file>./Test/Appfuel/Framework/Env/PHPErrorTest.php</file>
 				<file>./Test/Appfuel/Framework/Env/AutoloaderTest.php</file>
-				<file>./Test/Appfuel/Framework/Env/InitializerTest.php</file>
+				<file>./Test/Appfuel/Framework/Env/TimezoneTest.php</file>
 				<file>./Test/Appfuel/Framework/Env/InitializerTest.php</file>
 				<file>./Test/Appfuel/Framework/Env/ErrorDisplayTest.php</file>
 				<file>./Test/Appfuel/Framework/Env/ErrorReportingTest.php</file>
