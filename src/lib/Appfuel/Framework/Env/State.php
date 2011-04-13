@@ -21,187 +21,205 @@ use Appfuel\Framework\Exception,
 class State
 {
 	/**
-	 * Used to hold the data which represents state properties 
-	 * @return string
+	 * Include path string
+	 * @var string
 	 */
-	protected $bag  = null;
-
-	/**
-	 * Key to be used to identify the various state settings
-	 * @var array
-	 */
-	protected $keys = array(
-		'include_path',
-        'include_path_action',
-        'display_errors',
-        'error_reporting',
-        'enable_autoloader',
-        'default_timezone'
-	);
+	protected $includePath = null;
 	
 	/**
-	 * Validate if the data is an array or BagInterface and assign.
-	 * 
-	 * @param	mixed	$data
+	 * The action used on the orignal include path to get the include path.
+	 * Did the include path replace, append, or prepend the orignal path
+	 * @var string
+	 */
+	protected $includePathAction = null;
+
+	/**
+	 * Value used to turn display_errors on or off
+	 * @var string
+	 */
+	protected $errorDisplay = null;
+	
+	/**
+	 * Level used in error reporting. This is the same codes used in the config
+	 * @var string
+	 */
+	protected $errorReporting = null;
+
+	/**
+	 * @var string
+	 */	
+	protected $defaultTimezone = null;
+
+	/**
+	 * @var bool
+	 */
+	protected $isAutoloadEnabled = false;	
+	
+	/**
+	 * State of the autoload stack
+	 * @var array
+	 */
+	protected $autoloadStack = null;
+
+	/**
+	 * @return bool
+	 */
+	public function isErrorDisplay()
+	{
+		return null !== $this->errorDisplay;
+	}
+
+	/**
+	 * @param	string	$value
 	 * @return	State
 	 */
-	public function __construct($data)
+	public function setErrorDisplay($value)
 	{
-		if (is_array($data)) {
-			$this->bag = new Bag($data);
-		}
-		else if ($data instanceof BagInterface) {
-			$this->bag = $data;
-		} 
-		else {
-			$err = 'Invalid argument given to the constructor. ' .
-				   'Must be an array or object that implements a ' .
-				   'Appfuel\\Stdlib\\Data\\BagInterface';
-			throw new Exception($err);
-		} 
+		$this->errorDisplay = $value;
+		return $this;
 	}
 
 	/**
-	 * Generally used when you need to automate pulling these settings out
-	 * of a array
-	 * 
-	 * @return	array
+	 * @return string
 	 */
-	public function getkeys()
+	public function getErrorDisplay()
 	{
-		return $this->keys;
-	}
-
-	/**
-	 * Get any property in the bag if it exists, return default when 
-	 * it doen't
-	 *
-	 * @param	string	$name
-	 * @param	mixed	$default
-	 * @return	mixed
-	 */
-	public function get($name, $default = null)
-	{
-		return $this->getBag()
-					->get($name, $default);
-	}
-
-	/**
-	 * Check if the property is located in the bag
-	 * 
-	 * @param	string	$name
-	 * @return	bool
-	 */
-	public function exists($name) 
-	{
-		return $this->getBag()
-					->exists($name);
+		return $this->errorDisplay;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isErrorConfiguration()
+	public function isErrorReporting()
 	{
-        return $this->exists('display_errors') ||
-			   $this->exists('error_reporting');
+		return null !== $this->errorReporting;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function displayErrors()
+	public function getErrorReporting()
 	{
-		return $this->get('display_errors', null);
+		return $this->errorReporting;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function errorReporting()
+	public function setErrorReporting($codes)
 	{
-		return $this->get('error_reporting', null);
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isTimezoneConfiguration()
-	{
-		return $this->exists('default_timezone');
-	}
-
-	/**
-	 * @return string
-	 */
-	public function defaultTimezone()
-	{
-		return $this->get('default_timezone', null);
+		$this->errorReporting = $codes;
+		return $this;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isIncludePathConfiguration()
+	public function isDefaultTimezone()
 	{
-		return $this->exists('include_path');
+		return null !== $this->defaultTimezone;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function includePath()
+	public function getDefaultTimezone()
 	{
-		return $this->get('include_path', null);
+		return $this->defaultTimezone;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function setDefaultTimezone($zone)
+	{
+		$this->defaultTimezone = $zone;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isIncludePath()
+	{
+		return null !== $this->includePath;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getIncludePath()
+	{
+		return $this->includePath;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function setIncludePath($path)
+	{
+		$this->includePath = $path;
+		return $this;
 	}
 
 	/**
 	 * @return 
 	 */
-	public function includePathAction()
+	public function getIncludePathAction()
 	{
-		return $this->get('include_path_action', null);
+		return $this->includePathAction;
+	}
+
+	/**
+	 * @param	string	$action
+	 * @return	State
+	 */
+	public function setIncludePathAction($action)
+	{
+		$this->includePathAction = $action;
+		return $this;
 	}
 
 	/**
 	 * @return bool
 	 */
-	public function isRestoreAutoloaders()
+	public function isAutoloadEnabled()
 	{
-		$loaders = $this->get('autoload_stack', false);
-		if (! is_array($loaders)) {
-			return false;
-		}
+		return $this->isAutoloadEnabled;
+	}
 
-		return true;
+	/**
+	 * @return bool
+	 */
+	public function isAutoloadStack()
+	{
+		return null !== $this->autoloadStack;
+	}
+
+	/**
+	 * @param	bool $flag
+	 * @return	State
+	 */
+	public function setEnableAutoload($flag)
+	{
+		$this->isAutoloadEnabled =(bool) $flag;
+		return $this;
 	}
 
 	/**
 	 * @return	bool
 	 */
-	public function isEnableAutoloader()
+	public function getAutoloadStack()
 	{
-		$isEnable = $this->get('enable_autoloader', false);
-		if ($isEnable) {
-			return true;
-		}
-
-		return false;
+		return $this->autoloadStack;
 	}
 
 	/**
-	 * @return array
+	 * @return Stack
 	 */
-	public function autoloadStack()
+	public function setAutoloadStack($stack)
 	{
-		return $this->get('autoload_stack', null);
-	}
-
-	/**
-	 * @return	BagInterface
-	 */
-	protected function getBag()
-	{
-		return $this->bag;
+		$this->autoloadStack = $stack;
+		return $this;
 	}
 }
