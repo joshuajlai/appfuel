@@ -11,8 +11,6 @@
 namespace Test\Appfuel\Framework\Env;
 
 use Test\AfTestCase					  as ParentTestCase,
-	Appfuel\Stdlib\Filesystem\Manager as FileManager,
-	Appfuel\Registry,
 	Appfuel\Framework\Env\Timezone;
 
 /**

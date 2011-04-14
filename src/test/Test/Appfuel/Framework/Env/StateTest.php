@@ -135,30 +135,35 @@ class StateTest extends ParentTestCase
 			'Initial value of getIncludePath is always null'
 		);
 
-		$value = 'somePath:someOthePath';
-		$this->assertSame(
-			$this->state,
-			$this->state->setIncludePath($value),
-			'setter belongs to a fluent interface'
-		);
-
-		$this->assertTrue($this->state->isIncludePath());
-		$this->assertEquals($value, $this->state->getIncludePath());
-
 		/* also check the includePathAction */
 		$this->assertNull(
 			$this->state->getIncludePathAction(),
 			'Initial value of getIncludePathAction is always null'
 		);
 
-		$value = 'append';
+		$value  = 'somePath:someOthePath';
+		$action = 'append';
 		$this->assertSame(
 			$this->state,
-			$this->state->setIncludePathAction($value),
+			$this->state->setIncludePath($value, $action),
 			'setter belongs to a fluent interface'
 		);
 
-		$this->assertEquals($value, $this->state->getIncludePathAction());
+		$this->assertTrue($this->state->isIncludePath());
+		$this->assertEquals($value, $this->state->getIncludePath());
+		$this->assertEquals($action, $this->state->getIncludePathAction());
+
+		$value  = 'somePath:someOthePath';
+		$action = null;
+		$this->assertSame(
+			$this->state,
+			$this->state->setIncludePath($value, $action),
+			'setter belongs to a fluent interface'
+		);
+
+		$this->assertTrue($this->state->isIncludePath());
+		$this->assertEquals($value, $this->state->getIncludePath());
+		$this->assertNull($this->state->getIncludePathAction());
     }
 
     /**

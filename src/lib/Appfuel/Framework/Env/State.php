@@ -156,9 +156,10 @@ class State
 	/**
 	 * @return string
 	 */
-	public function setIncludePath($path)
+	public function setIncludePath($path, $action = null)
 	{
-		$this->includePath = $path;
+		$this->includePath       = $path;
+		$this->includePathAction = $action; 
 		return $this;
 	}
 
@@ -168,16 +169,6 @@ class State
 	public function getIncludePathAction()
 	{
 		return $this->includePathAction;
-	}
-
-	/**
-	 * @param	string	$action
-	 * @return	State
-	 */
-	public function setIncludePathAction($action)
-	{
-		$this->includePathAction = $action;
-		return $this;
 	}
 
 	/**

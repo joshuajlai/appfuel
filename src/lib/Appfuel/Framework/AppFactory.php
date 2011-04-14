@@ -57,9 +57,9 @@ class AppFactory
 	/**
 	 * @return Env\State
 	 */
-	static public function createEnvState(array $data)
+	static public function createState()
 	{
-		return new Env\State($data);
+		return new Env\State();
 	}
 
 	/**

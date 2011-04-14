@@ -13,6 +13,7 @@ namespace Appfuel\Framework\Env;
 use Appfuel\Framework\AppFactory,
 	Appfuel\Framework\Exception,
 	Appfuel\Registry,
+	AppFuel\State,
 	Appfuel\Stdlib\Filesystem\Manager	as FileManager;
 
 /**
@@ -44,13 +45,22 @@ class Initializer
 		 * enough tools to create the appropriate object relationships
 		 */
 		self::initRegistry($data);
+		
+		/* collect all name value pairs into a bag */
+		$keys = array(
+			'display_error',
+			'error_reporting',
+			'include_path',
+			'include_path_action',
+			'default_timezone',
+			'enable_autoloader'
+		);
 
-		/*
-		 * Initializing from the registry allows us to use the Registry 
-		 * interface to easily collect togather config data that may or may 
-		 * not be there. No need to check array indexes
-		 */
-		return self::initFromRegistry();
+		$bag = Registry::collect($key);
+		self::InitSetting($bag);
+
+		/* backup the current settings that were just initialize */
+		State::backup();
 	}
 	
 	/**
@@ -63,35 +73,34 @@ class Initializer
 	 *
 	 * @return	null
      */
-	static public function initFromRegistry()
+	static public function initSettings(Bag $bag)
 	{
-		$display = Registry::get('display_errors', null);
+		$display = $bag->get('display_errors', null);
 		if (null !== $display) {
 			$errorDisplay = AppFactory::createErrorDisplay();
 			$errorDisplay->set($display);
 		}
 
-		$errorLevel = Registry::get('error_reporting', null);
+		$errorLevel = $bag->get('error_reporting', null);
 		if (null !== $errorLevel) {
 			$errorReporting = AppFactory::createErrorReporting();
 			$errorReporting->setLevel($errorLevel);
 		}
 
-		$ipath   = Registry::get('include_path', null);
-		$iaction = Registry::get('include_path_action', null);
+		$ipath   = $bag->get('include_path', null);
+		$iaction = $bag->get('include_path_action', null);
 		if (null !== $ipath) {
 			$includePath = AppFactory::createIncludePath();
 			$includePath->usePaths($ipath, $iaction);
 		}
 
-		$defaultTz = Registry::get('default_timezone', null);
+		$defaultTz = $bag->get('default_timezone', null);
 		if (null !== $defaultTz) {
 			$timezone = AppFactory::createTimezone();
 			$timezone->setDefault($defaultTz);
-
 		}
 		
-		$enableAutoloader =(bool) Registry::get('enable_autoloader', null);
+		$enableAutoloader =(bool) $bag->get('enable_autoloader', null);
 		if (true === $enableAutoloader) {
 			$autoloader = AppFactory::createAutoloader();
 			$autoloader->register();

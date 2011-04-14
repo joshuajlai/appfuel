@@ -149,7 +149,7 @@ class Registry
 	 * @param	array	$list		of keys to collect
 	 * @return	array
 	 */
-	static public function collect(array $list)
+	static public function collect(array $list, $array = false)
 	{
 		if (! self::isInit()) {
 			return false;
@@ -163,7 +163,11 @@ class Registry
 			$result[$key] = self::get($key);
 		}
 
-		return $result;
+		if (true === $array) {
+			return $result;
+		}
+
+		return new Bag($result);
 	}
 
 	/**

@@ -49,6 +49,11 @@ class IncludePathTest extends ParentTestCase
 	}
 
 	/**
+     * The method usePaths excepts two paramters the second one indicates the
+     * action to perform on the include path. Do you append, prepend or 
+     * replace the path. The default is to replace and thats what we are 
+     * testing here.
+     *
 	 * @return null
 	 */
 	public function testUsePathsDefault()
@@ -116,7 +121,7 @@ class IncludePathTest extends ParentTestCase
 	 * Same as default
 	 * @return null
 	 */
-	public function ztestUsePathsReplace()
+	public function testUsePathsReplace()
 	{
 		$paths = array(
 			'path_1',
