@@ -8,11 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel;
+namespace Appfuel\App;
 
-use Appfuel\Framework\Env\Initializer,
-	Appfuel\Framework\AppFactoryInterface,
-	Appfuel\Framework\AppFactory;
+use Appfuel\Registry,
+	Appfuel\Framework\Env\Initializer;
 
 /**
  * The AppManager is used to encapsulate the logic need to build an App object,
@@ -20,7 +19,7 @@ use Appfuel\Framework\Env\Initializer,
  * file the calling code is likely to use it will not be governed by an 
  * interface. It will also hold the responsibility of initializing the system.
  */
-class AppManager
+class Manager
 {
 	/**
 	 * Flag to determine if dependencies have been loaded
@@ -57,11 +56,15 @@ class AppManager
 	 */
 	static public function initialize($basePath, $file)
 	{
-		self::setBasePath($basePath);
+        if (! defined('AF_BASE_PATH')) {
+            define('AF_BASE_PATH', $basePath);
+        }
+
 		if (! self::isDependenciesLoaded()) {
 			self::loadDependencies($basePath);		
 		}
-
+		
+		Registry::initialize($basePath);
 		Initializer::initialize($basePath, $file);
 		/*
 		 * During the app install a master ini file which contains sections 
@@ -146,31 +149,6 @@ class AppManager
 		self::$envName = $name;
 	}
 
-	/**
-	 * @return	string
-	 */
-	static public function getBasePath()
-	{
-		return self::$basePath;
-	}
-	
-	/**
-	 * @param	string	$path
-	 * @return	NULL
-	 */
-	static protected function setBasePath($path)
-	{
-		if (empty($path) || ! is_string($path)) {
-			throw new \Exception("Param Error: Base path must be a string");
-		}
-	
-		if (! defined('AF_BASE_PATH')) {
-			define('AF_BASE_PATH', $path);
-		}
-
-		self::$basePath = AF_BASE_PATH;
-	}
-
     /**
      * Has the system been initialized through the initializer
      *
@@ -201,7 +179,9 @@ class AppManager
 	{
 		$path = $basePath . DIRECTORY_SEPARATOR . 'lib';
 		$file = $path     . DIRECTORY_SEPARATOR . 
-				'Appfuel' . DIRECTORY_SEPARATOR . 'Dependency.php';
+				'Appfuel' . DIRECTORY_SEPARATOR . 
+				'App'	  . DIRECTORY_SEPARATOR .
+				'Dependency.php';
 
 		if (! file_exists($file)) {
 			throw new \Exception("Dependency file could not be found ($file)");

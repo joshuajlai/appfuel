@@ -13,5 +13,5 @@ namespace Appfuel\Framework;
 /**
  * Appfuel Framework Exception
  */
-class Exception extends \Appfuel\Exception
+class Exception extends \Exception
 {}

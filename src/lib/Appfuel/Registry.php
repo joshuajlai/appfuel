@@ -25,6 +25,18 @@ class Registry
 	 */
 	static protected $bag = null;
 
+    /**
+     * The absolute path to the applications root directory
+     * @var string
+     */
+    static protected $basePath = null;
+
+    /**
+     * Name of the env the application is running on Dev, Qa, Production
+     * @var string
+     */
+    static protected $envName = null;
+
 	/**
 	 * Reset the registry with a new dataset and if one is not given
 	 * then create an empty one
@@ -32,7 +44,7 @@ class Registry
 	 * @param	BagInterface	$bag
 	 * @return	null
 	 */
-	static public function init($data = null)
+	static public function initialize($basePath, $data = null)
 	{
 		/*
 		 * check is there is an array data with the initialization or if
@@ -180,6 +192,14 @@ class Registry
 		return self::$bag instanceof BagInterface;
 	}
 
+    /**
+     * @return  string
+     */
+    static public function getBasePath()
+    {   
+        return self::$basePath;
+    }
+
 	/**
 	 * @return BagInterface
 	 */
@@ -187,4 +207,5 @@ class Registry
 	{
 		return self::$bag;
 	}
+
 }

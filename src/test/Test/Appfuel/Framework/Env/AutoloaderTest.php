@@ -116,7 +116,7 @@ class AutoloaderTest extends ParentTestCase
 		$this->assertTrue($this->loader->isLoaded($class));
 		
 		/* This class was loaded during when the dependencies were loaded */
-		$class = '\Appfuel\Dependency';
+		$class = '\Appfuel\App\Dependency';
 		$this->assertTrue($this->loader->isLoaded($class));
 
 		/* class known not to exist */

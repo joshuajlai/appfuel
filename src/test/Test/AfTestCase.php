@@ -11,7 +11,7 @@
 namespace Test;
 
 use Appfuel\Stdlib\Filesystem\Manager as FileManager,
-	Appfuel\AppManager;
+	Appfuel\App\Manager				  as AppManager;
 
 /**
  * All Appfuel test cases will extend this class which provides features like

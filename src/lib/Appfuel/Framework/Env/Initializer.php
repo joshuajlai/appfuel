@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Framework\Env;
 
-use Appfuel\Framework\AppFactory,
+use Appfuel\App\Factory,
 	Appfuel\Framework\Exception,
 	Appfuel\Registry,
 	Appfuel\Stdlib\Data\Bag,
@@ -44,8 +44,13 @@ class Initializer
 		 * startup (initalization and bootstrapping) after that you have 
 		 * enough tools to create the appropriate object relationships
 		 */
-		self::initRegistry($data);
+		Registry::load($data);
 		
+		/* check to makesure the env name exists */
+		if (! Registry::exists('env')) {
+			throw new Exception("env not found in config at ($file)"); 
+		}
+
 		/* collect all name value pairs into a bag */
 		$keys = array(
 			'display_error',
@@ -74,45 +79,34 @@ class Initializer
 	{
 		$display = $bag->get('display_errors', null);
 		if (null !== $display) {
-			$errorDisplay = AppFactory::createErrorDisplay();
+			$errorDisplay = Factory::createErrorDisplay();
 			$errorDisplay->set($display);
 		}
 
 		$errorLevel = $bag->get('error_reporting', null);
 		if (null !== $errorLevel) {
-			$errorReporting = AppFactory::createErrorReporting();
+			$errorReporting = Factory::createErrorReporting();
 			$errorReporting->setLevel($errorLevel);
 		}
 
 		$ipath   = $bag->get('include_path', null);
 		$iaction = $bag->get('include_path_action', null);
 		if (null !== $ipath) {
-			$includePath = AppFactory::createIncludePath();
+			$includePath = Factory::createIncludePath();
 			$includePath->usePaths($ipath, $iaction);
 		}
 
 		$defaultTz = $bag->get('default_timezone', null);
 		if (null !== $defaultTz) {
-			$timezone = AppFactory::createTimezone();
+			$timezone = Factory::createTimezone();
 			$timezone->setDefault($defaultTz);
 		}
 		
 		$enableAutoloader =(bool) $bag->get('enable_autoloader', null);
 		if (true === $enableAutoloader) {
-			$autoloader = AppFactory::createAutoloader();
+			$autoloader = Factory::createAutoloader();
 			$autoloader->register();
 		}
-	}
-
-	/**
-	 * Initialize the Appfuel\Registry with or without data
-	 *
-	 * @param	array	$data
-	 * @return	NULL
-	 */
-	static public function initRegistry(array $data = array())
-	{
-		Registry::init($data);
 	}
 
     /**

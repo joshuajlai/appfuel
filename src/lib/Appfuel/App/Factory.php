@@ -8,38 +8,44 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\App;
+
+use Appfuel\Framework\Env\Autoloader,
+	Appfuel\Framework\Env\ErrorReporting,
+	Appfuel\Framework\Env\ErrorDisplay,
+	Appfuel\Framework\Env\TimeZone,
+	Appfuel\Framework\Env\IncludePath;
 
 /**
  * Responsible for creating objects required by the framework for 
  * initializaion, bootstrapping, dispatching and outputting.
  */
-class AppFactory
+class Factory
 {
 	/**
 	 * Used to register spl autoloader for the framework
 	 *
-	 * @return	Env\Autoloader
+	 * @return	Autoloader
 	 */
 	static public function createAutoloader()
 	{
-		return new Env\Autoloader();
+		return new Autoloader();
 	}
 
 	/**
-	 * @return	Env\ErrorReporting
+	 * @return	ErrorReporting
 	 */
 	static public function createErrorReporting()
 	{
-		return new Env\ErrorReporting();
+		return new ErrorReporting();
 	}
 
 	/**
-	 * @return	Env\ErrorDisplay
+	 * @return	ErrorDisplay
 	 */
 	static public function createErrorDisplay()
 	{
-		return new Env\ErrorDisplay();
+		return new ErrorDisplay();
 	}
 
 
@@ -47,27 +53,19 @@ class AppFactory
 	/**
 	 * Used to change the php include_path
 	 *
-	 * @return Env\IncludePath
+	 * @return IncludePath
 	 */
 	static public function createIncludePath()
 	{
-		return new Env\IncludePath();
+		return new IncludePath();
 	}
 	
 	/**
-	 * @return Env\State
-	 */
-	static public function createState()
-	{
-		return new Env\State();
-	}
-
-	/**
-	 * @return Env\Timezone
+	 * @return Timezone
 	 */
 	static public function createTimezone()
 	{
-		return new Env\Timezone();
+		return new Timezone();
 	}
 
     public function createBootstrapper($type)

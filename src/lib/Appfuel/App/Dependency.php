@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel;
+namespace Appfuel\App;
 
 /**
  * Loads all required files into memory. This is used during initialization
@@ -35,21 +35,16 @@ class Dependency
 	{
 		$sep  = DIRECTORY_SEPARATOR;
 		$path = "{$libDir}{$sep}Appfuel{$sep}";
+		$app  = "{$path}App{$sep}";
 		$fw   = "{$path}Framework{$sep}";
 		$std  = "{$path}Stdlib{$sep}";
 
 		$this->files = array(
-			"{$path}Exception.php",
 			"{$fw}Exception.php",
-			"{$std}Exception.php",
-			"{$std}Data{$sep}Exception.php",
 			"{$std}Data{$sep}BagInterface.php",
 			"{$std}Data{$sep}Bag.php",
-			"{$std}Filesystem{$sep}Exception.php",
 			"{$std}Filesystem{$sep}Manager.php",
 			"{$std}Filesystem{$sep}File.php",
-			"{$fw}AppFactory.php",
-			"{$fw}Env{$sep}State.php",
 			"{$fw}Env{$sep}Initializer.php",
 			"{$fw}Env{$sep}ErrorDisplay.php",
 			"{$fw}Env{$sep}ErrorReporting.php",
@@ -57,8 +52,8 @@ class Dependency
 			"{$fw}Env{$sep}Autoloader.php",
 			"{$fw}Env{$sep}Timezone.php",
 			"{$fw}Env{$sep}IncludePath.php",
+			"{$app}Factory.php",
 			"{$path}Registry.php",
-			"{$path}AppManager.php"
 		);
 	}
 
