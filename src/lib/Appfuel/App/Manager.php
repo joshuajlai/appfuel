@@ -10,7 +10,8 @@
  */
 namespace Appfuel\App;
 
-use Appfuel\Registry;
+use Appfuel\Registry,
+	Appfuel\Framework\Exception;
 
 /**
  * The AppManager is used to encapsulate the logic need to build an App object,
@@ -51,10 +52,22 @@ class Manager
     static protected $type = NULL;
 
 	/**
-	 * Puts the framework into a known state
+	 * Initialization: This is the first phase in the an application request
+	 * life cycle. In this phase we must put the framework into a known state.
+	 * We use the config file given from which to initialize errors, timezone,
+	 * autoloading, and include path. We also add all data in the config file
+	 * into the application registry so the framework can have access. Finally,
+	 * we check the env has been set and tell the manager we are initialized.
+	 *
+	 * @throw	Appfuel\Framework\Exception
+	 *
+	 * @param	string	$basePath	root path of the application
+	 * @param	string	$file		path to the config file
+	 * @return	null
 	 */
 	static public function initialize($basePath, $file)
 	{
+		/* only used to resolve the base path in any config files */
         if (! defined('AF_BASE_PATH')) {
             define('AF_BASE_PATH', $basePath);
         }
@@ -71,11 +84,12 @@ class Manager
 		 * is installed on. The install then puts the env name in the config
 		 * for which we use to bootstrap the framework
 		 */
-		$envName = Registry::get('env', FALSE);
-		if (! $envName) {
+		if (! Registry::exists('env')) {
 			throw new Exception('Initialize error: env not found in Registry');
 		}
-		self::setEnvName($envName);
+
+		/* tell the manager we are initialized and ready */
+		self::setInitializedFlag(true);
 	}
 
 	/**
@@ -157,6 +171,17 @@ class Manager
     {
         return self::$isInitialized;
     }
+
+	/**
+	 * Inform the manager that all system initialization needed is completed
+	 * 
+	 * @param	bool	$flag
+	 * @return	null
+	 */
+	static public function setInitializedFlag($flag)
+	{
+		self::$isInitialized =(bool) $flag;
+	}
 
 	/**
 	 * @return bool

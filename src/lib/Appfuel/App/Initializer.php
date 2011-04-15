@@ -45,11 +45,6 @@ class Initializer
 		 */
 		Registry::load($data);
 		
-		/* check to makesure the env name exists */
-		if (! Registry::exists('env')) {
-			throw new Exception("env not found in config at ($file)"); 
-		}
-
 		/* collect all name value pairs into a bag */
 		$keys = array(
 			'display_error',
