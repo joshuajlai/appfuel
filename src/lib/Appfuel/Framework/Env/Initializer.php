@@ -13,7 +13,7 @@ namespace Appfuel\Framework\Env;
 use Appfuel\Framework\AppFactory,
 	Appfuel\Framework\Exception,
 	Appfuel\Registry,
-	AppFuel\State,
+	Appfuel\Stdlib\Data\Bag,
 	Appfuel\Stdlib\Filesystem\Manager	as FileManager;
 
 /**
@@ -56,11 +56,8 @@ class Initializer
 			'enable_autoloader'
 		);
 
-		$bag = Registry::collect($key);
-		self::InitSetting($bag);
-
-		/* backup the current settings that were just initialize */
-		State::backup();
+		$bag = Registry::collect($keys);
+		self::InitSettings($bag);
 	}
 	
 	/**
