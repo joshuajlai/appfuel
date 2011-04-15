@@ -10,8 +10,7 @@
  */
 namespace Appfuel\App;
 
-use Appfuel\Registry,
-	Appfuel\Framework\Env\Initializer;
+use Appfuel\Registry;
 
 /**
  * The AppManager is used to encapsulate the logic need to build an App object,

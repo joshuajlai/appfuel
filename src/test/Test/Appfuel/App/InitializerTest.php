@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\Env;
+namespace Test\Appfuel\App;
 
-use Test\AfTestCase					  as ParentTestCase,
-	Appfuel\Stdlib\Filesystem\Manager as FileManager,
+use Appfuel\App\Initializer,
 	Appfuel\Registry,
-	Appfuel\Framework\Env\Initializer;
+	Test\AfTestCase					  as ParentTestCase,
+	Appfuel\Stdlib\Filesystem\Manager as FileManager;
 
 /**
  * The initializer is responsible for configuration of errors: if they show,
