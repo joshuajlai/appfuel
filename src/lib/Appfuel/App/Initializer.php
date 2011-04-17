@@ -12,7 +12,7 @@ namespace Appfuel\App;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Registry,
-	Appfuel\Stdlib\Data\Bag,
+	Appfuel\Stdlib\Data\Dictionary,
 	Appfuel\Stdlib\Filesystem\Manager	as FileManager;
 
 /**
@@ -69,7 +69,7 @@ class Initializer
 	 *
 	 * @return	null
      */
-	static public function initSettings(Bag $bag)
+	static public function initSettings(Dictionary $bag)
 	{
 		$display = $bag->get('display_errors', null);
 		if (null !== $display) {

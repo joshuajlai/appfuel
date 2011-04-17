@@ -41,8 +41,8 @@ class Dependency
 
 		$this->files = array(
 			"{$fw}Exception.php",
-			"{$std}Data{$sep}BagInterface.php",
-			"{$std}Data{$sep}Bag.php",
+			"{$std}Data{$sep}DictionaryInterface.php",
+			"{$std}Data{$sep}Dictionary.php",
 			"{$std}Filesystem{$sep}Manager.php",
 			"{$std}Filesystem{$sep}File.php",
 			"{$fw}Env{$sep}ErrorDisplay.php",

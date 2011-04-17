@@ -10,8 +10,8 @@
  */
 namespace Appfuel;
 
-use Appfuel\Stdlib\Data\BagInterface,
-	Appfuel\Stdlib\Data\Bag;
+use Appfuel\Stdlib\Data\DictionaryInterface,
+	Appfuel\Stdlib\Data\Dictionary;
 
 /**
  * Global Registry used by the framework to hold config data and handle 
@@ -20,10 +20,10 @@ use Appfuel\Stdlib\Data\BagInterface,
 class Registry
 {
 	/**
-	 * List of the necessary files before autoloading
-	 * @var array
+	 * Dictionary of data used by the application
+	 * @var Dictionary
 	 */
-	static protected $bag = null;
+	static protected $dict = null;
 
     /**
      * The absolute path to the applications root directory
@@ -52,14 +52,14 @@ class Registry
 		 * empty bag
 		 */
 		if (is_array($data)) {
-			$bag = new Bag($data);
-		} else if ($data instanceof BagInterface) {
-			$bag = $data;
+			$dict = new Dictionary($data);
+		} else if ($data instanceof DictionaryInterface) {
+			$dict = $data;
 		} else {
-			$bag = new Bag();
+			$dict = new Dictionary();
 		}
 
-		self::$bag = $bag;
+		self::$dict = $dict;
 	}
 
 	/**
@@ -69,7 +69,7 @@ class Registry
 	 */
 	static public function clear()
 	{
-		self::$bag = null;
+		self::$dict = new Dictionary();
 	}
 
 	/**
@@ -77,11 +77,8 @@ class Registry
 	 */
 	static public function count()
 	{
-		if (! self::isInit()) {
-			return 0;
-		}
-
-		return self::getBag()->count();
+		return self::getDictionary()
+					->count();
 	}
 
 	/**
@@ -91,11 +88,12 @@ class Registry
 	 */
 	static public function get($key, $default = NULL)
 	{
-		if (! self::isInit() || ! is_scalar($key)) {
+		if (! is_scalar($key)) {
 			return $default;
 		}
 
-		return self::getBag()->get($key, $default);
+		return self::getDictionary()
+					->get($key, $default);
 	}
 
 	/**
@@ -105,11 +103,13 @@ class Registry
 	 */
 	static public function add($key, $value)
 	{
-		if (! self::isInit() || ! is_scalar($key)) {
+		if (! is_scalar($key)) {
 			return false;
 		}
 
-		self::getBag()->add($key, $value);
+		self::getDictionary()
+			->add($key, $value);
+
 		return true;
 	}
 
@@ -120,11 +120,8 @@ class Registry
 	 */
 	static public function getAll()
 	{
-		if (! self::isInit()) {
-			return array();
-		}
-
-		return self::getBag()->getAll();
+		return self::getDictionary()
+					->getAll();
 	}
 
 	/**
@@ -134,11 +131,9 @@ class Registry
 	 */
 	static public function load(array $data)
 	{
-		if (! self::isInit()) {
-			return false;
-		}
-		
-		self::getBag()->load($data);
+		self::getDictionary()
+			->load($data);
+
 		return true;
 	}
 
@@ -148,11 +143,8 @@ class Registry
 	 */
 	static public function exists($key)
 	{
-		if (! self::isInit()) {
-			return false;
-		}
-
-		return self::getBag()->exists($key);
+		return self::getDictionary()
+					->exists($key);
 	}
 
 	/**
@@ -163,10 +155,6 @@ class Registry
 	 */
 	static public function collect(array $list, $array = false)
 	{
-		if (! self::isInit()) {
-			return false;
-		}
-
 		$result = array();
 		foreach ($list as $index => $key) {
 			if (! self::exists($key)) {
@@ -179,17 +167,7 @@ class Registry
 			return $result;
 		}
 
-		return new Bag($result);
-	}
-
-	/**
-	 * Has the registry been initialized, so a data bag is ready to use
-	 * 
-	 * @return bool
-	 */
-	static public function isInit()
-	{
-		return self::$bag instanceof BagInterface;
+		return new Dictionary($result);
 	}
 
     /**
@@ -203,9 +181,15 @@ class Registry
 	/**
 	 * @return BagInterface
 	 */
-	static protected function getBag()
+	static protected function getDictionary()
 	{
-		return self::$bag;
+		if (! self::$dict instanceof DictionaryInterface) {
+			throw new Exception(
+				"Can not use the registry before it has been initialized"
+			);
+		}
+
+		return self::$dict;
 	}
 
 }

@@ -11,10 +11,10 @@
 namespace 	Appfuel\StdLib\Data;
 
 /**
- * An bag object is an unordered collection of zero or more elements of some 
+ * A dictionary is an unordered collection of zero or more elements of some 
  * type.
  */
-class Bag implements BagInterface
+class Dictionary implements DictionaryInterface
 {
 	/**
 	 * Items stored in the bag
