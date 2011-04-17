@@ -197,7 +197,7 @@ class RegistryTest extends ParentTestCase
 
     /**
      * With collect you give the registry a list of keys and it
-     * collects all those keys and returns them as a bag or array. When
+     * collects all those keys and returns them as a dictionary or array. When
      * a key does not exist it is not included into the bag
      *
      * @return null
