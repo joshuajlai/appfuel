@@ -28,12 +28,6 @@ class Manager
 	static protected $isLoaded = FALSE;
 
 	/**
-	 * Root path of the application
-	 * @var string
-	 */
-	static protected $basePath = NULL;
-
-	/**
 	 * Name of the environment the server is deployed
 	 * @var	string
 	 */
@@ -76,8 +70,9 @@ class Manager
 			self::loadDependencies($basePath);		
 		}
 		
-		Registry::initialize($basePath);
-		Initializer::initialize($basePath, $file);
+		Registry::initialize(array('base_path' => $basePath));
+		Initializer::initialize($file);
+		
 		/*
 		 * During the app install a master ini file which contains sections 
 		 * for each environment is reduced to the environment the app is

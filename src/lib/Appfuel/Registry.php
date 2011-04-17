@@ -10,7 +10,8 @@
  */
 namespace Appfuel;
 
-use Appfuel\Stdlib\Data\DictionaryInterface,
+use Appfuel\Framework\Exception,
+	Appfuel\Stdlib\Data\DictionaryInterface,
 	Appfuel\Stdlib\Data\Dictionary;
 
 /**
@@ -25,18 +26,6 @@ class Registry
 	 */
 	static protected $dict = null;
 
-    /**
-     * The absolute path to the applications root directory
-     * @var string
-     */
-    static protected $basePath = null;
-
-    /**
-     * Name of the env the application is running on Dev, Qa, Production
-     * @var string
-     */
-    static protected $envName = null;
-
 	/**
 	 * Reset the registry with a new dataset and if one is not given
 	 * then create an empty one
@@ -44,7 +33,7 @@ class Registry
 	 * @param	BagInterface	$bag
 	 * @return	null
 	 */
-	static public function initialize($basePath, $data = null)
+	static public function initialize($data = null)
 	{
 		/*
 		 * check is there is an array data with the initialization or if
@@ -63,8 +52,6 @@ class Registry
 	}
 
 	/**
-	 * Alias to initialize to help readability
-	 *
 	 * @return null
 	 */
 	static public function clear()
@@ -169,14 +156,6 @@ class Registry
 
 		return new Dictionary($result);
 	}
-
-    /**
-     * @return  string
-     */
-    static public function getBasePath()
-    {   
-        return self::$basePath;
-    }
 
 	/**
 	 * @return BagInterface

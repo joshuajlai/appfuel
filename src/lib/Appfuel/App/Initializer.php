@@ -30,7 +30,7 @@ class Initializer
      * @param   string		$file	file path to config ini
 	 * @return	Env\State 
      */
-	static public function initialize($basePath, $file)
+	static public function initialize($file)
 	{
 		$data = self::getConfigData($file);
 		if (! $data) {
@@ -55,8 +55,8 @@ class Initializer
 			'enable_autoloader'
 		);
 
-		$bag = Registry::collect($keys);
-		self::InitSettings($bag);
+		$settings = Registry::collect($keys);
+		self::InitSettings($settings);
 	}
 	
 	/**
@@ -69,34 +69,34 @@ class Initializer
 	 *
 	 * @return	null
      */
-	static public function initSettings(Dictionary $bag)
+	static public function initSettings(Dictionary $data)
 	{
-		$display = $bag->get('display_errors', null);
+		$display = $data->get('display_errors', null);
 		if (null !== $display) {
 			$errorDisplay = Factory::createErrorDisplay();
 			$errorDisplay->set($display);
 		}
 
-		$errorLevel = $bag->get('error_reporting', null);
+		$errorLevel = $data->get('error_reporting', null);
 		if (null !== $errorLevel) {
 			$errorReporting = Factory::createErrorReporting();
 			$errorReporting->setLevel($errorLevel);
 		}
 
-		$ipath   = $bag->get('include_path', null);
-		$iaction = $bag->get('include_path_action', null);
+		$ipath   = $data->get('include_path', null);
+		$iaction = $data->get('include_path_action', null);
 		if (null !== $ipath) {
 			$includePath = Factory::createIncludePath();
 			$includePath->usePaths($ipath, $iaction);
 		}
 
-		$defaultTz = $bag->get('default_timezone', null);
+		$defaultTz = $data->get('default_timezone', null);
 		if (null !== $defaultTz) {
 			$timezone = Factory::createTimezone();
 			$timezone->setDefault($defaultTz);
 		}
 		
-		$enableAutoloader =(bool) $bag->get('enable_autoloader', null);
+		$enableAutoloader =(bool) $data->get('enable_autoloader', null);
 		if (true === $enableAutoloader) {
 			$autoloader = Factory::createAutoloader();
 			$autoloader->register();

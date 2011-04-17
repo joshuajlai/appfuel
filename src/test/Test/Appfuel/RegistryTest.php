@@ -15,11 +15,9 @@ use Test\AfTestCase as ParentTestCase,
 	StdClass;
 
 /**
- * The Registry is a global object used to hold information that can 
- * easily accessed. There is only one registry but its not a singleton but
- * rather a static class that uses a datastructure to all the data items.
- * Also because we hate globals the registry is used only in the startup 
- * system and then only used when absolutely necessary.
+ * The Registry is a global object used to hold information that can be
+ * easily accessed. There is only one registry its not a singleton but
+ * rather a static class that uses a dictionary to hold all the data items.
  */
 class RegistryTest extends ParentTestCase
 {
@@ -27,7 +25,7 @@ class RegistryTest extends ParentTestCase
 	 * Back up the data in the registry
 	 * @var string
 	 */
-	protected $backupData = NULL;
+	protected $backupData = null;
 
 	/**
 	 * Backup the registry data then initialize it with an empty bag
@@ -36,7 +34,7 @@ class RegistryTest extends ParentTestCase
 	public function setUp()
 	{
 		$this->backupData = Registry::getAll();
-		Registry::init();
+		Registry::initialize();
 	}
 
 	/**
@@ -45,12 +43,12 @@ class RegistryTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
-		Registry::init($this->backupData);
+		Registry::initialize($this->backupData);
 	}
 
 	/**
 	 * These are just a light set of tests because the Registry
-	 * wraps a Appfuel\Stdlib\Data\Bag
+	 * wraps a Appfuel\Stdlib\Data\Dictionary
 	 * @return null
 	 */
 	public function testAddGetExistsCount()
@@ -107,11 +105,10 @@ class RegistryTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testIsInitClear()
+	public function testClear()
 	{
 		/* the registry is initialized but empty */
 		$this->assertEquals(0, Registry::count());
-		$this->assertTrue(Registry::isInit());	
 
 		$data = array(
 			'label_1' => 'value 1',
@@ -129,16 +126,6 @@ class RegistryTest extends ParentTestCase
 		$result = Registry::clear();
 		$this->assertNull($result);
 		$this->assertEquals(0, Registry::count());
-		$this->assertFalse(Registry::isInit());	
-
-		/* 
-		 * lets load again	but this time because the Registry
-		 * is unitialized the load fails
-		 */	
-		$result = Registry::load($data);
-		$this->assertFalse($result);
-		$this->assertEquals(0, Registry::count());
-		
 	}
 
 	/**
@@ -147,15 +134,13 @@ class RegistryTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testInitNoParam()
+	public function testInitializeNoParam()
 	{
 		Registry::clear();
 		$this->assertEquals(0, Registry::count());
-		$this->assertFalse(Registry::isInit());	
 
-		$result = Registry::init();
+		$result = Registry::initialize();
 		$this->assertNull($result);
-		$this->assertTrue(Registry::isInit());
 		$this->assertEquals(0, Registry::count());
 	}
 
@@ -170,7 +155,6 @@ class RegistryTest extends ParentTestCase
 	{
 		Registry::clear();
 		$this->assertEquals(0, Registry::count());
-		$this->assertFalse(Registry::isInit());	
 
 		$data = array(
 			'label_1' => 'value 1',
@@ -178,9 +162,8 @@ class RegistryTest extends ParentTestCase
 			'label_3' => array(1,2,3,4)
 		);
 
-		$result = Registry::init($data);
+		$result = Registry::initialize($data);
 		$this->assertNull($result);
-		$this->assertTrue(Registry::isInit());
 		$this->assertEquals(3, Registry::count());
 
 		$this->assertTrue(Registry::exists('label_1'));
@@ -189,27 +172,26 @@ class RegistryTest extends ParentTestCase
 	}
 
 	/**
-	 * When an object that implments the Appfuel\Stdlib\Data\BagInterface
-	 * is passed into init then it is used instead of creating one
+	 * Test the ability to use an appfuel dictionary interface with initialize
 	 *
 	 * @return null
 	 */
-	public function testIniBagParam()
+	public function testInitializeDicationaryParam()
 	{
 		Registry::clear();
 		$this->assertEquals(0, Registry::count());
-		$this->assertFalse(Registry::isInit());	
 
-		$bag = $this->getMock('\\Appfuel\\Stdlib\\Data\\BagInterface');
+		$dictionary = $this->getMock(
+			'\\Appfuel\\Stdlib\\Data\\DictionaryInterface'
+		);
 		
 		$countValue = 5;
-		$bag->expects($this->any())
-			->method('count')
-			->will($this->returnValue($countValue));
+		$dictionary->expects($this->any())
+				   ->method('count')
+				   ->will($this->returnValue($countValue));
 
-		$result = Registry::init($bag);
+		$result = Registry::initialize($dictionary);
 		$this->assertNull($result);
-		$this->assertTrue(Registry::isInit());
 		$this->assertEquals($countValue, Registry::count());
 	}
 }
