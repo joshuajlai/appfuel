@@ -194,5 +194,49 @@ class RegistryTest extends ParentTestCase
 		$this->assertNull($result);
 		$this->assertEquals($countValue, Registry::count());
 	}
+
+    /**
+     * With collect you give the registry a list of keys and it
+     * collects all those keys and returns them as a bag or array. When
+     * a key does not exist it is not included into the bag
+     *
+     * @return null
+     */
+    public function testCollect()
+    {   
+        $data = array(
+            'item_str'   => 'value_1',
+            'item_int'   => 2,
+            'item_true'  => true,
+            'item_false' => false,
+            'item_null'  => null
+        );
+
+        Registry::initialize($data);
+
+        $result = Registry::collect(array_keys($data));
+        $this->assertInstanceof(
+			'\Appfuel\Stdlib\Data\DictionaryInterface', 
+			$result
+		);
+
+        foreach($data as $label => $value) {
+            $this->assertTrue($result->exists($label));
+            $this->assertEquals($value, $result->get($label));
+        }
+
+        /* prove items that don't exist are not included in the bag */
+        $result = Registry::collect(array('no_key'));
+        $this->assertInstanceof(
+			'\Appfuel\Stdlib\Data\DictionaryInterface', 
+			$result
+		);
+        $this->assertEquals(0, $result->count());
+
+        $returnArray = true;
+        $result = Registry::collect(array_keys($data), $returnArray);
+        $this->assertInternalType('array', $result);
+        $this->assertEquals($data, $result);
+    }
 }
 
