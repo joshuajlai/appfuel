@@ -77,6 +77,16 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 	}
 
 	/**
+	 * The path to test main namespace Test
+	 *
+	 * @return	string
+	 */
+	public function getTestNamespacePath()
+	{
+		return $this->getTestBase() . DIRECTORY_SEPARATOR . 'lib';
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getTestConfigFile()
@@ -192,7 +202,7 @@ class AfTestCase extends \PHPUnit_Framework_TestCase
 	public function getCurrentPath($relPath = NULL)
 	{
 		$class = get_class($this);
-		$testPath = $this->getTestBase();
+		$testPath = $this->getTestNamespacePath();
 		$dir  = FileManager::classNameToDir($class);
 
 		$full = $testPath . DIRECTORY_SEPARATOR . $dir;

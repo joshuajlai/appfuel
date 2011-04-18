@@ -5,9 +5,9 @@
 		colors="true">
 		<testsuites>
 			<testsuite name="Appfuel Framework">
-				<directory suffix="Test.php">./Test/Appfuel/Framework/Env</directory>
-				<file>./Test/Appfuel/RegistryTest.php</file>
-				<file>./Test/Appfuel/App/FactoryTest.php</file>
+				<directory suffix="Test.php">./lib/Test/Appfuel/Framework/Env</directory>
+				<file>./lib/Test/Appfuel/RegistryTest.php</file>
+				<file>./lib/Test/Appfuel/App/FactoryTest.php</file>
 			</testsuite>
 		</testsuites>
 </phpunit>
