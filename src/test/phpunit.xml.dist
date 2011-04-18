@@ -7,6 +7,7 @@
 			<testsuite name="Appfuel Framework">
 				<directory suffix="Test.php">./Test/Appfuel/Framework/Env</directory>
 				<file>./Test/Appfuel/RegistryTest.php</file>
+				<file>./Test/Appfuel/App/FactoryTest.php</file>
 			</testsuite>
 		</testsuites>
 </phpunit>

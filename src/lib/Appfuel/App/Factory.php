@@ -10,11 +10,18 @@
  */
 namespace Appfuel\App;
 
-use Appfuel\Framework\Env\Autoloader,
+use Appfuel\Framework\Exception,
+	Appfuel\Framework\Env\Autoloader,
 	Appfuel\Framework\Env\ErrorReporting,
 	Appfuel\Framework\Env\ErrorDisplay,
 	Appfuel\Framework\Env\TimeZone,
-	Appfuel\Framework\Env\IncludePath;
+	Appfuel\Framework\Env\IncludePath,
+	Appfuel\Framework\UriInterface,
+	Appfuel\Framework\Uri,
+	Appfuel\Framework\Request,
+	Appfuel\Framework\Web\Bootstrap,
+	Appfuel\Framework\Cli\Boostrap,
+	Appfuel\Framework\Api\Bootstrap;
 
 /**
  * Responsible for creating objects required by the framework for 
@@ -48,8 +55,6 @@ class Factory
 		return new ErrorDisplay();
 	}
 
-
-
 	/**
 	 * Used to change the php include_path
 	 *
@@ -68,14 +73,56 @@ class Factory
 		return new Timezone();
 	}
 
-    public function createBootstrapper($type)
+	/**
+	 * @return string
+	 */
+	static public function createUriString()
 	{
-	
+		$key   = 'REQUEST_URI';
+		if (! array_key_exists($key, $_SERVER) || empty($_SERVER[$key])) {
+            $err = "Request uri is missing from the server super global " .
+                   "and is required by the framework";
+            throw new Exception($err);
+        }
+
+		return $_SERVER[$key];
 	}
 
-    public function createStartupStrategy($type)
+	/**
+	 * @return Uri
+	 */
+	static public function createUri($uriString)
 	{
+		return	new Uri($uriString);
+	}
 
+	/**
+	 * @return	Request
+	 */
+	static public function createRequest(UriInterface $uri, array $params)
+	{
+		return new Request($uri, $params);
+	}
+
+	/**
+	 * @throws	Exception
+	 * @return	
+	 */
+    public function createBootstrapper($type)
+	{
+		switch (strtolower($type)) {
+			case 'web':
+				return new WebBootstrap();
+				break;
+			case 'cli':
+				return new CliBootstrap();
+				break;
+			case 'api':
+				return new ApiBootstrap();
+				break;
+			default:
+				throw new Exception("Invalid bootrap given as $type");
+		}
 	}
 
     public function createFrontController()

@@ -14,7 +14,7 @@ namespace Appfuel\Framework;
  * The uri represents the string making the request to the server. All requests
  * must have a uri string that holds at min the route information.
  */
-class UriInterface implements UriInterface
+class Uri implements UriInterface
 {
 	/**
      * The original request uri string

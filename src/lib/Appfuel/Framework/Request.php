@@ -52,7 +52,7 @@ class Request implements RequestInterface
      */
     public function __construct(Uri $uri, array $params = array(), $rm = 'get')
     {
-        $this->uri           = $uri();
+        $this->uri = $uri->getUriString();
         $this->requestMethod = strtolower($rm);
 
         if (array_key_exists('get', $params)) {
