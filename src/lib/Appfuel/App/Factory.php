@@ -19,9 +19,9 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\UriInterface,
 	Appfuel\Framework\Uri,
 	Appfuel\Framework\Request,
-	Appfuel\Framework\Web\Bootstrap,
-	Appfuel\Framework\Cli\Boostrap,
-	Appfuel\Framework\Api\Bootstrap;
+	Appfuel\Framework\Web\Bootstrap	  as WebBootstrap,
+	Appfuel\Framework\Cli\Boostrap    as CliBootstrap,
+	Appfuel\Framework\Api\Bootstrap   as ApiBootstrap;
 
 /**
  * Responsible for creating objects required by the framework for 
