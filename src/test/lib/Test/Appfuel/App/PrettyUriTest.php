@@ -235,6 +235,132 @@ class PrettyUriTest extends ParentTestCase
 		$this->assertEquals($paramString, $uri->getParamString());
 	}
 
+	/**
+	 * The pretty uri must always have key/value pairs if a pair can not
+	 * be matched up one then it is ignored
+	 *
+	 * @return null
+	 */
+	public function testParamMissingValueForKey()
+	{
+		$uriString = '/one/two/three/param1/';
+		$uri = new PrettyUri($uriString);
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('one/two/three', $uri->getPath());
+
+		$params = $uri->getParams();
+		$this->assertInternalType('array', $params);
+		$this->assertEquals(1, count($params));
+		$this->assertEquals(array('param1' => null), $params);
+
+		$this->assertEquals('param1', $uri->getParamString());
+
+		/* test when there are more one or more good params with an odd one */
+		$uriString = '/one/two/three/param1/value1/param2';
+		$uri = new PrettyUri($uriString);
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('one/two/three', $uri->getPath());
+
+		$params = $uri->getParams();
+		$this->assertInternalType('array', $params);
+		$this->assertEquals(1, count($params));
+		$this->assertEquals(array('param1' => 'value1'), $params);
+
+		$this->assertEquals('param1/value1/param2', $uri->getParamString());
+	}
+
+	/**
+	 * Odd parameters when params are declared using ?
+	 *
+	 * @return null
+	 */
+	public function testParamMissingQuestionMarkStyle()
+	{
+		$uriString = "/one/two/three?param1=value1&param2";
+		$uri = new PrettyUri($uriString);
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('one/two/three', $uri->getPath());
+
+		$params = $uri->getParams();
+		$this->assertInternalType('array', $params);
+		$this->assertEquals(1, count($params));
+		$this->assertEquals(array('param1'=>'value1'), $params);
+
+		$this->assertEquals('param1/value1', $uri->getParamString());
+	}
+
+	/**
+	 * Empty parameters when params are declared using ? the
+	 * param would look like param1=
+	 *
+	 * @return null
+	 */
+	public function testParamEmptyQuestionMarkStyle()
+	{
+		$uriString = "/one/two/three?param1=value1&param2=";
+		$uri = new PrettyUri($uriString);
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('one/two/three', $uri->getPath());
+
+		$params = $uri->getParams();
+		$this->assertInternalType('array', $params);
+		$this->assertEquals(2, count($params));
+
+		$expected = array(
+			'param1' => 'value1',
+			'param2' => null,
+		);
+
+		$this->assertEquals($expected, $params);
+
+		/* 
+		 * note the trailing slash because we are converting to pretty url
+		 * which can not account for an empty value
+		 */
+		$this->assertEquals('param1/value1/param2/', $uri->getParamString());
+	}
+
+	/**
+	 * Empty parameters with pretty uri
+	 *
+	 * @return null
+	 */
+	public function testParamEmptyPrettyStyle()
+	{
+		$uriString = "/one/two/three/param1//param2/value2";
+		$uri = new PrettyUri($uriString);
+		
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('one/two/three', $uri->getPath());
+
+		$params = $uri->getParams();
+		$this->assertInternalType('array', $params);
+		$this->assertEquals(2, count($params));
+
+		$expected = array(
+			'param1' => null,
+			'param2' => 'value2',
+		);
+
+		$this->assertEquals($expected, $params);
+
+		/* 
+		 * note the trailing slash because we are converting to pretty url
+		 * which can not account for an empty value
+		 */
+		$this->assertEquals('param1//param2/value2', $uri->getParamString());
+	}
+
+	/**
+	 *
+	 */
+	public function testSingleEmptyParamPretty()
+	{
+
+	}
 
 
 }

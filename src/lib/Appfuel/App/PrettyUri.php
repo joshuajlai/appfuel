@@ -110,7 +110,8 @@ class PrettyUri implements UriInterface
         if (! is_string($uri)) {
             throw new Exception("Invalid uri: request uri must be a string");
         }
-        $uri = trim($uri, "' ', '/'");
+		
+        $uri = ltrim($uri, "' ', '/'");
 
         /* 
          * parse any get parameters and add them to the param stack
@@ -140,12 +141,7 @@ class PrettyUri implements UriInterface
 
         $nchars  = substr_count($uri, '/', 0);
 
-        if ($nchars >=0 && $nchars <=3) {
-			
-			/*
-			 * when empty the path is a root path otherwise its a path
-			 * with a single item in it
-			 */
+        if ($nchars >=0 && $nchars <=2) {
 			$path = $uri;		
 			if (empty($uri)) {
 				$path = '/';
@@ -169,7 +165,6 @@ class PrettyUri implements UriInterface
         $module     = array_shift($parts);
         $submodule  = array_shift($parts);
         $action     = array_shift($parts);
-
 
         /* convert /key/value/.../key/value into an array */
         $max        = count($parts);
