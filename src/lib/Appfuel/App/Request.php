@@ -99,7 +99,7 @@ class Request implements RequestInterface
      */
     public function getMethod()
     {
-        return $this->requestMethod;
+        return $this->method;
     }
 
 	/**
@@ -117,7 +117,7 @@ class Request implements RequestInterface
 	public function getRouteString()
 	{
 		return $this->getUri()
-					->getRouteString();
+					->getPath();
 	}
 
 	/**
@@ -136,11 +136,11 @@ class Request implements RequestInterface
      * if it does not
      *
      * @param   string  $key        used to find the label
-     * @param   mixed   $default    value returned when key is not found
      * @param   string  $type       type of parameter get, post, cookie etc
+     * @param   mixed   $default    value returned when key is not found
      * @return  mixed
      */
-	public function getParam($key, $default = NULL, $type = 'get')
+	public function getParam($key, $type, $default = null)
 	{
         /*
          * These values must be compatible with arrays

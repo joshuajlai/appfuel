@@ -68,11 +68,11 @@ interface RequestInterface
      * if it does not
      *
      * @param   string  $key        used to find the label
-     * @param   mixed   $default    value returned when key is not found
      * @param   string  $type       type of parameter get, post, cookie etc
+     * @param   mixed   $default    value returned when key is not found
      * @return  mixed
      */
-	public function getParam($key, $default = NULL, $type = 'get');
+	public function getParam($key, $type, $default = null);
 
     /**
      * @param   string  $type

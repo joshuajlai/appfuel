@@ -131,7 +131,7 @@ class PrettyUriTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testParamsRouteString()
+	public function testParamsSimpleRouteString()
 	{
 		$uriString = '/one/two/three/param1/value1';
 		$uri = new PrettyUri($uriString);
@@ -145,6 +145,94 @@ class PrettyUriTest extends ParentTestCase
 		$this->assertEquals(array('param1'=>'value1'), $params);
 
 		$this->assertEquals('param1/value1', $uri->getParamString());
+
+	}
+
+
+	/**
+	 * @return null
+	 */
+	public function testParamsLongRouteString()
+	{
+		$params = array(
+			'param1' => 'value_1',
+			'param2' => '2',
+			'param3' => 'value_3',
+			'param4' => 'value_4'
+		);
+
+		/* make a param string and remove the trailing slash when done */
+		$paramString = '';
+		foreach ($params as $key => $value) {
+			$paramString .= "$key/$value/";
+		}
+		$paramString = trim($paramString, "/");
+
+		$uriString = "/one/two/three/$paramString";
+		$uri = new PrettyUri($uriString);
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('one/two/three', $uri->getPath());
+
+		$result = $uri->getParams();
+		$this->assertInternalType('array', $result);
+		$this->assertEquals(4, count($result));
+		$this->assertEquals($params, $result);
+
+		$this->assertEquals($paramString, $uri->getParamString());
+	}
+
+	public function testParamQuestionMarkStyle()
+	{
+		$uriString = "/one/two/three?param1=value1";
+		$uri = new PrettyUri($uriString);
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('one/two/three', $uri->getPath());
+
+		$params = $uri->getParams();
+		$this->assertInternalType('array', $params);
+		$this->assertEquals(1, count($params));
+		$this->assertEquals(array('param1'=>'value1'), $params);
+
+		$this->assertEquals('param1/value1', $uri->getParamString());
+	}
+
+	public function testParamQuestionMarkStyleMany()
+	{
+		$params = array(
+			'param1' => 'value_1',
+			'param2' => '2',
+			'param3' => 'value_3',
+			'param4' => 'value_4'
+		);
+
+		/* make a param string and remove the trailing slash when done */
+		$paramString = '';
+		foreach ($params as $key => $value) {
+			$paramString .= "$key=$value&";
+		}
+		$paramString = trim($paramString, "&");
+		
+		$uriString = "/one/two/three?$paramString";
+		$uri = new PrettyUri($uriString);
+		
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('one/two/three', $uri->getPath());
+
+		$result = $uri->getParams();
+		$this->assertInternalType('array', $result);
+		$this->assertEquals(4, count($result));
+		$this->assertEquals($params, $result);
+
+		/* the parameter string will always be returned as pretty */
+		$paramString = '';
+		foreach ($params as $key => $value) {
+			$paramString .= "$key/$value/";
+		}
+		$paramString = trim($paramString, "/");
+			
+		$this->assertEquals($paramString, $uri->getParamString());
 	}
 
 
