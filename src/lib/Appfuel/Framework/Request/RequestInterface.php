@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\Framework\Request;
 
 /**
  * Common logic to handle requests given to the application from any type.
@@ -24,12 +24,12 @@ interface RequestInterface
 	 * the others (post, cookie, files) which are passed into the constructor.
 	 * We also look for additional get params and merge them as required.
 	 *
-	 * @param	Uri		$uri
+	 * @param	Uri		$uri		holds the get string and paramaters
 	 * @param	array	$params		holds post, files, cookie parameters
-	 * @param	string	$rm			request method
+	 * @param	string	$method		request method
      * @return	Request
      */
-    public function __construct(Uri $uri, array $params = array(), $rm = 'get');
+    public function __construct(UriInterface $uri);
 
     /**
      * @return bool
@@ -44,7 +44,7 @@ interface RequestInterface
     /**
      * @return string
      */
-    public function getRequestMethod();
+    public function getMethod();
 
 	/**
 	 * @return string

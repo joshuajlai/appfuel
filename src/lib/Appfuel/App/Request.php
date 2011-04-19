@@ -8,7 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\App;
+
+use Appfuel\Framework\Request\RequestInterface,
+	Appfuel\Framework\Request\UriInterface;
 
 /**
  * Common logic to handle requests given to the application from any type.
@@ -36,7 +39,7 @@ class Request implements RequestInterface
      * Method used for this request POST | GET
      * @var string
      */
-    protected $requestMethod = NULL;
+    protected $method = null;
 
 
     /**
@@ -50,17 +53,29 @@ class Request implements RequestInterface
 	 * @param	string	$rm			request method
      * @return	Request
      */
-    public function __construct(Uri $uri, array $params = array(), $rm = 'get')
+    public function __construct(UriInterface $uri)
     {
-        $this->uri = $uri->getUriString();
-        $this->requestMethod = strtolower($rm);
+        $this->uri = $uri;
 
-        if (array_key_exists('get', $params)) {
-            $params['get'] = array_merge($params['get'], $uri->getParams());
-        } else {
-            $params['get'] = $uri->getParams();
+        $method = 'get';
+        if (array_key_exists('REQUEST_METHOD', $_SERVER)) {
+            $method = $_SERVER['REQUEST_METHOD'];
         }
-        $this->params = $params;
+        $this->method = strtolower($method);
+        
+		$argv = array();
+        if (array_key_exists('argv', $_SERVER)) {
+            $argv = $_SERVER['argv'];
+        }
+
+        $params = array(
+			'get'	 => $uri->getParams(),
+            'post'   => $_POST,
+            'files'  => $_FILES,
+            'cookie' => $_COOKIE,
+            'argv'   => $argv
+        );
+		$this->params = $params;
     }
 
     /**
@@ -68,7 +83,7 @@ class Request implements RequestInterface
      */
     public function isPost()
     {
-        return 'post' === $this->getRequestMethod();
+        return 'post' === $this->getMethod();
     }
 
     /**
@@ -76,13 +91,13 @@ class Request implements RequestInterface
      */
     public function isGet()
     {
-        return 'get' === $this->getRequestMethod();
+        return 'get' === $this->getMethod();
     }
 
     /**
      * @return string
      */
-    public function getRequestMethod()
+    public function getMethod()
     {
         return $this->requestMethod;
     }

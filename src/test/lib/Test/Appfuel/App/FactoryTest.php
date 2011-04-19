@@ -177,12 +177,12 @@ class FactoryTest extends ParentTestCase
 		$routeString = 'some/fake/route';
 		$uri = Factory::createUri($routeString);
 		$this->assertInstanceOf(
-			'Appfuel\Framework\UriInterface',
+			'Appfuel\Framework\Request\UriInterface',
 			$uri
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Uri',
+			'Appfuel\App\PrettyUri',
 			$uri
 		);
 	}
@@ -193,16 +193,17 @@ class FactoryTest extends ParentTestCase
 	public function testCreateRequest()
 	{
 		$routeString = 'some/fake/route';
-		$uri     = Factory::createUri($routeString);
-		$request = Factory::createRequest($uri, array());
+		$_SERVER['REQUEST_URI'] = $routeString;
+
+		$request = Factory::createRequest();
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\RequestInterface',
+			'Appfuel\Framework\Request\RequestInterface',
 			$request
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Request',
+			'Appfuel\App\Request',
 			$request
 		);
 	}

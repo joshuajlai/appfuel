@@ -16,9 +16,6 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\Env\ErrorDisplay,
 	Appfuel\Framework\Env\TimeZone,
 	Appfuel\Framework\Env\IncludePath,
-	Appfuel\Framework\UriInterface,
-	Appfuel\Framework\Uri,
-	Appfuel\Framework\Request,
 	Appfuel\Framework\Web\Bootstrap	  as WebBootstrap,
 	Appfuel\Framework\Cli\Boostrap    as CliBootstrap,
 	Appfuel\Framework\Api\Bootstrap   as ApiBootstrap;
@@ -93,15 +90,17 @@ class Factory
 	 */
 	static public function createUri($uriString)
 	{
-		return	new Uri($uriString);
+		return	new PrettyUri($uriString);
 	}
 
 	/**
 	 * @return	Request
 	 */
-	static public function createRequest(UriInterface $uri, array $params)
+	static public function createRequest()
 	{
-		return new Request($uri, $params);
+		$uriString = self::createUriString();
+		$uri       = self::createUri($uriString);
+		return new Request($uri);
 	}
 
 	/**

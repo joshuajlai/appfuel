@@ -8,13 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\App;
+
+use Appfuel\Framework\Request\UriInterface;
 
 /**
  * The uri represents the string making the request to the server. All requests
  * must have a uri string that holds at min the route information.
  */
-class Uri implements UriInterface
+class PrettyUri implements UriInterface
 {
 	/**
      * The original request uri string
@@ -23,11 +25,10 @@ class Uri implements UriInterface
 	protected $uriString = NULL;
 
 	/**
-	 * Information used to find the route that points the action command
-	 * used to service this request
+	 * The uri path is what Appfuel uses as its route string
 	 * @var string
 	 */
-	protected $routeString = NULL;
+	protected $path = NULL;
 	
 	/**
 	 * These could be http get parameters or cli parameters, both are 
@@ -51,10 +52,14 @@ class Uri implements UriInterface
      */
     public function __construct($uriString)
     {
+		if (empty($uriString)) {
+			$uriString = '/';
+		}
+
         $this->uriString = $uriString;
         $result = $this->parseUri($uriString);
 
-        $this->routeString  = $result['route'];
+        $this->path			= $result['path'];
         $this->params       = $result['params'];
         $this->paramString  = $result['paramString'];
     }
@@ -70,9 +75,9 @@ class Uri implements UriInterface
 	/**
 	 * @return string
 	 */
-	public function getRouteString()
+	public function getPath()
 	{
-		return $this->routeString;
+		return $this->path;
 	}
 
 	/**
@@ -135,24 +140,23 @@ class Uri implements UriInterface
 
         $nchars  = substr_count($uri, '/', 0);
 
-        if (0 === $nchars) {
+        if ($nchars >=0 && $nchars <=3) {
+			
+			/*
+			 * when empty the path is a root path otherwise its a path
+			 * with a single item in it
+			 */
+			$path = $uri;		
+			if (empty($uri)) {
+				$path = '/';
+			}
+
             return array(
-                'route'         => '/',
-                'params'        => $params,
+                'path'			=> $path,
+                'params'		=> $params,
                 'paramString'   => $pstring
             );
 
-        }
-
-        if ($nchars >= 1 && $nchars <= 3) {
-            $pos   = strpos($uri, '/', 0);
-            $route = substr($uri, $pos + 1);
-
-            return array(
-                'route'         => $route,
-                'params'        => $params,
-                'paramString'   => $pstring
-            );
         }
 
         $parts = explode('/', $uri);
@@ -182,10 +186,11 @@ class Uri implements UriInterface
             }
         }
 
-        /* make a uri string of just params */
-        $pstring .= implode('/', $parts);
+        /* if ? was present then $pstring will have had parameters */
+        $pstring = implode('/', $parts) . '/' . $pstring;
+        $pstring = trim($pstring, "' ', '/'");
         return array(
-            'route'         => "$module/$submodule/$action",
+            'path'          => "$module/$submodule/$action",
             'params'        => $params,
             'paramString'   => $pstring
         );

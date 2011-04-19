@@ -8,6 +8,7 @@
 				<directory suffix="Test.php">./lib/Test/Appfuel/Framework/Env</directory>
 				<file>./lib/Test/Appfuel/RegistryTest.php</file>
 				<file>./lib/Test/Appfuel/App/FactoryTest.php</file>
+				<file>./lib/Test/Appfuel/App/PrettyUriTest.php</file>
 			</testsuite>
 		</testsuites>
 </phpunit>
