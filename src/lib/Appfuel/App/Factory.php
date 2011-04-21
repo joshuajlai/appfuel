@@ -124,6 +124,15 @@ class Factory
 		}
 	}
 
+	/**
+	 * @param	array	$data	
+	 * @return	Message
+	 */
+	static public function createMessage(array $data = array())
+	{
+		return new Message($data);
+	}
+
     public function createFrontController()
 	{
 

@@ -11,7 +11,8 @@
 namespace Appfuel\App;
 
 use Appfuel\Registry,
-	Appfuel\Framework\Exception;
+	Appfuel\Framework\Exception,
+	Appfuel\Framework\MessageInterface;
 
 /**
  * The AppManager is used to encapsulate the logic need to build an App object,
@@ -110,12 +111,13 @@ class Manager
             throw new Exception("Must initialize before startup");
         }
 
-        $bootstrap = Factory::createBootstrap($type);
+        //$bootstrap = Factory::createBootstrap($type);
         $request   = Factory::createRequest();
 
 		$responseType = $request->get('responseType', 'get', 'html');
 		        
 		$route = Factory::createErrorRoute();
+		echo "<pre>", print_r($route, 1), "</pre>";exit; 
 		$msg->add('request', $request)
             ->add('responseType', $responseType)
 			->add('route', $route);
