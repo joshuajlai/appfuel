@@ -16,6 +16,7 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\Env\ErrorDisplay,
 	Appfuel\Framework\Env\TimeZone,
 	Appfuel\Framework\Env\IncludePath,
+	Appfuel\App\Render\Engine		  as RenderEngine,
 	Appfuel\Framework\Web\Bootstrap	  as WebBootstrap,
 	Appfuel\Framework\Cli\Boostrap    as CliBootstrap,
 	Appfuel\Framework\Api\Bootstrap   as ApiBootstrap;
@@ -115,7 +116,7 @@ class Factory
 	 * @throws	Exception
 	 * @return	
 	 */
-    public function createBootstrapper($type)
+    static public function createBootstrapper($type)
 	{
 		switch (strtolower($type)) {
 			case 'web':
@@ -141,18 +142,18 @@ class Factory
 		return new Message($data);
 	}
 
-    public function createFrontController()
+    static public function createFrontController()
 	{
-
+		return new Front(self::createDispatcher(), self::createRenderEngine());
 	}
 
-    public function createDispatcher()
+    static public function createDispatcher()
 	{
-	
+		return new Dispatcher();
 	}
 
-    public function createOutputEngine()
+    static public function createRenderEngine()
 	{
-
+		return new RenderEngine();
 	}
 }

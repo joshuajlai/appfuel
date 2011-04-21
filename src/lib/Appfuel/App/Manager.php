@@ -12,7 +12,8 @@ namespace Appfuel\App;
 
 use Appfuel\Registry,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\MessageInterface;
+	Appfuel\Framework\MessageInterface,
+	Appfuel\Framework\FrontControllerInterface;
 
 /**
  * The AppManager is used to encapsulate the logic need to build an App object,
@@ -45,6 +46,12 @@ class Manager
      * @var string
      */
     static protected $type = NULL;
+
+	/**
+	 * Front controller used dispatching and rendering of the app message
+	 * @var FrontController
+	 */
+	static protected $front = null;
 
 	/**
 	 * Initialization: This is the first phase in the an application request
@@ -84,13 +91,17 @@ class Manager
 			throw new Exception('Initialize error: env not found in Registry');
 		}
 
+		self::setFrontController(Factory::createFrontController());
+
 		/* tell the manager we are initialized and ready */
 		self::setInitializedFlag(true);
 	}
 
     static public function run($basePath, $file, $type)
-    {   
-        self::initialize($basePath, $file);
+    { 
+        if (! self::isInitialized()) {
+			self::initialize($basePath, $file);
+        }
 
         Registry::add('app_type', $type);
         $msg = Factory::createMessage();
@@ -113,11 +124,14 @@ class Manager
 
         //$bootstrap = Factory::createBootstrap($type);
         $request   = Factory::createRequest();
-
+	
+		$validReturnTypes = array('html','json','csv','bin','cli');
 		$responseType = $request->get('responseType', 'get', 'html');
+		if (! in_array($responseType, $validReturnTypes)) {
+			$responseType = 'html';
+		}
 		        
 		$route = Factory::createErrorRoute();
-		echo "<pre>", print_r($route, 1), "</pre>";exit; 
 		$msg->add('request', $request)
             ->add('responseType', $responseType)
 			->add('route', $route);
@@ -127,41 +141,39 @@ class Manager
 
 	static public function dispatch(MessageInterface $msg)
 	{
-		self::validateInitialization();
+	    if (! self::isInitialized()) {
+            throw new Exception("Must initialize before startup");
+        }
 
+		$front = self::getFrontController();
+		return $front->dispatch($msg);
 	}
 
 	static public function render(MessageInterface $msg)
 	{
-		self::validateInitialization();
+	    if (! self::isInitialized()) {
+            throw new Exception("Must initialize before startup");
+        }
 
-	}
-
-    /**
-     * @param   mixed   $data
-     * @return  Message
-     */
-	static public function createMessage($data = NULL)
-	{
-		self::validateInitialization();
-        return self::getAppFactory()->createMessage($data);
+		$front = self::getFrontController();
+		return $front->render($msg);	
 	}
 
 	/**
-	 * @return	string
+	 * @return FrontControllerInterface
 	 */
-	static public function getEnvName()
+	static public function getFrontController()
 	{
-		return self::$envName;
+		return self::$front;
 	}
 
 	/**
-	 * @param	string
-	 * @return	NULL
+	 * @param	FrontControllerInterface
+	 * @return	null
 	 */
-	static public function setEnvName($name)
+	static public function setFrontController(FrontControllerInterface $ctr)
 	{
-		self::$envName = $name;
+		self::$front = $ctr;
 	}
 
     /**
