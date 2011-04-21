@@ -103,6 +103,14 @@ class Factory
 		return new Request($uri);
 	}
 
+	static public function createErrorRoute()
+	{
+		$controller = 'Error\Handler\Invalid';
+		$route      = 'error/handler/invalid';
+
+		return new Route($route, $controller);
+	}
+
 	/**
 	 * @throws	Exception
 	 * @return	
