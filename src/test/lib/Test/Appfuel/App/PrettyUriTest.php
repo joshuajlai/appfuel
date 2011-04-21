@@ -124,7 +124,6 @@ class PrettyUriTest extends ParentTestCase
 		$this->assertEquals('', $uri->getParamString()); 
 	}
 
-
 	/**
 	 * The path can have only 3 parts to it. After that everything else are
 	 * considered GET parameters
@@ -353,15 +352,5 @@ class PrettyUriTest extends ParentTestCase
 		 */
 		$this->assertEquals('param1//param2/value2', $uri->getParamString());
 	}
-
-	/**
-	 *
-	 */
-	public function testSingleEmptyParamPretty()
-	{
-
-	}
-
-
 }
 

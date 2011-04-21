@@ -10,17 +10,19 @@
  */
 namespace Appfuel\Framework;
 
+use Appfuel\Stdlib\Data\DictionaryInterface;
+
 /**
- * tba
+ * The Message is used as a uniform interface to deliver a payload of 
+ * data across multiple framework layers. The message goes through
+ * normalization and routing. 
  */
-interface MessageInterface
+interface MessageInterface extends DictionaryInterface
 {
-    public function setRoute(RouteInterface $route);
-    public function getRoute();
-	public function isRoute();
-    public function getRequest();
-    public function setRequest(RequestInterface $request);
-	public function isRequest();
-    public function get($key);
-    public function add($key, $value);
+    public function isRoute();
+    public function isRequest();
+    public function isDoc();
+    public function isDocRender();
+    public function enableDocRender();
+    public function disableDocRender();
 }

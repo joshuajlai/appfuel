@@ -9,6 +9,8 @@
 				<file>./lib/Test/Appfuel/RegistryTest.php</file>
 				<file>./lib/Test/Appfuel/App/FactoryTest.php</file>
 				<file>./lib/Test/Appfuel/App/PrettyUriTest.php</file>
+				<file>./lib/Test/Appfuel/App/RequestTest.php</file>
+				<file>./lib/Test/Appfuel/App/MessageTest.php</file>
 			</testsuite>
 		</testsuites>
 </phpunit>

@@ -72,7 +72,7 @@ interface RequestInterface
      * @param   mixed   $default    value returned when key is not found
      * @return  mixed
      */
-	public function getParam($key, $type, $default = null);
+	public function get($key, $type, $default = null);
 
     /**
      * @param   string  $type

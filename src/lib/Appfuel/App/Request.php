@@ -11,7 +11,8 @@
 namespace Appfuel\App;
 
 use Appfuel\Framework\Request\RequestInterface,
-	Appfuel\Framework\Request\UriInterface;
+	Appfuel\Framework\Request\UriInterface,
+	Appfuel\Stdlib\Data\Dictionary;
 
 /**
  * Common logic to handle requests given to the application from any type.
@@ -140,7 +141,7 @@ class Request implements RequestInterface
      * @param   mixed   $default    value returned when key is not found
      * @return  mixed
      */
-	public function getParam($key, $type, $default = null)
+	public function get($key, $type, $default = null)
 	{
         /*
          * These values must be compatible with arrays
@@ -158,6 +159,39 @@ class Request implements RequestInterface
         }
 
 		return $this->params[$type][$key];
+	}
+
+	/**
+	 * Used to collect serval parameters based on an array of keys.
+	 * 
+	 * @param	array	$keys	list of parameter labels to collect
+	 * @param	array	$type	which request type get, post, argv etc..
+	 * @param	array	$returnArray 
+	 * @return	Dictionary
+	 */
+	public function collect(array $keys, $type, $returnArray = false) 
+	{
+		$result = array();
+		$notFound = '__AF_KEY_NOT_FOUND__';
+		foreach ($keys as $key) {
+			$value = $this->get($key, $type, $notFound);
+
+			/* 
+			 * null or false could be accepted values and we need to
+			 * know when default comes back as true not not found vs 
+			 * the real value and default being the same
+			 */
+			if ($value === $notFound) {
+				continue;
+			}
+			$result[$key] = $value;
+		}
+
+		if (true === $returnArray) {
+			return $result;
+		}
+
+		return new Dictionary($result);
 	}
 
     /**
