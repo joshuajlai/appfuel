@@ -87,35 +87,40 @@ class Manager
 		self::setInitializedFlag(true);
 	}
 
+    static public function run($basePath, $file, $type)
+    {   
+        self::initialize($basePath, $file);
+
+        Registry::add('app_type', $type);
+        $msg = Factory::createMessage();
+
+        $msg = self::startUp($type, $msg);
+        $msg = self::dispatch($msg);
+
+        self::render($msg);
+    }
+
 	/**
 	 * @param	MessageInterface $msg
 	 * @return	MessageInterface
 	 */
 	static public function startUp($type, MessageInterface $msg = NULL)
 	{
-		self::validateInitialization();
-		if (NULL === $msg) {
-			$msg = self::createMessage();
-		}
+        if (! self::isInitialized()) {
+            throw new Exception("Must initialize before startup");
+        }
 
-		$env       = self::getEnvName();
-		$factory   = self::getFactory();
-		$startup   = $factory->createStartup($type); 
-		$params    = $msg->get('startupParams', array());
+        $bootstrap = Factory::createBootstrap($type);
+        $request   = Factory::createRequest();
 
-		$uri = $factory->createUri($startup->getUriString());
-		$request = $factory->createRequest($uri, $startup->getRequestParams());
-	
-		$response = DomainHandler::getData(
-			'Appfuel\\Domain\\Route',
-			'Find',
-			array('routeString' => $request->getRouteString())
-		);
+		$responseType = $request->get('responseType', 'get', 'html');
+		        
+		$route = Factory::createErrorRoute();
+		$msg->add('request', $request)
+            ->add('responseType', $responseType)
+			->add('route', $route);
 
-		$msg->setRequest($request)
-			->setRoute($route);
-
-		return $startup->bootstrap($msg);
+		return $msg;
 	}
 
 	static public function dispatch(MessageInterface $msg)

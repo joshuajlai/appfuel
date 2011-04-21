@@ -11,6 +11,7 @@
 				<file>./lib/Test/Appfuel/App/PrettyUriTest.php</file>
 				<file>./lib/Test/Appfuel/App/RequestTest.php</file>
 				<file>./lib/Test/Appfuel/App/MessageTest.php</file>
+				<file>./lib/Test/Appfuel/App/RouteTest.php</file>
 			</testsuite>
 		</testsuites>
 </phpunit>
