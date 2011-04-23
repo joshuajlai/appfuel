@@ -14,7 +14,7 @@ namespace Appfuel\Framework;
 use Appfuel\Framework\Exception,
     Appfuel\Framework\MessageInterface,
     Appfuel\Framework\Render\RenderInterface,
-    Appfuel\Framework\Doc\DocumentInterface;
+    Appfuel\Framework\View\TemplateInterface;
 
 /**
  * Handle dispatching the request and outputting the response

@@ -38,14 +38,8 @@ class Dispatcher implements DispatchInterface
             throw new Exception("Dispatcher Error: route not set");
         }   
     
-		$defaultNs        = __NAMESPACE__ . '\Action';
-		$defaultClassName = 'Controller';
-
-		$namespace = Registry::get('controller_namespace', $defaultNs);
-		$className = Registry::get('controller_class_name', $defaultClassName);
-        
 		$route = $msg->get('route'); 
-        $class = "{$namespace}\\{$route->getControllerClass()}\\{$className}";
+        $class = $route->getControllerClass();
     
         $controller = new $class();
         
@@ -81,7 +75,7 @@ class Dispatcher implements DispatchInterface
         }
 
         $route = $msg->get('route');
-		
+	
         $msg = $ctr->execute($msg);
         if (! $msg instanceof MessageInterface) {
             throw new Exception(

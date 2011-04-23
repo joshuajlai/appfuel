@@ -13,7 +13,7 @@ namespace Appfuel\App;
 use Appfuel\Framework\MessageInterface,
     Appfuel\Framework\RouteInterface,
     Appfuel\Framework\Request\RequestInterface,
-    Appfuel\Framework\Doc\DocumentInterface,
+    Appfuel\Framework\View\TemplateInterface,
     Appfuel\Stdlib\Data\Dictionary;
 
 /*n
@@ -95,7 +95,7 @@ class Message extends Dictionary implements MessageInterface
     public function isDoc()
     {
         if (isset($this->items['doc']) &&
-            $this->items['doc'] instanceof DocumentInterface) {
+            $this->items['doc'] instanceof TemplateInterface) {
             return true;
         }
 

@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Doc;
+namespace Appfuel\Framework\View;
 
 use countable;
 
@@ -16,7 +16,7 @@ use countable;
  * The route is used by the dispatcher in order to build an controller
  * to execute
  */
-interface DocumentInterface extends countable
+interface TemplateInterface extends countable
 {
     /**
      * Allows concrete implementations to add files
@@ -63,12 +63,6 @@ interface DocumentInterface extends countable
     public function setScope(ScopeInterface $scope);
 
     /**
-     * @param   array $data
-     * @return  Scope
-     */
-    public function createScope(array $data = NULL);
-
-    /**
      * @param   string  $key
      * @param   string  $filename
      * @param   bool    $isLegacy
@@ -81,13 +75,6 @@ interface DocumentInterface extends countable
      * @return  bool
      */
     public function fileExists($code);
-
-    /**
-     * @param   string  $filename   
-     * @param   Scope   $scope  
-     * @return  TemplateInterface
-     */
-    public function createFile($filename, ScopeInterface $scope = NULL);
 
     /**
      * @return  mixed   FALSE|File
