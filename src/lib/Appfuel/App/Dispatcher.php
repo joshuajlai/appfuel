@@ -11,8 +11,7 @@
 namespace Appfuel\App;
 
 
-use Appfuel\Registry,
-	Appfuel\Framework\Exception,
+use Appfuel\Framework\Exception,
 	Appfuel\Framework\DispatchInterface,
     Appfuel\Framework\MessageInterface,
     Appfuel\Framework\Doc\DocumentInterface,

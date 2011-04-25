@@ -10,8 +10,7 @@
  */
 namespace Appfuel\App;
 
-use Appfuel\Registry,
-	Appfuel\Framework\Exception,
+use Appfuel\Framework\Exception,
 	Appfuel\Framework\MessageInterface,
 	Appfuel\Framework\FrontControllerInterface;
 
@@ -29,23 +28,11 @@ class Manager
 	 */
 	static protected $isLoaded = FALSE;
 
-	/**
-	 * Name of the environment the server is deployed
-	 * @var	string
-	 */
-	static protected $envName = NULL;
-
     /**
      * Flag used to determine if the framework has been initialized
      * @return bool
      */
     static protected $isInitialized = FALSE;
-
-    /**
-     * Type of application being started Cli, Web, Api
-     * @var string
-     */
-    static protected $type = NULL;
 
 	/**
 	 * Front controller used dispatching and rendering of the app message

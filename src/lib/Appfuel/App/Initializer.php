@@ -11,7 +11,6 @@
 namespace Appfuel\App;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Registry,
 	Appfuel\Stdlib\Data\Dictionary,
 	Appfuel\Stdlib\Filesystem\Manager	as FileManager;
 

@@ -11,7 +11,7 @@
 namespace Test\Appfuel;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\Registry,
+	Appfuel\App\Registry,
 	StdClass;
 
 /**

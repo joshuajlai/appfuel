@@ -53,7 +53,7 @@ class Dependency
 			"{$fw}Env{$sep}IncludePath.php",
 			"{$app}Initializer.php",
 			"{$app}Factory.php",
-			"{$path}Registry.php",
+			"{$app}Registry.php",
 		);
 	}
 
