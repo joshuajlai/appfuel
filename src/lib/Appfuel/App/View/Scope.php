@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App;
+namespace Appfuel\App\View;
 
 use SplFileInfo,
 	Appfuel\Framework\View\ScopeInterface,
@@ -32,42 +32,70 @@ class Scope implements ScopeInterface
      * @return  Template
      */
     public function __construct(array $data = array())
-    {   
-        $this->load($data);
+    {  
+		if (empty($data)) { 
+			return;
+		}
+
+		foreach ($data as $key => $value) {
+			if (! is_scalar($key)) {
+				continue;
+			}
+			$this->data[$key] = $value;
+		}
     }
 
     /**
-     * Pulls data out of this scope. When the label is not found default is used 
-     * instead
+     * Get the value for the given label from scope. If the value does not 
+	 * exist then return the default parameter
      *
      * @param   string  $label      data label 
      * @param   mixed   $default    value returned used when data not found
      * @return  mixed
      */
-    public function get($label, $default = NULL)
+    public function get($key, $default = null)
     {   
-        if (! $this->exists($label)) {
+        if (! $this->exists($key)) {
             return $default;
         }
 
-        return $this->data[$label];
+        return $this->data[$key];
     }
+	
+	/**
+	 * Return all the data in scope
+	 * 
+	 * @return array
+	 */
+	public function getAll()
+	{
+		return $this->data;
+	}
 
     /**
      * echo the value found at label or default if nothing is found
      * 
-     * @param   string  $label
-     * @param   mixed   $value
-     * @return string
+     * @param   string  $key		label used to identify value in scope
+     * @param   mixed   $default	what to render when the key is not found
+	 * @param	mixed	$sep		separated used to render an array 
+     * @return	null
      */
-    public function render($label, $default = '', $sep = ' ')
+    public function render($key, $default = '', $sep = ' ')
     {
-         if (! $this->exists($label)) {
-            echo $default;
+         if (! $this->exists($key)) {
+			if (is_array($default)) {
+				$default = implode($sep, $default);;
+			} 
+			else if (is_object($default) && 
+					! method_exists($default, '__toString')) {
+				$default = '';
+			}
+
+			echo $default;
             return;
         }
 
-        $data = $this->data[$label];
+        $data = $this->get($key);
         if (is_array($data)) {
             $data = implode($sep, $data);
         } elseif (is_object($data) && ! method_exists($data, '__toString')) {
@@ -83,48 +111,29 @@ class Scope implements ScopeInterface
      * specified by the key.
      *
      * @param   string  $key
+	 * @return	null
      */
-    public function renderAsJson($key, $default = NULL)
+    public function renderAsJson($key, $default = null)
     {
         if (! $this->exists($key)) {
             echo $default;
             return;
         }
 
-        $value = $this->get($key, NULL);
-        if (is_object($value)) {
-            throw new Exception('Invalid value for render json');
-        }
-
-        echo json_encode($value);
-    }
-
-    /**
-     * Adds any label value pair into scope for use by template files
-     *
-     * @param   string  $label  any string or object that supports __toString  
-     * @param   mixed   $value
-     * @return  NULL
-     */
-    public function assign($label, $value)
-    {
-        if (! is_scalar($label)) {
-            throw new Exception(
-                "Invalid scope label: must be a string"
-            );
-        }
-
-        $this->data[$label] = $value;
-        return $this;
+        echo json_encode($this->get($key));
     }
 
     /**
      * @param   string  $label
      * @return  bool
      */
-    public function exists($label)
+    public function exists($key)
     {
-        return array_key_exists($label, $this->data);
+		if (! is_scalar($key)) {
+			return false;
+		}
+
+        return array_key_exists($key, $this->data);
     }
 
     /**
@@ -135,49 +144,24 @@ class Scope implements ScopeInterface
         return count($this->data);
     }
 
-    /**
-     * load an array of label value pairs. We foreach here
-     * because we want to validate that each label is a proper string
-     *
-     * @param   array   $items
-     * @return  void
-     */
-    public function load(array $items)
-    {
-        foreach ($items as $label => $value) {
-            $this->assign($label, $value);
-        }
-
-        return $this;
-    }
-
-    /**
-     * Merge the data of another scope into this one
-     * 
-     * @param   Scope   $scope
-     * @return  void
-     */
-    public function merge(ScopeInterface $scope)
-    {
-        $this->data = array_merge($this->data, $scope->getAll());
-        return $this;
-    }
-
     /** 
      * returns the contents of the file specified as a string. This is used 
      * in conjuction with output buffering to produce a view template
      *
      * @param   File  $file path to template
+	 * @return	string
      */
-    public function build(SplFileInfo $file)
+    public function build($file)
     {
-        if (! $file->isFile()) {
-            throw new Exception(
-                "Template file $file could not be found or is not readable"
-            );
-        }
+		if (is_string($file) && ! empty($file) && file_exists($file)) {
+			return $this->includeTemplate($file);
+		} 
+		else if ($file instanceof SplFileInfo && $file->isFile()) {
+			return $this->includeTemplate($file->getRealPath());
+		}
 
-        return $this->includeTemplate($file->getRealPath());
+		$errTxt = "Could not build template file: file not found ";
+		throw new Exception($errTxt);	
     }
 
     /**

@@ -10,8 +10,7 @@
  */
 namespace Appfuel\Framework\View;
 
-use countable,
-	SplFileInfo;
+use countable;
 
 /**
  * The route is used by the dispatcher in order to build an controller
@@ -19,10 +18,15 @@ use countable,
  */
 interface ScopeInterface extends countable
 {
+	/**
+	 * Should be the only way to add data to scope
+	 *
+	 * @param	array	$data	
+	 * @return	Scope
+	 */
+	public function __construct(array $data = array());
+
     /**
-     * Pulls data out of this scope. When the label is not found default is used 
-     * instead.
-     *
      * @param   string  $label      data label 
      * @param   mixed   $default    value returned used when data not found
      * @return  mixed
@@ -40,7 +44,7 @@ interface ScopeInterface extends countable
      * @param   mixed   $sep        char used as separtor for array types
      * @return string
      */
-    public function render($label, $default = '', $sep = ' ');
+    public function render($label, $default = '');
 
     /**
      * Return all data in scope.
@@ -48,45 +52,19 @@ interface ScopeInterface extends countable
      */
     public function getAll();
 
-
-    /**
-     * Adds any label value pair into scope for use by template files.
-     *
-     * @param   string  $label  any string or object that supports __toString  
-     * @param   mixed   $value
-     * @return  NULL
-     */
-    public function assign($label, $value);
-
     /**
      * @param   string  $label
      * @return  bool
      */
     public function exists($label);
 
-    /**
-     * load an array of label value pairs. We foreach here
-     * because we want to validate that each label is a proper string
-     *
-     * @param   array   $items
-     * @return  void
-     */
-    public function load(array $items);
-
-    /**
-     * Merge the data of another scope into this one
-     * 
-     * @param   Scope   $scope
-     * @return  void
-     */
-    public function merge(ScopeInterface $scope);
-
     /** 
      * returns the contents of the file specified as a string. This is used 
      * in conjuction with output buffering to produce a view template
      *
-     * @param   File  $file path to template
+     * @param	mixed	string|SplFileInfo	$file path to template
+	 * @return	string
      */
-    public function build(SplFileInfo $file);
+    public function build($file);
 
 }

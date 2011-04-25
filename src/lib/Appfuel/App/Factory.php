@@ -142,16 +142,25 @@ class Factory
 		return new Message($data);
 	}
 
+	/**
+	 * @return	Front
+	 */
     static public function createFrontController()
 	{
 		return new Front(self::createDispatcher(), self::createRenderEngine());
 	}
 
+	/**
+	 * @return	Dispatcher
+	 */
     static public function createDispatcher()
 	{
 		return new Dispatcher();
 	}
 
+	/**
+	 * @return	RenderEngine
+	 */
     static public function createRenderEngine()
 	{
 		return new RenderEngine();

@@ -10,14 +10,15 @@
  */
 namespace Test;
 
-use Appfuel\Stdlib\Filesystem\Manager as FileManager,
+use PHPUnit_Extensions_OutputTestCase as ParentTestCase,
+	Appfuel\Stdlib\Filesystem\Manager as FileManager,
 	Appfuel\App\Manager				  as AppManager;
 
 /**
  * All Appfuel test cases will extend this class which provides features like
  * path locations, backup/restore autoloader, backup/restore include paths. 
  */
-class AfTestCase extends \PHPUnit_Framework_TestCase
+class AfTestCase extends ParentTestCase
 {
 	/**
 	 * Holds the original include path when the system starts up
