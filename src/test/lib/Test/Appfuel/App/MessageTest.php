@@ -89,7 +89,7 @@ class MessageTest extends ParentTestCase
         $this->message->add('client', 'should_not_work');
         $this->assertFalse($this->message->isDoc());
 
-        $doc = $this->getMock('Appfuel\Framework\View\TemplateInterface');
+        $doc = $this->getMock('Appfuel\Framework\View\DocumentInterface');
         $this->message->add('doc', $doc);
         $this->assertTrue($this->message->isDoc());
     }

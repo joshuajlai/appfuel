@@ -15,7 +15,7 @@ use countable;
 /**
  * Interface needed by the framework to use view templates
  */
-interface TemplateInterface extends countable
+interface DocumentInterface extends countable
 {
     /**
      * Assign key value pair into scope
