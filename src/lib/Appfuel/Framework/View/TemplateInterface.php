@@ -52,17 +52,6 @@ interface TemplateInterface extends countable
     public function get($name, $default = NULL);
 
     /**
-     * @return  ScopeInterface
-     */
-    public function getScope();
-
-    /**
-     * @param   ScopeInterface      $scope
-     * @return  TemplateInterface
-     */
-    public function setScope(ScopeInterface $scope);
-
-    /**
      * @param   string  $key
      * @param   string  $filename
      * @param   bool    $isLegacy
