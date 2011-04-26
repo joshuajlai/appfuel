@@ -13,17 +13,10 @@ namespace Appfuel\Framework\View;
 use countable;
 
 /**
- * The route is used by the dispatcher in order to build an controller
- * to execute
+ * Interface needed by the framework to use view templates
  */
 interface TemplateInterface extends countable
 {
-    /**
-     * Allows concrete implementations to add files
-     * return void
-     */
-     public function initialize();
-
     /**
      * Assign key value pair into scope
      *
@@ -35,6 +28,13 @@ interface TemplateInterface extends countable
 
     /**
      * @param   string  $name
+     * @param   mixed   $default    returns when not found
+     * @return  mixed
+     */
+    public function get($name, $default = null);
+
+    /**
+     * @param   string  $name
      * @return  bool
      */
     public function exists($name);
@@ -43,40 +43,6 @@ interface TemplateInterface extends countable
      * @return array
      */
     public function getAll();
-
-    /**
-     * @param   string  $name
-     * @param   mixed   $default    returns when not found
-     * @return  mixed
-     */
-    public function get($name, $default = NULL);
-
-    /**
-     * @param   string  $key
-     * @param   string  $filename
-     * @param   bool    $isLegacy
-     * @return  TemplateInterface 
-     */
-    public function addFile($key, $file);
-
-    /**
-     * @param   string  $code
-     * @return  bool
-     */
-    public function fileExists($code);
-
-    /**
-     * @return  mixed   FALSE|File
-     */
-    public function getFile($key);
-
-    /**
-     * Merge the scope into the file and then build a string
-     * 
-     * @param   string  $key
-     * @return  string
-     */
-    public function buildFile($key);
 
     /**
      * Convert the document contents to a string
