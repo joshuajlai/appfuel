@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel;
+namespace Test\Appfuel\App\View;
 
 use Test\AfTestCase as ParentTestCase,
 	Appfuel\App\View\Scope,
@@ -144,13 +144,13 @@ class ScopeTest extends ParentTestCase
 	public function testRenderstring()
 	{
 		$data = array(
-			'string' => 'this is a string',
+			'key' => 'this is a string',
 		);
 
 		$scope = new scope($data);
 
 		$this->expectOutputString('this is a string');
-		$scope->render('string');
+		$scope->render('key');
 	}
 
 	/**
@@ -159,13 +159,13 @@ class ScopeTest extends ParentTestCase
 	public function testRenderNumber()
 	{
 		$data = array(
-			'number' => 12345,
+			'key' => 12345,
 		);
 
 		$scope = new scope($data);
 
 		$this->expectOutputString('12345');
-		$scope->render('number');
+		$scope->render('key');
 	}
 
 	/**
@@ -174,13 +174,13 @@ class ScopeTest extends ParentTestCase
 	public function testRenderFloat()
 	{
 		$data = array(
-			'float' => 1.2345,
+			'key' => 1.2345,
 		);
 
 		$scope = new scope($data);
 
 		$this->expectOutputString('1.2345');
-		$scope->render('float');
+		$scope->render('key');
 	}
 
 	/**
@@ -192,13 +192,13 @@ class ScopeTest extends ParentTestCase
 	public function testRenderArrayDefaultSep()
 	{
 		$data = array(
-			'array' => array(1,2,3,4),
+			'key' => array(1,2,3,4),
 		);
 
 		$scope = new scope($data);
 
 		$this->expectOutputString('1 2 3 4');
-		$scope->render('array');
+		$scope->render('key');
 	}
 	
 	/**
@@ -207,13 +207,13 @@ class ScopeTest extends ParentTestCase
 	public function testRenderArraySep()
 	{
 		$data = array(
-			'array' => array(1,2,3,4),
+			'key' => array(1,2,3,4),
 		);
 
 		$scope = new scope($data);
 
 		$this->expectOutputString('1:2:3:4');
-		$scope->render('array', '', ':');
+		$scope->render('key', '', ':');
 	}
 	
 	/**
@@ -225,13 +225,13 @@ class ScopeTest extends ParentTestCase
 	public function testRenderObjectWithoutToString()
 	{
 		$data = array(
-			'object' => new StdClass(),
+			'key' => new StdClass(),
 		);
 
 		$scope = new scope($data);
 
 		$this->expectOutputString('');
-		$scope->render('object');
+		$scope->render('key');
 	}
 
 	/**
@@ -243,13 +243,13 @@ class ScopeTest extends ParentTestCase
 	public function testRenderObjectWithToString()
 	{
 		$data = array(
-			'object' => new SplFileInfo('/some/class'),
+			'key' => new SplFileInfo('/some/class'),
 		);
 
 		$scope = new scope($data);
 
 		$this->expectOutputString('/some/class');
-		$scope->render('object');
+		$scope->render('key');
 	}
 
 	/**
@@ -321,5 +321,204 @@ class ScopeTest extends ParentTestCase
 		$this->expectOutputString('/some/class');
 		$scope->render('notFound', $default);
 	}
-}
 
+	/**
+	 * There is nothing really to encode here so the echo should just 
+	 * show the string with quotations
+	 *
+	 * @return null
+	 */
+	public function testRenderJsonString()
+	{
+		$data = array(
+			'key' => 'i am a string',
+		);
+
+		$scope = new scope($data);
+
+		/* the quatations are added by json_encode */
+		$this->expectOutputString('"i am a string"');
+		$scope->renderAsJson('key');
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testRenderJsonArray()
+	{
+		$data = array(
+			'key' => array(1,2,3,4),
+		);
+
+		$scope = new scope($data);
+
+		/* the quatations are added by json_encode */
+		$this->expectOutputString('[1,2,3,4]');
+		$scope->renderAsJson('key');
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testRenderJsonInt()
+	{
+		$data = array(
+			'key' => 12345,
+		);
+
+		$scope = new scope($data);
+
+		/* the quatations are added by json_encode */
+		$this->expectOutputString('12345');
+		$scope->renderAsJson('key');
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testRenderJsonFloat()
+	{
+		$data = array(
+			'key' => 1.2345,
+		);
+
+		$scope = new scope($data);
+
+		/* the quatations are added by json_encode */
+		$this->expectOutputString('1.2345');
+		$scope->renderAsJson('key');
+	}
+	
+	/**
+	 * @return null
+	 */
+	public function testRenderJsonObjectEmpty()
+	{
+		$data = array(
+			'key' => new StdClass(),
+		);
+
+		$scope = new scope($data);
+
+		/* the quatations are added by json_encode */
+		$this->expectOutputString('{}');
+		$scope->renderAsJson('key');
+	}
+	
+	/**
+	 * @return null
+	 */
+	public function testRenderJsonObjectComplex()
+	{
+		$obj = new StdClass();
+		$obj->firstName = 'first name';
+		$obj->roles		= array('role1','role2','role3');
+		$obj->object	= new StdClass();
+		$obj->int		= 12345;
+		$obj->string	= 'i am a string';
+
+		$data = array(
+			'key' => $obj,
+		);
+
+		$scope = new scope($data);
+
+		$expected = '{"firstName":"first name",' .
+					'"roles":["role1","role2","role3"],' .
+					'"object":{},' .
+					'"int":12345,' .
+					'"string":"i am a string"}';
+		/* the quatations are added by json_encode */
+		$this->expectOutputString($expected);
+		$scope->renderAsJson('key');
+	}
+
+	/**
+	 * Using a simple template file that uses a single variable
+	 * in a line of text we will build it into a string giving
+	 * just the path to the template as a string
+	 *
+	 * @return null
+	 */
+	public function testBuildString()
+	{
+		$relative = 'files' . DIRECTORY_SEPARATOR . 'template.phtml';
+		$path = $this->getCurrentPath($relative);
+
+		$data = array(
+			'foo' => 'bar'
+		);
+
+		$scope = new Scope($data);
+		$result = $scope->build($path);
+
+		$expected = 'This is a test template. Foo=bar. EOF.';
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * Same test as above accept with an SplFileInfo object
+	 *
+	 * @return null
+	 */
+	public function testBuildFileObject()
+	{
+		$relative = 'files' . DIRECTORY_SEPARATOR . 'template.phtml';
+		$path = $this->getCurrentPath($relative);
+		$file = new SplFileInfo($path);
+
+		$data = array(
+			'foo' => 'bar'
+		);
+
+		$scope = new Scope($data);
+		$result = $scope->build($file);
+
+		$expected = 'This is a test template. Foo=bar. EOF.';
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * The template file will render a default var if foo is not present
+	 *
+	 * @return null
+	 */
+	public function testBuildFileDefaultRender()
+	{
+		$relative = 'files' . DIRECTORY_SEPARATOR . 'template.phtml';
+		$path = $this->getCurrentPath($relative);
+		$file = new SplFileInfo($path);
+
+		$scope = new Scope();
+		$result = $scope->build($file);
+
+		$expected = 'This is a test template. Foo=baz. EOF.';
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * Show that with the absolute path you can build a file from within
+	 * a template file
+	 *
+	 * @return null
+	 */
+	public function testBuildFileBuildInTemplate()
+	{
+		$templateFile = 'files' . DIRECTORY_SEPARATOR . 'template.phtml';
+		$templatePath = $this->getCurrentPath($templateFile);
+
+		$otherFile = 'files' . DIRECTORY_SEPARATOR . 'include_template.phtml';
+		$path = $this->getCurrentPath($otherFile);
+
+
+		$file = new SplFileInfo($path);
+
+		$data = array(
+			'template_path' => $templatePath
+		);
+		$scope = new Scope($data);
+		$result = $scope->build($file);
+		$expected = 'New template: This is a test template. Foo=baz. EOF.';
+		$this->assertEquals($expected, $result);
+	}
+}
