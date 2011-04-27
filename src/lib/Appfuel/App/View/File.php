@@ -38,10 +38,14 @@ class File extends AppFile
 	/**
 	 * @return string
 	 */
-	public function getResourcePath()
+	public function getResourcePath($absolute = false)
 	{
-		return $this->resourcePath;
+		$path = $this->resourcePath;
+		if (true === $absolute) {
+			$path = $this->getBasePath() . DIRECTORY_SEPARATOR . $path;
+		}
+
+		return $path;
 	}
 
 }
-
