@@ -13,39 +13,58 @@ namespace Appfuel\App\View;
 use Appfuel\App\File as AppFile;
 
 /**
- * File object that always starts at the resources directory
+ * File object that always starts at the clientside directory. It is used by
+ * view templates to bind scope to template files. The class always the 
+ * developer to focus on the relative path to the template file instead of
+ * how to get the base path.
  */
 class File extends AppFile
 {
 
 	/**
-	 * Relative path to the file from the resource directory
+	 * Relative path to the file from the clientside directory
 	 * @var string
 	 */
-	protected $resourcePath = null;
+	protected $clientsidePath = null;
 
     /**
-     * @param   string  $path
+	 * Hard codes this file to the clientside directory inside the base path.
+	 * the namespace allows you to choose which namespace to use inside the
+	 * clientside directory and an empty string will ignore the namespace 
+	 * entirely
+	 *
+     * @param   string  $path		relative path from clientside dir
+	 * @param	string	$namespace	subdirectory in clientside
      * @return  File
      */
-    public function __construct($path)
+    public function __construct($path, $namespace = 'appfuel')
     {
-		$this->resourcePath = 'resource' . DIRECTORY_SEPARATOR . $path;
+		if (! is_string($path) || empty($path)) {
+			throw new Exception("Invalid path: must be a non empty string");
+		}
+
+		$filePath = 'clientside' . DIRECTORY_SEPARATOR;
+		if (is_string($namespace) && ! empty($namespace)) {
+			$filePath .= $namespace . DIRECTORY_SEPARATOR;
+		}
+
+		
+		$this->clientsidePath = "{$filePath}{$path}";
+
 		$includeBasePath = true;
-        parent::__construct($path, $includeBasePath);
+        parent::__construct($this->clientsidePath, $includeBasePath);
     }
 
 	/**
 	 * @return string
 	 */
-	public function getResourcePath($absolute = false)
+	public function getClientsidePath($absolute = false)
 	{
-		$path = $this->resourcePath;
+		$path = $this->clientsidePath;
 		if (true === $absolute) {
 			$path = $this->getBasePath() . DIRECTORY_SEPARATOR . $path;
 		}
 
 		return $path;
 	}
-
 }
