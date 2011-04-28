@@ -31,7 +31,7 @@ class FileTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function test_fileExists()
+	public function testFileExists()
 	{
 		$path  = 'test' . DIRECTORY_SEPARATOR . 'lib' . DIRECTORY_SEPARATOR;
 		$path .= FileManager::classNameToDir(get_class($this));
@@ -48,9 +48,37 @@ class FileTest extends ParentTestCase
 			$file
 		);
 
+		$basePath = $this->getBasePath();
+		$this->assertEquals($basePath, $file->getBasePath());
 
-		//$expected = 'resource' . DIRECTORY_SEPARATOR . $path;
-		//$this->assertEquals($expected, $file->getFullPath());
+		$fullPath = $basePath . DIRECTORY_SEPARATOR . $path;
+		$this->assertEquals($fullPath, $file->getFullPath());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testFileDoesNotExist()
+	{
+		$path = 'this/is/some/path';
+		$file = new File($path);
 		
+		/* not that this would change */
+		$this->assertInstanceOf(
+			'Appfuel\App\File',
+			$file
+		);
+		$this->assertInstanceOf(
+			'SplFileInfo',
+			$file
+		);
+
+		$basePath = $this->getBasePath();
+		$this->assertEquals($basePath, $file->getBasePath());
+
+
+		$fullPath = $basePath . DIRECTORY_SEPARATOR . $path;
+		$this->assertEquals($fullPath, $file->getFullPath());
+
 	}
 }
