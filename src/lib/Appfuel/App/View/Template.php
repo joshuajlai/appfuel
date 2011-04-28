@@ -26,14 +26,14 @@ class Template extends Data implements TemplateInterface
 
 	/**
 	 * Detemine if a particular file has been registered and is of the
-	 * type Appfuel\App\View\File
+	 * type Appfuel\App\View\FileInterface
 	 * 
 	 * @return bool
 	 */
     public function fileExists($key)
 	{
 		return array_key_exists($key, $this->files) &&
-			   $this->files[$key] instanceof File;
+			   $this->files[$key] instanceof FileInterface;
 	}
 
 	/**
@@ -102,7 +102,7 @@ class Template extends Data implements TemplateInterface
 		$file = $this->getFile();
 		if (! $file->isFile()) {
 			$showAbsolute = true;
-			$path = $file->getResourcePath($showAbsolute);
+			$path = $file->getTemplatePath($showAbsolute);
 			$err = "BuildFile failed: file does not exist at $path";
 			throw new Exception($err);
 		}

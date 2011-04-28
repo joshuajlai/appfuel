@@ -10,19 +10,28 @@
  */
 namespace Appfuel\App;
 
-use SplFileInfo;
+use Appfuel\Framework\FileInterface,
+	SplFileInfo;
 
 /**
  * Add knowledge of the base path so developers only need to specify
  * a path relative to base path when working with files.
  */
-class File extends SplFileInfo
+class File extends SplFileInfo implements FileInterface
 {
 	/**
 	 * Root path of the application
 	 * @var string
 	 */
 	protected $basePath = null;	
+
+	/**
+	 * Full path is used because SplFileInfo::getRealPath returns an 
+	 * empty string when the file does not exist, but sometimes we want
+	 * that path without having concatenate the results of other methods.
+	 * @var string
+	 */
+	protected $fullPath = null;
 
     /**
      * When includeBase is true prepend the application base path to 
@@ -36,10 +45,13 @@ class File extends SplFileInfo
     {
         if (TRUE === $includeBase) {
             $this->basePath = AF_BASE_PATH;
-            $path = AF_BASE_PATH . DIRECTORY_SEPARATOR . $path;
-        }
+            $this->fullPath = AF_BASE_PATH . DIRECTORY_SEPARATOR . $path;
+        } else {
+			$this->basePath = null;
+			$this->fullPath = $path;
+		}
 
-        parent::__construct($path);
+        parent::__construct($this->fullPath);
     }
 
 	/**
@@ -48,6 +60,14 @@ class File extends SplFileInfo
 	public function getBasePath()
 	{
 		return $this->basePath;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFullPath()
+	{
+		return $this->fullPath;
 	}
 }
 

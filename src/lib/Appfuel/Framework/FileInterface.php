@@ -8,15 +8,18 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\View;
+namespace Appfuel\Framework;
+
 
 /**
- * Interface needed by the framework to use view templates
  */
-interface TemplateInterface extends DocumentInterface
+interface FileInterface
 {
-	public function fileExists($key);
-	public function addFile($key, $path);
-	public function getFile($key);
-	public function buildFile($key);
+	public function getFullPath();
+	public function isFile();
+	public function isDir();
+	public function isLink();
+	public function isExecutable();
+	public function isReadable();
+	public function isWritable();
 }

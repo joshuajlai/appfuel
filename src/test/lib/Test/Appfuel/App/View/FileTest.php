@@ -29,7 +29,6 @@ class FileTest extends ParentTestCase
 	{
 		$path = 'some/relative/path';
 		$file = new File($path);
-		
 		$this->assertInstanceOf(
 			'Appfuel\App\File',
 			$file
