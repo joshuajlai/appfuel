@@ -11,15 +11,48 @@
 namespace Test\Appfuel\App\View;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\View\Data;
+	Appfuel\App\View\Template;
 
 /**
- * 
+ * The view template is an extension of view data that adds on the ability 
+ * to have template files the may or may not get the data in the templates
+ * dictionary.
  */
 class TemplateTest extends ParentTestCase
 {
-	public function testOne()
+	/**
+	 * System under test
+	 * @var Template
+	 */
+	protected $template = null;
+
+	/**
+	 * @return null
+	 */
+	public function setUp()
 	{
-		$this->assertTrue(true);
+		$this->template = new Template();
 	}
+
+	/**
+	 * @return null
+	 */
+	public function tearDown()
+	{
+		unset($this->template);
+	}
+
+	/**
+	 * Make sure that template extends from view data
+	 *
+	 * @return null
+	 */
+	public function testConstructor()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\App\View\Data',
+			$this->template,
+			'Template must be a view data object'
+		);
+	}	
 }
