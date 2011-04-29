@@ -285,6 +285,14 @@ class TemplateTest extends ParentTestCase
 		$this->template->buildFile('my-file');
 	}
 
+	/**
+	 * This build is using a controlled template file in the files directory
+	 * located in the current directory of this test. Because we know the 
+	 * contents of the template file we can test it against the string
+	 * buildFile produces
+	 *
+	 * @return null
+	 */
 	public function testBuildFilePrivateScope()
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_private.txt';
@@ -308,7 +316,9 @@ class TemplateTest extends ParentTestCase
 		);
 		$privateScope = true;
 		$result = $this->template->buildFile('my-file', $data, $privateScope);
-		echo "\n", print_r($result,1), "\n";exit; 
+		$expected  = "Test buildFile with private scope:foo=bat and ";
+		$expected .= "bar=bam and baz=boo EOF";
+		$this->assertEquals($expected, $result);
 	}
 
 	/**
