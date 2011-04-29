@@ -16,6 +16,7 @@ namespace Appfuel\Framework;
 interface FileInterface
 {
 	public function getFullPath();
+	public function getRealPath();
 	public function isFile();
 	public function isDir();
 	public function isLink();

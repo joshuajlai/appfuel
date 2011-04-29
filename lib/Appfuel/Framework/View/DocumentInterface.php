@@ -10,12 +10,12 @@
  */
 namespace Appfuel\Framework\View;
 
-use countable;
+use Appfuel\Stdlib\Data\DictionaryInterface;
 
 /**
  * Interface needed by the framework to use view templates
  */
-interface DocumentInterface extends countable
+interface DocumentInterface extends DictionaryInterface
 {
     /**
      * Assign key value pair into scope
@@ -25,24 +25,6 @@ interface DocumentInterface extends countable
      * @return  File
      */
     public function assign($name, $value);
-
-    /**
-     * @param   string  $name
-     * @param   mixed   $default    returns when not found
-     * @return  mixed
-     */
-    public function get($name, $default = null);
-
-    /**
-     * @param   string  $name
-     * @return  bool
-     */
-    public function exists($name);
-
-    /**
-     * @return array
-     */
-    public function getAll();
 
     /**
      * Convert the document contents to a string

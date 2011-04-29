@@ -10,11 +10,13 @@
  */
 namespace 	Appfuel\StdLib\Data;
 
+use countable;
+
 /**
  * An bag object is an unordered collection of zero or more elements of some 
  * type.
  */
-interface DictionaryInterface extends \Countable
+interface DictionaryInterface extends countable
 {
 	/**
 	 * @param	array	$data

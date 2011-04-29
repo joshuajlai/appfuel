@@ -10,12 +10,13 @@
  */
 namespace Appfuel\App\View;
 
-use Appfuel\Framework\View\TemplateInterface;
+use Appfuel\Framework\Exception,
+	Appfuel\Framework\FileInterface;
 
 /**
  * Handles all assignments of data to be used in a template
  */
-class Template extends Data implements TemplateInterface
+class Template extends Data
 {
 	/**
 	 * Holds a list of files used by the template. This is not kept
@@ -25,19 +26,24 @@ class Template extends Data implements TemplateInterface
 	protected $files = array();
 
 	/**
-	 * Detemine if a particular file has been registered and is of the
-	 * type Appfuel\App\View\FileInterface
+	 * Detemine if a particular key has a path string or object that 
+	 * implements the FileInteface
 	 * 
 	 * @return bool
 	 */
     public function fileExists($key)
 	{
-		return array_key_exists($key, $this->files) &&
+		if (! array_key_exists($key, $this->files)) {
+			return false;
+		}
+			   
+		return is_string($this->files[$key]) || 
 			   $this->files[$key] instanceof FileInterface;
 	}
 
 	/**
-	 * Create a file object and add it to the array with the given key
+	 * Store a path string for file interface in an associative array that
+	 * can be retrieved by the key
 	 *
 	 * @param	scalar	$key
 	 * @param	string	$path
@@ -45,23 +51,24 @@ class Template extends Data implements TemplateInterface
 	 */
     public function addFile($key, $path)
 	{
-		if (! is_scalar($key)) {
+		if (! is_scalar($key) || empty($key)) {
 			throw new Exception(
-				"Add file failed: key must be a scalar value"
+				"addFile failed: key must be a scalar value"
 			);
 		}
-
-		if (! is_string($path) || empty($path)) {
-			throw new Exception(
-				"Add file failed: path must be a string and not empty"
-			);
+		
+		if (empty($path)) {
+			throw new Exception("addFile failed: path can not be empty");
 		}
-
-		/* 
-		 * this file class ensures the path is relative 
-		 * to base-path/resources
-		 */ 
-		$this->files[$key] = new File($path);
+		
+		if (is_string($path) ||  ($path instanceof FileInterface)) {
+			$this->files[$key] = $path;
+		} 
+		else {
+			throw new Exception(
+				"addFile faild: path must be a string or file interface"
+			); 
+		}	
 		return $this;
 	}
 
@@ -99,30 +106,36 @@ class Template extends Data implements TemplateInterface
 			return '';
 		}
 
-		$file = $this->getFile();
+		$file = $this->getFile($key);
+
+		/* convert this path string to a file */
+		if (is_string($file)) {
+			$file = new File($file);
+		}
+
 		if (! $file->isFile()) {
-			$showAbsolute = true;
-			$path = $file->getTemplatePath($showAbsolute);
+			$path = $file->getFullPath();
 			$err = "BuildFile failed: file does not exist at $path";
 			throw new Exception($err);
 		}
-		
+			
+		$isPrivate = (bool) $isPrivate;	
 		/*
 		 * When private use only data in the second parameter. 
 		 * When not private and data in second parameter then merge
 		 * When not private and no data then use only data in dictionary
 		 */
 		if (true === $isPrivate) {
-			$scope = new Scope($data);
+			$scopeData = $data;
 		}
 		else if (! empty($data)) {
-			$data = array_merge($this->getAll(), $data);
-			$scope = new Scope($data);
+			$scopeData = array_merge($this->getAll(), $data);
 		}
 		else {
-			$scope = new Scope($this->getAll());
+			$scopeData = $this->getAll();
 		}
-		
-		return $scope->build($file->getRealPath())
+	
+		$scope = new Scope($scopeData);	
+		return $scope->build($file->getRealPath());
 	}
 }
