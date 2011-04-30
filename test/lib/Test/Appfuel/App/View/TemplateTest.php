@@ -58,6 +58,34 @@ class TemplateTest extends ParentTestCase
 	}
 
 	/**
+	 * Used to encapsulate the common logic necessary for testing
+	 * the template builds
+	 *
+	 * @param	string	$path
+	 * @return	Appfuel\Framework\FileInterface
+	 */
+	public function createMockFile($path)
+	{
+		$path = $this->getCurrentPath($path);
+		$file = $this->getMock('Appfuel\Framework\FileInterface');
+		
+		$file->expects($this->any())
+			 ->method('isFile')
+			 ->will($this->returnValue(true));
+
+		$file->expects($this->any())
+			 ->method('getRealPath')
+			 ->will($this->returnValue($path));
+
+		$file->expects($this->any())
+			 ->method('getFullPath')
+			 ->will($this->returnValue($path));
+
+
+		return $file;
+	}
+
+	/**
 	 * AddFile takes two parameters: the key to find it by and the file
 	 * file its self. The second parameter can either be a path to the file;
 	 * a string. Or it can be a file object of type 
@@ -295,18 +323,8 @@ class TemplateTest extends ParentTestCase
 	 */
 	public function testBuildFilePrivateScope()
 	{
-		$path = 'files' . DIRECTORY_SEPARATOR . 'build_private.txt';
-		$path = $this->getCurrentPath($path);
-		$file = $this->getMock('Appfuel\Framework\FileInterface');
-		
-		$file->expects($this->any())
-			 ->method('isFile')
-			 ->will($this->returnValue(true));
-
-		$file->expects($this->any())
-			 ->method('getRealPath')
-			 ->will($this->returnValue($path));
-
+		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
+		$file = $this->createMockFile($path);
 		$this->template->addFile('my-file', $file);
 
 		$data = array(
@@ -316,6 +334,136 @@ class TemplateTest extends ParentTestCase
 		);
 		$privateScope = true;
 		$result = $this->template->buildFile('my-file', $data, $privateScope);
+		$expected  = "Test buildFile with private scope:foo=bat and ";
+		$expected .= "bar=bam and baz=boo EOF";
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * The template is using no default values so when using private scope
+	 * when the scope is empty the param will be null resulting in an empty
+	 * string in their place
+	 *
+	 * @return null
+	 */
+	public function testBuildFilePrivateScopeNoVars()
+	{
+		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
+		$file = $this->createMockFile($path);
+
+		$this->template->addFile('my-file', $file);
+
+		$data = array();
+		$privateScope = true;
+		$result = $this->template->buildFile('my-file', $data, $privateScope);
+
+		$expected  = "Test buildFile with private scope:foo= and ";
+		$expected .= "bar= and baz= EOF";
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * When private scope is true and the only data is in the dictionary the
+	 * template will not see those variable because it will only see data
+	 * passed into the buildFile function itself
+	 * @return null
+	 */
+	public function testBuildFilePrivateScopeDataInDictionary()
+	{
+		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
+		$file = $this->createMockFile($path);
+		$this->template->addFile('my-file', $file);
+
+		$data = array(
+			'foo' => 'bat',
+			'bar' => 'bam',
+			'baz' => 'boo'
+		);
+		$this->template->load($data);
+		
+		$privateScope = true;
+		$result = $this->template->buildFile('my-file', null, $privateScope);
+		$expected  = "Test buildFile with private scope:foo= and ";
+		$expected .= "bar= and baz= EOF";
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * The default third parameter for private scope is false, meaning any
+	 * data in the template dictionary will be visable to the template file.
+	 * The default second parameter for scope data is null. So for this test
+	 * the scope is not private and no extra data is given so only the 
+	 * templates dictionary is visable to the template. For this test all
+	 * variables will be in the dictionary
+	 *
+	 * @return null
+	 */
+	public function testBuildFileDefaultScopeParameterNoAdditionalScope()
+	{
+		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
+		$file = $this->createMockFile($path);
+		$this->template->addFile('my-file', $file);
+
+		$data = array(
+			'foo' => 'bat',
+			'bar' => 'bam',
+			'baz' => 'boo'
+		);
+		$this->template->load($data);
+		
+		$result = $this->template->buildFile('my-file');
+		$expected  = "Test buildFile with private scope:foo=bat and ";
+		$expected .= "bar=bam and baz=boo EOF";
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * Same as above accept only some of the variable will be in scope
+	 *
+	 * @return null
+	 */
+	public function testBuildFileTemplateScopeMissingParams()
+	{
+		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
+		$file = $this->createMockFile($path);
+		$this->template->addFile('my-file', $file);
+
+		$data = array(
+			'foo' => 'bat',
+		);
+		$this->template->load($data);
+		
+		$result = $this->template->buildFile('my-file');
+		$expected  = "Test buildFile with private scope:foo=bat and ";
+		$expected .= "bar= and baz= EOF";
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * Same as above but now we will fill in the missing params via
+	 * the second argument which always you to extend the template scope
+	 * with the data in that parameter
+	 *
+	 * @return null
+	 */
+	public function testBuildFileMergeParamsWithTemplate()
+	{
+		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
+		$file = $this->createMockFile($path);
+		$this->template->addFile('my-file', $file);
+
+		$data = array(
+			'foo' => 'bat',
+		);
+
+		$this->template->load($data);
+			
+		$extend = array(
+			'bar' => 'bam',
+			'baz' => 'boo'
+		);
+
+		$result = $this->template->buildFile('my-file', $extend);
 		$expected  = "Test buildFile with private scope:foo=bat and ";
 		$expected .= "bar=bam and baz=boo EOF";
 		$this->assertEquals($expected, $result);

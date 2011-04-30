@@ -21,10 +21,10 @@ interface ScopeInterface extends countable
 	/**
 	 * Should be the only way to add data to scope
 	 *
-	 * @param	array	$data	
+	 * @param	mixed $data	
 	 * @return	Scope
 	 */
-	public function __construct(array $data = array());
+	public function __construct($data = array());
 
     /**
      * @param   string  $label      data label 

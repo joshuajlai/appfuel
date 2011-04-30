@@ -100,7 +100,7 @@ class Template extends Data
 	 * @param	array	$data	used for private scope
 	 * @return	string
 	 */
-    public function buildFile($key, array $data = array(), $isPrivate = false)
+    public function buildFile($key, $data = null, $isPrivate = false)
 	{
 		if (! $this->fileExists($key)) {
 			return '';
@@ -119,7 +119,8 @@ class Template extends Data
 			throw new Exception($err);
 		}
 			
-		$isPrivate = (bool) $isPrivate;	
+		$isPrivate = (bool) $isPrivate;
+	
 		/*
 		 * When private use only data in the second parameter. 
 		 * When not private and data in second parameter then merge
@@ -128,7 +129,7 @@ class Template extends Data
 		if (true === $isPrivate) {
 			$scopeData = $data;
 		}
-		else if (! empty($data)) {
+		else if (is_array($data) && ! empty($data)) {
 			$scopeData = array_merge($this->getAll(), $data);
 		}
 		else {

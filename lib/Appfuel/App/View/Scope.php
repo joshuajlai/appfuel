@@ -11,6 +11,7 @@
 namespace Appfuel\App\View;
 
 use SplFileInfo,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\View\ScopeInterface,
 	Appfuel\Stdlib\Filesystem\Manager as FileManager;
 
@@ -31,9 +32,9 @@ class Scope implements ScopeInterface
      * @param   array   $data
      * @return  Template
      */
-    public function __construct(array $data = array())
+    public function __construct($data = array())
     {  
-		if (empty($data)) { 
+		if (! is_array($data) || empty($data)) { 
 			return;
 		}
 
