@@ -16,7 +16,8 @@ namespace Appfuel\Framework;
  */
 interface RouteInterface
 {
-	public function __construct($routeString, $controllerClass);
 	public function getRouteString();
-	public function getControllerClass();
+	public function getNamespace();
+	public function getAccessPolicy();
+	public function getReturnType();
 }

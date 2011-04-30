@@ -19,16 +19,28 @@ use Appfuel\Framework\RouteInterface,
 class Route implements RouteInterface
 {
     /**
-     * Uri Object that holds request info
-     * @var string
-     */
-    protected $controllerClass = NULL;
-
-    /**
      * Method used for this request POST | GET
      * @var string
      */
     protected $routeString = null;
+
+    /**
+     * Uri Object that holds request info
+     * @var string
+     */
+    protected $namespace = NULL;
+
+	/**
+	 * Access policy, public or private
+	 * @var string
+	 */
+	protected $access = null;
+
+	/**
+	 * Type of document returned. Html, json, cli, xml etc..
+	 * @var string
+	 */
+	protected $returnType = null;
 
 
     /**
@@ -39,17 +51,28 @@ class Route implements RouteInterface
 	 * @param	string	$controllerClass
      * @return	Route
      */
-    public function __construct($routeString, $controllerClass)
+    public function __construct($route, $namespace, $access, $returnType)
     {
-		if (! is_string($routeString) || empty($routeString)) {
-			throw new Exception("Route string must be a non empty string");
+		$err = "Route constructor failed: a non empty string is required for";
+		if (! $this->isValidString($route)) {
+			throw new Exception("$err route string");
 		}
-		$this->routeString = $routeString;
+		$this->route = $route;
 
-		if (! is_string($controllerClass) || empty($controllerClass)) {
-			throw new Exception("Invalid controller class given");
+		if (! $this->isValidString($namespace)) {
+			throw new Exception("$err action controller namespace");
 		}
-		$this->controllerClass = $controllerClass;
+		$this->namespace = $namespace;
+
+		if (! $this->isValidString($access)) {
+			throw new Exception("$err access policy");
+		}
+		$this->access = $access;
+
+		if (! $this->isValidString($returnType)) {
+			throw new Exception("$err return type");
+		}
+		$this->returnType = $returnType;
     }
 
     /**
@@ -57,14 +80,43 @@ class Route implements RouteInterface
      */
     public function getRouteString()
     {
-		return $this->routeString;
+		return $this->route;
     }
 
     /**
      * @return string
      */
-    public function getControllerClass()
+    public function getNamespace()
     {
-		return $this->controllerClass;
+		return $this->namespace;
     }
+
+    /**
+     * @return string
+     */
+    public function getAccessPolicy()
+    {
+		return $this->access;
+    }
+
+    /**
+     * @return string
+     */
+    public function getReturnType()
+    {
+		return $this->returnType;
+    }
+
+	/**
+	 * @param	string $str
+	 * @return	bool
+	 */
+	protected function isValidString($str)
+	{
+		if (is_string($str) && ! empty($str)) {
+			return true;
+		}
+
+		return false;
+	}
 }

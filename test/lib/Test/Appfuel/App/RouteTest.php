@@ -31,11 +31,21 @@ class RouteTest extends ParentTestCase
     public function testMembers()
     {
 		$routeString = 'i/am/a/route/string';
-		$class       = 'IAmControllerClass';
-		$route = new Route($routeString, $class);
-		
+		$namespace   = 'i_am_a_namespace';
+		$access      = 'public';
+		$returnType  = 'html';
+
+		$route = new Route($routeString, $namespace, $access, $returnType);
+		$this->assertInstanceOf(
+			'Appfuel\Framework\RouteInterface',
+			$route,
+			'route must implement the route interface'
+		);
+	
 		$this->assertEquals($routeString, $route->getRouteString());
-		$this->assertEquals($class, $route->getControllerClass());
+		$this->assertEquals($namespace, $route->getNamespace());
+		$this->assertEquals($access, $route->getAccessPolicy());
+		$this->assertEquals($returnType, $route->getReturnType());
     }
 
     /**
@@ -45,90 +55,109 @@ class RouteTest extends ParentTestCase
     public function testEmptyRouteString()
     {
 		$routeString = '';
-		$class       = 'IAmControllerClass';
-		$route = new Route($routeString, $class);
-    }
+		$namespace   = 'i_am_a_namespace';
+		$access      = 'public';
+		$returnType  = 'html';
 
+		$route = new Route($routeString, $namespace, $access, $returnType);
+    
+	}
     /**
 	 * @expectedException	Appfuel\Framework\Exception
      * @return null
      */
-    public function testArrayRouteString()
-    {
-		$routeString = array(1,2,3);
-		$class       = 'IAmControllerClass';
-		$route = new Route($routeString, $class);
-    }
-
-    /**
-	 * @expectedException	Appfuel\Framework\Exception
-     * @return null
-     */
-    public function testObjRouteString()
-    {
-		$routeString = new StdClass();
-		$class       = 'IAmControllerClass';
-		$route = new Route($routeString, $class);
-    }
-
-    /**
-	 * @expectedException	Appfuel\Framework\Exception
-     * @return null
-     */
-    public function testIntRouteString()
+    public function testNonStringRoute()
     {
 		$routeString = 99;
-		$class       = 'IAmControllerClass';
-		$route = new Route($routeString, $class);
-    }
+		$namespace   = 'i_am_a_namespace';
+		$access      = 'public';
+		$returnType  = 'html';
 
-
-    /**
-	 * @expectedException	Appfuel\Framework\Exception
-     * @return null
-     */
-    public function testEmptyControllerClass()
-    {
-		$routeString = 'i/am/a/route/string';
-		$class       = '';
-		$route = new Route($routeString, $class);
+		$route = new Route($routeString, $namespace, $access, $returnType);
     }
 
     /**
 	 * @expectedException	Appfuel\Framework\Exception
      * @return null
      */
-    public function testArrayControllerClass()
+    public function testEmptyNamespace()
     {
-		$routeString = 'i/am/a/route/string';
-		$class       = array(1,2,3);
-		$route = new Route($routeString, $class);
+		$routeString = 'i/am/route';
+		$namespace   = '';
+		$access      = 'public';
+		$returnType  = 'html';
+
+		$route = new Route($routeString, $namespace, $access, $returnType);
     }
 
     /**
 	 * @expectedException	Appfuel\Framework\Exception
      * @return null
      */
-    public function testObjControllerClass()
+    public function testNamespaceNonString()
     {
-		$routeString = 'i/am/a/route/string';
-		$class       = new StdClass();
-		$route = new Route($routeString, $class);
+		$routeString = 'i/am/route';
+		$namespace   = 99;
+		$access      = 'public';
+		$returnType  = 'html';
+
+		$route = new Route($routeString, $namespace, $access, $returnType);
     }
 
     /**
 	 * @expectedException	Appfuel\Framework\Exception
      * @return null
      */
-    public function testIntControllerClass()
+    public function testAccessEmpty()
     {
-		$routeString = 'i/am/a/route/string';
-		$class       = 99;
-		$route = new Route($routeString, $class);
+		$routeString = 'i/am/route';
+		$namespace   = 'i_am_namespace';
+		$access      = '';
+		$returnType  = 'html';
+
+		$route = new Route($routeString, $namespace, $access, $returnType);
     }
 
+    /**
+	 * @expectedException	Appfuel\Framework\Exception
+     * @return null
+     */
+    public function testAccessNonString()
+    {
+		$routeString = 'i/am/route';
+		$namespace   = 'i_am_namespace';
+		$access      = array(1,2,3);
+		$returnType  = 'html';
 
+		$route = new Route($routeString, $namespace, $access, $returnType);
+    }
 
+    /**
+	 * @expectedException	Appfuel\Framework\Exception
+     * @return null
+     */
+    public function testReturnTypeEmpty()
+    {
+		$routeString = 'i/am/route';
+		$namespace   = 'i_am_namespace';
+		$access      = 'public';
+		$returnType  = '';
 
+		$route = new Route($routeString, $namespace, $access, $returnType);
+    }
+
+    /**
+	 * @expectedException	Appfuel\Framework\Exception
+     * @return null
+     */
+    public function testReturnTypeNonString()
+    {
+		$routeString = 'i/am/route';
+		$namespace   = 'i_am_namespace';
+		$access      = 'private';
+		$returnType  = array(1,2,3);
+
+		$route = new Route($routeString, $namespace, $access, $returnType);
+    }
 }
 
