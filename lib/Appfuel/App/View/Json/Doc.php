@@ -10,3 +10,23 @@
  */
 namespace Appfuel\App\View\Json;
 
+use Appfuel\Framework\View\DocumentInterface,
+	Appfuel\App\View\Data as ViewData;
+
+/**
+ * The json document is a dictionary that json encodes all its content
+ */
+class Doc extends ViewData implements DocumentInterface
+{
+	/**
+	 * @return string
+	 */
+	public function build()
+	{
+		if (0 === $this->count()) {
+			return '';
+		}
+
+		return json_encode($this->getAll());
+	}
+}
