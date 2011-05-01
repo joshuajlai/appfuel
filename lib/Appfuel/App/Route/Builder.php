@@ -15,7 +15,9 @@ use Appfuel\Framework\Exception,
 	Appfuel\Stdlib\Filesystem\Manager as FileManager;
 
 /**
- * Value object used to hold routing information
+ * Build an action route by getting all routes in a config file then looking
+ * for a matching route string. That string is pointing to a comma separated
+ * string of three fields used to create a action route value object
  */
 class Builder
 {
