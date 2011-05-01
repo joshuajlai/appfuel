@@ -57,7 +57,7 @@ class ActionRoute implements RouteInterface
 		if (! $this->isValidString($route)) {
 			throw new Exception("$err route string");
 		}
-		$this->route = $route;
+		$this->routeString = $route;
 
 		if (! $this->isValidString($namespace)) {
 			throw new Exception("$err action controller namespace");
@@ -80,7 +80,7 @@ class ActionRoute implements RouteInterface
      */
     public function getRouteString()
     {
-		return $this->route;
+		return $this->routeString;
     }
 
     /**
