@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App;
+namespace Appfuel\App\Route;
 
 use Appfuel\Framework\RouteInterface,
 	Appfuel\Framework\Exception;
@@ -16,7 +16,7 @@ use Appfuel\Framework\RouteInterface,
 /**
  * Value object used to hold routing information
  */
-class Route implements RouteInterface
+class ActionRoute implements RouteInterface
 {
     /**
      * Method used for this request POST | GET

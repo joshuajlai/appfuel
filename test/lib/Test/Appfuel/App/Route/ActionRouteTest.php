@@ -11,20 +11,14 @@
 namespace Test\Appfuel\App;
 
 use Test\AfTestCase	as ParentTestCase,
-	Appfuel\App\Route,
+	Appfuel\App\Route\ActionRoute as Route,
 	StdClass;
 
 /**
  * Test the value object to ensure the members are immutable
  */
-class RouteTest extends ParentTestCase
+class ActionRouteTest extends ParentTestCase
 {
-    /**
-     * System under test
-     * @var Route
-     */
-    protected $route = null;
-
     /**
      * @return null
      */

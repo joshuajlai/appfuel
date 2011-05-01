@@ -109,16 +109,15 @@ class Manager
             throw new Exception("Must initialize before startup");
         }
 
-        //$bootstrap = Factory::createBootstrap($type);
-        $request   = Factory::createRequest();
+        $bootstrap = Factory::createBootstrap($type);
+		$request = $bootstrap->buildRequest();
+		$msg->add('request', $request);
 	
-		$validReturnTypes = array('html','json','csv','bin','cli');
-		$responseType = $request->get('responseType', 'get', 'html');
-		if (! in_array($responseType, $validReturnTypes)) {
-			$responseType = 'html';
-		}
 		        
-		$route = Factory::createErrorRoute();
+		$routeFinder = Factory::RouteFinder();
+		$routeString = $request->getRouteString();
+		$route       = $routeFinder->find($routeString);
+		
 		$msg->add('request', $request)
             ->add('responseType', $responseType)
 			->add('route', $route);
