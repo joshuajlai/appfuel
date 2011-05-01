@@ -75,7 +75,7 @@ class BuilderTest extends ParentTestCase
 			$route->getNamespace()
 		);
 		$this->assertEquals('public', $route->getAccessPolicy());
-		$this->assertEquals('html',  $route->getReturnType());
+		$this->assertEquals('html',  $route->getResponseType());
 
 		$route = $this->builder->build('error/handler/invalid');
 		$this->assertInstanceOf(
@@ -88,7 +88,7 @@ class BuilderTest extends ParentTestCase
 			$route->getNamespace()
 		);
 		$this->assertEquals('public', $route->getAccessPolicy());
-		$this->assertEquals('html',  $route->getReturnType());
+		$this->assertEquals('html',  $route->getResponseType());
 
 		/* this is an example of an alias */
 		$route = $this->builder->build('error');
@@ -102,7 +102,7 @@ class BuilderTest extends ParentTestCase
 			$route->getNamespace()
 		);
 		$this->assertEquals('public', $route->getAccessPolicy());
-		$this->assertEquals('html',  $route->getReturnType());
+		$this->assertEquals('html',  $route->getResponseType());
 	}
 
 	/**
@@ -150,7 +150,7 @@ class BuilderTest extends ParentTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function testRouteFoundReturnTypeEmpty()
+	public function testRouteFoundResponseTypeEmpty()
 	{
 		$result = $this->builder->build('malformed/return-type');
 		
@@ -167,7 +167,6 @@ class BuilderTest extends ParentTestCase
 		$result = $this->builder->build('malformed/all-empty');
 		
 	}
-
 
 
 }

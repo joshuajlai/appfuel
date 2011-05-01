@@ -42,7 +42,6 @@ class Request implements RequestInterface
      */
     protected $method = null;
 
-
     /**
      * Assign the uri, parameters and request method. Because the uri contains
 	 * all the get parameters we pull them out and add them to the

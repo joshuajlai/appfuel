@@ -27,9 +27,9 @@ class ActionRouteTest extends ParentTestCase
 		$routeString = 'i/am/a/route/string';
 		$namespace   = 'i_am_a_namespace';
 		$access      = 'public';
-		$returnType  = 'html';
+		$responseType  = 'html';
 
-		$route = new Route($routeString, $namespace, $access, $returnType);
+		$route = new Route($routeString, $namespace, $access, $responseType);
 		$this->assertInstanceOf(
 			'Appfuel\Framework\RouteInterface',
 			$route,
@@ -39,7 +39,7 @@ class ActionRouteTest extends ParentTestCase
 		$this->assertEquals($routeString, $route->getRouteString());
 		$this->assertEquals($namespace, $route->getNamespace());
 		$this->assertEquals($access, $route->getAccessPolicy());
-		$this->assertEquals($returnType, $route->getReturnType());
+		$this->assertEquals($responseType, $route->getResponseType());
     }
 
     /**
@@ -51,9 +51,9 @@ class ActionRouteTest extends ParentTestCase
 		$routeString = '';
 		$namespace   = 'i_am_a_namespace';
 		$access      = 'public';
-		$returnType  = 'html';
+		$responseType  = 'html';
 
-		$route = new Route($routeString, $namespace, $access, $returnType);
+		$route = new Route($routeString, $namespace, $access, $responseType);
     
 	}
     /**
@@ -65,9 +65,9 @@ class ActionRouteTest extends ParentTestCase
 		$routeString = 99;
 		$namespace   = 'i_am_a_namespace';
 		$access      = 'public';
-		$returnType  = 'html';
+		$responseType  = 'html';
 
-		$route = new Route($routeString, $namespace, $access, $returnType);
+		$route = new Route($routeString, $namespace, $access, $responseType);
     }
 
     /**
@@ -79,9 +79,9 @@ class ActionRouteTest extends ParentTestCase
 		$routeString = 'i/am/route';
 		$namespace   = '';
 		$access      = 'public';
-		$returnType  = 'html';
+		$responseType  = 'html';
 
-		$route = new Route($routeString, $namespace, $access, $returnType);
+		$route = new Route($routeString, $namespace, $access, $responseType);
     }
 
     /**
@@ -93,9 +93,9 @@ class ActionRouteTest extends ParentTestCase
 		$routeString = 'i/am/route';
 		$namespace   = 99;
 		$access      = 'public';
-		$returnType  = 'html';
+		$responseType  = 'html';
 
-		$route = new Route($routeString, $namespace, $access, $returnType);
+		$route = new Route($routeString, $namespace, $access, $responseType);
     }
 
     /**
@@ -107,9 +107,9 @@ class ActionRouteTest extends ParentTestCase
 		$routeString = 'i/am/route';
 		$namespace   = 'i_am_namespace';
 		$access      = '';
-		$returnType  = 'html';
+		$responseType  = 'html';
 
-		$route = new Route($routeString, $namespace, $access, $returnType);
+		$route = new Route($routeString, $namespace, $access, $responseType);
     }
 
     /**
@@ -121,37 +121,37 @@ class ActionRouteTest extends ParentTestCase
 		$routeString = 'i/am/route';
 		$namespace   = 'i_am_namespace';
 		$access      = array(1,2,3);
-		$returnType  = 'html';
+		$responseType  = 'html';
 
-		$route = new Route($routeString, $namespace, $access, $returnType);
+		$route = new Route($routeString, $namespace, $access, $responseType);
     }
 
     /**
 	 * @expectedException	Appfuel\Framework\Exception
      * @return null
      */
-    public function testReturnTypeEmpty()
+    public function testResponseTypeEmpty()
     {
 		$routeString = 'i/am/route';
 		$namespace   = 'i_am_namespace';
 		$access      = 'public';
-		$returnType  = '';
+		$responseType  = '';
 
-		$route = new Route($routeString, $namespace, $access, $returnType);
+		$route = new Route($routeString, $namespace, $access, $responseType);
     }
 
     /**
 	 * @expectedException	Appfuel\Framework\Exception
      * @return null
      */
-    public function testReturnTypeNonString()
+    public function testResponseTypeNonString()
     {
 		$routeString = 'i/am/route';
 		$namespace   = 'i_am_namespace';
 		$access      = 'private';
-		$returnType  = array(1,2,3);
+		$responseType  = array(1,2,3);
 
-		$route = new Route($routeString, $namespace, $access, $returnType);
+		$route = new Route($routeString, $namespace, $access, $responseType);
     }
 }
 

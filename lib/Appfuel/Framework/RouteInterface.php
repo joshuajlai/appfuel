@@ -19,5 +19,5 @@ interface RouteInterface
 	public function getRouteString();
 	public function getNamespace();
 	public function getAccessPolicy();
-	public function getReturnType();
+	public function getResponseType();
 }

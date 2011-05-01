@@ -40,7 +40,7 @@ class ActionRoute implements RouteInterface
 	 * Type of document returned. Html, json, cli, xml etc..
 	 * @var string
 	 */
-	protected $returnType = null;
+	protected $responseType = null;
 
 
     /**
@@ -48,10 +48,12 @@ class ActionRoute implements RouteInterface
 	 * controller class. This is created during startup and used in dispatching
 	 *
 	 * @param	string  $routeString 
-	 * @param	string	$controllerClass
+	 * @param	string	$namespace
+	 * @param	string	$access
+	 * @param	string	$responseType
      * @return	Route
      */
-    public function __construct($route, $namespace, $access, $returnType)
+    public function __construct($route, $namespace, $access, $responseType)
     {
 		$err = "Route constructor failed: a non empty string is required for";
 		if (! $this->isValidString($route)) {
@@ -69,10 +71,10 @@ class ActionRoute implements RouteInterface
 		}
 		$this->access = $access;
 
-		if (! $this->isValidString($returnType)) {
-			throw new Exception("$err return type");
+		if (! $this->isValidString($responseType)) {
+			throw new Exception("$err response type");
 		}
-		$this->returnType = $returnType;
+		$this->responseType = $responseType;
     }
 
     /**
@@ -102,9 +104,9 @@ class ActionRoute implements RouteInterface
     /**
      * @return string
      */
-    public function getReturnType()
+    public function getResponseType()
     {
-		return $this->returnType;
+		return $this->responseType;
     }
 
 	/**
