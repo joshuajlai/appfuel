@@ -147,15 +147,7 @@ class Factory
 	 */
     static public function createFrontController()
 	{
-		return new Front(self::createDispatcher(), self::createRenderEngine());
-	}
-
-	/**
-	 * @return	Dispatcher
-	 */
-    static public function createDispatcher()
-	{
-		return new Dispatcher();
+		return new Front();
 	}
 
 	/**

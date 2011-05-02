@@ -12,60 +12,16 @@ namespace Appfuel\App;
 
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\FrontControllerInterface,
-	Appfuel\Framework\DispatchInterface,
+	Appfuel\Framework\Controller\FrontInterface,
+	Appfuel\Framework\Controller\ActionInterface,
     Appfuel\Framework\MessageInterface,
-    Appfuel\Framework\RenderInterface,
     Appfuel\Framework\Doc\DocumentInterface;
 
 /**
  * Handle dispatching the request and outputting the response
  */
-class Front implements FrontControllerInterface
+class Front implements FrontInterface
 {
-    /**
-     * System used to manage action commands
-     * @var DispatchInterface
-     */
-    protected $dispatcher = NULL;
-
-    /**
-     * System used to render output
-     * @var RenderInterface
-     */
-    protected $engine = NULL;
-
-    /**
-     * Constructor
-     * Assign server which is an immutable member
-     *
-     * @param   Dispatch    $dispatcher
-     * @param   Output      $output
-     * @return  Front
-     */
-    public function __construct(DispatchInterface $dispatcher, 
-								RenderInterface $engine)
-    {
-        $this->dispatcher   = $dispatcher;
-        $this->renderEngine = $engine;
-    }
-
-    /**
-     * @return  Dispatcher
-     */
-    public function getDispatcher()
-    {
-        return $this->dispatcher;
-    }
-
-    /**
-     * @return  Output
-     */
-    public function getRenderEngine()
-    {
-        return $this->engine;
-    }
-
     /**
      * Dispatch
      * Use the route destination to create the controller and execute the
@@ -77,50 +33,80 @@ class Front implements FrontControllerInterface
      */
     public function dispatch(MessageInterface $msg)
     {
-        $dispatcher = $this->getDispatcher();
-        $controller = $dispatcher->load($msg);
+		
+		/* 
+		 * ensure the request is available first because if anything
+		 * goes wrong we can check the responseType early allowing us 
+		 * the ability to send back an error in the correct format
+		 */
+        if (! $msg->isRequest()) {
+			// handle error for missing request
+        }
+		$request = $msg->get('request');
+
+		/*
+		 * we need the route to determine what action controller to build
+		 */
+		if (! $msg->isRoute()) {
+			// handle error for missing route
+		}
+		$route = $msg->get('route');
+
+		/*
+		 * the route and request are used to determine which type of document
+		 * to process and put into the message. We first look into the request
+		 * and if the reponse type is available otherwise we fallback on the
+		 * rotues values.
+		 */
+        $reponseType = $route->getResponseType();
+        if ($request->isResponseType()) {
+            $responseType = $request->getResponseType();
+        }
+
+        $namspace = $route->getNamespace();
+        $ctrClass = "$namespace\\Controller";
+        
+		try {
+			$controller = new $ctrClass();
+		} catch (\Exception $e) {
+			// handle controller can not be created
+		}
+
+		if (! $controller instanceof ActionInterface) {
+			// handle controller does not implement the correct interface
+		}
+	
+		/*
+		 * controller is available and using the correct interface 
+		 */
+        if (! $controller->isSupportedDoc($responseType)) {
+			// handle invalid document type
+        }
+		$msg->add('responseType', $responseType);
+
+		try {
+			$controller->initialize($msg);
+		} catch (Exception $e) {
+			// handler intialization errors
+		}
 
         try {
-            $msg = $dispatcher->execute($controller, $msg);
+            $msg = $controller->execute($msg);
         } catch (Exception $e) {
-            $format = $msg->get('responseType', 'html');
-            $route  = Factory::createErrorRoute();
+			// handle controller exceptions
+		}
 
-            $txt    = $e->getMessage();
-            $code   = $e->getCode();
-            $msg->add('errorMsg',  $txt)
-                ->add('errorCode', $code);
+		try {
+			$controller->cleanUp($msg);
+		} catch (Exception $e) {
 
-            $msg->add('route', $route)
-                ->add('doc', null);
+		}
 
-            $controller = $dispatcher->load($msg);
-            $msg = $dispatcher->execute($controller, $msg);
-        }
+		if (! $msg->isDoc()) {
+			// process logical errors in the messag
+		}
 
+	
         return $msg;
-    }
-
-    /**
-     * Render output. Can either echo the built content or
-     * return it as a string
-     *
-     * @param   MessageInterface    $msg   
-     * @return  mixed  void|string
-     */
-    public function render(MessageInterface $msg)
-    {
-        $engine = $this->getRenderEngine();
-
-        if (! $msg->isDoc()) {
-            return false;
-        }
-
-        $doc = $msg->get('doc');
-        if (! $msg->isDocRender()) {
-            return $engine->build($doc);
-        }
-
-        $engine->render($doc);
     }
 }

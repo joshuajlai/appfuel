@@ -42,6 +42,13 @@ class Request implements RequestInterface
      */
     protected $method = null;
 
+	/**
+	 * Used to determine is a response type other than the routes registered
+	 * response type should be used
+	 * @var string
+	 */
+	protected $responseType = null;
+
     /**
      * Assign the uri, parameters and request method. Because the uri contains
 	 * all the get parameters we pull them out and add them to the
@@ -76,6 +83,12 @@ class Request implements RequestInterface
             'argv'   => $argv
         );
 		$this->params = $params;
+
+		$responseType = null;
+		if (in_array($this->method, array('get', 'post'))) {
+			$responseType = $this->get('responseType', 'post', null);
+		}
+		$this->responseType = $responseType;
     }
 
     /**
@@ -101,6 +114,22 @@ class Request implements RequestInterface
     {
         return $this->method;
     }
+
+	/**
+	 * @return string
+	 */
+	public function getResponseType()
+	{
+		return $this->responseType;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isResponseType()
+	{
+		return is_string($this->responseType) && ! empty($this->responseType);
+	}
 
 	/**
 	 * @return string
