@@ -15,7 +15,7 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\Controller\FrontInterface,
 	Appfuel\Framework\Controller\ActionInterface,
     Appfuel\Framework\MessageInterface,
-    Appfuel\Framework\Doc\DocumentInterface;
+    Appfuel\Framework\View\DocumentInterface;
 
 /**
  * Handle dispatching the request and outputting the response
@@ -23,11 +23,11 @@ use Appfuel\Framework\Exception,
 class Front implements FrontInterface
 {
     /**
-     * Dispatch
-     * Use the route destination to create the controller and execute the
-     * its method. Check the return of method, if its a message with a 
-     * distination different from the previous then dispath that one
-     *
+     * Dispatch a message by using the route to create a controller 
+	 * command object, use the request or rotue to determine what document
+	 * the controller will pocess. Execute the message and check for the 
+	 * exists of the document which is needed by other systems
+	 * 
      * @param   MessageInterface $msg
      * @return  MessageInterface
      */
@@ -84,6 +84,17 @@ class Front implements FrontInterface
         }
 		$msg->add('responseType', $responseType);
 
+		$viewManager = $controller->createViewManager();
+		if (! $viewManager instanceof ViewManagerInterface) {
+			// handle incorrect view manager
+		}
+		$doc = $viewManager->buildView($msg);
+		$viewManager->setDoc($doc);
+		$controller->setViewManager($viewManager);
+		
+		$msg->add('doc', $doc);
+
+
 		try {
 			$controller->initialize($msg);
 		} catch (Exception $e) {
@@ -96,17 +107,6 @@ class Front implements FrontInterface
 			// handle controller exceptions
 		}
 
-		try {
-			$controller->cleanUp($msg);
-		} catch (Exception $e) {
-
-		}
-
-		if (! $msg->isDoc()) {
-			// process logical errors in the messag
-		}
-
-	
         return $msg;
     }
 }

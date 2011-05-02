@@ -11,18 +11,21 @@
 namespace Appfuel\Framework\Controller;
 
 
-use Appfuel\Framework\View\ManagerInterface,
+use Appfuel\Framework\View\ManagerInterface as ViewManagerInterface,
     Appfuel\Framework\MessageInterface;
 
 /**
  * Action controllers are used process the user request manipulate the given
  * document and hand back the message
  */
-interface ActionControllerInterface
+interface ActionInterface
 {
-	public function isSupportedDoc($responseType);
-    public function initialize($responseType);
+	public function addSupportedDocs(array $types);
+	public function addSupportedDoc($type);
+	public function getSupportedDocs();
+	public function isSupportedDoc($type);
+    public function initialize(MessageInterface $msg);
 	public function getViewManager();
-	public function setViewManager(ManagerInterface $vm);
+	public function setViewManager(ViewManagerInterface $vm);
 	public function execute(MessageInterface $msg);
 }
