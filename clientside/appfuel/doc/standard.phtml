@@ -1,0 +1,33 @@
+<?php $this->renderDocType() ?>
+<html>
+<head>
+<?php 
+	$this->renderTag('html-title');
+	$this->renderEachTag('html-meta-tags'); 
+	$this->renderTag('html-favicon') 
+
+	if ($this->isStylesEnabled()) {
+		$this->renderEachTag('html-css-links');
+		if ($this->isInlineStyleEnabled()) { 
+			$this->renderInlineStyle('html-style-content', '');
+		}
+	}
+?>
+</head>
+<?php
+ $bodyId    = $this->get('html-body-id', '');
+ $bodyClass = $this->get('html-body-class', '');
+ if (! empty($bodyClass)) {
+	$bodyClass = 'class="' . $bodyClass . '"';
+ }
+
+if (! empty($bodyId)) {
+	$bodyId = 'id="' . $bodyId . '"';
+}
+?>
+<body <?php echo $bodyClass, ' ', $bodyId ?> >
+<?php 
+	$this->render('layout-content', ''); 	
+?>
+</body>
+

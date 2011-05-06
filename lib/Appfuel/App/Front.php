@@ -88,7 +88,7 @@ class Front implements FrontInterface
 		if (! $viewManager instanceof ViewManagerInterface) {
 			// handle incorrect view manager
 		}
-		$doc = $viewManager->buildView($msg);
+		$this->controller->setViewManager($viewManager);;
 		$viewManager->setDoc($doc);
 		$controller->setViewManager($viewManager);
 		
