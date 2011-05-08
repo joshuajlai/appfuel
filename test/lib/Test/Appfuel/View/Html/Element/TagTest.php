@@ -12,6 +12,7 @@ namespace Test\Appfuel\View\Html\Element;
 
 use Test\AfTestCase	as ParentTestCase,
 	Appfuel\View\Html\Element\Tag,
+	SplFileInfo,
 	StdClass;
 
 /**
@@ -450,8 +451,393 @@ class TagTest extends ParentTestCase
 		}
 	}
 
+	/**
+	 * @return null
+	 */
+	public function testRemoveAttributes()
+	{
+		$attrs = array(
+			'class' => 'my-class',
+			'id'    => 'my-id',
+			'name'  => 'my-name'
+		);
+		
+		/* we have not added any valid attributes so all these attrs
+		 * will not be added 
+		 */
+		$this->tag->disableAttributeValidation();
+		$this->tag->addAttributes($attrs);
+		foreach ($attrs as $attr => $value) {
+			$this->assertTrue($this->tag->attributeExists($attr));
+			$this->assertSame(
+				$this->tag,
+				$this->tag->removeAttribute($attr),
+				'this is a fluent interface'
+			);
+			$this->assertFalse($this->tag->attributeExists($attr));
+			$this->assertNull($this->tag->getAttribute($attr));
+		}
+	}
+
+	/**
+	 * Tag name is used in building the html tag string. Currently there
+	 * is no validation on setting a valid html tag name.
+	 *
+	 * @return null
+	 */
+	public function testGetSetTagName()
+	{
+		/* initial value is null */
+		$this->assertNull($this->tag->getTagName());
+
+		$this->assertSame(
+			$this->tag,
+			$this->tag->setTagName('table'),
+			'this is a fluent interface'
+		);
+
+		$this->assertEquals('table', $this->tag->getTagName());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetTagNameArray()
+	{
+		$this->tag->setTagName(array(1,2,3));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetTagNameObject()
+	{
+		$this->tag->setTagName(new StdClass());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetTagNameInt()
+	{
+		$this->tag->setTagName(12345);
+	}
+
+	/**
+	 * These methods are used to determine how to build the html tag
+	 * string. We are testing the default value is true and the
+	 * enable\disable are working as expected
+	 *
+	 * @return null
+	 */
+	public function testEnableDisableIsClosingTag()
+	{
+		$this->assertTrue($this->tag->isClosingTag());
+		$this->assertSame(
+			$this->tag,
+			$this->tag->disableClosingTag(),
+			'uses a fluent interface'
+		);
+		$this->assertFalse($this->tag->isClosingTag());
+			
+		$this->assertSame(
+			$this->tag,
+			$this->tag->enableClosingTag(),
+			'uses a fluent interface'
+		);
+		$this->assertTrue($this->tag->isClosingTag());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testBuildAttributesDisabledAttrs()
+	{
+		/* so we can add any attributes */
+		$this->tag->disableAttributeValidation();
+
+		$this->tag->addAttribute('id', 333)
+				  ->addAttribute('class', 'my-class');
+
+		/* when attributes disabled an empty string is returned */
+		$this->tag->disableAttributes();
+
+		$this->assertEquals('', $this->tag->buildAttributes());	
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testBuildAttributes()
+	{
+		/* so we can add any attributes */
+		$this->tag->disableAttributeValidation();
+
+		$this->tag->addAttribute('id', 333)
+				  ->addAttribute('class', 'my-class');
+
+		$result = $this->tag->buildAttributes();
+		$expected = 'id="333" class="my-class"';
+		$this->assertEquals($expected, $result);
+	}
+
+	/**	
+	 * When addContent is used with no second parameter then the assumed
+	 * action is append. This will append the content onto the content array
+	 *
+	 * @return null
+	 */
+	public function testAddGetContentDefaultAction()
+	{
+		/* default value is an empty array */
+		$result = $this->tag->getContent();
+		$this->assertInternalType('array', $result);
+		$this->assertEmpty($result);
+
+		$block1 = 'i am block one';
+		$block2 = 'i am block two';
+		$block3 = 'i am block three';
+		$this->assertSame(
+			$this->tag,
+			$this->tag->addContent($block1),
+			'this is a fluent interface'
+		);
+		$expected = array($block1);
+		$this->assertEquals($expected, $this->tag->getContent());
+
+		$this->tag->addContent($block2);
+		$expected = array($block1, $block2);
+		$this->assertEquals($expected, $this->tag->getContent());
+
+		$this->tag->addContent($block3);
+		$expected = array($block1, $block2, $block3);
+		$this->assertEquals($expected, $this->tag->getContent());
+	}
+
+	/**	
+	 * Same as the test above but with the explicit call
+	 *
+	 * @return null
+	 */
+	public function testAddGetContentAppend()
+	{
+		$block1 = 'i am block one';
+		$block2 = 'i am block two';
+		$block3 = 'i am block three';
+			
+		$this->tag->addContent($block1, 'append');
+		$expected = array($block1);
+		$this->assertEquals($expected, $this->tag->getContent());
+
+		$this->tag->addContent($block2, 'append');
+		$expected = array($block1, $block2);
+		$this->assertEquals($expected, $this->tag->getContent());
+
+		$this->tag->addContent($block3, 'append');
+		$expected = array($block1, $block2, $block3);
+		$this->assertEquals($expected, $this->tag->getContent());
+	}
+
+	/**	
+	 * Test prepending content
+	 *
+	 * @return null
+	 */
+	public function testAddGetContentPrepend()
+	{
+		$block1 = 'i am block one';
+		$block2 = 'i am block two';
+		$block3 = 'i am block three';
+			
+		$this->tag->addContent($block1, 'prepend');
+		$expected = array($block1);
+		$this->assertEquals($expected, $this->tag->getContent());
+
+		$this->tag->addContent($block2, 'prepend');
+		$expected = array($block2, $block1);
+		$this->assertEquals($expected, $this->tag->getContent());
+
+		$this->tag->addContent($block3, 'prepend');
+		$expected = array($block3, $block2, $block1);
+		$this->assertEquals($expected, $this->tag->getContent());
+	}
+
+	/**	
+	 * Test replacing content
+	 *
+	 * @return null
+	 */
+	public function testAddGetContentReplace()
+	{
+		$block1 = 'i am block one';
+		$block2 = 'i am block two';
+		$block3 = 'i am block three';
+			
+		$this->tag->addContent($block1, 'replace');
+		$expected = array($block1);
+		$this->assertEquals($expected, $this->tag->getContent());
+
+		$this->tag->addContent($block2, 'replace');
+		$expected = array($block2);
+		$this->assertEquals($expected, $this->tag->getContent());
+
+		$this->tag->addContent($block3, 'replace');
+		$expected = array($block3);
+		$this->assertEquals($expected, $this->tag->getContent());
+	}
+
+	/**
+	 * Content is stored as an array of blocks. Each block is concatenated
+	 * togather with the separator character from getSeparator. We will
+	 * test building content with the default separator
+	 *
+	 * @return null
+	 */
+	public function testBuildContentDefaultSeparator()
+	{
+		$block1 = 'i am block one';
+		$block2 = 'i am block two';
+		$block3 = 'i am block three';
+			
+		$this->tag->addContent($block1, 'append')
+				  ->addContent($block2, 'append')
+				  ->addContent($block3, 'append');
+
+		$expected = $block1 . ' ' . $block2 . ' ' . $block3;
+		$this->assertEquals($expected, $this->tag->buildContent());
+	}
+
+	/**
+	 * Same as above with a different separator
+	 * @return null
+	 */
+	public function testBuildContentDefaultSetSeparator()
+	{
+		$sep = ':';
+		$this->tag->setSeparator($sep);
+
+		$block1 = 'i am block one';
+		$block2 = 'i am block two';
+		$block3 = 'i am block three';
+			
+		$this->tag->addContent($block1, 'append')
+				  ->addContent($block2, 'append')
+				  ->addContent($block3, 'append');
+
+		$expected = $block1 . $sep . $block2 . $sep . $block3;
+		$this->assertEquals($expected, $this->tag->buildContent());
+	}
+
+	/**
+	 * Same as above with scalar content types integers
+	 * @return null
+	 */
+	public function testBuildContentIntegers()
+	{
+		$sep = ':';
+		$this->tag->setSeparator($sep);
+
+		$block1 = 123;
+		$block2 = 456;
+		$block3 = 789;
+			
+		$this->tag->addContent($block1, 'append')
+				  ->addContent($block2, 'append')
+				  ->addContent($block3, 'append');
+
+		$expected = $block1 . $sep . $block2 . $sep . $block3;
+		$this->assertEquals($expected, $this->tag->buildContent());
+	}
 
 
+	/**
+	 * Same as above with scalar content types arrays.  Each array will 
+	 * be expoded into a string an each item will be glued togather with
+	 * the default separator.
+	 *
+	 * @return null
+	 */
+	public function testBuildContentArrays()
+	{
+		$sep = ':';
+		$this->tag->setSeparator($sep);
 
+		$block1 = array(1,2,3);
+		$block2 = array(4,5, 6);
+		$block3 = array(7, 8, 9);
+			
+		$this->tag->addContent($block1, 'append')
+				  ->addContent($block2, 'append')
+				  ->addContent($block3, 'append');
+
+		$expected = '1:2:3:4:5:6:7:8:9';
+		$this->assertEquals($expected, $this->tag->buildContent());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testBuildContentObjectsWithToString()
+	{
+		$sep = ':';
+		$this->tag->setSeparator($sep);
+
+		$block1 = new SplFileInfo('path1');
+		$block2 = new SplFileInfo('path2');
+		$block3 = new SplFileInfo('path3');
+			
+		$this->tag->addContent($block1, 'append')
+				  ->addContent($block2, 'append')
+				  ->addContent($block3, 'append');
+
+		$expected = 'path1:path2:path3';
+		$this->assertEquals($expected, $this->tag->buildContent());
+	}
+
+	/**
+	 * This test will use the interface to build a link tag and check that
+	 * the string produced by the build is as expected. This tag has no
+	 * close tag and uses only attributes
+	 *
+	 * @return null
+	 */
+	public function testBuildLinkTag()
+	{
+		/* so we can add any attributes */
+		$this->tag->disableAttributeValidation();
+		$this->tag->setTagName('link')
+				  ->disableClosingTag()
+				  ->addAttribute('rel', 'stylesheet')
+				  ->addAttribute('type', 'text/css')
+				  ->addAttribute('href', 'style.css');
+
+		$expected = '<link rel="stylesheet" type="text/css" href="style.css"/>';
+		$this->assertEquals($expected, $this->tag->build());
+	}
+
+	/**
+	 * Test building a tag that uses content and therfore has a closing tag
+	 *
+	 * @return null
+	 */
+	public function testBuildAnchorTag()
+	{
+		/* so we can add any attributes */
+		$this->tag->disableAttributeValidation();
+		$this->tag->setTagName('a')
+				  ->enableClosingTag()
+				  ->addAttribute('id', 'my-id')
+				  ->addAttribute('class', 'my-class')
+				  ->addAttribute('href', '/some/uri/path')
+			      ->addContent('click me!');
+
+		$expected = '<a id="my-id" class="my-class" href="/some/uri/path">' .
+					'click me!</a>';
+	
+		$this->assertEquals($expected, $this->tag->build());
+	}
 }
 

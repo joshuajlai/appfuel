@@ -10,12 +10,12 @@
  */
 namespace Appfuel\View\Html\Element;
 
-use Appfuel\App\View\Data;
+use Appfuel\Framework\Exception;
 
 /**
  *
  */
-class Tag extends Data
+class Tag
 {
 	/**
 	 * Used to separate content
@@ -30,10 +30,16 @@ class Tag extends Data
 	protected $validAttrs = array();
 
 	/**
-	 * Dictionary used to hold html tag attributes
+	 * Used to hold html tag attributes
 	 * @var array
 	 */
 	protected $attrs = array();
+
+	/**
+	 * Used to hold the contents of the tag
+	 * @var array
+	 */ 
+	protected $content = array();
 
 	/**
 	 * Flag used to determine if a tag should validate
@@ -47,6 +53,65 @@ class Tag extends Data
 	 * @var bool
 	 */
 	protected $isAttrs = true;
+
+	/**
+	 * Name of the html tag. This name will be used to generate the actual
+	 * tag string ex) <table> </table> the tag name is table
+	 */
+	protected $tagName = null;
+
+	/**
+	 * Used to determine if a full closing tag is needed
+	 * @var bool
+	 */
+	protected $isClosingTag = true;
+
+	/**
+	 * @return string
+	 */
+	public function getTagName()
+	{
+		return $this->tagName;
+	}
+
+	/**
+	 * @param	string	name of the tag
+	 * @return	Tag
+	 */
+	public function setTagName($name)
+	{
+		if (! $this->isValidString($name)) {
+			throw new Exception("Invalid name for tag must be a string");
+		}
+		$this->tagName = $name;
+		return $this;
+	}
+	
+	/**
+	 * @return bool
+	 */
+	public function isClosingTag()	
+	{
+		return $this->isClosingTag;
+	}
+
+	/**
+	 * @return Tag
+	 */
+	public function enableClosingTag()
+	{
+		$this->isClosingTag = true;
+		return $this;
+	}
+
+	/**
+	 * @return Tag
+	 */
+	public function disableClosingTag()
+	{
+		$this->isClosingTag = false;
+		return $this;
+	}
 
 	/**
 	 * @return string
@@ -300,6 +365,132 @@ class Tag extends Data
 		}
 
 		return false;
+	}
+
+	/**
+	 * Add content to the tag
+	 * 
+	 * @param	mixed	$data	
+	 * @param	string	$action		what to do with the content
+	 * @return	Tag
+	 */
+    public function addContent($data, $action = 'append')
+    {
+		$action = strtolower($action);
+        $valid  = array('append', 'prepend','replace');
+        if (! in_array($action, $valid)) {
+			return $this;
+        }
+
+        /*
+         * make sure the data is an array
+         */
+        if (! is_array($data)) {
+            $data = array($data);
+        }
+
+        /*
+         * content data structure does not exits. This could be caused
+         * by the first use in the constructor or a concrete class blew
+         * it away. Either way we recover by adding data to it and we are done
+         */
+        if (empty($this->content)) {
+            $this->content = $data;
+            return $this;
+        }
+
+        switch ($action) {
+            case 'append':
+                $this->content = array_merge($this->content, $data);
+                break;
+            case 'prepend':
+                $this->content = array_merge($data, $this->content);
+                break;
+            case 'replace':
+                $this->content = $data;
+                break;
+        }
+
+        return $this;
+    }
+
+	/**
+	 * @return array
+	 */
+	public function getContent()
+	{
+		return $this->content;
+	}
+
+	/**
+	 * Build the content by concatenating each item in the content array,
+	 * use the separator between each item.
+	 *
+	 * @return string
+	 */
+	public function buildContent()
+	{
+        $content  = $this->getContent();
+        $sep      = $this->getSeparator();
+        $str = '';
+        foreach ($content as $index => $item) {
+            if (is_scalar($item)) {
+                $str .= $sep . $item;
+            } else if (is_array($item)) {
+                $str .= implode($sep, $item);
+            } else if (is_object($item) && method_exists($item, '__toString')) {
+                $str .= $sep . $item->__toString();
+            }
+        }
+
+        return trim($str, $sep);
+	}
+
+	/**
+	 * Used to build a string of attr=value sets for the tag when 
+	 * attributes are disabled it returns an empty string
+	 *
+	 * @return string
+	 */
+	public function buildAttributes()
+	{
+		if (! $this->isAttributesEnabled()) {
+			return '';
+		}
+
+		$attrs = $this->getAttributes();
+		$result = '';
+		foreach ($attrs as $attr => $value) {
+			$result .= "$attr=\"$value\" ";
+		}
+
+		return trim($result);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function build()
+	{
+		$tagName = $this->getTagName();
+		if (empty($tagName)) {
+			return '';
+		}
+
+		$tag = "<{$tagName}";
+		if ($this->isAttributesEnabled()) {
+			$tag .= ' ' . $this->buildAttributes();
+		}
+		
+		if ($this->isClosingTag()) {
+			$content = $this->buildContent();
+			$tag .= ">{$content}</{$tagName}>";
+		} 
+		else {
+			$tag .= '/>';
+		}
+		
+		return $tag;
 	}
 
 	/**
