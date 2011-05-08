@@ -13,7 +13,8 @@ namespace Appfuel\App\View\Html;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\FileInterface,
 	Appfuel\Framework\View\TemplateInterface,
-	Appfuel\App\View\Template;
+	Appfuel\App\View\Template,
+	Appfuel\View\Html\Element\Title;
 
 /**
  * Html document template. Used to manage the html document. This template 
@@ -21,10 +22,34 @@ use Appfuel\Framework\Exception,
  */
 class Doc extends Template implements TemplateInterface
 {
+	/**
+	 * Title tag used in the head of the document
+	 * @var Title
+	 */
+	protected $title = null;
+
 	public function __construct()
 	{
 		$this->addFile('markup', 'doc/standard.phtml')
 			 ->addFile('inline-js', 'doc/init.pjs');
+	}
+
+	/**
+	 * @return Title
+	 */
+	public function getTitleTag()
+	{
+		return $this->title;
+	}
+
+	/**
+	 * @param	Title $tile
+	 * @return	Doc
+	 */
+	public function setTitle(Title $title)
+	{
+		$this->title = $title;
+		return $this;
 	}
 
 	public function build()

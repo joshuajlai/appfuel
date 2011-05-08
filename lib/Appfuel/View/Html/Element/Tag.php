@@ -523,6 +523,7 @@ class Tag
 		$tag = "<{$tagName}";
 		if ($this->isAttributesEnabled()) {
 			$tag .= ' ' . $this->buildAttributes();
+			$tag  = trim($tag);
 		}
 		
 		if ($this->isClosingTag()) {

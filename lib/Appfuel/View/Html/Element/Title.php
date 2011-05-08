@@ -13,17 +13,17 @@ namespace Appfuel\View\Html\Element;
 use Appfuel\Framework\Exception;
 
 /**
- * Holds the common logic used to describe and build most html elements. You
- * can extended this class and in your constructor define the valid attributes,
- * use a closing tag or not. You can override the build and customize the way
- * the tag is rendered.
+ * The html 5 title tag supports global attributes
  */
 class Title extends Tag
 {
-	public function __construct($data)
+	/**
+	 * @param	string	$data	content for the title
+	 * @return	Title
+	 */
+	public function __construct($data = null)
 	{
-		$this->setTagName('title')
-			 ->disableAttributes();
+		$this->setTagName('title');
 
 		if ($this->isValidString($data)) {
 			$this->addContent($data);
