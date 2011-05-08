@@ -13,7 +13,15 @@ namespace Appfuel\View\Html\Element;
 use Appfuel\Framework\Exception;
 
 /**
- *
+ * This class looks to model the html5 tag. It has attribute validation which
+ * allows you to indicate which attributes are valid for a given tag. Also 
+ * has added all the html5 global attributes sa valid attributes so they do 
+ * not need to be declared with every class extending this. Currently this
+ * class does not support the validation of the attribute values. The interface
+ * always you to add and remove attributes and content. It also allows you to
+ * enable or disable the closing tag as some tags do not require the closing
+ * tag. There are seperate methods for building content, the attribute string
+ * and the tag itself.
  */
 class Tag
 {
@@ -24,10 +32,26 @@ class Tag
 	protected $separator = ' ';
 
 	/**
-	 * White list of accepted attributes
+	 * White list of accepted attributes. This list is populated with html5
+	 * global attributes.
+	 *
 	 * @var array
 	 */
-	protected $validAttrs = array();
+	protected $validAttrs = array(
+		'accessKey',
+		'class',
+		'contextmenu',
+		'dir',
+		'draggable',
+		'dropzone',
+		'hidden',
+		'id',
+		'lang',
+		'spellcheck',
+		'style',
+		'tabindex',
+		'title'
+	);
 
 	/**
 	 * Used to hold html tag attributes
@@ -184,6 +208,25 @@ class Tag
 	public function disableAttributeValidation()
 	{
 		$this->isAttrValidation = false;
+		return $this;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAttributeWhiteList()
+	{
+		return $this->validAttrs;
+	}
+
+	/**
+	 * remove all valid attributes from the list
+	 *
+	 * @return	Tag
+	 */
+	public function clearAttributeWhiteList()
+	{
+		$this->validAttrs = array();
 		return $this;
 	}
 

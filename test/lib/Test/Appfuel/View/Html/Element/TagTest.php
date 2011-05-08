@@ -140,6 +140,40 @@ class TagTest extends ParentTestCase
 	}
 
 	/**
+	 * By default the white list is populated with html5 global attributes
+	 * 
+	 * @return null
+	 */
+	public function testGetClearAttributeWhiteList()
+	{
+		$globalAttrs = array(
+			'accessKey',
+			'class',
+			'contextmenu',
+			'dir',
+			'draggable',
+			'dropzone',
+			'hidden',
+			'id',
+			'lang',
+			'spellcheck',
+			'style',
+			'tabindex',
+			'title'
+		);
+
+		$this->assertEquals($globalAttrs, $this->tag->getAttributeWhiteList());
+		$this->assertSame(
+			$this->tag,
+			$this->tag->clearAttributeWhiteList(),
+			'uses fluent interface'
+		);
+		$result = $this->tag->getAttributeWhiteList();
+		$this->assertInternalType('array', $result);
+		$this->assertEmpty($result);
+	}
+
+	/**
 	 * Test the ability to add valid attributes. There seems to be no
 	 * reason to retreive the white list attribute because you always
 	 * ask the tag isValidAttribute and it does the check for you
@@ -418,14 +452,18 @@ class TagTest extends ParentTestCase
 			'id'    => 'my-id',
 			'name'  => 'my-name'
 		);
-		
-		/* we have not added any valid attributes so all these attrs
-		 * will not be added 
+		/*
+		 * for this test we will need to remove the list of global attributes
+		 */
+		$this->tag->clearAttributeWhiteList();
+
+		/*
+		 * because there are not valid attributes, because we removed them
+		 * then with attribute validation enabled no attribute in this loop
+		 * will be added to the list
 		 */
 		$this->tag->enableAttributeValidation();
-
 		$this->assertTrue($this->tag->isAttributeValidation());	
-	
 		foreach ($attrs as $attr => $value) {
 			$this->assertFalse($this->tag->attributeExists($attr));
 
