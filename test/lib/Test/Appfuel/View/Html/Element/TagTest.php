@@ -877,5 +877,27 @@ class TagTest extends ParentTestCase
 	
 		$this->assertEquals($expected, $this->tag->build());
 	}
+
+	/**
+	 * @return null
+	 */
+	public function testToString()
+	{
+		/* so we can add any attributes */
+		$this->tag->disableAttributeValidation();
+		$this->tag->setTagName('a')
+				  ->enableClosingTag()
+				  ->addAttribute('id', 'my-id')
+				  ->addAttribute('href', '/some/uri/path')
+				  ->addContent('click me!');
+
+		$expected = '<a id="my-id" href="/some/uri/path">click me!</a>';
+		ob_start();
+		echo $this->tag;
+		$result = ob_get_contents();
+		ob_clean();
+
+		$this->assertEquals($expected, $result);
+	}
 }
 

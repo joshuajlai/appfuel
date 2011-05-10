@@ -20,13 +20,22 @@ use Appfuel\Framework\Exception,
  * Html document template. Used to manage the html document. This template 
  * does not act on any content inside the body tag itself. 
  */
-class Doc extends Template implements TemplateInterface
+class Document extends Template implements TemplateInterface
 {
 	/**
 	 * Title tag used in the head of the document
 	 * @var Title
 	 */
 	protected $title = null;
+
+	/**
+	 * Specifies the default url and default target for all links on the page
+	 * @var array
+	 */
+	protected $base = array(
+		'href'    = null,
+		'target'  = null
+	);
 
 	public function __construct()
 	{
@@ -37,7 +46,7 @@ class Doc extends Template implements TemplateInterface
 	/**
 	 * @return Title
 	 */
-	public function getTitleTag()
+	public function getTitle()
 	{
 		return $this->title;
 	}
@@ -46,14 +55,44 @@ class Doc extends Template implements TemplateInterface
 	 * @param	Title $tile
 	 * @return	Doc
 	 */
-	public function setTitle(Title $title)
+	public function setTitle(Title $tag)
 	{
-		$this->title = $title;
+		$this->title = $tag;
 		return $this;
 	}
 
+	/**
+	 * @param	Base	$tag
+	 * @return	Document
+	 */
+	public function setBase(Base $tag)
+	{
+		$this->base	= $tag;
+		return $this;
+	}
+
+	/**
+	 * @return	Base
+	 */
+	public function getBase()
+	{
+		return $this->base;
+	}
+
+
 	public function build()
 	{
+		$title = $this->getTitleTag();
+		if (! $title instanceof Title) {
+			$title = new Title('Appfuel Default Html Document');
+		}
+		$this->assign('html-head-title', $title->build());
+
+		$base = $this->getBase();
+		if ($base instanceof Base) {
+			$this->assign('html-head-base', $base->build());
+		}
+
 		/*
 		 * The layout hold all the html content so there is not much
 		 * sense building without it. This will produce an empty html

@@ -411,6 +411,14 @@ class Tag
 	}
 
 	/**
+	 * @return int
+	 */
+	public function attributeCount()
+	{
+		return count($this->attrs);
+	}
+
+	/**
 	 * Add content to the tag
 	 * 
 	 * @param	mixed	$data	
@@ -516,17 +524,37 @@ class Tag
 	public function build()
 	{
 		$tagName = $this->getTagName();
+		
+		/* an html element with no tag name can not be rendered to anything
+		 * useful
+		 */
 		if (empty($tagName)) {
+			return '';
+		}
+		
+		$isClosingTag = $this->isClosingTag();
+		$attrCount    = $this->attributeCount();
+
+		/* an html element that need no closing tag must have some attributes
+		 * otherwise it servers no purpose
+		 */
+		if (! $isClosingTag && $attrCount === 0) {
 			return '';
 		}
 
 		$tag = "<{$tagName}";
+		
+		/* add the attributes for this element */
 		if ($this->isAttributesEnabled()) {
 			$tag .= ' ' . $this->buildAttributes();
 			$tag  = trim($tag);
 		}
 		
-		if ($this->isClosingTag()) {
+		/* the last parent of the element is dependent on wether it needs
+		 * a closing tag or not. When no closing tag is required no content
+		 * is used for that tag
+		 */
+		if ($isClosingTag) {
 			$content = $this->buildContent();
 			$tag .= ">{$content}</{$tagName}>";
 		} 
@@ -535,6 +563,14 @@ class Tag
 		}
 		
 		return $tag;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return $this->build();
 	}
 
 	/**

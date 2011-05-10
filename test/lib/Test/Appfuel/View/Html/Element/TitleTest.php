@@ -34,13 +34,20 @@ class TitleTest extends ParentTestCase
 	 */
 	protected $content = null;
 
+	/**
+	 * Second parameter used in the constructor for content separator
+	 * @var string
+	 */
+	protected $separator = null;
+
     /**
      * @return null
      */
     public function setUp()
     {   
-		$this->content = 'This is a title';
-        $this->title = new Title($this->content);
+		$this->content   = 'This is a title';
+		$this->separator = ':';
+        $this->title = new Title($this->content, $this->separator);
     }
 
     /**
@@ -67,23 +74,28 @@ class TitleTest extends ParentTestCase
 		 */
 		$expected = array($this->content);
 		$this->assertEquals($expected, $this->title->getContent());
+		$this->assertEquals($this->separator, $this->title->getSeparator());
 	
 		/* no content is allowed */	
 		$title = new Title();
 		$this->assertEquals(array(), $title->getContent());
+		$this->assertEquals(' ', $title->getSeparator());
 
 		/* emoty contented is tolerated but not suggested */
 		$title = new Title('');
 		$this->assertEquals(array(), $title->getContent());
 
 		/* arrays are ignored */	
-		$title = new Title(array(1,2,3));
+		$title = new Title(array(1,2,3), array(1,2,3));
 		$this->assertEquals(array(), $title->getContent());
+		$this->assertEquals(' ', $title->getSeparator());
+
 
 		/* objects are ignored */
-		$title = new Title(new StdClass());
+		$title = new Title(new StdClass(), new StdClass());
 		$this->assertEquals(array(), $title->getContent());
-		
+		$this->assertEquals(' ', $title->getSeparator());
+				
 	}
 
 	/**
@@ -92,6 +104,11 @@ class TitleTest extends ParentTestCase
 	public function testBuild()
 	{
 		$expected = "<title>{$this->content}</title>";
+		$this->assertEquals($expected, $this->title->build());
+
+		$this->title->addContent('more data');
+		$content = $this->content . $this->separator . 'more data';
+		$expected = "<title>{$content}</title>";
 		$this->assertEquals($expected, $this->title->build());
 	}
 }

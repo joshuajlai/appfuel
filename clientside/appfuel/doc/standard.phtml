@@ -1,33 +1,23 @@
-<?php $this->renderDocType() ?>
+<!DOCTYPE HTML>
 <html>
 <head>
 <?php 
-	$this->renderTag('html-title');
-	$this->renderEachTag('html-meta-tags'); 
-	$this->renderTag('html-favicon') 
+	$this->render('html-head-title', '<title>Appfuel Default Title</title>');
+	$this->render('html-head-base', '');
 
-	if ($this->isStylesEnabled()) {
-		$this->renderEachTag('html-css-links');
-		if ($this->isInlineStyleEnabled()) { 
-			$this->renderInlineStyle('html-style-content', '');
-		}
-	}
+	$this->renderList('html-head-links', '');
+	$this->renderList('html-head-meta', '');
+
+	$this->render('html-head-style', '');
+	$this->render('html-head-script', '');
 ?>
 </head>
-<?php
- $bodyId    = $this->get('html-body-id', '');
- $bodyClass = $this->get('html-body-class', '');
- if (! empty($bodyClass)) {
-	$bodyClass = 'class="' . $bodyClass . '"';
- }
-
-if (! empty($bodyId)) {
-	$bodyId = 'id="' . $bodyId . '"';
-}
-?>
-<body <?php echo $bodyClass, ' ', $bodyId ?> >
-<?php 
-	$this->render('layout-content', ''); 	
-?>
+<body <?php $this->render('html-body-attrs', ''); ?>>
+	<?php 
+		$this->render('html-body-content', ''); 
+		
+		$this->renderList('html-body-scripts', '');
+		$this->render('html-body-inline-script', '');
+	?>
 </body>
-
+</html>

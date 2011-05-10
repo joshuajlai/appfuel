@@ -13,21 +13,29 @@ namespace Appfuel\View\Html\Element;
 use Appfuel\Framework\Exception;
 
 /**
- * The html 5 title tag supports global attributes
+ * The link tag defines the relationship between a document and external 
+ * resource. Mostly used to link stylesheet
  */
-class Title extends Tag
+class Style extends Tag
 {
 	/**
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($data = null, $sep = ' ')
+	public function __construct($content)
 	{
-		$this->setTagName('title')
-			 ->setSeparator($sep);
+		$valid = array(
+			'media',
+			'scope',
+			'type'
+		);
+		$this->setTagName('style')
+			 ->addValidAttributes($valid);
 
-		if ($this->isValidString($data)) {
-			$this->addContent($data);
+		$this->addAttribute('type', 'text/css');
+
+		if ($this->isValidString($content)) {
+			$this->addContent($content);
 		}
 	}
 }

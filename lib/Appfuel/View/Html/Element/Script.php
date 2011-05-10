@@ -13,21 +13,30 @@ namespace Appfuel\View\Html\Element;
 use Appfuel\Framework\Exception;
 
 /**
- * The html 5 title tag supports global attributes
+ * 
  */
-class Title extends Tag
+class Script extends Tag
 {
 	/**
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($data = null, $sep = ' ')
+	public function __construct($content)
 	{
-		$this->setTagName('title')
-			 ->setSeparator($sep);
+		$valid = array(
+			'async',
+			'charset',
+			'defer',
+			'src',
+			'type'
+		);
+		$this->setTagName('script')
+			 ->addValidAttributes($valid);
 
-		if ($this->isValidString($data)) {
-			$this->addContent($data);
+		$this->addAttribute('type', 'text/javascript');
+
+		if ($this->isValidString($content)) {
+			$this->addContent($content);
 		}
 	}
 }
