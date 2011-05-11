@@ -474,6 +474,14 @@ class Tag
 	}
 
 	/**
+	 * @return int
+	 */
+	public function contentCount()
+	{
+		return count($this->content);
+	}
+
+	/**
 	 * Build the content by concatenating each item in the content array,
 	 * use the separator between each item.
 	 *

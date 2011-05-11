@@ -22,7 +22,7 @@ class Style extends Tag
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($content)
+	public function __construct($content = null)
 	{
 		$valid = array(
 			'media',
@@ -37,5 +37,19 @@ class Style extends Tag
 		if ($this->isValidString($content)) {
 			$this->addContent($content);
 		}
+	}
+
+	/**
+	 * Only render when content is available
+	 * 
+	 * @return string
+	 */
+	public function build()
+	{
+		if (0 === $this->contentCount()) {
+			return '';
+		}
+
+		return parent::build();
 	}
 }

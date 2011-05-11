@@ -13,7 +13,13 @@ namespace Appfuel\View\Html\Element;
 use Appfuel\Framework\Exception;
 
 /**
- * 
+ * Allows authors to add interativity to the html document. In this 
+ * implementation the tag will only build under the following conditions:
+ *
+ * 1) src attribute is present and there is no content
+ * 2) content is available and there is no src attribute
+ *
+ * In each case the type attribute is set with text/javascript mime
  */
 class Script extends Tag
 {
@@ -21,7 +27,7 @@ class Script extends Tag
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($content)
+	public function __construct($content = null)
 	{
 		$valid = array(
 			'async',
@@ -38,5 +44,25 @@ class Script extends Tag
 		if ($this->isValidString($content)) {
 			$this->addContent($content);
 		}
+	}
+
+	/**
+	 * @return string
+	 */
+	public function build()
+	{
+		$content = '';
+		$count   = $this->contentCount();
+		if ($this->attributeExists('src') && 0 === $count) {
+			$content = parent::build();
+		} 
+		else if (! $this->attributeExists('src') && $count > 0) {
+			$content = parent::build();
+		}
+		else {
+			$content = '';
+		}
+
+		return $content;
 	}
 }

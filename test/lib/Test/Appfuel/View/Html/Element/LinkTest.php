@@ -15,6 +15,9 @@ use Test\AfTestCase	as ParentTestCase,
 	Appfuel\View\Html\Element\Link;
 
 /**
+ * The link tag exposes the valid attributes for html5. The constructor takes
+ * a single argument for the href. the type attribute is automatically added
+ * with with text/css and rel with stylesheet. 
  */
 class Linkest extends ParentTestCase
 {
@@ -67,6 +70,10 @@ class Linkest extends ParentTestCase
 		$this->assertTrue($this->link->attributeExists('href'));
 		$this->assertEquals($this->href, $this->link->getAttribute('href'));
 		$this->assertTrue($this->link->isValidHref());
+
+		$this->assertTrue($this->link->attributeExists('rel'));
+		$this->assertEquals('stylesheet', $this->link->getAttribute('rel'));
+		$this->assertEquals('text/css', $this->link->getAttribute('type'));
 	}
 
 	/**
