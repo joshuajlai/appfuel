@@ -11,7 +11,7 @@
 namespace Test\Appfuel\App\View;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\View\File;
+	Appfuel\App\View\ClientsideFile as File;
 
 /**
  * The view file is an application file that knows where the resource
@@ -91,6 +91,7 @@ class FileTest extends ParentTestCase
 
 		/* test returning relative */
 		$expected = 'clientside' . DIRECTORY_SEPARATOR . 
+					'appfuel'    . DIRECTORY_SEPARATOR .
 					$path;
 		$this->assertEquals($expected, $file->getClientsidePath());
 	

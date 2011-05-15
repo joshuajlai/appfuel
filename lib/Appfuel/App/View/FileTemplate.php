@@ -93,6 +93,11 @@ class FileTemplate extends Data implements FileTemplateInterface
 		return $this->files;
 	}
 
+	public function createClientsideFile($path, $namespace = null)
+	{
+		return new ClientsideFile($path, $namespace);
+	}
+
 	/**
 	 * Build the template file indicated by key into string. Use data in
 	 * the dictionary as scope
@@ -111,7 +116,7 @@ class FileTemplate extends Data implements FileTemplateInterface
 
 		/* convert this path string to a file */
 		if (is_string($file)) {
-			$file = new File($file);
+			$file = $this->createClientsideFile($file);
 		}
 
 		if (! $file->isFile()) {
