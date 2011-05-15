@@ -10,18 +10,18 @@
  */
 namespace Appfuel\App\View\Json;
 
-use Appfuel\Framework\View\DocumentInterface,
+use Appfuel\Framework\View\ViewInterface,
 	Appfuel\App\View\Data as ViewData;
 
 /**
  * The json document is a dictionary that json encodes all its content
  */
-class Doc extends ViewData implements DocumentInterface
+class Doc extends ViewData implements ViewInterface
 {
 	/**
 	 * @return string
 	 */
-	public function build()
+	public function build($data = null)
 	{
 		if (0 === $this->count()) {
 			return '';

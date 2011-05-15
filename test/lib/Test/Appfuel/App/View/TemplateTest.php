@@ -11,7 +11,7 @@
 namespace Test\Appfuel\App\View;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\View\Template,
+	Appfuel\App\View\FileTemplate,
 	StdClass;
 
 /**
@@ -32,7 +32,7 @@ class TemplateTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->template = new Template();
+		$this->template = new FileTemplate();
 	}
 
 	/**

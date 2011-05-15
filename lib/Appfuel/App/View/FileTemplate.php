@@ -11,12 +11,13 @@
 namespace Appfuel\App\View;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\FileInterface;
+	Appfuel\Framework\FileInterface,
+	Appfuel\Framework\View\FileTemplateInterface;
 
 /**
  * Handles all assignments of data to be used in a template
  */
-class Template extends Data
+class FileTemplate extends Data implements FileTemplateInterface
 {
 	/**
 	 * Holds a list of files used by the template. This is not kept
@@ -138,5 +139,10 @@ class Template extends Data
 	
 		$scope = new Scope($scopeData);	
 		return $scope->build($file->getRealPath());
+	}
+
+	public function build($data = null)
+	{
+		
 	}
 }

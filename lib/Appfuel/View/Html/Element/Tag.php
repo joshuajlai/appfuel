@@ -37,21 +37,7 @@ class Tag
 	 *
 	 * @var array
 	 */
-	protected $validAttrs = array(
-		'accessKey',
-		'class',
-		'contextmenu',
-		'dir',
-		'draggable',
-		'dropzone',
-		'hidden',
-		'id',
-		'lang',
-		'spellcheck',
-		'style',
-		'tabindex',
-		'title'
-	);
+	protected $validAttrs = array();
 
 	/**
 	 * Used to hold html tag attributes
@@ -216,7 +202,7 @@ class Tag
 	 */
 	public function getAttributeWhiteList()
 	{
-		return $this->validAttrs;
+		return array_merge(GlobalAttributes::get(), $this->validAttrs);;
 	}
 
 	/**
@@ -309,7 +295,11 @@ class Tag
 		if (! $this->isAttributeValidation()) {
 			return $isValidString;
 		} 
- 
+
+		if (GlobalAttributes::exists($name)) {
+			return true;
+		}
+	 
 		if ($isValidString && in_array($name, $this->validAttrs)) {
 			return true;
 		}

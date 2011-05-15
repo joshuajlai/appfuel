@@ -178,24 +178,5 @@ class ControllerTest extends ParentTestCase
 		$this->assertInternalType('array', $result);
 		$this->assertEmpty($result);
 	}
-
-	/**
-	 * @return null
-	 */
-	public function testGetSetViewManager()
-	{
-		$view = $this->getMock('\Appfuel\Framework\View\ManagerInterface');
-		
-		/* initial value is null */
-		$this->assertNull($this->controller->getViewManager());
-
-		$this->assertSame(
-			$this->controller,
-			$this->controller->setViewManager($view),
-			'uses fluent  interface'
-		);
-
-		$this->assertSame($view, $this->controller->getViewManager());
-	}
 }
 

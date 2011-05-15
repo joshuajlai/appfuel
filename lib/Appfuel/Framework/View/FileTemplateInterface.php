@@ -13,7 +13,7 @@ namespace Appfuel\Framework\View;
 /**
  * Interface needed by the framework to use view templates
  */
-interface TemplateInterface extends DocumentInterface
+interface FileTemplateInterface extends ViewInterface
 {
 	public function fileExists($key);
 	public function addFile($key, $path);

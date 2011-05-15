@@ -13,7 +13,8 @@ namespace Appfuel\App\View\Html;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\FileInterface,
 	Appfuel\Framework\View\TemplateInterface,
-	Appfuel\App\View\Template,
+	Appfuel\Framework\View\ViewInterface,
+	Appfuel\App\View\FileTemplate,
 	Appfuel\View\Html\Element\Tag,
 	Appfuel\View\Html\Element\Title,
 	Appfuel\View\Html\Element\Base,
@@ -27,7 +28,7 @@ use Appfuel\Framework\Exception,
  * Html document template. Used to manage the html document. This template 
  * does not act on any content inside the body tag itself. 
  */
-class Document extends Template implements TemplateInterface
+class Document extends FileTemplate
 {
 	/**
 	 * Title tag used in the head of the document
@@ -109,6 +110,12 @@ class Document extends Template implements TemplateInterface
 	);
 
 	/**
+	 * Current view
+	 * @var DocumentInterface
+	 */
+	protected $view = null;
+
+	/**
 	 * Add the template file used to render the markup and assign 
 	 * any name/value pairs into scope
 	 *
@@ -126,9 +133,9 @@ class Document extends Template implements TemplateInterface
 	 * 
 	 * @return string
 	 */
-	public function build()
+	public function build($data = null)
 	{
-		$title = $this->getTitleTag();
+		$title = $this->getTitle();
 		if (! $title instanceof Title) {
 			$title = new Title('Appfuel Default Html Document');
 		}
@@ -203,28 +210,40 @@ class Document extends Template implements TemplateInterface
 			}
 		}
 
-		/*
-		 * The layout hold all the html content so there is not much
-		 * sense building without it. This will produce an empty html
-		 * document
-		 */
-		if (! $this->isLayout()) {
-			return $this->buildFile('markup');
+		$view = $this->getView();
+		if ($view instanceof ViewInterface) {
+			$this->assign('html-body-view', $view->build()); 
 		}
 
-		$layout  = $this->getLayout();
-		$this->assign('layout-content', $layout->build()); 
-
-		if ($this->fileExists('inline-css')) {
-			$css = $this->buildFile('inline-css');
-			$this->assign('inline-css', $css);
+		if (! $this->fileExists('markup')) {
+			return '';
 		}
 
-		$inlineJs = '';
-		if ($this->fileExists('inline-js')) {
-		
-		}
+		return $this->buildFile('markup');
 	}
+
+	/**
+	 * @return	DocumentInterface
+	 */
+	public function getView()
+	{
+		return $this->view;
+	}
+
+	/**
+	 * @param	DocumentInterface	$template
+	 * @return	Document
+	 */
+	public function setView(ViewInterface $template)
+	{
+		if ($template instanceof self) {
+			return $this;
+		}
+
+		$this->view = $template;
+		return $this;
+	}
+
 	/**
 	 * @return Title
 	 */

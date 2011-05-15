@@ -2,26 +2,24 @@
 <html>
 <head>
 <?php 
-	$this->render('html-head-title', '<title>Appfuel Default Title</title>');
+	$this->render('html-head-title', '');
 	$this->render('html-head-base', '');
 	
 	$this->render('html-head-charset', '');
-	$this->renderList('html-head-meta', '');
+	$this->render('html-head-meta', '');
 
-	$this->renderList('html-head-scripts', '');
-	$this->renderList('html-head-links', '');
+	$this->render('html-head-scripts', '');
+	$this->render('html-head-links', '');
 
 	$this->render('html-head-inline-style', '');
 	$this->render('html-head-inline-script', '');
 ?>
-</head>
-<body <?php $this->render('html-body-attrs', ''); ?>>
-	<?php 
 
-		$this->render('html-body-grid', ''); 
-		
-		$this->renderList('html-body-scripts', '');
-		$this->render('html-body-inline-script', '');
-	?>
+</head>
+<body<?php $this->render('html-body-attrs', ''); ?>>
+<?php 
+	$this->render('html-body-grid', ''); 		
+	$this->render('html-body-scripts', '');
+	$this->render('html-body-inline-script', '');?>
 </body>
 </html>

@@ -170,7 +170,7 @@ class TagTest extends ParentTestCase
 		);
 		$result = $this->tag->getAttributeWhiteList();
 		$this->assertInternalType('array', $result);
-		$this->assertEmpty($result);
+		$this->assertEquals($globalAttrs, $result);
 	}
 
 	/**
@@ -448,9 +448,9 @@ class TagTest extends ParentTestCase
 	public function testAddGetExistsWhenAttributesNotValid()
 	{
 		$attrs = array(
-			'class' => 'my-class',
-			'id'    => 'my-id',
-			'name'  => 'my-name'
+			'my-class' => 'my-class',
+			'my-id'    => 'my-id',
+			'my-name'  => 'my-name'
 		);
 		/*
 		 * for this test we will need to remove the list of global attributes

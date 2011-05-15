@@ -34,6 +34,7 @@ class DocumentTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
+		
 		$this->doc = new Document();
 	}
 
@@ -51,7 +52,7 @@ class DocumentTest extends ParentTestCase
 	public function testConstructor()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\App\View\Template',
+			'Appfuel\App\View\FileTemplate',
 			$this->doc,
 			'The html doc is also a template'
 		);
@@ -424,7 +425,6 @@ class DocumentTest extends ParentTestCase
 		);
 		$this->assertEquals(null, $this->doc->getInlineJs('no-loc'));
 	}
-
 
 	/**
 	 * @return null
