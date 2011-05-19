@@ -15,11 +15,7 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\Env\ErrorReporting,
 	Appfuel\Framework\Env\ErrorDisplay,
 	Appfuel\Framework\Env\TimeZone,
-	Appfuel\Framework\Env\IncludePath,
-	Appfuel\App\Render\Engine		  as RenderEngine,
-	Appfuel\Framework\Web\Bootstrap	  as WebBootstrap,
-	Appfuel\Framework\Cli\Boostrap    as CliBootstrap,
-	Appfuel\Framework\Api\Bootstrap   as ApiBootstrap;
+	Appfuel\Framework\Env\IncludePath;
 
 /**
  * Responsible for creating objects required by the framework for 
@@ -120,17 +116,22 @@ class Factory
 	{
 		switch (strtolower($type)) {
 			case 'web':
-				return new WebBootstrap();
+				return new Web\Bootstrap();
 				break;
 			case 'cli':
-				return new CliBootstrap();
+				return new Cli\Bootstrap();
 				break;
 			case 'api':
-				return new ApiBootstrap();
+				return new Api\Bootstrap();
 				break;
 			default:
 				throw new Exception("Invalid bootrap given as $type");
 		}
+	}
+
+	static public function createRouteBuilder($path)
+	{
+		return new Route\Builder($path);
 	}
 
 	/**
@@ -155,6 +156,6 @@ class Factory
 	 */
     static public function createRenderEngine()
 	{
-		return new RenderEngine();
+		return new Render\Engine();
 	}
 }
