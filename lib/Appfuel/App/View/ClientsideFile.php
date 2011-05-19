@@ -14,16 +14,20 @@ use Appfuel\Framework\Exception,
 	Appfuel\App\File;
 
 /**
- * File object that always starts at the clientside directory. It is used by
- * view templates to bind scope to template files. The class always the 
- * developer to focus on the relative path to the template file instead of
- * how to get the base path.
+ * File object that always starts at the clientside directory. Each application
+ * separates its templates with its own namespace dir. The namespace is taken
+ * from the php namespace of the file that extends this one and then maded 
+ * lowercase to match clientside conventions. It is used by view templates to 
+ * bind scope to template files. The class allows the developer to focus on the
+ * relative path to the template file from their namespace instead of having
+ * to go through the effort of finding the base path.
  */
 class ClientsideFile extends File
 {
 
 	/**
-	 * Relative path to the file from the clientside directory
+	 * Relative path to the file from the namespace directory which is in the
+	 * root directory. Ex) clientside/appfuel/<relative/path/here>
 	 * @var string
 	 */
 	protected $clientsidePath = null;
@@ -51,44 +55,19 @@ class ClientsideFile extends File
 	 * @param	string	$namespace	subdirectory in clientside
      * @return  File
      */
-    public function __construct($path, $namespace = null)
+    public function __construct($path)
     {
 		if (! $this->isValidString($path)) {
 			throw new Exception("Invalid path: must be a non empty string");
 		}
 
-		if (empty($namespace)) {
-			$namespace = $this->discoverNamespace();
-		}
-		$this->setNamespace($namespace);
+		$this->setNamespace($this->discoverNamespace());
 		$path = $this->buildClientsidePath($path);
 		$this->setClientsidePath($path);
 
 		$includeBasePath = true;
         parent::__construct($path, $includeBasePath);
     }
-
-	/**
-	 * @param	string	$path	relative path to clientside file
-	 * @return	string
-	 */
-	public function buildClientsidePath($path)
-	{
-		$sep       = DIRECTORY_SEPARATOR;
-		$rootDir   = $this->getRootDirName();
-		$namespace = $this->getNamespace();
-		return "{$rootDir}{$sep}{$namespace}{$sep}{$path}";
-	}
-
-	public function setClientsidePath($path)
-	{
-		if (! $this->isValidString($path)) {
-			throw new Exception("Invalid path: must be a non empty string");
-		}
-
-		$this->clientsidePath = $path;
-		return $this;
-	}
 
 	/**
 	 * @return string
@@ -101,17 +80,6 @@ class ClientsideFile extends File
 		}
 
 		return $path;
-	}
-
-	public function discoverNamespace()
-	{
-		$class = get_class($this);
-		$pos   = strpos($class, '\\');
-		if (false === $pos) {
-			return false;
-		}
-		
-		return strtolower(substr($class, 0, $pos));
 	}
 
 	/**
@@ -158,6 +126,49 @@ class ClientsideFile extends File
 		return $this;
 	}
 
+	/**
+	 * @param	string	$path
+	 * @return	string
+	 */
+	protected function setClientsidePath($path)
+	{
+		if (! $this->isValidString($path)) {
+			throw new Exception("Invalid path: must be a non empty string");
+		}
+
+		$this->clientsidePath = $path;
+		return $this;
+	}
+
+
+	/**
+	 * @param	string	$path	relative path to clientside file
+	 * @return	string
+	 */
+	protected function buildClientsidePath($path)
+	{
+		$sep       = DIRECTORY_SEPARATOR;
+		$rootDir   = $this->getRootDirName();
+		$namespace = $this->getNamespace();
+		return "{$rootDir}{$sep}{$namespace}{$sep}{$path}";
+	}
+
+	/**
+	 * Find the root namespace of the class extending this class or this class
+	 * in which case would be appfuel
+	 *
+	 * @return string
+	 */
+	protected function discoverNamespace()
+	{
+		$class = get_class($this);
+		$pos   = strpos($class, '\\');
+		if (false === $pos) {
+			return false;
+		}
+		
+		return strtolower(substr($class, 0, $pos));
+	}
 
 	/**
 	 * @return bool

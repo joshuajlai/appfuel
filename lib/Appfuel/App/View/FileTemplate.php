@@ -93,9 +93,9 @@ class FileTemplate extends Data implements FileTemplateInterface
 		return $this->files;
 	}
 
-	public function createClientsideFile($path, $namespace = null)
+	public function createClientsideFile($path)
 	{
-		return new ClientsideFile($path, $namespace);
+		return new ClientsideFile($path);
 	}
 
 	/**

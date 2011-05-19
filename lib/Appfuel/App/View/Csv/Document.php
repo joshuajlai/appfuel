@@ -10,13 +10,13 @@
  */
 namespace Appfuel\App\View\Csv;
 
-use Appfuel\Framework\View\DocumentInterface,
-	Appfuel\Framework\View\Data as ViewData;
+use Appfuel\Framework\View\ViewInterface,
+	Appfuel\App\View\Data as ViewData;
 
 /**
  * Comma separated values is a dictionary that encodes its content
  */
-class Doc extends ViewData implements DocumentInterface
+class Document extends ViewData implements ViewInterface
 {
 	/**
 	 * This name is used when the contents are to be downloaded as a file
@@ -45,7 +45,7 @@ class Doc extends ViewData implements DocumentInterface
 	/**
 	 * @return string
 	 */
-	public function build()
+	public function build($data = null)
 	{
         $resule = '';
         $data = $this->getAll();

@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\App\View;
+namespace Test\Appfuel\App\View\Json;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\View\Json\Doc,
+	Appfuel\App\View\Json\Document,
 	StdClass;
 
 /**
@@ -20,7 +20,7 @@ use Test\AfTestCase as ParentTestCase,
  * functionality that is added is the build which json encoded the items in
  * the dictionary
  */
-class DocTest extends ParentTestCase
+class DocumentTest extends ParentTestCase
 {
 	/**
 	 * System under test
@@ -33,7 +33,7 @@ class DocTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->doc = new Doc();
+		$this->doc = new Document();
 	}
 
 	/**
