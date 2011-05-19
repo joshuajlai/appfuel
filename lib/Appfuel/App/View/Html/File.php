@@ -8,22 +8,18 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App\View;
+namespace Appfuel\App\View\Html;
 
-use Appfuel\App\View\File as ClientsideFile;
+use Appfuel\App\View\ClientsideFile;
 
 /**
- *
+ * Extend the relative path to start from clientside/appfuel/html instead of
+ * clientside/appfuel
  */
 class File extends ClientsideFile
 {
 
     /**
-	 * Hard codes this file to the clientside directory inside the base path.
-	 * the namespace allows you to choose which namespace to use inside the
-	 * clientside directory and an empty string will ignore the namespace 
-	 * entirely
-	 *
      * @param   string  $path		relative path from clientside dir
 	 * @param	string	$namespace	subdirectory in clientside
      * @return  File

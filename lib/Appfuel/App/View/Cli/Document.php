@@ -10,18 +10,18 @@
  */
 namespace Appfuel\App\View\Cli;
 
-use Appfuel\Framework\View\DocumentInterface,
-	Appfuel\Framework\View\Data as ViewData;
+use Appfuel\Framework\View\ViewInterface,
+	Appfuel\App\View\Data as ViewData;
 
 /**
- * The json document is a dictionary that json encodes all its content
+ * The document document is a dictionary that json encodes all its content
  */
-class Doc extends ViewData implements DocumentInterface
+class Document extends ViewData implements ViewInterface
 {
 	/**
 	 * @return string
 	 */
-	public function build()
+	public function build($data = null)
 	{
         $result = '';
         $data     = $this->getAll();

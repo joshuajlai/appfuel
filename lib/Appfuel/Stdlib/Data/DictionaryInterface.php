@@ -19,12 +19,6 @@ use countable;
 interface DictionaryInterface extends countable
 {
 	/**
-	 * @param	array	$data
-	 * @return	Bag
-	 */
-	public function __construct(array $data = array());
-
-	/**
 	 * @param	string	$key	item key
 	 * @param	mixed	$value	
 	 * @return	Bag
