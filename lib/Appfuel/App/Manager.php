@@ -12,7 +12,7 @@ namespace Appfuel\App;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\MessageInterface,
-	Appfuel\Framework\Controller\FrontInterface;
+	Appfuel\Framework\App\FrontControllerInterface;
 
 /**
  * The AppManager is used to encapsulate the logic need to build an App object,
@@ -157,7 +157,7 @@ class Manager
 	 * @param	FrontControllerInterface
 	 * @return	null
 	 */
-	static public function setFrontController(FrontInterface $ctr)
+	static public function setFrontController(FrontControllerInterface $ctr)
 	{
 		self::$front = $ctr;
 	}

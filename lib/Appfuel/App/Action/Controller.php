@@ -12,15 +12,15 @@ namespace Appfuel\App\Action;
 
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Controller\ActionInterface,
-    Appfuel\Framework\MessageInterface,
+	Appfuel\Framework\App\Action\ControllerInterface,
+    Appfuel\Framework\Data\DictionaryInterface,
     Appfuel\Framework\View\DocumentInterface,
-	Appfuel\Framework\View\ManagerInterface as ViewManagerInterface;
+	Appfuel\Framework\View\ViewManagerInterface;
 
 /**
  *
  */
-class Controller implements ActionInterface
+class Controller implements ControllerInterface
 {
 	/**
 	 * Input scheme handles validation and sanitization of all user inputs
@@ -116,7 +116,7 @@ class Controller implements ActionInterface
 	 * 
 	 * @param	MessageInterface $msg
 	 */
-	public function initialize(MessageInterface $msg)
+	public function initialize(DictionaryInterface $data)
 	{
 		return $msg;		
 	}
@@ -124,7 +124,7 @@ class Controller implements ActionInterface
 	/**
 	 * @param	MessageInterface $msg
 	 */
-	public function execute(MessageInterface $msg)
+	public function execute(DictionaryInterface $data)
 	{
 		return $msg;	
 	}

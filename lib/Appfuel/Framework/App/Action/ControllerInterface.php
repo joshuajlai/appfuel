@@ -8,24 +8,24 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Controller;
+namespace Appfuel\Framework\App\Action;
 
 
-use Appfuel\Framework\View\ManagerInterface as ViewManagerInterface,
-    Appfuel\Framework\MessageInterface;
+use Appfuel\Framework\View\ViewManagerInterface,
+    Appfuel\Framework\Data\DictionaryInterface;
 
 /**
  * Action controllers are used process the user request manipulate the given
  * document and hand back the message
  */
-interface ActionInterface
+interface ControllerInterface
 {
 	public function addSupportedDocs(array $types);
 	public function addSupportedDoc($type);
 	public function getSupportedDocs();
 	public function isSupportedDoc($type);
-    public function initialize(MessageInterface $msg);
+    public function initialize(DictionaryInterface $msg);
 	public function getViewManager();
 	public function setViewManager(ViewManagerInterface $vm);
-	public function execute(MessageInterface $msg);
+	public function execute(DictionaryInterface $msg);
 }

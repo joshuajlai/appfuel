@@ -8,15 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Controller;
+namespace Appfuel\Framework\App;
 
 
-use Appfuel\Framework\MessageInterface;
+use Appfuel\Framework\Data\DictionaryInterface;
 
 /**
  * Handle dispatching the request and outputting the response
  */
-interface FrontInterface
+interface FrontControllerInterface
 {
     /**
      * Dispatch
@@ -24,8 +24,8 @@ interface FrontInterface
      * its method. Check the return of method, if its a message with a 
      * distination different from the previous then dispath that one
      *
-     * @param   MessageInterface $msg
-     * @return  MessageInterface
+     * @param   Dictionary $data
+     * @return  Dictionary
      */
-    public function dispatch(MessageInterface $msg);
+    public function dispatch(DictionaryInterface $data);
 }

@@ -12,15 +12,15 @@ namespace Appfuel\App;
 
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Controller\FrontInterface,
+	Appfuel\Framework\App\FrontControllerInterface,
 	Appfuel\Framework\Controller\ActionInterface,
-    Appfuel\Framework\MessageInterface,
+    Appfuel\Framework\Data\DictionaryInterface,
     Appfuel\Framework\View\DocumentInterface;
 
 /**
  * Handle dispatching the request and outputting the response
  */
-class Front implements FrontInterface
+class Front implements FrontControllerInterface
 {
     /**
      * Dispatch a message by using the route to create a controller 
@@ -31,7 +31,7 @@ class Front implements FrontInterface
      * @param   MessageInterface $msg
      * @return  MessageInterface
      */
-    public function dispatch(MessageInterface $msg)
+    public function dispatch(DictionaryInterface $data)
     {
 		
 		/* 
@@ -96,17 +96,17 @@ class Front implements FrontInterface
 
 
 		try {
-			$controller->initialize($msg);
+			$controller->initialize($data);
 		} catch (Exception $e) {
 			// handler intialization errors
 		}
 
         try {
-            $msg = $controller->execute($msg);
+            $msg = $controller->execute($data);
         } catch (Exception $e) {
 			// handle controller exceptions
 		}
 
-        return $msg;
+        return $data;
     }
 }

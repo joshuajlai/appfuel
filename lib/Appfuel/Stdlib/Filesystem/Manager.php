@@ -72,8 +72,6 @@ class Manager
         return substr($path, 0, strrpos($path, DIRECTORY_SEPARATOR));
 	}
 
-
-
 	/**
 	 * @param	File	$file	points to configuration file
 	 * @param	bool	$sec	process sections TRUE gives you an array with
@@ -106,4 +104,3 @@ class Manager
 		return parse_ini_file($path, $sec, $mode);
 	}
 }
-
