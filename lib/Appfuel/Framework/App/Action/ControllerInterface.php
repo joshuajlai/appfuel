@@ -25,7 +25,5 @@ interface ControllerInterface
 	public function getSupportedDocs();
 	public function isSupportedDoc($type);
     public function initialize(DictionaryInterface $msg);
-	public function getViewManager();
-	public function setViewManager(ViewManagerInterface $vm);
 	public function execute(DictionaryInterface $msg);
 }

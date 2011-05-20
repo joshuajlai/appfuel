@@ -10,8 +10,8 @@
  */
 namespace Appfuel\App;
 
-use Appfuel\Framework\Request\RequestInterface,
-	Appfuel\Framework\Request\UriInterface,
+use Appfuel\Framework\App\Request\RequestInterface,
+	Appfuel\Framework\App\Request\UriInterface,
 	Appfuel\Stdlib\Data\Dictionary;
 
 /**

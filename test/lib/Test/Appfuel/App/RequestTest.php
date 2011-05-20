@@ -88,7 +88,7 @@ class RequestTest extends ParentTestCase
 		}
 
 		$uriString = 'some/route';
-		$uri = $this->getMock('Appfuel\Framework\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
 		
 		$uri->expects($this->any())
 			->method('getUriString')
@@ -140,7 +140,7 @@ class RequestTest extends ParentTestCase
 	{
 		$_SERVER['REQUEST_METHOD'] = 'post';
 		
-		$uri = $this->getMock('Appfuel\Framework\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
 		$request = new Request($uri);
 		$this->assertTrue($request->isPost());
 		$this->assertFalse($request->isGet());
@@ -174,7 +174,7 @@ class RequestTest extends ParentTestCase
 			'param2' => 'value2',
 			'param3' => 'value3'
 		);
-		$uri = $this->getMock('Appfuel\Framework\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
 		$uri->expects($this->any())
 			->method('getParams')
 			->will($this->returnValue($params));
@@ -209,7 +209,7 @@ class RequestTest extends ParentTestCase
 		);		
 		$params = $_POST;
 
-		$uri = $this->getMock('Appfuel\Framework\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
 		$request = new Request($uri);
 		$this->assertEquals($params, $request->getAll('post'));
 
@@ -240,7 +240,7 @@ class RequestTest extends ParentTestCase
 		);		
 		$params = $_COOKIE;
 
-		$uri = $this->getMock('Appfuel\Framework\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
 		$request = new Request($uri);
 		$this->assertEquals($params, $request->getAll('cookie'));
 
@@ -271,7 +271,7 @@ class RequestTest extends ParentTestCase
 		);		
 		$params = $_FILES;
 
-		$uri = $this->getMock('Appfuel\Framework\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
 		$request = new Request($uri);
 		$this->assertEquals($params, $request->getAll('files'));
 
@@ -302,7 +302,7 @@ class RequestTest extends ParentTestCase
 		);		
 		$params = $_SERVER['argv'];
 
-		$uri = $this->getMock('Appfuel\Framework\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
 		$request = new Request($uri);
 		$this->assertEquals($params, $request->getAll('argv'));
 
@@ -318,4 +318,3 @@ class RequestTest extends ParentTestCase
 		$this->assertNull($request->get('blah', 'argv'));
 	}
 }
-

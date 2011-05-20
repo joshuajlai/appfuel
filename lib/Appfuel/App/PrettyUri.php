@@ -10,7 +10,7 @@
  */
 namespace Appfuel\App;
 
-use Appfuel\Framework\Request\UriInterface;
+use Appfuel\Framework\App\Request\UriInterface;
 
 /**
  * The uri represents the string making the request to the server. All requests

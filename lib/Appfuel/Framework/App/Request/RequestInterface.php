@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Request;
+namespace Appfuel\Framework\App\Request;
 
 /**
  * Common logic to handle requests given to the application from any type.

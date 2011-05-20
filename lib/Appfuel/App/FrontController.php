@@ -38,8 +38,9 @@ class FrontController implements FrontControllerInterface
 	public function __construct(ControllerInterface $controller = null)
 	{
 		if (null === $controller) {
-			$this->setErrorController(new ErrorController());
+			$controller = new ErrorController();
 		}
+		$this->setErrorController($controller);
 	}
 
 	/**
@@ -68,7 +69,7 @@ class FrontController implements FrontControllerInterface
      * @param   MessageInterface $msg
      * @return  MessageInterface
      */
-    public function dispatch(DictionaryInterface $data)
+    public function dispatch(DictionaryInterface $msg)
     {
 		
 		/* 
@@ -76,9 +77,10 @@ class FrontController implements FrontControllerInterface
 		 * goes wrong we can check the responseType early allowing us 
 		 * the ability to send back an error in the correct format
 		 */
-		$request = $data->get('request');
+		$request = $msg->get('request');
         if (! $request instanceof RequestInterface) {
-			// handle error for missing request
+			$msg->setError('Can not dispatch with out a request object');
+			return $this->dispatchError($msg);
         }
 
 		/*
@@ -86,7 +88,8 @@ class FrontController implements FrontControllerInterface
 		 */
 		$route = $data->get('route');
 		if (! $route instanceof RouteInterface) {
-			// handle error for missing route
+			$msg->setError('Can not dispatch with out a route object');
+			return $this->dispatchError($msg);
 		}
 
 		/*
@@ -100,52 +103,64 @@ class FrontController implements FrontControllerInterface
             $responseType = $request->getResponseType();
         }
 
-        $namspace = $route->getNamespace();
-        $ctrClass = "$namespace\\Controller";
-        
+		$actionBuilder = $this->getActionBuilder();
+		$controller    = $actionBuilder->build($route, $responseType);
+		if (! $controller) {
+			$msg->setError($builder->getError());
+			return $this->dispatchError($msg);
+		}
+
+		$msg = $this->intialize($controller, $msg);
+		if ($msg->isError()) {
+			return $this->dispatchError($msg);
+		}
+
+		$msg = $this->execute($controller, $msg);
+		if ($msg->isError()) {
+			return $this->dispatchError($msg);
+		}
+
+        return $msg;
+    }
+
+	public function dispatchError(Dictionary $msg)
+	{
+		$controller = $this->getErrorController();
+		$msg = $this->initialize($controller, $msg);
+		return $this->execute($controller, $msg);
+	}
+
+	/**
+	 * Initialize any action controller and handle its exceptions
+	 *
+	 * @param	ControllerInterface
+	 * @return	DictionaryInterface
+	 */
+	public function initialize(ControllerInterface $controller, 
+							   DictionaryInterface $msg)
+	{
 		try {
-			$controller = new $ctrClass();
-		} catch (\Exception $e) {
-			// handle controller can not be created
-		}
-
-
-		if (! $controller instanceof ActionInterface) {
-			// handle controller does not implement the correct interface
-		}
-	
-		/*
-		 * controller is available and using the correct interface 
-		 */
-        if (! $controller->isSupportedDoc($responseType)) {
-			// handle invalid document type
-        }
-		$msg->add('responseType', $responseType);
-
-		$viewManager = $controller->createViewManager();
-		if (! $viewManager instanceof ViewManagerInterface) {
-			// handle incorrect view manager
-		}
-
-		$this->controller->setViewManager($viewManager);
-		$viewManager->setDoc($doc);
-		$controller->setViewManager($viewManager);
-		
-		$msg->add('doc', $doc);
-
-
-		try {
-			$controller->initialize($data);
+			$msg = $controller->initialize($msg);
 		} catch (Exception $e) {
 			// handler intialization errors
 		}
-
+	
+		return $msg;
+	}
+	
+	/**
+	 * Execute any action controller and handle its execptions
+	 *
+	 * @param	ControllerInterface		$controller
+	 * @return	DictionaryInterface		
+	 */
+	public function execute(ControllerInterface $controller,
+							DictionaryInterface $msg)
+	{
         try {
             $msg = $controller->execute($data);
         } catch (Exception $e) {
 			// handle controller exceptions
 		}
-
-        return $data;
-    }
+	}
 }
