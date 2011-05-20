@@ -147,7 +147,7 @@ class Factory
 	 */
     static public function createFrontController()
 	{
-		return new Front();
+		return new FrontController();
 	}
 
 	/**

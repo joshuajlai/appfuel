@@ -15,13 +15,50 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\FrontControllerInterface,
 	Appfuel\Framework\Controller\ActionInterface,
     Appfuel\Framework\Data\DictionaryInterface,
-    Appfuel\Framework\View\DocumentInterface;
+    Appfuel\Framework\View\DocumentInterface,
+	Appfuel\App\Action\Error\Handler\Invalid\Controller as ErrorController;
 
 /**
  * Handle dispatching the request and outputting the response
  */
-class Front implements FrontControllerInterface
+class FrontController implements FrontControllerInterface
 {
+	/**
+	 * Used to process errors that occur during dispatching
+	 * @var	ErrorController
+	 */
+	protected $errorController = null;
+
+	/**
+	 * When so controller is passed in create the default error controller
+	 *
+	 * @param	ActionInterface		$controller
+	 * @return	FrontController
+	 */
+	public function __construct(ActionInterface $controller = null)
+	{
+		if (null === $controller) {
+			$this->setErrorController(new ErrorController());
+		}
+	}
+
+	/**
+	 * @return	ActionInterface
+	 */
+	public function getErrorController()
+	{
+		return $this->errorController;
+	}
+
+	/**
+	 * @param	ActionInterface	 $controller
+	 */
+	public function setErrorController(ActionInterface $controller)
+	{
+		$this->errorController = $controller;
+		return $this;
+	}
+
     /**
      * Dispatch a message by using the route to create a controller 
 	 * command object, use the request or rotue to determine what document
@@ -39,18 +76,18 @@ class Front implements FrontControllerInterface
 		 * goes wrong we can check the responseType early allowing us 
 		 * the ability to send back an error in the correct format
 		 */
-        if (! $msg->isRequest()) {
+		$request = $data->get('request');
+        if (! $request instanceof RequestInterface) {
 			// handle error for missing request
         }
-		$request = $msg->get('request');
 
 		/*
 		 * we need the route to determine what action controller to build
 		 */
-		if (! $msg->isRoute()) {
+		$route = $data->get('route');
+		if (! $route instanceof RouteInterface) {
 			// handle error for missing route
 		}
-		$route = $msg->get('route');
 
 		/*
 		 * the route and request are used to determine which type of document
@@ -72,6 +109,7 @@ class Front implements FrontControllerInterface
 			// handle controller can not be created
 		}
 
+
 		if (! $controller instanceof ActionInterface) {
 			// handle controller does not implement the correct interface
 		}
@@ -88,7 +126,8 @@ class Front implements FrontControllerInterface
 		if (! $viewManager instanceof ViewManagerInterface) {
 			// handle incorrect view manager
 		}
-		$this->controller->setViewManager($viewManager);;
+
+		$this->controller->setViewManager($viewManager);
 		$viewManager->setDoc($doc);
 		$controller->setViewManager($viewManager);
 		
