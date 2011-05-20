@@ -13,7 +13,7 @@ namespace Appfuel\App;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\FrontControllerInterface,
-	Appfuel\Framework\Controller\ActionInterface,
+	Appfuel\Framework\App\Action\ControllerInterface,
     Appfuel\Framework\Data\DictionaryInterface,
     Appfuel\Framework\View\DocumentInterface,
 	Appfuel\App\Action\Error\Handler\Invalid\Controller as ErrorController;
@@ -35,7 +35,7 @@ class FrontController implements FrontControllerInterface
 	 * @param	ActionInterface		$controller
 	 * @return	FrontController
 	 */
-	public function __construct(ActionInterface $controller = null)
+	public function __construct(ControllerInterface $controller = null)
 	{
 		if (null === $controller) {
 			$this->setErrorController(new ErrorController());
@@ -53,7 +53,7 @@ class FrontController implements FrontControllerInterface
 	/**
 	 * @param	ActionInterface	 $controller
 	 */
-	public function setErrorController(ActionInterface $controller)
+	public function setErrorController(ControllerInterface $controller)
 	{
 		$this->errorController = $controller;
 		return $this;
@@ -100,13 +100,12 @@ class FrontController implements FrontControllerInterface
             $responseType = $request->getResponseType();
         }
 
-        $namespace = $route->getNamespace();
-        $ctrClass  = "$namespace\\Controller";
+        $namspace = $route->getNamespace();
+        $ctrClass = "$namespace\\Controller";
         
 		try {
 			$controller = new $ctrClass();
 		} catch (\Exception $e) {
-			echo "<pre>", print_r($e, 1), "</pre>";exit;
 			// handle controller can not be created
 		}
 

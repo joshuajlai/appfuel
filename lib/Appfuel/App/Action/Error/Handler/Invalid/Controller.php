@@ -12,7 +12,7 @@ namespace Appfuel\App\Action\Error\Handler\Invalid;
 
 
 use Appfuel\Framework\Exception,
-    Appfuel\Framework\MessageInterface,
+    Appfuel\Framework\Data\DictionaryInterface,
 	Appfuel\App\Action\Controller as ActionController;
 
 /**
@@ -34,10 +34,10 @@ class Controller extends ActionController
 
 	/**
 	 * 
-	 * @param	MessageInterface $msg
-	 * @param	MessageInterface
+	 * @param	DictionaryInterface $msg
+	 * @param	DictionaryInterface
 	 */
-	public function execute(MessageInterface $msg)
+	public function execute(DictionaryInterface $msg)
 	{
 		$text = 'Error has occured';
 		if ($msg->isError()) {
