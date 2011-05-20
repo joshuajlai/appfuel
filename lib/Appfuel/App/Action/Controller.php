@@ -12,18 +12,26 @@ namespace Appfuel\App\Action;
 
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Controller\ActionInterface,
-    Appfuel\Framework\MessageInterface,
+	Appfuel\Framework\App\Action\ControllerInterface,
+    Appfuel\Framework\Data\DictionaryInterface,
     Appfuel\Framework\View\DocumentInterface,
-	Appfuel\Framework\View\ManagerInterface as ViewManagerInterface;
+	Appfuel\Framework\View\ViewManagerInterface;
 
 /**
  *
  */
-class Controller
+class Controller implements ControllerInterface
 {
 	/**
-	 * Used to provide a uniform interface across multiple documents types
+	 * Input scheme handles validation and sanitization of all user inputs
+	 * for the controller
+	 * @var InputScheme
+	 */
+	protected $inputScheme = null;
+
+	/**
+	 * View Manager handles assignments to the document this controller is
+	 * working on.
 	 * @var string
 	 */
 	protected $viewManager = null;
@@ -108,8 +116,18 @@ class Controller
 	 * 
 	 * @param	MessageInterface $msg
 	 */
-	public function initialize(MessageInterface $msg)
+	public function initialize(DictionaryInterface $data)
 	{
 		return $msg;		
 	}
+
+	/**
+	 * @param	MessageInterface $msg
+	 */
+	public function execute(DictionaryInterface $data)
+	{
+		return $msg;	
+	}
+
+
 }

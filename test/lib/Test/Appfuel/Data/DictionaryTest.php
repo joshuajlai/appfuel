@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Stdlib\Data;
+namespace Test\Appfuel\Data;
 
 use Test\AfTestCase	as ParentTestCase,
-	Appfuel\Stdlib\DictionaryInterface,
-	Appfuel\Stdlib\Data\Dictionary,
+	Appfuel\Framework\Data\DictionaryInterface,
+	Appfuel\Data\Dictionary,
 	StdClass;
 
 /**
@@ -25,9 +25,9 @@ class DictionaryTest extends ParentTestCase
 {
 	/**
 	 * System Under Test
-	 * @var Appfuel\Stdlib\Data\Dictionary
+	 * @var Appfuel\Data\Dictionary
 	 */
-	protected $dictionary = NULL;
+	protected $dictionary = null;
 
 	/**
 	 * @return null
@@ -61,7 +61,10 @@ class DictionaryTest extends ParentTestCase
 		$this->assertSame($this->dictionary, $result);
 		$this->assertEquals(1, $this->dictionary->count());
 		$this->assertTrue($this->dictionary->exists('label_1'));
-		$this->assertEquals('this is a string', $this->dictionary->get('label_1'));
+		$this->assertEquals(
+			'this is a string', 
+			$this->dictionary->get('label_1')
+		);
 
 		/* add an integer */		
 		$this->assertFalse($this->dictionary->exists('label_2'));
@@ -75,7 +78,10 @@ class DictionaryTest extends ParentTestCase
 		$result = $this->dictionary->add('label_3', array(1,2,3,4,5));
 		$this->assertTrue($this->dictionary->exists('label_3'));
 		$this->assertEquals(3, $this->dictionary->count());
-		$this->assertEquals(array(1,2,3,4,5), $this->dictionary->get('label_3'));
+		$this->assertEquals(
+			array(1,2,3,4,5), 
+			$this->dictionary->get('label_3')
+		);
 
 		/* add an object */
 		$this->assertFalse($this->dictionary->exists('label_4'));
@@ -123,7 +129,10 @@ class DictionaryTest extends ParentTestCase
 		$this->assertFalse($this->dictionary->exists('nothing'));
 
 		$this->assertNull($this->dictionary->get('nothing'));
-		$this->assertEquals(array(), $this->dictionary->get('nothing', array()));
+		$this->assertEquals(
+			array(), 
+			$this->dictionary->get('nothing', array())
+		);
 		$this->assertEquals('test', $this->dictionary->get('nothing', 'test'));
 		$this->assertEquals(12345, $this->dictionary->get('nothing', 12345));
 
@@ -148,5 +157,4 @@ class DictionaryTest extends ParentTestCase
 		$this->assertEquals(count($data), $this->dictionary->count());
 		$this->assertEquals($data, $this->dictionary->getAll());
 	}
-
 }

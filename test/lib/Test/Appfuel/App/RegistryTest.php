@@ -182,7 +182,7 @@ class RegistryTest extends ParentTestCase
 		$this->assertEquals(0, Registry::count());
 
 		$dictionary = $this->getMock(
-			'\\Appfuel\\Stdlib\\Data\\DictionaryInterface'
+			'\\Appfuel\\Framework\\Data\\DictionaryInterface'
 		);
 		
 		$countValue = 5;
@@ -216,7 +216,7 @@ class RegistryTest extends ParentTestCase
 
         $result = Registry::collect(array_keys($data));
         $this->assertInstanceof(
-			'\Appfuel\Stdlib\Data\DictionaryInterface', 
+			'\Appfuel\Framework\Data\DictionaryInterface', 
 			$result
 		);
 
@@ -228,7 +228,7 @@ class RegistryTest extends ParentTestCase
         /* prove items that don't exist are not included in the bag */
         $result = Registry::collect(array('no_key'));
         $this->assertInstanceof(
-			'\Appfuel\Stdlib\Data\DictionaryInterface', 
+			'\Appfuel\Framework\Data\DictionaryInterface', 
 			$result
 		);
         $this->assertEquals(0, $result->count());

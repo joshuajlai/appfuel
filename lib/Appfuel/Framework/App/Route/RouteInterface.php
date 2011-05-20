@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\Framework\App\Route;
 
 /**
  * The route is used by the dispatcher in order to build an controller
@@ -17,7 +17,7 @@ namespace Appfuel\Framework;
 interface RouteInterface
 {
 	public function getRouteString();
-	public function getNamespace();
+	public function getActionNamespace();
 	public function getAccessPolicy();
 	public function getResponseType();
 }

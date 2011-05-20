@@ -25,22 +25,90 @@ class ActionRouteTest extends ParentTestCase
     public function testMembers()
     {
 		$routeString = 'i/am/a/route/string';
-		$namespace   = 'i_am_a_namespace';
+		$namespace   = 'Appfuel\App\Action\Error\Handler\Invalid';
 		$access      = 'public';
 		$responseType  = 'html';
 
 		$route = new Route($routeString, $namespace, $access, $responseType);
 		$this->assertInstanceOf(
-			'Appfuel\Framework\RouteInterface',
+			'Appfuel\Framework\App\Route\RouteInterface',
 			$route,
 			'route must implement the route interface'
 		);
 	
 		$this->assertEquals($routeString, $route->getRouteString());
-		$this->assertEquals($namespace, $route->getNamespace());
+		$this->assertEquals($namespace, $route->getActionNamespace());
 		$this->assertEquals($access, $route->getAccessPolicy());
 		$this->assertEquals($responseType, $route->getResponseType());
+
+		/* test sub module namespace was parsed correctly */
+		$expected = 'Appfuel\App\Action\Error\Handler';
+		$this->assertEquals($expected, $route->getSubModuleNamespace());
+
+		/* test module namespace was parsed correctly */
+		$expected = 'Appfuel\App\Action\Error';
+		$this->assertEquals($expected, $route->getModuleNamespace());
+
+		/* test root namespace for actions was parsed correctly */
+		$expected = 'Appfuel\App\Action';
+		$this->assertEquals($expected, $route->getRootActionNamespace());
     }
+
+    /**
+	 * Failure should occur when after parsing the action namespace a sub module
+	 * level namespace is not found
+	 *
+	 * the action namespace should have the following form :
+	 * root_level_ns\module_ns\submodule_ns\action_ns
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+     * @return null
+     */
+	public function testInvalidSubModule()
+	{
+		$routeString = 'i/am/a/route/string';
+		$namespace   = 'Error';
+		$access      = 'public';
+		$responseType  = 'html';
+
+		$route = new Route($routeString, $namespace, $access, $responseType);
+	}
+
+    /**
+	 * Failure should occur when after parsing the action namespace a module
+	 * level namespace is not found
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+     * @return null
+     */
+	public function testInvalidModule()
+	{
+		$routeString = 'i/am/a/route/string';
+		$namespace   = 'Error\Handler';
+		$access      = 'public';
+		$responseType  = 'html';
+
+		$route = new Route($routeString, $namespace, $access, $responseType);
+	}
+
+    /**
+	 * Failure should occur when after parsing the action namespace a root
+	 * level namespace is not found
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+     * @return null
+     */
+	public function testInvalidRootNamespace()
+	{
+		$routeString = 'i/am/a/route/string';
+		$namespace   = 'Error\Handler\Invalid';
+		$access      = 'public';
+		$responseType  = 'html';
+
+		$route = new Route($routeString, $namespace, $access, $responseType);
+	}
+
+
 
     /**
 	 * @expectedException	Appfuel\Framework\Exception

@@ -8,11 +8,20 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework;
+namespace Appfuel\App\View;
+
+use Appfuel\Framework\Exception,
+	Appfuel\Framework\FileInterface,
+	Appfuel\Framework\View\FileTemplateInterface;
 
 /**
+ * Handles assignments to the view 
  */
-interface ControllerInterface
+class Manager
 {
-	public function execute(MessageInterface $msg);
+	/**
+	 * Type of view currently being used. Html, Cli, Json, Csv, Null etc..
+	 * @var string
+	 */
+	protected $viewType = null;
 }

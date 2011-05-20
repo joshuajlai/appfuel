@@ -28,7 +28,7 @@ class DataTest extends ParentTestCase
 	{
 		$data = new Data();	
 		$this->assertInstanceOf(
-			'Appfuel\Stdlib\Data\Dictionary',
+			'Appfuel\Data\Dictionary',
 			$data
 		);
 
