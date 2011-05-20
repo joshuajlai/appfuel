@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App\Action;
+namespace Appfuel\App\Action\Error\Handler\Invalid;
 
 
 use Appfuel\Framework\Exception,
@@ -29,8 +29,7 @@ class Controller extends ActionController
 	 */
 	public function __construct()
 	{
-		$this->addSupportedDocs(array('html', 'json', 'cli'))
-			 ->disableInputScheme();
+		$this->addSupportedDocs(array('html', 'json', 'cli'));
 	}
 
 	/**
@@ -45,7 +44,7 @@ class Controller extends ActionController
 			$text = $msg->getErrorText();
 		}
 		
-		$this->getViewManager();
+		$this->getViewManager()
 			 ->assign('error_text', $text);
 
 		return $msg;
