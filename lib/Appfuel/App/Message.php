@@ -11,7 +11,7 @@
 namespace Appfuel\App;
 
 use Appfuel\Framework\MessageInterface,
-    Appfuel\Framework\RouteInterface,
+    Appful\Framework\App\Route\RouteInterface,
     Appfuel\Framework\Request\RequestInterface,
     Appfuel\Framework\View\ViewInterface,
     Appfuel\Stdlib\Data\Dictionary;

@@ -40,23 +40,6 @@ class MessageTest extends ParentTestCase
         unset($this->message);
     }
 
-    /**
-     * Testing how isRoute reacts when the route is present and abesent
-     * from the message. The key message uses for route is 'route'
-     *
-     * @return null
-     */
-    public function testIsRoute()
-    {
-        $this->assertFalse($this->message->isRoute());
-
-        $this->message->add('route', 'should_not_work');
-        $this->assertFalse($this->message->isRoute());
-
-        $route = $this->getMock('Appfuel\Framework\RouteInterface');
-        $this->message->add('route', $route);
-        $this->assertTrue($this->message->isRoute());
-    }
 
     /**
      * Testing how isRequest reacts when the request is present and abesent

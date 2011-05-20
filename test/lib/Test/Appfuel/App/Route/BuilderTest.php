@@ -72,7 +72,7 @@ class BuilderTest extends ParentTestCase
 		$this->assertEquals('/', $route->getRouteString());
 		$this->assertEquals(
 			'Appfuel\App\Action\Auth\System\Login', 
-			$route->getNamespace()
+			$route->getActionNamespace()
 		);
 		$this->assertEquals('public', $route->getAccessPolicy());
 		$this->assertEquals('html',  $route->getResponseType());
@@ -85,7 +85,7 @@ class BuilderTest extends ParentTestCase
 		$this->assertEquals('error/handler/invalid', $route->getRouteString());
 		$this->assertEquals(
 			'Appfuel\App\Action\Error\Handler\Invalid', 
-			$route->getNamespace()
+			$route->getActionNamespace()
 		);
 		$this->assertEquals('public', $route->getAccessPolicy());
 		$this->assertEquals('html',  $route->getResponseType());
@@ -99,7 +99,7 @@ class BuilderTest extends ParentTestCase
 		$this->assertEquals('error', $route->getRouteString());
 		$this->assertEquals(
 			'Appfuel\App\Action\Error\Handler\Invalid', 
-			$route->getNamespace()
+			$route->getActionNamespace()
 		);
 		$this->assertEquals('public', $route->getAccessPolicy());
 		$this->assertEquals('html',  $route->getResponseType());
@@ -167,7 +167,5 @@ class BuilderTest extends ParentTestCase
 		$result = $this->builder->build('malformed/all-empty');
 		
 	}
-
-
 }
 

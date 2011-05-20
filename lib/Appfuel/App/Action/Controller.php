@@ -20,10 +20,18 @@ use Appfuel\Framework\Exception,
 /**
  *
  */
-class Controller
+class Controller implements ActionInterface
 {
 	/**
-	 * Used to provide a uniform interface across multiple documents types
+	 * Input scheme handles validation and sanitization of all user inputs
+	 * for the controller
+	 * @var InputScheme
+	 */
+	protected $inputScheme = null;
+
+	/**
+	 * View Manager handles assignments to the document this controller is
+	 * working on.
 	 * @var string
 	 */
 	protected $viewManager = null;
@@ -112,4 +120,14 @@ class Controller
 	{
 		return $msg;		
 	}
+
+	/**
+	 * @param	MessageInterface $msg
+	 */
+	public function execute(MessageInterface $msg)
+	{
+		return $msg;	
+	}
+
+
 }

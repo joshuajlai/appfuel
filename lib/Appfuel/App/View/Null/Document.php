@@ -18,6 +18,17 @@ use Appfuel\Framework\View\ViewInterface,
  */
 class Document extends ViewData implements ViewInterface
 {
+
+	/**
+	 * @param	string	$name 
+	 * @param	mixed	$value
+	 * @return	Document
+	 */
+	public function assign($name, $value)
+	{
+		return $this;
+	}
+
 	/**
 	 * @return string
 	 */
