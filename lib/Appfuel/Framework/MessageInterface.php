@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Framework;
 
-use Appfuel\Stdlib\Data\DictionaryInterface;
+use Appfuel\Framework\Data\DictionaryInterface;
 
 /**
  * The Message is used as a uniform interface to deliver a payload of 

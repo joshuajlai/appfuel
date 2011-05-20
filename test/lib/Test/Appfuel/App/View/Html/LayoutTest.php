@@ -58,7 +58,7 @@ class LayoutTest extends ParentTestCase
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Stdlib\Data\Dictionary',
+			'Appfuel\Data\Dictionary',
 			$this->layout,
 			'The json doc is also a dictionary'
 		);

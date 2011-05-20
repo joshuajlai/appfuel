@@ -11,7 +11,7 @@
 namespace Appfuel\App;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Stdlib\Data\Dictionary,
+	Appfuel\Framework\Data\DictionaryInterface,
 	Appfuel\Stdlib\Filesystem\Manager	as FileManager;
 
 /**
@@ -68,7 +68,7 @@ class Initializer
 	 *
 	 * @return	null
      */
-	static public function initSettings(Dictionary $data)
+	static public function initSettings(DictionaryInterface $data)
 	{
 		$display = $data->get('display_errors', null);
 		if (null !== $display) {

@@ -56,7 +56,7 @@ class DocumentTest extends ParentTestCase
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Stdlib\Data\Dictionary',
+			'Appfuel\Data\Dictionary',
 			$this->doc,
 			'The json doc is also a dictionary'
 		);

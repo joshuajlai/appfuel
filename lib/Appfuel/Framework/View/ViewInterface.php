@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Framework\View;
 
-use Appfuel\Stdlib\Data\DictionaryInterface;
+use Appfuel\Framework\Data\DictionaryInterface;
 
 /**
  * Interface needed by the framework to use view templates

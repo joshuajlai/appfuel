@@ -10,7 +10,7 @@
  */
 namespace Appfuel\App\View;
 
-use Appfuel\Stdlib\Data\Dictionary;
+use Appfuel\Data\Dictionary;
 
 /**
  * Handles all assignments of data to be used in a template

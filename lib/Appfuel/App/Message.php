@@ -14,7 +14,7 @@ use Appfuel\Framework\MessageInterface,
     Appful\Framework\App\Route\RouteInterface,
     Appfuel\Framework\Request\RequestInterface,
     Appfuel\Framework\View\ViewInterface,
-    Appfuel\Stdlib\Data\Dictionary;
+    Appfuel\Data\Dictionary;
 
 /*n
  * Message is a specialized disctionary used to pass throught the dispatch
