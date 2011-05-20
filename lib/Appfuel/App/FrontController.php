@@ -100,12 +100,13 @@ class FrontController implements FrontControllerInterface
             $responseType = $request->getResponseType();
         }
 
-        $namspace = $route->getNamespace();
-        $ctrClass = "$namespace\\Controller";
+        $namespace = $route->getNamespace();
+        $ctrClass  = "$namespace\\Controller";
         
 		try {
 			$controller = new $ctrClass();
 		} catch (\Exception $e) {
+			echo "<pre>", print_r($e, 1), "</pre>";exit;
 			// handle controller can not be created
 		}
 

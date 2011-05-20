@@ -15,7 +15,7 @@ use Appfuel\App\Manager;
  * Application root directory  
  */
 $base = realpath(dirname(__FILE__) . '/..');
-echo "<pre>", print_r($base, 1), "</pre>";exit; 
+
 /*
  * Application factory used to create factory class
  */

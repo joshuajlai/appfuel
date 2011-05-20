@@ -77,7 +77,6 @@ class Manager
 		if (! Registry::exists('env')) {
 			throw new Exception('Initialize error: env not found in Registry');
 		}
-
 		self::setFrontController(Factory::createFrontController());
 
 		/* tell the manager we are initialized and ready */
@@ -109,14 +108,18 @@ class Manager
             throw new Exception("Must initialize before startup");
         }
 
-        $bootstrap = Factory::createBootstrap($type);
+		$basePath  = Registry::get('base_path');
+		$routeFile = $basePath . DIRECTORY_SEPARATOR . 
+					 'config'  . DIRECTORY_SEPARATOR .
+					 'routes.ini';
+
+        $bootstrap = Factory::createBootstrapper($type);
 		$request = $bootstrap->buildRequest();
 		$msg->add('request', $request);
 	
-		        
-		$routeFinder = Factory::RouteFinder();
+		$routeBuilder = Factory::createRouteBuilder($routeFile);
 		$routeString = $request->getRouteString();
-		$route       = $routeFinder->find($routeString);
+		$route       = $routeBuilder->build($routeString);
 		
 		$msg->add('request', $request)
             ->add('responseType', $responseType)
