@@ -140,24 +140,104 @@ class FrontControllerTest extends ParentTestCase
 	}
 
 	/**
-	 * The action builder was designed to be extended. The first level
-	 * that is checked is the action (controller) namespace. If a 
-	 * class called ActionBuilder is found then it is instantiatied and
-	 * returned 
+	 * When no other builders are found false is returned
 	 *
+	 * @return null
+	 */ 
+	public function testCreateActionBuilderNoNamespaces()
+	{
+		/* namespace to the known action controller */
+		$routeInterface = 'Appfuel\Framework\App\Route\RouteInterface';
+		$methods = array(
+			'getRouteString',
+			'getAccessPolicy',
+			'getResponseType',
+			'getActionNamespace',
+			'getSubModuleNamespace',
+			'getModuleNamespace',
+			'getRootActionNamespace'
+		);
+		$route = $this->getMockBuilder($routeInterface)
+					  ->setMethods($methods)
+					  ->getMock();
+
+		/* The builder object is instantiated in one of four namespaces,
+		 * all of them will return empty strings so no builder object will
+		 * be found
+		 */
+		$route->expects($this->once())
+			  ->method('getActionNamespace')
+			  ->will($this->returnValue(''));
+
+		$route->expects($this->once())
+			  ->method('getSubModuleNamespace')
+			  ->will($this->returnValue(''));
+
+		$route->expects($this->once())
+			  ->method('getModuleNamespace')
+			  ->will($this->returnValue(''));
+
+		$route->expects($this->once())
+			  ->method('getRootActionNamespace')
+			  ->will($this->returnValue(''));
+	
+		$this->assertFalse($this->front->createActionBuilder($route));
+	}
+
+	/**
 	 * @return null
 	 */ 
 	public function testCreateActionBuilderRootNamespace()
 	{
 		/* namespace to the known action controller */
-		$namespace = __NAMESPACE__ . '\Action\Does\Not\Exist';
+		$namespace = __NAMESPACE__ . '\MyRootAction\Others\Dont\Exist';
 		$route     = new ActionRoute('no/route', $namespace, 'public', 'json');
 	
 		$builder = $this->front->createActionBuilder($route);
 		$this->assertInstanceOf(
-			__NAMESPACE__ . '\Action\ActionBuilder',
+			__NAMESPACE__ . '\MyRootAction\ActionBuilder',
 			$builder,
 			'no other builders exist exception the root action builder'
+		);	
+	}
+
+	/**
+	 * Action\ModuleActionBuilder\ActionBuilder is the only object that exists
+	 * below the Action\ActionBuilder so it should be found first
+	 *
+	 * @return null
+	 */ 
+	public function testCreateActionBuilderModuleNamespace()
+	{
+		$ns    = __NAMESPACE__ . '\MyRootAction\MyModule\Not\Exist';
+		$route = new ActionRoute('no/route', $ns, 'public', 'json');
+	
+		$builder = $this->front->createActionBuilder($route);
+		$this->assertInstanceOf(
+			__NAMESPACE__ . '\MyRootAction\MyModule\ActionBuilder',
+			$builder,
+			'Module builder should be found before root level builder'
+		);	
+	}
+
+	/**
+	 * Action\MyModule\MySubModule\ActionBuilder is the 
+	 * only object that exists
+	 * below the Action\ActionBuilder so it should be found first
+	 *
+	 * @return null
+	 */ 
+	public function testCreateActionBuilderSubModuleNamespace()
+	{
+		$ns = __NAMESPACE__ . '\MyRootAction\MyModule\MySubModule\None';
+
+		$route     = new ActionRoute('no/route', $ns, 'public', 'json');
+	
+		$builder = $this->front->createActionBuilder($route);
+		$this->assertInstanceOf(
+			__NAMESPACE__ . '\MyRootAction\MyModule\MySubModule\ActionBuilder',
+			$builder,
+			'Module builder should be found before root level builder'
 		);	
 	}
 

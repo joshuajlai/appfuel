@@ -157,6 +157,8 @@ class FrontController implements FrontControllerInterface
 			$builder = new $class();
 			return $builder;
 		} catch (Exception $e) {}
+
+		return false;
 	}
 
 	/**
