@@ -62,7 +62,206 @@ class MessageTest extends ParentTestCase
      *
      * @return null
      */
-    public function testIsRequest()
+    public function testGetSetIsRequest()
     {
+        $this->assertFalse($this->message->isRequest());
+
+        $request = $this->getMock('Appfuel\Framework\App\Request\RequestInterface');
+        $this->message->setRequest($request);
+        $this->assertTrue($this->message->isRequest());
+		$this->assertSame($request, $this->message->getRequest());
     }
+
+	/**
+     *
+     * @return null
+     */
+    public function testGetSetResponseType()
+    {
+		$this->assertNull($this->message->getResponseType());
+		$type = 'responseType';
+		$this->assertSame(
+			$this->message,
+			$this->message->setResponseType($type),
+			'must use a fluent interface'
+		);
+
+		$this->assertEquals($type, $this->message->getResponseType());
+    }
+
+	/**
+	 * Test that when Request::isResponseType is false the routes response
+	 * type is set
+	 *
+	 * @return null
+	 */
+	public function testLoadResponseTypeNotInRequest()
+	{
+		$mockClass = 'Appfuel\App\Request';
+        $request  = $this->getMockBuilder($mockClass)
+						 ->disableOriginalConstructor()
+						->setMethods(array('isResponseType'))
+						->getMock();
+
+		$request->expects($this->any())
+				->method('isResponseType')
+				->will($this->returnValue(false));
+
+		$this->message->setRequest($request);
+        
+		$route = $this->getMock('Appfuel\Framework\App\Route\RouteInterface');
+		$route->expects($this->any())
+			  ->method('getResponseType')
+			  ->will($this->returnValue('html'));
+		$this->message->setRoute($route);
+
+		$result = $this->message->loadResponseType();
+		$this->assertEquals('html', $result);
+		$this->assertEquals('html', $this->message->getResponseType());
+	}
+
+	/**
+	 * Test that when Request::isResponseType is false the routes response
+	 * type is set
+	 *
+	 * @return null
+	 */
+	public function testLoadResponseTypeInRequest()
+	{
+		$mockClass = 'Appfuel\App\Request';
+        $request  = $this->getMockBuilder($mockClass)
+						 ->disableOriginalConstructor()
+						->setMethods(array('isResponseType', 'getResponseType'))
+						->getMock();
+
+		$request->expects($this->any())
+				->method('isResponseType')
+				->will($this->returnValue(true));
+
+		$request->expects($this->any())
+				->method('getResponseType')
+				->will($this->returnValue('json'));
+
+
+		$this->message->setRequest($request);
+        
+		$route = $this->getMock('Appfuel\Framework\App\Route\RouteInterface');
+		$route->expects($this->any())
+			  ->method('getResponseType')
+			  ->will($this->returnValue('html'));
+		$this->message->setRoute($route);
+
+		$result = $this->message->loadResponseType();
+		$this->assertEquals('json', $result);
+		$this->assertEquals('json', $this->message->getResponseType());
+	}
+
+	/**
+	 * Test that when Request::isResponseType is true by the data is empty then
+	 * routes response type is set
+	 *
+	 * @return null
+	 */
+	public function testLoadResponseTypeInRequestButEmpty()
+	{
+		$mockClass = 'Appfuel\App\Request';
+        $request  = $this->getMockBuilder($mockClass)
+						 ->disableOriginalConstructor()
+						->setMethods(array('isResponseType', 'getResponseType'))
+						->getMock();
+
+		$request->expects($this->any())
+				->method('isResponseType')
+				->will($this->returnValue(true));
+
+		$request->expects($this->any())
+				->method('getResponseType')
+				->will($this->returnValue(''));
+
+
+		$this->message->setRequest($request);
+        
+		$route = $this->getMock('Appfuel\Framework\App\Route\RouteInterface');
+		$route->expects($this->any())
+			  ->method('getResponseType')
+			  ->will($this->returnValue('html'));
+		$this->message->setRoute($route);
+
+		$result = $this->message->loadResponseType();
+		$this->assertEquals('html', $result);
+		$this->assertEquals('html', $this->message->getResponseType());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testLoadResponseTypeNoRequest()
+	{
+		$route = $this->getMock('Appfuel\Framework\App\Route\RouteInterface');
+		$route->expects($this->any())
+			  ->method('getResponseType')
+			  ->will($this->returnValue('html'));
+		$this->message->setRoute($route);
+
+		$result = $this->message->loadResponseType();
+	}
+
+	/**
+	 * Test that when Request::isResponseType is true by the data is empty then
+	 * routes response type is set
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testLoadResponseTypeNoRoute()
+	{
+		$mockClass = 'Appfuel\App\Request';
+        $request  = $this->getMockBuilder($mockClass)
+						 ->disableOriginalConstructor()
+						->setMethods(array('isResponseType', 'getResponseType'))
+						->getMock();
+
+		$this->message->setRequest($request);
+        
+		$result = $this->message->loadResponseType();
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 */
+	public function testSetResponseTypeBadTypeEmpty()
+	{
+		$this->message->setResponseType('');
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 */
+	public function testSetResponseTypeBadTypeArray()
+	{
+		$this->message->setResponseType(array(1,2,3));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 */
+	public function testSetResponseTypeBadTypeInt()
+	{
+		$this->message->setResponseType(12345);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 */
+	public function testSetResponseTypeBadTypeObj()
+	{
+		$this->message->setResponseType(new \StdClass());
+	}
+
+
+
+
+
+
 }

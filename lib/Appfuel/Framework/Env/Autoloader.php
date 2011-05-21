@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Framework\Env;
 
-use Appfuel\Stdlib\Filesystem\Manager as FileManager;
+use Appfuel\Framework\Exception,
+	Appfuel\Stdlib\Filesystem\Manager as FileManager;
 
 /**
  * Automatic look for the class file, the location of which is encoded
@@ -77,14 +78,13 @@ class Autoloader implements AutoloadInterface
     public function loadClass($className)
     {
         if ($this->isLoaded($className)) {
-		echo "\n", print_r($className,1), "\n";exit;
             return;
         }
 
         $fileName = FileManager::classNameToFileName($className);
         $filePath = FileManager::getAbsolutePath($fileName);
         if (FALSE === $filePath) {
-            throw new \Exception(
+            throw new Exception(
                 "Autoload Error: could not find class: $className for file
                 $fileName"
             );

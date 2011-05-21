@@ -11,6 +11,7 @@
 namespace Appfuel\App;
 
 use Appfuel\Data\Dictionary,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\App\MessageInterface,
 	Appfuel\Framework\App\Route\RouteInterface,
 	Appfuel\Framework\App\Request\RequestInterface;
@@ -38,6 +39,24 @@ class Message extends Dictionary implements MessageInterface
 	protected $request = null;
 
 	/**
+	 * This can be from either the incoming user request or the route information
+	 * @var string
+	 */
+	protected $responseType = null;
+
+	/**
+	 * Error message for an error that occured during the dispatch/execute cycle
+	 * @var string
+	 */
+	protected $error = null;
+	
+	/**
+	 * Flag used to determine if the message is in an error state
+	 * @var bool
+	 */
+	protected $isError = false;
+
+	/**
 	 * @return	RouteInterface
 	 */
 	public function getRoute()
@@ -61,5 +80,111 @@ class Message extends Dictionary implements MessageInterface
 	public function isRoute()
 	{
 		return $this->route instanceof RouteInterface;
+	}
+
+	/**
+	 * @return	RequestInterface
+	 */
+	public function getRequest()
+	{
+		return $this->request;
+	}
+
+	/**
+	 * @param	RouteInterface $route
+	 * @return	Message
+	 */
+	public function setRequest(RequestInterface $request)
+	{
+		$this->request = $request;
+		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isRequest()
+	{
+		return $this->request instanceof RequestInterface;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getResponseType()
+	{
+		return $this->responseType;	
+	}
+
+	/**
+	 * @param	string	$type
+	 * @return	Message
+	 */
+	public function setResponseType($type)
+	{
+		if (! is_string($type) || empty($type)) {
+			throw new Exception("response type must be a non empty string");
+		}
+
+		$this->responseType = $type;
+		return $this;
+	}
+
+	/**
+	 * Load the response type from the request or route. When there is no reponse
+	 * type from the request use the route's value. Returns the responseType that
+	 * was set
+	 *
+	 * @return strin
+	 */
+	public function loadResponseType()
+	{
+		$route   = $this->getRoute();
+		$request = $this->getRequest();
+		if (! $route || ! $request) {
+			throw new Exception(
+				'Can not load response type without request or route'
+			);
+		}
+
+		$responseType = $route->getResponseType();
+		if ($request->isResponseType()) {
+			$temp = $request->getResponseType();
+			if (is_string($temp) && ! empty($temp)) {
+				$responseType = $temp;
+			}
+		}
+		$this->setResponseType($responseType);
+		return $responseType;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isError()
+	{
+		return $this->isError;
+	}
+
+	/**
+	 * @param	string	$text
+	 * @return	Message
+	 */
+	public function setError($text)
+	{
+		$this->error   = $text;
+		$this->isError = true;
+		return $this;
+	}
+
+	/**
+	 * @return	Message
+	 */
+	public function clearError()
+	{
+		$this->isError = false;
+		$this->error   = null;
+		
+		return $this;
 	}
 }

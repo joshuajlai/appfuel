@@ -10,14 +10,27 @@
  */
 namespace Appfuel\Framework\App;
 
+use Appfuel\Framework\App\Action\ControllerInterface,
+    Appfuel\Framework\App\Route\RouteInterface,
+    Appfuel\Framework\App\MessageInterface,
+    Appfuel\App\Action\Error\Handler\Invalid\Controller as ErrorController;
 
-use Appfuel\Framework\Data\DictionaryInterface;
 
 /**
  * Handle dispatching the request and outputting the response
  */
 interface FrontControllerInterface
 {
+
+	/**
+     * Ensures the message contains a route and request which are required
+     * to dispatch to an action controller
+     *
+     * @param   MessageInterface    $msg
+     * @return  bool
+     */
+	public function isSatisfiedBy(MessageInterface $msg);
+
     /**
      * Dispatch
      * Use the route destination to create the controller and execute the
@@ -27,5 +40,41 @@ interface FrontControllerInterface
      * @param   Dictionary $data
      * @return  Dictionary
      */
-    public function dispatch(DictionaryInterface $data);
+    public function dispatch(MessageInterface $msg);
+
+    /**
+	 * The dispatch does not have a controller so this method is used to 
+	 * create the action build. It needs to search for the builder in the 
+	 * following order: 
+	 *	1)  action namespace (the controller namespace)
+	 *  2)	sub module namesapce (parent of the controller)
+	 *  3)  module namespace (parent of all sub modules)
+	 *  4)  root namespace  (the namespace that holds all the actions)
+	 * 
+	 * This allows you to extend the builder from most general to view specific
+	 *
+     * @param   RouteInterface  $route 
+     * @return  ActionBuilder   
+     */
+    public function createActionBuilder(RouteInterface $route);
+
+	/**
+	 * Initialize is called on the action controller and errors should be
+	 * handled and put back into the message so dispatch can deal with them.
+	 *
+	 * @param	ControllerInterface $ctr
+	 * @param	MessageInterface $msg
+	 * @return	MessageInterface
+	 */
+	public function initialize(ControllerInterface $ctr, MessageInterface $msg);
+	
+	/**
+	 * execute is called on the action controller and errors should be
+	 * handled and put back into the message so dispatch can deal with them.
+	 *
+	 * @param	ControllerInterface $ctr
+	 * @param	MessageInterface $msg
+	 * @return	MessageInterface
+	 */
+	public function execute(ControllerInterface $ctr, MessageInterface $msg);
 }

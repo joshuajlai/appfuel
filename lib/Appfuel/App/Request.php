@@ -86,7 +86,7 @@ class Request implements RequestInterface
 
 		$responseType = null;
 		if (in_array($this->method, array('get', 'post'))) {
-			$responseType = $this->get('responseType', 'post', null);
+			$responseType = $this->get('response-type', 'post', null);
 		}
 		$this->responseType = $responseType;
     }

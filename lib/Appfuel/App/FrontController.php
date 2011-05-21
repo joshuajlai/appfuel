@@ -14,7 +14,8 @@ namespace Appfuel\App;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\FrontControllerInterface,
 	Appfuel\Framework\App\Action\ControllerInterface,
-    Appfuel\Framework\Data\DictionaryInterface,
+	Appfuel\Framework\App\Route\RouteInterface,
+    Appfuel\Framework\App\MessageInterface,
     Appfuel\Framework\View\DocumentInterface,
 	Appfuel\App\Action\Error\Handler\Invalid\Controller as ErrorController;
 
@@ -60,51 +61,48 @@ class FrontController implements FrontControllerInterface
 		return $this;
 	}
 
+	/**
+	 * see interface for details
+	 *
+	 * @param	MessageInterface	$msg
+	 * @return	bool
+	 */
+	public function isSatisfiedBy(MessageInterface $msg)
+	{        
+		if (! $msg->isRequest()) {
+			$msg->setError('Can not dispatch with out a request object');
+			return false;
+        }
+
+		if (! $msg->isRoute()) {
+			$msg->setError('Can not dispatch with out a route object');
+			return false;
+		}
+
+		return true;
+	}
+
     /**
-     * Dispatch a message by using the route to create a controller 
-	 * command object, use the request or rotue to determine what document
-	 * the controller will pocess. Execute the message and check for the 
-	 * exists of the document which is needed by other systems
+	 * Ensure the message is correct, create the action builder then intialize,
+	 * execute and return the message. Check the message for errors and dispatch
+	 * to the error controller when they occur
 	 * 
      * @param   MessageInterface $msg
      * @return  MessageInterface
      */
-    public function dispatch(DictionaryInterface $msg)
+    public function dispatch(MessageInterface $msg)
     {
-		
-		/* 
-		 * ensure the request is available first because if anything
-		 * goes wrong we can check the responseType early allowing us 
-		 * the ability to send back an error in the correct format
-		 */
-		$request = $msg->get('request');
-        if (! $request instanceof RequestInterface) {
-			$msg->setError('Can not dispatch with out a request object');
-			return $this->dispatchError($msg);
-        }
-
-		/*
-		 * we need the route to determine what action controller to build
-		 */
-		$route = $data->get('route');
-		if (! $route instanceof RouteInterface) {
-			$msg->setError('Can not dispatch with out a route object');
+		if (! $this->isSatisfiedBy($msg)) {
 			return $this->dispatchError($msg);
 		}
 
-		/*
-		 * the route and request are used to determine which type of document
-		 * to process and put into the message. We first look into the request
-		 * and if the reponse type is available otherwise we fallback on the
-		 * rotues values.
-		 */
-        $reponseType = $route->getResponseType();
-        if ($request->isResponseType()) {
-            $responseType = $request->getResponseType();
-        }
-
-		$actionBuilder = $this->getActionBuilder();
-		$controller    = $actionBuilder->build($route, $responseType);
+		$request      = $msg->get('request');
+		$route        = $data->get('route');
+        $responseType = $msg->loadResponseType();
+		
+		$actionBuilder = $this->createActionBuilder($route);
+		$controller    = $actionBuilder->buildController($responseType);
+		
 		if (! $controller) {
 			$msg->setError($builder->getError());
 			return $this->dispatchError($msg);
@@ -123,7 +121,51 @@ class FrontController implements FrontControllerInterface
         return $msg;
     }
 
-	public function dispatchError(Dictionary $msg)
+	/**
+	 * See interface for details
+	 *
+	 * @param	RouteInterface	$route 
+	 * @return	ActionBuilder	
+	 */
+	public function createActionBuilder(RouteInterface $route)
+	{
+		$namespace = $route->getActionNamespace();
+		$class     = "$namespace\\ActionBuilder";
+		$builder   = null;
+		try {
+			$builder = new $class();
+			return $builder;
+		} catch (Exception $e) {}
+
+		$namespace = $route->getSubModuleNamespace();
+		$class     = "$namespace\\ActionBuilder";
+		try {
+			$builder = new $class();
+			return $builder;
+		} catch (Exception $e) {}
+
+		$namespace = $route->getModuleNamespace();
+		$class     = "$namespace\\ActionBuilder";
+		try {
+			$builder = new $class();
+			return $builder;
+		} catch (Exception $e) {}
+
+		$namespace = $route->getRootActionNamespace();
+		$class     = "$namespace\\ActionBuilder";
+		try {
+			$builder = new $class();
+			return $builder;
+		} catch (Exception $e) {}
+	}
+
+	/**
+	 * See interface for details
+	 *
+	 * @param	MessageInterface	$msg	
+	 * @return	MessageInterface		
+	 */
+	public function dispatchError(MessageInterface $msg)
 	{
 		$controller = $this->getErrorController();
 		$msg = $this->initialize($controller, $msg);
@@ -131,16 +173,16 @@ class FrontController implements FrontControllerInterface
 	}
 
 	/**
-	 * Initialize any action controller and handle its exceptions
+	 * See interface for details
 	 *
-	 * @param	ControllerInterface
-	 * @return	DictionaryInterface
+	 * @param	ControllerInterface	$controller
+	 * @param	MessageInterface	$msg	
+	 * @return	MessageInterface		
 	 */
-	public function initialize(ControllerInterface $controller, 
-							   DictionaryInterface $msg)
+	public function initialize(ControllerInterface $ctr, MessageInterface $msg)
 	{
 		try {
-			$msg = $controller->initialize($msg);
+			$msg = $ctr->initialize($msg);
 		} catch (Exception $e) {
 			// handler intialization errors
 		}
@@ -149,13 +191,13 @@ class FrontController implements FrontControllerInterface
 	}
 	
 	/**
-	 * Execute any action controller and handle its execptions
+	 * See interface for details
 	 *
-	 * @param	ControllerInterface		$controller
-	 * @return	DictionaryInterface		
+	 * @param	ControllerInterface	$controller
+	 * @param	MessageInterface	$msg	
+	 * @return	MessageInterface		
 	 */
-	public function execute(ControllerInterface $controller,
-							DictionaryInterface $msg)
+	public function execute(ControllerInterface $ctr, MessageInterface $msg)
 	{
         try {
             $msg = $controller->execute($data);
