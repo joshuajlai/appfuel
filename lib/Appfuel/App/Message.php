@@ -31,15 +31,17 @@ class Message extends Dictionary implements MessageInterface
 	protected $route = null;
 
 	/**
-	 * Used by the front controller, action controller and possibly the controller
-	 * builder to retrieve user input
+	 * Used by the front controller, action controller and possibly the 
+	 * action builder to retrieve user input
 	 *
 	 * @var	RequestInterface
 	 */
 	protected $request = null;
 
 	/**
-	 * This can be from either the incoming user request or the route information
+	 * Determines how the data is returned. Can be specified by the user or
+	 * the route. 
+	 *
 	 * @var string
 	 */
 	protected $responseType = null;
@@ -131,11 +133,11 @@ class Message extends Dictionary implements MessageInterface
 	}
 
 	/**
-	 * Load the response type from the request or route. When there is no reponse
-	 * type from the request use the route's value. Returns the responseType that
-	 * was set
+	 * Load the response type from the request or route. When there is no 
+	 * reponse type from the request use the route's value. Returns the 
+	 * responseType that was set
 	 *
-	 * @return strin
+	 * @return string
 	 */
 	public function loadResponseType()
 	{
@@ -175,6 +177,14 @@ class Message extends Dictionary implements MessageInterface
 		$this->error   = $text;
 		$this->isError = true;
 		return $this;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getError()
+	{
+		return $this->error;
 	}
 
 	/**

@@ -12,7 +12,7 @@ namespace Appfuel\Framework\App\Action;
 
 
 use Appfuel\Framework\View\ViewManagerInterface,
-    Appfuel\Framework\Data\DictionaryInterface;
+    Appfuel\Framework\App\MessageInterface;
 
 /**
  * Action controllers are used process the user request manipulate the given
@@ -24,6 +24,6 @@ interface ControllerInterface
 	public function addSupportedDoc($type);
 	public function getSupportedDocs();
 	public function isSupportedDoc($type);
-    public function initialize(DictionaryInterface $msg);
-	public function execute(DictionaryInterface $msg);
+    public function initialize(MessageInterface $msg);
+	public function execute(MessageInterface $msg);
 }

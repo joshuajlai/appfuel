@@ -13,7 +13,7 @@ namespace Appfuel\App\Action;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\Action\ControllerInterface,
-    Appfuel\Framework\Data\DictionaryInterface,
+    Appfuel\Framework\App\MessageInterface,
     Appfuel\Framework\View\DocumentInterface,
 	Appfuel\Framework\View\ViewManagerInterface;
 
@@ -116,7 +116,7 @@ class Controller implements ControllerInterface
 	 * 
 	 * @param	MessageInterface $msg
 	 */
-	public function initialize(DictionaryInterface $data)
+	public function initialize(MessageInterface $msg)
 	{
 		return $msg;		
 	}
@@ -124,7 +124,7 @@ class Controller implements ControllerInterface
 	/**
 	 * @param	MessageInterface $msg
 	 */
-	public function execute(DictionaryInterface $data)
+	public function execute(MessageInterface $msg)
 	{
 		return $msg;	
 	}

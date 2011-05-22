@@ -12,7 +12,9 @@ namespace Test\Appfuel\App;
 
 use Test\AfTestCase	as ParentTestCase,
 	Appfuel\App\Route\ActionRoute,
-	Appfuel\App\FrontController;
+	Appfuel\App\FrontController,
+	Appfuel\App\Message,
+	Appfuel\Framework\Exception;
 
 /**
  * The front controller handles all user requests, building the required action 
@@ -72,10 +74,7 @@ class FrontControllerTest extends ParentTestCase
 	 */
 	public function testIsSatisifiedByValid()
 	{
-		$msg = $this->getMockBuilder('Appfuel\App\Message')
-					->setMethods(array('isRoute', 'isRequest', 'setError'))
-					->getMock();
-
+		$msg = $this->getMockMessage();
 		$msg->expects($this->any())
 			->method('isRoute')
 			->will($this->returnValue(true));
@@ -97,10 +96,7 @@ class FrontControllerTest extends ParentTestCase
 	 */
 	public function testIsSatisifiedByNoRoute()
 	{
-		$msg = $this->getMockBuilder('Appfuel\App\Message')
-					->setMethods(array('isRoute', 'isRequest', 'setError'))
-					->getMock();
-
+		$msg = $this->getMockMessage();
 		$msg->expects($this->any())
 			->method('isRoute')
 			->will($this->returnValue(false));
@@ -121,9 +117,7 @@ class FrontControllerTest extends ParentTestCase
 	 */
 	public function testIsSatisifiedByNoRequest()
 	{
-		$msg = $this->getMockBuilder('Appfuel\App\Message')
-					->setMethods(array('isRoute', 'isRequest', 'setError'))
-					->getMock();
+		$msg = $this->getMockMessage();
 
 		$msg->expects($this->any())
 			->method('isRoute')
@@ -140,26 +134,83 @@ class FrontControllerTest extends ParentTestCase
 	}
 
 	/**
+	 * The front controller initialize uses the action controller intialize.
+	 * It also handles execeptions and checks the return of the initialize
+	 * so that when a message object is returned it replaces the old message
+	 * with the returned on. When the return type does not use a message 
+	 * interface then its ignored. A valid initialize is one where the message
+	 * setError has not been fired. We don't use a mock message in this test
+	 * because we need to check if the error has been set
+	 *
+	 * @return	null
+	 */	
+	public function testInitialize()
+	{
+		$ctr = $this->getMockActionController();
+		$msg = new Message();
+
+		$ctr->expects($this->once())
+			->method('initialize')
+			->will($this->returnValue($msg));
+
+		$result = $this->front->initialize($ctr, $msg);
+		$this->assertSame($msg, $result);
+		$this->assertFalse($msg->isError());
+	}
+
+	/**
+	 * Test that the return message is not always the same message passed in.
+	 * We want this because it allows the controller's initialize to swap out
+	 * a message before execute
+	 *
+	 * @return null
+	 */
+	public function testInitializeReplacedMessage()
+	{
+		$ctr = $this->getMockActionController();
+		$msg = new Message();
+
+		$returnMsg = new Message();
+		$returnMsg->setError('the return message has an error');
+
+		$ctr->expects($this->once())
+			->method('initialize')
+			->will($this->returnValue($returnMsg));
+
+		$result = $this->front->initialize($ctr, $msg);
+		$this->assertNotSame($msg, $result);
+		$this->assertSame($returnMsg, $result);
+		$this->assertTrue($returnMsg->isError());
+	}
+
+	/**
+	 * Test what happens when the controller throws an execption
+	 * 
+	 * @return null
+	 */
+	public function testInitializeControllerThrowException()
+	{
+		$ctr = $this->getMockActionController();
+		$msg = new Message();
+
+		$ctr->expects($this->once())
+			->method('initialize')
+			->will($this->throwException(new Exception()));
+
+
+		$result = $this->front->initialize($ctr, $msg);
+		$this->assertSame($msg, $result);
+		$this->assertTrue($msg->isError());
+	}
+
+	/**
 	 * When no other builders are found false is returned
 	 *
 	 * @return null
 	 */ 
 	public function testCreateActionBuilderNoNamespaces()
 	{
-		/* namespace to the known action controller */
-		$routeInterface = 'Appfuel\Framework\App\Route\RouteInterface';
-		$methods = array(
-			'getRouteString',
-			'getAccessPolicy',
-			'getResponseType',
-			'getActionNamespace',
-			'getSubModuleNamespace',
-			'getModuleNamespace',
-			'getRootActionNamespace'
-		);
-		$route = $this->getMockBuilder($routeInterface)
-					  ->setMethods($methods)
-					  ->getMock();
+		$route = $this->getMockRoute();
 
 		/* The builder object is instantiated in one of four namespaces,
 		 * all of them will return empty strings so no builder object will
@@ -241,5 +292,27 @@ class FrontControllerTest extends ParentTestCase
 		);	
 	}
 
+	/**
+	 * Action\MyModule\MySubModule\MyAction\ActionBuilder should be the first
+	 * builder found
+	 *
+	 * @return null
+	 */ 
+	public function testCreateActionBuilderActionNamespace()
+	{
+		$ns = __NAMESPACE__ . '\MyRootAction\MyModule\MySubModule\MyAction';
+
+		$route     = new ActionRoute('no/route', $ns, 'public', 'json');
+	
+		$builder  = $this->front->createActionBuilder($route);
+		$expected = __NAMESPACE__ . 
+					'\MyRootAction\MyModule\MySubModule\MyAction\ActionBuilder';
+		
+		$this->assertInstanceOf(
+			$expected,
+			$builder,
+			'Action builder should be found before sub module level builder'
+		);	
+	}
 }
 

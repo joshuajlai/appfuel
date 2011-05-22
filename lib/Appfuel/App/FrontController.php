@@ -96,8 +96,7 @@ class FrontController implements FrontControllerInterface
 			return $this->dispatchError($msg);
 		}
 
-		$request      = $msg->get('request');
-		$route        = $data->get('route');
+		$route        = $msg->getRoute();
         $responseType = $msg->loadResponseType();
 		
 		$actionBuilder = $this->createActionBuilder($route);
@@ -108,7 +107,7 @@ class FrontController implements FrontControllerInterface
 			return $this->dispatchError($msg);
 		}
 
-		$msg = $this->intialize($controller, $msg);
+		$msg = $this->initialize($controller, $msg);
 		if ($msg->isError()) {
 			return $this->dispatchError($msg);
 		}
@@ -184,11 +183,14 @@ class FrontController implements FrontControllerInterface
 	public function initialize(ControllerInterface $ctr, MessageInterface $msg)
 	{
 		try {
-			$msg = $ctr->initialize($msg);
+			$tmp = $ctr->initialize($msg);
+			if ($tmp instanceof MessageInterface) {
+				$msg = $tmp;
+			}
 		} catch (Exception $e) {
-			// handler intialization errors
+			$msg->setError($e->getMessage());
 		}
-	
+
 		return $msg;
 	}
 	
@@ -197,14 +199,16 @@ class FrontController implements FrontControllerInterface
 	 *
 	 * @param	ControllerInterface	$controller
 	 * @param	MessageInterface	$msg	
-	 * @return	MessageInterface		
+	 * @return  MessageInterface		
 	 */
 	public function execute(ControllerInterface $ctr, MessageInterface $msg)
 	{
         try {
             $msg = $controller->execute($data);
         } catch (Exception $e) {
-			// handle controller exceptions
+			$msg->setError($e->getMessage());
 		}
+
+		return $msg;
 	}
 }

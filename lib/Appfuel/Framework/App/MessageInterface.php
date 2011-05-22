@@ -11,11 +11,29 @@
 namespace Appfuel\Framework\App;
 
 
-use Appfuel\Framework\Data\DictionaryInterface;
+use Appfuel\Framework\Data\DictionaryInterface,
+	Appfuel\Framework\App\Route\RouteInterface,
+	Appfuel\Framework\App\Request\RequestInterface;
 
 /**
  *
  */
 interface MessageInterface extends DictionaryInterface
 {
+	public function getRoute();
+	public function setRoute(RouteInterface $route);
+	public function isRoute();
+
+	public function getRequest();
+	public function setRequest(RequestInterface $request);
+	public function isRequest();
+
+	public function getResponseType();
+	public function setResponseType($type);
+	public function loadResponseType();
+
+	public function getError();
+	public function setError($text);
+	public function isError();
+	public function clearError();
 }

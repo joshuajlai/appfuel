@@ -60,7 +60,7 @@ class AfTestCase extends ParentTestCase
 	{
 		self::$originalIncludePath = $path;
 	}
-
+	
 	/**
 	 * @return null
 	 */
@@ -212,5 +212,84 @@ class AfTestCase extends ParentTestCase
 		}
 		return $full;
 	}
-}
 
+	/**
+	 * Provides a mock route so you don't have to specify the all the methods
+	 * 
+	 * @return	RouteInteface
+	 */
+	public function getMockRoute()
+	{
+        /* namespace to the known action controller */
+        $routeInterface = 'Appfuel\Framework\App\Route\RouteInterface';
+        $methods = array(
+            'getRouteString',
+            'getAccessPolicy',
+            'getResponseType',
+            'getActionNamespace',
+            'getSubModuleNamespace',
+            'getModuleNamespace',
+            'getRootActionNamespace'
+        );
+        $route = $this->getMockBuilder($routeInterface)
+                      ->setMethods($methods)
+                      ->getMock();
+
+		return $route;
+	}
+
+	/**
+	 * @return	MessageInteface
+	 */
+	public function getMockMessage()
+	{
+        /* namespace to the known action controller */
+        $msgInterface = 'Appfuel\Framework\App\MessageInterface';
+        $methods = array(
+            'getRoute',
+            'SetRoute',
+			'isRoute',
+            'getRequest',
+			'setRequest',
+			'isRequest',
+			'getResponseType',
+			'setResponseType',
+			'loadResponseType',
+            'getError',
+            'setError',
+            'isError',
+            'clearError',
+			/* dictionary methods */
+			'add',
+			'get',
+			'getAll',
+			'count',
+			'load'
+        );
+
+        return $this->getMockBuilder($msgInterface)
+                    ->setMethods($methods)
+                    ->getMock();
+	}
+
+	/**
+	 * @return	ControllerInteface
+	 */
+	public function getMockActionController()
+	{
+        /* namespace to the known action controller */
+        $interface = 'Appfuel\Framework\App\Action\ControllerInterface';
+        $methods = array(
+            'addSupportedDocs',
+            'addSupportedDoc',
+			'getSupportedDocs',
+            'isSupportedDoc',
+			'initialize',
+			'execute'
+        );
+
+        return $this->getMockBuilder($interface)
+                    ->setMethods($methods)
+                    ->getMock();
+	}
+}
