@@ -8,14 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\App\MyRootAction\MyModule;
+namespace MyFakeApp\App\Action\Error\Handler;
 
-use Test\Appfuel\App\MyRootAction\ActionBuilder as ParentBuilder;
+use MyFakeApp\App\Action\Error\ActionBuilder as ParentActionBuilder;
 
 /**
- * Represents a module level ActionBuilder
  */
-class ActionBuilder extends ParentBuilder
+class ActionBuilder extends ParentActionBuilder
 {
 }
 

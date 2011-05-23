@@ -10,11 +10,23 @@
  */
 namespace Appfuel\Framework\App\Action;
 
+use Appfuel\Framework\App\Route\RouteInterface;
 
 /**
- * Action controllers are used process the user request manipulate the given
- * document and hand back the message
+ *
  */
 interface ActionBuilderInterface
 {
+	public function getRoute();
+	public function createController();
+	public function isError();
+	public function setError($text);
+/*	public function isInputValidationEnabled();
+	public function enableInputValidation();
+	public function disabledInputValidation();
+	public function createInputScheme();
+	public function createInputValidator(InputSchemeInterface $scheme);
+	public function createViewManager();
+	public function buildView($responseType);
+*/
 }

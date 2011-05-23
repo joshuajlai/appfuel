@@ -124,16 +124,42 @@ class FrontController implements FrontControllerInterface
 		if (! $this->isSatisfiedBy($msg)) {
 			throw new Exception("$errText {$msg->getError()}");
 		}
-		$route   = $msg->getRoute();
-		$request = $msg->getRequest();
 
-		$actionBuilder = $this->createActionBuilder($route);
-		if (! $actionBuilder instanceof ActionBuilderInterface) {
+		$msg     = $this->assignResponseType($msg);
+		$builder = $this->createActionBuilder($route);
+		if (! $builder instanceof ActionBuilderInterface) {
 			throw new Exception("$errText ActionBuilder has invalid interface");
 		}
 
-		$responseType = $msg->calculateResponseType($route, $request);
+		$controller = $builder->buildController($msg);
+		if ($builder->isError()) {
+			$errText .= ' ' . $builder->getError();
+			throw new Exception($errText);
+		}
 
+		if (! $controller instanceof ControllerInterface) {
+			$errText .= " Action Controller using an invalid interface";
+			throw new Exception($errText);
+		}
+
+		return $controller;
+	}
+
+	/**
+	 * Response type is assigned to the message by looking at both the
+	 * route and the user input
+	 *
+	 * @param	MessageInterface	$msg
+	 * @return	MessageInterface
+	 */
+	public function assignResponseType(MessageInterface $msg)
+	{
+		$route   = $msg->getRoute();
+		$request = $msg->getRequest();
+		$responseType = $msg->calculateResponseType($route, $request);
+		$msg->setResponseType($responseType);
+
+		return $msg;
 	}
 
 	/**
@@ -148,28 +174,28 @@ class FrontController implements FrontControllerInterface
 		$class     = "$namespace\\ActionBuilder";
 		$builder   = null;
 		try {
-			$builder = new $class();
+			$builder = new $class($route);
 			return $builder;
 		} catch (Exception $e) {}
 
 		$namespace = $route->getSubModuleNamespace();
 		$class     = "$namespace\\ActionBuilder";
 		try {
-			$builder = new $class();
+			$builder = new $class($route);
 			return $builder;
 		} catch (Exception $e) {}
 
 		$namespace = $route->getModuleNamespace();
 		$class     = "$namespace\\ActionBuilder";
 		try {
-			$builder = new $class();
+			$builder = new $class($route);
 			return $builder;
 		} catch (Exception $e) {}
 
 		$namespace = $route->getRootActionNamespace();
 		$class     = "$namespace\\ActionBuilder";
 		try {
-			$builder = new $class();
+			$builder = new $class($route);
 			return $builder;
 		} catch (Exception $e) {}
 

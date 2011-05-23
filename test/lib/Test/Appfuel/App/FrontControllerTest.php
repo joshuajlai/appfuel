@@ -300,12 +300,12 @@ class FrontControllerTest extends ParentTestCase
 	public function testCreateActionBuilderRootNamespace()
 	{
 		/* namespace to the known action controller */
-		$namespace = __NAMESPACE__ . '\MyRootAction\Others\Dont\Exist';
+		$namespace = '\MyFakeApp\App\Action\Others\Dont\Exist';
 		$route     = new ActionRoute('no/route', $namespace, 'public', 'json');
 	
 		$builder = $this->front->createActionBuilder($route);
 		$this->assertInstanceOf(
-			__NAMESPACE__ . '\MyRootAction\ActionBuilder',
+			'\MyFakeApp\App\Action\ActionBuilder',
 			$builder,
 			'no other builders exist exception the root action builder'
 		);	
@@ -319,12 +319,12 @@ class FrontControllerTest extends ParentTestCase
 	 */ 
 	public function testCreateActionBuilderModuleNamespace()
 	{
-		$ns    = __NAMESPACE__ . '\MyRootAction\MyModule\Not\Exist';
+		$ns    = '\MyFakeApp\App\Action\Error\Not\Exist';
 		$route = new ActionRoute('no/route', $ns, 'public', 'json');
 	
 		$builder = $this->front->createActionBuilder($route);
 		$this->assertInstanceOf(
-			__NAMESPACE__ . '\MyRootAction\MyModule\ActionBuilder',
+			'\MyFakeApp\App\Action\Error\ActionBuilder',
 			$builder,
 			'Module builder should be found before root level builder'
 		);	
@@ -339,13 +339,13 @@ class FrontControllerTest extends ParentTestCase
 	 */ 
 	public function testCreateActionBuilderSubModuleNamespace()
 	{
-		$ns = __NAMESPACE__ . '\MyRootAction\MyModule\MySubModule\None';
+		$ns = '\MyFakeApp\App\Action\Error\Handler\None';
 
 		$route     = new ActionRoute('no/route', $ns, 'public', 'json');
 	
 		$builder = $this->front->createActionBuilder($route);
 		$this->assertInstanceOf(
-			__NAMESPACE__ . '\MyRootAction\MyModule\MySubModule\ActionBuilder',
+			'\MyFakeApp\App\Action\Error\Handler\ActionBuilder',
 			$builder,
 			'Module builder should be found before root level builder'
 		);	
@@ -359,16 +359,14 @@ class FrontControllerTest extends ParentTestCase
 	 */ 
 	public function testCreateActionBuilderActionNamespace()
 	{
-		$ns = __NAMESPACE__ . '\MyRootAction\MyModule\MySubModule\MyAction';
+		$ns = '\MyFakeApp\App\Action\Error\Handler\Invalid';
 
 		$route     = new ActionRoute('no/route', $ns, 'public', 'json');
 	
 		$builder  = $this->front->createActionBuilder($route);
-		$expected = __NAMESPACE__ . 
-					'\MyRootAction\MyModule\MySubModule\MyAction\ActionBuilder';
 		
 		$this->assertInstanceOf(
-			$expected,
+			'\MyFakeApp\App\Action\Error\Handler\Invalid\ActionBuilder',
 			$builder,
 			'Action builder should be found before sub module level builder'
 		);	

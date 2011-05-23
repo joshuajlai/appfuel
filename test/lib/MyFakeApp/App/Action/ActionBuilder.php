@@ -8,14 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\App\MyRootAction\MyModule;
+namespace MyFakeApp\App\Action;
 
-use Test\Appfuel\App\MyRootAction\ActionBuilder as ParentBuilder;
+use Appfuel\App\Action\ActionBuilder as ParentActionBuilder;
 
 /**
- * Represents a module level ActionBuilder
+ * Designed only to test to how extendable appfuels action builder is. This 
+ * class is used by unit tests.
  */
-class ActionBuilder extends ParentBuilder
+class ActionBuilder extends ParentActionBuilder
 {
 }
 

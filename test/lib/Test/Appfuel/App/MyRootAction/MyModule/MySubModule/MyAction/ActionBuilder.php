@@ -10,12 +10,13 @@
  */
 namespace Test\Appfuel\App\MyRootAction\MyModule\MySubModule\MyAction;
 
-use Appfuel\Framework\App\Action\ActionBuilderInterface;
+use Test\Appfuel\App\MyRootAction\MyModule\MySubModule\ActionBuilder 
+	as ParentBuilder;
 
 /**
  * Represents a module level ActionBuilder
  */
-class ActionBuilder implements ActionBuilderInterface
+class ActionBuilder extends ParentBuilder
 {
 }
 

@@ -10,7 +10,9 @@
  */
 namespace Test\Appfuel\App\MyRootAction;
 
-use Appfuel\Framework\App\Action\ActionBuilderInterface;
+use Appfuel\Framework\App\Action\ActionBuilderInterface,
+	Appfuel\Framework\App\Route\RouteInterface,
+	Appfuel\Framework\App\Action\InputSchemeInterface;
 
 /**
  * The purpose of this class is to simulate a different implementation of the
@@ -19,5 +21,16 @@ use Appfuel\Framework\App\Action\ActionBuilderInterface;
  */
 class ActionBuilder implements ActionBuilderInterface
 {
+	public function getRoute(){}
+	public function isError(){}
+	public function setError($text){ return $this;}
+	public function createController(){}
+    public function isInputValidationEnabled(){}
+    public function enableInputValidation(){}
+    public function disabledInputValidation(){}
+    public function createInputScheme(){}
+    public function createInputValidator(InputSchemeInterface $scheme){}
+    public function createViewManager(){}
+    public function buildView($responseType){}
 }
 
