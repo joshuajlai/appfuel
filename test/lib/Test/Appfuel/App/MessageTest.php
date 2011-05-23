@@ -66,7 +66,9 @@ class MessageTest extends ParentTestCase
     {
         $this->assertFalse($this->message->isRequest());
 
-        $request = $this->getMock('Appfuel\Framework\App\Request\RequestInterface');
+        $request = $this->getMock(
+			'Appfuel\Framework\App\Request\RequestInterface'
+		);
         $this->message->setRequest($request);
         $this->assertTrue($this->message->isRequest());
 		$this->assertSame($request, $this->message->getRequest());
@@ -95,7 +97,7 @@ class MessageTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testLoadResponseTypeNotInRequest()
+	public function testCalculateResponseTypeNotInRequest()
 	{
 		$mockClass = 'Appfuel\App\Request';
         $request  = $this->getMockBuilder($mockClass)
@@ -115,9 +117,8 @@ class MessageTest extends ParentTestCase
 			  ->will($this->returnValue('html'));
 		$this->message->setRoute($route);
 
-		$result = $this->message->loadResponseType();
+		$result = $this->message->calculateResponseType($request, $route);
 		$this->assertEquals('html', $result);
-		$this->assertEquals('html', $this->message->getResponseType());
 	}
 
 	/**
@@ -126,7 +127,7 @@ class MessageTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testLoadResponseTypeInRequest()
+	public function testCalculateResponseTypeInRequest()
 	{
 		$mockClass = 'Appfuel\App\Request';
         $request  = $this->getMockBuilder($mockClass)
@@ -151,9 +152,8 @@ class MessageTest extends ParentTestCase
 			  ->will($this->returnValue('html'));
 		$this->message->setRoute($route);
 
-		$result = $this->message->loadResponseType();
+		$result = $this->message->calculateResponseType($request, $route);
 		$this->assertEquals('json', $result);
-		$this->assertEquals('json', $this->message->getResponseType());
 	}
 
 	/**
@@ -162,7 +162,7 @@ class MessageTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testLoadResponseTypeInRequestButEmpty()
+	public function testCalculateResponseTypeInRequestButEmpty()
 	{
 		$mockClass = 'Appfuel\App\Request';
         $request  = $this->getMockBuilder($mockClass)
@@ -187,44 +187,8 @@ class MessageTest extends ParentTestCase
 			  ->will($this->returnValue('html'));
 		$this->message->setRoute($route);
 
-		$result = $this->message->loadResponseType();
+		$result = $this->message->calculateResponseType($request, $route);
 		$this->assertEquals('html', $result);
-		$this->assertEquals('html', $this->message->getResponseType());
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testLoadResponseTypeNoRequest()
-	{
-		$route = $this->getMock('Appfuel\Framework\App\Route\RouteInterface');
-		$route->expects($this->any())
-			  ->method('getResponseType')
-			  ->will($this->returnValue('html'));
-		$this->message->setRoute($route);
-
-		$result = $this->message->loadResponseType();
-	}
-
-	/**
-	 * Test that when Request::isResponseType is true by the data is empty then
-	 * routes response type is set
-	 *
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testLoadResponseTypeNoRoute()
-	{
-		$mockClass = 'Appfuel\App\Request';
-        $request  = $this->getMockBuilder($mockClass)
-						 ->disableOriginalConstructor()
-						->setMethods(array('isResponseType', 'getResponseType'))
-						->getMock();
-
-		$this->message->setRequest($request);
-        
-		$result = $this->message->loadResponseType();
 	}
 
 	/**

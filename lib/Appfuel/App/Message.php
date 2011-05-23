@@ -133,22 +133,12 @@ class Message extends Dictionary implements MessageInterface
 	}
 
 	/**
-	 * Load the response type from the request or route. When there is no 
-	 * reponse type from the request use the route's value. Returns the 
-	 * responseType that was set
 	 *
 	 * @return string
 	 */
-	public function loadResponseType()
+	public function calculateResponseType(RequestInterface $request,
+										  RouteInterface   $route)
 	{
-		$route   = $this->getRoute();
-		$request = $this->getRequest();
-		if (! $route || ! $request) {
-			throw new Exception(
-				'Can not load response type without request or route'
-			);
-		}
-
 		$responseType = $route->getResponseType();
 		if ($request->isResponseType()) {
 			$temp = $request->getResponseType();
@@ -156,7 +146,6 @@ class Message extends Dictionary implements MessageInterface
 				$responseType = $temp;
 			}
 		}
-		$this->setResponseType($responseType);
 		return $responseType;
 	}
 

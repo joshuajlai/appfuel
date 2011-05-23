@@ -254,7 +254,7 @@ class AfTestCase extends ParentTestCase
 			'isRequest',
 			'getResponseType',
 			'setResponseType',
-			'loadResponseType',
+			'calculateResponseType',
             'getError',
             'setError',
             'isError',

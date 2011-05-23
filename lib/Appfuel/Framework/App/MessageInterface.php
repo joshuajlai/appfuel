@@ -30,7 +30,8 @@ interface MessageInterface extends DictionaryInterface
 
 	public function getResponseType();
 	public function setResponseType($type);
-	public function loadResponseType();
+	public function calculateResponseType(RequestInterface $reqest, 
+										  RouteInterface   $route);
 
 	public function getError();
 	public function setError($text);

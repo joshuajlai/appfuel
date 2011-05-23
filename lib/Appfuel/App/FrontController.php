@@ -14,6 +14,7 @@ namespace Appfuel\App;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\FrontControllerInterface,
 	Appfuel\Framework\App\Action\ControllerInterface,
+	Appfuel\Framework\App\Action\ActionBuilderInterface,
 	Appfuel\Framework\App\Route\RouteInterface,
     Appfuel\Framework\App\MessageInterface,
     Appfuel\Framework\View\DocumentInterface,
@@ -70,12 +71,12 @@ class FrontController implements FrontControllerInterface
 	public function isSatisfiedBy(MessageInterface $msg)
 	{        
 		if (! $msg->isRequest()) {
-			$msg->setError('Can not dispatch with out a request object');
+			$msg->setError('request is missing from the message');
 			return false;
         }
 
 		if (! $msg->isRoute()) {
-			$msg->setError('Can not dispatch with out a route object');
+			$msg->setError('route is missing from the message');
 			return false;
 		}
 
@@ -92,16 +93,10 @@ class FrontController implements FrontControllerInterface
      */
     public function dispatch(MessageInterface $msg)
     {
-		if (! $this->isSatisfiedBy($msg)) {
-			return $this->dispatchError($msg);
-		}
-
-		$route        = $msg->getRoute();
-        $responseType = $msg->loadResponseType();
-		
-		$controller = $this->buildController($route, $responseType);	
-		if (! $controller instanceof ControllerInterface) {
-			$msg->setError($builder->getError());
+		try {
+			$controller = $this->buildController($msg);
+		} catch (Exception $e) {
+			$msg->setError($e->getMessage());
 			return $this->dispatchError($msg);
 		}
 
@@ -123,10 +118,22 @@ class FrontController implements FrontControllerInterface
 	 * @param	string		   $responseType
 	 * @return	ControllerInterface
 	 */
-	public function buildController(RouteInterface $route, $responseType)
+	public function buildController(MessageInterface $msg)
 	{
+		$errText = 'buildController failed:';
+		if (! $this->isSatisfiedBy($msg)) {
+			throw new Exception("$errText {$msg->getError()}");
+		}
+		$route   = $msg->getRoute();
+		$request = $msg->getRequest();
+
 		$actionBuilder = $this->createActionBuilder($route);
-		return $actionBuilder->buildController($responseType);
+		if (! $actionBuilder instanceof ActionBuilderInterface) {
+			throw new Exception("$errText ActionBuilder has invalid interface");
+		}
+
+		$responseType = $msg->calculateResponseType($route, $request);
+
 	}
 
 	/**
