@@ -17,7 +17,7 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\Route\RouteInterface,
     Appfuel\Framework\App\MessageInterface,
     Appfuel\Framework\View\DocumentInterface,
-	Appfuel\App\Action\Error\Handler\Invalid\Controller as ErrorController;
+	Appfuel\App\Route\ErrorRoute;
 
 /**
  * Handle dispatching the request and outputting the response
@@ -25,10 +25,10 @@ use Appfuel\Framework\Exception,
 class FrontController implements FrontControllerInterface
 {
 	/**
-	 * Used to process errors that occur during dispatching
+	 * Used to build the error controller needed to process errors
 	 * @var	ErrorController
 	 */
-	protected $errorController = null;
+	protected $errorRoute = null;
 
 	/**
 	 * When so controller is passed in create the default error controller
@@ -36,28 +36,28 @@ class FrontController implements FrontControllerInterface
 	 * @param	ActionInterface		$controller
 	 * @return	FrontController
 	 */
-	public function __construct(ControllerInterface $controller = null)
+	public function __construct(RouteInterface $route = null)
 	{
-		if (null === $controller) {
-			$controller = new ErrorController();
+		if (null === $route) {
+			$route = new ErrorRoute();
 		}
-		$this->setErrorController($controller);
+		$this->setErrorRoute($route);
 	}
 
 	/**
 	 * @return	ActionInterface
 	 */
-	public function getErrorController()
+	public function getErrorRoute()
 	{
-		return $this->errorController;
+		return $this->errorRoute;
 	}
 
 	/**
 	 * @param	ActionInterface	 $controller
 	 */
-	public function setErrorController(ControllerInterface $controller)
+	public function setErrorRoute(RouteInterface $route)
 	{
-		$this->errorController = $controller;
+		$this->errorRoute = $route;
 		return $this;
 	}
 
@@ -99,10 +99,8 @@ class FrontController implements FrontControllerInterface
 		$route        = $msg->getRoute();
         $responseType = $msg->loadResponseType();
 		
-		$actionBuilder = $this->createActionBuilder($route);
-		$controller    = $actionBuilder->buildController($responseType);
-		
-		if (! $controller) {
+		$controller = $this->buildController($route, $responseType);	
+		if (! $controller instanceof ControllerInterface) {
 			$msg->setError($builder->getError());
 			return $this->dispatchError($msg);
 		}
@@ -119,6 +117,17 @@ class FrontController implements FrontControllerInterface
 
         return $msg;
     }
+	
+	/**
+	 * @param	RouteInterface $route
+	 * @param	string		   $responseType
+	 * @return	ControllerInterface
+	 */
+	public function buildController(RouteInterface $route, $responseType)
+	{
+		$actionBuilder = $this->createActionBuilder($route);
+		return $actionBuilder->buildController($responseType);
+	}
 
 	/**
 	 * See interface for details
@@ -168,7 +177,13 @@ class FrontController implements FrontControllerInterface
 	 */
 	public function dispatchError(MessageInterface $msg)
 	{
-		$controller = $this->getErrorController();
+		$route = $this->getErrorRoute();
+
+		$msg->setRoute($route);
+		$responseType = $msg->loadResponseType();
+
+		$controller = $this->buildController($route, $responseType);
+
 		$msg = $this->initialize($controller, $msg);
 		return $this->execute($controller, $msg);
 	}
@@ -204,7 +219,10 @@ class FrontController implements FrontControllerInterface
 	public function execute(ControllerInterface $ctr, MessageInterface $msg)
 	{
         try {
-            $msg = $controller->execute($data);
+            $tmp = $ctr->execute($msg);
+			if ($tmp instanceof MessageInterface) {
+				$msg = $tmp;
+			}
         } catch (Exception $e) {
 			$msg->setError($e->getMessage());
 		}

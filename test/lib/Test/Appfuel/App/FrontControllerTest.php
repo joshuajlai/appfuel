@@ -45,25 +45,22 @@ class FrontControllerTest extends ParentTestCase
 	}
 
 	/**
-	 * When no error controller is passed in, the front controller will create
-	 * and set one. We will be testing that the correct controller was set
-	 *
+	 * When no error route is passed in the appfuel error route is used.
 	 * @return null
 	 */
 	public function testConstructor()
 	{
-		$error = $this->front->getErrorController();
+		$error = $this->front->getErrorRoute();
 		$this->assertInstanceOf(
-			'Appfuel\App\Action\Error\Handler\Invalid\Controller',
+			'Appfuel\App\Route\ErrorRoute',
 			$error
 		);
 
-		$ctrClass = 'Appfuel\Framework\App\Action\ControllerInterface';
-		$errorController = $this->getMock($ctrClass);	
+		$errorRoute = $this->getMockRoute();	
 
-		$this->assertNotEquals($errorController, $error);
-		$front = new FrontController($errorController);
-		$this->assertSame($errorController, $front->getErrorController());
+		$this->assertNotEquals($errorRoute, $error);
+		$front = new FrontController($errorRoute);
+		$this->assertSame($errorRoute, $front->getErrorRoute());
 	}
 
 	/**
@@ -131,6 +128,68 @@ class FrontControllerTest extends ParentTestCase
 			->method('setError');
 
 		$this->assertFalse($this->front->isSatisfiedBy($msg));
+	}
+
+	/**
+	 *
+	 * @return	null
+	 */	
+	public function testExecute()
+	{
+		$ctr = $this->getMockActionController();
+		$msg = new Message();
+
+		$ctr->expects($this->once())
+			->method('execute')
+			->will($this->returnValue($msg));
+
+		$result = $this->front->execute($ctr, $msg);
+		$this->assertSame($msg, $result);
+		$this->assertFalse($msg->isError());
+	}
+
+	/**
+	 * Test that the return message is not always the same message passed in.
+	 * We want this because it allows the controller's execute to swap out
+	 * a message before it is used for outputting
+	 *
+	 * @return null
+	 */
+	public function testExecuteReplacedMessage()
+	{
+		$ctr = $this->getMockActionController();
+		$msg = new Message();
+
+		$returnMsg = new Message();
+		$returnMsg->setError('the return message has an error');
+
+		$ctr->expects($this->once())
+			->method('execute')
+			->will($this->returnValue($returnMsg));
+
+		$result = $this->front->execute($ctr, $msg);
+		$this->assertNotSame($msg, $result);
+		$this->assertSame($returnMsg, $result);
+		$this->assertTrue($returnMsg->isError());
+	}
+
+	/**
+	 * Test what happens when the controller throws an execption
+	 * 
+	 * @return null
+	 */
+	public function testExecuteControllerThrowException()
+	{
+		$ctr = $this->getMockActionController();
+		$msg = new Message();
+
+		$ctr->expects($this->once())
+			->method('execute')
+			->will($this->throwException(new Exception()));
+
+		$result = $this->front->execute($ctr, $msg);
+		$this->assertSame($msg, $result);
+		$this->assertTrue($msg->isError());
 	}
 
 	/**
