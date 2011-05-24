@@ -12,7 +12,7 @@ namespace Appfuel\App\View;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\FileInterface,
-	Appfuel\Framework\View\FileTemplateInterface;
+	Appfuel\Framework\App\View\FileTemplateInterface;
 
 /**
  * Handles all assignments of data to be used in a template

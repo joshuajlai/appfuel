@@ -10,13 +10,13 @@
  */
 namespace Appfuel\App\View\Csv;
 
-use Appfuel\Framework\View\ViewInterface,
+use Appfuel\Framework\App\View\ViewInterface,
 	Appfuel\App\View\Data as ViewData;
 
 /**
  * Comma separated values is a dictionary that encodes its content
  */
-class Document extends ViewData implements ViewInterface
+class Response extends ViewData implements ViewInterface
 {
 	/**
 	 * This name is used when the contents are to be downloaded as a file

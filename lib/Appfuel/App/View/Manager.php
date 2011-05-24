@@ -12,12 +12,12 @@ namespace Appfuel\App\View;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\FileInterface,
-	Appfuel\Framework\View\FileTemplateInterface;
+	Appfuel\Framework\App\View\ViewManagerInterface;
 
 /**
  * Handles assignments to the view 
  */
-class Manager
+class ViewManager implements ViewManagerInterface
 {
 	/**
 	 * Type of view currently being used. Html, Cli, Json, Csv, Null etc..

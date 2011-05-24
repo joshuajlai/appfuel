@@ -82,7 +82,9 @@ class LayoutTest extends ParentTestCase
 		 * before. after it should exist and have an order of 1
 		 */
 		$name     = 'my-template';
-		$template = $this->getMock('\Appfuel\Framework\View\ViewInterface');
+		$template = $this->getMock(
+			'\Appfuel\Framework\App\View\ViewInterface'
+		);
 		$order    = 1;
 
 		$this->assertFalse($this->layout->templateExists($name));
@@ -102,7 +104,9 @@ class LayoutTest extends ParentTestCase
 		 * add the second template and test its order and that it exists
 		 */
 		$name2     = 'my-second-template';
-		$template2 = $this->getMock('\Appfuel\Framework\View\ViewInterface');
+		$template2 = $this->getMock(
+			'\Appfuel\Framework\App\View\ViewInterface'
+		);
 		$order2    = 2;
 
 		$this->assertFalse($this->layout->templateExists($name2));
@@ -122,7 +126,7 @@ class LayoutTest extends ParentTestCase
 	public function testAddGetExistsNoOrderProvided()
 	{
 		$name     = 'my-template';
-		$template = $this->getMock('\Appfuel\Framework\View\ViewInterface');
+		$template = $this->getMock('\Appfuel\Framework\App\View\ViewInterface');
 
 		$this->assertFalse($this->layout->templateExists($name));
 		$this->assertNull($this->layout->getTemplate($name));
@@ -138,7 +142,9 @@ class LayoutTest extends ParentTestCase
 		$this->assertEquals(1, $this->layout->getTemplateOrder($name));
 	
 		$name2     = 'my-second-template';
-		$template2 = $this->getMock('\Appfuel\Framework\View\ViewInterface');
+		$template2 = $this->getMock(
+			'\Appfuel\Framework\App\View\ViewInterface'
+		);
 
 		$this->assertFalse($this->layout->templateExists($name2));
 		$this->assertNull($this->layout->getTemplate($name2));

@@ -11,12 +11,12 @@
 namespace Test\Appfuel\App\View;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\View\Html\Document,
+	Appfuel\App\View\Html\Response,
 	Appfuel\View\Html\Element\Meta\Tag as MetaTag,
 	StdClass;
 
 /**
- * The html document is a template file that controller the html head, css 
+ * The html responseument is a template file that controller the html head, css 
  * link tags, css style tag, javascript script files and content and body tag
  * It does not manage the content inside the body tag. That is left to the 
  * layout.
@@ -27,7 +27,7 @@ class DocumentTest extends ParentTestCase
 	 * System under test
 	 * @var Template
 	 */
-	protected $doc = null;
+	protected $response = null;
 
 	/**
 	 * @return null
@@ -35,7 +35,7 @@ class DocumentTest extends ParentTestCase
 	public function setUp()
 	{
 		
-		$this->doc = new Document();
+		$this->response = new Response();
 	}
 
 	/**
@@ -43,7 +43,7 @@ class DocumentTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
-		unset($this->doc);
+		unset($this->response);
 	}
 
 	/**
@@ -53,20 +53,20 @@ class DocumentTest extends ParentTestCase
 	{
 		$this->assertInstanceOf(
 			'Appfuel\App\View\FileTemplate',
-			$this->doc,
-			'The html doc is also a template'
+			$this->response,
+			'The html response is also a template'
 		);
 
 		$this->assertInstanceOf(
 			'Appfuel\App\View\Data',
-			$this->doc,
-			'The html doc must extend the view data class'
+			$this->response,
+			'The html response must extend the view data class'
 		);
 
 		$this->assertInstanceOf(
 			'Appfuel\Data\Dictionary',
-			$this->doc,
-			'The json doc is also a dictionary'
+			$this->response,
+			'The json response is also a dictionary'
 		);
 	}
 
@@ -76,19 +76,19 @@ class DocumentTest extends ParentTestCase
 	public function testGetSetTitle()
 	{
 		/* initial value is null */
-		$this->assertNull($this->doc->getTitle());
+		$this->assertNull($this->response->getTitle());
 		
 		$title = $this->getMockBuilder('\Appfuel\View\Html\Element\Title')
 					  ->disableOriginalConstructor()
 					  ->getMock();
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->setTitle($title),
+			$this->response,
+			$this->response->setTitle($title),
 			'uses fluent interface'
 		);
 
-		$this->assertSame($title, $this->doc->getTitle());
+		$this->assertSame($title, $this->response->getTitle());
 	}
 
 	/**
@@ -97,19 +97,19 @@ class DocumentTest extends ParentTestCase
 	public function testGetSetBase()
 	{
 		/* initial value is null */
-		$this->assertNull($this->doc->getBase());
+		$this->assertNull($this->response->getBase());
 		
 		$base = $this->getMockBuilder('\Appfuel\View\Html\Element\Base')
 					  ->disableOriginalConstructor()
 					  ->getMock();
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->setBase($base),
+			$this->response,
+			$this->response->setBase($base),
 			'uses fluent interface'
 		);
 
-		$this->assertSame($base, $this->doc->getBase());
+		$this->assertSame($base, $this->response->getBase());
 	}
 
 	/**
@@ -118,7 +118,7 @@ class DocumentTest extends ParentTestCase
 	public function testGetSetCharset()
 	{
 		/* initial value is null */
-		$this->assertNull($this->doc->getCharset());
+		$this->assertNull($this->response->getCharset());
 		
 		$class = '\Appfuel\View\Html\Element\Meta\Charset';	
 		$tag   = $this->getMockBuilder($class)
@@ -126,12 +126,12 @@ class DocumentTest extends ParentTestCase
 					  ->getMock();
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->setCharset($tag),
+			$this->response,
+			$this->response->setCharset($tag),
 			'uses fluent interface'
 		);
 
-		$this->assertSame($tag, $this->doc->getCharset());
+		$this->assertSame($tag, $this->response->getCharset());
 	}
 
 	/**
@@ -140,27 +140,27 @@ class DocumentTest extends ParentTestCase
 	public function testAddGetMeta()
 	{
 		/* initial value is null */
-		$result = $this->doc->getMeta();
+		$result = $this->response->getMeta();
 		$this->assertInternalType('array', $result);
 		$this->assertEmpty($result);
 		
 		$tag = new MetaTag();
 		
 		$this->assertSame(
-			$this->doc,
-			$this->doc->addMeta($tag),
+			$this->response,
+			$this->response->addMeta($tag),
 			'uses a fluent interface'
 		);
 
 		$expected = array($tag);
-		$result = $this->doc->getMeta();
+		$result = $this->response->getMeta();
 		$this->assertEquals($expected, $result);
 
 		$tag2 = new MetaTag();
-		$this->doc->addMeta($tag2);
+		$this->response->addMeta($tag2);
 
 		$expected = array($tag, $tag2);
-		$result = $this->doc->getMeta();
+		$result = $this->response->getMeta();
 		$this->assertEquals($expected, $result);
 
 		/* prove charsets are not added */
@@ -168,8 +168,8 @@ class DocumentTest extends ParentTestCase
 		$tag3->addAttribute('charset', 'UTF-8');
 	
 		$this->assertSame(
-			$this->doc,
-			$this->doc->addMeta($tag3),
+			$this->response,
+			$this->response->addMeta($tag3),
 			'uses a fluent interface'
 		);
 
@@ -177,7 +177,7 @@ class DocumentTest extends ParentTestCase
 		 * note that expected is still the same array with just two tags
 		 * and not 3
 		 */
-		$result = $this->doc->getMeta();
+		$result = $this->response->getMeta();
 		$this->assertEquals($expected, $result);
 	}
 
@@ -187,7 +187,7 @@ class DocumentTest extends ParentTestCase
 	public function testAddGetCss()
 	{
 		/* initial value is null */
-		$result = $this->doc->getCssLinks();
+		$result = $this->response->getCssLinks();
 		$this->assertInternalType('array', $result);
 		$this->assertEmpty($result);
 			
@@ -197,50 +197,50 @@ class DocumentTest extends ParentTestCase
 					  ->getMock();
 		
 		$this->assertSame(
-			$this->doc,
-			$this->doc->addCssLink($tag),
+			$this->response,
+			$this->response->addCssLink($tag),
 			'uses a fluent interface'
 		);
 
 		$expected = array($tag);
-		$result = $this->doc->getCssLinks();
+		$result = $this->response->getCssLinks();
 		$this->assertEquals($expected, $result);
 
 		$tag2 = $this->getMockBuilder($class)
 					 ->disableOriginalConstructor()
 					 ->getMock();
 
-		$this->doc->addCssLink($tag2);
+		$this->response->addCssLink($tag2);
 
 		$expected = array($tag, $tag2);
-		$result = $this->doc->getCssLinks();
+		$result = $this->response->getCssLinks();
 		$this->assertEquals($expected, $result);
 	}
 
 	/**
-	 * Used to determine if styles are enabled or disabled for the html doc.
+	 * Used to determine if styles are enabled or disabled for the html response.
 	 *
 	 * @return null
 	 */
 	public function testIsEnableDisableCss()
 	{
 		/* default setting is true */
-		$this->assertTrue($this->doc->isCss());
+		$this->assertTrue($this->response->isCss());
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->disableCss(),
+			$this->response,
+			$this->response->disableCss(),
 			'uses fluent interface'
 		);
-		$this->assertFalse($this->doc->isCss());
+		$this->assertFalse($this->response->isCss());
 	
 		$this->assertSame(
-			$this->doc,
-			$this->doc->enableCss(),
+			$this->response,
+			$this->response->enableCss(),
 			'uses fluent interface'
 		);
 
-		$this->assertTrue($this->doc->isCss());
+		$this->assertTrue($this->response->isCss());
 	}
 
 	/**
@@ -249,46 +249,46 @@ class DocumentTest extends ParentTestCase
 	public function testGetSetInlineStyle()
 	{
 		/* initial value is null */
-		$this->assertNull($this->doc->getInlineCss());
+		$this->assertNull($this->response->getInlineCss());
 		
 		$tag = $this->getMockBuilder('\Appfuel\View\Html\Element\Style')
 					  ->disableOriginalConstructor()
 					  ->getMock();
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->setInlineCss($tag),
+			$this->response,
+			$this->response->setInlineCss($tag),
 			'uses fluent interface'
 		);
 
-		$this->assertSame($tag, $this->doc->getInlineCss());
+		$this->assertSame($tag, $this->response->getInlineCss());
 	}
 
 	/**
 	 * Used to determine if inline styles are enabled or disabled for the 
-	 * html doc.
+	 * html response.
 	 *
 	 * @return null
 	 */
 	public function testIsEnableDisableInlineCss()
 	{
 		/* default setting is false */
-		$this->assertFalse($this->doc->isInlineCss());
+		$this->assertFalse($this->response->isInlineCss());
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->enableInlineCss(),
+			$this->response,
+			$this->response->enableInlineCss(),
 			'uses fluent interface'
 		);
-		$this->assertTrue($this->doc->isInlineCss());
+		$this->assertTrue($this->response->isInlineCss());
 	
 		$this->assertSame(
-			$this->doc,
-			$this->doc->disableInlineCss(),
+			$this->response,
+			$this->response->disableInlineCss(),
 			'uses fluent interface'
 		);
 
-		$this->assertFalse($this->doc->isInlineCss());
+		$this->assertFalse($this->response->isInlineCss());
 	}
 
 	/**
@@ -302,59 +302,59 @@ class DocumentTest extends ParentTestCase
 	public function testGetAddJsScript()
 	{
 		/* default values are empty arrays */
-		$this->assertEquals(array(), $this->doc->getJsScripts('head'));
-		$this->assertEquals(array(), $this->doc->getJsScripts('body'));
+		$this->assertEquals(array(), $this->response->getJsScripts('head'));
+		$this->assertEquals(array(), $this->response->getJsScripts('body'));
 
 		$tag = $this->getMockBuilder('\Appfuel\View\Html\Element\Script')
 					  ->disableOriginalConstructor()
 					  ->getMock();
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->addJsScript($tag, 'head'),
+			$this->response,
+			$this->response->addJsScript($tag, 'head'),
 			'uses fluent interface'
 		);
 
 		$expectedHead = array($tag);
-		$this->assertEquals($expectedHead, $this->doc->getJsScripts('head'));
-		$this->assertEquals(array(), $this->doc->getJsScripts('body'));
+		$this->assertEquals($expectedHead, $this->response->getJsScripts('head'));
+		$this->assertEquals(array(), $this->response->getJsScripts('body'));
 
 		$tag2 = $this->getMockBuilder('\Appfuel\View\Html\Element\Script')
 					 ->disableOriginalConstructor()
 					 ->getMock();
 
-		$this->doc->addJsScript($tag2, 'head');
+		$this->response->addJsScript($tag2, 'head');
 		$expectedHead = array($tag, $tag2);
-		$this->assertEquals($expectedHead, $this->doc->getJsScripts('head'));
-		$this->assertEquals(array(), $this->doc->getJsScripts('body'));
+		$this->assertEquals($expectedHead, $this->response->getJsScripts('head'));
+		$this->assertEquals(array(), $this->response->getJsScripts('body'));
 
 		$tag3 = $this->getMockBuilder('\Appfuel\View\Html\Element\Script')
 					 ->disableOriginalConstructor()
 					 ->getMock();
 
 
-		$this->doc->addJsScript($tag3, 'body');
+		$this->response->addJsScript($tag3, 'body');
 		$expectedBody = array($tag3);
-		$this->assertEquals($expectedHead, $this->doc->getJsScripts('head'));
-		$this->assertEquals($expectedBody, $this->doc->getJsScripts('body'));
+		$this->assertEquals($expectedHead, $this->response->getJsScripts('head'));
+		$this->assertEquals($expectedBody, $this->response->getJsScripts('body'));
 
 		$tag4 = $this->getMockBuilder('\Appfuel\View\Html\Element\Script')
 					 ->disableOriginalConstructor()
 					 ->getMock();
 
-		$this->doc->addJsScript($tag4, 'body');
+		$this->response->addJsScript($tag4, 'body');
 		$expectedBody = array($tag3, $tag4);
-		$this->assertEquals($expectedHead, $this->doc->getJsScripts('head'));
-		$this->assertEquals($expectedBody, $this->doc->getJsScripts('body'));
+		$this->assertEquals($expectedHead, $this->response->getJsScripts('head'));
+		$this->assertEquals($expectedBody, $this->response->getJsScripts('body'));
 		
 		/* try to get from a location nknown not to exist */
-		$this->assertEquals(array(), $this->doc->getJsScripts('no-loc'));
+		$this->assertEquals(array(), $this->response->getJsScripts('no-loc'));
 		$this->assertSame(
-			$this->doc,
-			$this->doc->addJsScript($tag, 'no-loc'),
+			$this->response,
+			$this->response->addJsScript($tag, 'no-loc'),
 			'uses fluent interface'
 		);
-		$this->assertEquals(array(), $this->doc->getJsScripts('no-loc'));
+		$this->assertEquals(array(), $this->response->getJsScripts('no-loc'));
 	}
 
 	/**
@@ -363,22 +363,22 @@ class DocumentTest extends ParentTestCase
 	public function testIsEnableDisableJs()
 	{
 		/* default setting is true */
-		$this->assertTrue($this->doc->isJs());
+		$this->assertTrue($this->response->isJs());
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->disableJs(),
+			$this->response,
+			$this->response->disableJs(),
 			'uses fluent interface'
 		);
-		$this->assertFalse($this->doc->isJs());
+		$this->assertFalse($this->response->isJs());
 	
 		$this->assertSame(
-			$this->doc,
-			$this->doc->enableJs(),
+			$this->response,
+			$this->response->enableJs(),
 			'uses fluent interface'
 		);
 
-		$this->assertTrue($this->doc->isJs());
+		$this->assertTrue($this->response->isJs());
 	}
 
 	/**
@@ -387,43 +387,43 @@ class DocumentTest extends ParentTestCase
 	public function testGetSetInlineJs()
 	{
 		/* default values are null */
-		$this->assertNull($this->doc->getInlineJs('head'));
-		$this->assertNull($this->doc->getInlineJs('body'));
+		$this->assertNull($this->response->getInlineJs('head'));
+		$this->assertNull($this->response->getInlineJs('body'));
 
 		$tag = $this->getMockBuilder('\Appfuel\View\Html\Element\Script')
 					  ->disableOriginalConstructor()
 					  ->getMock();
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->setInlineJs($tag, 'head'),
+			$this->response,
+			$this->response->setInlineJs($tag, 'head'),
 			'uses fluent interface'
 		);
 
-		$this->assertSame($tag, $this->doc->getInlineJs('head'));
-		$this->assertNull($this->doc->getInlineJs('body'));
+		$this->assertSame($tag, $this->response->getInlineJs('head'));
+		$this->assertNull($this->response->getInlineJs('body'));
 
 		$tag2 = $this->getMockBuilder('\Appfuel\View\Html\Element\Script')
 					 ->disableOriginalConstructor()
 					 ->getMock();
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->setInlineJs($tag2, 'body'),
+			$this->response,
+			$this->response->setInlineJs($tag2, 'body'),
 			'uses fluent interface'
 		);
 
-		$this->assertSame($tag, $this->doc->getInlineJs('head'));
-		$this->assertSame($tag2, $this->doc->getInlineJs('body'));
+		$this->assertSame($tag, $this->response->getInlineJs('head'));
+		$this->assertSame($tag2, $this->response->getInlineJs('body'));
 
 		/* try to get from a location nknown not to exist */
-		$this->assertEquals(null, $this->doc->getInlineJs('no-loc'));
+		$this->assertEquals(null, $this->response->getInlineJs('no-loc'));
 		$this->assertSame(
-			$this->doc,
-			$this->doc->setInlineJs($tag, 'no-loc'),
+			$this->response,
+			$this->response->setInlineJs($tag, 'no-loc'),
 			'uses fluent interface'
 		);
-		$this->assertEquals(null, $this->doc->getInlineJs('no-loc'));
+		$this->assertEquals(null, $this->response->getInlineJs('no-loc'));
 	}
 
 	/**
@@ -432,21 +432,21 @@ class DocumentTest extends ParentTestCase
 	public function testIsEnableDisableInlineJs()
 	{
 		/* default setting is true */
-		$this->assertTrue($this->doc->isInlineJs());
+		$this->assertTrue($this->response->isInlineJs());
 
 		$this->assertSame(
-			$this->doc,
-			$this->doc->disableInlineJs(),
+			$this->response,
+			$this->response->disableInlineJs(),
 			'uses fluent interface'
 		);
-		$this->assertFalse($this->doc->isInlineJs());
+		$this->assertFalse($this->response->isInlineJs());
 	
 		$this->assertSame(
-			$this->doc,
-			$this->doc->enableInlineJs(),
+			$this->response,
+			$this->response->enableInlineJs(),
 			'uses fluent interface'
 		);
 
-		$this->assertTrue($this->doc->isInlineJs());
+		$this->assertTrue($this->response->isInlineJs());
 	}
 }

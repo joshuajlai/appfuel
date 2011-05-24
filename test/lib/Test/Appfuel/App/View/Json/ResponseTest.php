@@ -11,11 +11,11 @@
 namespace Test\Appfuel\App\View\Json;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\View\Json\Document,
+	Appfuel\App\View\Json\Response,
 	StdClass;
 
 /**
- * This document type is very simple and does not require a template file which
+ * This responseument type is very simple and does not require a template file which
  * is why we do not extend the template just the view data class. The only 
  * functionality that is added is the build which json encoded the items in
  * the dictionary
@@ -26,14 +26,14 @@ class DocumentTest extends ParentTestCase
 	 * System under test
 	 * @var Template
 	 */
-	protected $doc = null;
+	protected $response = null;
 
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->doc = new Document();
+		$this->response = new Response();
 	}
 
 	/**
@@ -41,7 +41,7 @@ class DocumentTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
-		unset($this->doc);
+		unset($this->response);
 	}
 
 	/**
@@ -51,14 +51,14 @@ class DocumentTest extends ParentTestCase
 	{
 		$this->assertInstanceOf(
 			'Appfuel\App\View\Data',
-			$this->doc,
-			'The json doc must extend the view data class'
+			$this->response,
+			'The json response must extend the view data class'
 		);
 
 		$this->assertInstanceOf(
 			'Appfuel\Data\Dictionary',
-			$this->doc,
-			'The json doc is also a dictionary'
+			$this->response,
+			'The json response is also a dictionary'
 		);
 	}
 
@@ -68,8 +68,8 @@ class DocumentTest extends ParentTestCase
 	 */
 	public function testBuildSimpleValue()
 	{
-		$this->doc->assign('foo', 'bar');
-		$result = $this->doc->build();
+		$this->response->assign('foo', 'bar');
+		$result = $this->response->build();
 
 		$expected = json_encode(array('foo'=>'bar'));
 		$this->assertEquals($expected, $result);
@@ -95,8 +95,8 @@ class DocumentTest extends ParentTestCase
 		);
 
 		$expected = json_encode($data);
-		$this->doc->load($data);
-		$result = $this->doc->build();
+		$this->response->load($data);
+		$result = $this->response->build();
 		$this->assertEquals($expected, $result);
 	}
 
@@ -105,7 +105,7 @@ class DocumentTest extends ParentTestCase
 	 */
 	public function testBuildNoData()
 	{	
-		$result = $this->doc->build();
+		$result = $this->response->build();
 		$this->assertInternalType('string', $result);
 		$this->assertEmpty($result);
 	}

@@ -10,13 +10,13 @@
  */
 namespace Appfuel\App\View\Json;
 
-use Appfuel\Framework\View\ViewInterface,
+use Appfuel\Framework\App\View\ViewInterface,
 	Appfuel\App\View\Data as ViewData;
 
 /**
  * The json document is a dictionary that json encodes all its content
  */
-class Document extends ViewData implements ViewInterface
+class Response extends ViewData implements ViewInterface
 {
 	/**
 	 * @return string

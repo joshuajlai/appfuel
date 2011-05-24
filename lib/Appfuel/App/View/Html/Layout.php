@@ -11,7 +11,7 @@
 namespace Appfuel\App\View\Html;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\View\ViewInterface,
+	Appfuel\Framework\App\View\ViewInterface,
 	Appfuel\App\View\FileTemplate;
 
 /**

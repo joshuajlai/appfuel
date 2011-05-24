@@ -12,8 +12,8 @@ namespace Appfuel\App\View\Html;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\FileInterface,
-	Appfuel\Framework\View\TemplateInterface,
-	Appfuel\Framework\View\ViewInterface,
+	Appfuel\Framework\App\View\TemplateInterface,
+	Appfuel\Framework\App\View\ViewInterface,
 	Appfuel\App\View\FileTemplate,
 	Appfuel\View\Html\Element\Tag,
 	Appfuel\View\Html\Element\Title,
@@ -28,7 +28,7 @@ use Appfuel\Framework\Exception,
  * Html document template. Used to manage the html document. This template 
  * does not act on any content inside the body tag itself. 
  */
-class Document extends FileTemplate
+class Response extends FileTemplate
 {
 	/**
 	 * Title tag used in the head of the document

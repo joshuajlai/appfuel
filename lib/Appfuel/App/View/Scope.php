@@ -12,7 +12,7 @@ namespace Appfuel\App\View;
 
 use SplFileInfo,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\View\ScopeInterface,
+	Appfuel\Framework\App\View\ScopeInterface,
 	Appfuel\Stdlib\Filesystem\Manager as FileManager;
 
 /**

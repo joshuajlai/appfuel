@@ -8,27 +8,30 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\View;
-
-use Appfuel\Framework\Data\DictionaryInterface;
+namespace Appfuel\Framework\App\View;
 
 /**
  * Interface needed by the framework to use view templates
  */
-interface ViewInterface extends DictionaryInterface
+interface ViewManagerInterface
 {
+	/**
+	 * @return	DocumentInterface
+	 */
+	public function getDoc();
+
+	/**
+	 * @param	DocumentInteface	$doc
+	 * @return	ManagerInterface
+	 */
+	public function setDoc(DocumentInterface $doc);
+
     /**
      * Assign key value pair into scope
      *
      * @param   string  $name
      * @param   mixed   $value
-     * @return  ViewInterface
+     * @return  File
      */
     public function assign($name, $value);
-
-    /**
-     * Convert the document contents to a string
-     * @return string
-     */
-    public function build($data = null);
 }

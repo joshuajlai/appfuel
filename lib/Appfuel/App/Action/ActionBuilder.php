@@ -145,4 +145,17 @@ class ActionBuilder implements ActionBuilderInterface
 		$this->isInputValidation = false;
 		return $this;
 	}
+
+	public function createViewResponse($type)
+	{
+        $type  = ucfirst($type);
+        $valid = array('Html', 'Json', 'Cli', 'Csv', 'Null');
+        if (! in_array($type, $valid)) {
+            return false;
+        }
+
+        $class = "\\Appfuel\\App\\View\\{$type}\\Response";
+        return new $class();
+	}
+
 }

@@ -24,9 +24,9 @@ interface ActionBuilderInterface
 	public function isInputValidation();
 	public function enableInputValidation();
 	public function disableInputValidation();
-/*	public function createInputScheme();
-	public function createInputValidator(InputSchemeInterface $scheme);
-	public function createViewManager();
-	public function buildView($responseType);
-*/
+	public function createViewResponse($responseType);
+	//public function createInputScheme();
+	//public function createInputValidator(InputSchemeInterface $scheme);
+	//public function createViewManager();
+	//public function buildView($responseType);
 }
