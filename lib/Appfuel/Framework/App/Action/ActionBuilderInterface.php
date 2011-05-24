@@ -21,10 +21,10 @@ interface ActionBuilderInterface
 	public function createController();
 	public function isError();
 	public function setError($text);
-/*	public function isInputValidationEnabled();
+	public function isInputValidation();
 	public function enableInputValidation();
-	public function disabledInputValidation();
-	public function createInputScheme();
+	public function disableInputValidation();
+/*	public function createInputScheme();
 	public function createInputValidator(InputSchemeInterface $scheme);
 	public function createViewManager();
 	public function buildView($responseType);

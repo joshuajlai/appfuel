@@ -128,7 +128,9 @@ class FrontController implements FrontControllerInterface
 		$msg     = $this->assignResponseType($msg);
 		$builder = $this->createActionBuilder($route);
 		if (! $builder instanceof ActionBuilderInterface) {
-			throw new Exception("$errText ActionBuilder has invalid interface");
+			throw new Exception(
+				"$errText ActionBuilder has invalid interface"
+			);
 		}
 
 		$controller = $builder->buildController($msg);

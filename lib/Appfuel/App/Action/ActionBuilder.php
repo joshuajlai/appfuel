@@ -43,6 +43,11 @@ class ActionBuilder implements ActionBuilderInterface
 	protected $isError = false;
 
 	/**
+	 * @var bool
+	 */
+	protected $isInputValidation = true;
+
+	/**
 	 * @param	RouteInterface	$route
 	 * @return	ActionBuilder
 	 */
@@ -113,5 +118,31 @@ class ActionBuilder implements ActionBuilderInterface
 		}
 
 		return $controller;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isInputValidation()
+	{
+		return $this->isInputValidation;
+	}
+
+	/**
+	 * @return	ActionBuilder
+	 */
+	public function enableInputValidation()
+	{
+		$this->isInputValidation = true;
+		return $this;
+	}
+
+	/**
+	 * @return	ActionBuilder
+	 */
+	public function disableInputValidation()
+	{
+		$this->isInputValidation = false;
+		return $this;
 	}
 }

@@ -372,4 +372,3 @@ class FrontControllerTest extends ParentTestCase
 		);	
 	}
 }
-

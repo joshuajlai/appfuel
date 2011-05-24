@@ -86,5 +86,26 @@ class ActionBuilderTest extends ParentTestCase
 		$this->assertFalse($this->builder->isError());
 		$this->assertNull($this->builder->getError());
 	}
+
+	/**
+	 * @return null
+	 */
+	public function testIsEnableDisableInputValidation()
+	{
+		$this->assertTrue($this->builder->isInputValidation());
+		$this->assertSame(
+			$this->builder,
+			$this->builder->disableInputValidation(),
+			'must use a fluent interface'
+		);
+		$this->assertFalse($this->builder->isInputValidation());
+
+		$this->assertSame(
+			$this->builder,
+			$this->builder->enableInputValidation(),
+			'must use a fluent interface'
+		);
+		$this->assertTrue($this->builder->isInputValidation());
+	}
 }
 
