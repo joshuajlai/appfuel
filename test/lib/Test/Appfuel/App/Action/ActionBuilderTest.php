@@ -108,6 +108,137 @@ class ActionBuilderTest extends ParentTestCase
 		$this->assertTrue($this->builder->isInputValidation());
 	}
 
+    /**
+     * @return null
+     */
+    public function testIsGetClearRemoveValidResponseTypes()
+    {
+        $defaultTypes = array(
+            'Html',
+            'Json',
+            'Cli',
+            'Csv'
+        );
+
+        $this->assertEquals(
+            $defaultTypes,
+            $this->builder->getValidResponseTypes()
+        );
+
+        foreach ($defaultTypes as $type) {
+            $this->assertTrue($this->builder->isValidResponseType($type));
+        }
+
+        $this->assertSame(
+            $this->builder,
+            $this->builder->clearValidResponseTypes(),
+            'must use a fluent interface'
+        );
+
+        $this->assertEquals(
+            array(),
+            $this->builder->getValidResponseTypes(),
+            'should now be empty because we cleared the types'
+        );
+
+    }
+
+    /**
+     * @return null
+     */
+    public function testSetValidResponseTypes()
+    {
+        $this->builder->clearValidResponseTypes();
+
+        $types = array(
+            'my-type',
+            'your-type',
+            'his-type',
+            'her-type'
+        );
+
+        foreach ($types as $type) {
+            $this->assertFalse($this->builder->isValidResponseType($type));
+        }
+
+        $this->assertSame(
+            $this->builder,
+            $this->builder->setValidResponseTypes($types),
+            'must use fluent interface'
+        );
+
+        foreach ($types as $type) {
+            $this->assertTrue($this->builder->isValidResponseType($type));
+        }
+
+        $this->assertEquals(
+            $types,
+            $this->builder->getValidResponseTypes(),
+            'should now be the types we just set'
+        );
+    }
+
+    /**
+     * @return null
+     */
+    public function testAddRemoveValidReturnTypes()
+    {
+        $this->builder->clearValidResponseTypes();
+
+        $type = 'my-type';
+        $this->assertSame(
+            $this->builder,
+            $this->builder->addValidResponseType($type),
+            'must use a fluent interface'
+        );
+
+        $expected = array($type);
+        $this->assertEquals(
+            $expected,
+            $this->builder->getValidResponseTypes(),
+            'should now be the one type added'
+        );
+
+        $this->assertTrue($this->builder->isValidResponseType($type));
+
+        $type2 = 'my-second-type';
+        $this->builder->addValidResponseType($type2);
+
+        $expected = array($type, $type2);
+        $this->assertEquals(
+            $expected,
+            $this->builder->getValidResponseTypes(),
+            'should have both types that were added'
+        );
+
+        $this->assertTrue($this->builder->isValidResponseType($type));
+        $this->assertTrue($this->builder->isValidResponseType($type2));
+
+        $this->assertSame(
+            $this->builder,
+            $this->builder->removeValidResponseType($type),
+            'must use a fluent interface'
+        );
+        $this->assertFalse($this->builder->isValidResponseType($type));
+
+        $expected = array($type2);
+        $this->assertEquals(
+            $expected,
+            $this->builder->getValidResponseTypes(),
+            'should now only have the second type'
+        );
+
+
+        $this->builder->removeValidResponseType($type2);
+        $this->assertFalse($this->builder->isValidResponseType($type2));
+
+        $this->assertEquals(
+            array(),
+            $this->builder->getValidResponseTypes(),
+            'should now be empty because we removed all types'
+        );
+    }
+
 	/**
 	 * The name of the response can be either lower case or proper case
 	 * @return null
@@ -135,7 +266,87 @@ class ActionBuilderTest extends ParentTestCase
 		);
 
 		$this->assertFalse($this->builder->createViewResponse('no-view'));
+		$this->assertTrue($this->builder->isError());
+		$this->assertNotEmpty($this->builder->getError());
+
 		$this->assertFalse($this->builder->createViewResponse('HTML'));
 	}
+
+	/**
+	 * @return null
+	 */
+	public function testCreateViewManager()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\App\View\ViewManager',
+			$this->builder->createViewManager()
+		);
+	}
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     */
+    public function testAddValidResponseTypeBadTypeEmptyString()
+    {
+        $this->builder->addValidResponseType('');
+    }
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     */
+    public function testAddValidResponseTypeBadTypeArray()
+    {
+        $this->builder->addValidResponseType(array());
+    }
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     */
+    public function testAddValidResponseTypeBadTypeInt()
+    {
+        $this->builder->addValidResponseType(12345);
+    }
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     */
+    public function testAddValidResponseTypeBadTypeObject()
+    {
+        $this->builder->addValidResponseType(new stdClass());
+    }
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     */
+    public function testRemoveValidResponseTypeBadTypeEmptyString()
+    {
+        $this->builder->removeValidResponseType('');
+    }
+
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     */
+    public function testRemoveValidResponseTypeBadTypeArray()
+    {
+        $this->builder->removeValidResponseType(array());
+    }
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     */
+    public function testRemoveValidResponseTypeBadTypeInt()
+    {
+        $this->builder->removeValidResponseType(12345);
+    }
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     */
+    public function testRemoveValidResponseTypeBadTypeObject()
+    {
+        $this->builder->removeValidResponseType(new stdClass());
+    }
+
 }
 

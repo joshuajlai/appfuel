@@ -264,7 +264,7 @@ class Tag
 
 		$isStrict = true;
 		$key = array_search($name, $this->validAttrs, $isStrict); 
-		if ($key) {
+		if ($key !== false) {
 			unset($this->validAttrs[$key]);
 		}
 

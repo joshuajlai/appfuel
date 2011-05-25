@@ -123,6 +123,9 @@ class LayoutTest extends ParentTestCase
 		$this->assertEquals(2, $this->layout->getTemplateOrder($name2));
 	}
 
+	/**
+	 * @return null
+	 */
 	public function testAddGetExistsNoOrderProvided()
 	{
 		$name     = 'my-template';

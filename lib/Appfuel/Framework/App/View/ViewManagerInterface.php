@@ -15,23 +15,6 @@ namespace Appfuel\Framework\App\View;
  */
 interface ViewManagerInterface
 {
-	/**
-	 * @return	DocumentInterface
-	 */
-	public function getDoc();
-
-	/**
-	 * @param	DocumentInteface	$doc
-	 * @return	ManagerInterface
-	 */
-	public function setDoc(DocumentInterface $doc);
-
-    /**
-     * Assign key value pair into scope
-     *
-     * @param   string  $name
-     * @param   mixed   $value
-     * @return  File
-     */
-    public function assign($name, $value);
+	public function getView();
+	public function setView(ViewInterface $view);
 }
