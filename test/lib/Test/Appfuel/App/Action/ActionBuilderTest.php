@@ -240,39 +240,6 @@ class ActionBuilderTest extends ParentTestCase
     }
 
 	/**
-	 * The name of the response can be either lower case or proper case
-	 * @return null
-	 */
-	public function testCreateViewResponse()
-	{
-		$this->assertInstanceOf(
-			'Appfuel\App\View\Html\Response',
-			$this->builder->createViewResponse('html')
-		);
-
-		$this->assertInstanceOf(
-			'Appfuel\App\View\Json\Response',
-			$this->builder->createViewResponse('json')
-		);
-
-		$this->assertInstanceOf(
-			'Appfuel\App\View\Cli\Response',
-			$this->builder->createViewResponse('cli')
-		);
-
-		$this->assertInstanceOf(
-			'Appfuel\App\View\Csv\Response',
-			$this->builder->createViewResponse('csv')
-		);
-
-		$this->assertFalse($this->builder->createViewResponse('no-view'));
-		$this->assertTrue($this->builder->isError());
-		$this->assertNotEmpty($this->builder->getError());
-
-		$this->assertFalse($this->builder->createViewResponse('HTML'));
-	}
-
-	/**
 	 * @return null
 	 */
 	public function testCreateViewManager()

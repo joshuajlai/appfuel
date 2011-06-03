@@ -12,34 +12,54 @@ namespace Appfuel\App\View;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\FileInterface,
-	Appfuel\Framework\App\View\FileTemplateInterface;
+	Appfuel\Framework\App\View\ScopeInterface,
+	Appfuel\Framework\App\View\TemplateInterface,
+	Appfuel\Data\Dictionary;
 
 /**
  * Handles all assignments of data to be used in a template
  */
-class FileTemplate extends Data implements FileTemplateInterface
+class Template extends Dictionary implements TemplateInterface
 {
 	/**
-	 * Holds a list of files used by the template. This is not kept
-	 * in the dictionary to avoid name collisions with the keys
+	 * A file or object or string that represents the path to a file
 	 * @var array
 	 */
-	protected $files = array();
+	protected $file = null;
 
 	/**
-	 * Detemine if a particular key has a path string or object that 
-	 * implements the FileInteface
-	 * 
+	 * Used to bind the file to the data in scope
+	 * @var	Scope
+	 */
+	protected $scope = null;
+
+	/**
+	 * @param	mixed	$file 
+	 * @param	array	$data
+	 * @return	FileTemplate
+	 */
+	public function __construct($file = null, $data = null)
+	{
+		if ($file !== null) {
+			$this->setFile($file);
+		}
+
+		if ($data !== null) {
+			if (! $data instanceof ScopeInterface) {
+				$data = new Scope($data);
+			}
+
+			$this->setScope($data);
+		}
+	}
+
+	/**
+	 * Determines if a file has been set 
 	 * @return bool
 	 */
-    public function fileExists($key)
+    public function fileExists()
 	{
-		if (! array_key_exists($key, $this->files)) {
-			return false;
-		}
-			   
-		return is_string($this->files[$key]) || 
-			   $this->files[$key] instanceof FileInterface;
+		return is_string($this->file) || $this->file instanceof FileInterface;
 	}
 
 	/**
@@ -50,20 +70,14 @@ class FileTemplate extends Data implements FileTemplateInterface
 	 * @param	string	$path
 	 * @return	Template
 	 */
-    public function addFile($key, $path)
+    public function setFile($path)
 	{
-		if (! is_scalar($key) || empty($key)) {
-			throw new Exception(
-				"addFile failed: key must be a scalar value"
-			);
-		}
-		
 		if (empty($path)) {
 			throw new Exception("addFile failed: path can not be empty");
 		}
 		
 		if (is_string($path) ||  ($path instanceof FileInterface)) {
-			$this->files[$key] = $path;
+			$this->file = $path;
 		} 
 		else {
 			throw new Exception(
@@ -76,26 +90,45 @@ class FileTemplate extends Data implements FileTemplateInterface
 	/**
 	 * @return false | File
 	 */
-    public function getFile($key)
+    public function getFile()
 	{
-		if (! $this->fileExists($key)) {
-			return false;
-		}
-
-		return $this->files[$key];
+		return $this->file;
 	}
 
 	/**
-	 * @return array
+	 * @param	string	$path
+	 * @return	ClientsideFile
 	 */
-	public function getFiles()
-	{
-		return $this->files;
-	}
-
 	public function createClientsideFile($path)
 	{
 		return new ClientsideFile($path);
+	}
+
+	/**
+	 * @return ScopeInterface
+	 */
+	public function getScope()
+	{
+		return $this->scope;
+	}
+
+	/**
+	 * @param	ScopeInterface $scope
+	 * @return	FileTemplate
+	 */
+	public function setScope(ScopeInterface $scope)
+	{
+		$this->scope = $scope;
+		return $this;
+	}
+
+	/**
+	 * @param	array	$data 
+	 * @return	Scope
+	 */
+	public function createScope(array $data = array())
+	{
+		return new Scope($data);
 	}
 
 	/**
@@ -106,13 +139,13 @@ class FileTemplate extends Data implements FileTemplateInterface
 	 * @param	array	$data	used for private scope
 	 * @return	string
 	 */
-    public function buildFile($key, $data = null, $isPrivate = false)
+    public function build(array $data = array(), $isPrivate = false)
 	{
-		if (! $this->fileExists($key)) {
-			return '';
+		$file = $this->getFile();
+		if (empty($file)) {
+			$err = "BuildFile failed: file does not exist path is empty";
+			throw new Exception($err);
 		}
-
-		$file = $this->getFile($key);
 
 		/* convert this path string to a file */
 		if (is_string($file)) {
@@ -135,19 +168,21 @@ class FileTemplate extends Data implements FileTemplateInterface
 		if (true === $isPrivate) {
 			$scopeData = $data;
 		}
-		else if (is_array($data) && ! empty($data)) {
+		else if (! empty($data)) {
 			$scopeData = array_merge($this->getAll(), $data);
 		}
 		else {
 			$scopeData = $this->getAll();
 		}
 	
-		$scope = new Scope($scopeData);	
+		$scope = $this->getScope();
+		if (! $scope instanceof ScopeInterface) {
+			$scope = $this->createScope($scopeData);
+		}
+		else {
+			$scope->load($scopeData);
+		}
+	
 		return $scope->build($file->getRealPath());
-	}
-
-	public function build($data = null)
-	{
-		
 	}
 }

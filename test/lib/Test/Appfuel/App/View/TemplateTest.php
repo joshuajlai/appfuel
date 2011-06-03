@@ -11,7 +11,7 @@
 namespace Test\Appfuel\App\View;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\View\FileTemplate,
+	Appfuel\App\View\Template,
 	StdClass;
 
 /**
@@ -32,7 +32,7 @@ class TemplateTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->template = new FileTemplate();
+		$this->template = new Template();
 	}
 
 	/**
@@ -41,20 +41,6 @@ class TemplateTest extends ParentTestCase
 	public function tearDown()
 	{
 		unset($this->template);
-	}
-
-	/**
-	 * Make sure that template extends from view data
-	 *
-	 * @return null
-	 */
-	public function testConstructor()
-	{
-		$this->assertInstanceOf(
-			'Appfuel\App\View\Data',
-			$this->template,
-			'Template must be a view data object'
-		);
 	}
 
 	/**
@@ -86,221 +72,149 @@ class TemplateTest extends ParentTestCase
 	}
 
 	/**
-	 * AddFile takes two parameters: the key to find it by and the file
-	 * file its self. The second parameter can either be a path to the file;
-	 * a string. Or it can be a file object of type 
-	 * Appfuel\Framework\FileInterface. addFile is a fluent interface so it
-	 * returns back a reference to the Template.
+	 * setFile can accept a string or FileInterface this tests the string
 	 *
 	 * @return null
 	 */
-	public function testAddingFileGetFileFileExistsAsString()
+	public function testSetGetFileAsString()
 	{
 		$file = 'path/to/some/where';
-		$key  = 'my-file';
 		
-		$this->assertFalse($this->template->fileExists($key));
-		$result = $this->template->addFile($key, $file);
+		$this->assertFalse($this->template->fileExists());
+		
+		/* note that the file does not have to exist at this point */
 		$this->assertSame(
 			$this->template,
-			$result,
-			'addFile uses a fluent interface'
+			$this->template->setFile($file),
+			'must use a fluent interface'
 		);
-
-		$this->assertTrue($this->template->fileExists($key));
-		$this->assertEquals($file, $this->template->getFile($key));
-
-		/* add a second file to see the effect */
-		$file2 = 'path/to/some/where/else';
-		$key2  = 'my-seconf-file';
-		
-		$this->assertFalse($this->template->fileExists($key2));
-		$result = $this->template->addFile($key2, $file2);
-		$this->assertSame(
-			$this->template,
-			$result,
-			'addFile uses a fluent interface'
-		);
-
-		$this->assertTrue($this->template->fileExists($key));
-		$this->assertEquals($file, $this->template->getFile($key));
-		$this->assertTrue($this->template->fileExists($key2));
-		$this->assertEquals($file2, $this->template->getFile($key2));
-
-		/* add a third file with a key as an integer */
-		$file3 = 'other/path';
-		$key3  = 22;
-		
-		$this->assertFalse($this->template->fileExists($key3));
-		$result = $this->template->addFile($key3, $file3);
-		$this->assertSame(
-			$this->template,
-			$result,
-			'addFile uses a fluent interface'
-		);
-
-		$this->assertTrue($this->template->fileExists($key3));
-		$this->assertEquals($file3, $this->template->getFile($key3));
+		$this->assertTrue($this->template->fileExists());
+		$this->assertEquals($file, $this->template->getFile());	
 	}
 
 	/**
-	 * AddFile's second parameter also accepts a file object itself so we
-	 * will test that
+	 * The second data type setFile accepts is a FileInterface.
 	 *
 	 * @return null
 	 */
-	public function testAddingFileGetFileFileExistsAsFileInterface()
+	public function testSetGetFileAsFileInterfaceCreateClientsideFile()
 	{
-		$file = $this->getMock('\Appfuel\Framework\FileInterface');
-		$key  = 'my-file';
-		$this->assertFalse($this->template->fileExists($key));
-		$result = $this->template->addFile($key, $file);
-		$this->assertSame(
-			$this->template,
-			$result,
-			'addFile uses a fluent interface'
-		);
+		$path = 'path/to/some/where';
+		$file = $this->createMockFile($path);
 
-		$this->assertTrue($this->template->fileExists($key));
-		$this->assertEquals($file, $this->template->getFile($key));
-
-		/* add a second file to see the effect */
-		$file2 = $this->getMock('Appfuel\Framework\FileInterface');
-		$key2  = 'my-seconf-file';
+		$this->assertFalse($this->template->fileExists());
 		
-		$this->assertFalse($this->template->fileExists($key2));
-		$result = $this->template->addFile($key2, $file2);
 		$this->assertSame(
 			$this->template,
-			$result,
-			'addFile uses a fluent interface'
+			$this->template->setFile($file),
+			'must use a fluent interface'
 		);
+		$this->assertTrue($this->template->fileExists());
+		$this->assertEquals($file, $this->template->getFile());
 
-		$this->assertTrue($this->template->fileExists($key));
-		$this->assertEquals($file, $this->template->getFile($key));
-		$this->assertTrue($this->template->fileExists($key2));
-		$this->assertEquals($file2, $this->template->getFile($key2));
+		$this->assertInstanceOf(
+			'Appfuel\App\View\ClientsideFile',
+			$this->template->createClientsideFile($path)
+		);
 	}
 
 	/**
-	 * @return null
-	 */
-	public function testGetFileThatDoesNotExist()
-	{
-		$this->assertFalse($this->template->fileExists('no-key'));
-		$this->assertFalse($this->template->getFile('no-key'));
-	}
-	
-	/**
-	 * When you add the same key twice the old value for that key gets 
-	 * overwritten with the new value.
+	 * The file can also be set by passing the fist parameter in the 
+	 * constructor
 	 *
 	 * @return null
 	 */
-	public function testAddSameFileTwice()
+	public function testGetFileAsFileInterfaceConstructor()
 	{
-		$file = 'path/to/some/where';
-		$key  = 'my-file';
+		$path     = 'path/to/some/where';
+		$file     = $this->createMockFile($path);
+		$template = new Template($file); 
+		$this->assertTrue($template->fileExists());
+		$this->assertEquals($file, $template->getFile());	
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testGetFileAsStringConstructor()
+	{
+		$file     = 'path/to/some/where';
+		$template = new Template($file); 
+		$this->assertTrue($template->fileExists());
+		$this->assertEquals($file, $template->getFile());	
+	}
+
+	/**
+	 * Scope is used to bind the actual file (usually a .phtml file located
+	 * in the clientside directory) with that data being assigned.
+	 *
+	 * @return null
+	 */
+	public function testGetSetCreateScope()
+	{
+		/* when nothing is passed into the constructor this is null */
+		$this->assertNull($this->template->getScope());
 		
-		$this->assertFalse($this->template->fileExists($key));
-		$this->template->addFile($key, $file);
-		$this->assertTrue($this->template->fileExists($key));
-		$this->assertEquals($file, $this->template->getFile($key));
-
-		$newValue = 'my/path';
-		$this->template->addFile($key, $newValue);
-		$this->assertTrue($this->template->fileExists($key));
-		$this->assertEquals($newValue, $this->template->getFile($key));
-
-		/* does not matter what the value is aslong as its valid */		
-		$newValue2 = $this->getMock('Appfuel\Framework\FileInterface');
-		$this->template->addFile($key, $newValue);
-		$this->assertTrue($this->template->fileExists($key));
-		$this->assertEquals($newValue, $this->template->getFile($key));
-	}
-
-	/**
-	 * @return null
-	 */
-	public function testGetFilesAsStrings()
-	{
-		$files = array(
-			'file_a' => 'file/to/some',
-			'file_b' => 'file/to/someWhere'
+		$scope = $this->getMock('Appfuel\Framework\App\View\ScopeInterface');
+		$this->assertSame(
+			$this->template,
+			$this->template->setScope($scope),
+			'must be a fluent interface'
 		);
-	
-		$this->assertFalse($this->template->fileExists('file_a'));
-		$this->assertFalse($this->template->fileExists('file_b'));
-	
-		$result = $this->template->getFiles();
-		$this->assertInternalType('array', $result);
-		$this->assertEmpty($result);
+		$this->assertEquals($scope, $this->template->getScope());
 
-		$this->template->addFile('file_a', $files['file_a']);
-		$this->template->addFile('file_b', $files['file_b']);
-
-		$result = $this->template->getFiles();
-		$this->assertInternalType('array', $result);
-		$this->assertEquals($files, $result);
-	}
-
-	/**
-	 * @return null
-	 */
-	public function testGetFilesAsFileInterfaces()
-	{
-		$files = array(
-			'file_a' => $this->getMock('Appfuel\Framework\FileInterface'),
-			'file_b' => $this->getMock('Appfuel\Framework\FileInterface')
+		$this->assertInstanceOf(
+			'Appfuel\Framework\App\View\ScopeInterface',
+			$this->template->createScope()
 		);
-	
-		$this->assertFalse($this->template->fileExists('file_a'));
-		$this->assertFalse($this->template->fileExists('file_b'));
-	
-		$result = $this->template->getFiles();
-		$this->assertInternalType('array', $result);
-		$this->assertEmpty($result);
 
-		$this->template->addFile('file_a', $files['file_a']);
-		$this->template->addFile('file_b', $files['file_b']);
-
-		$result = $this->template->getFiles();
-		$this->assertInternalType('array', $result);
-		$this->assertEquals($files, $result);
+		$data = array('name'=>'value');
+		$this->assertInstanceOf(
+			'Appfuel\Framework\App\View\ScopeInterface',
+			$this->template->createScope($data)
+		);	
 	}
 
 	/**
 	 * @return null
 	 */
-	public function testGetFilesAsMixed()
+	public function testGetScopeConstructor()
 	{
-		$files = array(
-			'file_a' => $this->getMock('Appfuel\Framework\FileInterface'),
-			'file_b' => 'file/to/someWhere'
-		);
-	
-		$this->assertFalse($this->template->fileExists('file_a'));
-		$this->assertFalse($this->template->fileExists('file_b'));
-	
-		$result = $this->template->getFiles();
-		$this->assertInternalType('array', $result);
-		$this->assertEmpty($result);
+		$scope    = $this->getMock('Appfuel\Framework\App\View\ScopeInterface');
+		$template = new Template(null, $scope); 
+		$this->assertEquals($scope, $template->getScope());
 
-		$this->template->addFile('file_a', $files['file_a']);
-		$this->template->addFile('file_b', $files['file_b']);
-
-		$result = $this->template->getFiles();
-		$this->assertInternalType('array', $result);
-		$this->assertEquals($files, $result);
+		$data = array('name' => 'value');
+		$template = new Template(null, $data);
+		
+		$scope = $template->getScope();
+		$this->assertInstanceOf(
+			'Appfuel\Framework\App\View\ScopeInterface',
+			$scope
+		); 
+		$this->assertEquals($data, $scope->getAll());
 	}
 
 	/**
+	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function testBuildFileDoesNotExist()
+	public function testBuildFilePathEmpty()
 	{
-		$this->assertFalse($this->template->fileExists('no_file'));
-		$this->assertEquals('', $this->template->buildFile('no_file'));
+		$this->assertFalse($this->template->fileExists());
+		$this->assertEquals('', $this->template->build());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testBuildFilePathEmptyHasBuildParamaters()
+	{
+		$this->assertFalse($this->template->fileExists());
+		
+		$data = array('name' => 'value');
+		$this->assertEquals('', $this->template->build($data, true));
 	}
 	
 	/**
@@ -309,8 +223,51 @@ class TemplateTest extends ParentTestCase
 	 */
 	public function testBuildFilePathDoesNotExist()
 	{
-		$this->template->addFile('my-file', 'path/to/no/where');
-		$this->template->buildFile('my-file');
+		$this->template->setFile('path/to/no/where');
+		$this->template->build();
+	}
+
+	/**
+	 * @expectedException Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testBuildFilePathDoesNotExistHasBuildParamaters()
+	{
+		$this->template->setFile('path/to/no/where');
+		$this->template->build(array('name' => 'value'), true);
+	}
+
+	/**
+	 * We are testing that the build can turn a file string into a file
+	 * object and use that to find the template to build. Because of this we
+	 * have to use a known template in the clientside directory. So I selected
+	 * the html/doc/standard.phtml which is the html document.
+	 *
+	 * @return null
+	 */
+	public function testBuildNoData()
+	{
+		$path = 'html' . DIRECTORY_SEPARATOR . 
+				'doc'  . DIRECTORY_SEPARATOR .
+				'standard.phtml';
+
+		$this->template->setFile($path);
+		$result = $this->template->build();
+		
+		$doctype   = '<!DOCTYPE HTML>';
+		$openHtml  = '<html>';
+		$closeHtml = '</html>';
+		$openHead  = '<head>';
+		$closeHead = '</head>';
+		$openBody  = '<body>';
+		$closeBody = '</body>';
+		$this->assertContains($doctype, $result);
+		$this->assertContains($openHtml, $result);
+		$this->assertContains($closeHtml, $result);
+		$this->assertContains($openHead, $result);
+		$this->assertContains($closeHead, $result);
+		$this->assertContains($openBody, $result);
+		$this->assertContains($closeBody, $result);
 	}
 
 	/**
@@ -325,7 +282,7 @@ class TemplateTest extends ParentTestCase
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
 		$file = $this->createMockFile($path);
-		$this->template->addFile('my-file', $file);
+		$this->template->setFile($file);
 
 		$data = array(
 			'foo' => 'bat',
@@ -333,7 +290,7 @@ class TemplateTest extends ParentTestCase
 			'baz' => 'boo'
 		);
 		$privateScope = true;
-		$result = $this->template->buildFile('my-file', $data, $privateScope);
+		$result = $this->template->build($data, $privateScope);
 		$expected  = "Test buildFile with private scope:foo=bat and ";
 		$expected .= "bar=bam and baz=boo EOF";
 		$this->assertEquals($expected, $result);
@@ -351,11 +308,11 @@ class TemplateTest extends ParentTestCase
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
 		$file = $this->createMockFile($path);
 
-		$this->template->addFile('my-file', $file);
+		$this->template->setFile($file);
 
 		$data = array();
 		$privateScope = true;
-		$result = $this->template->buildFile('my-file', $data, $privateScope);
+		$result = $this->template->build($data, $privateScope);
 
 		$expected  = "Test buildFile with private scope:foo= and ";
 		$expected .= "bar= and baz= EOF";
@@ -366,13 +323,14 @@ class TemplateTest extends ParentTestCase
 	 * When private scope is true and the only data is in the dictionary the
 	 * template will not see those variable because it will only see data
 	 * passed into the buildFile function itself
+	 *
 	 * @return null
 	 */
 	public function testBuildFilePrivateScopeDataInDictionary()
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
 		$file = $this->createMockFile($path);
-		$this->template->addFile('my-file', $file);
+		$this->template->setFile($file);
 
 		$data = array(
 			'foo' => 'bat',
@@ -380,18 +338,19 @@ class TemplateTest extends ParentTestCase
 			'baz' => 'boo'
 		);
 		$this->template->load($data);
-		
+	
+		$data = array();	
 		$privateScope = true;
-		$result = $this->template->buildFile('my-file', null, $privateScope);
+		$result = $this->template->build($data, $privateScope);
 		$expected  = "Test buildFile with private scope:foo= and ";
 		$expected .= "bar= and baz= EOF";
 		$this->assertEquals($expected, $result);
 	}
 
 	/**
-	 * The default third parameter for private scope is false, meaning any
+	 * The default second parameter for private scope is false, meaning any
 	 * data in the template dictionary will be visable to the template file.
-	 * The default second parameter for scope data is null. So for this test
+	 * The default first parameter for scope data is array(). So for this test
 	 * the scope is not private and no extra data is given so only the 
 	 * templates dictionary is visable to the template. For this test all
 	 * variables will be in the dictionary
@@ -402,7 +361,7 @@ class TemplateTest extends ParentTestCase
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
 		$file = $this->createMockFile($path);
-		$this->template->addFile('my-file', $file);
+		$this->template->setFile($file);
 
 		$data = array(
 			'foo' => 'bat',
@@ -411,7 +370,7 @@ class TemplateTest extends ParentTestCase
 		);
 		$this->template->load($data);
 		
-		$result = $this->template->buildFile('my-file');
+		$result = $this->template->build();
 		$expected  = "Test buildFile with private scope:foo=bat and ";
 		$expected .= "bar=bam and baz=boo EOF";
 		$this->assertEquals($expected, $result);
@@ -426,14 +385,14 @@ class TemplateTest extends ParentTestCase
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
 		$file = $this->createMockFile($path);
-		$this->template->addFile('my-file', $file);
+		$this->template->setFile($file);
 
 		$data = array(
 			'foo' => 'bat',
 		);
 		$this->template->load($data);
 		
-		$result = $this->template->buildFile('my-file');
+		$result = $this->template->build();
 		$expected  = "Test buildFile with private scope:foo=bat and ";
 		$expected .= "bar= and baz= EOF";
 		$this->assertEquals($expected, $result);
@@ -450,7 +409,7 @@ class TemplateTest extends ParentTestCase
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
 		$file = $this->createMockFile($path);
-		$this->template->addFile('my-file', $file);
+		$this->template->setFile($file);
 
 		$data = array(
 			'foo' => 'bat',
@@ -463,7 +422,7 @@ class TemplateTest extends ParentTestCase
 			'baz' => 'boo'
 		);
 
-		$result = $this->template->buildFile('my-file', $extend);
+		$result = $this->template->build($extend);
 		$expected  = "Test buildFile with private scope:foo=bat and ";
 		$expected .= "bar=bam and baz=boo EOF";
 		$this->assertEquals($expected, $result);
@@ -473,54 +432,18 @@ class TemplateTest extends ParentTestCase
 	 * @expectedException Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function testAddFileBadKeyEmptyString()
+	public function testSetFileBadPathEmptyString()
 	{
-		$this->template->addFile('', 'somepath');
+		$this->template->setFile('');
 	}
 
 	/**
 	 * @expectedException Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function testAddFileBadKeyArray()
+	public function testSetFileBadPathNull()
 	{
-		$this->template->addFile(array(1,3,4), 'somepath');
-	}
-
-	/**
-	 * @expectedException Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testAddFileBadKeyObject()
-	{
-		$this->template->addFile(new StdClass(), 'somepath');
-	}
-
-	/**
-	 * @expectedException Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testAddFileBadKeyNull()
-	{
-		$this->template->addFile(null, 'somepath');
-	}
-
-	/**
-	 * @expectedException Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testAddFileBadPathEmptyString()
-	{
-		$this->template->addFile('my-key', '');
-	}
-
-	/**
-	 * @expectedException Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testAddFileBadPathNull()
-	{
-		$this->template->addFile('my-key', null);
+		$this->template->setFile(null);
 	}
 
 	/**
@@ -529,7 +452,7 @@ class TemplateTest extends ParentTestCase
 	 */
 	public function testAddFileBadPathInteger()
 	{
-		$this->template->addFile('my-key', 1234);
+		$this->template->setFile(1234);
 	}
 
 	/**
@@ -538,15 +461,15 @@ class TemplateTest extends ParentTestCase
 	 */
 	public function testAddFileBadPathArray()
 	{
-		$this->template->addFile('my-key', array(1,3,2));
+		$this->template->setFile(array(1,3,2));
 	}
 
 	/**
 	 * @expectedException Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function testAddFileBadPathObject()
+	public function ztestAddFileBadPathObject()
 	{
-		$this->template->addFile('my-key', new StdClass());
+		$this->template->setFile(new StdClass());
 	}
 }

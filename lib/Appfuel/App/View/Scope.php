@@ -32,19 +32,42 @@ class Scope implements ScopeInterface
      * @param   array   $data
      * @return  Template
      */
-    public function __construct($data = array())
+    public function __construct(array $data = array())
     {  
-		if (! is_array($data) || empty($data)) { 
-			return;
-		}
-
-		foreach ($data as $key => $value) {
-			if (! is_scalar($key)) {
-				continue;
-			}
-			$this->data[$key] = $value;
+		if (! empty($data)) { 
+			$this->load($data);
 		}
     }
+
+	/**
+	 * Load a list of key/value pairs into scope
+	 * 
+	 * @param	array	$data
+	 * @return	Scope
+	 */
+	public function load(array $data)
+	{
+		foreach ($data as $key => $value) {
+			$this->assign($key, $value);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	string	$label 
+	 * @param	mixed	$value
+	 * @return	Scope
+	 */
+	public function assign($label, $value)
+	{
+		if (! is_scalar($label)) {
+			return $this;
+		}
+
+		$this->data[$label] = $value;
+		return $this;
+	}
 
     /**
      * Get the value for the given label from scope. If the value does not 
