@@ -44,34 +44,6 @@ class TemplateTest extends ParentTestCase
 	}
 
 	/**
-	 * Used to encapsulate the common logic necessary for testing
-	 * the template builds
-	 *
-	 * @param	string	$path
-	 * @return	Appfuel\Framework\FileInterface
-	 */
-	public function createMockFile($path)
-	{
-		$path = $this->getCurrentPath($path);
-		$file = $this->getMock('Appfuel\Framework\FileInterface');
-		
-		$file->expects($this->any())
-			 ->method('isFile')
-			 ->will($this->returnValue(true));
-
-		$file->expects($this->any())
-			 ->method('getRealPath')
-			 ->will($this->returnValue($path));
-
-		$file->expects($this->any())
-			 ->method('getFullPath')
-			 ->will($this->returnValue($path));
-
-
-		return $file;
-	}
-
-	/**
 	 * setFile can accept a string or FileInterface this tests the string
 	 *
 	 * @return null
@@ -100,7 +72,7 @@ class TemplateTest extends ParentTestCase
 	public function testSetGetFileAsFileInterfaceCreateClientsideFile()
 	{
 		$path = 'path/to/some/where';
-		$file = $this->createMockFile($path);
+		$file = $this->createMockClientsideFile($path);
 
 		$this->assertFalse($this->template->fileExists());
 		
@@ -127,7 +99,7 @@ class TemplateTest extends ParentTestCase
 	public function testGetFileAsFileInterfaceConstructor()
 	{
 		$path     = 'path/to/some/where';
-		$file     = $this->createMockFile($path);
+		$file     = $this->createMockClientsideFile($path);
 		$template = new Template($file); 
 		$this->assertTrue($template->fileExists());
 		$this->assertEquals($file, $template->getFile());	
@@ -261,6 +233,7 @@ class TemplateTest extends ParentTestCase
 		$closeHead = '</head>';
 		$openBody  = '<body>';
 		$closeBody = '</body>';
+
 		$this->assertContains($doctype, $result);
 		$this->assertContains($openHtml, $result);
 		$this->assertContains($closeHtml, $result);
@@ -281,7 +254,7 @@ class TemplateTest extends ParentTestCase
 	public function testBuildFilePrivateScope()
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
-		$file = $this->createMockFile($path);
+		$file = $this->createMockClientsideFile($path);
 		$this->template->setFile($file);
 
 		$data = array(
@@ -306,7 +279,7 @@ class TemplateTest extends ParentTestCase
 	public function testBuildFilePrivateScopeNoVars()
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
-		$file = $this->createMockFile($path);
+		$file = $this->createMockClientsideFile($path);
 
 		$this->template->setFile($file);
 
@@ -329,7 +302,7 @@ class TemplateTest extends ParentTestCase
 	public function testBuildFilePrivateScopeDataInDictionary()
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
-		$file = $this->createMockFile($path);
+		$file = $this->createMockClientsideFile($path);
 		$this->template->setFile($file);
 
 		$data = array(
@@ -360,7 +333,7 @@ class TemplateTest extends ParentTestCase
 	public function testBuildFileDefaultScopeParameterNoAdditionalScope()
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
-		$file = $this->createMockFile($path);
+		$file = $this->createMockClientsideFile($path);
 		$this->template->setFile($file);
 
 		$data = array(
@@ -384,7 +357,7 @@ class TemplateTest extends ParentTestCase
 	public function testBuildFileTemplateScopeMissingParams()
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
-		$file = $this->createMockFile($path);
+		$file = $this->createMockClientsideFile($path);
 		$this->template->setFile($file);
 
 		$data = array(
@@ -408,7 +381,7 @@ class TemplateTest extends ParentTestCase
 	public function testBuildFileMergeParamsWithTemplate()
 	{
 		$path = 'files' . DIRECTORY_SEPARATOR . 'build_file_test.txt';
-		$file = $this->createMockFile($path);
+		$file = $this->createMockClientsideFile($path);
 		$this->template->setFile($file);
 
 		$data = array(

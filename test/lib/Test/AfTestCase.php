@@ -292,4 +292,32 @@ class AfTestCase extends ParentTestCase
                     ->setMethods($methods)
                     ->getMock();
 	}
+
+    /**
+     * Used to encapsulate the common logic necessary for testing
+     * the template builds
+     *
+     * @param   string  $path
+     * @return  Appfuel\Framework\FileInterface
+     */
+	public function createMockClientsideFile($path)
+	{
+        $path = $this->getCurrentPath($path);
+        $file = $this->getMock('Appfuel\Framework\FileInterface');
+
+        $file->expects($this->any())
+             ->method('isFile')
+             ->will($this->returnValue(true));
+
+        $file->expects($this->any())
+             ->method('getRealPath')
+             ->will($this->returnValue($path));
+
+        $file->expects($this->any())
+             ->method('getFullPath')
+             ->will($this->returnValue($path));
+
+
+        return $file;
+	}
 }

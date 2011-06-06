@@ -10,25 +10,12 @@
  */
 namespace Appfuel\Framework\App\View;
 
-use Appfuel\Framework\Data\DictionaryInterface;
-
 /**
  * Interface needed by the framework to use view templates
  */
-interface ViewInterface extends DictionaryInterface
+interface CompositeTemplateInterface extends TemplateInterface
 {
-    /**
-     * Assign key value pair into scope
-     *
-     * @param   string  $name
-     * @param   mixed   $value
-     * @return  ViewInterface
-     */
-    public function assign($name, $value);
-
-    /**
-     * Convert the document contents to a string
-     * @return string
-     */
-    public function build($data = null);
+	public function templateExists($key);
+	public function getTemplate($key);
+	public function addTemplate($key, TemplateInterface $template);
 }

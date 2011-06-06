@@ -17,7 +17,12 @@ use Appfuel\Framework\Exception,
 	Appfuel\Data\Dictionary;
 
 /**
- * Handles all assignments of data to be used in a template
+ * A view template is associated with one and only one template file. The 
+ * template files are located in the clientside directory and the Clientside
+ * File object is used to abstract that way so you only to worry about the
+ * the relative path from your namespace to the template file. The template
+ * assigns values into scope (template file visiblity through $this) and 
+ * builds the template file into a string.
  */
 class Template extends Dictionary implements TemplateInterface
 {
