@@ -29,11 +29,18 @@ class CompositeTemplateTest extends ParentTestCase
 	protected $template = null;
 
 	/**
+	 * Name of the template passed into the constructor
+	 * @var string
+	 */
+	protected $templateName = null;
+
+	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->template = new CompositeTemplate();
+		$this->templateName = 'my-template';
+		$this->template = new CompositeTemplate($this->templateName);
 	}
 
 	/**
@@ -49,13 +56,14 @@ class CompositeTemplateTest extends ParentTestCase
 	 */
 	public function testGetAddRemoveExistsTemplate()
 	{
-		$key_1 = 'my-template';
+		$key_1 = 'other-template';
 		$this->assertFalse($this->template->templateExists($key_1));
 		$this->assertFalse($this->template->getTemplate($key_1));
 
-		$template_1 = $this->getMock(
-			'Appfuel\Framework\App\View\TemplateInterface'
-		);
+		$interface  = 'Appfuel\Framework\App\View\TemplateInterface';
+		$template_1 = $this->getMockBuilder($interface)
+						   ->disableOriginalConstructor()
+						   ->getMock();
 
 		$this->assertSame(
 			$this->template,
@@ -67,9 +75,9 @@ class CompositeTemplateTest extends ParentTestCase
 		$this->assertSame($template_1, $this->template->getTemplate($key_1));
 
 		$key_2      = 'my-other-template';
-		$template_2 = $this->getMock(
-			'Appfuel\Framework\App\View\TemplateInterface'
-		);
+		$template_2 = $this->getMockBuilder($interface)
+						   ->disableOriginalConstructor()
+						   ->getMock();
 
 		$this->assertFalse($this->template->templateExists($key_2));
 		$this->assertFalse($this->template->getTemplate($key_2));
@@ -105,9 +113,5 @@ class CompositeTemplateTest extends ParentTestCase
 		);
 		$this->assertFalse($this->template->templateExists($key_2));
 		$this->assertFalse($this->template->getTemplate($key_2));
-
-
-
-	
 	}
 }

@@ -39,12 +39,21 @@ class Template extends Dictionary implements TemplateInterface
 	protected $scope = null;
 
 	/**
+	 * Name of the template. Also used as a key when part of a composite
+	 * template
+	 * @var string
+	 */
+	protected $name = null;
+
+	/**
 	 * @param	mixed	$file 
 	 * @param	array	$data
 	 * @return	FileTemplate
 	 */
-	public function __construct($file = null, $data = null)
+	public function __construct($name, $file = null, $data = null)
 	{
+		$this->setName($name);
+
 		if ($file !== null) {
 			$this->setFile($file);
 		}
@@ -56,6 +65,24 @@ class Template extends Dictionary implements TemplateInterface
 
 			$this->setScope($data);
 		}
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	Template
+	 */
+	public function setName($name)
+	{
+		$this->name = $name;
+		return $this;
 	}
 
 	/**
