@@ -35,6 +35,12 @@ class BuildItem implements BuildItemInterface
 	 * @var string
 	 */
 	protected $assignLabel = null;
+
+	/**
+	 * callback function used to filter build results
+	 * @var	mixed	string | array
+	 */
+	protected $resultFilter = null;
 	
 	/**
 	 * @param	mixed	$file 
@@ -82,6 +88,24 @@ class BuildItem implements BuildItemInterface
 	public function getAssignLabel()
 	{
 		return $this->assignLabel;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getResultFilter()
+	{
+		return $this->resultFilter;
+	}
+
+	/**
+	 * @param	mixed	string | array	$function
+	 * @return	BuildItem
+	 */
+	public function setResultFilter($function)
+	{
+		$this->resultFilter = $function;
+		return $this;
 	}
 
 	/**

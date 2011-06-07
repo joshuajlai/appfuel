@@ -370,4 +370,83 @@ class CompositeTemplateTest extends ParentTestCase
 		$this->assertNull($templateA->get('no-label'));
 		$this->assertNull($templateB->get('no-label'));
 	}
+
+	/**
+	 * Allows you to store info used in a callback or an anonymous function
+	 * to use to filter the results of the build. This method is used
+	 * in a fluent interface after the builTo.
+	 *
+	 * @return null
+	 */
+	public function testFilterResultsWithString()
+	{
+		$this->template->buildTo('my-source', 'my-label', 'my-target');
+		
+		$callback = 'my-callback-function';
+		$this->template->filterResultsWith($callback);
+
+		$results = $this->template->getBuildItems();
+		$buildItem = $results[0];
+
+		$this->assertEquals($callback, $buildItem->getResultFilter());
+	}
+
+	/**
+	 * You can also describe a callback with an array where the first param
+	 * is the object and the second is the method
+	 * 
+	 * @return	null
+	 */
+	public function testFilterResultsWithArray()
+	{
+		$this->template->buildTo('my-source', 'my-label', 'my-target');
+		
+		$callback = array(new StdClass(), 'my-callback-function');
+		$this->template->filterResultsWith($callback);
+
+		$results = $this->template->getBuildItems();
+		$buildItem = $results[0];
+
+		$this->assertEquals($callback, $buildItem->getResultFilter());
+	}
+
+	/**
+	 * You can also save a closure as a result filter
+	 *
+	 * @return null
+	 */
+	public function testFilterResultsWithClosure()
+	{
+		$this->template->buildTo('my-source', 'my-label', 'my-target');
+		
+		$callback = function ($resultString) {
+			return trim($resultString);	
+		};
+
+		$this->template->filterResultsWith($callback);
+
+		$results = $this->template->getBuildItems();
+		$buildItem = $results[0];
+
+		$this->assertEquals($callback, $buildItem->getResultFilter());
+	}
+
+	/**
+	 * Using filterResultsWith before buildTo is invalid and will result in
+	 * an exception being thrown. Reason for this is build to actually creates
+	 * the current build item giving it the required parameters. The filter
+	 * is an optional parameter so it has to be used after buildTo.
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testFilterResultsInvalidUsage()
+	{
+		$callback = 'my-callback-function';
+		$this->template->filterResultsWith($callback);
+	}
+
+
+
+
 }

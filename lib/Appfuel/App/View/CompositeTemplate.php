@@ -149,6 +149,26 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 	}
 
 	/**
+	 * Allows you to specify a callback function that will use the results of
+	 * the build for the template decribed in the current build item
+	 *
+	 * @param	mixed	$function
+	 * @return	CompositeTemplate
+	 */
+	public function filterResultsWith($function)
+	{
+		if (! $this->isCurrentBuildItem()) {
+			throw new Exception(
+				'buildCallback failed: fluent interface must use buildTo first'
+			);
+		}
+
+		$item = $this->getCurrentBuildItem();
+		$item->setResultFilter($function);
+		return $this;
+	}
+
+	/**
 	 * Push a build item on the stack
 	 *
 	 * @param	BuildItem	$item
