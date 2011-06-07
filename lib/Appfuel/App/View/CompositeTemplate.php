@@ -120,7 +120,7 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 	 * @param	string	$target		key for the target template
 	 * @return	CompositeTemplate
 	 */
-	public function buildTo($src, $label = null, $target = null)
+	public function assignBuild($src, $label = null, $target = null)
 	{
 		$err = 'BuildTo failed:';
 		if (! is_scalar($src) || empty($src)) {
@@ -157,14 +157,34 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 	 */
 	public function filterResultsWith($function)
 	{
-		if (! $this->isCurrentBuildItem()) {
-			throw new Exception(
-				'buildCallback failed: fluent interface must use buildTo first'
-			);
-		}
+		$this->validateCurrentBuildItem('filterResultsWith')
+			 ->getCurrentBuildItem()
+			 ->setResultFilter($function);
+		
+		return $this;
+	}
 
-		$item = $this->getCurrentBuildItem();
-		$item->setResultFilter($function);
+	/**
+	 * @return	CompositeTemplate
+	 */
+	public function letBuildFailSilently()
+	{
+		$this->validateCurrentBuildItem('letBuildFailSilently')
+			 ->getCurrentBuildItem()
+			 ->enableSilentFail();
+
+		return $this;
+	}
+
+	/**
+	 * @return	CompositeTemplate
+	 */
+	public function letBuildThrowException()
+	{
+		$this->validateCurrentBuildItem('letBuildThrowException')
+			 ->getCurrentBuildItem()
+			 ->enableSilentFail();
+
 		return $this;
 	}
 
@@ -230,5 +250,22 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 	protected function isCurrentBuildItem()
 	{
 		return $this->currentBuildItem instanceof BuildItemInterface;
+	}
+
+	/**
+	 * When the current build does not exist throw an execption
+	 * 
+	 * @param	string	$method		name of the mehtod to use in error
+	 * @return	CompositeTemplate
+	 */
+	protected function validateCurrentBuildItem($method)
+	{
+		if (! $this->isCurrentBuildItem()) {
+			throw new Exception(
+				"$method failed: 'fluent interface must use assignBuild first"
+			);
+		}
+
+		return $this;
 	}
 }

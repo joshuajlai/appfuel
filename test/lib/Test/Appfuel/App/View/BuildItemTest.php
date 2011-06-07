@@ -21,21 +21,134 @@ use Test\AfTestCase as ParentTestCase,
 class BuildItemTest extends ParentTestCase
 {
 	/**
+	 * System under test
+	 * @var BuildItem
+	 */
+	protected $buildItem = null;
+
+	/**
+	 * Key of the source template, first parameter in constructor
+	 * @var string
+	 */
+	protected $source = null;
+
+	/**
+	 * Key of the target template, second parameter in constructor
+	 * @var string
+	 */
+	protected $target = null;
+
+	/**
+	 * assign label for target template, third parameter in constructor
+	 * @var string
+	 */
+	protected $assign = null;
+
+	/**
+	 * @return null
+	 */
+	public function setUp()
+	{
+		$this->source = 'my-source';
+		$this->target = 'my-taget';
+		$this->assign = 'my-assignment-label';
+		$this->buildItem = new BuildItem(
+			$this->source, 
+			$this->target, 
+			$this->assign
+		);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function tearDown()
+	{
+		unset($this->buildItem);
+	}
+
+	/**
 	 * The value object holds the source template key, the target template
 	 * key and the assignLabel
 	 *
 	 * @return null
 	 */
-	public function testValidProperties()
+	public function testImmutableMembers()
 	{
-		$source = 'my-source';
-		$target = 'my-taget';
-		$assign = 'my-assignment-label';
-		$buildItem = new BuildItem($source, $target, $assign);
+		$this->assertEquals($this->source, $this->buildItem->getSource());
+		$this->assertEquals($this->target, $this->buildItem->getTarget());
+		$this->assertEquals($this->assign, $this->buildItem->getAssignLabel());
+	}
 
-		$this->assertEquals($source, $buildItem->getSource());
-		$this->assertEquals($target, $buildItem->getTarget());
-		$this->assertEquals($assign, $buildItem->getAssignLabel());
+	/**
+	 * The result filter can hold either a string which is the name 
+	 * of the callback method to use, an array where the first parameter
+	 * is the object and the second parameter is the method to use or 
+	 * an anomymous function that can directly filter the array
+	 * 
+	 * @return null
+	 */
+	public function testGetSetResultFilter()
+	{
+		$callback = 'my-method';
+		$this->assertNull($this->buildItem->getResultFilter());
+		$this->assertSame(
+			$this->buildItem,
+			$this->buildItem->setResultFilter($callback),
+			'must use a fluent interface'
+		);
+		$this->assertEquals($callback, $this->buildItem->getResultFilter());
+
+		$callback = array(new StdClass(), 'my-method');
+		$this->assertSame(
+			$this->buildItem,
+			$this->buildItem->setResultFilter($callback),
+			'must use a fluent interface'
+		);
+		$this->assertEquals($callback, $this->buildItem->getResultFilter());
+
+		$callback = function($string) {
+			return trim($string);
+		};
+		$this->assertSame(
+			$this->buildItem,
+			$this->buildItem->setResultFilter($callback),
+			'must use a fluent interface'
+		);
+		$this->assertEquals($callback, $this->buildItem->getResultFilter());
+	}
+
+	/**
+	 * Build Item holds information used to control how strict the building
+	 * of a templates will be. When isSlientFail is false (default) then
+	 * when the template does not exist build will ignore and move onto the
+	 * next template. when isSlientFail is true it will throw an execption
+	 * when the template can not be found
+	 *
+	 * @return null
+	 */
+	public function testIsEnableDisableSilentFail()
+	{
+		$this->assertTrue(
+			$this->buildItem->isSilentFail(),
+			'default value must be true'
+		);
+
+		$this->assertSame(
+			$this->buildItem,
+			$this->buildItem->disableSilentFail(),
+			'must use fluent interface'
+		);
+
+		$this->assertFalse($this->buildItem->isSilentFail());
+
+		$this->assertSame(
+			$this->buildItem,
+			$this->buildItem->enableSilentFail(),
+			'must use fluent interface'
+		);
+
+		$this->assertTrue($this->buildItem->isSilentFail());
 	}
 
 	/**

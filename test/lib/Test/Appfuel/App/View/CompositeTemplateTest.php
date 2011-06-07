@@ -184,7 +184,7 @@ class CompositeTemplateTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testBuildTo()
+	public function testAssignBuild()
 	{
 		
 		$interface	  = 'Appfuel\Framework\App\View\TemplateInterface';
@@ -194,7 +194,7 @@ class CompositeTemplateTest extends ParentTestCase
 
 		$this->assertSame(
 			$this->template,
-			$this->template->buildTo($sourceKey, $assignLabel, $targetKey),
+			$this->template->assignBuild($sourceKey, $assignLabel, $targetKey),
 			'must use a fluent interface'
 		);
 		
@@ -217,7 +217,7 @@ class CompositeTemplateTest extends ParentTestCase
 		$targetKey2    = 'target-key';
 		$assignLabel2  = 'source-label2';
 
-		$this->template->buildTo($sourceKey2, $assignLabel2, $targetKey2);
+		$this->template->assignBuild($sourceKey2, $assignLabel2, $targetKey2);
 
 		$result = $this->template->getBuildItems();
 		$this->assertInternalType('array', $result);
@@ -256,7 +256,7 @@ class CompositeTemplateTest extends ParentTestCase
 	{
 		$this->assertSame(
 			$this->template,
-			$this->template->buildTo('my-source', null, 'my-target'),
+			$this->template->assignBuild('my-source', null, 'my-target'),
 			'always uses a fluent interface'
 		);
 
@@ -280,7 +280,7 @@ class CompositeTemplateTest extends ParentTestCase
 	{
 		$this->assertSame(
 			$this->template,
-			$this->template->buildTo('my-source', 'my-label'),
+			$this->template->assignBuild('my-source', 'my-label'),
 			'always uses a fluent interface'
 		);
 
@@ -305,7 +305,7 @@ class CompositeTemplateTest extends ParentTestCase
 	{
 		$this->assertSame(
 			$this->template,
-			$this->template->buildTo('my-source'),
+			$this->template->assignBuild('my-source'),
 			'always uses a fluent interface'
 		);
 
@@ -380,7 +380,7 @@ class CompositeTemplateTest extends ParentTestCase
 	 */
 	public function testFilterResultsWithString()
 	{
-		$this->template->buildTo('my-source', 'my-label', 'my-target');
+		$this->template->assignBuild('my-source', 'my-label', 'my-target');
 		
 		$callback = 'my-callback-function';
 		$this->template->filterResultsWith($callback);
@@ -399,7 +399,7 @@ class CompositeTemplateTest extends ParentTestCase
 	 */
 	public function testFilterResultsWithArray()
 	{
-		$this->template->buildTo('my-source', 'my-label', 'my-target');
+		$this->template->assignBuild('my-source', 'my-label', 'my-target');
 		
 		$callback = array(new StdClass(), 'my-callback-function');
 		$this->template->filterResultsWith($callback);
@@ -417,7 +417,7 @@ class CompositeTemplateTest extends ParentTestCase
 	 */
 	public function testFilterResultsWithClosure()
 	{
-		$this->template->buildTo('my-source', 'my-label', 'my-target');
+		$this->template->assignBuild('my-source', 'my-label', 'my-target');
 		
 		$callback = function ($resultString) {
 			return trim($resultString);	

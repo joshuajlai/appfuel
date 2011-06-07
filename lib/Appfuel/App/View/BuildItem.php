@@ -41,6 +41,13 @@ class BuildItem implements BuildItemInterface
 	 * @var	mixed	string | array
 	 */
 	protected $resultFilter = null;
+
+	/**
+	 * Flag used to determine if an exeception should be thrown if the 
+	 * template can not be found during build
+	 * @var bool
+	 */
+	protected $isSilentFail = true;
 	
 	/**
 	 * @param	mixed	$file 
@@ -107,6 +114,33 @@ class BuildItem implements BuildItemInterface
 		$this->resultFilter = $function;
 		return $this;
 	}
+
+	/**
+	 * @return bool
+	 */
+	public function isSilentFail()
+	{
+		return $this->isSilentFail;
+	}
+
+	/**
+	 * @return	BuildItem
+	 */
+	public function enableSilentFail()
+	{
+		$this->isSilentFail = true;
+		return $this;
+	}
+
+	/**
+	 * @return	BuildItem
+	 */
+	public function disableSilentFail()
+	{
+		$this->isSilentFail = false;
+		return $this;
+	}
+
 
 	/**
 	 * @param	mixed	$str
