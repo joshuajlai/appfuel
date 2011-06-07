@@ -12,6 +12,7 @@ namespace Appfuel\App\View;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\View\TemplateInterface,
+	Appfuel\Framework\App\View\BuildItemInterface,
 	Appfuel\Framework\App\View\CompositeTemplateInterface,
 	Appfuel\Data\Dictionary;
 
@@ -30,7 +31,13 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 	 * Map used to build templates into other templates 
 	 * @var	array
 	 */
-	protected $map = array();
+	protected $buildItems = array();
+
+	/**
+	 * Used to support a fluent interface for adding onto a build item
+	 * @var BuildItem
+	 */
+	protected $currentBuildItem = null;
 
 	/**
 	 * Determines if template has been added
@@ -84,5 +91,124 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 
 		unset($this->templates[$key]);
 		return $this;
+	}
+
+	/**
+	 * @param	string		$templateKey
+	 * @param	string		$label
+	 * @param	mixed		$value
+	 * @return	CompositeTemplate
+	 */
+	public function assignTo($key, $label, $value)
+	{
+		if (! $this->templateExists($key)) {
+			return $this;
+		}
+
+		$this->getTemplate($key)
+			 ->assign($label, $value);
+
+		return $this;
+	}
+
+	/**
+	 * This telss the build method to build the source template into the target
+	 * template with the assignment label.
+	 * 
+	 * @param	string	$src		key for the source template
+	 * @param	string	$assign		label used for assignment into target
+	 * @param	string	$target		key for the target template
+	 * @return	CompositeTemplate
+	 */
+	public function buildTo($src, $label = null, $target = null)
+	{
+		$err = 'BuildTo failed:';
+		if (! is_scalar($src) || empty($src)) {
+			throw new Exception("$err  source must be non empty scalar");
+		}
+
+		/* when target template does not exist assume its this template */
+		if (null === $target) {
+			$target = '_this_';
+		}
+		
+		/* when label does not exist then assume the src key as the label */
+		if (null === $label) {
+			$label = $src;
+		}
+
+		if ($this->isCurrentBuildItem()) {
+			$this->addBuildItem($this->getCurrentBuildItem());
+		}
+
+		$this->setCurrentBuildItem(
+			$this->createBuildItem($src, $target, $label)
+		);
+
+		return $this;
+	}
+
+	/**
+	 * Push a build item on the stack
+	 *
+	 * @param	BuildItem	$item
+	 * @return	CompositeTemplate
+	 */
+	public function addBuildItem(BuildItemInterface $item)
+	{
+		$this->buildItems[] = $item;
+		return $this;
+	}
+
+	/**
+	 * Return all the build items including the current build item if it has
+	 * not be push onto the stack
+	 *
+	 * @return	array
+	 */
+	public function getBuildItems()
+	{
+		$result = $this->buildItems;
+		if ($this->isCurrentBuildItem()) {
+			$result[] = $this->getCurrentBuildItem();
+		}
+		return $result;
+	}
+
+	/**
+	 * @param	string	$src
+	 * @param	string	$target
+	 * @param	string	$label
+	 * @return	BuildItem
+	 */
+	public function createBuildItem($src, $target, $label)
+	{
+		return new BuildItem($src, $target, $label);
+	}
+
+	/**
+	 * @return	BuildItemInterface
+	 */
+	protected function getCurrentBuildItem()
+	{
+		return $this->currentBuildItem;
+	}
+
+	/**
+	 * @param	BuildItemInterface
+	 * @return	CompositeTemplate
+	 */
+	protected function setCurrentBuildItem(BuildItemInterface $buildItem)
+	{
+		$this->currentBuildItem = $buildItem;
+		return $this;
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function isCurrentBuildItem()
+	{
+		return $this->currentBuildItem instanceof BuildItemInterface;
 	}
 }

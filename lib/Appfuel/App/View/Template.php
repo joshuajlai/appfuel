@@ -68,6 +68,19 @@ class Template extends Dictionary implements TemplateInterface
 	}
 
 	/**
+	 * Alias for add. Will add a name/value pair into this templates dictionary
+	 *
+	 * @param	scalar	$name
+	 * @param	mixed	$value
+	 * @return	Template
+	 */
+	public function assign($name, $value)
+	{
+		$this->add($name, $value);
+		return $this;
+	}
+
+	/**
 	 * @return	string
 	 */
 	public function getName()
