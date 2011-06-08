@@ -40,6 +40,65 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 	protected $currentBuildItem = null;
 
 	/**
+	 * @param	array	$data
+	 * @param	bool	$isPrivate
+	 * @return	string
+	 */
+	public function build(array $data = array(), $isPrivate = false)
+	{
+		$err = 'Build failed:';
+		$this->finalizeCurrentBuildItem();
+		$buildItems = $this->getBuildItems();
+		foreach ($buildItems as $buildItem) {
+			$isSilentFail = $buildItem->isSilentFail();
+			$sourceKey    = $buildItem->getSource();
+			$assignLabel  = $buildItem->getAssignLabel();
+			$targetKey    = $buildItem->getTarget();
+			
+			if (! $this->templateExists($sourceKey)) {
+				if ($isSilentFail) {
+					continue;
+				}
+
+				throw new Exception(
+					"$err source ($sourceKey) template not found"
+				);
+			}
+			$source = $this->getTemplate($sourceKey);
+			$result = $source->build();
+			if ($buildItem->isResultFilter()) {
+				$filter = $buildItem->getResultFilter();
+				if (is_callable($filter)) {
+					$result = $filter($result);
+				}
+				else {
+					$result = call_user_func($filter, $result);
+				}
+			}
+
+			/* the target is this template */		
+			if ('_this_' === $targetKey) {
+				$this->assign($assignLabel, $result);
+				continue;
+			}
+	
+			if (! $this->templateExists($targetKey)) {
+				if ($isSilentFail) {
+					continue;
+				}
+				throw new Exception(
+					"$err target ($targetKey) template not found"
+				);
+			}
+
+			$target = $this->getTemplate($targetKey);
+			$target->assign($assignLabel, $result);
+		}
+
+		return parent::build($data, $isPrivate);
+	}
+
+	/**
 	 * Determines if template has been added
 	 *
 	 * @param	scalar	$key	template identifier
@@ -137,9 +196,7 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 			$label = $src;
 		}
 
-		if ($this->isCurrentBuildItem()) {
-			$this->addBuildItem($this->getCurrentBuildItem());
-		}
+		$this->finalizeCurrentBuildItem();
 
 		$this->setCurrentBuildItem(
 			$this->createBuildItem($src, $target, $label)
@@ -183,7 +240,7 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 	{
 		$this->validateCurrentBuildItem('letBuildThrowException')
 			 ->getCurrentBuildItem()
-			 ->enableSilentFail();
+			 ->disableSilentFail();
 
 		return $this;
 	}
@@ -250,6 +307,23 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 	protected function isCurrentBuildItem()
 	{
 		return $this->currentBuildItem instanceof BuildItemInterface;
+	}
+
+	/**
+	 * ensure if there is a current item that is push onto the stack and 
+	 * then cleared off
+	 *
+	 * @return	CompositeTemplate
+	 */
+	protected function finalizeCurrentBuildItem()
+	{
+		if (! $this->isCurrentBuildItem()) {
+			return $this;
+		}
+
+		$this->addBuildItem($this->getCurrentBuildItem());
+		$this->currentItem = null;
+		return $this;
 	}
 
 	/**

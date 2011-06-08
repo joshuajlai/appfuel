@@ -13,8 +13,8 @@ namespace Test\Appfuel\App\View;
 use Test\AfTestCase as ParentTestCase,
 	Appfuel\App\View\CompositeTemplate,
 	Appfuel\App\View\Template,
-	StdClass;
-
+	StdClass,
+	SplFileInfo; 
 /**
  * Since a composit is a template that can hold other templates we will
  * be testing its ability to add remove get and build templates
@@ -446,7 +446,195 @@ class CompositeTemplateTest extends ParentTestCase
 		$this->template->filterResultsWith($callback);
 	}
 
+	/**
+	 * letBuildFailSilently tell build to ignore the build when the template
+	 * can not be found
+	 *
+	 * @return null
+	 */
+	public function testLetBuildFailSilently()
+	{
+		$this->template->assignBuild('my-source', 'my-label', 'my-target');
+		$this->assertSame(
+			$this->template,
+			$this->template->letBuildFailSilently(),
+			'uses fluent interface'
+		);
 
+		$results = $this->template->getBuildItems();
+		$buildItem = $results[0];
+
+		$this->assertTrue($buildItem->isSilentFail());
+	}
+
+	/**
+	 * Must use after assignBuild
+	 * 
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testLetBuildFailSilentlyInvalidUsage()
+	{
+		$this->template->letBuildFailSilently();
+	}
+
+
+	/**
+	 * letBuildFailSilently tell build to fail hard and throw an exception
+	 * when the template can not be found
+	 *
+	 * @return null
+	 */
+	public function testLetBuildThrowException()
+	{
+		$this->template->assignBuild('my-source', 'my-label', 'my-target');
+		$this->assertSame(
+			$this->template,
+			$this->template->letBuildThrowException(),
+			'uses fluent interface'
+		);
+
+		$results = $this->template->getBuildItems();
+		$buildItem = $results[0];
+
+		$this->assertFalse($buildItem->isSilentFail());
+	}
+
+	/**
+	 * Must use after assignBuild
+	 * 
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testLetBuildThrowExceptionInvalidUsage()
+	{
+		$this->template->letBuildThrowException();
+	}
+	
+	/**
+	 * Creates a SplFileInfo that points to a file in the files directory 
+	 * located in the directory of this test
+	 *
+	 * @param	string	$path
+	 * @return	SplFileInfo
+	 */
+	public function createFile($path)
+	{
+		$relpath = 'files' . DIRECTORY_SEPARATOR . $path;
+		return new SplFileInfo($this->getCurrentPath($relpath));
+	}
+
+	/**
+	 * We set the file to a template in the files directory with a simple known
+	 * output and made no assignments with no other templates to build. The
+	 * build result should be the same as the template
+	 *
+	 * @return null
+	 */
+	public function testBuildNoTemplates()
+	{
+		$file = $this->createFile('template.phtml');
+		$this->template->setFile($file);
+
+		$expected = 'This is a test template. Foo=baz. EOF.';
+		$this->assertEquals($expected, $this->template->build());
+	}
+
+	public function loadTemplateABCD()
+	{
+		$file = $this->createFile('template_main.phtml');
+		$this->template->setFile($file);
+
+		$fileA = $this->createFile('template_a.phtml');
+		$fileB = $this->createFile('template_b.phtml');
+		$fileC = $this->createFile('template_c.phtml');
+		$fileD = $this->createFile('template_d.phtml');
+
+		$templateA = new Template($fileA);
+		$templateB = new Template($fileB);
+		$templateC = new Template($fileC);
+		$templateD = new Template($fileD);
+	
+		$this->template->addTemplate('a', $templateA)
+					   ->addTemplate('b', $templateB)
+					   ->addTemplate('c', $templateC)
+					   ->addTemplate('d', $templateD);
+	}
+
+	/**
+	 * We created 5 very simple templates in order to test building templates
+	 * into other templates. Each template contains its name followed by a 
+	 * common. The main template expects template d, template d expects 
+	 * template c, template c expects template b, template b expects template a
+	 * and template a does not expect anything. The result is a comma separated
+	 * list in reverse order starting from the main template. This is complex
+	 * enough to test the building of each template and assigning it into 
+	 * another. 
+	 *
+	 * @return	null
+	 */
+	public function testBuildManyTemplates()
+	{
+		$this->loadTemplateABCD();
+
+		$this->template->assignBuild('a', 'a_in_b', 'b')
+					   ->assignBuild('b', 'b_in_c', 'c')
+					   ->assignBuild('c', 'c_in_d', 'd')
+					   ->assignBuild('d', 'd_in_this', '_this_');
+
+		$expected = 'main template, template d, template c,' .
+					' template b, template a';
+
+		$this->assertEquals($expected, $this->template->build());
+	}
+
+	/**
+	 * Template a and b results will not show because template b does not exist
+	 * Please note that silent fail is the default behavior and does not need
+	 * to be specified
+	 *
+	 * @return null
+	 */
+	public function testTemplateDoesNotExistSilentFail()
+	{
+		$this->loadTemplateABCD();
+		
+		$this->template->removeTemplate('b');
+
+		$this->template->assignBuild('a', 'a_in_b', 'b')
+					   ->assignBuild('b', 'b_in_c', 'c')
+					   ->letBuildFailSilently()
+					   ->assignBuild('c', 'c_in_d', 'd')
+					   ->assignBuild('d', 'd_in_this', '_this_');
+
+        $expected = 'main template, template d, template c,';
+		$this->assertEquals($expected, $this->template->build());
+	}
+
+	/**
+	 * Template a and b results will not show because template b does not exist
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testTemplateDoesNotExistThrowException()
+	{
+		$this->loadTemplateABCD();
+
+		$this->template->removeTemplate('b');
+		$this->template->assignBuild('a', 'a_in_b', 'b')
+					   ->assignBuild('b', 'b_in_c', 'c')
+					   ->letBuildThrowException()
+					   ->assignBuild('c', 'c_in_d', 'd')
+					   ->assignBuild('d', 'd_in_this', '_this_');
+
+        $expected = 'main template, template d, template c,';
+		$this->assertEquals($expected, $this->template->build());
+	}
+
+	public function testBuildManyTemplatesFilterResults()
+	{
+	}
 
 
 }

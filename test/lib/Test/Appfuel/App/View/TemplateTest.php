@@ -28,18 +28,11 @@ class TemplateTest extends ParentTestCase
 	protected $template = null;
 
 	/**
-	 * Template name passed into constructor
-	 * @var string
-	 */
-	protected $templateName = null;
-
-	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->templateName = 'my-template';
-		$this->template		= new Template($this->templateName);
+		$this->template	= new Template();
 	}
 
 	/**
@@ -48,11 +41,6 @@ class TemplateTest extends ParentTestCase
 	public function tearDown()
 	{
 		unset($this->template);
-	}
-
-	public function testGetSetName()
-	{
-
 	}
 
 	/**
@@ -112,7 +100,7 @@ class TemplateTest extends ParentTestCase
 	{
 		$path     = 'path/to/some/where';
 		$file     = $this->createMockClientsideFile($path);
-		$template = new Template('some-name', $file); 
+		$template = new Template($file); 
 		$this->assertTrue($template->fileExists());
 		$this->assertEquals($file, $template->getFile());	
 	}
@@ -123,7 +111,7 @@ class TemplateTest extends ParentTestCase
 	public function testGetFileAsStringConstructor()
 	{
 		$file     = 'path/to/some/where';
-		$template = new Template('some-name', $file); 
+		$template = new Template($file); 
 		$this->assertTrue($template->fileExists());
 		$this->assertEquals($file, $template->getFile());	
 	}
@@ -165,11 +153,11 @@ class TemplateTest extends ParentTestCase
 	public function testGetScopeConstructor()
 	{
 		$scope    = $this->getMock('Appfuel\Framework\App\View\ScopeInterface');
-		$template = new Template('name', null, $scope); 
+		$template = new Template(null, $scope); 
 		$this->assertEquals($scope, $template->getScope());
 
 		$data = array('name' => 'value');
-		$template = new Template('name', null, $data);
+		$template = new Template(null, $data);
 		
 		$scope = $template->getScope();
 		$this->assertInstanceOf(

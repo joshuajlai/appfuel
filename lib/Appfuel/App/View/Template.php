@@ -10,7 +10,8 @@
  */
 namespace Appfuel\App\View;
 
-use Appfuel\Framework\Exception,
+use SplFileInfo,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\FileInterface,
 	Appfuel\Framework\App\View\ScopeInterface,
 	Appfuel\Framework\App\View\TemplateInterface,
@@ -39,21 +40,12 @@ class Template extends Dictionary implements TemplateInterface
 	protected $scope = null;
 
 	/**
-	 * Name of the template. Also used as a key when part of a composite
-	 * template
-	 * @var string
-	 */
-	protected $name = null;
-
-	/**
 	 * @param	mixed	$file 
 	 * @param	array	$data
 	 * @return	FileTemplate
 	 */
-	public function __construct($name, $file = null, $data = null)
+	public function __construct($file = null, $data = null)
 	{
-		$this->setName($name);
-
 		if ($file !== null) {
 			$this->setFile($file);
 		}
@@ -81,24 +73,6 @@ class Template extends Dictionary implements TemplateInterface
 	}
 
 	/**
-	 * @return	string
-	 */
-	public function getName()
-	{
-		return $this->name;
-	}
-
-	/**
-	 * @param	string	$name
-	 * @return	Template
-	 */
-	public function setName($name)
-	{
-		$this->name = $name;
-		return $this;
-	}
-
-	/**
 	 * Determines if a file has been set 
 	 * @return bool
 	 */
@@ -121,7 +95,10 @@ class Template extends Dictionary implements TemplateInterface
 			throw new Exception("addFile failed: path can not be empty");
 		}
 		
-		if (is_string($path) ||  ($path instanceof FileInterface)) {
+		if (is_string($path)				 ||  
+			$path instanceof FileInterface   || 
+			$path instanceof SplFileInfo) {
+
 			$this->file = $path;
 		} 
 		else {

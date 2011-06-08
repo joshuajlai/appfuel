@@ -116,6 +116,19 @@ class BuildItem implements BuildItemInterface
 	}
 
 	/**
+	 * Determines if a result filter is present
+	 *
+	 * @return	bool
+	 */
+	public function isResultFilter()
+	{
+		$filter = $this->resultFilter;
+		return is_string($filter) && ! empty($filter) ||
+			   is_array($filter) && ! empty($filter) ||
+			   is_callable($filter);
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isSilentFail()
