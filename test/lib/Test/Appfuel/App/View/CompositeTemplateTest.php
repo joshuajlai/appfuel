@@ -14,7 +14,20 @@ use Test\AfTestCase as ParentTestCase,
 	Appfuel\App\View\CompositeTemplate,
 	Appfuel\App\View\Template,
 	StdClass,
-	SplFileInfo; 
+	SplFileInfo;
+
+/**
+ * Callback function used for result filter test
+ *
+ * @param	string	$buildResult
+ * @return  string
+ */
+function callbackFilter($buildResult)
+{
+	return 'filter data added ' . $buildResult;
+}	
+
+
 /**
  * Since a composit is a template that can hold other templates we will
  * be testing its ability to add remove get and build templates
@@ -632,8 +645,87 @@ class CompositeTemplateTest extends ParentTestCase
 		$this->assertEquals($expected, $this->template->build());
 	}
 
-	public function testBuildManyTemplatesFilterResults()
+	/**
+	 * Test the ability to filter the results with a closure
+	 *
+	 * @return null
+	 */
+	public function testBuildManyTemplatesFilterResultsClosure()
 	{
+		$this->loadTemplateABCD();
+
+		$filter = function($string) {
+			return 'filter data added ' . $string;
+		};
+		$this->template->assignBuild('a', 'a_in_b', 'b')
+					   ->assignBuild('b', 'b_in_c', 'c')
+					   ->filterResultsWith($filter)
+					   ->assignBuild('c', 'c_in_d', 'd')
+					   ->assignBuild('d', 'd_in_this', '_this_');
+
+		$expected = 'main template, template d, template c,' .
+					' filter data added template b, template a';
+
+		$this->assertEquals($expected, $this->template->build());
+	}
+
+	/**
+	 * Test the ability to filter the results with a callback
+	 *
+	 * @return null
+	 */
+	public function testBuildManyTemplatesFilterResultsCallbackString()
+	{
+		$this->loadTemplateABCD();
+
+		$callback = __NAMESPACE__ . '\\callbackFilter';
+
+		$this->template->assignBuild('a', 'a_in_b', 'b')
+					   ->assignBuild('b', 'b_in_c', 'c')
+					   ->filterResultsWith($callback)
+					   ->assignBuild('c', 'c_in_d', 'd')
+					   ->assignBuild('d', 'd_in_this', '_this_');
+
+		$expected = 'main template, template d, template c,' .
+					' filter data added template b, template a';
+
+		$this->assertEquals($expected, $this->template->build());
+	}
+
+	/**
+	 * Callback function used for result filter test
+	 *
+	 * @param	string	$buildResult
+	 * @return  string
+	 */
+	public function callbackFilter($buildResult)
+	{
+		return 'filter data added ' . $buildResult;
+	}	
+
+
+	/**
+	 * Test the ability to filter the results with a callback
+	 * in an object method
+	 *
+	 * @return null
+	 */
+	public function testBuildManyTemplatesFilterResultsCallbackObjectMethod()
+	{
+		$this->loadTemplateABCD();
+
+		$callback = array($this, 'callbackFilter');
+
+		$this->template->assignBuild('a', 'a_in_b', 'b')
+					   ->assignBuild('b', 'b_in_c', 'c')
+					   ->filterResultsWith($callback)
+					   ->assignBuild('c', 'c_in_d', 'd')
+					   ->assignBuild('d', 'd_in_this', '_this_');
+
+		$expected = 'main template, template d, template c,' .
+					' filter data added template b, template a';
+
+		$this->assertEquals($expected, $this->template->build());
 	}
 
 

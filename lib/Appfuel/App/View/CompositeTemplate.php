@@ -68,7 +68,11 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 			$result = $source->build();
 			if ($buildItem->isResultFilter()) {
 				$filter = $buildItem->getResultFilter();
-				if (is_callable($filter)) {
+				/* An array with an object as the first param and the method
+				 * as the second param passes as callable, we don't want the
+				 * array
+				 */
+				if (is_callable($filter) && ! is_array($filter)) {
 					$result = $filter($result);
 				}
 				else {
