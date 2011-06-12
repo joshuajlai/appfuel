@@ -8,15 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db;
+namespace Test\Appfuel\Db\Connection;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\Db\ConnectionDetail,
+	Appfuel\Db\Connection\ConnectionDetail,
 	StdClass;
 
 /**
- * The ConnectionDetail is a value object used to hold connection information, as well as
- * the adapter type and vendor. 
+ * The ConnectionDetail is a value object used to hold connection information, 
+ * as well as the adapter type and vendor. 
  */
 class ConnectionDetailTest extends ParentTestCase
 {
@@ -63,7 +63,7 @@ class ConnectionDetailTest extends ParentTestCase
 	public function testConstructor()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\ConnectionDetailInterface',
+			'Appfuel\Framework\Db\Connection\ConnectionDetailInterface',
 			$this->connDetail,
 			'must use a connection detail interface'
 		);

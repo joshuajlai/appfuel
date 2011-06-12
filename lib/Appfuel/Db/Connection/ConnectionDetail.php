@@ -8,13 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Db;
+namespace Appfuel\Db\Connection;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\ConnectionDetailInterface;
+	Appfuel\Framework\Db\Connection\ConnectionDetailInterface;
 
 /**
- * Dsn Value object used to hold dsn information
+ * Holds information neccessary to determine the vendor, vendor's adaptor and
+ * connection details.
  */
 class ConnectionDetail implements ConnectionDetailInterface
 {
