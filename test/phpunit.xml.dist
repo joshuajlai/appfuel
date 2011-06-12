@@ -7,6 +7,7 @@
 	<directory suffix="Test.php">./lib/Test/Appfuel/App</directory>
 	<directory suffix="Test.php">./lib/Test/Appfuel/Data</directory>
 	<directory suffix="Test.php">./lib/Test/Appfuel/View</directory>
+	<directory suffix="Test.php">./lib/Test/Appfuel/Db</directory>
   </testsuite>
 </testsuites>
 </phpunit>
