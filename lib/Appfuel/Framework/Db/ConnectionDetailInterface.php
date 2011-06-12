@@ -12,12 +12,12 @@ namespace Appfuel\Framework\Db;
 
 
 /**
- * The connection interface sould be a value object holding only the 
- * information necessary for establishing a connection. The rules for
- * the dsn string are type=value, for example,
- * adapter=mysqli,username=some-user,password=some-password
+ * The connection detail  is used to hold all information necessary for 
+ * establishing a connection. The rules for parsing and parsing the string 
+ * that contains a dsn or other connection description has nothing to do with 
+ * the connnection detail it is handler by the connection string parser
  */
-interface DsnInterface
+interface ConnectionDetailInterface
 {
 	
 	public function getVendor();

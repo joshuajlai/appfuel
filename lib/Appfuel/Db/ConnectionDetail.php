@@ -11,12 +11,12 @@
 namespace Appfuel\Db;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\DsnInterface;
+	Appfuel\Framework\Db\ConnectionDetailInterface;
 
 /**
  * Dsn Value object used to hold dsn information
  */
-class Dsn implements DsnInterface
+class ConnectionDetail implements ConnectionDetailInterface
 {
 	/**
 	 * The type of database in use mysql, postgres, sqllite, etc ..

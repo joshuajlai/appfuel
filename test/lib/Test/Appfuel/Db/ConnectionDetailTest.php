@@ -11,20 +11,20 @@
 namespace Test\Appfuel\Db;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\Db\Dsn,
+	Appfuel\Db\ConnectionDetail,
 	StdClass;
 
 /**
- * The Dsn is a value object used to hold connection information, as well as
+ * The ConnectionDetail is a value object used to hold connection information, as well as
  * the adapter type and vendor. 
  */
-class DnsTest extends ParentTestCase
+class ConnectionDetailTest extends ParentTestCase
 {
 	/**
-	 * Dsn Value object
+	 * ConnectionDetail Value object
 	 * @var string
 	 */
-	protected $dsn = null;
+	protected $connDetail = null;
 
 	/**
 	 * Names the database vendor, first parameter used in constructor
@@ -45,7 +45,7 @@ class DnsTest extends ParentTestCase
 	{
 		$this->vendor  = 'mysql';
 		$this->adapter = 'mysqli'; 
-		$this->dsn = new Dsn($this->vendor, $this->adapter);
+		$this->connDetail = new ConnectionDetail($this->vendor, $this->adapter);
 	}
 
 	/**
@@ -54,7 +54,19 @@ class DnsTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
-		unset($this->dsn);
+		unset($this->connDetail);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testConstructor()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Db\ConnectionDetailInterface',
+			$this->connDetail,
+			'must use a connection detail interface'
+		);
 	}
 
 	/**
@@ -65,7 +77,7 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testGetVendor()
 	{
-		$this->assertEquals($this->vendor, $this->dsn->getVendor());
+		$this->assertEquals($this->vendor, $this->connDetail->getVendor());
 	}
 
 	/**
@@ -76,7 +88,7 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testGetAdapter()
 	{
-		$this->assertEquals($this->adapter, $this->dsn->getAdapter());
+		$this->assertEquals($this->adapter, $this->connDetail->getAdapter());
 	}
 
 
@@ -85,15 +97,15 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testGetSetHost()
 	{
-		$this->assertNull($this->dsn->getHost());
+		$this->assertNull($this->connDetail->getHost());
 
 		$host = 'appfuel.net';
 		$this->assertSame(
-			$this->dsn,
-			$this->dsn->setHost($host),
+			$this->connDetail,
+			$this->connDetail->setHost($host),
 			'must use a fluent interface'
 		);
-		$this->assertEquals($host, $this->dsn->getHost());
+		$this->assertEquals($host, $this->connDetail->getHost());
 	}
 
 	/**
@@ -102,7 +114,7 @@ class DnsTest extends ParentTestCase
 	 */	
 	public function testBadHostEmptyString()
 	{
-		$this->dsn->setHost('');
+		$this->connDetail->setHost('');
 	}
 
 	/**
@@ -110,15 +122,15 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testGetSetUserName()
 	{
-		$this->assertNull($this->dsn->getUserName());
+		$this->assertNull($this->connDetail->getUserName());
 
 		$user = 'my-user-name';
 		$this->assertSame(
-			$this->dsn,
-			$this->dsn->setUserName($user),
+			$this->connDetail,
+			$this->connDetail->setUserName($user),
 			'must use a fluent interface'
 		);
-		$this->assertEquals($user, $this->dsn->getUserName());
+		$this->assertEquals($user, $this->connDetail->getUserName());
 	}
 
 	/**
@@ -127,7 +139,7 @@ class DnsTest extends ParentTestCase
 	 */	
 	public function testBadUserNameEmptyString()
 	{
-		$this->dsn->setUserName('');
+		$this->connDetail->setUserName('');
 	}
 
 	/**
@@ -135,15 +147,15 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testGetSetPassword()
 	{
-		$this->assertNull($this->dsn->getPassword());
+		$this->assertNull($this->connDetail->getPassword());
 
 		$pass = 'my-user-password';
 		$this->assertSame(
-			$this->dsn,
-			$this->dsn->setPassword($pass),
+			$this->connDetail,
+			$this->connDetail->setPassword($pass),
 			'must use a fluent interface'
 		);
-		$this->assertEquals($pass, $this->dsn->getPassword());
+		$this->assertEquals($pass, $this->connDetail->getPassword());
 	}
 
 	/**
@@ -152,7 +164,7 @@ class DnsTest extends ParentTestCase
 	 */	
 	public function testBadPasswordEmptyString()
 	{
-		$this->dsn->setPassword('');
+		$this->connDetail->setPassword('');
 	}
 
 	/**
@@ -160,15 +172,15 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testGetSetDbName()
 	{
-		$this->assertNull($this->dsn->getDbName());
+		$this->assertNull($this->connDetail->getDbName());
 
 		$name = 'my-db-name';
 		$this->assertSame(
-			$this->dsn,
-			$this->dsn->setDbName($name),
+			$this->connDetail,
+			$this->connDetail->setDbName($name),
 			'must use a fluent interface'
 		);
-		$this->assertEquals($name, $this->dsn->getDbName());
+		$this->assertEquals($name, $this->connDetail->getDbName());
 	}
 
 	/**
@@ -177,7 +189,7 @@ class DnsTest extends ParentTestCase
 	 */	
 	public function testBadDbNameEmptyString()
 	{
-		$this->dsn->setHost('');
+		$this->connDetail->setHost('');
 	}
 
 	/**
@@ -185,19 +197,19 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testGetSetPort()
 	{
-		$this->assertNull($this->dsn->getPort());
+		$this->assertNull($this->connDetail->getPort());
 
 		$port = 3306;
 		$this->assertSame(
-			$this->dsn,
-			$this->dsn->setPort($port),
+			$this->connDetail,
+			$this->connDetail->setPort($port),
 			'must use a fluent interface'
 		);
-		$this->assertEquals($port, $this->dsn->getPort());
+		$this->assertEquals($port, $this->connDetail->getPort());
 
 		$port = '3306';
-		$this->dsn->setPort($port);
-		$this->assertEquals($port, $this->dsn->getPort());
+		$this->connDetail->setPort($port);
+		$this->assertEquals($port, $this->connDetail->getPort());
 	}
 
 	/**
@@ -206,7 +218,7 @@ class DnsTest extends ParentTestCase
 	 */	
 	public function testBadPortEmptyString()
 	{
-		$this->dsn->setPort('');
+		$this->connDetail->setPort('');
 	}
 
 	/**
@@ -215,7 +227,7 @@ class DnsTest extends ParentTestCase
 	 */	
 	public function testBadPortZero()
 	{
-		$this->dsn->setPort(0);
+		$this->connDetail->setPort(0);
 	}
 
 	/**
@@ -224,7 +236,7 @@ class DnsTest extends ParentTestCase
 	 */	
 	public function testBadPortNegativeNumber()
 	{
-		$this->dsn->setPort(-33);
+		$this->connDetail->setPort(-33);
 	}
 
 	/**
@@ -232,15 +244,15 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testGetSetSocket()
 	{
-		$this->assertNull($this->dsn->getSocket());
+		$this->assertNull($this->connDetail->getSocket());
 
 		$socket = 'tmp/mysql.sock';
 		$this->assertSame(
-			$this->dsn,
-			$this->dsn->setSocket($socket),
+			$this->connDetail,
+			$this->connDetail->setSocket($socket),
 			'must use a fluent interface'
 		);
-		$this->assertEquals($socket, $this->dsn->getSocket());
+		$this->assertEquals($socket, $this->connDetail->getSocket());
 	}
 
 	/**
@@ -249,7 +261,7 @@ class DnsTest extends ParentTestCase
 	 */	
 	public function testBadSocketEmptyString()
 	{
-		$this->dsn->setSocket('');
+		$this->connDetail->setSocket('');
 	}
 
 	/**
@@ -258,7 +270,7 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testConstructorBadVendorEmptyString()
 	{
-		$dsn = new Dsn('', 'some-adapter');
+		$connDetail = new ConnectionDetail('', 'some-adapter');
 	}
 
 	/**
@@ -267,7 +279,7 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testConstructorBadVendorEmptyInt()
 	{
-		$dsn = new Dsn(12345, 'some-adapter');
+		$connDetail = new ConnectionDetail(12345, 'some-adapter');
 	}
 
 	/**
@@ -276,7 +288,7 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testConstructorBadVendorEmptyArray()
 	{
-		$dsn = new Dsn(array(1,2,3), 'some-adapter');
+		$connDetail = new ConnectionDetail(array(1,2,3), 'some-adapter');
 	}
 
 	/**
@@ -285,7 +297,7 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testConstructorBadVendorEmptyObject()
 	{
-		$dsn = new Dsn(new StdClass(), 'some-adapter');
+		$connDetail = new ConnectionDetail(new StdClass(), 'some-adapter');
 	}
 
 	/**
@@ -294,7 +306,7 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testConstructorBadAdapterEmptyString()
 	{
-		$dsn = new Dsn('some-vendor', '');
+		$connDetail = new ConnectionDetail('some-vendor', '');
 	}
 
 	/**
@@ -303,7 +315,7 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testConstructorBadAdapterEmptyInt()
 	{
-		$dsn = new Dsn('some-vendor', 12345);
+		$connDetail = new ConnectionDetail('some-vendor', 12345);
 	}
 
 	/**
@@ -312,7 +324,7 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testConstructorBadAdapterArray()
 	{
-		$dsn = new Dsn('some-vendor', array(1,2,3,4));
+		$connDetail = new ConnectionDetail('some-vendor', array(1,2,3,4));
 	}
 
 	/**
@@ -321,6 +333,6 @@ class DnsTest extends ParentTestCase
 	 */
 	public function testConstructorBadAdapterObject()
 	{
-		$dsn = new Dsn('some-vendor', new StdClass());
+		$connDetail = new ConnectionDetail('some-vendor', new StdClass());
 	}
 }
