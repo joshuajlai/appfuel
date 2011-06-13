@@ -92,4 +92,162 @@ class DetailFactoryTest extends ParentTestCase
 		
 	}
 
+	/**
+	 * Port is an optional connection field
+	 * @return null
+	 */
+	public function testCreateConnectionDetailNoPort()
+	{
+		$string = 'vendor=mysql;adapter=mysqli;host=my-host;username=me;' .
+				  'dbname=my-db;password=pass;socket=tmp/mysql.sock';
+
+		$result = $this->factory->createConnectionDetail($string);
+		$this->assertInstanceOf(
+			'Appfuel\Db\Connection\ConnectionDetail',
+			$result
+		);
+		
+		$this->assertEquals('mysql',			$result->getVendor());
+		$this->assertEquals('mysqli',			$result->getAdapter());
+		$this->assertEquals('my-host',			$result->getHost());
+		$this->assertEquals('me',				$result->getUserName());
+		$this->assertEquals('pass',				$result->getPassword());
+		$this->assertEquals('tmp/mysql.sock',	$result->getSocket());
+		
+		$this->assertNull($result->getPort());
+	}
+
+	/**
+	 * Socket is an optional connection field
+	 * @return null
+	 */
+	public function testCreateConnectionDetailNoSocket()
+	{
+		$string = 'vendor=mysql;adapter=mysqli;host=my-host;username=me;' .
+				  'dbname=my-db;password=pass;port=3306';
+
+		$result = $this->factory->createConnectionDetail($string);
+		$this->assertInstanceOf(
+			'Appfuel\Db\Connection\ConnectionDetail',
+			$result
+		);
+		
+		$this->assertEquals('mysql',			$result->getVendor());
+		$this->assertEquals('mysqli',			$result->getAdapter());
+		$this->assertEquals('my-host',			$result->getHost());
+		$this->assertEquals('me',				$result->getUserName());
+		$this->assertEquals('pass',				$result->getPassword());
+		$this->assertEquals(3306,				$result->getPort());
+		
+		$this->assertNull($result->getSocket());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testCreateConnectionDetailNoPortSocket()
+	{
+		$string = 'vendor=mysql;adapter=mysqli;host=my-host;username=me;' .
+				  'dbname=my-db;password=pass';
+
+		$result = $this->factory->createConnectionDetail($string);
+		$this->assertInstanceOf(
+			'Appfuel\Db\Connection\ConnectionDetail',
+			$result
+		);
+		
+		$this->assertEquals('mysql',			$result->getVendor());
+		$this->assertEquals('mysqli',			$result->getAdapter());
+		$this->assertEquals('my-host',			$result->getHost());
+		$this->assertEquals('me',				$result->getUserName());
+		$this->assertEquals('pass',				$result->getPassword());
+		
+		$this->assertNull($result->getSocket());
+		$this->assertNull($result->getPort());
+	}
+
+
+
+	/**
+	 * @return null
+	 */
+	public function testCreateConnectionDetailEmptyString()
+	{
+		$this->assertFalse($this->factory->createConnectionDetail(''));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testCreateConnectionDetailNoVendor()
+	{
+		$string = 'adapter=mysqli;host=my-host;username=me;' .
+				  'dbname=my-db;password=pass;port=3306;socket=tmp/mysql.sock';
+
+		$result = $this->factory->createConnectionDetail($string);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testCreateConnectionDetailNoAdapter()
+	{
+		$string = 'vendor=mysql;host=my-host;username=me;' .
+				  'dbname=my-db;password=pass;port=3306;socket=tmp/mysql.sock';
+
+		$result = $this->factory->createConnectionDetail($string);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testCreateConnectionDetailNoHost()
+	{
+		$string = 'vendor=mysql;adapter=mysqli;username=me;' .
+				  'dbname=my-db;password=pass;port=3306;socket=tmp/mysql.sock';
+
+		$result = $this->factory->createConnectionDetail($string);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testCreateConnectionDetailNoUserName()
+	{
+		$string = 'vendor=mysql;adapter=mysqli;host=my-host;' .
+				  'dbname=my-db;password=pass;port=3306;socket=tmp/mysql.sock';
+
+		$result = $this->factory->createConnectionDetail($string);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testCreateConnectionDetailNoDbName()
+	{
+		$string = 'vendor=mysql;adapter=mysqli;host=my-host;' .
+				  'username=me;password=pass;port=3306;socket=tmp/mysql.sock';
+
+		$result = $this->factory->createConnectionDetail($string);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testCreateConnectionDetailNoPassword()
+	{
+		$string = 'vendor=mysql;adapter=mysqli;host=my-host;' .
+				  'dbname=my-db;userName=me;port=3306;socket=tmp/mysql.sock';
+
+		$result = $this->factory->createConnectionDetail($string);
+	}
+
+
+
 }

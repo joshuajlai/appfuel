@@ -61,21 +61,24 @@ class DetailFactory implements DetailFactoryInterface
 			return false;
 		}
 
+		/* required parameters for a successful connection to a vendor
+		 * specific adapter
+		 */
 		$vendor   = $result->get('vendor');
 		$adapter  = $result->get('adapter');
 		$host     = $result->get('host');
 		$dbName   = $result->get('dbname');
 		$username = $result->get('username');
 		$password = $result->get('password');
-		$port     = $result->get('port');
-		$socket   = $result->get('socket');
-		
+
 		$detail = new ConnectionDetail($vendor, $adapter);
 		$detail->setHost($host)
 			   ->setDbName($dbName)
 			   ->setUsername($username)
 			   ->setPassword($password);
 
+		$port   = $result->get('port');
+		$socket = $result->get('socket');		
 		if (null !== $port) {
 			$detail->setPort($port);
 		}
