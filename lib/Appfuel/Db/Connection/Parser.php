@@ -12,7 +12,7 @@ namespace Appfuel\Db\Connection;
 
 use Appfuel\Data\Dictionary,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Connection\ParserInterface,
+	Appfuel\Framework\Db\Connection\ParserInterface;
 
 /**
  * Parse a connection string into it's individual components
@@ -25,12 +25,42 @@ class Parser implements ParserInterface
 	 * @param	bool	$isDictionary	reutrns a dictionary instead of array
 	 * @return	mixed Dictionary | array | false on failure
 	 */
-	public function parse($conn, $format = 'dictionary')
+	public function parse($conn, $isDictionary = true)
 	{
-		if (! is_string($conn) && ! empty($conn)) {
+		if (! is_string($conn) || empty($conn)) {
+			return false;
+		}
+		
+		$parts   = explode(';', $conn);
+		if (! $parts) {
 			return false;
 		}
 
-		$parts = explode(';', $conn);
+		$result = array();
+		foreach ($parts as $section) {
+			if (! is_string($section) || empty($section)) {
+				continue;
+			}
+
+			$keyValue = explode('=', $section);
+			if (! is_array($keyValue) || empty($keyValue)) {
+				continue;
+			}
+
+			/* ensures key=value is key 0,1 */
+			if (! isset($keyValue[0]) || ! isset($keyValue[1])) {
+				continue;
+			}
+			$key   = $keyValue[0];
+			$value = $keyValue[1];
+
+			$result[$key] = $value;
+		}
+
+		if (true === $isDictionary) {
+			$result = new Dictionary($result);
+		}
+
+		return $result;
 	}
 }
