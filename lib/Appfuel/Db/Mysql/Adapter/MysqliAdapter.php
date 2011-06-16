@@ -23,17 +23,17 @@ use Mysqli,
 class MysqliAdapter implements AdapterInterface
 {
 	/**
-	 * Connection detail holds the info necessary to connect to the database
-	 * via the mysqli handle
-	 * @var	ConnectionDetail
+	 * Handles all low level details pertaining to the server, this includes
+	 * connecting, and getting the handle
+	 * @var Server
 	 */
-	protected $connDetail = null;
+	protected $server = null;
 
 	/**
-	 * Mysqli object used to interact with the database
-	 * @var	Mysqli
-	 */	
-	protected $handle = null;
+	 * 
+	 * @var bool
+	 */
+	protected $isInitialized = false;
 
 	/**
 	 * Flag used to determine if a connection to the database has been 
@@ -43,107 +43,68 @@ class MysqliAdapter implements AdapterInterface
 	protected $isConnected = false;
 
 	/**
+	 * Error value object containing the last know error
+	 * @var ErrorInterface
+	 */
+	protected $error = null;
+
+	/**
 	 * @param	ConnectionDetail	$detail
 	 * @return	Adapter
 	 */
-	public function __construct(ConnectionDetailInterface $detail)
+	public function __construct(Server $server)
 	{
-		$this->connDetail = $detail;
+		$this->server = $server;
 	}
 
 	/**
-	 * @return	ConnectionDetail
+	 * @return	Server
 	 */
-	public function getConnectionDetail()
+	public function getServer()
 	{
-		return $this->connDetail;
+		return $this->server;
 	}
 
-	/**
-	 * @return mysqli
-	 */
-	public function createHandle()
-	{
-		return mysqli_init();
-	}
-
-	/**
-	 * @param	Mysqli	$handle
-	 * @return	Adapter
-	 */
-	public function setHandle(Mysqli $handle)
-	{
-		$this->handle = $handle;
-		return $this;
-	}
-
-	/**
-	 * @return	Mysqli
-	 */
-	public function getHandle()
-	{
-		return $this->handle;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isHandle()
-	{
-		return $this->handle instanceof Mysqli;
-	}
-
-	/**
-	 * Connect to the database using the ConnectionDetail
-	 * @return bool
-	 */
 	public function connect()
 	{
-		if ($this->isConnected()) {
-			return true;
-		}
+        if ($this->isConnected()) {
+            return true;
+        }
 
-		$handle = $this->getHandle();
-		if (! $handle instanceof Mysqli) {
-			throw new Exception('connect failed: no mysqli handle created');
-		}
-		
-		$detail = $this->getConnectionDetail();
-		
-		$this->isConnected = @mysqli_real_connect(
-			$handle,
-			$detail->getHost(),
-			$detail->getUserName(),
-			$detail->getPassword(),
-			$detail->getDbName(),
-			$detail->getPort(),
-			$detail->getSocket()
-		);
-	
-		if (! $this->isConnected) {
-			$errNbr  = mysqli_connect_errno();
-			$errCode = mysqli_connect_error();
-			$error   = $this->createError($errNbr, $errCode);
-			$this->setError($error);
-			return false;	
-		}
-
-		return true;
 	}
 
-	/**
-	 * @return	bool
-	 */
-	public function isConnected()
-	{
-		return $this->isConnected;
-	}
+    /**
+     * Creates an adapter error with mysqli error number and text
+     *
+     * @param   Mysqli  $handle
+     * @return  Error
+     */
+    public function createMysqliError(Mysqli $handle)
+    {
+        return new Error($handle->errno, $handle->error);
+    }
 
-	/**
-	 * @return 
-	 */
-	public function clearHandle()
-	{
-		$this->handle = null;	
-	}
+    /**
+     * @return  bool
+     */
+    public function isConnected()
+    {
+        return $this->isConnected;
+    }
+
+    /**
+     * @return 
+     */
+    public function clearHandle()
+    {
+        $this->handle = null;
+    }
+
+    /**
+     * @return  ErrorInterface
+     */
+    public function getError()
+    {
+        return $this->error;
+    }
 }
