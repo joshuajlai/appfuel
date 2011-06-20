@@ -30,19 +30,6 @@ class MysqliAdapter implements AdapterInterface
 	protected $server = null;
 
 	/**
-	 * 
-	 * @var bool
-	 */
-	protected $isInitialized = false;
-
-	/**
-	 * Flag used to determine if a connection to the database has been 
-	 * established. This connection is always done through mysqli_real_connect
-	 * @var bool
-	 */
-	protected $isConnected = false;
-
-	/**
 	 * Error value object containing the last know error
 	 * @var ErrorInterface
 	 */
@@ -55,6 +42,7 @@ class MysqliAdapter implements AdapterInterface
 	public function __construct(Server $server)
 	{
 		$this->server = $server;
+		$this->server->initialize();
 	}
 
 	/**
@@ -67,9 +55,14 @@ class MysqliAdapter implements AdapterInterface
 
 	public function connect()
 	{
-        if ($this->isConnected()) {
-            return true;
-        }
+		$server = $this->getServer();
+		if ($server->isConnected()) {
+			return true;
+		}
+
+		if (! $server->isHandle()) {
+			$server->initialize();
+		}
 
 	}
 

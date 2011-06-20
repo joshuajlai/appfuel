@@ -34,8 +34,7 @@ class ServerTest extends ParentTestCase
 		$this->connDetail->setHost('localhost')
 						 ->setUserName('appfuel_user')
 						 ->setPassword('w3b_g33k')
-						 ->setDbName('appfuel_unittest')
-						 ->setSocket('/tmp/mysql.sock');
+						 ->setDbName('af_unittest');
 
 		$this->server = new Server($this->connDetail);
 	}
@@ -165,8 +164,7 @@ class ServerTest extends ParentTestCase
 		$connDetail->setHost('localhost')
 				   ->setUserName('_not_likely_to_exist_apfuel__')
 				   ->setPassword('no-pass')
-				   ->setDbName('no-db')
-				   ->setSocket('/tmp/mysql.sock');
+				   ->setDbName('no-db');
 
 
 		$server = new Server($connDetail);
