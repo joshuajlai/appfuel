@@ -274,6 +274,26 @@ class Result
 	}
 
 	/**
+	 * Grabs just the column names frim the getFields call
+	 * 
+	 * @return array
+	 */
+	public function getColumnNames()
+	{
+		$fields = $this->getFields();
+		if (! is_array($fields)) {
+			return false;
+		}
+
+		$names = array();
+		foreach ($fields as $field) {
+			$names[] = $field->name;
+		}
+
+		return $names;
+	}
+
+	/**
 	 * Adusts the result pointer to an arbitary row in the result
 	 * 
 	 * @param	int		$rowNbr
@@ -303,6 +323,7 @@ class Result
 					->lengths;
 	}
 
+	
 	/**
 	 * Free the resultset from memory and remove its reference
 	 *

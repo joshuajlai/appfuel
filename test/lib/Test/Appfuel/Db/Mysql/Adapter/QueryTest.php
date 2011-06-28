@@ -68,6 +68,28 @@ class AdapterQueryTest extends ParentTestCase
 		unset($this->server);
 	}
 
+    /**
+     * @return array
+     */
+    public function sqlProviderQueryId_1()
+    {  
+        $sql = 'SELECT query_id, result FROM test_queries WHERE query_id=1';
+        return array(
+            array($sql)
+        );
+    }
+
+    /**
+     * @return array
+     */
+    public function sqlProviderQueryId_lt_4()
+    {  
+        $sql = 'SELECT query_id, result FROM test_queries WHERE query_id < 4';
+        return array(
+            array($sql)
+        );
+    }
+
 	/**
 	 * The handle is made immutable by passing it through the constructor
 	 * and having no public setter.
@@ -77,6 +99,98 @@ class AdapterQueryTest extends ParentTestCase
 	public function testGetHandle()
 	{
 		$this->assertInstanceOf('Mysqli', $this->query->getHandle());
+	}
+
+	/**
+	 * @dataProvider	sqlProviderQueryId_1
+	 * @return	null
+	 */
+	public function testBufferedQuery($sql)
+	{
+		$resultClass = 'Appfuel\Db\Mysql\Adapter\Result';
+		$result = $this->query->bufferedQuery($sql);
+		$this->assertInstanceOf($resultClass, $result);
+
+		$expected = array('query_id'=>1,'result' => 'query issued');
+		$this->assertEquals($expected, $result->fetchArray());
+        
+		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=2';
+		
+		/* this will fail because we did not free the result */
+		$this->assertFalse($this->query->bufferedQuery($sql));
+		$handle = $this->query->getHandle();
+		$this->assertEquals(2014, $handle->errno, 'mysql out of sync code');
+		$this->assertEquals(
+			"Commands out of sync; you can't run this command now",
+			$handle->error,
+			'mysql error messge'
+		);
+
+		$result->free();
+		$result = $this->query->bufferedQuery($sql);
+		$this->assertInstanceOf($resultClass, $result);
+
+		$expected = array('query_id'=>2,'result' => 'query 2 issued');
+		$this->assertEquals($expected, $result->fetchArray());
+		$result->free();
+	}
+
+	/**
+	 * @dataProvider	sqlProviderQueryId_1
+	 * @return	null
+	 */
+	public function testUnBufferedQuery($sql)
+	{
+		$resultClass = 'Appfuel\Db\Mysql\Adapter\Result';
+		$result = $this->query->unBufferedQuery($sql);
+		$this->assertInstanceOf($resultClass, $result);
+		
+		$expected = array('query_id'=>1,'result' => 'query issued');
+		$this->assertEquals($expected, $result->fetchArray());
+		
+		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=2';
+		$this->assertFalse($this->query->bufferedQuery($sql));
+
+		$handle = $this->query->getHandle();
+		$this->assertEquals(2014, $handle->errno, 'mysql out of sync code');
+		$this->assertEquals(
+			"Commands out of sync; you can't run this command now",
+			$handle->error,
+			'mysql error messge'
+		);
+
+		$result->free();
+		$result = $this->query->bufferedQuery($sql);
+		$this->assertInstanceOf($resultClass, $result);
+
+		$expected = array('query_id'=>2,'result' => 'query 2 issued');
+		$this->assertEquals($expected, $result->fetchArray());
+		$result->free();
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testMutlipleQueries()
+	{
+		$sql  = 'SELECT query_id, result FROM test_queries WHERE query_id=3;';
+		$sql .= 'SELECT query_id, result FROM test_queries WHERE query_id=1';
+		$result = $this->query->multipleQuery($sql);
+		$expected = array(
+			array(
+				array(
+					'query_id' => 3,
+					'result'   => 'query 3 issued'
+				)
+			),
+			array(
+				array(
+					'query_id' => 1,
+					'result'   => 'query issued'
+				)
+			)
+		);
+		$this->assertEquals($expected, $result);
 	}
 
 }

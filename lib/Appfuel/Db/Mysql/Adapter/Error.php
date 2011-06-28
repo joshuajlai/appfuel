@@ -31,14 +31,22 @@ class Error implements ErrorInterface
 	protected $message = null;
 
 	/**
+	 * A 5 character string specified by the ANSI SQL and ODBC this is a
+	 * a more standardized error code
+	 * @var string
+	 */
+	protected $sqlState = null;
+
+	/**
 	 * @param	string	$code
 	 * @param	string	$msg	default empty string
 	 * @return	Error
 	 */
-	public function __construct($code, $msg = '')
+	public function __construct($code, $msg = null, $sqlState = null)
 	{
-		$this->code    = $code;
-		$this->message = $msg;
+		$this->code     = $code;
+		$this->message  = $msg;
+		$this->sqlState = $sqlState;
 	}
 
 	/**
@@ -60,8 +68,16 @@ class Error implements ErrorInterface
 	/**
 	 * @return string
 	 */
+	public function getSqlState()
+	{
+		return $this->sqlState;
+	}
+
+	/**
+	 * @return string
+	 */
 	public function __toString()
 	{
-		return $this->getCode() . ': ' . $this->getMessage();
+		return "ERROR {$this->code} ({$this->sqlState}): {$this->message}";
 	}
 }

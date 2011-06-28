@@ -124,6 +124,7 @@ class ResultTest extends ParentTestCase
 		$this->assertNull($result->free());
 		$this->assertFalse($result->isHandle());
 		$this->assertNull($result->getHandle());
+		$result->free();
 	}
 
 	/**
@@ -206,6 +207,7 @@ class ResultTest extends ParentTestCase
 			array(3, 'query 3 issued')
 		);
 		$this->assertEquals($expected, $result->fetchAllRows());
+		$result->free();
 	}
 
 	/**
@@ -393,6 +395,7 @@ class ResultTest extends ParentTestCase
 			),
 		);
 		$this->assertEquals($expected, $result->fetchAll(MYSQLI_BOTH));
+		$result->free();
 	}
 
 	/**
@@ -488,6 +491,7 @@ class ResultTest extends ParentTestCase
 		);
 
 		$this->assertEquals($expected, $result->fetchAssociativeArray());
+		$result->free();
 	}
 
 	/**
@@ -504,6 +508,7 @@ class ResultTest extends ParentTestCase
 		$expected->result   = 'query issued';
 
 		$this->assertEquals($expected, $result->fetchObject());
+		$result->free();
 	}
 
 	/**
@@ -598,7 +603,6 @@ class ResultTest extends ParentTestCase
 
 		$this->assertEquals(strlen($row[0]), $lengths[0]);
 		$this->assertEquals(strlen($row[1]), $lengths[1]);
+		$result->free();
 	}
-
-
 }
