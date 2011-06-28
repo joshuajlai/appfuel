@@ -14,6 +14,7 @@ use Test\AfTestCase as ParentTestCase,
 	Appfuel\Db\Connection\ConnectionDetail,
 	Appfuel\Db\Mysql\Adapter\Server,
 	Appfuel\Db\Mysql\Adapter\PreparedStmt,
+	Appfuel\Db\Mysql\Adapter\Result,
 	StdClass,
 	mysqli,
 	mysqli_result;
@@ -665,7 +666,11 @@ class PreparedStmtTest extends ParentTestCase
 		$this->stmt->execute();
 		$this->stmt->organizeResults();
 		
-		$results = $this->stmt->fetchBuffered();
+		$ok = $this->stmt->storeResults();
+		$results = $this->stmt->fetch();
+		$handle = $this->stmt->getHandle();
+		$this->stmt->freeStoredResults();
+		
 		$this->assertInternalType('array', $results);
 		$this->assertEquals(5, count($results));
 

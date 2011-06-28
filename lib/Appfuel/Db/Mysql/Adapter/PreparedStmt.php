@@ -39,7 +39,7 @@ class PreparedStmt
 	protected $isParamsBound = false;
 
 	/**
-	 * Bound parameters
+	 * Holds a reference to the bound parameters
 	 * @var array
 	 */
 	protected $boundParams = array();
@@ -58,11 +58,17 @@ class PreparedStmt
 	protected $isResultset = false;
 
 	/**
-	 * Flag used to determin is the resultset was bound with 
+	 * Flag used to determine if the resultset was bound with 
 	 * mysqli_stmt::bind_results
 	 * @var bool
 	 */
 	protected $isBoundResultset = false;
+
+	/**
+	 * Flag used to determin if the resultset was actually fetched
+	 * @var	bool
+	 */
+	protected $isFeteched = false;
 
 	/**
 	 * Flag used to determine that the handle was explicitly closed
@@ -75,6 +81,12 @@ class PreparedStmt
 	 * @var bool
 	 */
 	protected $isError = false;
+
+	/**
+	 * Flag used to determine if the resultset used is buffered
+	 * @var bool
+	 */
+	protected $isBufferedResultset = false;
 
 	/**
 	 * Error object that holds the error code and message
@@ -160,6 +172,9 @@ class PreparedStmt
 		return $this->isError;
 	}
 	
+	/**
+	 * @return Error
+	 */
 	public function getError()
 	{
 		return $this->error;
@@ -208,7 +223,7 @@ class PreparedStmt
 	public function organizeParams(array $params)
 	{
 		$handle = $this->getHandle();
-		return $this->bindParams($handle, $this->normalizeParams($params));
+		return $this->bindParams($this->normalizeParams($params));
 	}
 
 	/**
@@ -412,7 +427,77 @@ class PreparedStmt
 	
 		$this->isBoundResultset = true;	
 		$this->isResultset = true;
+		
 		return true;
+	}
+
+	/**
+	 * Buffer the full resultset into memory
+	 *
+	 * @throws	Appfuel\Framework\Exeception	when resultset is not bound
+	 * @return bool
+	 */
+	public function storeResults()
+	{
+		if (! $this->isBoundResultset()) {
+			$this->setError(
+				10004, 
+				'can not store results without bounded resultset'
+			);
+			return false;
+		}
+		$handle = $this->getHandle();
+
+
+		if (! $handle->store_result()) {
+			$this->setError(
+				$handle->errno,
+				$handle->error,
+				$handle->sqlstate
+			);
+			$this->isBufferedResultset = false;
+			return false;
+		}
+	
+		$this->isBufferedResultset = true;
+		return true;	
+	}
+
+	/**
+	 * Frees the result memory associated with the statement, which was 
+	 * allocated by mysqli_stmt_store_result().
+	 * 
+	 * @return null
+	 */
+	public function freeStoredResults()
+	{
+		if (! $this->isBoundResultset()) {
+			$this->setError(10004, 'resultset not bounded: nothing to free');
+			return false;
+		}
+
+		if (! $this->isBufferedResultset()) {
+			$this->setError(10006, 'can only free buffered results');
+			return false;
+		}
+	
+		$this->getHandle()
+			 ->free_result();
+
+
+		$this->isExecuted			= false;
+		$this->isBufferedResultset	= false;
+		$this->isBoundResultset		= false;
+		$this->isResultset			= false;	
+	}
+
+
+	/**
+	 * @return bool
+	 */
+	public function isBufferedResultset()
+	{
+		return $this->isBufferedResultset;
 	}
 
 	/**
@@ -432,31 +517,103 @@ class PreparedStmt
 	}
 
 	/**
-	 * @return
+	 * @return array
 	 */
-	public function fetchBuffered()
+	public function fetch()
 	{		
 		if (! $this->isBoundResultset()) {
 			$this->setError(10004, 'can not fetch without bounded resultset');
+			$this->isFeteched = false;
 			return false;
 		}
+		$this->isFetched = true;
+		return $this->doFetch();
+	}
+
+	/**
+	 * @return array
+	 */
+	public function fetchAll()
+	{
+		if (! $this->isBoundResultset()) {
+			$this->setError(10004, 'can not fetch without bounded resultset');
+			$this->isFetched = false;
+			return false;
+		}
+
+		$data = array();
+		while ($row = $this->doFetch()) {
+			$data[] = $row;	
+		}
+		$this->isFetched = true;
+		return $data;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isFetched()
+	{
+		return $this->isFetched;
+	}
+
+	/**
+	 * Get the ID generated from the previous INSERT operation
+	 *
+	 * @return	int | null
+	 */
+	public function getLastInsertId()
+	{
+		$this->validateHandle('getLastInsertId');
+		return $this->getHandle()
+					->insert_id;
+	}
+
+	/**
+	 * Resets a prepared statement on client and server to state after prepare.
+	 * It resets the statement on the server, data sent using 
+	 * mysqli_stmt_send_long_data(), unbuffered result sets and current errors.
+	 * It does not clear bindings or stored result sets. Stored result sets 
+	 * will be cleared when executing the prepared statement (or closing it).
+	 *
+	 * @return bool
+	 */
+	public function reset()
+	{
+		$this->validateHandle('getLastInsertId');
 		$handle = $this->getHandle();
 
-		/*
-		if (! $handle->store_result()) {
-			$this->setError(
-				$handle->errno,
-				$handle->error,
-				$handle->sqlstate
+		$isReset = $handle->reset();
+		if ($isReset) {
+			$this->isPrepared			= false;
+			$this->isBufferedResultset	= false;
+			$this->isError				= false;
+			$this->error				= null;
+			$this->columnData			= array(
+				'names'  => array(),
+				'values' => array()
 			);
-			return false;
+			return true;
 		}
-*/
-        switch ($handle->fetch()) {
+
+		$this->setError(10007, 'could not reset stmt');
+		return false;
+	}
+
+	/**
+	 * This is isolated so we can put it in a while loop and not worry about
+	 * extra validaton or uneeded function calls. Therefore you are required
+	 * to validate the correct conditions before calling this
+	 *
+	 * @return	array | null | false
+	 */
+	protected function doFetch()
+	{
+        switch ($this->handle->fetch()) {
             case true:
                 $result = array_combine(
 					$this->columnData['names'],
-					$this->columnData['values']
+					$this->dereferenceColumnValues()
 				);
                 break;
             case null:
@@ -481,15 +638,30 @@ class PreparedStmt
         }
 
 		return $result;
+
 	}
 
 	/**
-	 * @return array
-	 */
-	public function fetchUnBufferedResults(mysqli_stmt $handle)
+	 * Dereference the result values, otherwise things like fetchAll()
+     * return the same values for every entry (because of the reference).
+	 *
+	 * @return	array
+     */
+	protected function dereferenceColumnValues()
 	{
+		if (! is_array($this->columnData['values'])) {
+			throw new Exception("Column values need to be in an array");
+		}
 
+		$refs   = $this->columnData['values'];
+		$values = array(); 
+		foreach ($refs as $idx => $value) {
+			$values[] = $value;
+		}
+	
+		return $values;
 	}
+
 
     /**
      * Ensures that the handle is available and ready to use
