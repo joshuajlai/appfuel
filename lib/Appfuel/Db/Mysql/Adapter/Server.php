@@ -173,10 +173,11 @@ class Server
 		if (! $this->isHandle()) {
 			return true;
 		}
-		$handle = $this->getHandle();
+		$hdl = $this->getHandle();
 
-		if (! $handle->close()) {
+		if (! $hdl->close()) {
 			$this->isConnected = true;
+			$this->setConnectionError($hdl->connect_errno, $hdl->connect_error);
 			return false;
 		}
 

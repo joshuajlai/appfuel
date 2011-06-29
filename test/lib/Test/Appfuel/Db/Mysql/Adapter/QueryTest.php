@@ -116,21 +116,18 @@ class AdapterQueryTest extends ParentTestCase
         
 		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=2';
 		
-		/* this will fail because we did not free the result */
-		$this->assertFalse($this->query->bufferedQuery($sql));
-		$handle = $this->query->getHandle();
-		$this->assertEquals(2014, $handle->errno, 'mysql out of sync code');
-		$this->assertEquals(
-			"Commands out of sync; you can't run this command now",
-			$handle->error,
-			'mysql error messge'
-		);
-
-		$result->free();
+		/* this will not fail even though we did not free the result */
 		$result = $this->query->bufferedQuery($sql);
 		$this->assertInstanceOf($resultClass, $result);
 
 		$expected = array('query_id'=>2,'result' => 'query 2 issued');
+		$this->assertEquals($expected, $result->fetchArray());
+        
+		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=3';
+		$result = $this->query->bufferedQuery($sql);
+		$this->assertInstanceOf($resultClass, $result);
+
+		$expected = array('query_id'=>3,'result' => 'query 3 issued');
 		$this->assertEquals($expected, $result->fetchArray());
 		$result->free();
 	}

@@ -27,6 +27,12 @@ class Query implements QueryInterface
 	protected $handle = null;
 
 	/**
+	 * Holds error information for query
+	 * @var Error
+	 */
+	protected $error = null;
+
+	/**
 	 * @param	ConnectionDetail	$detail
 	 * @return	Adapter
 	 */
@@ -44,6 +50,22 @@ class Query implements QueryInterface
 	}
 
 	/**
+	 * @return	Error
+	 */
+	public function getError()
+	{
+		return $this->error;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isError()
+	{
+		return $this->error instanceof Error;
+	}
+
+	/**
 	 * Produces the resultset as a buffered set of data allowing you to 
 	 * navigate the results or determine the number of rows returned etc..
 	 * This comes at a cost in memory but easier to work with
@@ -53,7 +75,7 @@ class Query implements QueryInterface
 	 */
 	public function bufferedQuery($sql)
 	{
-		return $this->doQuery($sql, MYSQLI_STORE_RESULT);;
+		return $this->doQuery($sql, MYSQLI_STORE_RESULT);
 	}
 
 	/**
@@ -82,7 +104,7 @@ class Query implements QueryInterface
 
 		$handle = $this->getHandle();
 		if (! $handle->multi_query($sql)) {
-				echo "\n", print_r($handle->error,1), "\n";exit;
+			$this->setError($handle->errno, $handle->error, $handle->sqlstate);
 			return false;
 		}
 	
@@ -132,11 +154,27 @@ class Query implements QueryInterface
 		}
 
 		$handle = $this->getHandle();
-		$result = $handle->query($sql, MYSQLI_USE_RESULT);
-		if ($result instanceof mysqli_result) {
-			$result = $this->createResult($result);
+		$result = $handle->query($sql, $resultMode);
+		if (! $result) {
+			$this->setError($handle->errno, $handle->error, $handle->sqlstate);
+			return false;
 		}
+		else if ($result instanceof mysqli_result) {
+			return $this->createResult($result);
+		}
+		else {
+			return $result;
+		}
+	}
 
-		return $result;
+	/**
+	 * @param	int		$errNbr
+	 * @param	string	$errText
+	 * @param	string	$sqlState
+	 * @return	null
+	 */
+	protected function setError($errNbr, $errText, $sqlState = null)
+	{
+		$this->error = new Error($errNbr, $errText, $sqlState);
 	}
 }

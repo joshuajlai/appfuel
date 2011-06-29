@@ -62,7 +62,21 @@ class MysqliAdapter implements AdapterInterface
 					->getConnectionDetail();		
 	}
 
+	/**
+	 * @return bool
+	 */
+	public function isConnected()
+	{
+		return $this->getServer()
+					->isConnected();
+	}
 
+	/**
+	 * Establish a connection to the database using the connection detail
+	 * located in the server
+	 *
+	 * @return bool
+	 */
 	public function connect()
 	{
 		$server = $this->getServer();
@@ -70,38 +84,33 @@ class MysqliAdapter implements AdapterInterface
 			return true;
 		}
 
-		if (! $server->isHandle()) {
-			$server->initialize();
+		if (! $server->connect()) {
+			$this->setError($server->getConnectionError());
+			return false;		
 		}
 
+		return true;
 	}
 
-    /**
-     * Creates an adapter error with mysqli error number and text
-     *
-     * @param   Mysqli  $handle
-     * @return  Error
-     */
-    public function createMysqliError(Mysqli $handle)
-    {
-        return new Error($handle->errno, $handle->error);
-    }
+	/**
+	 * Close the establish connection with the database
+	 * 
+	 * @return bool
+	 */
+	public function close()
+	{
+		$server = $this->getServer();
+		if (! $server->isConnected()) {
+			return true;
+		}
 
-    /**
-     * @return  bool
-     */
-    public function isConnected()
-    {
-        return $this->isConnected;
-    }
+		if (! $server->close()) {
+			$this->setError($server->getConnectionError());
+			return false;
+		}
 
-    /**
-     * @return 
-     */
-    public function clearHandle()
-    {
-        $this->handle = null;
-    }
+		return true;
+	}
 
     /**
      * @return  ErrorInterface
@@ -110,4 +119,21 @@ class MysqliAdapter implements AdapterInterface
     {
         return $this->error;
     }
+	
+	/**
+	 * @return bool
+	 */
+	public function isError()
+	{
+		return $this->error instanceof Error;
+	}
+
+	/**
+	 * @param	Error	$error
+	 * @return	null
+	 */
+	protected function setError(Error $error)
+	{
+		$this->error = $error;
+	}
 }
