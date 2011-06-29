@@ -10,10 +10,11 @@
  */
 namespace Appfuel\Framework\Db\Adapter;
 
+use Appfuel\Framework\Db\Connection\ConnectionDetailInterface;
 
 /**
  */
-interface AdapterInterface
+interface AdapterFactoryInterface
 {
-	public function getConnectionDetail();
+	static public function createAdapter(ConnectionDetailInterface $conn);
 }

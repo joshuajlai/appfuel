@@ -53,6 +53,16 @@ class MysqliAdapter implements AdapterInterface
 		return $this->server;
 	}
 
+	/**
+	 * @return	ConnectionDetailInterface
+	 */
+	public function getConnectionDetail()
+	{
+		return $this->getServer()
+					->getConnectionDetail();		
+	}
+
+
 	public function connect()
 	{
 		$server = $this->getServer();

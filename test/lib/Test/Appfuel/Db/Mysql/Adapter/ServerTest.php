@@ -170,37 +170,12 @@ class ServerTest extends ParentTestCase
 		$server = new Server($connDetail);
 		$server->initialize();
 		$this->assertFalse($server->connect());
+		$this->assertFalse($server->isConnected());
 	
-		
-		/* we know this will cause a connection error but we don't 
-		 * care what that error number is as long as its an integer 
-		 * greater than 0
-		 */
-		$errorNbr = $server->getLastConnectErrorNbr();
-		$this->assertInternalType('int', $errorNbr);
-		$this->assertGreaterThan(0, $errorNbr);
-
-		/* likewise we know this will generate a string that is not empty
-		 */
-		$errorTxt = $server->getLastConnectErrorText();
-		$this->assertInternalType('string', $errorTxt);
-		$this->assertNotEmpty($errorTxt);
-	}
-
-	/**
-	 * Test the behavior of getLastError(Nbr|Text) when no handle is present.
-	 * When no handle is present then no errors are present and these methods
-	 * will return the same values as when a handle is in a state of no error
-	 *
-	 * @return null
-	 */
-	public function testGetLastConnectErrorNbTextNoHandle()
-	{
-		/* prove no handle exists */
-		$this->assertFalse($this->server->isHandle());
-
-		$this->assertEquals(0, $this->server->getLastConnectErrorNbr());
-		$this->assertNull($this->server->getLastConnectErrorText());
+		$this->assertInstanceOf(
+			'Appfuel\Db\Mysql\Adapter\Error',
+			$server->getConnectionError()
+		);	
 	}
 
 	/**
@@ -214,8 +189,7 @@ class ServerTest extends ParentTestCase
 		$this->assertTrue($this->server->isHandle());
 
 		$this->assertTrue($this->server->connect());
-		$this->assertEquals(0, $this->server->getLastConnectErrorNbr());
-		$this->assertNull($this->server->getLastConnectErrorText());
+		$this->assertNull($this->server->getConnectionError());
 	
 		$this->assertTrue($this->server->close());	
 	}

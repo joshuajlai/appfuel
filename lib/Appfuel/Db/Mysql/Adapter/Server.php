@@ -42,6 +42,12 @@ class Server
 	protected $isConnected = false;
 
 	/**
+	 * Error object used to describe connection error
+	 * @var Error
+	 */
+	protected $connError = null;
+
+	/**
 	 * @param	ConnectionDetail	$detail
 	 * @return	Adapter
 	 */
@@ -131,15 +137,15 @@ class Server
 	 */
 	public function connect()
 	{
-		$handle = $this->getHandle();
-		if (! $handle instanceof Mysqli) {
+		$hdl = $this->getHandle();
+		if (! $hdl instanceof Mysqli) {
 			throw new Exception('connect failed: no mysqli handle created');
 		}
 		
 		$detail = $this->getConnectionDetail();
 		
-		$this->isConnected = @mysqli_real_connect(
-			$handle,
+		$isConnected = @mysqli_real_connect(
+			$hdl,
 			$detail->getHost(),
 			$detail->getUserName(),
 			$detail->getPassword(),
@@ -148,10 +154,13 @@ class Server
 			$detail->getSocket()
 		);
 	
-		if (! $this->isConnected) {
-			return false;	
+		if (! $isConnected) {
+			$this->setConnectionError($hdl->connect_errno, $hdl->connect_error);
+			$this->isConnected = false;
+			return false;
 		}
 
+		$this->isConnected = true;
 		return true;
 	}
 
@@ -183,34 +192,11 @@ class Server
 	}
 
 	/**
-	 * Returns the error code from the last connect call. When there is no
-	 * handle there is no error so 0 is returned
-	 *
-	 * @return	int	 0 if no error occured
+	 * @return Error | null
 	 */
-	public function getLastConnectErrorNbr()
+	public function getConnectionError()
 	{
-		if (! $this->isHandle()) {
-			return 0;
-		}
-
-		return $this->getHandle()
-					->connect_errno;
-	}
-
-	/**
-	 * Returns a string description of the last connect error
-	 * 
-	 * @return	string	| null	is no error occured
-	 */
-	public function getLastConnectErrorText()
-	{
-		if (! $this->isHandle()) {
-			return null;
-		}
-
-		return $this->getHandle()
-					->connect_error;
+		return $this->connError;
 	}
 
 	/**
@@ -373,5 +359,15 @@ class Server
 
 		return $this->getHandle()
 					->set_charset($charset);
+	}
+
+	/**
+	 * @param	int		$errNbr
+	 * @param	int		$errText
+	 * @return	null
+	 */
+	protected function setConnectionError($errNbr, $errText)
+	{
+		$this->connError = new Error($errNbr, $errText);
 	}
 }
