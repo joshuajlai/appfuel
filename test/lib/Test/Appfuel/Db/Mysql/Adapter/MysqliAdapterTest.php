@@ -16,6 +16,27 @@ use Test\AfTestCase as ParentTestCase,
 	Appfuel\Db\Mysql\Adapter\MysqliAdapter;
 
 /**
+ * Callback used in test below
+ * 
+ * @param	array	$row	raw record
+ * @return	array
+ */
+function myMapper(array $row)
+{
+	$data = array();
+	if (isset($row['query_id'])) {
+		$data['myQueryId'] = $row['query_id'];
+	}
+
+	if (isset($row['result'])) {
+		$data['myResult'] = $row['result'];
+	}
+
+	return $data;
+}
+
+
+/**
  */
 class MysqliAdapterTest extends ParentTestCase
 {
@@ -47,6 +68,17 @@ class MysqliAdapterTest extends ParentTestCase
 	{
 		unset($this->server);
 		unset($this->adapter);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function provideBasicSelectSql()
+	{
+		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=2';
+		return array(
+			array($sql)
+		);
 	}
 
 	/**
@@ -103,5 +135,208 @@ class MysqliAdapterTest extends ParentTestCase
 		);
 		/* mysql access denied error code */
 		$this->assertEquals(1045, $error->getCode());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testExecuteSelectOneRowWithClosureQuery()
+	{
+		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=2';
+		$this->assertTrue($this->adapter->connect());
+
+		$func = function (array $row) {
+			$data = array();
+			if (isset($row['query_id'])) {
+				$data['myQueryId'] = $row['query_id'];
+			}
+
+			if (isset($row['result'])) {
+				$data['myResult'] = $row['result'];
+			}
+
+			return $data;
+		};
+
+		$response = $this->adapter->executeQuery($sql, 'name', false, $func);	
+
+		$this->assertInstanceOf(
+			'Appfuel\Db\Mysql\Adapter\DbResponse',
+			$response
+		);
+		$this->assertTrue($response->isSuccess());
+		$this->assertFalse($response->isError());
+		$this->assertNull($response->getError());	
+		$expected = array(
+			'row-count' => 1,
+			'resultset' => array(
+				array('myQueryId' => 2,'myResult'  => 'query 2 issued')
+			)	
+		);
+		$this->assertEquals($expected, $response->getData());
+		$this->adapter->close();
+	}
+
+	/**
+	 * Callback used in test below
+	 * 
+	 * @param	array	$row	raw record
+	 * @return	array
+	 */
+	public function myCustomMapper(array $row)
+	{
+		$data = array();
+		if (isset($row['query_id'])) {
+			$data['myQueryId'] = $row['query_id'];
+		}
+
+		if (isset($row['result'])) {
+			$data['myResult'] = $row['result'];
+		}
+
+		return $data;
+	}
+
+	/**
+	 * @return null
+	 */
+	public function ctestExecuteSelectOneRowCallbackQuery()
+	{
+		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=2';
+		$this->assertTrue($this->adapter->connect());
+
+		$func =  array($this, 'myCustomMapper');
+		$response = $this->adapter->executeQuery($sql, 'name', false, $func);
+
+		$this->assertInstanceOf(
+			'Appfuel\Db\Mysql\Adapter\DbResponse',
+			$response
+		);
+		$this->assertTrue($response->isSuccess());
+		$this->assertFalse($response->isError());
+		$this->assertNull($response->getError());	
+		$expected = array(
+			'row-count' => 1,
+			'resultset' => array(
+				array('myQueryId' => 2,'myResult'  => 'query 2 issued')
+			)	
+		);
+		$this->assertEquals($expected, $response->getData());
+		$this->adapter->close();
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testExecuteSelectOneRowCallbackNSQuery()
+	{
+		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=2';
+		$this->assertTrue($this->adapter->connect());
+
+		$func = __NAMESPACE__ . '\myMapper'; 
+		$response = $this->adapter->executeQuery($sql, 'name', null, $func);
+		
+		$this->assertInstanceOf(
+			'Appfuel\Db\Mysql\Adapter\DbResponse',
+			$response
+		);
+		$this->assertTrue($response->isSuccess());
+		$this->assertFalse($response->isError());
+		$this->assertNull($response->getError());
+
+		$expected = array(
+			'row-count' => 1,
+			'resultset' => array(
+				array('myQueryId' => 2,'myResult'  => 'query 2 issued')
+			)	
+		);
+		$this->assertEquals($expected, $response->getData());
+		$this->adapter->close();
+	}
+
+	/**
+	 * @dataProvider	provideBasicSelectSql
+	 * @return null
+	 */
+	public function stestExecuteSelectOneRowDefault($sql)
+	{
+		$this->assertTrue($this->adapter->connect());
+
+		$response = $this->adapter->executeQuery($sql);
+
+		$this->assertInstanceOf(
+			'Appfuel\Db\Mysql\Adapter\DbResponse',
+			$response
+		);
+		$this->assertTrue($response->isSuccess());
+		$this->assertFalse($response->isError());
+		$this->assertNull($response->getError());	
+		$expected = array(
+			'row-count' => 1,
+			'resultset' => array(
+				array('query_id' => 2,'result'  => 'query 2 issued')
+			)	
+		);
+		$this->assertEquals($expected, $response->getData());
+		$this->adapter->close();
+	}
+
+	/**
+	 * @dataProvider	provideBasicSelectSql
+	 * @return null
+	 */
+	public function stestExecuteSelectOneRowPosition($sql)
+	{
+		$this->assertTrue($this->adapter->connect());
+
+		$response = $this->adapter->executeQuery($sql, 'position');
+
+		$this->assertInstanceOf(
+			'Appfuel\Db\Mysql\Adapter\DbResponse',
+			$response
+		);
+		$this->assertTrue($response->isSuccess());
+		$this->assertFalse($response->isError());
+		$this->assertNull($response->getError());	
+		$expected = array(
+			'row-count' => 1,
+			'resultset' => array(
+				array('myQueryId' => 2,'myResult'  => 'query 2 issued')
+			)	
+		);
+		$this->assertEquals($expected, $response->getData());
+		$this->adapter->close();
+	}
+
+	/**
+	 * @dataProvider	provideBasicSelectSql
+	 * @return null
+	 */
+	public function stestExecuteSelectOneRowBoth($sql)
+	{
+		$this->assertTrue($this->adapter->connect());
+
+		$response = $this->adapter->executeQuery($sql, 'both');
+
+		$this->assertInstanceOf(
+			'Appfuel\Db\Mysql\Adapter\DbResponse',
+			$response
+		);
+		$this->assertTrue($response->isSuccess());
+		$this->assertFalse($response->isError());
+		$this->assertNull($response->getError());	
+		$expected = array(
+			'row-count' => 1,
+			'resultset' => array(
+				array(
+					0			=> 2,
+					'query_id'	=> 2,
+					1			=> 'query 2 issued',
+					'result'	=> 'query 2 issued'
+				)
+			)
+		);
+		$this->assertEquals($expected, $response->getData());
+		$this->adapter->close();
 	}
 }

@@ -86,6 +86,19 @@ class Server
 	}
 
 	/**
+	 * @return mysqli_stmt
+	 */
+	public function createStmtHandle()
+	{
+		if (! $this->isHandle()) {
+			return null;
+		}
+
+		return $this->getHandle()
+					->stmt_init();
+	}
+
+	/**
 	 * @param	Mysqli	$handle
 	 * @return	Adapter
 	 */

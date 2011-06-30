@@ -66,29 +66,46 @@ class Query implements QueryInterface
 	}
 
 	/**
-	 * Produces the resultset as a buffered set of data allowing you to 
-	 * navigate the results or determine the number of rows returned etc..
-	 * This comes at a cost in memory but easier to work with
+	 * Produces a result object as either buffered or unbuffered depending
+	 * on the result mode.
+	 * Buffered set of data allows you to navigate the results or determine 
+	 * the number of rows returned etc.. This comes at a cost in memory but 
+	 * easier to work with.
 	 * 
-	 * @return Select, show, decribe and explain return a result object
-	 *		   other queries return true and false on failure
-	 */
-	public function bufferedQuery($sql)
-	{
-		return $this->doQuery($sql, MYSQLI_STORE_RESULT);
-	}
-
-	/**
-	 * Produces an unbuffered resultset retrieving data as needed from the
+	 * Unbuffered resultset retrieving data as needed from the
 	 * server. This has better performance on larger datasets, however no
 	 * other queries can be run until the resultset is freed
+	 *
 	 *
 	 * @return Select, show, decribe and explain return a result object
 	 *		   other queries return true and false on failure
 	 */
-	public function unBufferedQuery($sql)
-	{
-		return $this->doQuery($sql, MYSQLI_USE_RESULT);
+	public function sendQuery($sql, $resultMode = MYSQLI_STORE_RESULT) 
+	{		
+
+		if (! is_string($sql) || empty($sql)) {
+			throw new Exception("Invalid sql: must be a non empty string");
+		}
+
+		$valid = array(MYSQLI_USE_RESULT,MYSQLI_STORE_RESULT);
+		if (! in_array($resultMode, $valid)) {
+			$err = "Invalid result mode given: must be constant" .
+				   "MYSQLI_STORE_RESULT or MYSQLI_USE_RESULT";
+			throw new Exception($err);
+		}
+
+		$handle = $this->getHandle();
+		$result = $handle->query($sql, $resultMode);
+		if (! $result) {
+			$this->setError($handle->errno, $handle->error, $handle->sqlstate);
+			return false;
+		}
+		else if ($result instanceof mysqli_result) {
+			return $this->createResult($result);
+		}
+		else {
+			return $result;
+		}
 	}
 
 	/**
@@ -133,38 +150,6 @@ class Query implements QueryInterface
 	public function createResult(mysqli_result $handle)
 	{
 		return new Result($handle);
-	}
-
-	/**
-	 * @return Select, show, decribe and explain return a result object
-	 *		   other queries return true and false on failure
-	 */
-	protected function doQuery($sql, $resultMode) 
-	{		
-
-		if (! is_string($sql) || empty($sql)) {
-			throw new Exception("Invalid sql: must be a non empty string");
-		}
-
-		$valid = array(MYSQLI_USE_RESULT,MYSQLI_STORE_RESULT);
-		if (! in_array($resultMode, $valid)) {
-			$err = "Invalid result mode given: must be constant" .
-				   "MYSQLI_STORE_RESULT or MYSQLI_USE_RESULT";
-			throw new Exception($err);
-		}
-
-		$handle = $this->getHandle();
-		$result = $handle->query($sql, $resultMode);
-		if (! $result) {
-			$this->setError($handle->errno, $handle->error, $handle->sqlstate);
-			return false;
-		}
-		else if ($result instanceof mysqli_result) {
-			return $this->createResult($result);
-		}
-		else {
-			return $result;
-		}
 	}
 
 	/**

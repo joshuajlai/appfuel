@@ -10,8 +10,11 @@
  */
 namespace Appfuel\Db\Mysql\Adapter;
 
-use mysqli_result,
-	Appfuel\Framework\Exception;
+use Closure,
+	mysqli_result,
+	Exception as RootException,
+	Appfuel\Framework\Exception,
+	Appfuel\Framework\Db\Adapter\CallbackErrorInterface;
 
 /**
  * Wraps the mysqli_result. The reason we did not extend the mysqli_result is
@@ -135,6 +138,101 @@ class Result
 
 		return $results;
 	}
+
+	/**
+	 * Fetch all the rows allowing access to each row with a callback or 
+	 * closure
+	 *
+	 * @param	int		$type
+	 * @param	mixed	string | array | closure
+	 * @return	array
+	 */
+	public function fetchAllData($type = MYSQLI_ASSOC, $filter = null)
+	{
+		$this->validateHandle('fetchAllData');
+		if (! $this->isValidType($type)) {
+			$this->free();
+			throw new Exception("invalid result type given");
+		}
+
+		/* no need to go foward knowing the callback is specified and
+		 * has errors
+		 */
+		if (! is_callable($filter) && ! empty($filter)) {
+			return new CallbackError('AF_RESULT_CALLBACK', 'unknown callback');
+		}
+
+		$handle = $this->getHandle();
+		$data = array();
+		$idx = 0;
+		while ($row = $handle->fetch_array($type)) {
+
+			$response = $this->resultFilter($row, $filter);
+
+			if ($response instanceof CallbackErrorInterface) {
+				$response->setRowNumber($idx);
+				$response->setRow($row);
+				return $response;
+			}
+
+			$data[] = $response;
+			$idx++;
+		}
+
+		return array(
+			'row-count' => $idx,
+			'resultset' => $data	
+		);
+	}
+
+	/**
+	 * @param	mysqli_result	$handle
+	 * @param	mixed			$filter
+	 * @return	array
+	 */
+	protected function resultFilter(array $row, $filter = null)
+	{
+		if (empty($filter)) {
+			return $row;
+		}
+
+		if ($filter instanceof Closure) {
+			try {
+			  $result = $filter($row);
+			} catch (RootException $e) {
+				$result = CallbackError($e->getCode(),$e->getMessage());
+				$result->setCallbackType('closure');
+			}
+
+			return $result;
+		}
+		 
+		if (is_callable($filter) && is_array($filter)) {
+			try {
+			  $result = call_user_func($filter, $row);
+			} catch (RootException $e) {
+				$result = CallbackError($e->getCode(),$e->getMessage());
+				$result->setCallbackType('callback');
+			}
+
+			return $result;
+		}
+		
+		if (is_callable($filter) && is_string($filter)) {
+			try {
+			  $result = $filter($row);
+			} catch (RootException $e) {
+				$result = CallbackError($e->getCode(),$e->getMessage());
+				$result->setCallbackType('callback');
+			}
+
+			return $result;
+		} 	
+
+		return $row;
+	}
+
+
 
 	/**
 	 * @param	int		$type

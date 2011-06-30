@@ -396,6 +396,15 @@ class PreparedStmt
 			/* with no errors then this is a statement that executed and 
 			 * produced no results like an update for example
 			 */
+			if ($handle->errno > 0 && ! empty($handle->error)) {
+				$this->setError(
+					$handle->errno, 
+					$handle->error,
+					$handle->sqlstate
+				);
+				return false;
+			}
+
 			$this->isResultSet      = false;
 			$this->isBoundResultset = false;	
 			return true;
@@ -425,10 +434,10 @@ class PreparedStmt
             $this->columnData['values']
         );
 	
-		$this->isBoundResultset = true;	
-		$this->isResultset = true;
+		$this->isBoundResultset = $ok;	
+		$this->isResultset      = $ok;
 		
-		return true;
+		return $ok;
 	}
 
 	/**
@@ -526,6 +535,7 @@ class PreparedStmt
 			$this->isFeteched = false;
 			return false;
 		}
+		
 		$this->isFetched = true;
 		return $this->doFetch();
 	}

@@ -105,10 +105,10 @@ class AdapterQueryTest extends ParentTestCase
 	 * @dataProvider	sqlProviderQueryId_1
 	 * @return	null
 	 */
-	public function testBufferedQuery($sql)
+	public function testBufferedSendQuery($sql)
 	{
 		$resultClass = 'Appfuel\Db\Mysql\Adapter\Result';
-		$result = $this->query->bufferedQuery($sql);
+		$result = $this->query->sendQuery($sql);
 		$this->assertInstanceOf($resultClass, $result);
 
 		$expected = array('query_id'=>1,'result' => 'query issued');
@@ -117,14 +117,14 @@ class AdapterQueryTest extends ParentTestCase
 		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=2';
 		
 		/* this will not fail even though we did not free the result */
-		$result = $this->query->bufferedQuery($sql);
+		$result = $this->query->sendQuery($sql);
 		$this->assertInstanceOf($resultClass, $result);
 
 		$expected = array('query_id'=>2,'result' => 'query 2 issued');
 		$this->assertEquals($expected, $result->fetchArray());
         
 		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=3';
-		$result = $this->query->bufferedQuery($sql);
+		$result = $this->query->sendQuery($sql);
 		$this->assertInstanceOf($resultClass, $result);
 
 		$expected = array('query_id'=>3,'result' => 'query 3 issued');
@@ -136,17 +136,17 @@ class AdapterQueryTest extends ParentTestCase
 	 * @dataProvider	sqlProviderQueryId_1
 	 * @return	null
 	 */
-	public function testUnBufferedQuery($sql)
+	public function testUnBufferedSendQuery($sql)
 	{
 		$resultClass = 'Appfuel\Db\Mysql\Adapter\Result';
-		$result = $this->query->unBufferedQuery($sql);
+		$result = $this->query->sendQuery($sql, MYSQLI_USE_RESULT);
 		$this->assertInstanceOf($resultClass, $result);
 		
 		$expected = array('query_id'=>1,'result' => 'query issued');
 		$this->assertEquals($expected, $result->fetchArray());
 		
 		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=2';
-		$this->assertFalse($this->query->bufferedQuery($sql));
+		$this->assertFalse($this->query->sendQuery($sql));
 
 		$handle = $this->query->getHandle();
 		$this->assertEquals(2014, $handle->errno, 'mysql out of sync code');
@@ -157,7 +157,7 @@ class AdapterQueryTest extends ParentTestCase
 		);
 
 		$result->free();
-		$result = $this->query->bufferedQuery($sql);
+		$result = $this->query->sendQuery($sql);
 		$this->assertInstanceOf($resultClass, $result);
 
 		$expected = array('query_id'=>2,'result' => 'query 2 issued');
@@ -189,5 +189,4 @@ class AdapterQueryTest extends ParentTestCase
 		);
 		$this->assertEquals($expected, $result);
 	}
-
 }
