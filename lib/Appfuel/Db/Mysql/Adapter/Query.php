@@ -36,7 +36,7 @@ class Query implements QueryInterface
 	 * @param	ConnectionDetail	$detail
 	 * @return	Adapter
 	 */
-	public function __construct(Mysqli $handle)
+	public function __construct(mysqli $handle)
 	{
 		$this->handle = $handle;
 	}

@@ -8,11 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Db\Adapter;
+namespace Appfuel\Framework\Db;
 
 
 /**
  */
-interface AdapterInterface
+interface DbErrorInterface
 {
+	public function getCode();
+	public function getMessage();
+	public function __toString();
 }

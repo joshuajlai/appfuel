@@ -24,11 +24,10 @@ use Mysqli,
 class MysqliAdapter implements AdapterInterface
 {
 	/**
-	 * Handles all low level details pertaining to the server, this includes
-	 * connecting, and getting the handle
-	 * @var Server
+	 * Mysqli handle used create prepared stmt and queries
+	 * @var mysqli
 	 */
-	protected $server = null;
+	protected $handle = null;
 
 	/**
 	 * Error value object containing the last know error
@@ -40,57 +39,17 @@ class MysqliAdapter implements AdapterInterface
 	 * @param	ConnectionDetail	$detail
 	 * @return	Adapter
 	 */
-	public function __construct(Server $server)
+	public function __construct(mysqli $handle)
 	{
-		$server->initialize();
-		$this->server = $server;
+		$this->handle = $conn;
 	}
 
 	/**
 	 * @return	Server
 	 */
-	public function getServer()
+	public function getHandle()
 	{
-		return $this->server;
-	}
-
-	/**
-	 * @return	ConnectionDetailInterface
-	 */
-	public function getConnectionDetail()
-	{
-		return $this->getServer()
-					->getConnectionDetail();		
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isConnected()
-	{
-		return $this->getServer()
-					->isConnected();
-	}
-
-	/**
-	 * Establish a connection to the database using the connection detail
-	 * located in the server
-	 *
-	 * @return bool
-	 */
-	public function connect()
-	{
-		$server = $this->getServer();
-		if ($server->isConnected()) {
-			return true;
-		}
-
-		if (! $server->connect()) {
-			$this->assignError($server->getConnectionError());
-			return false;		
-		}
-
-		return true;
+		return $this->handle;
 	}
 
 	/**
@@ -102,37 +61,46 @@ class MysqliAdapter implements AdapterInterface
 	 */
 	public function executePreparedStmt($sql, 
 										array $values = null,
-										$isBuffered   = true,
 										$filter       = null)
 	{
-		if (! $this->isConnected()) {
-			$this->setError(11000, 'must connect before query is issued');
-			return false;
-		}
-
-		$status = false;
-		$data   = null;
-		$stmt   = $this->createPreparedStmt();
+		$stmt = $this->createPreparedStmt();
 		if (! $stmt->prepare($sql)) {
-			return new DbResponse($status, $data, $stmt->getError());
+			return new DbResponse(false, null, $stmt->getError());
 		}
 
 		/* normalize and bind parameters */
 		if (is_array($values) && ! empty($values)) {
 			if (! $stmt->organizeParams($values)) {
-				return new DbResponse($status, $data, $stmt->getError());
+				return new DbResponse(false, null, $stmt->getError());
 			}
 		}
 
 		if (! $stmt->execute()) {
-			return new DbResponse($status, $data, $stmt->getError());
+			return new DbResponse($false, null, $stmt->getError());
+		}
+		
+		$isOrganized = $stmt->organizeResults();
+		if (! $stmt->organizeResults()) {
+			return new DbResponse(false, null, $stmt->getError());
 		}
 
-		if (! $this->organizeResults()) {
-			return new DbResponse($status, $data, $stmt->getError());
+		/* database executed the query successfully and 
+		 * no results are needed
+		 */
+		if ($isOrganized && ! $stmt->isResultset()) {
+			return new DbResponse(true);
 		}
+		
+		$stmt->storeResults();
 
-	} 
+		$data = $stmt->fetch($filter);
+		if ($data instanceof ErrorInterface) {
+			return new DbResponse(false, null, $data);
+		}
+	
+		$stmt->freeStoredResults();	
+		return new DbResponse(true, $data);
+	}
 
 	/**
 	 * Excute a query represented by the sql.
@@ -148,12 +116,8 @@ class MysqliAdapter implements AdapterInterface
 								 $isBuffered = true, 
 								 $filter     = null)
 	{
-		if (! $this->isConnected()) {
-			$this->setError(11000, 'must connect before query is issued');
-			return false;
-		}
+		
 		$query = $this->createQuery();
-
 		$isBuffered =(bool) $isBuffered;
 		$resultMode = MYSQLI_STORE_RESULT;
 		if (! $isBuffered) {
@@ -243,21 +207,20 @@ class MysqliAdapter implements AdapterInterface
 	/**
 	 * @return	Query
 	 */
-	protected function createQuery()
+	public function createQuery()
 	{
 		$server = $this->getServer();
-		return new Query($server->getHandle());
+		return new Query($this->getHandle());
 	}
 
 	/**
 	 * @return	PreparedStmt
 	 */
-	protected function createPreparedStmt()
+	public function createPreparedStmt()
 	{
-		$server = $this->getServer();
-		return new PreparedStmt($server->createStmtHandle());
+		$handle = $this->getHandle();
+		return new PreparedStmt($handle->stmt_init());
 	}
-
 
 	/**
 	 * The sub modules that this adapter oversees save their own errors and
@@ -279,7 +242,7 @@ class MysqliAdapter implements AdapterInterface
 	 * @param	string	$sqlState
 	 * @return	null
 	 */
-	protected function setError($errNbr, $errText, $sqlState)
+	protected function setError($errNbr, $errText, $sqlState = null)
 	{
 		$this->assignError(new Error($errNbr, $errText, $sqlState));
 	}

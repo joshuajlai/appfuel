@@ -11,6 +11,7 @@
 namespace Appfuel\Db\Mysql\Adapter;
 
 use Closure,
+	mysqli_stmt,
 	mysqli_result,
 	Exception as RootException,
 	Appfuel\Framework\Exception,
@@ -37,6 +38,15 @@ class Result
 		MYSQLI_ASSOC,
 		MYSQLI_NUM,
 		MYSQLI_BOTH
+	);
+
+    /**
+     * Used to hold the results of the the prepared statement
+     * @var array
+     */
+	protected $preparedData = array(
+		'names'  => array(),
+		'values' => array()
 	);
 
 	/**
@@ -75,6 +85,38 @@ class Result
 		}
 	
 		return false;
+	}
+
+	/**
+	 * 
+	 * @return bool
+	 */
+	public function organizePreparedResults(mysqli_stmt $stmtHandle)
+	{
+        /*
+         * Preload column values with nulls
+         */
+        $cnames = $this->getColumnNames();
+        $this->columnData = array(
+            'names'  => $cnames,  
+            'values' => array_fill(0, count($cnames), null)
+        );
+        //$this->free();
+
+        $refs = array();
+        foreach ($this->columnData['values'] as $index => &$var) {
+            $refs[$index] = &$var;
+        }
+
+        /*
+         * Bind to the result variables. We need the actual mysqli_stmt object
+         */
+        $ok = call_user_func_array(
+            array($stmtHandle, 'bind_result'),
+            $this->columnData['values']
+        );
+
+		return true;
 	}
 
 	/**
@@ -167,7 +209,7 @@ class Result
 		$idx = 0;
 		while ($row = $handle->fetch_array($type)) {
 
-			$response = $this->resultFilter($row, $filter);
+			$response = $this->filterResult($row, $filter);
 
 			if ($response instanceof CallbackErrorInterface) {
 				$response->setRowNumber($idx);
@@ -180,7 +222,7 @@ class Result
 		}
 
 		return array(
-			'row-count' => $idx,
+			'row-count' => count($data),
 			'resultset' => $data	
 		);
 	}
@@ -190,7 +232,7 @@ class Result
 	 * @param	mixed			$filter
 	 * @return	array
 	 */
-	protected function resultFilter(array $row, $filter = null)
+	protected function filterResult(array $row, $filter = null)
 	{
 		if (empty($filter)) {
 			return $row;
@@ -232,8 +274,6 @@ class Result
 		return $row;
 	}
 
-
-
 	/**
 	 * @param	int		$type
 	 * @return	array
@@ -251,7 +291,7 @@ class Result
 	}
 
 	/**
-	 * @param	int		$resultType 
+	 *  @param	int		$resultType 
 	 * @return	array
 	 */
 	public function fetchArray($type = MYSQLI_ASSOC)
@@ -265,6 +305,88 @@ class Result
 		return $this->getHandle()
 					->fetch_array($type);
 	}
+
+	/**
+	 * Fetch resultset from a prepared statement
+	 * 
+	 * @param	mysli_stmt	$stmtHandle 
+	 * @param	$filter		$null	callback or closure to filter a row
+	 * @return	mixed
+	 */
+	public function fetchPreparedData(mysqli_stmt $stmtHandle, $filter = null)
+	{
+		$data   = array();
+		$idx    = 0;
+		$isNext = false;
+		do {
+
+			switch ($stmtHandle->fetch()) {
+				case true:
+					$row = array_combine(
+						$this->columnData['names'],
+						$this->dereferenceColumnValues()
+					);
+
+					$response = $this->filterResult($row, $filter);
+
+					if ($response instanceof CallbackErrorInterface) {
+						$response->setRowNumber($idx);
+						$response->setRow($row);
+						return $response;
+					}
+
+					$data[] = $response;
+					$idx++;
+					$isNext = true;	
+				 break;
+
+				case null:
+					$isNext = false;	
+					break;
+
+				case false:
+					return new Error(
+						$stmtHandle->errno,
+						$stmtHandle->error,
+						$stmtHandle->sqlstate
+					);
+					
+				default:
+					$err = 'unknown return value mysqli_stmt::fetch';
+					return new Error('AF_PREPARED_RESULT', $err);
+			}
+
+		} while ($isNext);
+
+		$this->free();
+		return array(
+			'row-count' => count($data),
+			'resultset' => $data
+		);
+	}
+
+
+	/**
+	 * Dereference the result values, otherwise things like fetchAll()
+     * return the same values for every entry (because of the reference).
+	 *
+	 * @return	array
+     */
+	protected function dereferenceColumnValues()
+	{
+		if (! is_array($this->columnData['values'])) {
+			throw new Exception("Column values need to be in an array");
+		}
+
+		$refs   = $this->columnData['values'];
+		$values = array(); 
+		foreach ($refs as $idx => $value) {
+			$values[] = $value;
+		}
+
+		return $values;
+	}
+
 
 	/**
 	 * Fetch a row as an associative array

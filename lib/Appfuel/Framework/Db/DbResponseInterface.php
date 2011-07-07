@@ -8,11 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Db\Adapter;
+namespace Appfuel\Framework\Db;
 
 
 /**
+ * Desribed the functionality needed by an object representing the reponse 
+ * from a database.
  */
-interface AdapterInterface
+interface DbResponseInterface
 {
+	public function isError();
+	public function isSuccess();
+	public function getError();
+	public function getStatus();
 }

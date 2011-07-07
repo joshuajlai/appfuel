@@ -8,11 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Db\Adapter;
+namespace Appfuel\Framework\Db;
 
 
 /**
  */
-interface AdapterInterface
+interface CallbackErrorInterface extends DbErrorInterface
 {
+	public function setCallbackType($name);
+	public function getCallbackType();
+	public function getRowNumber();
+	public function setRowNumber($index);
+	public function getRow();
+	public function setRow($data = null);
 }

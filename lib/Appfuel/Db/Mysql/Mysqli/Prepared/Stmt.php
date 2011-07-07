@@ -8,10 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Db\Mysql\Adapter;
+namespace Appfuel\Db\Mysql\Mysqli\Prepared;
 
 use mysqli_stmt,
 	mysqli_result,
+	Appfuel\Db\DbError,
 	Appfuel\Framework\Exception,
 	Appfuel\Db\Adapter\ErrorInterface;
 
@@ -19,7 +20,7 @@ use mysqli_stmt,
  * Wraps the mysqli_stmt. There is some complex logic we don't want the 
  * adapter to know about
  */
-class PreparedStmt
+class Stmt
 {
 	/**
 	 * Mysqli object used to interact with the database
@@ -593,7 +594,7 @@ class PreparedStmt
 	 */
 	protected function setError($code, $text = null, $sqlState = null)
 	{
-		$this->error   = new Error($code, $text, $sqlState);
+		$this->error   = new DbError($code, $text, $sqlState);
 		$this->isError = true;
 	}
 

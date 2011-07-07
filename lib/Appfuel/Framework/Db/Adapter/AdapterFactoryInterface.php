@@ -16,5 +16,4 @@ use Appfuel\Framework\Db\Connection\ConnectionDetailInterface;
  */
 interface AdapterFactoryInterface
 {
-	static public function createAdapter(ConnectionDetailInterface $conn);
 }
