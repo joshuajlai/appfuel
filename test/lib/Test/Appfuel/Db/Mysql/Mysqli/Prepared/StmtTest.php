@@ -19,69 +19,11 @@ use Test\DbTestCase as ParentTestCase,
 	mysqli_result;
 
 /**
- * 
+ * Test the ability to use a mysqli_stmt to performe a query with prepared
+ * statements
  */
-class StmtTest extends ParentTestCase
+class StmtTest extends StmtTestCase
 {
-	/**
-	 * System under test
-	 * @var Server
-	 */
-	protected $stmt = null;
-
-	/**
-	 * Hold the connection
-	 * @var Connection
-	 */
-	protected $conn = null;
-	
-	/**
-	 * @var mysqli
-	 */
-	protected $handle = null;
-
-	/**
-	 * Mysqli stmt resource handle 
-	 * @var mysqli_stmt
-	 */
-	protected $stmtHandle = null;
-
-	/**
-	 * @return null
-	 */
-	public function setUp()
-	{
-        $this->handle  = mysqli_init();
-        $this->conn = new Connection($this->getConnDetail(), $this->handle);
-        $this->assertTrue($this->conn->connect());
-
-		$this->stmtHandle = $this->handle->stmt_init();
-        $this->stmt = new Stmt($this->stmtHandle);
-	}
-
-	/**
-	 * @return null
-	 */
-	public function tearDown()
-	{
-		$this->assertTrue($this->conn->close());
-		unset($this->conn);
-		unset($this->handle);
-		unset($this->stmtHandle);
-		unset($this->stmt);
-		
-	}
-
-	/**
-	 * @param	PreparedStmt	$stmt
-	 * @return	void
-	 */
-	public function cleanUpStmt(PreparedStmt $stmt)
-	{
-		$stmt->getHandle()
-			 ->close();
-	}
-	
 	/**
 	 * Reuse a simple prepared sql for testing the basic operations of 
 	 * the prepared stat PreparedStmt class
