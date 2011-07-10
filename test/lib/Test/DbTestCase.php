@@ -12,10 +12,8 @@ namespace Test;
 
 use Appfuel\App\Registry,
 	Appfuel\Framework\Exception,
-	Appfuel\Db\Mysql\Adapter\AdapterFactory,
 	Appfuel\Framework\Db\Connection\ConnectionDetailInterface,
 	Appfuel\Framework\Db\Connection\DetailFactoryInterface,
-	Appfuel\Framework\Db\Adapter\AdapterFactoryInterface,
 	Appfuel\Db\Connection\DetailFactory as ConnFactory,
 	Appfuel\Db\Mysql\Adapter\Server     as MysqliServer;
 
@@ -71,10 +69,6 @@ class DbTestCase extends AfTestCase
 
 		$connDetail = $this->createConnDetail($connString);
 		$this->setConnDetail($connDetail);
-
-		$adapterFactory = new AdapterFactory();
-		$this->setAdapterFactory($adapterFactory);
-
 	}
 
 	/**
@@ -125,23 +119,6 @@ class DbTestCase extends AfTestCase
 	public function setConnDetail(ConnectionDetailInterface $detail)
 	{
 		$this->connDetail = $detail;
-		return $this;
-	}
-
-	/**
-	 * @return	AdapterFactoryInterface
-	 */
-	public function getAdapterFactory()
-	{
-		return $this->adapterFactory;
-	}
-
-	/**
-	 * @return	AdapterFactoryInterface
-	 */
-	public function setAdapterFactory(AdapterFactoryInterface $factory)
-	{
-		$this->adapterFactory = $factory;
 		return $this;
 	}
 }

@@ -12,14 +12,13 @@ namespace Appfuel\Db\Mysql\Mysqli;
 
 use mysqli as mysqli_handle,
 	Appfuel\Db\DbResponse,
-	Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Adapter\AdapterInterface;
+	Appfuel\Framework\Exception;
 
 /**
  * Mysqli adapter exposes the mysqli functionality though the
  * the adapter interface
  */
-class Adapter implements AdapterInterface
+class Adapter
 {
 	/**
 	 * Mysqli handle used create prepared stmt and queries

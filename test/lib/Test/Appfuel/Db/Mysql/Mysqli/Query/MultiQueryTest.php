@@ -8,58 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\Mysqli;
+namespace Test\Appfuel\Db\Mysql\Mysqli\Query;
 
-use Test\DbTestCase as ParentTestCase,
-	Appfuel\Db\Connection\ConnectionDetail,
-	Appfuel\Db\Mysql\Mysqli\Query,
-	Appfuel\Db\Mysql\Mysqli\Connection,
-	mysqli;
+use Appfuel\Db\Mysql\Mysqli\Query;
 
 /**
  * This class holds only the functionality to perform and debug queries
  */
-class MultiQueryTest extends ParentTestCase
+class MultiQueryTest extends QueryTestCase
 {
-	/**
-	 * System under test
-	 * @var MysqliQuery
-	 */
-	protected $query = null;
-
-	/**
-	 * Hold the connection details
-	 * @var ConnectionDetail
-	 */
-	protected $conn = null;
-	
-	/**
-	 * @var mysqli
-	 */
-	protected $handle = null;
-
-	/**
-	 * @return null
-	 */
-	public function setUp()
-	{
-        $this->handle  = mysqli_init();
-        $this->conn = new Connection($this->getConnDetail(), $this->handle);
-        $this->assertTrue($this->conn->connect());
-
-		$this->query = new Query($this->handle);
-	}
-
-	/**
-	 * @return null
-	 */
-	public function tearDown()
-	{
-		$this->assertTrue($this->conn->close());
-		unset($this->conn);
-		unset($this->query);
-		unset($this->handle);
-	}
 
 	/**
 	 * @return null
