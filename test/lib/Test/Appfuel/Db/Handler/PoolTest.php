@@ -11,7 +11,7 @@
 namespace Test\Appfuel\Db\Adapter;
 	
 use	StdClass,
-	Appfuel\Db\Pool,
+	Appfuel\Db\Handler\Pool,
 	Test\DbCase as ParentTestCase;
 
 /**

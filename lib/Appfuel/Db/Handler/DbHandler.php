@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Db;
+namespace Appfuel\Db\Handler;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\Db\PoolInterface;
@@ -20,7 +20,7 @@ use Appfuel\Framework\Exception,
  * adaoter  and decide which adapter method to use based on the request, 
  * finishing by returning a DbResponse.
  */
-class Handler
+class DbHandler
 {
 	/**
 	 * The pool hold one or more connections for the database

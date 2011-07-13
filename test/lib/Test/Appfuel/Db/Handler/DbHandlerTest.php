@@ -11,11 +11,11 @@
 namespace Test\Appfuel\Db\Adapter;
 
 use Test\DbCase as ParentTestCase,
-	Appfuel\Db\Handler;
+	Appfuel\Db\Handler\DbHandler;
 
 /**
  */
-class HandlerTest extends ParentTestCase
+class DbHandlerTest extends ParentTestCase
 {
 	protected $handle = null;
 
@@ -24,7 +24,7 @@ class HandlerTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->handle = new Handler();
+		$this->handle = new DbHandler();
 	}
 
 	/**
