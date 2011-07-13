@@ -16,8 +16,8 @@ use Closure,
 	Exception as RootException,
 	Appfuel\Framework\Exception,
 	Appfuel\Db\DbError,
-	Appfuel\Db\Mysql\CallbackError,
-	Appfuel\Framework\Db\Adapter\CallbackErrorInterface;
+	Appfuel\Db\CallbackError,
+	Appfuel\Framework\Db\CallbackErrorInterface;
 
 /**
  * Wraps the mysqli_result. The reason we did not extend the mysqli_result is

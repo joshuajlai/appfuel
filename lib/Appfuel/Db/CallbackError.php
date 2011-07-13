@@ -8,15 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Db\Mysql;
+namespace Appfuel\Db;
 
 use Appfuel\Framework\Db\Adapter\CallbackErrorInterface;
 
 /**
- * Mysqli adapter exposes the mysqli functionality though the
- * the adapter interface
+ * Error that happens in a callback while a db row is being processed
  */
-class CallbackError extends Error implements CallbackErrorInterface
+class CallbackError extends DbError implements CallbackErrorInterface
 {
 	/**
 	 * Index number of row that failed 
