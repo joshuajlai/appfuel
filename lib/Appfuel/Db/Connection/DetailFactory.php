@@ -70,6 +70,7 @@ class DetailFactory implements DetailFactoryInterface
 		$dbName   = $result->get('dbname');
 		$username = $result->get('username');
 		$password = $result->get('password');
+		$type	  = $result->get('type');
 
 		$detail = new ConnectionDetail($vendor, $adapter);
 		$detail->setHost($host)
@@ -85,6 +86,10 @@ class DetailFactory implements DetailFactoryInterface
 
 		if (null !== $socket) {
 			$detail->setSocket($socket);
+		}
+
+		if (null !== $type) {
+			$detail->setType($type);
 		}
 
 		return $detail;

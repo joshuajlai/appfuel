@@ -54,7 +54,7 @@ class ConnectionDetail implements ConnectionDetailInterface
 	 * @var string
 	 */
 	protected $dbName = null;
-	
+
 	/**
 	 * Port number used to connect to mysql
 	 * @var int
@@ -67,6 +67,12 @@ class ConnectionDetail implements ConnectionDetailInterface
 	 */
 	protected $socket = null;
 
+	/**
+	 * Used in replication to indicate master or slave connections
+	 * @var string
+	 */
+	protected $type = null;
+	
 	/**
 	 * @param	string	$vendor
 	 * @param	string	$adapter
@@ -231,6 +237,34 @@ class ConnectionDetail implements ConnectionDetailInterface
 			throw new Exception('socket name must be a non empty string');
 		}
 		$this->socket = $socket;
+		return $this;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getType()
+	{
+
+		return $this->type;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function setType($type)
+	{
+		$err = 'type must be (master|slave) only';
+		if (empty($type) || ! is_string($type)) {
+			throw new Exception($err);
+		}
+
+		$type = strtolower($type);
+		if (! in_array($type, array('master', 'slave'))) {
+			throw new Exception($err);
+		}
+	
+		$this->type = $type;
 		return $this;
 	}
 

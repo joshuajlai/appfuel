@@ -141,6 +141,17 @@ class ParserTest extends ParentTestCase
 		$this->assertEquals('mysql,adapter', $result->get('vendor'));
 	}
 
+	public function testParseSingleString()
+	{
+		$string = 'vendor';
+		$result = $this->parser->parse($string);
+		$this->assertInstanceOf(
+			'Appfuel\Data\Dictionary',
+			$result
+		);
+		$this->assertEquals(0, $result->count());	
+	}
+
 	/**
 	 * @return null
 	 */

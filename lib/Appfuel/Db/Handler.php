@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Db;
 
-use Appfuel\Framework\Exception;
+use Appfuel\Framework\Exception,
+	Appfuel\Framework\Db\PoolInterface;
 
 /**
  * The database handler is responsible for handling database requests without
@@ -22,19 +23,51 @@ use Appfuel\Framework\Exception;
 class Handler
 {
 	/**
-	 * Master connection used in systems with replication and main
-	 * connections in systems without
+	 * The pool hold one or more connections for the database
 	 * @var	ConnectionInterface
 	 */
-	static protected $master = null;
+	static protected $pool = null;
 
 	/**
-	 * Slave connection used in systems with replication and ignored
-	 * by systems without
-	 * @var ConnectionInteface
+	 * @return	PoolInterface
 	 */
-	static protected $slave = null;
+	static public function getPool()
+	{
+		return self::$pool;
+	}
 
+	/**
+	 * @param	PoolInterface $pool
+	 * @return	null
+	 */
+	static public function setPool(PoolInterface $pool)
+	{
+		self::$pool = $pool;
+	}
+
+	/**
+	 * @return bool
+	 */
+	static public function isPool()
+	{
+		return self::$pool instanceof PoolInterface;
+	}
+
+	/**
+	 * close all the connections in the pool and unset it
+	 *
+	 * @return	true
+	 */
+	static public function clearPool()
+	{
+		if (! self::isPool()) {
+			return true;
+		}
+
+		self::$pool->shutdown();
+		self::$pool = null;
+		return true;
+	}
 
 	public function execute(DbRequestInterface $request)
 	{
@@ -42,52 +75,12 @@ class Handler
 	}
 
 	/**
-	 * Return a connection from the pool base on the request type. 
-	 * The type is used to determine if the a master or slave is
-	 * returned based on this map : 
-	 * write - master, read - slave, both - master
+	 * returns a connection from the pool base on the type
 	 *
-	 * @param	string	$requestType
-	 * @return	ConnectionInterface
+	 * @return	ConnectionInterface | null
 	 */
-	public function getConnection($requestType)
+	public function getConnection($type)
 	{
 
 	}
-
-	/**
-	 * @return	ConnectionInterface | null when not initialized
-	 */
-	static public function getMaster()
-	{
-		return self::$master;
-	}
-
-	/**
-	 * @param	ConnectionInterface $conn
-	 * @return	null
-	 */
-	static public function setMaster(ConnectionInterface $conn)
-	{
-		self::$master = $conn;
-	}
-
-	/**
-	 * @return	ConnectionInterface | null when not initialized
-	 */
-	static public function getSlave()
-	{
-		return self::$slave;
-	}
-
-	/**
-	 * @param	ConnectionInterface $conn
-	 * @return	null
-	 */
-	static public function setSlave(ConnectionInterface $conn)
-	{
-		self::$slave = $conn;
-	}
-
-
 }

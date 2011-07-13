@@ -69,6 +69,71 @@ class ConnectionDetailTest extends ParentTestCase
 		);
 	}
 
+	public function testGetSetType()
+	{		
+		/* default value */
+		$this->assertNull($this->connDetail->getType());
+
+		$type = 'master';
+		$this->assertSame(
+			$this->connDetail,
+			$this->connDetail->setType($type)
+		);
+		$this->assertEquals($type, $this->connDetail->getType());
+
+		$this->assertSame(
+			$this->connDetail,
+			$this->connDetail->setType('MASTER')
+		);
+		$this->assertEquals($type, $this->connDetail->getType());
+
+		$this->assertSame(
+			$this->connDetail,
+			$this->connDetail->setType('mASteR')
+		);
+		$this->assertEquals($type, $this->connDetail->getType());
+
+		$type = 'slave';
+		$this->assertSame(
+			$this->connDetail,
+			$this->connDetail->setType($type)
+		);
+		$this->assertEquals($type, $this->connDetail->getType());
+
+		$this->assertSame(
+			$this->connDetail,
+			$this->connDetail->setType('SLAVE')
+		);
+		$this->assertEquals($type, $this->connDetail->getType());
+
+		$this->assertSame(
+			$this->connDetail,
+			$this->connDetail->setType('SlAvE')
+		);
+		$this->assertEquals($type, $this->connDetail->getType());
+
+
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetCeleryBadParamEmptyString()
+	{
+		$this->connDetail->setType('');
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetCeleryBadParamStringNotMasteSlave()
+	{
+		$this->connDetail->setType('Blah');
+	}
+
+
 	/**
 	 * Vendor is an immutable member that can only be set through the 
 	 * constructor.

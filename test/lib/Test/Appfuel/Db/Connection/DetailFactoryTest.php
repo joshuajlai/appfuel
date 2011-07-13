@@ -73,8 +73,9 @@ class DetailFactoryTest extends ParentTestCase
 	 */
 	public function testCreateConnectionDetail()
 	{
-		$string = 'vendor=mysql;adapter=mysqli;host=my-host;username=me;' .
-				  'dbname=my-db;password=pass;port=3306;socket=tmp/mysql.sock';
+		$string = 'type=master;vendor=mysql;adapter=mysqli;host=my-host;' .
+				  'username=me;dbname=my-db;password=pass;port=3306;'     .
+				  'socket=tmp/mysql.sock';
 
 		$result = $this->factory->createConnectionDetail($string);
 		$this->assertInstanceOf(
@@ -89,6 +90,7 @@ class DetailFactoryTest extends ParentTestCase
 		$this->assertEquals('pass',				$result->getPassword());
 		$this->assertEquals(3306,				$result->getPort());
 		$this->assertEquals('tmp/mysql.sock',	$result->getSocket());
+		$this->assertEquals('master',			$result->getType());
 		
 	}
 
@@ -98,8 +100,9 @@ class DetailFactoryTest extends ParentTestCase
 	 */
 	public function testCreateConnectionDetailNoPort()
 	{
-		$string = 'vendor=mysql;adapter=mysqli;host=my-host;username=me;' .
-				  'dbname=my-db;password=pass;socket=tmp/mysql.sock';
+		$string = 'type=slave;vendor=mysql;adapter=mysqli;host=my-host;' .
+				  'username=me;dbname=my-db;password=pass;' .
+				  'socket=tmp/mysql.sock';
 
 		$result = $this->factory->createConnectionDetail($string);
 		$this->assertInstanceOf(
@@ -113,6 +116,7 @@ class DetailFactoryTest extends ParentTestCase
 		$this->assertEquals('me',				$result->getUserName());
 		$this->assertEquals('pass',				$result->getPassword());
 		$this->assertEquals('tmp/mysql.sock',	$result->getSocket());
+		$this->assertEquals('slave',			$result->getType());
 		
 		$this->assertNull($result->getPort());
 	}
@@ -165,8 +169,6 @@ class DetailFactoryTest extends ParentTestCase
 		$this->assertNull($result->getSocket());
 		$this->assertNull($result->getPort());
 	}
-
-
 
 	/**
 	 * @return null
