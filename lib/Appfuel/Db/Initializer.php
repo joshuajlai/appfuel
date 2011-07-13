@@ -30,7 +30,11 @@ class Initializer extends InitializerInterface
 
 	public function __construct(DetailFactoryInterface $factory)
 	{
-		
+        if (null === $connFactory) {
+            $connFactory = new ConnectionFactory();
+        }
+
+        $this->connFactory = $connFactory;	
 	}
 
 	/**
