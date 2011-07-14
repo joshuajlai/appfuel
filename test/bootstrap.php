@@ -9,7 +9,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-use Appfuel\App\Manager,
+use Appfuel\App\Registry,
+	Appfuel\App\Manager,
+	Appfuel\Db\Handler\DbInitializer,
+	Appfuel\Db\Handler\DbHandler,
 	Test\AfTestCase as TestCase;
 
 $basePath = realpath(dirname(__FILE__) . '/../');
@@ -34,3 +37,10 @@ $oPath = get_include_path();
 Manager::Initialize($basePath, $configFile);
 TestCase::setOriginalIncludePath($oPath);
 
+$connStrings = Registry::get('db_unittest');
+if (empty($connStrings)) {
+	throw new Exception("Db connection string empty can not proceed");
+}
+
+$initializer = new DbInitializer();
+$initializer->initialize($connStrings);

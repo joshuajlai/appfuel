@@ -121,14 +121,4 @@ class DbCase extends AfTestCase
 		return $this;
 	}
 
-	/**
-	 * This test is used because I seem to get a phpunit error saying no
-	 * tests because by test cases are extending this test case
-	 *
-	 * @return null
-	 */
-//	public function testConnDetail()
-//	{
-//		$this->assertSame($this->connDetail, $this->getConnDetail());
-//	}
 }

@@ -11,7 +11,7 @@
 namespace Appfuel\Db\Handler;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\PoolInterface;
+	Appfuel\Framework\Db\Handler\PoolInterface;
 
 /**
  * The database handler is responsible for handling database requests without

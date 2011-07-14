@@ -11,7 +11,7 @@
 namespace Appfuel\Db\Handler;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\PoolInterface,
+	Appfuel\Framework\Db\Handler\PoolInterface,
 	Appfuel\Framework\Db\Connection\ConnectionInterface;
 
 /**
