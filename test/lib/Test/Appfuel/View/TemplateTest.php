@@ -69,7 +69,7 @@ class TemplateTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testSetGetFileAsFileInterfaceCreateClientsideFile()
+	public function testSetGetFileAsFileInterfaceCreateViewFile()
 	{
 		$path = 'path/to/some/where';
 		$file = $this->createMockClientsideFile($path);
@@ -85,8 +85,8 @@ class TemplateTest extends ParentTestCase
 		$this->assertEquals($file, $this->template->getFile());
 
 		$this->assertInstanceOf(
-			'Appfuel\View\ClientsideFile',
-			$this->template->createClientsideFile($path)
+			'Appfuel\View\ViewFile',
+			$this->template->createViewFile($path)
 		);
 	}
 
@@ -219,9 +219,7 @@ class TemplateTest extends ParentTestCase
 	 */
 	public function testBuildNoData()
 	{
-		$path = 'html' . DIRECTORY_SEPARATOR . 
-				'doc'  . DIRECTORY_SEPARATOR .
-				'standard.phtml';
+		$path = 'html/doc/standard.phtml';
 
 		$this->template->setFile($path);
 		$result = $this->template->build();

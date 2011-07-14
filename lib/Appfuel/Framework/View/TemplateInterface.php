@@ -17,7 +17,7 @@ interface TemplateInterface
 {
 	public function fileExists();
 	public function setFile($file);
-	public function createClientsideFile($filePath);
+	public function createViewFile($filePath);
 	public function getScope();
 	public function setScope(ScopeInterface $scope);
 	public function createScope(array $data = array());

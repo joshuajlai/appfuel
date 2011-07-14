@@ -14,15 +14,10 @@ use Appfuel\Framework\Exception,
 	Appfuel\File\FrameworkFile;
 
 /**
- * File object that always starts at the clientside directory. Each application
- * separates its templates with its own namespace dir. The namespace is taken
- * from the php namespace of the file that extends this one and then maded 
- * lowercase to match clientside conventions. It is used by view templates to 
- * bind scope to template files. The class allows the developer to focus on the
- * relative path to the template file from their namespace instead of having
- * to go through the effort of finding the base path.
+ * The view file hides the absolute path to a directory of templates and
+ * allows the user to specify a relative path from that directory. 
  */
-class ClientsideFile extends FrameworkFile
+class ViewFile extends FrameworkFile
 {
 
 	/**
@@ -30,7 +25,7 @@ class ClientsideFile extends FrameworkFile
 	 * root directory. Ex) clientside/appfuel/<relative/path/here>
 	 * @var string
 	 */
-	protected $clientsidePath = null;
+	protected $viewPath = null;
 
 	/**
 	 * The top level directory for all clientside files
@@ -62,8 +57,8 @@ class ClientsideFile extends FrameworkFile
 		}
 
 		$this->setNamespace($this->discoverNamespace());
-		$path = $this->buildClientsidePath($path);
-		$this->setClientsidePath($path);
+		$path = $this->buildViewPath($path);
+		$this->setViewPath($path);
 
 		$includeBasePath = true;
         parent::__construct($path, $includeBasePath);
@@ -72,11 +67,11 @@ class ClientsideFile extends FrameworkFile
 	/**
 	 * @return string
 	 */
-	public function getClientsidePath($absolute = false)
+	public function getViewPath($absolute = false)
 	{
-		$path = $this->clientsidePath;
+		$path = $this->viewPath;
 		if (true === $absolute) {
-			$path = $this->getBasePath() . DIRECTORY_SEPARATOR . $path;
+			$path = "{$this->getBasePath()}/{$path}";
 		}
 
 		return $path;
@@ -130,13 +125,13 @@ class ClientsideFile extends FrameworkFile
 	 * @param	string	$path
 	 * @return	string
 	 */
-	protected function setClientsidePath($path)
+	protected function setViewPath($path)
 	{
 		if (! $this->isValidString($path)) {
 			throw new Exception("Invalid path: must be a non empty string");
 		}
 
-		$this->clientsidePath = $path;
+		$this->viewPath = $path;
 		return $this;
 	}
 
@@ -145,12 +140,11 @@ class ClientsideFile extends FrameworkFile
 	 * @param	string	$path	relative path to clientside file
 	 * @return	string
 	 */
-	protected function buildClientsidePath($path)
+	protected function buildViewPath($path)
 	{
-		$sep       = DIRECTORY_SEPARATOR;
 		$rootDir   = $this->getRootDirName();
 		$namespace = $this->getNamespace();
-		return "{$rootDir}{$sep}{$namespace}{$sep}{$path}";
+		return "{$this->getRootDirName()}/{$this->getNamespace()}/{$path}";
 	}
 
 	/**

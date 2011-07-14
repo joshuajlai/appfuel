@@ -122,9 +122,9 @@ class Template extends Dictionary implements TemplateInterface
 	 * @param	string	$path
 	 * @return	ClientsideFile
 	 */
-	public function createClientsideFile($path)
+	public function createViewFile($path)
 	{
-		return new ClientsideFile($path);
+		return new ViewFile($path);
 	}
 
 	/**
@@ -172,7 +172,7 @@ class Template extends Dictionary implements TemplateInterface
 
 		/* convert this path string to a file */
 		if (is_string($file)) {
-			$file = $this->createClientsideFile($file);
+			$file = $this->createViewFile($file);
 		}
 
 		if (! $file->isFile()) {

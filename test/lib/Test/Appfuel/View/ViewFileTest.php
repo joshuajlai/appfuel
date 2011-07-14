@@ -11,7 +11,7 @@
 namespace Test\Appfuel\View;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\View\ClientsideFile,
+	Appfuel\View\ViewFile,
 	StdClass;
 
 /**
@@ -38,7 +38,7 @@ class ClientsideFileFileTest extends ParentTestCase
 	public function setUp()
 	{
 		$this->relativePath = 'somepath';
-		$this->file = new ClientsideFile($this->relativePath);
+		$this->file = new ViewFile($this->relativePath);
 	}
 
 	/**
@@ -161,7 +161,7 @@ class ClientsideFileFileTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testConstructorGetClientsidePathDefault()
+	public function testConstructorGetViewPathDefault()
 	{
 		$this->assertInstanceOf(
 			'Appfuel\File\FrameworkFile',
@@ -169,15 +169,12 @@ class ClientsideFileFileTest extends ParentTestCase
 		);
 
 		/* test returning relative */
-		$expected = 'clientside' . DIRECTORY_SEPARATOR . 
-					'appfuel'    . DIRECTORY_SEPARATOR .
-					$this->relativePath;
-		$this->assertEquals($expected, $this->file->getClientsidePath());
+		$expected = "clientside/appfuel/{$this->relativePath}";
+		$this->assertEquals($expected, $this->file->getViewPath());
 	
 		/* test returning absolute */
-		$expected = $this->file->getBasePath() . DIRECTORY_SEPARATOR .
-					$expected;	
-		$this->assertEquals($expected, $this->file->getClientsidePath(true));
+		$expected = "{$this->file->getBasePath()}/{$expected}";	
+		$this->assertEquals($expected, $this->file->getViewPath(true));
 	}
 
 	/**
@@ -185,6 +182,6 @@ class ClientsideFileFileTest extends ParentTestCase
 	 */
 	public function testEmptyPathConstructor()
 	{
-		$file = new ClientsideFile('');
+		$file = new ViewFile('');
 	}
 }
