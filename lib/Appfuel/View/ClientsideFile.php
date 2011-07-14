@@ -11,7 +11,7 @@
 namespace Appfuel\View;
 
 use Appfuel\Framework\Exception,
-	Appfuel\App\File;
+	Appfuel\File\FrameworkFile;
 
 /**
  * File object that always starts at the clientside directory. Each application
@@ -22,7 +22,7 @@ use Appfuel\Framework\Exception,
  * relative path to the template file from their namespace instead of having
  * to go through the effort of finding the base path.
  */
-class ClientsideFile extends File
+class ClientsideFile extends FrameworkFile
 {
 
 	/**

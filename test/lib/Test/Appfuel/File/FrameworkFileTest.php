@@ -10,9 +10,9 @@
  */
 namespace Test\Appfuel\App;
 
-use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\File,
-	SplFileInfo,
+use SplFileInfo,
+	Appfuel\File\FrameworkFile,
+	Test\AfTestCase as ParentTestCase,
 	Appfuel\Stdlib\Filesystem\Manager as FileManager;
 
 /**
@@ -40,7 +40,7 @@ class FileTest extends ParentTestCase
 
 		$file = new File($path);
 		$this->assertInstanceOf(
-			'Appfuel\App\File',
+			'Appfuel\File\FrameworkFile',
 			$file
 		);
 		$this->assertInstanceOf(
@@ -65,7 +65,7 @@ class FileTest extends ParentTestCase
 		
 		/* not that this would change */
 		$this->assertInstanceOf(
-			'Appfuel\App\File',
+			'Appfuel\File\FrameworkFile',
 			$file
 		);
 		$this->assertInstanceOf(

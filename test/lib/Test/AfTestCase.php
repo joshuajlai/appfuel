@@ -303,7 +303,7 @@ class AfTestCase extends ParentTestCase
 	public function createMockClientsideFile($path)
 	{
         $path = $this->getCurrentPath($path);
-        $file = $this->getMock('Appfuel\Framework\FileInterface');
+        $file = $this->getMock('Appfuel\Framework\File\FrameworkFileInterface');
 
         $file->expects($this->any())
              ->method('isFile')

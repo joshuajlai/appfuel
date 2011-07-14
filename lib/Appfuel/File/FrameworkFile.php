@@ -8,16 +8,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App;
+namespace Appfuel\File;
 
-use Appfuel\Framework\FileInterface,
+use Appfuel\Framework\File\FrameworkFileInterface,
 	SplFileInfo;
 
 /**
  * Add knowledge of the base path so developers only need to specify
  * a path relative to base path when working with files.
  */
-class File extends SplFileInfo implements FileInterface
+class FrameworkFile extends SplFileInfo implements FrameworkFileInterface
 {
 	/**
 	 * Root path of the application

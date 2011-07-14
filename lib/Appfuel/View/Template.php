@@ -11,11 +11,11 @@
 namespace Appfuel\View;
 
 use SplFileInfo,
+	Appfuel\Data\Dictionary,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\FileInterface,
 	Appfuel\Framework\View\ScopeInterface,
 	Appfuel\Framework\View\TemplateInterface,
-	Appfuel\Data\Dictionary;
+	Appfuel\Framework\File\FrameworkFileInterface;
 
 /**
  * A view template is associated with one and only one template file. The 
@@ -78,7 +78,8 @@ class Template extends Dictionary implements TemplateInterface
 	 */
     public function fileExists()
 	{
-		return is_string($this->file) || $this->file instanceof FileInterface;
+		return is_string($this->file) || 
+			   $this->file instanceof FrameworkFileInterface;
 	}
 
 	/**
@@ -95,8 +96,8 @@ class Template extends Dictionary implements TemplateInterface
 			throw new Exception("addFile failed: path can not be empty");
 		}
 		
-		if (is_string($path)				 ||  
-			$path instanceof FileInterface   || 
+		if (is_string($path)						  ||  
+			$path instanceof FrameworkFileInterface   || 
 			$path instanceof SplFileInfo) {
 
 			$this->file = $path;

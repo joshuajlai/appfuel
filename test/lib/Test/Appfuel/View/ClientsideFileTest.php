@@ -164,7 +164,7 @@ class ClientsideFileFileTest extends ParentTestCase
 	public function testConstructorGetClientsidePathDefault()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\App\File',
+			'Appfuel\File\FrameworkFile',
 			$this->file
 		);
 
