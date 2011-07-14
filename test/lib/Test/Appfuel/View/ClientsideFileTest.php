@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\App\View;
+namespace Test\Appfuel\View;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\View\ClientsideFile,
+	Appfuel\View\ClientsideFile,
 	StdClass;
 
 /**
@@ -187,6 +187,4 @@ class ClientsideFileFileTest extends ParentTestCase
 	{
 		$file = new ClientsideFile('');
 	}
-
-
 }

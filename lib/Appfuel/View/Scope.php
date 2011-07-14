@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App\View;
+namespace Appfuel\View;
 
 use SplFileInfo,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\App\View\ScopeInterface,
+	Appfuel\Framework\View\ScopeInterface,
 	Appfuel\Stdlib\Filesystem\Manager as FileManager;
 
 /**

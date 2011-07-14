@@ -10,7 +10,8 @@
  */
 namespace Appfuel\App;
 
-use Appfuel\Framework\Exception,
+use Appfuel\Db\Handler\DbInitializer,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\Data\DictionaryInterface,
 	Appfuel\Stdlib\Filesystem\Manager	as FileManager;
 
@@ -55,7 +56,9 @@ class Initializer
 		);
 
 		$settings = Registry::collect($keys);
-		self::InitSettings($settings);
+		self::initSettings($settings);
+
+		self::initDb(Registry::get('db_conns', array()));
 	}
 	
 	/**
@@ -116,5 +119,17 @@ class Initializer
         }
 
         return FileManager::parseIni($file);
+	}
+
+	/**
+	 * Initialize the database connections into the DbHandler
+	 *
+	 * @param 	array	$dbStrings
+	 * @return	void
+	 */
+	static public function initDb(array $dbStrings)
+	{
+		$init = new DbInitializer();
+		$init->initialize($dbStrings);
 	}
 }

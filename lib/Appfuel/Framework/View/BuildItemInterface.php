@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\App\View;
+namespace Appfuel\Framework\View;
 
 /**
  * A build item is generally used as a value object holding the information 

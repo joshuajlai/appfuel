@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\App\View;
+namespace Test\Appfuel\View;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\View\CompositeTemplate,
-	Appfuel\App\View\Template,
+	Appfuel\View\CompositeTemplate,
+	Appfuel\View\Template,
 	StdClass,
 	SplFileInfo;
 
@@ -73,7 +73,7 @@ class CompositeTemplateTest extends ParentTestCase
 		$this->assertFalse($this->template->templateExists($key_1));
 		$this->assertFalse($this->template->getTemplate($key_1));
 
-		$interface  = 'Appfuel\Framework\App\View\TemplateInterface';
+		$interface  = 'Appfuel\Framework\View\TemplateInterface';
 		$template_1 = $this->getMockBuilder($interface)
 						   ->disableOriginalConstructor()
 						   ->getMock();
@@ -141,7 +141,7 @@ class CompositeTemplateTest extends ParentTestCase
 		$label  = 'my-assign-label';
 		$item   = $this->template->createBuildItem($source, $target, $label);
 		$this->assertInstanceOf(
-			'Appfuel\App\View\BuildItem',
+			'Appfuel\View\BuildItem',
 			$item
 		);
 		$this->assertEquals($source, $item->getSource());
@@ -200,7 +200,7 @@ class CompositeTemplateTest extends ParentTestCase
 	public function testAssignBuild()
 	{
 		
-		$interface	  = 'Appfuel\Framework\App\View\TemplateInterface';
+		$interface	  = 'Appfuel\Framework\View\TemplateInterface';
 		$sourceKey	  = 'source-key';
 		$targetKey    = 'target-key';
 		$assignLabel  = 'source-label';
@@ -218,7 +218,7 @@ class CompositeTemplateTest extends ParentTestCase
 
 		$buildItem = $result[0];
 		$this->assertInstanceOf(
-			'Appfuel\Framework\App\View\BuildItemInterface',
+			'Appfuel\Framework\View\BuildItemInterface',
 			$buildItem
 		);
 		$this->assertEquals($sourceKey, $buildItem->getSource());
@@ -241,7 +241,7 @@ class CompositeTemplateTest extends ParentTestCase
 		/* make sure we can still get the other build item */
 		$buildItem = $result[0];
 		$this->assertInstanceOf(
-			'Appfuel\Framework\App\View\BuildItemInterface',
+			'Appfuel\Framework\View\BuildItemInterface',
 			$buildItem
 		);
 		$this->assertEquals($sourceKey, $buildItem->getSource());
@@ -251,7 +251,7 @@ class CompositeTemplateTest extends ParentTestCase
 		/* test the most recently added build item */
 		$buildItem = $result[1];
 		$this->assertInstanceOf(
-			'Appfuel\Framework\App\View\BuildItemInterface',
+			'Appfuel\Framework\View\BuildItemInterface',
 			$buildItem
 		);
 		$this->assertEquals($sourceKey2, $buildItem->getSource());
@@ -727,6 +727,4 @@ class CompositeTemplateTest extends ParentTestCase
 
 		$this->assertEquals($expected, $this->template->build());
 	}
-
-
 }

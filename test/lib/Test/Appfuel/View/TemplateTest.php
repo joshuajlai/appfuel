@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\App\View;
+namespace Test\Appfuel\View;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\App\View\Template,
+	Appfuel\View\Template,
 	StdClass;
 
 /**
@@ -85,7 +85,7 @@ class TemplateTest extends ParentTestCase
 		$this->assertEquals($file, $this->template->getFile());
 
 		$this->assertInstanceOf(
-			'Appfuel\App\View\ClientsideFile',
+			'Appfuel\View\ClientsideFile',
 			$this->template->createClientsideFile($path)
 		);
 	}
@@ -127,7 +127,7 @@ class TemplateTest extends ParentTestCase
 		/* when nothing is passed into the constructor this is null */
 		$this->assertNull($this->template->getScope());
 		
-		$scope = $this->getMock('Appfuel\Framework\App\View\ScopeInterface');
+		$scope = $this->getMock('Appfuel\Framework\View\ScopeInterface');
 		$this->assertSame(
 			$this->template,
 			$this->template->setScope($scope),
@@ -136,13 +136,13 @@ class TemplateTest extends ParentTestCase
 		$this->assertEquals($scope, $this->template->getScope());
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\App\View\ScopeInterface',
+			'Appfuel\Framework\View\ScopeInterface',
 			$this->template->createScope()
 		);
 
 		$data = array('name'=>'value');
 		$this->assertInstanceOf(
-			'Appfuel\Framework\App\View\ScopeInterface',
+			'Appfuel\Framework\View\ScopeInterface',
 			$this->template->createScope($data)
 		);	
 	}
@@ -152,7 +152,7 @@ class TemplateTest extends ParentTestCase
 	 */
 	public function testGetScopeConstructor()
 	{
-		$scope    = $this->getMock('Appfuel\Framework\App\View\ScopeInterface');
+		$scope    = $this->getMock('Appfuel\Framework\View\ScopeInterface');
 		$template = new Template(null, $scope); 
 		$this->assertEquals($scope, $template->getScope());
 
@@ -161,7 +161,7 @@ class TemplateTest extends ParentTestCase
 		
 		$scope = $template->getScope();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\App\View\ScopeInterface',
+			'Appfuel\Framework\View\ScopeInterface',
 			$scope
 		); 
 		$this->assertEquals($data, $scope->getAll());

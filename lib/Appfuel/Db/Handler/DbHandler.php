@@ -69,18 +69,24 @@ class DbHandler
 		return true;
 	}
 
+	/**
+	 * @param	DbRequestInterface $request
+	 * @return	DbResponse
+	 */
 	public function execute(DbRequestInterface $request)
 	{
-	
-	}
+		$type = $request->getType();
+		if (! self::isPool()) {
+			throw new Exception("DbHandler in not initialized");
+		}
 
-	/**
-	 * returns a connection from the pool base on the type
-	 *
-	 * @return	ConnectionInterface | null
-	 */
-	public function getConnection($type)
-	{
+		$pool = self::getPool();
+		$conn = $pool->getConnection($type);
 
+		$conn->connect();
+		$response = $conn->execute($request);
+		$conn->close();
+
+		return $response;
 	}
 }

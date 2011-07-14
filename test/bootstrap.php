@@ -36,11 +36,3 @@ $configFile = $basePath . DIRECTORY_SEPARATOR .
 $oPath = get_include_path();
 Manager::Initialize($basePath, $configFile);
 TestCase::setOriginalIncludePath($oPath);
-
-$connStrings = Registry::get('db_unittest');
-if (empty($connStrings)) {
-	throw new Exception("Db connection string empty can not proceed");
-}
-
-$initializer = new DbInitializer();
-$initializer->initialize($connStrings);

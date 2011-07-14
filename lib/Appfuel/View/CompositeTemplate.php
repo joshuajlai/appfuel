@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App\View;
+namespace Appfuel\View;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\App\View\TemplateInterface,
-	Appfuel\Framework\App\View\BuildItemInterface,
-	Appfuel\Framework\App\View\CompositeTemplateInterface,
+	Appfuel\Framework\View\TemplateInterface,
+	Appfuel\Framework\View\BuildItemInterface,
+	Appfuel\Framework\View\CompositeTemplateInterface,
 	Appfuel\Data\Dictionary;
 
 /**

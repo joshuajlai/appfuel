@@ -8,14 +8,18 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\App\View;
+namespace Appfuel\Framework\View;
 
 /**
  * Interface needed by the framework to use view templates
  */
-interface CompositeTemplateInterface extends TemplateInterface
+interface TemplateInterface
 {
-	public function templateExists($key);
-	public function getTemplate($key);
-	public function addTemplate($key, TemplateInterface $template);
+	public function fileExists();
+	public function setFile($file);
+	public function createClientsideFile($filePath);
+	public function getScope();
+	public function setScope(ScopeInterface $scope);
+	public function createScope(array $data = array());
+	public function build(array $data = array(), $isPrivate = false);
 }

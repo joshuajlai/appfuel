@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App\View;
+namespace Appfuel\View;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\App\View\BuildItemInterface;
+	Appfuel\Framework\View\BuildItemInterface;
 
 /**
  * Encapsulates the data needed to build one template into another
@@ -153,7 +153,6 @@ class BuildItem implements BuildItemInterface
 		$this->isSilentFail = false;
 		return $this;
 	}
-
 
 	/**
 	 * @param	mixed	$str

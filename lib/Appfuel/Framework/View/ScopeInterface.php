@@ -8,13 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\App\View;
+namespace Appfuel\Framework\View;
 
 use countable;
 
 /**
- * The route is used by the dispatcher in order to build an controller
- * to execute
+ * Bind the data to the template and allows access to anything inside scope
+ * to the template file through the keyword $this
  */
 interface ScopeInterface extends countable
 {

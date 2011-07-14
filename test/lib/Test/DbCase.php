@@ -58,11 +58,12 @@ class DbCase extends AfTestCase
 	{
 		parent::__construct($name, $data, $dataName);
 
-		$connString = Registry::get('db_unittest');
+		$connString = Registry::get('db_conns');
 		if (empty($connString)) {
 			throw new Exception("Db connection string empty can not proceed");
 		}
 		
+		$connString = current($connString);
 		$connFactory = new ConnFactory();
 		$this->setConnFactory($connFactory);
 
