@@ -6,13 +6,18 @@
  * @package     Appfuel
  * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace 	Appfuel\StdLib;
+namespace Appfuel\Db\Sql;
+
+use SplFileInfo,
+	Appfuel\Framework\Exception,
+	Appfuel\Framework\View\ScopeInterface,
+	Appfuel\View\Scope as ViewScope;
 
 /**
- * Appfuel Standard Library Exception
+ * 
  */
-class Exception extends \Appfuel\Exception
-{}
-
+class Scope extends ViewScope
+{
+}
