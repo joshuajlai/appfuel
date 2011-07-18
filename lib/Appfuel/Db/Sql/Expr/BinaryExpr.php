@@ -31,14 +31,22 @@ class BinaryExpr extends BasicExpr implements BinaryExprInterface
 	protected $operator = null;
 
 	/**
-     * @param   string   $operand
-     * @return  File
+	 * Because we are extending the BasicExpr our left operand is its only
+	 * only operand so we will reuse that and only write a setter for the
+	 * right
+	 *
+     * @param   string | object		$leftOp
+	 * @param	string				$operator
+	 * @parma	string | object		$rightOp
+	 * @param	bool				$isPar		flag or using parentheses
+     * @return  BinaryExpr
      */
-    public function __construct($leftOp, $operator, $rightOp)
+    public function __construct($leftOp, $operator, $rightOp, $isPar = false)
     {
 		$this->setOperator($operator);
-		$this->setLeftOperand($leftOp);
 		$this->setRightOperand($rightOp);
+
+		parent::__construct($leftOp, $isPar);
     }
 
 	/**
@@ -71,6 +79,16 @@ class BinaryExpr extends BasicExpr implements BinaryExprInterface
 	 * @return	string
 	 */
 	public function build()
+	{
+		$str = $this->doBuild();
+		if ($this->isParentheses()) {
+			$str = "($str)";
+		}
+
+		return $str;
+	}
+
+	protected function doBuild()
 	{
 		return $this->buildLeftOperand() . ' ' . 
 			   $this->getOperator()      . ' ' .
@@ -105,17 +123,6 @@ class BinaryExpr extends BasicExpr implements BinaryExprInterface
 		}
 
 		$this->operator = $op;
-	}
-
-	/**
-	 * Reuse the basic expressions operand as the left operand
-	 *
-	 * @param	string | object		$op
-	 * @return	null
-	 */
-	protected function setLeftOperand($op)
-	{
-		return parent::setOperand($op);
 	}
 
 	/**

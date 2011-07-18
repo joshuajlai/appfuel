@@ -117,15 +117,6 @@ class BinaryExprTest extends ParentTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return	null
 	 */
-	public function testOperatorInvalidArray()
-	{
-		$expr = new BinaryExpr('operand', array(1,2,3), 'operand');		
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
 	public function testOperatorInvalidObject()
 	{
 		$expr = new BinaryExpr('operand', new StdClass(), 'operand');		
@@ -208,24 +199,6 @@ class BinaryExprTest extends ParentTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return	null
 	 */
-	public function testLeftOperandInvalidArray()
-	{
-		$expr = new BinaryExpr(array(1,2,3), '=', 'operand');		
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testRightOperandInvalidArray()
-	{
-		$expr = new BinaryExpr('operand', '=', array(1,2,3));		
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
 	public function testLeftOperatorInvalidObject()
 	{
 		$expr = new BinaryExpr(new StdClass(), '=', 'operand');		
@@ -259,7 +232,6 @@ class BinaryExprTest extends ParentTestCase
 		$rightExpr = new BasicExpr('must be you');
 
 		$expr = new BinaryExpr($leftExpr, 'AND', $rightExpr);
-		
 		$expected = '! me AND must be you';
 		$this->assertEquals($expected, $expr->build());
 	}
@@ -286,5 +258,25 @@ class BinaryExprTest extends ParentTestCase
 
         echo $expr;
     }
+    /**
+     * @return null
+     */
+    public function testDefaultValueIsParentheses()
+    {
+        $this->assertFalse($this->expr->isParentheses());
+    }
 
+    /**
+     * @return null
+     */
+    public function testIsEnableDisableParentheses()
+    {
+        $expected = "(leftop = rightop)";
+        $this->expr->enableParentheses();
+        $this->assertEquals($expected, $this->expr->build());
+
+        $expected = "leftop = rightop";
+        $this->expr->disableParentheses();
+        $this->assertEquals($expected, $this->expr->build());
+    }
 }

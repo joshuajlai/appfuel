@@ -24,14 +24,63 @@ class BasicExpr implements ExprInterface
 	 */
 	protected $operand = null;
 
+	/**
+	 * Flag used to determine if the expr should be wrapped in parentheses
+	 * @var bool
+	 */
+	protected $isParentheses = false;
+
     /**
      * @param   string   $operand
      * @return  File
      */
-    public function __construct($operand)
+    public function __construct($operand, $isParentheses = false)
     {
 		$this->setOperand($operand);
+		if (true === $isParentheses) {
+			$this->enableParentheses();
+		}
     }
+
+	/**
+	 * @reutrn	BasicExpr
+	 */
+	public function setParenthesesStatus($flag)
+	{
+		if (true === $flag) {
+			$this->isParentheses = true;
+		}
+		else {
+			$this->isParentheses = false;
+
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @return	BasicExpr
+	 */
+	public function enableParentheses()
+	{
+		return $this->setParenthesesStatus(true);
+	}
+
+	/**
+	 * @return	BasicExpr
+	 */
+	public function disableParentheses()
+	{
+		return $this->setParenthesesStatus(false);
+	}
+
+	/**
+	 * @return	BasicExpr
+	 */
+	public function isParentheses()
+	{
+		return $this->isParentheses;
+	}
 
 	/**
 	 * @return	mixed string | object
@@ -47,6 +96,16 @@ class BasicExpr implements ExprInterface
 	 * @return	string
 	 */
 	public function build()
+	{
+        $str = $this->doBuild();
+        
+		if ($this->isParentheses()) {
+            $str = "($str)";
+        }
+        return $str;
+	}
+
+	protected function doBuild()
 	{
 		return $this->convertToString($this->getOperand());
 	}
@@ -66,6 +125,9 @@ class BasicExpr implements ExprInterface
 		}
 		else if (is_object($var)) {
 			$var = $var->__toString();
+		}
+		else if (is_array($var)) {
+			$var = implode(',', $var);
 		}
 
 		return $var;
@@ -93,11 +155,40 @@ class BasicExpr implements ExprInterface
 	 * @return	bool
 	 */
 	protected function isValid($op)
-	{
-		return ! empty($op) && (
-			is_scalar($op) || 
-			(is_object($op) && method_exists($op, '__toString'))
-		);
+	{		
+		if (empty($op)) {
+			return false;
+		}
+
+		if (is_scalar($op)) {
+			return true;
+		}
+
+		if (is_object($op) && method_exists($op, '__toString')) {
+			return true;
+		}
+
+		if (is_array($op)) {
+			foreach ($op as $item) {
+				if (empty($item)) {
+					echo "\n", print_r('insert here',1), "\n";exit;
+					return false;
+				}
+
+				if (is_scalar($item)) {
+					continue;
+				}
+
+				if (is_object($item) && method_exists($item, '__toString')) {
+					continue;
+				}
+
+				return false;
+			}
+			return true;
+		}
+
+		return false;
 	}
 }
 

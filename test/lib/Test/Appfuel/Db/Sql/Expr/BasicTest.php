@@ -50,6 +50,23 @@ class BasicExprTest extends ParentTestCase
 		$this->assertEquals($operand, $expr->getOperand());
 	}
 
+	public function testArrayExpr()
+	{
+		$operand = array(1,2,3,4);
+		$expr = new BasicExpr($operand);
+		$expected = '1,2,3,4';
+		$this->assertEquals($expected, $expr->build());
+
+		$expr = new BasicExpr($operand, true);
+		$expected = '(1,2,3,4)';
+		$this->assertEquals($expected, $expr->build());
+	
+		$operand = array(new BasicExpr(123),2,3,new BasicExpr('abc'));
+		$expr = new BasicExpr($operand);
+		$expected = '123,2,3,abc';
+		$this->assertEquals($expected, $expr->build());
+	}
+
 	/**
 	 * @return null
 	 */
@@ -178,5 +195,27 @@ class BasicExprTest extends ParentTestCase
         echo $expr;
     }
 
+	/**
+	 * @return null
+	 */
+	public function testIsEnableDisableParentheses()
+	{
+		$op = 'my value';
+		$expr = new BasicExpr($op);
+		$this->assertFalse($expr->isParentheses());
 
+		$this->assertSame($expr, $expr->enableParentheses());
+		$this->assertTrue($expr->isParentheses());
+
+		$expected = "($op)";
+		$this->assertEquals($expected, $expr->build());
+
+		$this->assertSame($expr, $expr->disableParentheses());
+		$this->assertFalse($expr->isParentheses());
+		$this->assertEquals($op, $expr->build());
+
+		$expr = new BasicExpr($op, true);
+		$this->assertTrue($expr->isParentheses());
+		$this->assertEquals($expected, $expr->build());
+	}
 }

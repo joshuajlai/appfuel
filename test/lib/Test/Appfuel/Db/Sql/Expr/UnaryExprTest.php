@@ -253,4 +253,26 @@ class UnaryExprTest extends ParentTestCase
 		
 		echo $this->expr;
 	}
+	
+	/**
+	 * @return null
+	 */
+	public function testDefaultValueIsParentheses()
+	{
+		$this->assertFalse($this->expr->isParentheses());
+	}
+
+    /**
+     * @return null
+     */
+    public function testIsEnableDisableParentheses()
+    {
+		$expected = "(IS NULL my_var)";
+		$this->expr->enableParentheses();
+		$this->assertEquals($expected, $this->expr->build());
+
+		$expected = "IS NULL my_var";
+		$this->expr->disableParentheses();
+		$this->assertEquals($expected, $this->expr->build());
+    }
 }

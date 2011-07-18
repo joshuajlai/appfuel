@@ -40,10 +40,10 @@ class UnaryExpr extends BasicExpr implements UnaryExprInterface
      * @param   string   $operand
      * @return  File
      */
-    public function __construct($operator, $operand)
+    public function __construct($operator, $operand, $isParentheses = false)
     {
 		$this->setOperator($operator);
-		$this->setOperand($operand);
+		parent::__construct($operand, $isParentheses);
     }
 
 	/**
@@ -97,28 +97,14 @@ class UnaryExpr extends BasicExpr implements UnaryExprInterface
 	}
 	
 	/**
-	 * return the string representing a unary expression based on
-	 * the fix type
-	 * 
-	 * @return	string
-	 */
-	public function build()
-	{
-		if ($this->isPrefix()) {
-			return $this->buildPrefix();
-		}
-
-		return $this->buildPostfix();
-	}
-
-	/**
 	 * Build a postfix expression
 	 *
 	 * @return string
 	 */
 	public function buildPostfix()
 	{
-		return parent::build() . ' ' . $this->getOperator();
+		$operand = $this->getOperand();
+		return  $this->convertToString($operand). ' ' . $this->getOperator();
 	}
 
 	/**
@@ -128,7 +114,8 @@ class UnaryExpr extends BasicExpr implements UnaryExprInterface
 	 */
 	public function buildPrefix()
 	{
-		return $this->getOperator() . ' ' . parent::build();
+		$operand = $this->getOperand();
+		return  $this->getOperator() . ' ' . $this->convertToString($operand);
 	}
 
 	/**
@@ -145,5 +132,18 @@ class UnaryExpr extends BasicExpr implements UnaryExprInterface
 		$this->operator = $op;
 	}
 
-}
+	/**
+	 * @return string
+	 */
+	protected function doBuild()
+	{
+		if ($this->isPrefix()) {
+			$str = $this->buildPrefix();
+		} 
+		else {
+			$str = $this->buildPostfix();
+		}
 
+		return $str;
+	}
+}
