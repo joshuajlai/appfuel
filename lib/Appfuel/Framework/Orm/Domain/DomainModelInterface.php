@@ -21,7 +21,7 @@ interface DomainModelInterface
 	 * @param	string	$member		name of the domain attr thats changed
 	 * @return	bool
 	 */
-	public function markDirty($member);
+	public function _markDirty($member);
 
 	/**
 	 * Used to remove a single member or all members from being marked dirty.
@@ -30,31 +30,31 @@ interface DomainModelInterface
 	 * @param	string	$member	 domain attr to mark clean. 
 	 * @return	bool
 	 */
-	public function markClean($member = null);
+	public function _markClean($member = null);
 
 	/**
 	 * Used to indicate that the domain state is new
 	 * @return	null
 	 */
-	public function markNew();
+	public function _markNew();
 
 	/**
 	 * Used to indicate that the domain is in a state of deletion
 	 * 
 	 * @return	null
 	 */
-	public function markDelete();
+	public function _markDelete();
 
 	/**
 	 * Determines that state of the damain
 	 * 
 	 * @return	DomainState
 	 */
-	public function getDomainState();
+	public function _getDomainState();
 	
 	/**
 	 * @param	DomainState $state
 	 * @return	DomainModel
 	 */
-	public function setDomainState(DomainStateInterface $state);
+	public function _setDomainState(DomainStateInterface $state);
 }

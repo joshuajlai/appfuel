@@ -42,7 +42,7 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return DomainState
 	 */
-	public function getDomainState()
+	public function _getDomainState()
 	{
 		return $this->state;
 	}
@@ -51,7 +51,7 @@ abstract class DomainModel implements DomainModelInterface
 	 * @param	DomainState $state
 	 * @return	DomainModel
 	 */
-	public function setDomainState(DomainStateInterface $state)
+	public function _setDomainState(DomainStateInterface $state)
 	{
 		$this->state = $state;
 		return $this;
@@ -60,7 +60,7 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return bool
 	 */
-	public function isStrictMarshalling()
+	public function _isStrictMarshalling()
 	{
 		return $this->isStrictMarshal;
 	}
@@ -68,7 +68,7 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return	DomainModel
 	 */
-	public function enableStrictMarshalling()
+	public function _enableStrictMarshalling()
 	{
 		$this->isStrictMarshal = true;
 		return $this;
@@ -77,7 +77,7 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return	DomainModel
 	 */
-	public function disableStrictMarshalling()
+	public function _disableStrictMarshalling()
 	{
 		$this->isStrictMarshal = false;
 		return $this;
@@ -90,19 +90,19 @@ abstract class DomainModel implements DomainModelInterface
 	 * @param	array	$data	member name names and values 
 	 * @return	DomainModel
 	 */
-	public function marshal(array $data = null)
+	public function _marshal(array $data = null)
 	{
-		if (! $this->isDomainState()) {
-			$this->loadNewDomainState();
+		if (! $this->_isDomainState()) {
+			$this->_loadNewDomainState();
 		}
-		$state = $this->getDomainState();
+		$state = $this->_getDomainState();
 		$state->markMarshal($data);
 
 		if (empty($data)) {
 			return $this;
 		}
 		
-		$isStrict = $this->isStrictMarshalling();
+		$isStrict = $this->_isStrictMarshalling();
 		$err = "Failed domain marshal: ";
 		foreach ($data as $member => $value) {
 
@@ -130,14 +130,14 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return	DomainModel
 	 */
-	public function markNew()
+	public function _markNew()
 	{
-		if (! $this->isDomainState()) {
-			$this->loadNewDomainState();
+		if (! $this->_isDomainState()) {
+			$this->_loadNewDomainState();
 		}
 
-		$state = $this->getDomainState();
-		$state->markNew();
+		$this->_getDomainState()
+	         ->markNew();
 		
 		return $this;
 	}
@@ -146,17 +146,17 @@ abstract class DomainModel implements DomainModelInterface
 	 * @param	string	$member
 	 * @return	DomainModel
 	 */
-	public function markDirty($member)
+	public function _markDirty($member)
 	{
 		if (! property_exists($this, $member)) {
 			throw new Exception("invalid markDirty ($member) does not exist");
 		}
 
-		if (! $this->isDomainState()) {
-			$this->loadNewDomainState();
+		if (! $this->_isDomainState()) {
+			$this->_loadNewDomainState();
 		}
 
-		$this->getDomainState()
+		$this->_getDomainState()
 			 ->markDirty($member);
 
 		return $this;
@@ -165,13 +165,13 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return	DomainModel
 	 */
-	public function markDelete()
+	public function _markDelete()
 	{
-		if (! $this->isDomainState()) {
-			$this->loadNewDomainState();
+		if (! $this->_isDomainState()) {
+			$this->_loadNewDomainState();
 		}
 
-		$this->getDomainState()
+		$this->_getDomainState()
 			 ->markDelete();
 		
 		return $this;
@@ -181,14 +181,14 @@ abstract class DomainModel implements DomainModelInterface
 	 * @param	string	$member 
 	 * @return	DomainModel
 	 */
-	public function markClean($member = null)
+	public function _markClean($member = null)
 	{
 		/* no need to clear when there is no state */
-		if (! $this->isDomainState()) {
+		if (! $this->_isDomainState()) {
 			return $this;
 		}
 
-		$this->getDomainState()
+		$this->_getDomainState()
 			 ->markClean($member);
 
 		return $this;
@@ -197,7 +197,7 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return bool
 	 */
-	private function isDomainState()
+	private function _isDomainState()
 	{
 		return $this->state instanceof DomainStateInterface;
 	}
@@ -205,8 +205,8 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return null
 	 */
-	private function loadNewDomainState()
+	private function _loadNewDomainState()
 	{
-		$this->setDomainState(new DomainState());
+		$this->_setDomainState(new DomainState());
 	}
 }

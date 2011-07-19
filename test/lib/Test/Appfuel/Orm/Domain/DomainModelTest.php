@@ -112,12 +112,15 @@ class DomainModelTest extends ParentTestCase
 	 */
 	public function testGetSet()
 	{
-		$this->assertNull($this->domain->getDomainState());
+		$this->assertNull($this->domain->_getDomainState());
 	
 		$stateInterface = 'Appfuel\Framework\Orm\Domain\DomainStateInterface';
 		$state = $this->getMock($stateInterface);
-		$this->assertSame($this->domain, $this->domain->setDomainState($state));
-		$this->assertSame($state, $this->domain->getDomainState());
+		$this->assertSame(
+			$this->domain, 
+			$this->domain->_setDomainState($state)
+		);
+		$this->assertSame($state, $this->domain->_getDomainState());
 	}
 
 	/**
@@ -126,19 +129,19 @@ class DomainModelTest extends ParentTestCase
 	public function testIsStrictMarshal()
 	{
 		/* default value is false */
-		$this->assertFalse($this->domain->isStrictMarshalling());
+		$this->assertFalse($this->domain->_isStrictMarshalling());
 		$this->assertSame(
 			$this->domain, 
-			$this->domain->enableStrictMarshalling()
+			$this->domain->_enableStrictMarshalling()
 		);
 
-		$this->assertTrue($this->domain->isStrictMarshalling());
+		$this->assertTrue($this->domain->_isStrictMarshalling());
 
 		$this->assertSame(
 			$this->domain, 
-			$this->domain->disableStrictMarshalling()
+			$this->domain->_disableStrictMarshalling()
 		);
-		$this->assertFalse($this->domain->isStrictMarshalling());
+		$this->assertFalse($this->domain->_isStrictMarshalling());
 	}
 
 	/**
@@ -150,10 +153,10 @@ class DomainModelTest extends ParentTestCase
 	 */
 	public function testMarkMarshalDefaultNoMembers()
 	{
-		$this->assertNull($this->domain->getDomainState());
-		$this->assertSame($this->domain, $this->domain->marshal());
+		$this->assertNull($this->domain->_getDomainState());
+		$this->assertSame($this->domain, $this->domain->_marshal());
 
-		$state = $this->domain->getDomainState();
+		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
 			$state
@@ -172,13 +175,13 @@ class DomainModelTest extends ParentTestCase
 			'memberB' => 12345,
 			'memberC' => array(1,2,3,4)
 		);
-		$this->assertNull($this->domain->getDomainState());
-		$this->assertFalse($this->domain->isStrictMarshalling());
+		$this->assertNull($this->domain->_getDomainState());
+		$this->assertFalse($this->domain->_isStrictMarshalling());
 		$this->assertSame(
 			$this->domain,
-			$this->domain->marshal($data)
+			$this->domain->_marshal($data)
 		);
-		$state = $this->domain->getDomainState();
+		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
 			$state
@@ -196,13 +199,13 @@ class DomainModelTest extends ParentTestCase
 			'memberA' => 'value_a',
 			'memberC' => array(1,2,3,4)
 		);
-		$this->assertNull($this->domain->getDomainState());
-		$this->assertFalse($this->domain->isStrictMarshalling());
+		$this->assertNull($this->domain->_getDomainState());
+		$this->assertFalse($this->domain->_isStrictMarshalling());
 		$this->assertSame(
 			$this->domain,
-			$this->domain->marshal($data)
+			$this->domain->_marshal($data)
 		);
-		$state = $this->domain->getDomainState();
+		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
 			$state
@@ -222,13 +225,13 @@ class DomainModelTest extends ParentTestCase
 			'memberC' => array(1,2,3,4),
 			'memberD' => 'asdasd'
 		);
-		$this->assertNull($this->domain->getDomainState());
-		$this->assertFalse($this->domain->isStrictMarshalling());
+		$this->assertNull($this->domain->_getDomainState());
+		$this->assertFalse($this->domain->_isStrictMarshalling());
 		$this->assertSame(
 			$this->domain,
-			$this->domain->marshal($data)
+			$this->domain->_marshal($data)
 		);
-		$state = $this->domain->getDomainState();
+		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
 			$state
@@ -248,15 +251,15 @@ class DomainModelTest extends ParentTestCase
 			'memberC' => array(1,2,3,4),
 			'memberD' => new StdClass()
 		);
-		$this->domain->enableStrictMarshalling();
+		$this->domain->_enableStrictMarshalling();
 
-		$this->assertNull($this->domain->getDomainState());
-		$this->assertTrue($this->domain->isStrictMarshalling());
+		$this->assertNull($this->domain->_getDomainState());
+		$this->assertTrue($this->domain->_isStrictMarshalling());
 		$this->assertSame(
 			$this->domain,
-			$this->domain->marshal($data)
+			$this->domain->_marshal($data)
 		);
-		$state = $this->domain->getDomainState();
+		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
 			$state
@@ -277,12 +280,12 @@ class DomainModelTest extends ParentTestCase
 			'memberC' => array(1,2,3,4),
 			'memberD' => new StdClass()
 		);
-		$this->domain->enableStrictMarshalling();
+		$this->domain->_enableStrictMarshalling();
 
-		$this->assertNull($this->domain->getDomainState());
-		$this->assertTrue($this->domain->isStrictMarshalling());
+		$this->assertNull($this->domain->_getDomainState());
+		$this->assertTrue($this->domain->_isStrictMarshalling());
 			
-		$this->domain->marshal($data);
+		$this->domain->_marshal($data);
 	}
 
 
@@ -294,7 +297,7 @@ class DomainModelTest extends ParentTestCase
 	public function testMarkMarshalStateAlreadyExists()
 	{
 		$state = new DomainState();
-		$this->domain->setDomainState($state);
+		$this->domain->_setDomainState($state);
 
 		$data = array(
 			'memberA' => 'value_a',
@@ -302,14 +305,14 @@ class DomainModelTest extends ParentTestCase
 			'memberC' => array(1,2,3,4),
 			'memberD' => new StdClass()
 		);
-		$this->domain->enableStrictMarshalling();
+		$this->domain->_enableStrictMarshalling();
 
-		$this->assertTrue($this->domain->isStrictMarshalling());
+		$this->assertTrue($this->domain->_isStrictMarshalling());
 		$this->assertSame(
 			$this->domain,
-			$this->domain->marshal($data)
+			$this->domain->_marshal($data)
 		);
-		$returnedState = $this->domain->getDomainState();
+		$returnedState = $this->domain->_getDomainState();
 		$this->assertSame($state, $returnedState);
 		$this->assertTrue($state->isMarshal());
 		$this->assertEquals($data, $state->getInitialMembers());
@@ -324,14 +327,14 @@ class DomainModelTest extends ParentTestCase
 	public function testMarkDirtyValidMembers()
 	{
 		/* prove no state */
-		$this->assertNull($this->domain->getDomainState());
+		$this->assertNull($this->domain->_getDomainState());
 		$state = new DomainState();
 
 		/* inject the domain state */
-		$this->domain->setDomainState($state);
+		$this->domain->_setDomainState($state);
 		$this->assertSame(
 			$this->domain,
-			$this->domain->markDirty('memberA')
+			$this->domain->_markDirty('memberA')
 		);
 
 		$this->assertTrue($state->isDirty());
@@ -343,7 +346,7 @@ class DomainModelTest extends ParentTestCase
 
 		$this->assertSame(
 			$this->domain,
-			$this->domain->markDirty('memberB')
+			$this->domain->_markDirty('memberB')
 		);
 
 		$this->assertTrue($state->isDirty());
@@ -356,7 +359,7 @@ class DomainModelTest extends ParentTestCase
 
 		$this->assertSame(
 			$this->domain,
-			$this->domain->markDirty('memberC')
+			$this->domain->_markDirty('memberC')
 		);
 
 		$this->assertTrue($state->isDirty());
@@ -370,7 +373,7 @@ class DomainModelTest extends ParentTestCase
 
 		$this->assertSame(
 			$this->domain,
-			$this->domain->markDirty('memberD')
+			$this->domain->_markDirty('memberD')
 		);
 
 		$this->assertTrue($state->isDirty());
@@ -384,10 +387,10 @@ class DomainModelTest extends ParentTestCase
 		);
 
 		/* test for duplicates */
-		$this->domain->markDirty('memberA');
-		$this->domain->markDirty('memberB');
-		$this->domain->markDirty('memberC');
-		$this->domain->markDirty('memberD');
+		$this->domain->_markDirty('memberA');
+		$this->domain->_markDirty('memberB');
+		$this->domain->_markDirty('memberC');
+		$this->domain->_markDirty('memberD');
 		$this->assertEquals(
 			array('memberA', 'memberB', 'memberC', 'memberD'), 
 			$state->getDirtyMembers()
@@ -399,12 +402,12 @@ class DomainModelTest extends ParentTestCase
 	 */
 	public function testMarkDirtyNoStateInjected()
 	{
-		$this->assertNull($this->domain->getDomainState());
+		$this->assertNull($this->domain->_getDomainState());
 		$this->assertSame(
 			$this->domain,	
-			$this->domain->markDirty('memberB')
+			$this->domain->_markDirty('memberB')
 		);
-		$state = $this->domain->getDomainState();
+		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
 			$state
@@ -423,7 +426,7 @@ class DomainModelTest extends ParentTestCase
 	 */
 	public function testMarkDirtyMemberDoesNotExist()
 	{
-		$this->domain->markDirty('this-member-does-not-exist');
+		$this->domain->_markDirty('this-member-does-not-exist');
 	}
 
 	/**
@@ -433,11 +436,11 @@ class DomainModelTest extends ParentTestCase
 	{
 		$state = new DomainState();
 		$state->setState('marshal');
-		$this->domain->setDomainState($state);
+		$this->domain->_setDomainState($state);
 
 		$this->assertSame(
 			$this->domain,
-			$this->domain->markNew()
+			$this->domain->_markNew()
 		);
 		$this->assertTrue($state->isNew());
 	}
@@ -449,10 +452,10 @@ class DomainModelTest extends ParentTestCase
 	{
 		$this->assertSame(
 			$this->domain,
-			$this->domain->markNew()
+			$this->domain->_markNew()
 		);
 
-		$state = $this->domain->getDomainState();
+		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
 			$state
@@ -466,11 +469,11 @@ class DomainModelTest extends ParentTestCase
 	public function testMarkDeleteStateInjected()
 	{
 		$state = new DomainState();
-		$this->domain->setDomainState($state);
+		$this->domain->_setDomainState($state);
 
 		$this->assertSame(
 			$this->domain,
-			$this->domain->markDelete()
+			$this->domain->_markDelete()
 		);
 		$this->assertTrue($state->isDelete());
 	}
@@ -482,10 +485,10 @@ class DomainModelTest extends ParentTestCase
 	{
 		$this->assertSame(
 			$this->domain,
-			$this->domain->markDelete()
+			$this->domain->_markDelete()
 		);
 
-		$state = $this->domain->getDomainState();
+		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
 			$state
