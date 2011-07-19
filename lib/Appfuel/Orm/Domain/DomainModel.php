@@ -11,6 +11,7 @@
 namespace Appfuel\Orm\Domain;
 
 use BadMethodCallException,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\Orm\Domain\DomainStateInterface,
 	Appfuel\Framework\Orm\Domain\DomainModelInterface;
 

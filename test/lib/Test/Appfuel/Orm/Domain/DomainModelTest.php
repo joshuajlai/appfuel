@@ -315,4 +315,181 @@ class DomainModelTest extends ParentTestCase
 		$this->assertEquals($data, $state->getInitialMembers());
 	}
 
+	/**
+	 * Test that we can mark all the members of the mock domain dirty and that
+	 * duplicates are ignored
+	 *
+	 * @return null
+	 */
+	public function testMarkDirtyValidMembers()
+	{
+		/* prove no state */
+		$this->assertNull($this->domain->getDomainState());
+		$state = new DomainState();
+
+		/* inject the domain state */
+		$this->domain->setDomainState($state);
+		$this->assertSame(
+			$this->domain,
+			$this->domain->markDirty('memberA')
+		);
+
+		$this->assertTrue($state->isDirty());
+		$this->assertFalse($state->isNew());
+		$this->assertFalse($state->isDelete());
+		$this->assertFalse($state->isMarshal());
+		$this->assertTrue($state->isDirtyMember('memberA'));
+		$this->assertEquals(array('memberA'), $state->getDirtyMembers());
+
+		$this->assertSame(
+			$this->domain,
+			$this->domain->markDirty('memberB')
+		);
+
+		$this->assertTrue($state->isDirty());
+		$this->assertTrue($state->isDirtyMember('memberA'));
+		$this->assertTrue($state->isDirtyMember('memberB'));
+		$this->assertEquals(
+			array('memberA', 'memberB'), 
+			$state->getDirtyMembers()
+		);
+
+		$this->assertSame(
+			$this->domain,
+			$this->domain->markDirty('memberC')
+		);
+
+		$this->assertTrue($state->isDirty());
+		$this->assertTrue($state->isDirtyMember('memberA'));
+		$this->assertTrue($state->isDirtyMember('memberB'));
+		$this->assertTrue($state->isDirtyMember('memberC'));
+		$this->assertEquals(
+			array('memberA', 'memberB', 'memberC'), 
+			$state->getDirtyMembers()
+		);
+
+		$this->assertSame(
+			$this->domain,
+			$this->domain->markDirty('memberD')
+		);
+
+		$this->assertTrue($state->isDirty());
+		$this->assertTrue($state->isDirtyMember('memberA'));
+		$this->assertTrue($state->isDirtyMember('memberB'));
+		$this->assertTrue($state->isDirtyMember('memberC'));
+		$this->assertTrue($state->isDirtyMember('memberD'));
+		$this->assertEquals(
+			array('memberA', 'memberB', 'memberC', 'memberD'), 
+			$state->getDirtyMembers()
+		);
+
+		/* test for duplicates */
+		$this->domain->markDirty('memberA');
+		$this->domain->markDirty('memberB');
+		$this->domain->markDirty('memberC');
+		$this->domain->markDirty('memberD');
+		$this->assertEquals(
+			array('memberA', 'memberB', 'memberC', 'memberD'), 
+			$state->getDirtyMembers()
+		);	
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testMarkDirtyNoStateInjected()
+	{
+		$this->assertNull($this->domain->getDomainState());
+		$this->assertSame(
+			$this->domain,	
+			$this->domain->markDirty('memberB')
+		);
+		$state = $this->domain->getDomainState();
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			$state
+		);
+		$this->assertTrue($state->isDirty());
+		$this->assertFalse($state->isNew());
+		$this->assertFalse($state->isDelete());
+		$this->assertFalse($state->isMarshal());
+		$this->assertTrue($state->isDirtyMember('memberB'));
+		$this->assertEquals(array('memberB'), $state->getDirtyMembers());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testMarkDirtyMemberDoesNotExist()
+	{
+		$this->domain->markDirty('this-member-does-not-exist');
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testMarkNewStateInjected()
+	{
+		$state = new DomainState();
+		$state->setState('marshal');
+		$this->domain->setDomainState($state);
+
+		$this->assertSame(
+			$this->domain,
+			$this->domain->markNew()
+		);
+		$this->assertTrue($state->isNew());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testMarkNew()
+	{
+		$this->assertSame(
+			$this->domain,
+			$this->domain->markNew()
+		);
+
+		$state = $this->domain->getDomainState();
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			$state
+		);
+		$this->assertTrue($state->isNew());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testMarkDeleteStateInjected()
+	{
+		$state = new DomainState();
+		$this->domain->setDomainState($state);
+
+		$this->assertSame(
+			$this->domain,
+			$this->domain->markDelete()
+		);
+		$this->assertTrue($state->isDelete());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testMarkDelete()
+	{
+		$this->assertSame(
+			$this->domain,
+			$this->domain->markDelete()
+		);
+
+		$state = $this->domain->getDomainState();
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			$state
+		);
+		$this->assertTrue($state->isDelete());
+	}
 }
