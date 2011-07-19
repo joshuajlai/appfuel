@@ -13,8 +13,8 @@
 		<directory suffix="Test.php">./lib/Test/Appfuel/Db</directory>
 	</testsuite>
 
-
-
-
+	<testsuite name="Orm Tests">
+		<directory suffix="Test.php">./lib/Test/Appfuel/Orm</directory>
+	</testsuite>
 </testsuites>
 </phpunit>

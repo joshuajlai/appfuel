@@ -130,6 +130,6 @@ class Initializer
 	static public function initDb(array $dbStrings)
 	{
 		$init = new DbInitializer();
-		$init->initialize($dbStrings);
+		$result = $init->initialize($dbStrings);
 	}
 }
