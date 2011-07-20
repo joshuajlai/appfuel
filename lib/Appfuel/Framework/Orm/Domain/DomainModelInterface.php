@@ -15,6 +15,35 @@ namespace Appfuel\Framework\Orm\Domain;
  */
 interface DomainModelInterface
 {
+
+    /**
+     * Marshalling is acting of building a domain from the datasource. Every
+     * domain has the ability internally marshal already mapped data into its
+     * member variables. This strict flag determines if the domain will throw
+     * an exception or not when the member does not exist
+     * @return bool
+     */
+    public function _isStrictMarshalling();
+
+    /**
+     * @return  DomainModel
+     */
+    public function _enableStrictMarshalling();
+
+    /**
+     * @return  DomainModel
+     */
+    public function _disableStrictMarshalling();
+	
+    /**
+     * Marshal the datasource values into the domain members and updata the 
+     * state object
+     *
+     * @param   array   $data   member name names and values 
+     * @return  DomainModel
+     */
+    public function _marshal(array $data = null);
+
 	/**
 	 * Used to indicate that a member attribute has changed 
 	 * 

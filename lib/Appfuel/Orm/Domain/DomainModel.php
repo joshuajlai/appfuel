@@ -34,7 +34,7 @@ abstract class DomainModel implements DomainModelInterface
 	 * Marshalling is acting of building a domain from the datasource. Every
 	 * domain has the ability internally marshal already mapped data into its
 	 * member variables. This strict flag determines if the domain will throw
-	 * an exception or not
+	 * an exception or not when the member does not exist
 	 * @var bool
 	 */
 	private $isStrictMarshal = false;
