@@ -79,6 +79,129 @@ class DbIdentityTest extends ParentTestCase
 	}
 
 	/**
+	 * @return null
+	 */
+	public function testMapToMemberIsColumnGetAllColumns()
+	{
+		$this->assertEquals(array(), $this->identity->getAllColumns());
+		
+		$map = array(
+			'user_id'		=> 'id',
+			'first_name'	=> 'firstName',
+			'last_name'		=> 'lastName',
+			'system_email'	=> 'email'
+		);
+		$this->identity->setMap($map);
+		$this->assertEquals(
+			array_values($map), 
+			$this->identity->getAllColumns()
+		);
+
+		$this->assertTrue($this->identity->isColumn('user_id'));
+		$this->assertEquals('id', $this->identity->mapToMember('user_id'));
+		
+		$this->assertTrue($this->identity->isColumn('first_name'));
+		$this->assertEquals(
+			'firstName', 
+			$this->identity->mapToMember('first_name')
+		);
+		
+		$this->assertTrue($this->identity->isColumn('last_name'));
+		$this->assertEquals(
+			'lastName', 
+			$this->identity->mapToMember('last_name')
+		);
+		
+		$this->assertTrue($this->identity->isColumn('system_email'));
+		$this->assertEquals(
+			'email', 
+			$this->identity->mapToMember('system_email')
+		);
+		
+		/* try columns we know don't exist */
+		$this->assertFalse($this->identity->isColumn('no_column'));
+		$this->assertFalse($this->identity->mapToMember('no_column'));
+		
+		/* invalid strings  */
+		$this->assertFalse($this->identity->isColumn(''));
+		$this->assertFalse($this->identity->mapToMember(''));
+		
+		$this->assertFalse($this->identity->isColumn(true));
+		$this->assertFalse($this->identity->mapToMember(true));
+
+		$this->assertFalse($this->identity->isColumn(12345));
+		$this->assertFalse($this->identity->mapToMember(12345));
+
+		$this->assertFalse($this->identity->isColumn(array(12345)));
+		$this->assertFalse($this->identity->mapToMember(array(12345)));
+
+		$this->assertFalse($this->identity->isColumn(new StdClass()));
+		$this->assertFalse($this->identity->mapToMember(new StdClass()));	
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testMapToColumnIsMemberGetAllMembers()
+	{
+		$this->assertEquals(array(), $this->identity->getAllMembers());
+		
+		$map = array(
+			'user_id'		=> 'id',
+			'first_name'	=> 'firstName',
+			'last_name'		=> 'lastName',
+			'system_email'	=> 'email'
+		);
+		$this->identity->setMap($map);
+		$this->assertEquals(
+			array_keys($map), 
+			$this->identity->getAllMembers()
+		);
+
+		$this->assertTrue($this->identity->isMember('id'));
+		$this->assertEquals('user_id', $this->identity->mapToColumn('id'));
+		
+		$this->assertTrue($this->identity->isMember('firstName'));
+		$this->assertEquals(
+			'first_name', 
+			$this->identity->mapToColumn('firstName')
+		);
+		
+		$this->assertTrue($this->identity->isMember('lastName'));
+		$this->assertEquals(
+			'last_name', 
+			$this->identity->mapToColumn('lastName')
+		);
+		
+		$this->assertTrue($this->identity->isMember('email'));
+		$this->assertEquals(
+			'system_email', 
+			$this->identity->mapToColumn('email')
+		);
+
+		/* try columns we know don't exist */
+		$this->assertFalse($this->identity->isMember('noMember'));
+		$this->assertFalse($this->identity->mapToColumn('noMember'));
+		
+		/* invalid strings  */
+		$this->assertFalse($this->identity->isMember(''));
+		$this->assertFalse($this->identity->mapToColumn(''));
+		
+		$this->assertFalse($this->identity->isMember(true));
+		$this->assertFalse($this->identity->mapToColumn(true));
+
+		$this->assertFalse($this->identity->isMember(12345));
+		$this->assertFalse($this->identity->mapToColumn(12345));
+
+		$this->assertFalse($this->identity->isMember(array(12345)));
+		$this->assertFalse($this->identity->mapToColumn(array(12345)));
+
+		$this->assertFalse($this->identity->isMember(new StdClass()));
+		$this->assertFalse($this->identity->mapToColumn(new StdClass()));	
+	}
+
+
+	/**
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
@@ -297,6 +420,30 @@ class DbIdentityTest extends ParentTestCase
 		$this->assertEquals($key, $this->identity->getPrimaryKey());
 	}
 
+	/**
+	 * Primary members map the key columns into domain members
+	 *
+	 * @return null
+	 */
+	public function xtestGetPrimaryMembers()
+	{
+		$map = array(
+			'user_id'		=> 'id',
+			'customer_id'   => 'customerId',
+			'system_name'	=> 'userName',
+			'first_name'	=> 'firstName',
+			'last_name'		=> 'lastName'
+		);
+		$this->identity->setMap($map);
+
+		$keys = array('user_id', 'customer_id');
+		$this->identity->setPrimaryKey($keys);
+
+		$members = array('id', 'customerId');
+		echo "\n", print_r($this->identity->getPrimaryMembers(),1), "\n";exit;
+		$this->assertEquals($members, $this->identity->getPrimaryMembers());
+	}
+
 
 	/**
 	 * All columns in the key must be mapped prior to setting the key
@@ -325,10 +472,10 @@ class DbIdentityTest extends ParentTestCase
 	}
 
 	/**
-	 * The dependecy list maps what domains a domain has access to and what their 
-	 * relationship is to that dependant domain. The setter all labels in the 
-	 * associative array are non empty strings and that the 'type' and 'relation'
-	 * keys also exist for each dependency
+	 * The dependecy list maps what domains a domain has access to and what 
+	 * their relationship is to that dependant domain. The setter all labels 
+	 * in the associative array are non empty strings and that the 'type' and 
+	 * 'relation' keys also exist for each dependency
 	 *
 	 * @return null
 	 */
@@ -753,16 +900,4 @@ class DbIdentityTest extends ParentTestCase
 
 		$this->identity->setDependencies($map);
 	}
-
-
-
-
-
-
-
-
-
-
-
-
 }

@@ -16,14 +16,108 @@ namespace Appfuel\Framework\Orm\Domain;
  */
 interface DbDomainIdentityInterface
 {
+    /**
+     * @return  array
+     */
 	public function getMap();
+	
+    /**
+	 * The map is a domainMember=>column_name map
+	 *
+     * @param   array   $map
+     * @return  DbIdentityInterface
+     */
 	public function setMap(array $map);
+	
+	/**
+     * returns a list of all columns for this domain 
+     * 
+     * @return array
+     */
+	public function getAllColumns();
+	
+    /**
+     * return the column for this domain member given or false if no column
+     * is mapped
+     *
+     * @param   string  $columnName
+     * @return  string  | false on failure
+     */
+	public function mapToColumn($memberName);
+	
+	/**
+	 * @param	string	$columnName
+	 * @return	bool
+	 */
+	public function isColumn($columnName);
+
+    /**
+     * reuturn the member name mapped for this column
+     *
+     * @param   string  $columnName
+     * @return  string | false on failure
+     */
+    public function mapToMember($columnName);
+
+    /**
+     * @param   string  $memberName
+     * @return  bool
+     */
+    public function isMember($memberName);
+
+    /**
+     * returns a list of all domain members for this domin
+     * 
+     * @return  array
+     */
+    public function getAllMembers();
+    
+	/**
+     * @return string
+     */
 	public function getTable();
+	
+    /**
+	 * @param	string	$name
+     * @return	DbIntentityInterface
+     */
 	public function setTable($name);
+
+	/**
+	 * @return array
+	 */
 	public function getPrimaryKey();
+	
+	/**
+	 * Holds a list of column names that represent the primary keys of 
+	 * the table this domain belongs to
+	 *
+	 * @param	array	$key
+	 * @return	DbIntentityInterface
+	 */
 	public function setPrimaryKey(array $key);
+
+	/**
+	 * @param	string	
+	 */
 	public function getLabel();
+	
+	/**
+	 * The label is used to determine how the domain is referenced in code.
+	 * When used with factories for repos you use this label
+	 *
+	 * @param	string	$label
+	 * @return	DbIntentityInterface
+	 */
 	public function setLabel($label);
+	
+	/**
+	 * @return array
+	 */
 	public function getDependencies();
+	
+    /**
+     * @return  DbIdentity
+     */
 	public function setDependencies(array $list);
 }

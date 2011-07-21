@@ -79,6 +79,94 @@ class DbIdentity implements DbDomainIdentityInterface
 	}
 
 	/**
+	 * returns a list of all columns for this domain 
+	 * 
+	 * @return array
+	 */
+	public function getAllColumns()
+	{
+		return array_values($this->map);
+	}
+
+	/**
+	 * return the domain member for this column given or false if no column
+	 * is mapped
+	 *
+	 * @param	string	$columnName
+	 * @return	string	| false on failure
+	 */
+	public function mapToColumn($member)
+	{
+		if (empty($member) || ! is_string($member)) {
+			return false;
+		}
+
+		return array_search($member, $this->map, true);
+	}
+
+	/**
+	 * Flag used to determine if a column exists
+	 * 
+	 * @return bool
+	 */
+	public function isColumn($columnName)
+	{
+		$result = false;
+		if (empty($columnName) || ! is_string($columnName)) {
+			return $result;
+		}
+
+		return array_key_exists($columnName, $this->map);
+	}
+
+	/**
+	 * reuturn the member name mapped for this column
+	 *
+	 * @param	string	$columnName
+	 * @return	string | false on failure
+	 */
+	public function mapToMember($columnName)
+	{
+		if (empty($columnName) || ! is_string($columnName)) {
+			return false;
+		}
+
+		if (! array_key_exists($columnName, $this->map)) {
+			return false;
+		}
+
+		return $this->map[$columnName];
+	}
+
+	/**
+	 * @param	string	$memberName
+	 * @return	bool
+	 */
+	public function isMember($memberName)
+	{
+		if (empty($memberName) || ! is_string($memberName)) {
+			return false;
+		}
+
+		$result = array_search($memberName, $this->map, true);
+		if (! $result) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * returns a list of all domain members for this domin
+	 * 
+	 * @return	array
+	 */
+	public function getAllMembers()
+	{
+		return array_keys($this->map);
+	}
+
+	/**
 	 * @return string
 	 */
 	public function getTable()
@@ -96,6 +184,28 @@ class DbIdentity implements DbDomainIdentityInterface
 		}
 		$this->table = $name;
 		return $this;
+	}
+
+	/**
+	 * @return	array of member that map to primary key columns
+	 */
+	public function getPrimaryMembers()
+	{
+		$columns = $this->getPrimaryKey();
+		$members = array();
+		
+		$err = 'key corruption detected for ';
+		foreach ($columns as $column) {
+			$member = $this->mapToMember($column);
+			echo "\n", print_r($this,1), "\n";exit;
+			if (! $member) {
+				throw new Exception("$err $column member not mapped");
+			}
+
+			$members[] = $member;
+		}
+
+		return $members;
 	}
 
 	/**
