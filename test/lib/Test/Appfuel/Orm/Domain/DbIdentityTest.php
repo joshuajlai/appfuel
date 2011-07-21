@@ -324,6 +324,445 @@ class DbIdentityTest extends ParentTestCase
 		$this->identity->setPrimaryKey(array(''));
 	}
 
+	/**
+	 * The dependecy list maps what domains a domain has access to and what their 
+	 * relationship is to that dependant domain. The setter all labels in the 
+	 * associative array are non empty strings and that the 'type' and 'relation'
+	 * keys also exist for each dependency
+	 *
+	 * @return null
+	 */
+	public function testGetSetDependencies()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root',
+				'relation'	=> 'many-many'
+			)
+		);
+
+		/* default value is an empty array */
+		$this->assertEquals(array(), $this->identity->getDependencies());
+
+		$this->assertSame(
+			$this->identity,
+			$this->identity->setDependencies($map),
+			'must expose a fluent interface'
+		);
+
+		$this->assertEquals($map, $this->identity->getDependencies());
+	}
+
+	/**
+	 * Empty arrays are allowed since they indicate that the domain has no
+	 * dependencies. 
+	 * 
+	 * @return null
+	 */
+	public function testGetSetDependenciesEmptyArray()
+	{
+		/* default value is an empty array */
+		$this->assertEquals(array(), $this->identity->getDependencies());
+		$this->assertSame(
+			$this->identity,
+			$this->identity->setDependencies(array()),
+			'must expose a fluent interface'
+		);
+		$this->assertEquals(array(), $this->identity->getDependencies());
+	}
+	
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesAssocKeyIsEmpty()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'' => array(
+				'type'		=> 'root',
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesAssocKeyIsInt()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			99 => array(
+				'type'		=> 'root',
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesTypeIsMissing()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesRelationIsMissing()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesTypeIsNotAString()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 99,
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesTypeNull()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> null,
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesTypeEmpty()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> '',
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesTypeArray()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> array(1,2,3),
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesTypeObject()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> new StdClass(),
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesTypeIsNotRootOrChild()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'value-not-in-list',
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesTypeNotLowerCase()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'CHILD',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root',
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesTypeProperCase()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'Child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root',
+				'relation'	=> 'many-many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesRelationUpperCase()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root',
+				'relation'	=> 'MANY-MANY'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesRelationProperCase()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root',
+				'relation'	=> 'Many-Many'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesRelationNull()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root',
+				'relation'	=> null
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesRelationEmpty()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root',
+				'relation'	=> ''
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesRelationArray()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root',
+				'relation'	=> array('many-many')
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesRelationObj()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root',
+				'relation'	=> new StdClass()
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDependenciesRelationInt()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many'
+			),
+			'roles' => array(
+				'type'		=> 'root',
+				'relation'	=> 99
+			)
+		);
+
+		$this->identity->setDependencies($map);
+	}
+
+
+
+
+
+
+
+
+
+
 
 
 }

@@ -47,7 +47,7 @@ class DbIdentity implements DbDomainIdentityInterface
 	 * List of domain labels this domain has access to and there relationships
 	 * @var array
 	 */
-	protected $domainDependencies = array();
+	protected $dependencies = array();
 
 	/**
 	 * @return	array
@@ -127,24 +127,6 @@ class DbIdentity implements DbDomainIdentityInterface
 		return $this;
 	}
 
-
-	/**	
-	 * @return array
-	 */
-	public function getDependencies()
-	{
-		return $this->dependencies;
-	}
-
-	/**
-	 * @return	return DbIdentity
-	 */
-	public function setDependencies(array $list)
-	{
-		$this->dependencies = $list;
-		return $this;
-	}
-
 	/**
 	 * @return string
 	 */
@@ -165,6 +147,51 @@ class DbIdentity implements DbDomainIdentityInterface
 		return $this;
 	}
 
+	/**
+	 * @return string
+	 */
+	public function getDependencies()
+	{
+		return $this->dependencies;
+	}
+
+	/**
+	 * @return	DbIdentity
+	 */
+	public function setDependencies(array $list)
+	{
+		$err = "invalid dependency list ";
+		$validTypes = array('root', 'child');
+		$validRelations = array('one-one', 'one-many', 'many-many');
+		foreach ($list as $label => $depends) {
+
+			if (! is_string($label) || empty($label)) {
+				throw new Exception("$err label must be a non empty string");
+			}
+
+			if (! array_key_exists('type',	$depends)) {
+				throw new Exception("$err type is missing from $label");
+			}
+
+			if (! in_array($depends['type'], $validTypes)) {
+				$err .= "incorrect type, must be (root|child) ";
+				throw new Exception("$err error occurred on $label");
+			}
+					   
+			if (! array_key_exists('relation',	$depends)) {
+				throw new Exception("$err relation is missing from $label");
+			}
+
+			if (! in_array($depends['relation'], $validRelations)) {
+				$err .= "incorrect relation, must be ";
+				$err .= " (one-one|one-many|many-may) ";
+				throw new Exception("$err error occurred on $label");
+			}
+		}
+					   
+		$this->dependencies = $list;
+		return $this;
+	}
 
 	/**
 	 * @param	mixed	$str

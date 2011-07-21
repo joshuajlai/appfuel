@@ -16,5 +16,14 @@ namespace Appfuel\Framework\Orm\Domain;
  */
 interface DbDomainIdentityInterface
 {
-
+	public function getMap();
+	public function setMap(array $map);
+	public function getTable();
+	public function setTable($name);
+	public function getPrimaryKey();
+	public function setPrimaryKey(array $key);
+	public function getLabel();
+	public function setLabel($label);
+	public function getDependencies();
+	public function setDependencies(array $list);
 }
