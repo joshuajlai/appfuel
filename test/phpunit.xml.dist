@@ -9,6 +9,11 @@
 	<directory suffix="Test.php">./lib/Test/Appfuel/View</directory>
 	</testsuite>
 
+	<testsuite name="Generic Expressions">
+		<directory suffix="Test.php">./lib/Test/Appfuel/Expr</directory>
+	</testsuite>
+
+
 	<testsuite name="Database Tests">
 		<directory suffix="Test.php">./lib/Test/Appfuel/Db</directory>
 	</testsuite>

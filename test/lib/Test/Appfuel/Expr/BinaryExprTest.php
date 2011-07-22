@@ -8,14 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Adapter;
+namespace Test\Appfuel\Expr;
 
 use StdClass,
 	SplFileInfo,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Db\Sql\Expr\BasicExpr,
-	Appfuel\Db\Sql\Expr\UnaryExpr,
-	Appfuel\Db\Sql\Expr\BinaryExpr;
+	Appfuel\Expr\BasicExpr,
+	Appfuel\Expr\UnaryExpr,
+	Appfuel\Expr\BinaryExpr;
 
 /**
  * Test capabilities of the binary expression class
@@ -73,15 +73,15 @@ class BinaryExprTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testUnaryHasCorrectInterface()
+	public function testHasCorrectInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Sql\Expr\ExprInterface',
+			'Appfuel\Framework\Expr\ExprInterface',
 			$this->expr
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Sql\Expr\BinaryExprInterface',
+			'Appfuel\Framework\Expr\BinaryExprInterface',
 			$this->expr
 		);
 	}

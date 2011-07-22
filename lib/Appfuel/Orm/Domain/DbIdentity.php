@@ -197,7 +197,6 @@ class DbIdentity implements DbDomainIdentityInterface
 		$err = 'key corruption detected for ';
 		foreach ($columns as $column) {
 			$member = $this->mapToMember($column);
-			echo "\n", print_r($this,1), "\n";exit;
 			if (! $member) {
 				throw new Exception("$err $column member not mapped");
 			}

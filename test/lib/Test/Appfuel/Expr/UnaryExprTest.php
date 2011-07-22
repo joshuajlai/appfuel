@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Adapter;
+namespace Test\Appfuel\Expr;
 
 use StdClass,
 	SplFileInfo,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Db\Sql\Expr\UnaryExpr;
+	Appfuel\Expr\UnaryExpr;
 
 /**
  * Test the adapters ability to wrap mysqli
@@ -62,12 +62,12 @@ class UnaryExprTest extends ParentTestCase
 	public function testUnaryHasCorrectInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Sql\Expr\ExprInterface',
+			'Appfuel\Framework\Expr\ExprInterface',
 			$this->expr
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Sql\Expr\UnaryExprInterface',
+			'Appfuel\Framework\Expr\UnaryExprInterface',
 			$this->expr
 		);
 	}

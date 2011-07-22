@@ -10,8 +10,7 @@
  */
 namespace Appfuel\Db\Sql\Expr;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Sql\Expr\ExprInterface;
+use Appfuel\Framework\Expr\ExprInterface;
 
 /**
  * Simple expression designed to old objects that support to string

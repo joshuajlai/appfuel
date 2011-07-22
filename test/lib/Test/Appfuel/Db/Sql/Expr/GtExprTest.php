@@ -13,7 +13,7 @@ namespace Test\Appfuel\Db\Sql\Expr;
 use StdClass,
 	SplFileInfo,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Db\Sql\Expr\BasicExpr,
+	Appfuel\Expr\BasicExpr,
 	Appfuel\Db\Sql\Expr\GtExpr;
 
 /**
@@ -66,12 +66,12 @@ class GtExprTest extends ParentTestCase
 	public function testUnaryHasCorrectInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Sql\Expr\ExprInterface',
+			'Appfuel\Framework\Expr\ExprInterface',
 			$this->expr
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Sql\Expr\BinaryExprInterface',
+			'Appfuel\Framework\Expr\BinaryExprInterface',
 			$this->expr
 		);
 	}

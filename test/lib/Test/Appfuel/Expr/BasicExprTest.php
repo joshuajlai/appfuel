@@ -8,15 +8,18 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Adapter;
+namespace Test\Appfuel\Expr;
 
 use StdClass,
 	SplFileInfo,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Db\Sql\Expr\BasicExpr;
+	Appfuel\Expr\BasicExpr;
 
 /**
- * Test the adapters ability to wrap mysqli
+ * A generic expression can do three things 
+ * 1) retrieve its operand
+ * 2) build its self into a string/use itself in the context of a string
+ * 3) add parentheses to itself
  */
 class BasicExprTest extends ParentTestCase
 {
@@ -27,7 +30,7 @@ class BasicExprTest extends ParentTestCase
     {
 		$expr = new BasicExpr('expr');
         $this->assertInstanceOf(
-            'Appfuel\Framework\Db\Sql\Expr\ExprInterface',
+            'Appfuel\Framework\Expr\ExprInterface',
             $expr
         );
     }
@@ -50,6 +53,9 @@ class BasicExprTest extends ParentTestCase
 		$this->assertEquals($operand, $expr->getOperand());
 	}
 
+	/**
+	 * @return null
+	 */
 	public function testArrayExpr()
 	{
 		$operand = array(1,2,3,4);

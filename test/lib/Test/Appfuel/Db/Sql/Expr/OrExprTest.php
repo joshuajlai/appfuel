@@ -13,8 +13,8 @@ namespace Test\Appfuel\Db\Sql\Expr;
 use StdClass,
 	SplFileInfo,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Db\Sql\Expr\BasicExpr,
-	Appfuel\Db\Sql\Expr\UnaryExpr,
+	Appfuel\Expr\BasicExpr,
+	Appfuel\Db\Sql\Expr\SqlUnaryExpr,
 	Appfuel\Db\Sql\Expr\OrExpr;
 
 /**
@@ -47,7 +47,7 @@ class OrExprTest extends ParentTestCase
 	public function setUp()
 	{
 		$this->leftop  = new BasicExpr('me');
-		$this->rightop = new UnaryExpr('not', 'you');;
+		$this->rightop = new SqlUnaryExpr('not', 'you');;
 		$this->expr    = new OrExpr($this->leftop, $this->rightop);
 	}
 
@@ -67,12 +67,12 @@ class OrExprTest extends ParentTestCase
 	public function testUnaryHasCorrectInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Sql\Expr\ExprInterface',
+			'Appfuel\Framework\Expr\ExprInterface',
 			$this->expr
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Sql\Expr\BinaryExprInterface',
+			'Appfuel\Framework\Expr\BinaryExprInterface',
 			$this->expr
 		);
 	}

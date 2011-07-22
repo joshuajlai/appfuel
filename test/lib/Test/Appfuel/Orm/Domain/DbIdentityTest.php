@@ -425,7 +425,7 @@ class DbIdentityTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function xtestGetPrimaryMembers()
+	public function testGetPrimaryMembers()
 	{
 		$map = array(
 			'user_id'		=> 'id',
@@ -440,9 +440,33 @@ class DbIdentityTest extends ParentTestCase
 		$this->identity->setPrimaryKey($keys);
 
 		$members = array('id', 'customerId');
-		echo "\n", print_r($this->identity->getPrimaryMembers(),1), "\n";exit;
 		$this->assertEquals($members, $this->identity->getPrimaryMembers());
 	}
+
+	/**
+	 * if your map is backwards then this function will throw an exception
+	 * 
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testGetPrimaryMembersInvalidMap()
+	{
+		$map = array(
+			'id'			=> 'user_id',
+			'customerId'    => 'customer_id',
+			'systemNname'	=> 'user_name',
+			'first_name'	=> 'firstName',
+			'last_name'		=> 'lastName'
+		);
+		$this->identity->setMap($map);
+
+		$keys = array('user_id', 'customer_id');
+		$this->identity->setPrimaryKey($keys);
+
+		$members = array('id', 'customerId');
+		$this->assertEquals($members, $this->identity->getPrimaryMembers());
+	}
+
 
 
 	/**

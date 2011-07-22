@@ -13,9 +13,9 @@ namespace Test\Appfuel\Db\Sql\Expr;
 use StdClass,
 	SplFileInfo,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Db\Sql\Expr\BasicExpr,
-	Appfuel\Db\Sql\Expr\UnaryExpr,
-	Appfuel\Db\Sql\Expr\BinaryExpr,
+	Appfuel\Expr\BasicExpr,
+	Appfuel\Db\Sql\Expr\SqlUnaryExpr,
+	Appfuel\Expr\BinaryExpr,
 	Appfuel\Db\Sql\Expr\BetweenExpr;
 
 /**
@@ -55,12 +55,12 @@ class BetweenExprTest extends ParentTestCase
 	public function testUnaryHasCorrectInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Sql\Expr\ExprInterface',
+			'Appfuel\Framework\Expr\ExprInterface',
 			$this->expr
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Sql\Expr\BinaryExprInterface',
+			'Appfuel\Framework\Expr\BinaryExprInterface',
 			$this->expr
 		);
 	}
