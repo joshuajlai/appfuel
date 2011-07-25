@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Db\Sql\Expr;
 
-use Appfuel\Expr\UnaryExpr;
+use Appfuel\Framework\Expr\UnaryExpr;
 
 /**
  * Simple expression designed to old objects that support to string

@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Expr;
+namespace Test\Appfuel\Framework\Expr;
 
 use StdClass,
 	SplFileInfo,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Expr\UnaryExpr;
+	Appfuel\Framework\Expr\UnaryExpr;
 
 /**
  * Test the adapters ability to wrap mysqli

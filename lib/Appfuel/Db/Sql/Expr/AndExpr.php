@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Db\Sql\Expr;
 
-use Appfuel\Expr\BinaryExpr,
+use Appfuel\Framework\Expr\BinaryExpr,
 	Appfuel\Framework\Expr\ExprInterface;
 
 /**

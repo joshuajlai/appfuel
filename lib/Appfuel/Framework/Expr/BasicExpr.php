@@ -8,10 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Expr;
+namespace Appfuel\Framework\Expr;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Expr\ExprInterface;
+use Appfuel\Framework\Exception;
 
 /**
  * Simple expression designed to old objects that support to string

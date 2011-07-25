@@ -13,9 +13,9 @@ namespace Test\Appfuel\Db\Sql\Expr;
 use StdClass,
 	SplFileInfo,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Expr\BasicExpr,
+	Appfuel\Framework\Expr\BinaryExpr,
+	Appfuel\Framework\Expr\BasicExpr,
 	Appfuel\Db\Sql\Expr\SqlUnaryExpr,
-	Appfuel\Expr\BinaryExpr,
 	Appfuel\Db\Sql\Expr\AndExpr;
 
 /**
