@@ -69,7 +69,7 @@ class BinaryExpr extends BasicExpr implements BinaryExprInterface
 	 */
 	public function getLeftOperand()
 	{
-		return $this->getOperand();
+		return $this->operand;
 	}
 	
 	/**
