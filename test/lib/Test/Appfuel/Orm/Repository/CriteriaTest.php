@@ -163,4 +163,103 @@ class CriteriaTest extends ParentTestCase
 	{
 		$this->criteria->setOperationType(new StdClass());
 	}
+
+	/**
+	 * @return null
+	 */
+	public function testGetAddFilters()
+	{
+		$this->assertEquals(array(), $this->criteria->getFilters());
+
+		$class = 'Appfuel\Framework\Orm\Repository\DomainExprInterface';
+		$expr_1 = $this->getMock($class);
+		$expr_2 = $this->getMock($class);
+		$expr_3 = $this->getMock($class);
+		$expr_4 = $this->getMock($class);
+		$expr_5 = $this->getMock($class);
+
+		$this->assertSame(
+			$this->criteria, 
+			$this->criteria->addFilter($expr_1)
+		);
+
+		/*
+		 * The null indicates that this is the last expression and non others
+		 * will follow.
+		 */
+		$expected = array(
+			array($expr_1, null)
+		);
+
+		$this->assertEquals($expected, $this->criteria->getFilters());
+		
+		/* use default logical operator 'and' */
+		$this->assertSame(
+			$this->criteria, 
+			$this->criteria->addFilter($expr_2)
+		);
+		$expected = array(
+			array($expr_1, 'and'),
+			array($expr_2, null)
+		);
+		$this->assertEquals($expected, $this->criteria->getFilters());
+
+
+		$this->assertSame(
+			$this->criteria, 
+			$this->criteria->addFilter($expr_3, 'or')
+		);
+
+		$expected = array(
+			array($expr_1, 'and'),
+			array($expr_2, 'or'),
+			array($expr_3, null),
+		);
+		$this->assertEquals($expected, $this->criteria->getFilters());
+
+		/* logical operators are converted to lower case */
+		$this->criteria->addFilter($expr_4, 'AND');
+		$expected = array(
+			array($expr_1, 'and'),
+			array($expr_2, 'or'),
+			array($expr_3, 'and'),
+			array($expr_4, null),
+		);
+		$this->assertEquals($expected, $this->criteria->getFilters());
+			
+		$this->criteria->addFilter($expr_5, 'OR');
+		$expected = array(
+			array($expr_1, 'and'),
+			array($expr_2, 'or'),
+			array($expr_3, 'and'),
+			array($expr_4, 'or'),
+			array($expr_5, null),
+		);
+		$this->assertEquals($expected, $this->criteria->getFilters());	
+	}
+
+	/**
+	 * This test show now matter what operator is given for the first 
+	 * expression it is ignored
+	 *
+	 * @return null
+	 */
+	public function testAddFilterFirstFilterIgnoresOperator()
+	{
+		$class = 'Appfuel\Framework\Orm\Repository\DomainExprInterface';
+		$expr_1 = $this->getMock($class);
+	
+		/* this would normally cause an exception but operator is ignored on
+		 * first filter cause its not needed.
+		 */
+		$op = 'BAD_OPERATOR';
+		$this->assertEquals(array(), $this->criteria->getFilters());
+		$this->assertSame(
+			$this->criteria, 
+			$this->criteria->addFilter($expr_1, $op)
+		);
+
+		$expected = array(array($expr_1, null));
+		$this->assertEquals($expected, $this->criteria->getFilters());	
+	}
 }

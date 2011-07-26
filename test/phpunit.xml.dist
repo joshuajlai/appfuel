@@ -4,6 +4,7 @@
 <testsuites>
 	<testsuite name="Appfuel Framework">
 	<directory suffix="Test.php">./lib/Test/Appfuel/Framework/Env</directory>
+	<directory suffix="Test.php">./lib/Test/Appfuel/Framework/Expr</directory>
 	<directory suffix="Test.php">./lib/Test/Appfuel/App</directory>
 	<directory suffix="Test.php">./lib/Test/Appfuel/Data</directory>
 	<directory suffix="Test.php">./lib/Test/Appfuel/View</directory>

@@ -11,7 +11,8 @@
 namespace Appfuel\Orm\Repository;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Expr\BinaryExpr;
+	Appfuel\Framework\Expr\BinaryExpr,
+	Appfuel\Framework\Orm\Repository\DomainExprInterface;
 
 /**
  * Allows a simple domain expression to given as a string in the constructor
@@ -19,7 +20,7 @@ use Appfuel\Framework\Exception,
  * domain expressions and translate them into database expressions usually 
  * ending up in the where clause of a sql statement.
  */
-class DomainExpr extends BinaryExpr
+class DomainExpr extends BinaryExpr implements DomainExprInterface
 {
 	/**
 	 * @var string

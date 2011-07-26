@@ -11,6 +11,7 @@
 namespace Appfuel\Orm\Repository;
 
 use Appfuel\Framework\Exception,
+	Appfuel\Framework\Orm\Repository\DomainExprInterface,
 	Appfuel\Framework\Orm\Repository\CriteriaInterface;
 
 /**
@@ -40,6 +41,45 @@ class Criteria implements CriteriaInterface
 	 * @var array
 	 */
 	protected $filters = array();
+
+	/**
+	 * @return	array
+	 */
+	public function getFilters()
+	{
+		return $this->filters;
+	}
+
+	/**
+	 * Adds a domain expression to the filter stack. The current expression
+	 * always has null for its logical operator because it can not not what
+	 * future condition to join to. The second parameter is always used to
+	 * join to the previous filter accept in the case of the first filter 
+	 * where it is ignored.
+	 *
+	 * @throws	Appfuel\Framework\Exception
+	 * @param	DomainExpr	$expr
+	 * @param	string		$logical	join with previous filter with and|or
+	 * @return	Criteria
+	 */
+	public function addFilter(DomainExprInterface $expr, $logical = 'and')
+	{
+		$item = array($expr, null);
+		if (empty($this->filters)) {
+			$this->filters[] = $item;
+			return $this;
+		}
+
+		$logical = strtolower($logical);
+		if (! in_array($logical, array('and', 'or'))) {
+			throw new Exception("add filter failed 2nd param  must be and|or");
+		}
+
+		$last = count($this->filters) - 1;
+		$this->filters[$last][1] = $logical;
+		$this->filters[] = $item;
+		return $this;
+	}
 
 	/**
 	 * @return string
