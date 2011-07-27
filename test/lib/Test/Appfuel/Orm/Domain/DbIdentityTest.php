@@ -508,11 +508,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'namespace' => 'some/path/to/user/email'
 			),
 			'roles' => array(
 				'type'		=> 'root',
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'namespace' => 'some/path/to/role'
 			)
 		);
 

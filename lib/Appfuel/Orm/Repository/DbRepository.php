@@ -22,5 +22,8 @@ use BadMethodCallException,
  */
 abstract class DbRepository implements DbRepositoryInterface
 {
-	
+	/**
+	 * @var Criteria
+	 */
+	protected $criteria = null;
 }

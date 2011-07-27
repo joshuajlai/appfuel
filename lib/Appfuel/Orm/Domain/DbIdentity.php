@@ -265,6 +265,19 @@ class DbIdentity implements DbDomainIdentityInterface
 	}
 
 	/**
+	 * The dependecy holds an array data structure that details information
+	 * about other domains this domain is allowed access to. The datastructure
+	 * follows this format:
+	 *
+	 * domain-key: array (
+	 *		'type'		=> string <root|child>
+	 *		'relation'	=> string <one-one|one-many|many-many|none>
+	 *		'namespace' => string <(any valid path to the domain root dir)>
+	 * );
+	 * 
+	 * All these keys must exist with a domain key because they are used by
+	 * the framework to create other identities or generate automated sql.
+	 *
 	 * @return	DbIdentity
 	 */
 	public function setDependencies(array $list)
@@ -272,13 +285,14 @@ class DbIdentity implements DbDomainIdentityInterface
 		$err = "invalid dependency list ";
 		$validTypes = array('root', 'child');
 		$validRelations = array('one-one', 'one-many', 'many-many');
+
 		foreach ($list as $label => $depends) {
 
 			if (! is_string($label) || empty($label)) {
 				throw new Exception("$err label must be a non empty string");
 			}
 
-			if (! array_key_exists('type',	$depends)) {
+			if (! isset($depends['type'])) {
 				throw new Exception("$err type is missing from $label");
 			}
 
@@ -287,7 +301,7 @@ class DbIdentity implements DbDomainIdentityInterface
 				throw new Exception("$err error occurred on $label");
 			}
 					   
-			if (! array_key_exists('relation',	$depends)) {
+			if (! isset($depends['relation'])) {
 				throw new Exception("$err relation is missing from $label");
 			}
 
@@ -295,6 +309,16 @@ class DbIdentity implements DbDomainIdentityInterface
 				$err .= "incorrect relation, must be ";
 				$err .= " (one-one|one-many|many-may) ";
 				throw new Exception("$err error occurred on $label");
+			}
+
+			if (! isset($depends['namespace'])) {
+				throw new Exception("$err domain namespace is missing");
+			}
+
+			$namespace = $depends['namespace'];
+			if (! is_string($namespace) || empty($namespace)) {
+				$err .= "damain namespace must be a non empty string";
+				throw new Exception($err);
 			}
 		}
 					   
