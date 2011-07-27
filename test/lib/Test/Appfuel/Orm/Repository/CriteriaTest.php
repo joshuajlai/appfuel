@@ -13,6 +13,7 @@ namespace Test\Appfuel\Orm\Domain;
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
 	Appfuel\Framework\Expr\ExprList,
+	Appfuel\Orm\Repository\DomainExpr,
 	Appfuel\Orm\Repository\Criteria;
 
 /**
@@ -24,7 +25,13 @@ class CriteriaTest extends ParentTestCase
 	 * @var Criteria
 	 */
 	protected $criteria = null;
-
+	
+	/**
+	 * Used to create mock objects in tests
+	 * @var string
+	 */
+	protected $listInterface = 'Appfuel\Framework\Expr\ExprListInterface';
+	
 	/**
 	 * @return null
 	 */
@@ -50,6 +57,184 @@ class CriteriaTest extends ParentTestCase
 			'Appfuel\Framework\Orm\Repository\CriteriaInterface',
 			$this->criteria
 		);
+	}
+
+	/**
+	 * You are allowed to manually set and get the list of named expressions.
+	 * Note: you are resposible for making sure each key holds an 
+	 * ExprListInterface otherwise addExpr will throw an exception
+	 *
+	 * @return	null
+	 */
+	public function testGetSetExprLists()
+	{
+		$this->assertEquals(array(), $this->criteria->getExprLists());
+
+		$list_1 = $this->getMock($this->listInterface);
+		$list_2 = $this->getMock($this->listInterface);
+		$list_3 = $this->getMock($this->listInterface);
+
+		$list = array(
+			'key_1' => $list_1,
+			'key_2' => $list_2,
+			'key_3' => $list_3
+		);
+
+		$this->assertSame(
+			$this->criteria, 
+			$this->criteria->setExprLists($list)
+		);
+		$this->assertEquals($list, $this->criteria->getExprLists());
+
+		/* we can reset the list by setting an empty array */
+		$list = array();
+		$this->assertSame(
+			$this->criteria, 
+			$this->criteria->setExprLists($list)
+		);
+		$this->assertEquals(array(), $this->criteria->getExprLists());
+
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testSetExprsNoExprListInterfaceInList()
+	{
+		$list = array('key_1' => 'value_1');
+		$this->criteria->setExprLists($list);
+	}
+
+	/**
+	 * All keys must have ExprListInterfaces as values
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testSetExprsMissingExprListInterfaceInList()
+	{
+		$list_1 = $this->getMock($this->listInterface);
+		$list_2 = $this->getMock($this->listInterface);
+		$list_3 = $this->getMock($this->listInterface);
+
+		$list = array(
+			'key_1' => $list_1,
+			'key_2' => $list_2,
+			'key_3' => $list_3,
+			'key_r' => 'value_1'
+		);
+		$this->criteria->setExprLists($list);
+	}
+
+	/**
+	 * In this test we are add an expression to a key that does not exist
+	 * so AddExpr will create a new ExprList. Then we add another expr to that
+	 * same key and verify that a second expr was infact added
+	 *
+	 * @return null
+	 */
+	public function testAddGetIsExprForTheSameKey()
+	{
+		$this->assertEquals(array(), $this->criteria->getExprLists());
+		
+		$dExpr_1 = new DomainExpr('user.id = 6');
+		$key_1   = 'key_1';
+		$this->assertFalse($this->criteria->isExprList($key_1));
+		$this->assertFalse($this->criteria->getExprList($key_1));
+		
+		$this->assertSame(
+			$this->criteria,
+			$this->criteria->addExpr($key_1, $dExpr_1),
+			'must expose a fluent interface'
+		);
+
+		$this->assertTrue($this->criteria->isExprList($key_1));
+		$resultList = $this->criteria->getExprList($key_1);
+		$this->assertInstanceOf($this->listInterface, $resultList);
+
+		/* pull out the current expression and logical operator */
+		$result = $resultList->current();
+		$this->assertEquals(1, $resultList->count());
+		$this->assertSame($dExpr_1, $result[0]);
+		$this->assertNull($result[1]);
+
+		/* add another expression to the same expression list */
+		$dExpr_2 = new DomainExpr('user.name <> bob');
+			$this->assertSame(
+			$this->criteria,
+			$this->criteria->addExpr($key_1, $dExpr_2),
+			'must expose a fluent interface'
+		);
+		$this->assertTrue($this->criteria->isExprList($key_1));
+		
+		/* prove second expression was added to the list */
+		$this->assertEquals(2, $resultList->count());
+		
+		/* make sure the correct operator was added to previous expr */
+		$result = $resultList->current();
+		$this->assertEquals('and', $result[1]);
+
+		/* pull out the current expression and logical operator */
+		$resultList->next();
+		$result = $resultList->current();
+		$this->assertSame($dExpr_2, $result[0]);
+		$this->assertNull($result[1]);
+	
+
+		$final = $this->criteria->getExprLists();
+		$this->assertInternalType('array', $final);
+		$this->assertArrayHasKey($key_1, $final);
+
+		$resultList = $final[$key_1];
+		$this->assertInstanceOf($this->listInterface, $resultList);
+		$this->assertEquals(2, $resultList->count());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testAddExprMoreThanOneKey()
+	{
+		$list_1 = new ExprList();
+		$list_2 = new ExprList();
+
+		$lists = array(
+			'list_1' => $list_1,
+			'list_2' => $list_2
+		);
+		
+		$this->criteria->setExprLists($lists);
+		$this->assertTrue($this->criteria->isExprList('list_1'));
+		$this->assertTrue($this->criteria->isExprList('list_2'));
+
+		$dExpr_1 = new DomainExpr('user.id = 6');
+		$dExpr_2 = new DomainExpr('user.name <> bob');
+		$this->assertSame(
+			$this->criteria,
+			$this->criteria->addExpr('list_1', $dExpr_1),
+			'must expose a fluent interface'
+		);
+
+		$this->assertSame(
+			$this->criteria,
+			$this->criteria->addExpr('list_2', $dExpr_2),
+			'must expose a fluent interface'
+		);
+
+		$resultList = $this->criteria->getExprLists();
+		$this->assertEquals($lists, $resultList);
+
+		$this->assertEquals(1, $list_1->count());
+		$this->assertEquals(1, $list_2->count());
+		
+		$result = $list_1->current();
+		$this->assertEquals($dExpr_1, $result[0]);
+		$this->assertNull($result[1]);
+
+		$result = $list_2->current();
+		$this->assertEquals($dExpr_2, $result[0]);
+		$this->assertNull($result[1]);
 	}
 
 	/**
@@ -163,117 +348,5 @@ class CriteriaTest extends ParentTestCase
 	public function testSetOpTypeObj()
 	{
 		$this->criteria->setOperationType(new StdClass());
-	}
-
-	/**
-	 * @return null
-	 */
-	public function testGetAddFilters()
-	{
-		$this->assertEquals(null, $this->criteria->getFilterList());
-
-		$filterList = new ExprList();
-		$this->assertSame(
-			$this->criteria,
-			$this->criteria->setFilterList($filterList)
-		);
-		$this->assertSame($filterList, $this->criteria->getFilterList());
-
-		$class = 'Appfuel\Framework\Orm\Repository\DomainExprInterface';
-		$expr_1 = $this->getMock($class);
-		$expr_2 = $this->getMock($class);
-		$expr_3 = $this->getMock($class);
-		$expr_4 = $this->getMock($class);
-		$expr_5 = $this->getMock($class);
-
-		$this->assertSame(
-			$this->criteria, 
-			$this->criteria->addFilter($expr_1)
-		);
-
-		/*
-		 * The null indicates that this is the last expression and non others
-		 * will follow.
-		 */
-		$expected = array(
-			array($expr_1, null)
-		);
-
-		$this->assertEquals($expected, $filterList->getAll());
-		
-		/* use default logical operator 'and' */
-		$this->assertSame(
-			$this->criteria, 
-			$this->criteria->addFilter($expr_2)
-		);
-		$expected = array(
-			array($expr_1, 'and'),
-			array($expr_2, null)
-		);
-		$this->assertEquals($expected, $filterList->getAll());
-
-
-		$this->assertSame(
-			$this->criteria, 
-			$this->criteria->addFilter($expr_3, 'or')
-		);
-
-		$expected = array(
-			array($expr_1, 'and'),
-			array($expr_2, 'and'),
-			array($expr_3, null),
-		);
-
-		$this->assertEquals($expected, $filterList->getAll());
-
-		/* logical operators are converted to lower case */
-		$this->criteria->addFilter($expr_4, 'AND');
-		$expected = array(
-			array($expr_1, 'and'),
-			array($expr_2, 'and'),
-			array($expr_3, 'or'),
-			array($expr_4, null),
-		);
-		$this->assertEquals($expected, $filterList->getAll());
-			
-		$this->criteria->addFilter($expr_5, 'OR');
-		$expected = array(
-			array($expr_1, 'and'),
-			array($expr_2, 'and'),
-			array($expr_3, 'or'),
-			array($expr_4, 'and'),
-			array($expr_5, null),
-		);
-		$this->assertEquals($expected, $filterList->getAll());	
-	}
-
-	/**
-	 * This test show now matter what operator is given for the first 
-	 * expression it is ignored
-	 *
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testAddFilterBadOperator()
-	{
-		$class = 'Appfuel\Framework\Orm\Repository\DomainExprInterface';
-		$expr_1 = $this->getMock($class);
-	
-		$filterList = new ExprList();
-		$this->criteria->setFilterList($filterList);
-
-
-		/* this would normally cause an exception but operator is ignored on
-		 * first filter cause its not needed.
-		 */
-		$op = 'BAD_OPERATOR';
-		$this->assertEquals(array(), $filterList->getAll());
-		$this->assertSame(
-			$this->criteria, 
-			$this->criteria->addFilter($expr_1, $op)
-		);
-
-		$expected = array(array($expr_1, null));
-		$this->assertEquals($expected, $filterList->getAll());	
 	}
 }

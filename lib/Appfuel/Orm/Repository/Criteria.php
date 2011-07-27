@@ -13,6 +13,8 @@ namespace Appfuel\Orm\Repository;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\Expr\ExprList,
 	Appfuel\Framework\Expr\ExprListInterface,
+	Appfuel\Framework\DataStructure\Dictionary,
+	Appfuel\Framework\DataStructure\DictionaryInterface,
 	Appfuel\Framework\Orm\Repository\DomainExprInterface,
 	Appfuel\Framework\Orm\Repository\CriteriaInterface;
 
@@ -38,58 +40,138 @@ class Criteria implements CriteriaInterface
 	protected $opType = null;
 
 	/**
-	 * Filters are a list of expressions that can be separated by one of 
-	 * to logical operators AND|OR the last expression has no operator
-	 * @var ExprList
+	 * List of named expressions. A named expression is an expression list 
+	 * identified by a key. This allows the repo to specify domain expressions
+	 * for any number of targets not just the where clause of a sql statement
+	 * as is the case usually
+	 *
+	 * @var	Dictionary
 	 */
-	protected $filterList = null;
+	protected $exprs = array();
 
 	/**
-	 * List of options to old any key value pairs that have to be 
-	 * passed into the sqlfactory or build factory
-	 * @var	Dictionary
+	 * General key value pair to used to hold optional values that are not
+	 * in the form of expressions
+	 * @var Dictionary
 	 */
 	protected $options = null;
 
 	/**
-	 * @return	array
-	 */
-	public function getFilterList()
-	{
-		return $this->filterList;
-	}
-
-	/**
-	 * @param	ExprListInterface	$list
+	 * @param	DictionaryInterface $options
 	 * @return	Criteria
 	 */
-	public function setFilterList(ExprListInterface $list)
+	public function __construct(array $exprs = null, 
+								DictionaryInterface $options = null)
 	{
-		$this->filterList = $list;
-		return $this;
-	}
-
-	/**
-	 * Adds a domain expression to the filter stack. The current expression
-	 * always has null for its logical operator because it can not not what
-	 * future condition to join to. The second parameter is always used to
-	 * join to the previous filter accept in the case of the first filter 
-	 * where it is ignored.
-	 *
-	 * @throws	Appfuel\Framework\Exception
-	 * @param	DomainExpr	$expr
-	 * @param	string		$logical	join with previous filter with and|or
-	 * @return	Criteria
-	 */
-	public function addFilter(DomainExprInterface $expr, $logical = 'and')
-	{
-		$list = $this->getFilterList();
-		if (! $list instanceof ExprListInterface) {
-			throw new Exception("Can not add filter: exprList is not set");
+		/* default value is an empty array */
+		if (null !== $exprs) {
+			$this->setExprs($exprs);
 		}
 
-		$list->add($expr, $logical);
+		/* default value is an empty expression */
+		if (null === $options) {
+			$options = $this->createDictionary();
+		}
+
+		$this->setOptions($options);
+	}
+
+	/**
+	 * @return	Dictionary
+	 */
+	public function getOptions()
+	{
+		return $this->option;
+	}
+
+	/**
+	 * @param	DictionaryInterface		$options
+	 * @return	Criteria
+	 */
+	public function setOptions(DictionaryInterface $options)
+	{
+		$this->options = $options;
 		return $this;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getExprLists()
+	{
+		return $this->exprs;
+	}
+
+	/**
+	 * @param	array	list
+	 * @return	Criteria
+	 */
+	public function setExprLists(array $list)
+	{
+		foreach ($list as $key => $exprList) {
+			if (! $exprList instanceof ExprListInterface) {
+				throw new Exception("Each key must have an ExprListInterface");
+			}
+		}
+		$this->exprs = $list;
+		return $this;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @param	DomainExprInterface		$expr
+	 * @param	string	$op
+	 * @return	Criteria
+	 */
+	public function addExpr($key, DomainExprInterface $expr, $op = 'and')
+	{
+		if (! $this->isValidString($key)) {
+			throw new Exception("option key must be a non empty string");
+		}
+
+		$list = $this->getExprList($key);
+		if (false === $list) {
+			$list = $this->createExprList();
+			$list->add($expr, $op);
+			$this->exprs[$key] = $list;
+			return $this;
+		}
+			
+		$list->add($expr, $op);
+		return $this;
+	}
+
+	/**
+	 * Return an expression list identified by key
+	 * 
+	 * @param	string	$key
+	 * @return	ExprListInterface | false when not found or error
+	 */
+	public function getExprList($key)
+	{
+		if (! $this->isExprList($key)) {
+			return false;
+		}
+
+		return $this->exprs[$key];
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	bool
+	 */
+	public function isExprList($key)
+	{
+		if (! $this->isValidString($key)) {
+			return false;
+		}
+	
+		if (isset($this->exprs[$key]) && 
+			$this->exprs[$key] instanceof ExprListInterface) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -136,6 +218,21 @@ class Criteria implements CriteriaInterface
 		return $this;
 	}
 
+	/**
+	 * @return	ExprList
+	 */
+	protected function createExprList()
+	{
+		return new ExprList();
+	}
+
+	/**
+	 * @return	Dictionary
+	 */
+	protected function createDictionary()
+	{
+		return new Dictionary();
+	}
 
 	/**
 	 * @param	mixed	$str

@@ -28,25 +28,6 @@ class DomainExpr extends BinaryExpr implements DomainExprInterface
 	protected $domain = null;
 
 	/**
-	 * List of operators allowed in domain expressions
-	 * @var	array
-	 */
-	protected $validOps = array(
-		'<',
-		'=',
-		'<=',
-		'<>',
-		'>',
-		'>=',
-		'is',
-		'is not',
-		'in',
-		'not in',
-		'between',
-		'not between'
-	);
-
-	/**
 	 * Because we are extending the BasicExpr our left operand is its only
 	 * only operand so we will reuse that and only write a setter for the
 	 * right
@@ -124,8 +105,12 @@ class DomainExpr extends BinaryExpr implements DomainExprInterface
 			$this->setRightOperand(current($match['value']));
 		}
 
+		$validOps = array('<','=','<=','<>','>','>=',
+						  'is','is not','in','not in',
+						  'between','not between');
+
 		$op = strtolower(trim(current($match['operator'])));
-		if (! in_array($op, $this->validOps, true)) {
+		if (! in_array($op, $validOps, true)) {
 			throw new Exception("$err invalid operator given");
 		}
 
