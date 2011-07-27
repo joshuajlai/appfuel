@@ -44,7 +44,6 @@ class Dependency
 			"{$fw}DataStructure{$sep}DictionaryInterface.php",
 			"{$fw}DataStructure{$sep}Dictionary.php",
 			"{$std}Filesystem{$sep}Manager.php",
-			"{$std}Filesystem{$sep}File.php",
 			"{$fw}Env{$sep}ErrorDisplay.php",
 			"{$fw}Env{$sep}ErrorReporting.php",
 			"{$fw}Env{$sep}AutoloadInterface.php",

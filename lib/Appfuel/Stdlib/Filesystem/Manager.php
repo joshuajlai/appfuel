@@ -9,6 +9,8 @@
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Stdlib\Filesystem;
+ 
+use Appfuel\Framework\Exception;
 
 /**
  * Aims to provide a common interface that can work on both file paths

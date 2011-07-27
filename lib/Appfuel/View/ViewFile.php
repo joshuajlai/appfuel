@@ -11,7 +11,7 @@
 namespace Appfuel\View;
 
 use Appfuel\Framework\Exception,
-	Appfuel\File\FrameworkFile;
+	Appfuel\Framework\File\FrameworkFile;
 
 /**
  * The view file hides the absolute path to a directory of templates and

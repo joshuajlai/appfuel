@@ -8,10 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\File;
+namespace Appfuel\Framework\File;
 
-use Appfuel\Framework\File\FrameworkFileInterface,
-	SplFileInfo;
+use SplFileInfo;
 
 /**
  * Add knowledge of the base path so developers only need to specify

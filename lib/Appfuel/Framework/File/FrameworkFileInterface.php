@@ -12,6 +12,7 @@ namespace Appfuel\Framework\File;
 
 
 /**
+ * Functionality the framework relies on for file operations
  */
 interface FrameworkFileInterface
 {
