@@ -8,13 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Orm\Domain;
+namespace Test\Appfuel\Orm\Repository;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Framework\Expr\ExprList,
 	Appfuel\Orm\Repository\DomainExpr,
-	Appfuel\Orm\Repository\Criteria;
+	Appfuel\Orm\Repository\Criteria,
+	Appfuel\Framework\Expr\ExprList,
+	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
  */
@@ -58,6 +59,114 @@ class CriteriaTest extends ParentTestCase
 			$this->criteria
 		);
 	}
+
+	/**
+	 * @return null
+	 */
+	public function testConstructor()
+	{
+		/* default values */
+		$this->assertEquals(array(), $this->criteria->getExprLists());
+
+		$options = $this->criteria->getOptions();
+		$this->assertInstanceOf(
+			'Appfuel\Framework\DataStructure\DictionaryInterface',
+			$options
+		);
+		$this->assertEquals(0, $options->count());
+
+		$list = array(
+			'list_1' => $this->getMock($this->listInterface),
+			'list_2' => $this->getMock($this->listInterface),
+		);
+
+		$criteria = new Criteria($list);
+		$this->assertEquals($list, $criteria->getExprLists());
+
+		$options = new Dictionary();
+		$criteria = new Criteria(null, $options);
+		$this->assertSame($options, $criteria->getOptions());
+
+		$criteria = new Criteria($list, $options);
+		$this->assertEquals($list, $criteria->getExprLists());
+		$this->assertSame($options, $criteria->getOptions());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testGetSetOptions()
+	{
+		$options = new Dictionary();
+		$this->assertNotSame($options, $this->criteria->getOptions());	
+		$this->assertSame(
+			$this->criteria,
+			$this->criteria->setOptions($options),
+			'must expose a fluent interface'
+		);
+
+		$this->assertSame($options, $this->criteria->getOptions());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testAddOption()
+	{
+		$options = new Dictionary();
+		$this->criteria->setOptions($options);
+
+		$this->assertSame(
+			$this->criteria,
+			$this->criteria->addOption('my-key', 'my-value'),
+			'must expose a fluent interface'
+		);
+	
+		$this->assertEquals(1, $options->count());
+		$this->assertTrue($options->exists('my-key'));
+		$this->assertEquals('my-value', $options->get('my-key'));	
+			
+		$this->assertSame(
+			$this->criteria,
+			$this->criteria->addOption(99, 'other-value'),
+			'must expose a fluent interface'
+		);
+	
+		$this->assertEquals(2, $options->count());
+		$this->assertTrue($options->exists(99));
+		$this->assertTrue($options->exists('my-key'));
+		
+		$this->assertEquals('other-value', $options->get(99));	
+		$this->assertEquals('my-value', $options->get('my-key'));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testAddOptionBadKeyEmptyString()
+	{
+		$this->criteria->addOption('', 'my-value');
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testAddOptionBadKeyArray()
+	{
+		$this->criteria->addOption(array(1,2,3), 'my-value');
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testAddOptionBadKeyObj()
+	{
+		$this->criteria->addOption(new StdClass(), 'my-value');
+	}
+
 
 	/**
 	 * You are allowed to manually set and get the list of named expressions.
@@ -235,6 +344,60 @@ class CriteriaTest extends ParentTestCase
 		$result = $list_2->current();
 		$this->assertEquals($dExpr_2, $result[0]);
 		$this->assertNull($result[1]);
+	}
+
+	/**
+	 * Any scalar value can be used a key
+	 *
+	 * @return null
+	 */
+	public function testAddExprNumberAsKey()
+	{
+		$dExpr = new DomainExpr('user.id = 6');
+		$this->assertSame(
+			$this->criteria,
+			$this->criteria->addExpr(44, $dExpr),
+			'must use a fluent interface'
+		);
+
+		$this->assertTrue($this->criteria->isExprList(44));
+		$result = $this->criteria->getExprList(44);
+		$this->assertInstanceOf($this->listInterface, $result);
+		$this->assertEquals(1, $result->count());
+
+		$data = $result->current();
+		$this->assertEquals(array($dExpr, null), $data);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testAddExprBadExprArray()
+	{
+		$expr = new DomainExpr("user.member = something");
+		$this->criteria->addExpr(array(1,2,3), $expr);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testAddExprBadExprObj()
+	{
+		$expr = new DomainExpr("user.member = something");
+		$this->criteria->addExpr(new StdClass(), $expr);
+	}
+
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testAddExprBadKeyEmptyString()
+	{
+		$expr = new DomainExpr("user.member = something");
+		$this->criteria->addExpr('', $expr);
 	}
 
 	/**

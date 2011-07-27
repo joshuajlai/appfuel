@@ -65,7 +65,7 @@ class Criteria implements CriteriaInterface
 	{
 		/* default value is an empty array */
 		if (null !== $exprs) {
-			$this->setExprs($exprs);
+			$this->setExprLists($exprs);
 		}
 
 		/* default value is an empty expression */
@@ -81,7 +81,7 @@ class Criteria implements CriteriaInterface
 	 */
 	public function getOptions()
 	{
-		return $this->option;
+		return $this->options;
 	}
 
 	/**
@@ -91,6 +91,22 @@ class Criteria implements CriteriaInterface
 	public function setOptions(DictionaryInterface $options)
 	{
 		$this->options = $options;
+		return $this;
+	}
+
+	/**
+	 * @param	scalar	$key
+	 * @param	mixed	$value
+	 * @return	Criteria
+	 */
+	public function addOption($key, $value)
+	{
+		if (empty($key) || ! is_scalar($key)) {
+			throw new Exception("Invalid option key must be a scalar value");
+		}
+		$this->getOptions()
+			 ->add($key, $value);
+
 		return $this;
 	}
 
@@ -125,7 +141,7 @@ class Criteria implements CriteriaInterface
 	 */
 	public function addExpr($key, DomainExprInterface $expr, $op = 'and')
 	{
-		if (! $this->isValidString($key)) {
+		if (empty($key) || ! is_scalar($key)) {
 			throw new Exception("option key must be a non empty string");
 		}
 
@@ -162,7 +178,7 @@ class Criteria implements CriteriaInterface
 	 */
 	public function isExprList($key)
 	{
-		if (! $this->isValidString($key)) {
+		if (empty($key) || ! is_scalar($key)) {
 			return false;
 		}
 	
