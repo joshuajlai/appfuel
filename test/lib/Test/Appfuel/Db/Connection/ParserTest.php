@@ -67,7 +67,7 @@ class ParserTest extends ParentTestCase
 
 		$result = $this->parser->parse($string);
 		$this->assertInstanceOf(
-			'Appfuel\Data\Dictionary',
+			'Appfuel\Framework\DataStructure\DictionaryInterface',
 			$result
 		);
 
@@ -134,7 +134,7 @@ class ParserTest extends ParentTestCase
 		$string = 'vendor=mysql,adapter=mysqli,host=my-host';
 		$result = $this->parser->parse($string);
 		$this->assertInstanceOf(
-			'Appfuel\Data\Dictionary',
+			'Appfuel\Framework\DataStructure\DictionaryInterface',
 			$result
 		);
 			
@@ -146,7 +146,7 @@ class ParserTest extends ParentTestCase
 		$string = 'vendor';
 		$result = $this->parser->parse($string);
 		$this->assertInstanceOf(
-			'Appfuel\Data\Dictionary',
+			'Appfuel\Framework\DataStructure\DictionaryInterface',
 			$result
 		);
 		$this->assertEquals(0, $result->count());	
@@ -183,6 +183,4 @@ class ParserTest extends ParentTestCase
 	{
 		$this->assertFalse($this->parser->parse(new StdClass()));
 	}
-
-
 }

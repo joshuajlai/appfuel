@@ -10,8 +10,8 @@
  */
 namespace Appfuel\Db\Connection;
 
-use Appfuel\Data\Dictionary,
-	Appfuel\Framework\Exception,
+use Appfuel\Framework\Exception,
+	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\Db\Connection\ParserInterface;
 
 /**

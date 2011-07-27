@@ -11,6 +11,8 @@
 namespace Appfuel\Orm\Repository;
 
 use Appfuel\Framework\Exception,
+	Appfuel\Framework\Expr\ExprList,
+	Appfuel\Framework\Expr\ExprListInterface,
 	Appfuel\Framework\Orm\Repository\DomainExprInterface,
 	Appfuel\Framework\Orm\Repository\CriteriaInterface;
 
@@ -38,16 +40,33 @@ class Criteria implements CriteriaInterface
 	/**
 	 * Filters are a list of expressions that can be separated by one of 
 	 * to logical operators AND|OR the last expression has no operator
-	 * @var array
+	 * @var ExprList
 	 */
-	protected $filters = array();
+	protected $filterList = null;
+
+	/**
+	 * List of options to old any key value pairs that have to be 
+	 * passed into the sqlfactory or build factory
+	 * @var	Dictionary
+	 */
+	protected $options = null;
 
 	/**
 	 * @return	array
 	 */
-	public function getFilters()
+	public function getFilterList()
 	{
-		return $this->filters;
+		return $this->filterList;
+	}
+
+	/**
+	 * @param	ExprListInterface	$list
+	 * @return	Criteria
+	 */
+	public function setFilterList(ExprListInterface $list)
+	{
+		$this->filterList = $list;
+		return $this;
 	}
 
 	/**
@@ -64,20 +83,12 @@ class Criteria implements CriteriaInterface
 	 */
 	public function addFilter(DomainExprInterface $expr, $logical = 'and')
 	{
-		$item = array($expr, null);
-		if (empty($this->filters)) {
-			$this->filters[] = $item;
-			return $this;
+		$list = $this->getFilterList();
+		if (! $list instanceof ExprListInterface) {
+			throw new Exception("Can not add filter: exprList is not set");
 		}
 
-		$logical = strtolower($logical);
-		if (! in_array($logical, array('and', 'or'))) {
-			throw new Exception("add filter failed 2nd param  must be and|or");
-		}
-
-		$last = count($this->filters) - 1;
-		$this->filters[$last][1] = $logical;
-		$this->filters[] = $item;
+		$list->add($expr, $logical);
 		return $this;
 	}
 

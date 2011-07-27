@@ -8,15 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Data;
+namespace Appfuel\Framework\DataStructure;
 
-use countable;
+use Countable;
 
 /**
  * An bag object is an unordered collection of zero or more elements of some 
  * type.
  */
-interface DictionaryInterface extends countable
+interface DictionaryInterface extends Countable
 {
 	/**
 	 * @param	string	$key	item key
@@ -43,4 +43,3 @@ interface DictionaryInterface extends countable
 	 */
 	public function load(array $data);
 }
-

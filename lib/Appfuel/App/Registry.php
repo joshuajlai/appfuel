@@ -11,8 +11,8 @@
 namespace Appfuel\App;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Data\DictionaryInterface,
-	Appfuel\Data\Dictionary;
+	Appfuel\Framework\DataStructure\DictionaryInterface,
+	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
  * Global Registry used by the framework to hold config data and handle 

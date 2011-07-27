@@ -12,7 +12,7 @@ namespace Appfuel\App;
 
 use Appfuel\Db\Handler\DbInitializer,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\Data\DictionaryInterface,
+	Appfuel\Framework\DataStructure\DictionaryInterface,
 	Appfuel\Stdlib\Filesystem\Manager	as FileManager;
 
 /**

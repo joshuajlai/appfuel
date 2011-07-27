@@ -12,6 +12,7 @@ namespace Test\Appfuel\Orm\Domain;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
+	Appfuel\Framework\Expr\ExprList,
 	Appfuel\Orm\Repository\Criteria;
 
 /**
@@ -169,7 +170,14 @@ class CriteriaTest extends ParentTestCase
 	 */
 	public function testGetAddFilters()
 	{
-		$this->assertEquals(array(), $this->criteria->getFilters());
+		$this->assertEquals(null, $this->criteria->getFilterList());
+
+		$filterList = new ExprList();
+		$this->assertSame(
+			$this->criteria,
+			$this->criteria->setFilterList($filterList)
+		);
+		$this->assertSame($filterList, $this->criteria->getFilterList());
 
 		$class = 'Appfuel\Framework\Orm\Repository\DomainExprInterface';
 		$expr_1 = $this->getMock($class);
@@ -191,7 +199,7 @@ class CriteriaTest extends ParentTestCase
 			array($expr_1, null)
 		);
 
-		$this->assertEquals($expected, $this->criteria->getFilters());
+		$this->assertEquals($expected, $filterList->getAll());
 		
 		/* use default logical operator 'and' */
 		$this->assertSame(
@@ -202,7 +210,7 @@ class CriteriaTest extends ParentTestCase
 			array($expr_1, 'and'),
 			array($expr_2, null)
 		);
-		$this->assertEquals($expected, $this->criteria->getFilters());
+		$this->assertEquals($expected, $filterList->getAll());
 
 
 		$this->assertSame(
@@ -212,54 +220,60 @@ class CriteriaTest extends ParentTestCase
 
 		$expected = array(
 			array($expr_1, 'and'),
-			array($expr_2, 'or'),
+			array($expr_2, 'and'),
 			array($expr_3, null),
 		);
-		$this->assertEquals($expected, $this->criteria->getFilters());
+
+		$this->assertEquals($expected, $filterList->getAll());
 
 		/* logical operators are converted to lower case */
 		$this->criteria->addFilter($expr_4, 'AND');
 		$expected = array(
 			array($expr_1, 'and'),
-			array($expr_2, 'or'),
-			array($expr_3, 'and'),
+			array($expr_2, 'and'),
+			array($expr_3, 'or'),
 			array($expr_4, null),
 		);
-		$this->assertEquals($expected, $this->criteria->getFilters());
+		$this->assertEquals($expected, $filterList->getAll());
 			
 		$this->criteria->addFilter($expr_5, 'OR');
 		$expected = array(
 			array($expr_1, 'and'),
-			array($expr_2, 'or'),
-			array($expr_3, 'and'),
-			array($expr_4, 'or'),
+			array($expr_2, 'and'),
+			array($expr_3, 'or'),
+			array($expr_4, 'and'),
 			array($expr_5, null),
 		);
-		$this->assertEquals($expected, $this->criteria->getFilters());	
+		$this->assertEquals($expected, $filterList->getAll());	
 	}
 
 	/**
 	 * This test show now matter what operator is given for the first 
 	 * expression it is ignored
 	 *
+	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function testAddFilterFirstFilterIgnoresOperator()
+	public function testAddFilterBadOperator()
 	{
 		$class = 'Appfuel\Framework\Orm\Repository\DomainExprInterface';
 		$expr_1 = $this->getMock($class);
 	
+		$filterList = new ExprList();
+		$this->criteria->setFilterList($filterList);
+
+
 		/* this would normally cause an exception but operator is ignored on
 		 * first filter cause its not needed.
 		 */
 		$op = 'BAD_OPERATOR';
-		$this->assertEquals(array(), $this->criteria->getFilters());
+		$this->assertEquals(array(), $filterList->getAll());
 		$this->assertSame(
 			$this->criteria, 
 			$this->criteria->addFilter($expr_1, $op)
 		);
 
 		$expected = array(array($expr_1, null));
-		$this->assertEquals($expected, $this->criteria->getFilters());	
+		$this->assertEquals($expected, $filterList->getAll());	
 	}
 }

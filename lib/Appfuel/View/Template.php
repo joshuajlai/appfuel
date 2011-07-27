@@ -11,10 +11,10 @@
 namespace Appfuel\View;
 
 use SplFileInfo,
-	Appfuel\Data\Dictionary,
 	Appfuel\Framework\Exception,
 	Appfuel\Framework\View\ScopeInterface,
 	Appfuel\Framework\View\TemplateInterface,
+	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\File\FrameworkFileInterface;
 
 /**

@@ -8,13 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Data;
-
-use Appfuel\Framework\Data\DictionaryInterface;
+namespace Appfuel\Framework\DataStructure;
 
 /**
  * A dictionary is an unordered collection of zero or more elements of some 
- * type.
+ * type. This basically hides the need to have to use array_key_exists to
+ * prevent undefined indexes and allows for default values on a get method.
  */
 class Dictionary implements DictionaryInterface
 {

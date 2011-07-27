@@ -157,4 +157,54 @@ class ExprTest extends ParentTestCase
 		$this->assertEquals($expected1, $this->exprList->current());
 	}
 
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     * @return null
+     */
+    public function testAddFilterBadOperator()
+    {
+        $expr_1 = $this->getMock($this->exprInterface);
+
+        $op = 'BAD_OPERATOR';
+        $this->assertEquals(array(), $this->exprList->getAll());
+        $this->exprList->add($expr_1, $op);
+    }
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     * @return null
+     */
+    public function testAddFilterBadOperatorEmptyString()
+    {
+        $expr_1 = $this->getMock($this->exprInterface);
+
+        $this->assertEquals(array(), $this->exprList->getAll());
+        $this->exprList->add($expr_1, '');
+    }
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     * @return null
+     */
+    public function testAddFilterBadOperatorArray()
+    {
+        $expr_1 = $this->getMock($this->exprInterface);
+
+        $this->assertEquals(array(), $this->exprList->getAll());
+        $this->exprList->add($expr_1, array(1,2,3));
+    }
+
+    /**
+     * @expectedException   Appfuel\Framework\Exception
+     * @return null
+     */
+    public function testAddFilterBadOperatorObj()
+    {
+        $expr_1 = $this->getMock($this->exprInterface);
+
+        $this->assertEquals(array(), $this->exprList->getAll());
+        $this->exprList->add($expr_1, new StdClass());
+    }
+
+
 }

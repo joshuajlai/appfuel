@@ -13,8 +13,8 @@ namespace Appfuel\View;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\View\TemplateInterface,
 	Appfuel\Framework\View\BuildItemInterface,
-	Appfuel\Framework\View\CompositeTemplateInterface,
-	Appfuel\Data\Dictionary;
+	Appfuel\Framework\DataStructure\Dictionary,
+	Appfuel\Framework\View\CompositeTemplateInterface;
 
 /**
  * The composite 

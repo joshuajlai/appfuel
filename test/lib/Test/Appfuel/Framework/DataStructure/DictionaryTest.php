@@ -8,11 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Data;
+namespace Test\Appfuel\Framework\DataStructure;
 
 use Test\AfTestCase	as ParentTestCase,
-	Appfuel\Framework\Data\DictionaryInterface,
-	Appfuel\Data\Dictionary,
+	Appfuel\Framework\DataStructure\Dictionary,
 	StdClass;
 
 /**

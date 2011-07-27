@@ -10,9 +10,9 @@
  */
 namespace Appfuel\App;
 
-use Appfuel\Data\Dictionary,
-	Appfuel\Framework\Exception,
+use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\MessageInterface,
+	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\App\Route\RouteInterface,
 	Appfuel\Framework\App\Request\RequestInterface;
 
