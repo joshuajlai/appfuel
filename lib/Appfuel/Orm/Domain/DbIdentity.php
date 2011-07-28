@@ -19,6 +19,13 @@ use Appfuel\Framework\Exception,
 class DbIdentity implements DbDomainIdentityInterface
 {
 	/**
+	 * Domain name used to refer to this domain so you don't have to use 
+	 * the class name
+	 * @var string
+	 */
+	protected $name = null;
+
+	/**
 	 * List of the initial member marshalled into the domain
 	 * @var array
 	 */
@@ -35,13 +42,6 @@ class DbIdentity implements DbDomainIdentityInterface
 	 * @var string
 	 */
 	protected $primaryKey = array();
-
-	/**
-	 * Label used to refer to this domain so you don't have to use 
-	 * the class name
-	 * @var string
-	 */
-	protected $label = null;
 
 	/**
 	 * List of domain labels this domain has access to and there relationships
@@ -239,20 +239,20 @@ class DbIdentity implements DbDomainIdentityInterface
 	/**
 	 * @return string
 	 */
-	public function getLabel()
+	public function getDomainName()
 	{
-		return $this->label;
+		return $this->name;
 	}
 
 	/**
 	 * @return	DbIdentity
 	 */
-	public function setLabel($label)
+	public function setDomainName($label)
 	{
 		if (! $this->isString($label)) {
 			throw new Exception("label must be a valid string");
 		}
-		$this->label = $label;
+		$this->name = $label;
 		return $this;
 	}
 
@@ -264,6 +264,26 @@ class DbIdentity implements DbDomainIdentityInterface
 		return $this->dependencies;
 	}
 
+	public function getNamespace($domainName)
+	{
+		if (! $this->isDependent($domainName)) {
+			return false;
+		}
+	}
+
+	/**
+	 * @param	string domainName
+	 * @return	bool
+	 */
+	public function isDependent($domainName)
+	{
+		if (! $this->isString($domainName)) {
+			return false;
+		}
+
+		return array_key_exists($domainName, $this->dependencies);
+	}
+
 	/**
 	 * The dependecy holds an array data structure that details information
 	 * about other domains this domain is allowed access to. The datastructure
@@ -272,7 +292,7 @@ class DbIdentity implements DbDomainIdentityInterface
 	 * domain-key: array (
 	 *		'type'		=> string <root|child>
 	 *		'relation'	=> string <one-one|one-many|many-many|none>
-	 *		'namespace' => string <(any valid path to the domain root dir)>
+	 *		'class'		=> string <(fully qualified class name of the identity)>
 	 * );
 	 * 
 	 * All these keys must exist with a domain key because they are used by
@@ -285,7 +305,6 @@ class DbIdentity implements DbDomainIdentityInterface
 		$err = "invalid dependency list ";
 		$validTypes = array('root', 'child');
 		$validRelations = array('one-one', 'one-many', 'many-many');
-
 		foreach ($list as $label => $depends) {
 
 			if (! is_string($label) || empty($label)) {
@@ -311,13 +330,13 @@ class DbIdentity implements DbDomainIdentityInterface
 				throw new Exception("$err error occurred on $label");
 			}
 
-			if (! isset($depends['namespace'])) {
+			if (! isset($depends['class'])) {
 				throw new Exception("$err domain namespace is missing");
 			}
 
-			$namespace = $depends['namespace'];
-			if (! is_string($namespace) || empty($namespace)) {
-				$err .= "damain namespace must be a non empty string";
+			$class = $depends['class'];
+			if (! is_string($class) || empty($class)) {
+				$err .= "damain class name must be a non empty string";
 				throw new Exception($err);
 			}
 		}
