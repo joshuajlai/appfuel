@@ -264,12 +264,48 @@ class DbIdentity implements DbDomainIdentityInterface
 		return $this->dependencies;
 	}
 
-	public function getNamespace($domainName)
+	/**
+	 * Returns the namespace of the dependent identity. Used to create
+	 * that identity
+	 *
+	 * @param	string	$domainName
+	 * @return	string | false on failure
+	 */
+	public function getDependentClass($domainName)
 	{
 		if (! $this->isDependent($domainName)) {
 			return false;
 		}
+
+		return $this->dependencies[$domainName]['class'];
 	}
+
+	/**
+	 * @param	string	$domainName
+	 * @return	string | false on failure
+	 */
+	public function getDependentType($domainName)
+	{
+		if (! $this->isDependent($domainName)) {
+			return false;
+		}
+
+		return $this->dependencies[$domainName]['type'];
+	}
+
+	/**
+	 * @param	string	$domainName
+	 * @return	string | false on failure
+	 */
+	public function getDependentRelation($domainName)
+	{
+		if (! $this->isDependent($domainName)) {
+			return false;
+		}
+
+		return $this->dependencies[$domainName]['relation'];
+	}
+
 
 	/**
 	 * @param	string domainName
