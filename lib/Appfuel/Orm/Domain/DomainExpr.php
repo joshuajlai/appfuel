@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Orm\Repository;
+namespace Appfuel\Orm\Domain;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\Expr\BinaryExpr,
-	Appfuel\Framework\Orm\Repository\DomainExprInterface;
+	Appfuel\Framework\Orm\Domain\DomainExprInterface;
 
 /**
  * Allows a simple domain expression to given as a string in the constructor
@@ -52,7 +52,8 @@ class DomainExpr extends BinaryExpr implements DomainExprInterface
 	}
 
 	/**
-	 * Alias operand for better readability
+	 * Alias operand for better readability. The domain member is always the 
+	 * operand on the left hand side of a binary expression
 	 * 
 	 * @return	string
 	 */
@@ -61,6 +62,12 @@ class DomainExpr extends BinaryExpr implements DomainExprInterface
 		return parent::getLeftOperand();
 	}
 
+	/**
+	 * Merely improves readablity. The value of a domain expression is always
+	 * the operand on the right side.
+	 * 
+	 * @return	mixed
+	 */
 	public function getValue()
 	{
 		return parent::getRightOperand();
