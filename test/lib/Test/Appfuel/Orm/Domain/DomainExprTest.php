@@ -12,7 +12,7 @@ namespace Test\Appfuel\Orm\Domain;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Orm\Repository\DomainExpr;
+	Appfuel\Orm\Domain\DomainExpr;
 
 /**
  * Domain expressions allows a simple expression about a domain to be expressed

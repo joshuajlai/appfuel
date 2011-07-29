@@ -8,14 +8,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Domain\User;
+namespace Appfuel\Db\Sql;
 
-use Appfuel\Orm\Domain\DomainModel;
+use SplFileInfo,
+	Appfuel\Framework\Exception,
+	Appfuel\Framework\Db\Sql\SqlBuilderInterface;
 
 /**
- * Appfuel User domain model
+ * 
  */
-class UserModel extends DomainModel
+class SqlBuilder implements SqlBuilderInterface
 {
-	
+
 }

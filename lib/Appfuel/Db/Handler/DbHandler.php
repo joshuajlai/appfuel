@@ -11,7 +11,9 @@
 namespace Appfuel\Db\Handler;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Handler\PoolInterface;
+	Appfuel\Framework\Db\Handler\PoolInterface,
+	Appfuel\Framework\Db\Request\RequestInterface,
+	Appfuel\Framework\Db\Handler\HandlerInterface;
 
 /**
  * The database handler is responsible for handling database requests without
@@ -20,7 +22,7 @@ use Appfuel\Framework\Exception,
  * adaoter  and decide which adapter method to use based on the request, 
  * finishing by returning a DbResponse.
  */
-class DbHandler
+class DbHandler implements HandlerInterface
 {
 	/**
 	 * The pool hold one or more connections for the database
@@ -73,7 +75,7 @@ class DbHandler
 	 * @param	DbRequestInterface $request
 	 * @return	DbResponse
 	 */
-	public function execute(DbRequestInterface $request)
+	public function execute(RequestInterface $request)
 	{
 		$type = $request->getType();
 		if (! self::isPool()) {

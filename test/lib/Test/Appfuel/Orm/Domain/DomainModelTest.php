@@ -129,19 +129,19 @@ class DomainModelTest extends ParentTestCase
 	public function testIsStrictMarshal()
 	{
 		/* default value is false */
-		$this->assertFalse($this->domain->_isStrictMarshalling());
-		$this->assertSame(
-			$this->domain, 
-			$this->domain->_enableStrictMarshalling()
-		);
-
 		$this->assertTrue($this->domain->_isStrictMarshalling());
-
 		$this->assertSame(
 			$this->domain, 
 			$this->domain->_disableStrictMarshalling()
 		);
+
 		$this->assertFalse($this->domain->_isStrictMarshalling());
+
+		$this->assertSame(
+			$this->domain, 
+			$this->domain->_enableStrictMarshalling()
+		);
+		$this->assertTrue($this->domain->_isStrictMarshalling());
 	}
 
 	/**
@@ -176,7 +176,9 @@ class DomainModelTest extends ParentTestCase
 			'memberC' => array(1,2,3,4)
 		);
 		$this->assertNull($this->domain->_getDomainState());
-		$this->assertFalse($this->domain->_isStrictMarshalling());
+		$this->assertTrue($this->domain->_isStrictMarshalling());
+		$this->domain->_disableStrictMarshalling();
+
 		$this->assertSame(
 			$this->domain,
 			$this->domain->_marshal($data)
@@ -200,7 +202,9 @@ class DomainModelTest extends ParentTestCase
 			'memberC' => array(1,2,3,4)
 		);
 		$this->assertNull($this->domain->_getDomainState());
-		$this->assertFalse($this->domain->_isStrictMarshalling());
+		$this->assertTrue($this->domain->_isStrictMarshalling());
+		$this->domain->_disableStrictMarshalling();
+		
 		$this->assertSame(
 			$this->domain,
 			$this->domain->_marshal($data)
@@ -226,7 +230,9 @@ class DomainModelTest extends ParentTestCase
 			'memberD' => 'asdasd'
 		);
 		$this->assertNull($this->domain->_getDomainState());
-		$this->assertFalse($this->domain->_isStrictMarshalling());
+		$this->assertTrue($this->domain->_isStrictMarshalling());
+		$this->domain->_disableStrictMarshalling();
+		
 		$this->assertSame(
 			$this->domain,
 			$this->domain->_marshal($data)

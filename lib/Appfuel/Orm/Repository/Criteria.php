@@ -15,7 +15,7 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\Expr\ExprListInterface,
 	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\DataStructure\DictionaryInterface,
-	Appfuel\Framework\Orm\Repository\DomainExprInterface,
+	Appfuel\Framework\Orm\Domain\DomainExprInterface,
 	Appfuel\Framework\Orm\Repository\CriteriaInterface;
 
 /**

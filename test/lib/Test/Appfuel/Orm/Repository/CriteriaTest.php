@@ -12,7 +12,7 @@ namespace Test\Appfuel\Orm\Repository;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Orm\Repository\DomainExpr,
+	Appfuel\Orm\Domain\DomainExpr,
 	Appfuel\Orm\Repository\Criteria,
 	Appfuel\Framework\Expr\ExprList,
 	Appfuel\Framework\DataStructure\Dictionary;

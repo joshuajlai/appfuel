@@ -327,52 +327,52 @@ class DbIdentityTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testGetSetLabel()
+	public function testGetSetDomainName()
 	{
-		$this->assertNull($this->identity->getLabel());
+		$this->assertNull($this->identity->getDomainName());
 
 		$label = 'user';
 		$this->assertSame(
 			$this->identity,
-			$this->identity->setLabel($label)
+			$this->identity->setDomainName($label)
 		);
-		$this->assertEquals($label, $this->identity->getLabel());
+		$this->assertEquals($label, $this->identity->getDomainName());
 	}
 
 	/**
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function testSetLabelEmptyString()
+	public function testSetDomainNameEmptyString()
 	{
-		$this->identity->setLabel('');
+		$this->identity->setDomainName('');
 	}
 
 	/**
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function testSetLabelNumberic()
+	public function testSetDomainNameNumberic()
 	{
-		$this->identity->setLabel(9999);
+		$this->identity->setDomainName(9999);
 	}
 
 	/**
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function testSetLabelArray()
+	public function testSetDomainNameArray()
 	{
-		$this->identity->setLabel(array(1,2,3,4));
+		$this->identity->setDomainName(array(1,2,3,4));
 	}
 
 	/**
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function testSetLabelObject()
+	public function testSetDomainNameObject()
 	{
-		$this->identity->setLabel(new StdClass());
+		$this->identity->setDomainName(new StdClass());
 	}
 
 	/**
@@ -503,20 +503,23 @@ class DbIdentityTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testGetSetDependencies()
+	public function testGetSetIsDependencies()
 	{
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
 				'relation'	=> 'one-many',
-				'namespace' => 'some/path/to/user/email'
+				'class' => 'some/path/to/user/email/Identity'
 			),
-			'roles' => array(
+			'role' => array(
 				'type'		=> 'root',
 				'relation'	=> 'many-many',
-				'namespace' => 'some/path/to/role'
+				'class' => 'some/path/to/role/Identity'
 			)
 		);
+
+		$this->assertFalse($this->identity->isDependent('user-email'));
+		$this->assertFalse($this->identity->isDependent('role'));
 
 		/* default value is an empty array */
 		$this->assertEquals(array(), $this->identity->getDependencies());
@@ -527,7 +530,128 @@ class DbIdentityTest extends ParentTestCase
 			'must expose a fluent interface'
 		);
 
+		$this->assertTrue($this->identity->isDependent('user-email'));
+		$this->assertTrue($this->identity->isDependent('role'));
+
+
 		$this->assertEquals($map, $this->identity->getDependencies());
+
+		/* isDependent will return false for anything not a string or empty */
+		$this->assertFalse($this->identity->isDependent(''));
+		$this->assertFalse($this->identity->isDependent(array(1,2,3,4)));
+		$this->assertFalse($this->identity->isDependent(1234));
+		$this->assertFalse($this->identity->isDependent(new StdClass()));	
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testGetDependentClass()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many',
+				'class' => 'My\Identity\Class'
+			),
+			'role' => array(
+				'type'		=> 'root',
+				'relation'	=> 'many-many',
+				'class' => 'My\Other\Identity\Class'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+		$this->assertEquals(
+			$map['user-email']['class'],
+			$this->identity->getDependentClass('user-email')
+		);
+
+		$this->assertEquals(
+			$map['role']['class'],
+			$this->identity->getDependentClass('role')
+		);
+
+		$this->assertFalse($this->identity->getDependentClass('none-there'));
+		$this->assertFalse($this->identity->getDependentClass(123445));
+		$this->assertFalse($this->identity->getDependentClass(''));
+		$this->assertFalse($this->identity->getDependentClass(array(1,2,3)));
+		$this->assertFalse($this->identity->getDependentClass(new StdClass()));
+
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testGetDependentType()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many',
+				'class' => 'My\Identity\Class'
+			),
+			'role' => array(
+				'type'		=> 'root',
+				'relation'	=> 'many-many',
+				'class' => 'My\Other\Identity\Class'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+		$this->assertEquals(
+			$map['user-email']['type'],
+			$this->identity->getDependentType('user-email')
+		);
+
+		$this->assertEquals(
+			$map['role']['type'],
+			$this->identity->getDependentType('role')
+		);
+
+		$this->assertFalse($this->identity->getDependentType('none-there'));
+		$this->assertFalse($this->identity->getDependentType(123445));
+		$this->assertFalse($this->identity->getDependentType(''));
+		$this->assertFalse($this->identity->getDependentType(array(1,2,3)));
+		$this->assertFalse($this->identity->getDependentType(new StdClass()));
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testGetDependentRelation()
+	{
+		$map = array(
+			'user-email' => array(
+				'type'		=> 'child',
+				'relation'	=> 'one-many',
+				'class' => 'My\Identity\Class'
+			),
+			'role' => array(
+				'type'		=> 'root',
+				'relation'	=> 'many-many',
+				'class' => 'My\Other\Identity\Class'
+			)
+		);
+
+		$this->identity->setDependencies($map);
+		$this->assertEquals(
+			$map['user-email']['relation'],
+			$this->identity->getDependentRelation('user-email')
+		);
+
+		$this->assertEquals(
+			$map['role']['relation'],
+			$this->identity->getDependentRelation('role')
+		);
+
+		$this->assertFalse($this->identity->getDependentRelation('none-there'));
+		$this->assertFalse($this->identity->getDependentRelation(123445));
+		$this->assertFalse($this->identity->getDependentRelation(''));
+		$this->assertFalse($this->identity->getDependentRelation(array(1,2)));
+		$this->assertFalse(
+			$this->identity->getDependentRelation(new StdClass())
+		);
 	}
 
 	/**
@@ -557,11 +681,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'' => array(
 				'type'		=> 'root',
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -577,11 +703,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			99 => array(
 				'type'		=> 'root',
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -597,10 +725,12 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -616,10 +746,12 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
-				'type'		=> 'root'
+				'type'		=> 'root',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -635,11 +767,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 99,
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -655,11 +789,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> null,
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -675,11 +811,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> '',
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -695,11 +833,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> array(1,2,3),
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -715,11 +855,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> new StdClass(),
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -736,11 +878,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 'value-not-in-list',
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -756,11 +900,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'CHILD',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 'root',
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -776,11 +922,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'Child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 'root',
-				'relation'	=> 'many-many'
+				'relation'	=> 'many-many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -796,11 +944,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 'root',
-				'relation'	=> 'MANY-MANY'
+				'relation'	=> 'MANY-MANY',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -816,11 +966,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 'root',
-				'relation'	=> 'Many-Many'
+				'relation'	=> 'Many-Many',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -836,11 +988,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 'root',
-				'relation'	=> null
+				'relation'	=> null,
+				'class'		=> 'blah'
 			)
 		);
 
@@ -856,11 +1010,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 'root',
-				'relation'	=> ''
+				'relation'	=> '',
+				'class'		=> 'blah'
 			)
 		);
 
@@ -876,11 +1032,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 'root',
-				'relation'	=> array('many-many')
+				'relation'	=> array('many-many'),
+				'class'		=> 'blah'
 			)
 		);
 
@@ -896,11 +1054,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 'root',
-				'relation'	=> new StdClass()
+				'relation'	=> new StdClass(),
+				'class'		=> 'blah'
 			)
 		);
 
@@ -916,11 +1076,13 @@ class DbIdentityTest extends ParentTestCase
 		$map = array(
 			'user-email' => array(
 				'type'		=> 'child',
-				'relation'	=> 'one-many'
+				'relation'	=> 'one-many',
+				'class'		=> 'blah'
 			),
 			'roles' => array(
 				'type'		=> 'root',
-				'relation'	=> 99
+				'relation'	=> 99,
+				'class'		=> 'blah'
 			)
 		);
 

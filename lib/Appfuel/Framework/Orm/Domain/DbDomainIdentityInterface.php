@@ -100,16 +100,16 @@ interface DbDomainIdentityInterface
 	/**
 	 * @param	string	
 	 */
-	public function getLabel();
+	public function getDomainName();
 	
 	/**
 	 * The label is used to determine how the domain is referenced in code.
-	 * When used with factories for repos you use this label
+	 * When used with factories for repos you use this key
 	 *
 	 * @param	string	$label
 	 * @return	DbIntentityInterface
 	 */
-	public function setLabel($label);
+	public function setDomainName($label);
 	
 	/**
 	 * @return array

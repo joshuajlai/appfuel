@@ -8,14 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Domain\User;
+namespace Appfuel\Framework\Db\Handler;
 
-use Appfuel\Orm\Domain\DomainModel;
+use Appfuel\Framework\Db\Request\RequestInterface;
 
 /**
- * Appfuel User domain model
  */
-class UserModel extends DomainModel
+interface HandlerInterface
 {
-	
+	public function execute(RequestInterface $request);
 }
