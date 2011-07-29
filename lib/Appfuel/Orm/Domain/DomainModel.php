@@ -37,7 +37,41 @@ abstract class DomainModel implements DomainModelInterface
 	 * an exception or not when the member does not exist
 	 * @var bool
 	 */
-	private $isStrictMarshal = false;
+	private $isStrictMarshal = true;
+
+	/**
+	 * Basic automation for getter and setter support 
+	 * The naming convention follows camelCase so to determine which member
+	 * this call is for we split the string into two parts and lower case the
+	 * first character in the second part that represents the member variable
+	 *
+	 * @param	string 
+	 */
+	public function __call($name, array $args)
+	{
+		$prefix = substr($name, 0, 3);
+		$member = substr($name, 3);
+		$member{0} = strtolower($member{0});
+
+		/* ignore members that do not exist */
+		if (! property_exists($this, $member)) {
+			if (! $this->isStrictMarchalling()) {
+				return $this;
+			}
+
+			throw new Exception('member does not exist, probably not mapped');
+		}
+
+		if ('set' === $prefix) {
+			$this->_markDirty($member);
+			$this->$member = $value;
+			return $this;
+		}
+
+		if ('get' === $prefix) {
+			return $this->$member;
+		}
+	}
 
 	/**
 	 * @return DomainState
