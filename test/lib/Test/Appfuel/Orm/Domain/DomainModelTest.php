@@ -66,7 +66,7 @@ class MockDomainModel extends DomainModel
 		return $this->memberD;
 	}
 
-	public function setMemberD(StdClass $value)
+	public function setMemberD($value)
 	{
 		$this->memberD = $value;
 		return $this;
@@ -219,34 +219,6 @@ class DomainModelTest extends ParentTestCase
 	}
 
 	/**
-	 * @expectedException	BadMethodCallException
-	 * @return null
-	 */
-	public function testMarkMarshalNotStrictBadMember()
-	{
-		$data = array(
-			'memberA' => 'abc',
-			'memberC' => array(1,2,3,4),
-			'memberD' => 'asdasd'
-		);
-		$this->assertNull($this->domain->_getDomainState());
-		$this->assertTrue($this->domain->_isStrictMarshalling());
-		$this->domain->_disableStrictMarshalling();
-		
-		$this->assertSame(
-			$this->domain,
-			$this->domain->_marshal($data)
-		);
-		$state = $this->domain->_getDomainState();
-		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
-			$state
-		);
-		$this->assertTrue($state->isMarshal());
-		$this->assertEquals($data, $state->getInitialMembers());
-	}
-
-	/**
 	 * @return null
 	 */
 	public function testMarkMarshalStrictValidMembers()
@@ -275,7 +247,7 @@ class DomainModelTest extends ParentTestCase
 	}
 
 	/**
-	 * @expectedException	BadMethodCallException
+	 * @expectedException	\Exception
 	 * @return null
 	 */
 	public function testMarkMarshalStrictMemberDoesNotExist()

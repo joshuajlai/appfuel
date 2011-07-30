@@ -17,5 +17,44 @@ use Appfuel\Orm\Domain\DomainModel;
  */
 class UserModel extends DomainModel
 {
+	/**
+	 * Name used to login into the system
+	 * @var string
+	 */
+	protected $loginName = null;
+
+	/**
+	 * @var string
+	 */
+	protected $firstName = null;
 	
+	/**
+	 * @var string
+	 */
+	protected $lastName = null;
+	
+	/**
+	 * User primary email
+	 * @var string
+	 */
+	protected $email = null;
+	
+	/**
+	 * Used to determine the status of the user in the system values range
+	 * form 'active', 'inactive', 'suspended', 'removed'
+	 * @var string
+	 */
+	protected $activityCode = null;
+	
+	/**
+	 * Date the user account was created
+	 * @var string
+	 */
+	protected $dateCreated = null;
+	
+	/**
+	 * Last time the user accessed the system
+	 * @var string
+	 */
+	protected $lastAccessed = null;	
 }

@@ -37,12 +37,6 @@ class DomainState implements DomainStateInterface
 	protected $state = 'new';
 
 	/**
-	 * List of valid states the domain can go through
-	 * @var array
-	 */
-	protected $validStates = array('marshal', 'new', 'dirty', 'delete');
-
-	/**
 	 * @return	string
 	 */
 	public function getState()
@@ -61,7 +55,8 @@ class DomainState implements DomainStateInterface
 			throw new Exception("$err param must be a non empty string");
 		}
 
-		if (! in_array($state, $this->validStates)) {
+		$validStates = array('marshal', 'new', 'dirty', 'delete');
+		if (! in_array($state, $validStates)) {
 			$list = implode(',', $this->validStates);
 			throw new Exception("$err param must be one of ($list)");
 		}

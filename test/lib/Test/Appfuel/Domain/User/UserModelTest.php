@@ -41,6 +41,25 @@ class UserModelTest extends ParentTestCase
 	}
 
 	/**
+	 * @return	array
+	 */
+	public function provideValidUser()
+	{
+		$data = array(
+			'id'			=> 99,
+			'loginName'		=> 'rscottb',
+			'firstName'		=> 'Robert',
+			'lastName'		=> 'Scott-Buccleuch',
+			'email'			=> 'rsb.code@gmail.com',
+			'activityCode'	=> 'active',
+			'dateCreated'	=> 'jan-06-2011',
+			'lastAccessed'  => 'june-08-2011'
+		);
+
+		return array(array($data));
+	}
+
+	/**
 	 * @return null
 	 */
 	public function testHasInterface()
@@ -49,5 +68,32 @@ class UserModelTest extends ParentTestCase
 			'Appfuel\Framework\Orm\Domain\DomainModelInterface',
 			$this->user
 		);
+	}
+
+	/**
+	 * @dataProvider	provideValidUser
+	 * @return	null
+	 */
+	public function testMarshal(array $data)
+	{
+		$this->assertSame($this->user, $this->user->_marshal($data));
+		$this->assertEquals($data['id'], $this->user->getId());
+		$this->assertEquals($data['loginName'], $this->user->getLoginName());
+		$this->assertEquals($data['firstName'], $this->user->getFirstName());
+		$this->assertEquals($data['lastName'], $this->user->getLastName());
+		$this->assertEquals($data['email'], $this->user->getEmail());
+		$this->assertEquals(
+			$data['activityCode'], 
+			$this->user->getActivityCode()
+		);
+		$this->assertEquals($data['dateCreated'], $this->user->getDateCreated());
+		$this->assertEquals(
+			$data['lastAccessed'], 
+			$this->user->getLastAccessed()
+		);
+
+		$state = $this->user->_getDomainState();
+		$this->assertEquals('marshal', $state->getState());
+		$this->assertTrue($state->isMarshal());
 	}
 }

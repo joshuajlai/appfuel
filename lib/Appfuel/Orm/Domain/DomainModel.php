@@ -21,6 +21,12 @@ use BadMethodCallException,
 abstract class DomainModel implements DomainModelInterface
 {
 	/**
+	 * Domain Id 
+	 * @var	mixed	string|int
+	 */
+	protected $id = null;
+
+	/**
 	 * Holds the internal state of the domain. Domain states include:
 	 * marshal	: domain was built from the datasource
 	 * new		: domain needs to be added to the datasource
@@ -53,18 +59,20 @@ abstract class DomainModel implements DomainModelInterface
 		$member = substr($name, 3);
 		$member{0} = strtolower($member{0});
 
-		/* ignore members that do not exist */
+		/* 
+		 * ignore members that do not exist when strict marshalling is 
+		 * disabled
+		 */
 		if (! property_exists($this, $member)) {
-			if (! $this->isStrictMarchalling()) {
+			if (! $this->_isStrictMarshalling()) {
 				return $this;
 			}
-
-			throw new Exception('member does not exist, probably not mapped');
+			throw new Exception("member does not exist, $member)");
 		}
 
 		if ('set' === $prefix) {
 			$this->_markDirty($member);
-			$this->$member = $value;
+			$this->$member = $args[0];
 			return $this;
 		}
 
@@ -139,25 +147,11 @@ abstract class DomainModel implements DomainModelInterface
 		$isStrict = $this->_isStrictMarshalling();
 		$err = "Failed domain marshal: ";
 		foreach ($data as $member => $value) {
-
 			$setter = 'set' . ucfirst($member);
-			if (method_exists($this, $setter)) {
-				try {
-					$this->$setter($value);
-				} catch (\Exception $e) {
-					$err .= "invalid argument for ($setter)";
-					throw new BadMethodCallException($err, null, $e);
-				}
-				continue;
-			}
-
-			if ($isStrict) {
-				throw new BadMethodCallException(
-					"$err ($setter) does not exist"
-				);
-			}
+			$this->$setter($value);
 		}
 
+		$this->_markClean();
 		return $this;
 	}
 	
