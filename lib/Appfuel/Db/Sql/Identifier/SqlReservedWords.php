@@ -10,13 +10,17 @@
  */
 namespace Appfuel\Db\Sql\Identifier;
 
+use Appfuel\Framework\Db\Sql\SqlReservedWordsInterface;
 
 /**
  * Validates if a string is located inside the words list
  */
-class Sql92Reserved
+class SqlReservedWords implements SqlReservedWordsInterface
 {
-	static protected $words = array(
+	/**
+	 * @var array
+	 */
+	protected $words = array(
 		'add', 'all', 'allocate', 'alter', 'and', 'any', 'are', 'as', 'asc',
 		'assertion', 'at', 'authorization', 'avg', 
 		'begin', 'between', 'bigint', 'bit', 'boolean', 'both', 'by',
@@ -66,20 +70,20 @@ class Sql92Reserved
 	 * @param	string	$word
 	 * return	bool
 	 */
-	static public function isReserved($word)
+	public function isReserved($word)
 	{
 		if (empty($word) || ! is_string($word)) {
 			return false;
 		}
 
-		return in_array(strtolower($word), self::$words);
+		return in_array(strtolower($word), $this->words);
 	}
 
 	/**
 	 * @return	array
 	 */
-	static public function getWords()
+	public function getWords()
 	{
-		return self::$words;
+		return $this->words;
 	}
 }

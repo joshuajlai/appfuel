@@ -13,7 +13,7 @@ namespace Test\Appfuel\Db\Sql\Identifier;
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
 	Appfuel\Db\Sql\Identifier\SqlIdentifier,
-	Appfuel\Db\Sql\Identifier\Sql92Reserved;
+	Appfuel\Db\Sql\Identifier\SqlReservedWords;
 
 /**
  * Test capabilities of the binary expression class
@@ -53,7 +53,8 @@ class SqlIdentifierTest extends ParentTestCase
 	 */
 	public function provideSql92ReservedWords()
 	{
-		$words = Sql92Reserved::getWords();
+		$reserved = new SqlReservedWords();
+		$words = $reserved->getWords();
 	
 		$params = array();
 		foreach ($words as $word) {
@@ -108,5 +109,4 @@ class SqlIdentifierTest extends ParentTestCase
 		$identifier = new SqlIdentifier($word);
 		$this->assertEquals($word, $identifier->getOperand());
 	}
-
 }

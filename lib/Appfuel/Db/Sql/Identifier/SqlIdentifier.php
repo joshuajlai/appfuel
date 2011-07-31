@@ -19,12 +19,15 @@ use Appfuel\Framework\Exception,
  */
 class SqlIdentifier extends BasicExpr
 {
+	protected $reserved = null;
+
 	/**
      * @param   string   $name
      * @return  File
      */
     public function __construct($name)
     {
+		$this->reserved = new SqlReservedWords();
 		parent::__construct($name);
     }
 
@@ -83,7 +86,7 @@ class SqlIdentifier extends BasicExpr
 			return true;
 		}
 
-		if (Sql92Reserved::isReserved($name)) {
+		if ($this->reserved->isReserved($name)) {
 			return false;
 		}
 

@@ -12,25 +12,47 @@ namespace Test\Appfuel\Db\Sql\Identifier;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Db\Sql\Identifier\Sql92Reserved;
+	Appfuel\Db\Sql\Identifier\SqlReservedWords;
 
 /**
  * Test capabilities of the binary expression class
  */
-class Sql92ReservedTest extends ParentTestCase
+class SqlReservedWordsTest extends ParentTestCase
 {
+	/**
+	 * System under test
+	 * @var SqlReservedWords
+	 */
+	protected $reserved = null;
+
+	/**
+	 * @return null
+	 */
+	public function setUp()
+	{
+		$this->reserved = new SqlReservedWords();
+	}
+
+	/**
+	 * @return null
+	 */
+	public function tearDown()
+	{
+		unset($this->reserved);
+	}
+
 	/**
 	 * @return null
 	 */
 	public function testIsReservedKnownWords()
 	{	
-		$words = Sql92Reserved::getWords();
+		$words = $this->reserved->getWords();
 		$this->assertInternalType('array', $words);
 		$this->assertGreaterThan(0, $words);
 
 		foreach ($words as $word) {
 			$this->assertTrue(
-				Sql92Reserved::isReserved($word),
+				$this->reserved->isReserved($word),
 				"($word) should be true"
 			);
 		}
@@ -41,12 +63,11 @@ class Sql92ReservedTest extends ParentTestCase
 	 */
 	public function testIsReservedFalseCases()
 	{
-		$this->assertFalse(Sql92Reserved::isReserved(''));
-		$this->assertFalse(Sql92Reserved::isReserved(array(1,3,4)));
-		$this->assertFalse(Sql92Reserved::isReserved(new StdClass()));
-		$this->assertFalse(Sql92Reserved::isReserved(12345));
-		$this->assertFalse(Sql92Reserved::isReserved('i_am_not_reserved'));
-		
+		$this->assertFalse($this->reserved->isReserved(''));
+		$this->assertFalse($this->reserved->isReserved(array(1,3,4)));
+		$this->assertFalse($this->reserved->isReserved(new StdClass()));
+		$this->assertFalse($this->reserved->isReserved(12345));
+		$this->assertFalse($this->reserved->isReserved('i_am_not_reserved'));
 	}
 
 }

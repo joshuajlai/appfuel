@@ -47,22 +47,25 @@ class SqlReserved
 		'no_write_to_binlog', 'null', 'numeric', 
 		'on', 'optimize', 'option', 'optionally', 'or', 'order', 'out', 
 		'outer','outfile',
-
-
-		'pad', 'partial', 'prepare', 'preserve', 'primary', 'prior', 
-		'privileges', 'procedure', 'public',
-		'read', 'real', 'references', 'relative', 'restrict', 'revoke', 
-		'right', 'rollback', 'rows', 'row_number', 'rtrim',
-		'schema', 'scroll', 'second', 'select', 'session_user', 'set', 
-		'smallint', 'some', 'space', 'sql', 'sqlcode', 'sqlerror', 'sqlstate',
-		'substr', 'substring', 'sum', 'system_user',
-		'table', 'temporary', 'timezone_hour', 'timezone_minute', 'to',
-		'transaction', 'translate', 'translation', 'trim', 'true',
-		'union', 'unique', 'unknown', 'update', 'upper', 'user', 'using',
-		'values', 'varchar', 'varying', 'view',
-		'whenever', 'where', 'with', 'work', 'write',
-		'xml', 'xmlexists', 'xmlparse', 'xmlquery', 'xmlserialize',
-		'year',
+		'precision', 'primary', 'procedure', 'purge',
+		'read', 'reads', 'real', 'references', 'regexp', 'release', 'rename', 
+		'repeat', 'replace', 'require', 'restrict', 'return', 'revoke',
+		'right', 'rlike',
+ 
+		'schema', 'schemas', 'second_microsecond', 'select', 'sensitive', 
+		'separator', 'set', 'show', 'smallint', 'soname', 'spatial', 
+		'specific', 'sql', 'sqlexception', 'sqlstate', 'sqlwarning',
+		'sql_big_result', 'sql_calc_found_rows', 'sql_small_result', 'ssl',
+		'starting', 'straight_join',
+		'table', 'terminated', 'then', 'tinyblob', 'tinyint', 'tinytext', 'to',
+		'trailing', 'trigger', 'true',
+		'undo', 'union', 'unique', 'unlock', 'unsigned', 'update', 'usage', 
+		'use', 'using', 'utc_date', 'utc_time', 'utc_timestamp',
+		'values', 'varbinary', 'varchar', 'varcharacter', 'varying',
+		'when', 'where', 'with', 'write',
+		'xor',
+		'year_month',
+		'zerofile'
 	);
 
 	/**
