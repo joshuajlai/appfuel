@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Stdlib\Filesystem;
+namespace Appfuel\Framework\File;
  
 use Appfuel\Framework\Exception;
 
@@ -16,7 +16,7 @@ use Appfuel\Framework\Exception;
  * Aims to provide a common interface that can work on both file paths
  * as a string or as an SplFileInfo object 
  */
-class Manager
+class FileManager
 {
 	/**
 	 * This will return the canonicalized absolute path of a file in the 

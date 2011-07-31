@@ -12,8 +12,8 @@ namespace Appfuel\App;
 
 use Appfuel\Db\Handler\DbInitializer,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\DataStructure\DictionaryInterface,
-	Appfuel\Stdlib\Filesystem\Manager	as FileManager;
+	Appfuel\Framework\File\FileManager,
+	Appfuel\Framework\DataStructure\DictionaryInterface;
 
 /**
  * The Initializer is used to put the framework into a known state for the

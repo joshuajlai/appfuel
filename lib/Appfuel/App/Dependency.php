@@ -34,22 +34,21 @@ class Dependency
 	public function __construct($libDir)
 	{
 		$sep  = DIRECTORY_SEPARATOR;
-		$path = "{$libDir}{$sep}Appfuel{$sep}";
-		$app  = "{$path}App{$sep}";
-		$fw   = "{$path}Framework{$sep}";
-		$std  = "{$path}Stdlib{$sep}";
+		$path = "{$libDir}/Appfuel/";
+		$app  = "{$path}App/";
+		$fw   = "{$path}Framework/";
 
 		$this->files = array(
 			"{$fw}Exception.php",
-			"{$fw}DataStructure{$sep}DictionaryInterface.php",
-			"{$fw}DataStructure{$sep}Dictionary.php",
-			"{$std}Filesystem{$sep}Manager.php",
-			"{$fw}Env{$sep}ErrorDisplay.php",
-			"{$fw}Env{$sep}ErrorReporting.php",
-			"{$fw}Env{$sep}AutoloadInterface.php",
-			"{$fw}Env{$sep}Autoloader.php",
-			"{$fw}Env{$sep}Timezone.php",
-			"{$fw}Env{$sep}IncludePath.php",
+			"{$fw}DataStructure/DictionaryInterface.php",
+			"{$fw}DataStructure/Dictionary.php",
+			"{$fw}File/FileManager.php",
+			"{$fw}Env/ErrorDisplay.php",
+			"{$fw}Env/ErrorReporting.php",
+			"{$fw}Env/AutoloadInterface.php",
+			"{$fw}Env/Autoloader.php",
+			"{$fw}Env/Timezone.php",
+			"{$fw}Env/IncludePath.php",
 			"{$app}Initializer.php",
 			"{$app}Factory.php",
 			"{$app}Registry.php",

@@ -11,8 +11,8 @@
 namespace Test;
 
 use PHPUnit_Extensions_OutputTestCase as ParentTestCase,
-	Appfuel\Stdlib\Filesystem\Manager as FileManager,
-	Appfuel\App\Manager				  as AppManager;
+	Appfuel\Framework\File\FileManager,
+	Appfuel\App\Manager	as AppManager;
 
 /**
  * All Appfuel test cases will extend this class which provides features like

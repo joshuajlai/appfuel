@@ -12,7 +12,7 @@ namespace Appfuel\App\Route;
 
 use Appfuel\Framework\Exception,
 	Appfuel\App\Registry,
-	Appfuel\Stdlib\Filesystem\Manager as FileManager;
+	Appfuel\Framework\File\FileManager;
 
 /**
  * Build an action route by getting all routes in a config file then looking

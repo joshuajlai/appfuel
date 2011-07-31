@@ -11,7 +11,7 @@
 namespace Appfuel\Framework\Env;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Stdlib\Filesystem\Manager as FileManager;
+	Appfuel\Framework\File\FileManager;
 
 /**
  * Automatic look for the class file, the location of which is encoded
