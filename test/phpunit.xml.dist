@@ -3,10 +3,19 @@
 <phpunit backupGlobals="false" bootstrap="bootstrap.php" colors="true">
 <testsuites>
 	<testsuite name="Appfuel Framework">
-	<directory suffix="Test.php">./lib/Test/Appfuel/Framework</directory>
-	<directory suffix="Test.php">./lib/Test/Appfuel/App</directory>
-	<directory suffix="Test.php">./lib/Test/Appfuel/Data</directory>
-	<directory suffix="Test.php">./lib/Test/Appfuel/View</directory>
+		<directory suffix="Test.php">./lib/Test/Appfuel/Framework</directory>
+	</testsuite>
+
+	<testsuite name="Appfuel Validate">
+		<directory suffix="Test.php">./lib/Test/Appfuel/Validate</directory>
+	</testsuite>
+
+	<testsuite name="Appfuel View">
+		<directory suffix="Test.php">./lib/Test/Appfuel/View</directory>
+	</testsuite>
+
+	<testsuite name="Appfuel App">
+		<directory suffix="Test.php">./lib/Test/Appfuel/App</directory>
 	</testsuite>
 
 	<testsuite name="Appfuel Domains">
