@@ -260,5 +260,4 @@ class CoordinatorTest extends ParentTestCase
 			'same token is used with invalid keys'
 		);
 	}
-
 }

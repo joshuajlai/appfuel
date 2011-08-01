@@ -26,14 +26,14 @@ interface CoordinatorInterface
      * @param   mixed   $value
      * @return  Coordinator
      */
-    public function addClean($label, $value);
+    public function addClean($field, $value);
 
     /**
-     * @param   string  $label
+     * @param   string  $field
      * @param   mixed   $default
      * @return  mixed
      */
-    public function getClean($label, $default = null);
+    public function getClean($field, $default = null);
 
     /**
      * @return array
@@ -47,10 +47,10 @@ interface CoordinatorInterface
     public function setSource($source);
 
     /**
-     * @param   string  $label
+     * @param   string  $field
      * @return  mixed
      */
-    public function getRaw($label);
+    public function getRaw($field);
 
 	/**
 	 * Returns a special token string to indicate that the raw key was
@@ -61,10 +61,11 @@ interface CoordinatorInterface
 	public function rawKeyNotFound();
     
 	/**
-     * @param   string  $txt
+	 * @param	string	$field
+     * @param   string  $msg
      * @return  FilterValidator
      */
-    public function addError($txt);
+    public function addError($field, $msg);
     
 	/**
      * @return bool

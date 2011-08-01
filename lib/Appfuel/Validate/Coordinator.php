@@ -62,33 +62,33 @@ class Coordinator implements CoordinatorInterface
 
     /**
 	 * @throws	Appfuel\Framework\Exception
-     * @param   string  $label
+     * @param   string  $field
      * @param   mixed   $value
      * @return  Coordinator
      */
-    public function addClean($label, $value)
+    public function addClean($field, $value)
     {
-        if (empty($label) || ! is_scalar($label)) {
-            throw new Exception("Can not add to clean label must be label");
+        if (empty($field) || ! is_scalar($field)) {
+            throw new Exception("Can not add to clean field must be scalar");
         }
 
-        $this->clean[$label] = $value;
+        $this->clean[$field] = $value;
         return $this;
     }
 
     /**
-     * @param   string  $label
+     * @param   string  $field
      * @param   mixed   $default
      * @return  mixed
      */
-    public function getClean($label, $default = null)
+    public function getClean($field, $default = null)
     {
-		if (empty($label) || ! is_scalar($label) ||
-			! array_key_exists($label, $this->clean)) {
+		if (empty($field) || ! is_scalar($field) ||
+			! array_key_exists($field, $this->clean)) {
 			return $default;
 		}
 
-        return $this->clean[$label];
+        return $this->clean[$field];
     }
 
     /**
@@ -135,25 +135,43 @@ class Coordinator implements CoordinatorInterface
      * @param   string  $key
      * @return  mixed | special token to indicate not found
      */
-    public function getRaw($key)
+    public function getRaw($field)
     {
-        if (empty($key) || ! is_scalar($key) || 
-				! array_key_exists($key, $this->source)) {
+        if (empty($field) || ! is_scalar($field) || 
+				! array_key_exists($field, $this->source)) {
             return $this->rawKeyNotFound();
         }
 
-        return $this->source[$key];
+        return $this->source[$field];
     }
 
     /**
+	 * @param	string	$field	the field this error is for
      * @param   string  $txt
      * @return  FilterValidator
      */
-    public function addError($txt)
+    public function addError($field, $txt)
     {
-        $this->errors[] = $txt;
+        if (empty($key) || ! is_scalar($key)) {
+            throw new Exception("Error key must be a non empty scalar");
+        }
+
+        $this->errors[$key] = $txt;
         return $this;
     }
+
+	/**
+	 * @return		string | array | null if not found
+	 */
+	public function getError($field)
+	{
+		if (empty($key) || ! is_scalar($key) || 
+				! array_key_exists($key, $this->errors)) {
+			return null;
+		}
+
+		return $this->errors[$key];
+	}
 
     /**
      * @return bool
@@ -170,4 +188,13 @@ class Coordinator implements CoordinatorInterface
     {
         return $this->errors;
     }
+
+	/**
+	 * @return	Coordinator
+	 */
+	public function clearErrors()
+	{
+		$this->errors = array();
+		return $this;
+	}
 }
