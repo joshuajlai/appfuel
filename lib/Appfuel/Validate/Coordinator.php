@@ -11,6 +11,7 @@
 namespace Appfuel\Validate;
 
 use Appfuel\Framework\Exception,
+	Appfuel\Framework\Validate\ErrorInterface,
 	Appfuel\Framework\Validate\CoordinatorInterface,
 	Appfuel\Framework\DataStructure\DictionaryInterface;
 
@@ -152,25 +153,47 @@ class Coordinator implements CoordinatorInterface
      */
     public function addError($field, $txt)
     {
-        if (empty($key) || ! is_scalar($key)) {
+        if (empty($field) || ! is_scalar($field)) {
             throw new Exception("Error key must be a non empty scalar");
         }
 
-        $this->errors[$key] = $txt;
+		if (! $this->isFieldError($field)) {
+			$this->errors[$field] = $this->createError($field, $txt);
+			return $this;
+		}
+
+        $error = $this->errors[$field];
+		$error->add($txt);
         return $this;
     }
+
+	/**
+	 * Determines if an error exists for a particular field
+	 * 
+	 * @param	string	$field
+	 * @return	bool
+	 */
+	public function isFieldError($field)
+	{
+		if (array_key_exists($field, $this->errors) && 
+				$this->errors[$field] instanceof ErrorInterface) {
+			return true;
+		}
+
+		return false;
+	}
 
 	/**
 	 * @return		string | array | null if not found
 	 */
 	public function getError($field)
 	{
-		if (empty($key) || ! is_scalar($key) || 
-				! array_key_exists($key, $this->errors)) {
+		if (empty($field) || ! is_scalar($field) || 
+				! array_key_exists($field, $this->errors)) {
 			return null;
 		}
 
-		return $this->errors[$key];
+		return $this->errors[$field];
 	}
 
     /**
@@ -196,5 +219,15 @@ class Coordinator implements CoordinatorInterface
 	{
 		$this->errors = array();
 		return $this;
+	}
+
+	/**
+	 * @param	string	$field
+	 * @param	string	$msg
+	 * @return	Error
+	 */
+	protected function createError($field, $msg)
+	{
+		return new Error($field, $msg);
 	}
 }
