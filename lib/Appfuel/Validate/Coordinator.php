@@ -11,13 +11,15 @@
 namespace Appfuel\Validate;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Validate\CoordinatorInterface;
+	Appfuel\Framework\Validate\CoordinatorInterface,
+	Appfuel\Framework\DataStructure\DictionaryInterface;
 
 /**
- * Handle the movement or raw and clean data as well as handling text. The coordinator 
- * is used by the Validator; sets the source (raw data) into the coordinator. The Test
- * as the coordinator passed into it for which is can retreive raw data and set clean data
- * for criterion/criteria that pass and errors for thoses that fail.
+ * Handle the movement or raw and clean data as well as handling text. The 
+ * coordinator is used by the Validator; sets the source (raw data) into the 
+ * coordinator. The Test has the coordinator passed into it for which is can 
+ * retreive raw data and set clean data for criterion/criteria that pass and
+ * errors for thoses that fail.
  */
 class Coordinator implements CoordinatorInterface
 {
@@ -59,13 +61,14 @@ class Coordinator implements CoordinatorInterface
     }
 
     /**
+	 * @throws	Appfuel\Framework\Exception
      * @param   string  $label
      * @param   mixed   $value
      * @return  Coordinator
      */
     public function addClean($label, $value)
     {
-        if (! is_scalar($label)) {
+        if (empty($label) || ! is_scalar($label)) {
             throw new Exception("Can not add to clean label must be label");
         }
 
@@ -80,9 +83,10 @@ class Coordinator implements CoordinatorInterface
      */
     public function getClean($label, $default = null)
     {
-        if (! array_key_exists($label, $this->clean)) {
-            return $default;
-        }
+		if (empty($label) || ! is_scalar($label) ||
+			! array_key_exists($label, $this->clean)) {
+			return $default;
+		}
 
         return $this->clean[$label];
     }
@@ -96,6 +100,8 @@ class Coordinator implements CoordinatorInterface
     }
 
     /**
+	 * The raw source must be an array of key=>value or a dictionary object
+	 * 
      * @param   mixed
      * @return  Validator
      */
@@ -112,17 +118,31 @@ class Coordinator implements CoordinatorInterface
         return $this;
     }
 
+	/**
+	 * Key that is not likely to a value in the raw data. This is used so
+	 * we can know the difference between a key that does not exist in the 
+	 * raw source and one that exists but has a value of null or false, the
+	 * values that are normally returned when a key is not found
+	 *
+	 * @return	string
+	 */
+	public function rawKeyNotFound()
+	{
+		return '___AF_RAW_KEY_NOT_FOUND___';
+	}
+
     /**
-     * @param   string  $label
-     * @return  mixed
+     * @param   string  $key
+     * @return  mixed | special token to indicate not found
      */
-    public function getRaw($label)
+    public function getRaw($key)
     {
-        if (! array_key_exists($label, $this->source)) {
-            return null;
+        if (empty($key) || ! is_scalar($key) || 
+				! array_key_exists($key, $this->source)) {
+            return $this->rawKeyNotFound();
         }
 
-        return $this->source[$label];
+        return $this->source[$key];
     }
 
     /**

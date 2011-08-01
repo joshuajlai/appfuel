@@ -52,7 +52,15 @@ interface CoordinatorInterface
      */
     public function getRaw($label);
 
-    /**
+	/**
+	 * Returns a special token string to indicate that the raw key was
+	 * not located
+	 *
+	 * @return	string
+	 */
+	public function rawKeyNotFound();
+    
+	/**
      * @param   string  $txt
      * @return  FilterValidator
      */
