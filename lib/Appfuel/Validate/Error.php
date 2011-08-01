@@ -35,7 +35,7 @@ class Error implements ErrorInterface
 	 * Default separator for when messages a concatenated into a single string
 	 * @var string
 	 */
-	protected $sep = ':';
+	protected $sep = ' ';
 
     /**
      * @param   mixed   $source   data source used for validation
@@ -44,7 +44,7 @@ class Error implements ErrorInterface
     public function __construct($field, $message)
     {
 		$this->setField($field);
-		$this->setError($message);  
+		$this->add($message);  
     }
 
     /**
@@ -132,7 +132,7 @@ class Error implements ErrorInterface
 	 */
 	public function key()
 	{
-		key($this->errors);
+		return key($this->errors);
 	}
 
 	/**
@@ -151,38 +151,29 @@ class Error implements ErrorInterface
 		reset($this->errors);
 	}
 
+	/**	
+	 * Determines how this object looks in the context of a string
+	 * 
+	 * @return string
+	 */
 	public function __toString()
 	{
+		$field = $this->getField();
 		$sep = $this->getSeparator();
-		return implode($sep, $this->errors);
+		return $field . $sep . implode($sep, $this->errors);
 		
 	}
 
+	/**
+	 * @param	scalar	$field
+	 * @return	null
+	 */
 	protected function setField($field)
 	{
-		if (empty($field) || ! is_scalar($field)) {
+		if ((is_string($field) && empty($field)) || ! is_scalar($field)) {
 			throw new Exception("field must be a non empty scalar value");
 		}
 
 		$this->field = $field;
-	}
-
-	protected function setError($error)
-	{
-		if (! empty($error) && is_string($error)) {
-			$this->errors[] = $error;
-			return;
-		}
-		else if (! empty($error) && is_array($error)) {
-			foreach ($error as $msg) {
-				if (empty($msg) && ! is_string($msg)) {
-					throw new Exception("error list must have all strings");
-				}
-				$this->errors[] = $msg;
-			}
-			return;
-		}
-
-		throw new Exception("invalid set error: error format not known");
 	}
 }
