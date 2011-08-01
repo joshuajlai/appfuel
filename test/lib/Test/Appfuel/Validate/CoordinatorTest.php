@@ -338,6 +338,9 @@ class CoordinatorTest extends ParentTestCase
 	}
 
 	/**
+	 * Tests adding errors to multiple fields as well as clearing all the 
+	 * errors 
+	 *
 	 * @depends testAddErrorManyErrorsToSingleField
 	 * @return null
 	 */
@@ -370,5 +373,68 @@ class CoordinatorTest extends ParentTestCase
 
 		$expected = array($field1 => $error1, $field2 => $error2);
 		$this->assertEquals($expected, $this->coord->getErrors());
+
+		$this->assertSame(
+			$this->coord,
+			$this->coord->clearErrors(),
+			'must expose a fluent interface'
+		);
+		$this->assertEquals(array(), $this->coord->getErrors());
+		$this->assertFalse($this->coord->isError());
 	}
+
+	/**
+	 * @depends testAddErrorManyErrorsToSingleField
+	 * @return null
+	 */
+	public function testAddErrorNumericField()
+	{
+		$field = 123;
+		$msg   = 'this is an error message';
+		
+		$this->assertSame(
+			$this->coord,
+			$this->coord->addError($field, $msg),
+			'must expose a fluent interface'
+		);
+		$this->assertTrue($this->coord->isError());
+		$error = $this->coord->getError(123);
+		$this->assertInstanceOf('Appfuel\Validate\Error', $error);
+		$this->assertEquals(123, $error->getField());
+		$this->assertEquals($msg, $error->current());
+		$this->assertEquals(
+			array(123 => $error),
+			$this->coord->getErrors()
+		);	
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testAddErrorBadFieldEmptyString()
+	{
+		$this->coord->addError('', 'this is message');
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testAddErrorBadFieldArray()
+	{
+		$this->coord->addError(array(1,3,4), 'this is message');
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testAddErrorBadFieldObject()
+	{
+		$this->coord->addError(new StdClass(), 'this is message');
+	}
+
+
+
 }
