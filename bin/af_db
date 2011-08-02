@@ -1,0 +1,79 @@
+#! /usr/bin/env bash
+#:
+#: Title	: af_db
+#: Date		: 2011-08-02   
+#: Author	: "Robert Scott-Buccluech" <rsb.code@gmail.com>
+#: Version	: 1.0
+#: Desc		: This script is used to reload the database with a schema located
+#:			  in dataschema/<namespace>/<schema_name> 
+#:
+#: Options	: 
+#
+
+# set -x
+# detects some typo by reporting undefined variables
+shopt -s -o nounset
+
+# Global declarations
+script_name=${0##*/}
+script_dir="$( cd "$( dirname "$0" )" && pwd )"
+base_dir="$(dirname $script_dir)"
+
+dataschema_dir="$script_dir/"
+
+db_user=""
+db_name=""
+
+echo $base_dir
+exit
+
+# simple print out to outine how to use this script
+function usage
+{
+	printf "%s\n" "options: $script_name"
+}
+
+# function for exit due to a fatal program error.
+# Accepts 1 argument: string containging descriptive message
+function error_exit
+{
+    echo "${script_name}: ${1:-"Unkown Error"}" 1>&2
+    exit 1
+}
+
+# load a sql file into mysql
+function db_mysql_load
+{
+    mysql -u $db_user -p --database=$db_name < $1;
+    return $?
+}
+
+# execute a sql command
+function db_mysql_exec
+{
+	db_sql="$1"
+    mysql -u $db_user -p --database=$db_name --exec="$db_sql";
+    return $?
+}
+
+if [ $# -eq 0 ]; then 
+	usage
+	exit 1
+fi
+
+# process commandline args
+while [ "$1" != "" ]; do
+	case $1 in
+		-h | --help )
+			usage
+			exit 0
+			;;
+
+		* ) 
+			usage
+			exit 1
+		esac
+	shift
+done
+
+exit 0

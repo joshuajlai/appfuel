@@ -51,7 +51,6 @@ class SqlReserved
 		'read', 'reads', 'real', 'references', 'regexp', 'release', 'rename', 
 		'repeat', 'replace', 'require', 'restrict', 'return', 'revoke',
 		'right', 'rlike',
- 
 		'schema', 'schemas', 'second_microsecond', 'select', 'sensitive', 
 		'separator', 'set', 'show', 'smallint', 'soname', 'spatial', 
 		'specific', 'sql', 'sqlexception', 'sqlstate', 'sqlwarning',
