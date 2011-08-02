@@ -29,32 +29,85 @@ class Controller implements ControllerInterface
 	protected $coord = null;
 
 	/**
+	 * Holds a list of validators based on field name
+	 * @var array
+	 */
+	protected $validators = array();
+
+	/**
 	 * @param	CoordinatorInterface
 	 * @return	Controller
 	 */
 	public function __construct(CoordinatorInterface $coord = null)
 	{
-		if (null === $coord) {
+		if (null !== $coord) {
 			$coord = new Coordinator();
 		}
-		$this->setCoordinator($coord);
+
+		$this->coord = $coord;
 	}
 
 	/**
+	 * @param	string	$field		field used to filter on
+	 * @param	string	$error		text used when filter fails
+	 * @param	string	$filter		name of the filter need for field
+	 * @param	array	$params		list of optional parameter for filter
+	 * @return	Controller
+	 */	
+	public function addFilter($field, $error, $filter, array $params = null)
+	{
+
+	}
+
+	/**
+	 * @param	mixed	$raw	data used to validate with filters
+	 * @return	bool
+	 */
+	public function validate($raw)
+	{
+
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getErrors()
+	{
+
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getAllClean()
+	{
+
+	}
+
+	/**
+	 * @return	mixed
+	 */
+	public function getClean($field)
+	{
+
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isError()
+	{
+
+	}
+
+	/**
+	 * Because the controller is a facade the coordinator is hidden for 
+	 * internal implementation.
+	 *
 	 * @return	CoordinatorInterface
 	 */
-	public function getCoordinator()
+	protected function getCoordinator()
 	{
 		return $this->coord;	
-	}
-
-	/**
-	 * @param CoordinatorInterface
-	 * @return	Controller
-	 */
-	public function setCoordinator(CoordinatorInterface $coord)
-	{
-		$this->coord = $coord;
-		return $this;
 	}
 }

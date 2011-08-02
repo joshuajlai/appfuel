@@ -8,39 +8,31 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\View;
+namespace Test\Appfuel\Validate\Filter;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase,
-	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Validate\Controller,
-	Appfuel\Validate\Coordinator;
+	Test\AfTestCase as ParentTestCase;
 
 /**
  * Test the controller's ability to add rules or filters to fields and 
  * validate or sanitize those fields
  */
-class ControllerTest extends ParentTestCase
+class ValidateFilterTest extends ParentTestCase
 {
 	/**
 	 * System under test
-	 * @var Controller
+	 * @var ValidateFilter
 	 */
-	protected $controller = null;
-
-	/**
-	 * Used to handle raw, clean and error data
-	 * @var Coordinator
-	 */
-	protected $coord = null;
+	protected $filter = null;
 
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->coord = new Coordinator();
-		$this->controller = new Controller($this->coord);
+		$this->filter = $this->getMockForAbstractClass(
+			'Appfuel\Validate\Filter\ValidateFilter'
+		);
 	}
 
 	/**
@@ -48,7 +40,7 @@ class ControllerTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
-		unset($this->controller);
+		unset($this->filter);
 	}
 
 	/**
@@ -57,9 +49,20 @@ class ControllerTest extends ParentTestCase
 	public function testInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Validate\ControllerInterface',
-			$this->controller
+			'Appfuel\Framework\Validate\Filter\FilterInterface',
+			$this->filter
 		);
 	}
 
+	/**
+	 * Token string failure 
+	 */
+	public function testFailedFilterToken()
+	{
+		$this->assertEquals(
+			'__AF_VALIDATE_FILTER_FAILURE__',
+			$this->filter->failedFilterToken(),
+			'key used that is likely not to be a value'
+		);
+	}
 }

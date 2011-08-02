@@ -11,12 +11,18 @@
 namespace Appfuel\Framework\Validate;
 
 /**
- * 
+ * The controller is the facade that exposes a uniform interface for handling 
+ * filters getting errors and clean data.
  */
 interface ControllerInterface
 {
     /**
      * @return array
      */
-    public function getCoordinator();
+	public function addFilter($field, $error, $filter, array $param = null);
+	public function validate($rawData);
+	public function isError();
+	public function getErrors();
+	public function getClean($field);
+	public function getAllClean();
 }
