@@ -50,14 +50,14 @@ class ClientsideFileFileTest extends ParentTestCase
 	}
 
 	/**
-	 * Test that the default value for the root dir is 'clientside' and
-	 * that it can be overwritten
+	 * Test that the default value for the root dir is 'ui' for user interface
+	 * and that it can be overwritten
 	 *
 	 * @return null
 	 */
 	public function testGetSetRootDir()
 	{
-		$this->assertEquals('clientside', $this->file->getRootDirName());
+		$this->assertEquals('ui', $this->file->getRootDirName());
 		$name = 'someOtherDir';
 		$this->assertSame(
 			$this->file,
@@ -169,7 +169,7 @@ class ClientsideFileFileTest extends ParentTestCase
 		);
 
 		/* test returning relative */
-		$expected = "clientside/appfuel/{$this->relativePath}";
+		$expected = "ui/appfuel/{$this->relativePath}";
 		$this->assertEquals($expected, $this->file->getViewPath());
 	
 		/* test returning absolute */

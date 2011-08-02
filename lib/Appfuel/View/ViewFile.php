@@ -28,10 +28,10 @@ class ViewFile extends FrameworkFile
 	protected $viewPath = null;
 
 	/**
-	 * The top level directory for all clientside files
+	 * The top level directory for all clientside files is ui (user interface)
 	 * @var string
 	 */
-	protected $rootDirName = 'clientside';
+	protected $rootDirName = 'ui';
 
 	/**
 	 * The child directory under the root. Every application uses there 
