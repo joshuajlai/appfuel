@@ -23,12 +23,12 @@ class FilterFactory implements FilterFactoryInterface
 	 * @var array
 	 */
 	protected $map = array(
-		'ip-filter'		=> 'IpFilter',
-		'float-filter'	=> 'FloatFilter',
-		'int-filter'	=> 'IntFilter',
-		'bool-filter'   => 'BoolFilter',
-		'regex-filter'  => 'RegexFilter',
-		'url-filter'	=> 'UrlFilter',
+		'ip-filter'				=> 'IpFilter',
+		'float-filter'			=> 'FloatFilter',
+		'int-filter'			=> 'IntFilterVar',
+		'bool-php-filtervar'	=> 'BoolFilterVar',
+		'regex-filter'			=> 'RegexFilter',
+		'url-filter'			=> 'UrlFilter',
 	);
 
 	/**

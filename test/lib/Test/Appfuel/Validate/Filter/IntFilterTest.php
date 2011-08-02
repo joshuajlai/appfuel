@@ -322,4 +322,74 @@ class IntFilterTest extends ParentTestCase
 		$result = $this->filter->filter($raw, $params);
 		$this->assertEquals($raw, $result);
 	}
+
+	/**
+	 * @return null
+	 */
+	public function testOptionAllowHex()
+	{
+		$params = new Dictionary(array('allow-hex' => true));
+		$raw    = 0xfff;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 0xABC;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 0x123;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 0xddd;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 0x000;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 0xffffff;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 0x12345;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 0x2;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		/* 
+		 * php wont hold an invalid hex. it silently trucates the digits
+		 * that are not octal. So we embed the number in a string to get
+		 * the full incorrect integer into the filter
+		 */
+		$raw = '0xjjj';	
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($this->filter->failedFilterToken(), $result);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testOptionAllowDefaultWithDefault()
+	{
+		$params = new Dictionary(
+			array('allow-hex' => true,'default' => 0x123)
+		);
+
+		$raw = '0889';
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(0x123, $result);
+
+		$raw = '0xjjzz';
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(0x123, $result);
+
+		$raw = 0xfff;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(0xfff, $result);
+	}
 }
