@@ -1,0 +1,259 @@
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
+ */
+namespace Test\Appfuel\Validate\Filter;
+
+use StdClass,
+	Test\AfTestCase as ParentTestCase,
+	Appfuel\Validate\Filter\IntFilter,
+	Appfuel\Framework\DataStructure\Dictionary;
+
+/**
+ * Test the controller's ability to add rules or filters to fields and 
+ * validate or sanitize those fields
+ */
+class IntFilterTest extends ParentTestCase
+{
+	/**
+	 * System under test
+	 * @var IntFilter
+	 */
+	protected $filter = null;
+
+	/**
+	 * @return null
+	 */
+	public function setUp()
+	{
+		$this->filter = new IntFilter();
+	}
+
+	/**
+	 * @return null
+	 */
+	public function tearDown()
+	{
+		unset($this->filter);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testInterfaces()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Validate\Filter\FilterInterface',
+			$this->filter
+		);
+
+		$this->assertInstanceOf(
+			'Appfuel\Validate\Filter\ValidateFilter',
+			$this->filter
+		);
+	}
+	
+	/**
+	 * When the integer is valid it will be returned 
+	 *
+	 * @return null
+	 */
+	public function testFilterValidIntNoOptions()
+	{
+		$params = new Dictionary();
+		$raw    = 12345;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 0;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = -12345;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw = PHP_INT_MAX;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		/* strings that are numbers will pass */
+		$raw = "12345";
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(12345, $result);
+
+		$raw = "+12345";
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(12345, $result);
+
+		$raw = "-12345";
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(-12345, $result);
+
+		/* php manual says these should fail but they don't */
+		$raw = -0;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(-0, $result);
+
+		$raw = +0;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(+0, $result);
+
+		/* sign makes no difference on zero */
+		$raw = +0;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(-0, $result);
+	}
+	
+	/**
+	 * @return null
+	 */
+	public function testFilterNoOptionsInvalidInt()
+	{
+		$params = new Dictionary();
+		$raw    = 'abcd';
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($this->filter->failedFilterToken(), $result);
+
+		$raw    = array(1,2,3,4);
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($this->filter->failedFilterToken(), $result);
+
+		$raw    = new StdClass();
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($this->filter->failedFilterToken(), $result);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testFilterRangeMinMaxValid()
+	{
+		$params = new Dictionary(array('min'=>2,'max'=>5));
+
+		$raw    = 2;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 3;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 4;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 5;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 6;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($this->filter->failedFilterToken(), $result);
+
+		$raw    = 1;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($this->filter->failedFilterToken(), $result);
+
+		$raw    = "5";
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testFilterMinNoMax()
+	{
+		$params = new Dictionary(array('min' => 0));
+			
+		$raw    = 0;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 10;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = PHP_INT_MAX;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = -10;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($this->filter->failedFilterToken(), $result);
+
+		$raw    = -0;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(0, $result);
+
+		$raw    = -PHP_INT_MAX;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($this->filter->failedFilterToken(), $result);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testFilterMaxNoMin()
+	{
+		$params = new Dictionary(array('max' => 1));
+
+		$raw    = 0;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 1;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = -11;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = -PHP_INT_MAX;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 2;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($this->filter->failedFilterToken(), $result);
+	}
+
+	/**
+	 * Default will be returned when the filter fails
+	 *
+	 * @return	null
+	 */
+	public function testFilterDefault()
+	{
+		$params = new Dictionary(array('default' => 22));
+
+		$raw    = 'abc';
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(22, $result);
+
+		$params = new Dictionary(array('default' => 22, 'max' => 2));	
+		$raw    = 3;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(22, $result);
+
+		$params = new Dictionary(array('default' => 22, 'min' => 2));	
+		$raw    = 0;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(22, $result);
+
+		$params = new Dictionary(
+			array('default' => 22, 'min' => 2, 'max' => 4)
+		);	
+		$raw    = 8;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(22, $result);
+	}
+}

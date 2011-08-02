@@ -23,7 +23,7 @@ class IntFilter extends ValidateFilter
 	 */	
 	public function filter($raw, DictionaryInterface $params)
 	{
-		$default = $param->get('default', null);
+		$default = $params->get('default', null);
 		$options = array('options' => array());
 		if (null !== $default) {
 			$options['options']['default'] = $default;
@@ -35,8 +35,8 @@ class IntFilter extends ValidateFilter
 		}
 
 		$max = $params->get('max', null);
-		if (null !== $min) {
-			$options['options']['max_range'] = $min;
+		if (null !== $max) {
+			$options['options']['max_range'] = $max;
 		}
 
 		if ($params->get('allow-octal', false)) {
@@ -51,6 +51,6 @@ class IntFilter extends ValidateFilter
 			return $this->failedFilterToken();
 		}
 
-		return $raw;
+		return $result;
 	}
 }
