@@ -45,7 +45,6 @@ class IntFilter extends ValidateFilter
 		else if ($params->get('allow-hex', false)) {
 			$options['flags'] = FILTER_FLAG_ALLOW_HEX;
 		}
-
 		$result = filter_var($raw, FILTER_VALIDATE_INT, $options);
 		if (false === $result) {
 			return $this->failedFilterToken();

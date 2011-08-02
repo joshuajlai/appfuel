@@ -64,7 +64,7 @@ class IntFilterTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testFilterValidIntNoOptions()
+	public function estFilterValidIntNoOptions()
 	{
 		$params = new Dictionary();
 		$raw    = 12345;
@@ -114,7 +114,7 @@ class IntFilterTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testFilterNoOptionsInvalidInt()
+	public function estFilterNoOptionsInvalidInt()
 	{
 		$params = new Dictionary();
 		$raw    = 'abcd';
@@ -133,7 +133,7 @@ class IntFilterTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testFilterRangeMinMaxValid()
+	public function estFilterRangeMinMaxValid()
 	{
 		$params = new Dictionary(array('min'=>2,'max'=>5));
 
@@ -169,7 +169,7 @@ class IntFilterTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testFilterMinNoMax()
+	public function estFilterMinNoMax()
 	{
 		$params = new Dictionary(array('min' => 0));
 			
@@ -201,7 +201,7 @@ class IntFilterTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testFilterMaxNoMin()
+	public function estFilterMaxNoMin()
 	{
 		$params = new Dictionary(array('max' => 1));
 
@@ -231,7 +231,7 @@ class IntFilterTest extends ParentTestCase
 	 *
 	 * @return	null
 	 */
-	public function testFilterDefault()
+	public function estFilterDefault()
 	{
 		$params = new Dictionary(array('default' => 22));
 
@@ -255,5 +255,71 @@ class IntFilterTest extends ParentTestCase
 		$raw    = 8;
 		$result = $this->filter->filter($raw, $params);
 		$this->assertEquals(22, $result);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testOptionAllowOctal()
+	{
+		$params = new Dictionary(array('allow-octal' => true));
+		$raw    = 0;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 01;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 02;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 03;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 04;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 05;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 06;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		$raw    = 07;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+
+		/* 
+		 * php wont hold an invalid octal. it silently trucates the digits
+		 * that are not octal. So we embed the number in a string to get
+		 * the full incorrect integer into the filter
+		 */
+		$raw = '099';	
+		$result = $this->filter->filter('099', $params);
+		$this->assertEquals($this->filter->failedFilterToken(), $result);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testOptionAllowOctalWithDefault()
+	{
+		$params = new Dictionary(
+			array('allow-octal' => true,'default' => 0755)
+		);
+
+		$raw = '0889';
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals(0755, $result);
+
+		$raw = 0555;
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
 	}
 }
