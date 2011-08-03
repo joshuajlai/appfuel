@@ -25,8 +25,8 @@ class FilterFactory implements FilterFactoryInterface
 	protected $map = array(
 		'ip-filter'				=> 'IpFilter',
 		'float-filter'			=> 'FloatFilter',
-		'int-filter'			=> 'IntFilterVar',
-		'bool-php-filtervar'	=> 'BoolFilterVar',
+		'int-filter'			=> 'PHPFilter\IntFilter',
+		'bool-php-filtervar'	=> 'PHPFilter\BoolFilter',
 		'regex-filter'			=> 'RegexFilter',
 		'url-filter'			=> 'UrlFilter',
 	);
