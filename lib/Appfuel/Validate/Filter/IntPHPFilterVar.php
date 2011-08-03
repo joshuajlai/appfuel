@@ -16,7 +16,7 @@ use Appfuel\Framework\Exception,
 /**
  * Create the filter from the name given. In this case the 
  */
-class IntFilter extends ValidateFilter
+class IntPHPFilterVar extends ValidateFilter
 {
 	/**
 	 * @return	string

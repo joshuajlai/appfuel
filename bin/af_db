@@ -19,13 +19,11 @@ script_name=${0##*/}
 script_dir="$( cd "$( dirname "$0" )" && pwd )"
 base_dir="$(dirname $script_dir)"
 
-dataschema_dir="$script_dir/"
+db_dir="$base_dir/db"
 
-db_user=""
-db_name=""
+db_user="root"
+db_name="test_af_app"
 
-echo $base_dir
-exit
 
 # simple print out to outine how to use this script
 function usage
@@ -56,6 +54,20 @@ function db_mysql_exec
     return $?
 }
 
+function load_unittest_db
+{
+	unittest_path="$db_dir/test_af_app"
+	unittest_schema="$unittest_path/schema.sql"
+	test_queries="$unittest_path/test_queries/schema_objects/table.sql"
+	test_data="$unittest_path/test_queries/data/data.sql"
+	general_tree="$unittest_path/test_queries/schema_objects/table.sql"
+
+	db_mysql_load $test_queries;
+	db_mysql_load $test_data;
+	db_mysql_load $general_tree;
+	
+}
+
 if [ $# -eq 0 ]; then 
 	usage
 	exit 1
@@ -64,11 +76,14 @@ fi
 # process commandline args
 while [ "$1" != "" ]; do
 	case $1 in
+		-l | --load )
+			load_unittest_db
+			exit $?
+			;;
 		-h | --help )
 			usage
 			exit 0
 			;;
-
 		* ) 
 			usage
 			exit 1

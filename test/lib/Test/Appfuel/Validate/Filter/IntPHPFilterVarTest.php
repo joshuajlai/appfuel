@@ -12,14 +12,14 @@ namespace Test\Appfuel\Validate\Filter;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Validate\Filter\IntFilter,
+	Appfuel\Validate\Filter\IntPHPFilterVar,
 	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
  * Test the controller's ability to add rules or filters to fields and 
  * validate or sanitize those fields
  */
-class IntFilterTest extends ParentTestCase
+class IntPHPFilterVarTest extends ParentTestCase
 {
 	/**
 	 * System under test
@@ -32,7 +32,7 @@ class IntFilterTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->filter = new IntFilter();
+		$this->filter = new IntPHPFilterVar();
 	}
 
 	/**

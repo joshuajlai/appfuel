@@ -18,7 +18,7 @@ use StdClass,
 /**
  * Test bool filter which wraps php filter var
  */
-class BoolFilterVarTest extends ParentTestCase
+class BoolPHPFilterVarTest extends ParentTestCase
 {
 	/**
 	 * System under test

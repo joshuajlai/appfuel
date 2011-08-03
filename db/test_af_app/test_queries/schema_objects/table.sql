@@ -10,5 +10,6 @@ create table test_queries (
 	param_3		tinyint unsigned not null,
 	result		varchar(50) not null,
 
-	primary key	(query_id),
+	primary key	(query_id)
 ) engine = InnoDB  default charset=utf8 auto_increment=1;
+
