@@ -12,13 +12,13 @@ namespace Test\Appfuel\Validate\Filter;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Validate\Filter\EmailPHPFilterVar,
+	Appfuel\Validate\Filter\PHPFilter\EmailFilter,
 	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
  * Test bool filter which wraps php filter var
  */
-class EmailPHPFilterVarTest extends ParentTestCase
+class EmailFilterTest extends ParentTestCase
 {
 	/**
 	 * System under test
@@ -31,7 +31,7 @@ class EmailPHPFilterVarTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->filter = new EmailPHPFilterVar();
+		$this->filter = new EmailFilter();
 	}
 
 	/**

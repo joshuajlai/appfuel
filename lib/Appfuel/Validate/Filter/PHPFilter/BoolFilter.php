@@ -8,15 +8,20 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Validate\Filter;
+namespace Appfuel\Validate\Filter\PHPFilter;
 
 use Appfuel\Framework\Exception,
+	Appfuel\Validate\Filter\ValidateFilter,
 	Appfuel\Framework\DataStructure\DictionaryInterface;
 
 /**
- * Filters email strings 
+ * Filters bool values: 
+ * true is considered "1", "on" and "yes", true, 1
+ * false is considered anything not true unless strict is given then
+ * false is "0", "off", "no" and "" and failure token is returned for all
+ * other values not true or false.
  */
-class EmailPHPFilterVar extends ValidateFilter
+class BoolFilter extends ValidateFilter
 {
 	/**
 	 * @param	mixed				$raw	input to filter
@@ -31,9 +36,13 @@ class EmailPHPFilterVar extends ValidateFilter
 			$options['options']['default'] = $default;
 		}
 		
-		$result = filter_var($raw, FILTER_VALIDATE_EMAIL, $options);
+		if ($params->get('strict', false)) {
+			$options['flags'] = FILTER_NULL_ON_FAILURE;
+		}
 
-		if (! $result) {
+		$result = filter_var($raw, FILTER_VALIDATE_BOOLEAN, $options);
+
+		if (null === $result) {
 			return $this->failedFilterToken();
 		}
 

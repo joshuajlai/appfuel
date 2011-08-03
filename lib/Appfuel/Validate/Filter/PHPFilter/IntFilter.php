@@ -8,24 +8,19 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Validate\Filter;
+namespace Appfuel\Validate\Filter\PHPFilter;
 
 use Appfuel\Framework\Exception,
+	Appfuel\Validate\Filter\ValidateFilter,
 	Appfuel\Framework\DataStructure\DictionaryInterface;
 
 /**
- * Filters bool values: 
- * true is considered "1", "on" and "yes", true, 1
- * false is considered anything not true unless strict is given then
- * false is "0", "off", "no" and "" and failure token is returned for all
- * other values not true or false.
+ * Create the filter from the name given. In this case the 
  */
-class BoolPHPFilterVar extends ValidateFilter
+class IntFilter extends ValidateFilter
 {
 	/**
-	 * @param	mixed				$raw	input to filter
-	 * @param	DictionaryInteface	$params		used to control filtering
-	 * @return	mixed | failedFilterToken 
+	 * @return	string
 	 */	
 	public function filter($raw, DictionaryInterface $params)
 	{
@@ -35,13 +30,25 @@ class BoolPHPFilterVar extends ValidateFilter
 			$options['options']['default'] = $default;
 		}
 		
-		if ($params->get('strict', false)) {
-			$options['flags'] = FILTER_NULL_ON_FAILURE;
+		$min = $params->get('min', null);
+		if (null !== $min) {
+			$options['options']['min_range'] = $min;
 		}
 
-		$result = filter_var($raw, FILTER_VALIDATE_BOOLEAN, $options);
+		$max = $params->get('max', null);
+		if (null !== $max) {
+			$options['options']['max_range'] = $max;
+		}
 
-		if (null === $result) {
+		if ($params->get('allow-octal', false)) {
+			$options['flags'] = FILTER_FLAG_ALLOW_OCTAL;
+		}
+		else if ($params->get('allow-hex', false)) {
+			$options['flags'] = FILTER_FLAG_ALLOW_HEX;
+		}
+		
+		$result = filter_var($raw, FILTER_VALIDATE_INT, $options);
+		if (false === $result) {
 			return $this->failedFilterToken();
 		}
 
