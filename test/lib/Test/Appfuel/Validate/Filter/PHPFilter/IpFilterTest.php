@@ -61,29 +61,41 @@ class IpFilterTest extends ParentTestCase
 	/**
 	 * @return	array
 	 */
-	public function provideTrueValues()
+	public function provideValidIp_ipv4()
 	{
 		return array(
-			array(true),
-			array(1),
-			array('1'),
-			array('yes'),
-			array('on'),
-			array('true')
+			array('192.168.1.1'),
+			array('72.215.140.69'),
+			array('255.0.0.0'),
+			array('10.0.0.1'),
+			array('127.0.0.1'),
+			array('0.0.0.0'),
+			array('1.1.1.1')
 		);
 	}
 
 	/**
 	 * @return	array
 	 */
-	public function provideFalseValues()
+	public function provideFalseIp()
 	{
 		return array(
-			array('false'),
-			array('0'),
-			array('false'),
-			array('off'),
+			array(''),
+			array(1234),
+			array('1.2.3.4.5'),
+			array('....'),
 		);
 	}
 
+	/**
+	 * @depends			testInterfaces
+	 * @dataProvider	provideValidIp_ipv4
+	 * @return			null
+	 */
+	public function testFilterValidIp($raw)
+	{
+		$params = new Dictionary();
+		$result = $this->filter->filter($raw, $params);
+		$this->assertEquals($raw, $result);
+	}
 }
