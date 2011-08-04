@@ -11,16 +11,16 @@
 namespace Test\Appfuel\Db\Adapter;
 
 use Test\AfTestCase as ParentTestCase,
-	Appfuel\Domain\User\UserModel;
+	Appfuel\Domain\Role\RoleModel;
 
 /**
- * Test the user members and automated get/setter
+ * Test the member properties and marshalling
  */
-class UserModelTest extends ParentTestCase
+class RoleModelTest extends ParentTestCase
 {
 	/**
 	 * System under test
-	 * @var Error
+	 * @var Role
 	 */
 	protected $model = null;
 
@@ -29,7 +29,7 @@ class UserModelTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->model = new UserModel();
+		$this->model = new RoleModel();
 	}
 
 	/**
@@ -43,17 +43,13 @@ class UserModelTest extends ParentTestCase
 	/**
 	 * @return	array
 	 */
-	public function provideValidModelData()
+	public function provideValidUser()
 	{
 		$data = array(
 			'id'			=> 99,
-			'loginName'		=> 'rscottb',
-			'firstName'		=> 'Robert',
-			'lastName'		=> 'Scott-Buccleuch',
-			'email'			=> 'rsb.code@gmail.com',
-			'activityCode'	=> 'active',
-			'dateCreated'	=> 'jan-06-2011',
-			'lastAccessed'  => 'june-08-2011'
+			'name'			=> 'super-user',
+			'authLevel'		=> 'root',
+			'description'	=> 'Has full access to the entire system',
 		);
 
 		return array(array($data));
@@ -71,29 +67,20 @@ class UserModelTest extends ParentTestCase
 	}
 
 	/**
-	 * @dataProvider	provideValidModelData
+	 * @dataProvider	provideValidUser
 	 * @return	null
 	 */
 	public function testMarshal(array $data)
 	{
 		$this->assertSame($this->model, $this->model->_marshal($data));
 		$this->assertEquals($data['id'], $this->model->getId());
-		$this->assertEquals($data['loginName'], $this->model->getLoginName());
-		$this->assertEquals($data['firstName'], $this->model->getFirstName());
-		$this->assertEquals($data['lastName'], $this->model->getLastName());
-		$this->assertEquals($data['email'], $this->model->getEmail());
+		$this->assertEquals($data['name'], $this->model->getName());
+		$this->assertEquals($data['authLevel'], $this->model->getAuthLevel());
 		$this->assertEquals(
-			$data['activityCode'], 
-			$this->model->getActivityCode()
+			$data['description'], 
+			$this->model->getDescription()
 		);
-		$this->assertEquals(
-			$data['dateCreated'], 
-			$this->model->getDateCreated());
-		$this->assertEquals(
-			$data['lastAccessed'], 
-			$this->model->getLastAccessed()
-		);
-
+		
 		$state = $this->model->_getDomainState();
 		$this->assertEquals('marshal', $state->getState());
 		$this->assertTrue($state->isMarshal());
