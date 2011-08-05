@@ -152,7 +152,7 @@ class QueryRequest implements RequestInterface
 	 */
 	public function setSql($sql)
 	{
-		if (! is_string($sql) || empty($sql)) {
+		if (! $this->isValidString($sql)) {
 			$err = "Failed Request : setSql must use a non empty string";
 			throw new Exception($err);
 		}
@@ -177,7 +177,7 @@ class QueryRequest implements RequestInterface
 	public function setResultType($type)
 	{
 		$err = 'Invalid Request: type must be ';
-		if (! is_string($type) || empty($type)) {
+		if (! $this->isValidString($type)) {
 			throw new Exception("$err a non empty string");
 		}
 
@@ -238,4 +238,14 @@ class QueryRequest implements RequestInterface
 		$this->callback = $callback;
 		return $this;
 	}
+
+	/**
+	 * @param	mixed	$str
+	 * @return	bool
+	 */
+	protected function isValidString($str)
+	{
+		return is_string($str) && ! empty($str);
+	}
+	
 }

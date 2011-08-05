@@ -35,7 +35,73 @@ class MultiQueryRequest
 	 * @var array
 	 */
 	protected $resultOptions = array();
+
+	/**
+	 * @param	string	$type
+	 * @param	mixed	array|string|null
+	 * @return	MultiQueryRequest
+	 */
+	public function __construct($type, $sql = null)
+	{
+		$this->setType($type);
+		if (null === $sql) {
+			return;
+		}
+
+		if (is_array($sql)) {
+			$this->loadSql($sql);
+		}
+		else if ($this->isValidString($sql)) {
+			$this->setSql($sql);
+		}
+		else {
+			$err = "must be an array of strings or a string";
+			throw new Exception("Invalid sql: $err");
+		}
+	}
+
+	/**
+	 * Add a sql string to the existsing sql strings
+	 * 
+	 * @param	string	$sql
+	 * @return	MultiQueryRequest
+	 */
+	public function addSql($sqlStr)
+	{
+		if (! $this->isValidString($sqlStr)) {
+			throw new Exception("Invalid sql: must be non empty string");
+		}
+
+		if (! $this->isSql()) {
+			$this->setSql($sqlStr);
+			return $this;
+		}
+
+		$this->setSql("{$this->getSql()};$sqlStr");
+		return $this;
+	}
+
+	/**
+	 * @param	array	$sqlList
+	 * @return	MultiQueryRequest
+	 */
+	public function loadSql(array $sqlList)
+	{
+		foreach ($sqlList as $sqlStr) {
+			$this->addSql($sqlStr);
+		}
+
+		return $this;
+	}
 	
+	/**
+	 * @return	bool
+	 */
+	public function isSql()
+	{
+		return $this->isValidString($this->sql);
+	}
+
 	/**
 	 * @return	string
 	 */

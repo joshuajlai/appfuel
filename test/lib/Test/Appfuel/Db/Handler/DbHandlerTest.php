@@ -116,9 +116,10 @@ class DbHandlerTest extends ParentTestCase
 	 */
 	public function testExecuteWithMultiQueryRequest($type)
 	{
-		$sql  = 'SELECT query_id, result FROM test_queries WHERE query_id=1;';
-		$sql .= 'SELECT query_id, result FROM test_queries WHERE query_id=3';
-		
+		$sql = array(
+			'SELECT query_id, result FROM test_queries WHERE query_id=1',
+			'SELECT query_id, result FROM test_queries WHERE query_id=3',
+		);
 		$request = new MultiQueryRequest($type, $sql);
 		
 		$response = $this->handler->execute($request);
