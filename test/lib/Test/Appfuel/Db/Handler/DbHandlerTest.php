@@ -11,6 +11,9 @@
 namespace Test\Appfuel\Db\Adapter;
 
 use Test\DbCase as ParentTestCase,
+	Appfuel\Db\Request\QueryRequest,
+	Appfuel\Db\Request\MultiQueryRequest,
+	Appfuel\Db\Request\PreparedRequest,
 	Appfuel\Db\Handler\DbHandler;
 
 /**
@@ -29,7 +32,7 @@ class DbHandlerTest extends ParentTestCase
 	 * System under test
 	 * @var DbHandler
 	 */
-	protected $handle = null;
+	protected $handler = null;
 
 	/**
 	 * Back up the connection pool because its static and we don't want to 
@@ -44,7 +47,7 @@ class DbHandlerTest extends ParentTestCase
 	public function setUp()
 	{
 		$this->bkPool = DbHandler::getPool();
-		$this->handle = new DbHandler();
+		$this->handler = new DbHandler();
 	}
 
 	/**
@@ -59,6 +62,18 @@ class DbHandlerTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
+	public function provideConnectionTypes()
+	{
+		return array(
+			array('read'),
+			array('write'),
+			array('both')
+		);
+	}
+
+	/**
+	 * @return null
+	 */
 	public function testGetSetPool()
 	{
 		$pool = $this->getMock('Appfuel\Framework\Db\Handler\PoolInterface');
@@ -66,4 +81,58 @@ class DbHandlerTest extends ParentTestCase
 		$this->assertTrue(DbHandler::isPool());
 		$this->assertSame($pool, DbHandler::getPool());
 	}
+
+	/**
+	 * Using a QueryRequest set to read|write|both (should do slave connection)
+	 * but we don't really care as it is handled by the pool which connection 
+	 * is given as long as its a ConnectionInterface we run it
+	 * 
+	 * @dataProvider	provideConnectionTypes
+	 * @return null
+	 */
+	public function testExecuteWithQueryRequest($type)
+	{
+		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=1';
+		$request = new QueryRequest();
+		$request->setSql($sql);
+		$request->setType($type);
+		
+		$response = $this->handler->execute($request);
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Db\DbResponseInterface',
+			$response
+		);
+		$this->assertTrue($response->isSuccess());
+
+		$expected = array(
+			'query_id' => 1,
+			'result'   => 'query issued'
+		);
+		$this->assertEquals($expected, $response->getCurrentResult());
+	}
+
+	/**
+	 * 
+	 * @dataProvider	provideConnectionTypes
+	 * @return null
+	 */
+	public function testExecuteWithMultiQueryRequest($type)
+	{
+		$sql  = 'SELECT query_id, result FROM test_queries WHERE query_id=1;';
+		$sql .= 'SELECT query_id, result FROM test_queries WHERE query_id=3';
+		
+		$request = new MultiQueryRequest();
+		$request->setSql($sql);
+		$request->setType($type);
+		
+		$response = $this->handler->execute($request);
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Db\DbResponseInterface',
+			$response
+		);
+		$this->assertTrue($response->isSuccess());
+	}
+
+
+
 }

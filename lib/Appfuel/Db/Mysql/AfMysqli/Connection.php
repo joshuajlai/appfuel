@@ -217,7 +217,6 @@ class Connection implements ConnectionInterface
 			default:
 				$adapter = new Query\Adapter($driver); 
 		}
-
 		return $adapter;
 	}
 
