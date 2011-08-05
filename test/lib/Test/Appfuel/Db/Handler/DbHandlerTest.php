@@ -14,16 +14,36 @@ use Test\DbCase as ParentTestCase,
 	Appfuel\Db\Handler\DbHandler;
 
 /**
+ * Database handler has a static member called a pool. Not a real connection
+ * pool as php is unable to do real connection pooling, it holds all the 
+ * connection objects and hides the need to know about master and slave for
+ * replication systems. This makes the dbhandle unware of replication so 
+ * it only needs to service the request. Please that a seperate object is 
+ * is to initialize connections into the handlers pool and we will be testing
+ * the handlers ability get and set a pool as well as execute several types
+ * of requests.
  */
 class DbHandlerTest extends ParentTestCase
 {
+	/**
+	 * System under test
+	 * @var DbHandler
+	 */
 	protected $handle = null;
+
+	/**
+	 * Back up the connection pool because its static and we don't want to 
+	 * effect current database operations
+	 * @var Pool
+	 */
+	protected $bkPool = null;
 
 	/**
 	 * Save the current state of the Pool
 	 */
 	public function setUp()
 	{
+		$this->bkPool = DbHandler::getPool();
 		$this->handle = new DbHandler();
 	}
 
@@ -32,11 +52,18 @@ class DbHandlerTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
+		DbHandler::setPool($this->bkPool);
 		unset($this->handler);
 	}
 
-	public function testOne()
+	/**
+	 * @return null
+	 */
+	public function testGetSetPool()
 	{
-		$this->assertTrue(true);
+		$pool = $this->getMock('Appfuel\Framework\Db\Handler\PoolInterface');
+		$this->assertNull(DbHandler::setPool($pool));
+		$this->assertTrue(DbHandler::isPool());
+		$this->assertSame($pool, DbHandler::getPool());
 	}
 }

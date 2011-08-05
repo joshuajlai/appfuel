@@ -96,7 +96,6 @@ class DbHandler implements HandlerInterface
 		$conn->connect();
 		$adapter  = $conn->createAdapter($request->getCode());
 		$response = $adapter->execute($request);
-		$conn->close();
 
 		return $response;
 	}
