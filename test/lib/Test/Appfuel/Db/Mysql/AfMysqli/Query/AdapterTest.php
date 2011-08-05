@@ -71,7 +71,7 @@ class AdapterTest extends ParentTestCase
 	 */
 	public function testExecuteDefaults($sql)
 	{
-		$request = new QueryRequest();
+		$request = new QueryRequest('read');
 		$request->setSql($sql);
 		
 		$response = $this->adapter->execute($request);
@@ -101,7 +101,7 @@ class AdapterTest extends ParentTestCase
 	 */
 	public function testExecuteResultTypePosition($sql)
 	{
-		$request = new QueryRequest();
+		$request = new QueryRequest('read');
 		$request->setSql($sql);
 		$request->setResultType('position');		
 		$response = $this->adapter->execute($request);
@@ -132,7 +132,7 @@ class AdapterTest extends ParentTestCase
 	 */
 	public function testExecuteResultTypePositionAndColumnNames($sql)
 	{
-		$request = new QueryRequest();
+		$request = new QueryRequest('read');
 		$request->setSql($sql);
 		$request->setResultType('both');		
 		$response = $this->adapter->execute($request);
@@ -175,7 +175,7 @@ class AdapterTest extends ParentTestCase
 			return $data;
 		};
 
-		$request = new QueryRequest();
+		$request = new QueryRequest('read');
 		$request->setSql($sql);
 		$request->setCallback($callback);
 		
@@ -203,7 +203,7 @@ class AdapterTest extends ParentTestCase
 	 */
 	public function testEmptySql()
 	{
-		$request = new QueryRequest();
+		$request = new QueryRequest('read');
 		$response = $this->adapter->execute($request);
 		$this->assertInstanceOf(
 			'Appfuel\Db\DbResponse',
@@ -233,7 +233,7 @@ class AdapterTest extends ParentTestCase
 	public function testSelectNoTableSql()
 	{
 		$sql = 'SELECT query_id FROM no_such_table WHERE query_id=1';
-		$request = new QueryRequest();
+		$request = new QueryRequest('read');
 		$request->setSql($sql);
 
 		$response = $this->adapter->execute($request);
@@ -252,6 +252,4 @@ class AdapterTest extends ParentTestCase
 			$error
 		);
 	}
-
-
 }

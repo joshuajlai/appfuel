@@ -26,9 +26,16 @@ class QueryRequestTest extends ParentTestCase
 	 */
 	protected $request = null;
 
+    /**
+     * Type of db operation
+     * @var string
+     */
+    protected $opType = null;
+
 	public function setUp()
 	{
-		$this->request = new QueryRequest($this->requestType);
+		$this->opType  = 'read';
+		$this->request = new QueryRequest($this->opType);
 	}
 
 	/**

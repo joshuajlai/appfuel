@@ -61,14 +61,13 @@ class SourceHandler implements SourceHandlerInterface
 		}
 
 		switch($cat) {
-			case 'query'	 : $request = new QueryRequest();	   break;
-			case 'multiquery': $request = new MultiQueryRequest(); break;
-			case 'prepared'	 : $request = new PreparedRequest();   break;
+			case 'query'	 : $request = new QueryRequest($type);		break;
+			case 'multiquery': $request = new MultiQueryRequest($type); break;
+			case 'prepared'	 : $request = new PreparedRequest($type);   break;
 			default: 
 				return false;
 		}
 				
-		$request->setType($type);
 		return $request;
 	}
 

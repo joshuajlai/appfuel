@@ -87,7 +87,7 @@ class AdapterTest extends ParentTestCase
 	 */
 	public function testSimpleSelectOneRow($sql, $values)
 	{
-		$request = new PreparedRequest();
+		$request = new PreparedRequest('read');
 		$request->setSql($sql)
 				->setValues($values);
 
@@ -118,7 +118,7 @@ class AdapterTest extends ParentTestCase
 	{
 		$sql = 'SELECT query_id FROM _blah_no_table_';
 		$values = array();
-		$request = new PreparedRequest();
+		$request = new PreparedRequest('read');
 		$request->setSql($sql)
 				->setValues($values);
 

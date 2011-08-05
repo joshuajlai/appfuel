@@ -24,9 +24,19 @@ class MultiQueryRequestTest extends ParentTestCase
 	 */
 	protected $request = null;
 
+	/**
+	 * Type of db operation
+	 * @var string
+	 */
+	protected $opType = null;
+
+	/**
+	 * @return null
+	 */
 	public function setUp()
 	{
-		$this->request = new MultiQueryRequest();
+		$this->opType  = 'read';
+		$this->request = new MultiQueryRequest($this->opType);
 	}
 
 	/**
@@ -100,9 +110,4 @@ class MultiQueryRequestTest extends ParentTestCase
 	{
 		$this->request->setResultOptions(new StdClass());
 	}
-
-
-
-
-
 }

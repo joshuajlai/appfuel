@@ -62,7 +62,20 @@ class QueryRequest implements RequestInterface
 	 * @var mixed
 	 */
 	protected $callback = null;
-	
+
+	/**
+	 * @param	string	$type	type of db operation is it read | write | both
+	 * @param	string	$sql	optionally set the sql string
+	 * @return	QueryRequest
+	 */
+	public function __construct($type, $sql = null)
+	{
+		$this->setType($type);
+		if (null !== $sql) {
+			$this->setSql($sql);
+		}
+	}
+
 	/**
 	 * @return string
 	 */

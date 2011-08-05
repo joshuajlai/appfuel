@@ -24,9 +24,19 @@ class PreparedRequestTest extends ParentTestCase
 	 */
 	protected $request = null;
 
+    /**
+     * Type of db operation
+     * @var string
+     */
+    protected $opType = null;
+
+	/**
+	 * @return null
+	 */
 	public function setUp()
 	{
-		$this->request = new PreparedRequest();
+		$this->opType  = 'read';
+		$this->request = new PreparedRequest($this->opType);
 	}
 
 	/**

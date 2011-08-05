@@ -93,9 +93,7 @@ class DbHandlerTest extends ParentTestCase
 	public function testExecuteWithQueryRequest($type)
 	{
 		$sql = 'SELECT query_id, result FROM test_queries WHERE query_id=1';
-		$request = new QueryRequest();
-		$request->setSql($sql);
-		$request->setType($type);
+		$request = new QueryRequest($type, $sql);
 		
 		$response = $this->handler->execute($request);
 		$this->assertInstanceOf(
@@ -121,9 +119,7 @@ class DbHandlerTest extends ParentTestCase
 		$sql  = 'SELECT query_id, result FROM test_queries WHERE query_id=1;';
 		$sql .= 'SELECT query_id, result FROM test_queries WHERE query_id=3';
 		
-		$request = new MultiQueryRequest();
-		$request->setSql($sql);
-		$request->setType($type);
+		$request = new MultiQueryRequest($type, $sql);
 		
 		$response = $this->handler->execute($request);
 		$this->assertInstanceOf(
@@ -132,7 +128,4 @@ class DbHandlerTest extends ParentTestCase
 		);
 		$this->assertTrue($response->isSuccess());
 	}
-
-
-
 }

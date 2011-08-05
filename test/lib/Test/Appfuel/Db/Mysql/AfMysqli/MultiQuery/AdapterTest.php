@@ -81,7 +81,7 @@ class AdapterTest extends ParentTestCase
 		$sql  = 'SELECT query_id, result FROM test_queries WHERE query_id=3;';
 		$sql .= 'SELECT query_id, result FROM test_queries WHERE query_id=1';
 
-		$request = new MultiQueryRequest();
+		$request = new MultiQueryRequest('read');
 		$request->setSql($sql);
 
 		$response = $this->adapter->execute($request);
@@ -127,7 +127,7 @@ class AdapterTest extends ParentTestCase
 			2 => array('result-key' => 'third-query')
 		);
 
-		$request = new MultiQueryRequest();
+		$request = new MultiQueryRequest('read');
 		$request->setSql($sql)
 				->setResultOptions($options);
 		
@@ -223,7 +223,7 @@ class AdapterTest extends ParentTestCase
 			1 => array('callback' => $secondMapper),
 		);
 
-		$request = new MultiQueryRequest();
+		$request = new MultiQueryRequest('read');
 		$request->setSql($sql)
 				->setResultOptions($options);
 		
@@ -280,7 +280,7 @@ class AdapterTest extends ParentTestCase
 			2 => array('result-key' => 'third-query'),
 		);
 
-		$request = new MultiQueryRequest();
+		$request = new MultiQueryRequest('read');
 		$request->setSql($sql)
 				->setResultOptions($options);
 		
