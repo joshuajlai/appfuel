@@ -12,6 +12,9 @@ namespace Appfuel\Db\Mysql\AfMysqli;
 
 use mysqli,
 	Appfuel\Framework\Exception,
+	Appfuel\Framework\Db\Request\RequestInterface,
+	Appfuel\Framework\Db\Request\MultiQueryRquest,
+	Appfuel\Framework\Db\Request\PreparedRequest,
 	Appfuel\Framework\Db\Adapter\AdapterInterface,
 	Appfuel\Framework\Db\Adapter\ErrorInterface,
 	Appfuel\Framework\Db\Connection\ConnectionInterface,
@@ -188,6 +191,34 @@ class Connection implements ConnectionInterface
 		$this->setStatus('connected');
 		$this->isConnected  = true;
 		return true; 
+	}
+
+	/**
+	 * Execute a given request by creating the adapter corresponding to the
+	 * request type. Adapters are designed to handle the interfaces for that
+	 * particular request. 
+	 *
+	 * @return	DbResponse
+	 */
+	public function createAdapter($code)
+	{
+		if (empty($code) || ! is_string($code)) {
+			return false;
+		}
+
+		$driver = $this->getDriver();
+		switch ($code) {
+			case 'multiquery': 
+				$adapter = new MultiQuery\Adapter($driver);
+				break;
+			case 'prepared':
+				$adapter = new PreparedStmt\Adapter($driver);
+				break;
+			default:
+				$adapter = new Query\Adapter($driver); 
+		}
+
+		return $adapter;
 	}
 
 	/**

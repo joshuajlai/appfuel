@@ -21,6 +21,13 @@ use Appfuel\Framework\Exception,
 class QueryRequest implements RequestInterface
 {
 	/**
+	 * Code is used to determine which database adapter is needed to service
+	 * this request
+	 * @var string
+	 */ 
+	protected $code = 'query';
+
+	/**
 	 * Used to determine the type of request for replication systems. 
 	 * Allowed values are read | write | both
 	 * @var string
@@ -56,6 +63,14 @@ class QueryRequest implements RequestInterface
 	 */
 	protected $callback = null;
 	
+	/**
+	 * @return string
+	 */
+	public function getCode()
+	{
+		return $this->code;
+	}
+
 	/**
 	 * @return	string
 	 */

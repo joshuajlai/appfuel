@@ -11,7 +11,10 @@
 namespace Appfuel\Orm\Source\Db;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Sql\SqlBuilderInterface,
+	Appfuel\Db\Request\QueryRequest,
+	Appfuel\Db\Request\MultiQueryRequest,
+	Appfuel\Db\Request\PreparedRequest,
+	Appfuel\Framework\Db\Request\RequestInterface,
 	Appfuel\Framework\Db\Handler\HandlerInterface,
 	Appfuel\Framework\Orm\Source\SourceHandlerInterface;
 
@@ -33,7 +36,7 @@ class SourceHandler implements SourceHandlerInterface
 	 */
 	public function __construct(HandlerInterface $dbHandler)
 	{
-		$this->dbhandler = $dbHandler;
+		$this->dbHandler = $dbHandler;
 	}
 
 	/**
@@ -42,5 +45,42 @@ class SourceHandler implements SourceHandlerInterface
 	public function getDataHandler()
 	{
 		return $this->dbHandler;
+	}
+
+	/**
+	 * @param	string	$cat	this is the category of request to use
+	 * @param	string	$type	type of operation the request will ask for
+	 *							valid values: read|write|both
+	 * @return	QueryRequest | false on failure
+	 */
+	public function createRequest($cat = 'query', $type = 'read')
+	{
+		$valid = array('query', 'multiquery', 'prepared');
+		if (empty($cat) || ! is_string($cat) || ! in_array($cat, $valid)) {
+			return false;
+		}
+
+		switch($cat) {
+			case 'query'	 : $request = new QueryRequest();	   break;
+			case 'multiquery': $request = new MultiQueryRequest(); break;
+			case 'prepared'	 : $request = new PreparedRequest();   break;
+			default: 
+				return false;
+		}
+				
+		$request->setType($type);
+		return $request;
+	}
+
+	/**
+	 * Used the database handler to send a request to the database
+	 * 
+	 * @param	RequestInterface
+	 * @return	ResponseInterface
+	 */
+	public function sendRequest(RequestInterface $request)
+	{
+		return $this->getDataHandler()
+					->execute($request);
 	}
 }

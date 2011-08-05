@@ -22,6 +22,13 @@ class PreparedRequest
 	extends QueryRequest 
 		implements PreparedRequestInterface
 {
+
+	/**
+	 * Used to detemine which adapter will services this request
+	 * @var string
+	 */
+	protected $code = 'prepared';
+
 	/**
 	 * Hold the values used in the prepared sql
 	 * @var array

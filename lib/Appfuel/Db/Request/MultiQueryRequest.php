@@ -23,6 +23,12 @@ class MultiQueryRequest
 		implements MultiQueryRequestInterface
 {
 	/**
+	 * Used to determine which adapter will service this request
+	 * @var string
+	 */
+	protected $code = 'multiquery';
+
+	/**
 	 * Holds the options that map to each resultset. Options include:
 	 *	resultKey - replaces the number index with resultKey
 	 *	callback  - filters each row of the result with this callback

@@ -84,7 +84,7 @@ class Pool implements PoolInterface
 			return $this->getSlave();
 		}
 
-		return false;
+		return $this->getMaster();
 	}
 
 	/**

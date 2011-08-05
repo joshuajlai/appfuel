@@ -13,7 +13,8 @@ namespace Appfuel\Db\Handler;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\Db\Handler\PoolInterface,
 	Appfuel\Framework\Db\Request\RequestInterface,
-	Appfuel\Framework\Db\Handler\HandlerInterface;
+	Appfuel\Framework\Db\Handler\HandlerInterface,
+	Appfuel\Framework\Db\Connection\ConnectionInterface;
 
 /**
  * The database handler is responsible for handling database requests without
@@ -72,6 +73,10 @@ class DbHandler implements HandlerInterface
 	}
 
 	/**
+	 * Use the connection to create an adapter that will service the request.
+	 * Every request has a code that the connection object uses to determine
+	 * which adapter will be used. 
+	 *
 	 * @param	DbRequestInterface $request
 	 * @return	DbResponse
 	 */
@@ -84,9 +89,13 @@ class DbHandler implements HandlerInterface
 
 		$pool = self::getPool();
 		$conn = $pool->getConnection($type);
+		if (! $conn instanceof ConnectionInterface) {
+			throw new Exception("DbHandler not properly initialized");
+		}
 
 		$conn->connect();
-		$response = $conn->execute($request);
+		$adapter  = $conn->createAdapter($request->getCode());
+		$response = $adapter->execute($request);
 		$conn->close();
 
 		return $response;
