@@ -12,30 +12,16 @@ namespace Appfuel\Orm\Repository;
 
 use BadMethodCallException,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\Orm\Domain\DomainBuilderInterface,
-	Appfuel\Framework\Orm\DataSource\DataSourceInterface,
+	Appfuel\Framework\Orm\Domain\DataBuilderInterface,
+	Appfuel\Framework\Orm\Source\SourceHandlerInterface,
 	Appfuel\Framework\Orm\Repository\AssemblerInterface;
 
 /**
- * The database assembler handles the internal logic necessary to assemble
- * a repository call into usable user data. This is done within three 
- * defined steps:
- * 
- * processCriteria:	takes the repository generated criteria and turns it
- *					into a database request object using the orm sql factory.
- *					this always returns a database request
- *
- * executeDataSource: takes a database request and uses a database handler
- *					  to convert it into domain data. It is here we decide
- *					  to add a callback for mapping raw database row into 
- *					  mapped domain data.
- *
- * processResults: takes the response form the database and used the domain
- *				   builder to marshal that data into domains, arrays or what
- *				   every shape the criteria specifies.
- *
- * After these steps are completed data is ready to be handed back the 
- * repository to be given to controllers requesting this data.	
+ * The assembler proxies data between two objects, the SourceHandler and
+ * the DataBuilder. The source handler performs operations on the data source
+ * and hands back a response. The data builder takes that response and shapes
+ * the data into an appropriate format which could a domain object, array, 
+ * string, etc...
  */
 class Assembler implements AssemblerInterface
 {
@@ -43,39 +29,29 @@ class Assembler implements AssemblerInterface
 	 * Handles actual operations to and from the data source
 	 * @var	DataSourceInterface
 	 */
-	protected $dataSource = null;
+	protected $sourceHandler = null;
 
 	/**
 	 * Used to build data for different shapes like a domain object or 
 	 * an array, or string with mapped data
 	 * @var DomainBuilder
 	 */
-	protected $domainBuilder = null;
+	protected $dataBuilder = null;
 
 	/**
 	 * @param	AssemblerInterface $asm
 	 * @return	OrmRepository
 	 */
-	public function __construct(DataSourceInterface $dataSource,
-								DomainBuilderInterface, $domainBuilder)
+	public function __construct(SourceHandlerInterface $sourceHandler)
 	{
-		$this->dataSource = $dataSource;
-		$this->domainBuilder = $domainBuilder;
+		$this->sourceHandler = $sourceHandler;
 	}
 
 	/**
 	 * @return	DataSourceInterface
 	 */
-	public function getDataSource()
+	public function getSourceHandler()
 	{
-		return $this->dataSource;
-	}
-
-	/**
-	 * @return	DomainBuilderInterface
-	 */
-	public function getDomainBuilder()
-	{
-		return $this->domainBuilder;
+		return $this->sourceHandler;
 	}
 }

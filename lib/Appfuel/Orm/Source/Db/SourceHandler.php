@@ -47,13 +47,18 @@ class SourceHandler implements SourceHandlerInterface
 		return $this->dbHandler;
 	}
 
+	public function handleCriteria()
+	{
+
+	}
+
 	/**
 	 * @param	string	$cat	this is the category of request to use
 	 * @param	string	$type	type of operation the request will ask for
 	 *							valid values: read|write|both
 	 * @return	QueryRequest | false on failure
 	 */
-	public function createRequest($cat = 'query', $type = 'read')
+	public function createRequest($cat, $type = 'read')
 	{
 		$valid = array('query', 'multiquery', 'prepared');
 		if (empty($cat) || ! is_string($cat) || ! in_array($cat, $valid)) {
