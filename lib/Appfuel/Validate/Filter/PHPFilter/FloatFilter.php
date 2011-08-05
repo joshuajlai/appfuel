@@ -29,6 +29,28 @@ class FloatFilter extends ValidateFilter
 		if (null !== $default) {
 			$options['options']['default'] = $default;
 		}
+
+		$decimal = $params->get('decimal-sep', false);
+		if (is_string($decimal) && ! empty($decimal)) {
+			$options['options']['decimal'] = $decimal;
+		}
+
+		/*
+		 * allow the use of thousand marker
+		 */
+		if ($params->get('allow-thousands', false)) {
+			$options['flags'] = FILTER_FLAG_ALLOW_THOUSAND;
+		}
+
+		/* will bitwise or the flag if it exists */
+		if ($params->get('allow-fractions', false)) {
+			if (! isset($options['flag'])) {
+				$options['flags'] = FILTER_FLAG_ALLOW_FRACTION;
+			}
+			else {
+				$options['flag'] |= FILTER_FLAG_ALLOW_FRACTION;
+			}
+		}
 		
 		$result = filter_var($raw, FILTER_VALIDATE_FLOAT, $options);
 		if (false === $result) {
