@@ -58,6 +58,11 @@ class CriteriaTest extends ParentTestCase
 			'Appfuel\Framework\Orm\Repository\CriteriaInterface',
 			$this->criteria
 		);
+
+		$this->assertInstanceOf(
+			'Appfuel\Framework\DataStructure\DictionaryInterface',
+			$this->criteria
+		);
 	}
 
 	/**
@@ -68,12 +73,7 @@ class CriteriaTest extends ParentTestCase
 		/* default values */
 		$this->assertEquals(array(), $this->criteria->getExprLists());
 
-		$options = $this->criteria->getOptions();
-		$this->assertInstanceOf(
-			'Appfuel\Framework\DataStructure\DictionaryInterface',
-			$options
-		);
-		$this->assertEquals(0, $options->count());
+		$this->assertEquals(0, $this->criteria->count());
 
 		$list = array(
 			'list_1' => $this->getMock($this->listInterface),
@@ -82,91 +82,7 @@ class CriteriaTest extends ParentTestCase
 
 		$criteria = new Criteria($list);
 		$this->assertEquals($list, $criteria->getExprLists());
-
-		$options = new Dictionary();
-		$criteria = new Criteria(null, $options);
-		$this->assertSame($options, $criteria->getOptions());
-
-		$criteria = new Criteria($list, $options);
-		$this->assertEquals($list, $criteria->getExprLists());
-		$this->assertSame($options, $criteria->getOptions());
 	}
-
-	/**
-	 * @return null
-	 */
-	public function testGetSetOptions()
-	{
-		$options = new Dictionary();
-		$this->assertNotSame($options, $this->criteria->getOptions());	
-		$this->assertSame(
-			$this->criteria,
-			$this->criteria->setOptions($options),
-			'must expose a fluent interface'
-		);
-
-		$this->assertSame($options, $this->criteria->getOptions());
-	}
-
-	/**
-	 * @return null
-	 */
-	public function testAddOption()
-	{
-		$options = new Dictionary();
-		$this->criteria->setOptions($options);
-
-		$this->assertSame(
-			$this->criteria,
-			$this->criteria->addOption('my-key', 'my-value'),
-			'must expose a fluent interface'
-		);
-	
-		$this->assertEquals(1, $options->count());
-		$this->assertTrue($options->exists('my-key'));
-		$this->assertEquals('my-value', $options->get('my-key'));	
-			
-		$this->assertSame(
-			$this->criteria,
-			$this->criteria->addOption(99, 'other-value'),
-			'must expose a fluent interface'
-		);
-	
-		$this->assertEquals(2, $options->count());
-		$this->assertTrue($options->exists(99));
-		$this->assertTrue($options->exists('my-key'));
-		
-		$this->assertEquals('other-value', $options->get(99));	
-		$this->assertEquals('my-value', $options->get('my-key'));
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testAddOptionBadKeyEmptyString()
-	{
-		$this->criteria->addOption('', 'my-value');
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testAddOptionBadKeyArray()
-	{
-		$this->criteria->addOption(array(1,2,3), 'my-value');
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testAddOptionBadKeyObj()
-	{
-		$this->criteria->addOption(new StdClass(), 'my-value');
-	}
-
 
 	/**
 	 * You are allowed to manually set and get the list of named expressions.
@@ -398,118 +314,5 @@ class CriteriaTest extends ParentTestCase
 	{
 		$expr = new DomainExpr("user.member = something");
 		$this->criteria->addExpr('', $expr);
-	}
-
-	/**
-	 * This is the domain-key of the target domain for the operation
-	 * the criteria represents
-	 *
-	 * @return null
-	 */
-	public function testGetSetTargetDomain()
-	{
-		/* default value is null */
-		$this->assertNull($this->criteria->getTargetDomain());
-
-		$key = 'user';
-		$this->assertSame(
-			$this->criteria, 
-			$this->criteria->setTargetDomain($key),
-			'must expose a fluent interface'
-		);
-		$this->assertEquals($key, $this->criteria->getTargetDomain());
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testSetTargetDomainEmptyString()
-	{
-		$this->criteria->setTargetDomain('');
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testSetTargetDomainNumber()
-	{
-		$this->criteria->setTargetDomain(12345678);
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testSetTargetDomainArray()
-	{
-		$this->criteria->setTargetDomain(array(1,2,3));
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testSetTargetDomainObj()
-	{
-		$this->criteria->setTargetDomain(new StdClass());
-	}
-
-	/**
-	 * This describes the type of operation the criteria is part of.
-	 * For example, we might have a criteria for a database  select
-	 * so operationType would be select
-	 *
-	 * @return null
-	 */
-	public function testGetSetOperationType()
-	{
-		/* default value is null */
-		$this->assertNull($this->criteria->getOperationType());
-
-		$type = 'select';
-		$this->assertSame(
-			$this->criteria, 
-			$this->criteria->setOperationType($type),
-			'must expose a fluent interface'
-		);
-		$this->assertEquals($type, $this->criteria->getOperationType());
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testSetOpTypeEmptyString()
-	{
-		$this->criteria->setOperationType('');
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testSetOpTypeNumber()
-	{
-		$this->criteria->setOperationType(12345678);
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testSetOpTypeArray()
-	{
-		$this->criteria->setOperationType(array(1,2,3));
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testSetOpTypeObj()
-	{
-		$this->criteria->setOperationType(new StdClass());
 	}
 }

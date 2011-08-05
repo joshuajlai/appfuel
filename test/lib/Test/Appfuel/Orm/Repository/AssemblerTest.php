@@ -71,4 +71,15 @@ class AssemblerTest extends ParentTestCase
 		);
 	}
 
+	/**
+	 * @return null
+	 */
+	public function testGetSourceHandler()
+	{
+		$this->assertSame(
+			$this->sourceHandler,
+			$this->asm->getSourceHandler(),
+			'should be the same source handler passed into the constructor'
+		);
+	}
 }

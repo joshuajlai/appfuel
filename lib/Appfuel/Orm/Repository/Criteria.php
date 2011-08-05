@@ -14,7 +14,6 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\Expr\ExprList,
 	Appfuel\Framework\Expr\ExprListInterface,
 	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Framework\DataStructure\DictionaryInterface,
 	Appfuel\Framework\Orm\Domain\DomainExprInterface,
 	Appfuel\Framework\Orm\Repository\CriteriaInterface;
 
@@ -23,22 +22,8 @@ use Appfuel\Framework\Exception,
  * the correct sql for the db request to pull domain information down from 
  * the database
  */
-class Criteria implements CriteriaInterface
+class Criteria extends Dictionary implements CriteriaInterface
 {
-	/**
-	 * Name of the primary domain used in the sql statement. This is given
-	 * as the domain-key mapped in the domain identity and not the domain
-	 * class name.
-	 * @var string
-	 */
-	protected $targetDomain = null;
-
-	/**
-	 * Name of the type of operation this criteria repersents
-	 * @var string
-	 */
-	protected $opType = null;
-
 	/**
 	 * List of named expressions. A named expression is an expression list 
 	 * identified by a key. This allows the repo to specify domain expressions
@@ -50,64 +35,20 @@ class Criteria implements CriteriaInterface
 	protected $exprs = array();
 
 	/**
-	 * General key value pair to used to hold optional values that are not
-	 * in the form of expressions
-	 * @var Dictionary
-	 */
-	protected $options = null;
-
-	/**
 	 * @param	DictionaryInterface $options
 	 * @return	Criteria
 	 */
-	public function __construct(array $exprs = null, 
-								DictionaryInterface $options = null)
+	public function __construct(array $exprs = null, $params = null)
 	{
 		/* default value is an empty array */
 		if (null !== $exprs) {
 			$this->setExprLists($exprs);
 		}
 
-		/* default value is an empty expression */
-		if (null === $options) {
-			$options = $this->createDictionary();
+		/* add any parameters */
+		if (null !== $params) {
+			parent::__construct($params);
 		}
-
-		$this->setOptions($options);
-	}
-
-	/**
-	 * @return	Dictionary
-	 */
-	public function getOptions()
-	{
-		return $this->options;
-	}
-
-	/**
-	 * @param	DictionaryInterface		$options
-	 * @return	Criteria
-	 */
-	public function setOptions(DictionaryInterface $options)
-	{
-		$this->options = $options;
-		return $this;
-	}
-
-	/**
-	 * @param	scalar	$key
-	 * @param	mixed	$value
-	 * @return	Criteria
-	 */
-	public function addOption($key, $value)
-	{
-		if (empty($key) || ! is_scalar($key)) {
-			throw new Exception("Invalid option key must be a scalar value");
-		}
-		$this->getOptions()
-			 ->add($key, $value);
-
-		return $this;
 	}
 
 	/**
@@ -188,50 +129,6 @@ class Criteria implements CriteriaInterface
 		}
 
 		return false;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getTargetDomain()
-	{
-		return $this->targetDomain;
-	}
-
-	/**
-	 * @param	string	$domainKey
-	 * @return	Criteria
-	 */
-	public function setTargetDomain($domainKey)
-	{
-		if (! $this->isValidString($domainKey)) {
-			throw new Exception("domainKey must be a non empty string");
-		}
-
-		$this->targetDomain = $domainKey;
-		return $this;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getOperationType()
-	{
-		return $this->opType;
-	}
-
-	/**
-	 * @param	string	$domainKey
-	 * @return	Criteria
-	 */
-	public function setOperationType($type)
-	{
-		if (! $this->isValidString($type)) {
-			throw new Exception("operation must be a non empty string");
-		}
-
-		$this->opType = $type;
-		return $this;
 	}
 
 	/**

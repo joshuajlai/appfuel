@@ -10,20 +10,10 @@
  */
 namespace Appfuel\Framework\Orm\Repository;
 
+use Appfuel\Framework\DataStructure\DictionaryInterface;
+
 /**
  */
-interface CriteriaInterface
+interface CriteriaInterface extends DictionaryInterface
 {
-	/**
-	 * @return	string
-	 */
-	public function getTargetDomain();
-
-	/**
-	 * @throws	Appfuel\Framework\Exception
-	 * @param	string	$domainKey	
-	 * @return	CriteriaInterface
-	 */
-	public function setTargetDomain($domainKey);
-
 }
