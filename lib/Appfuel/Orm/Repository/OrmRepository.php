@@ -8,10 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Orm\Domain;
+namespace Appfuel\Orm\Repository;
 
 use BadMethodCallException,
 	Appfuel\Framework\Exception,
+	Appfuel\Framework\Orm\OrmFactoryInterface,
 	Appfuel\Framework\Orm\Domain\DomainStateInterface,
 	Appfuel\Framework\Orm\Domain\DomainModelInterface,
 	Appfuel\Framework\Orm\Repository\AssemblerInterface,
@@ -21,7 +22,7 @@ use BadMethodCallException,
  * The repository is facade for the orm systems. Developers use the repo to 
  * create, modify, delete or find domains in the database. 
  */
-class OrmRepository implements OrmRepositoryInterface
+abstract class OrmRepository implements OrmRepositoryInterface
 {
 	/**
 	 * @var Criteria
@@ -36,16 +37,48 @@ class OrmRepository implements OrmRepositoryInterface
 	protected $asm = null;
 
 	/**
-	 * @param	AssemblerInterface $asm
+	 * @param	OrmFactoryInterface $factory
 	 * @return	OrmRepository
 	 */
-	public function __construct(AssemblerInterface $assembler)
+	public function __construct(OrmFactoryInterface $factory = null)
 	{
-		$this->asm = $assembler;
+		if (null === $factory) {
+			$factory = $this->createOrmFactory();
+		}
+
+		$this->setAssembler($this->createAssembler($factory);
 	}
 
+	/**
+	 * @return	OrmFactoryInterface
+	 */
+	abstract protected function creeateOrmFactory();
+	
+	/**
+	 * @return	AssemblerInterface
+	 */
 	protected function getAssembler()
 	{
 		return $this->asm;
+	}
+
+	/**
+	 * @param	AssmeblerInterface $asm
+	 * @return	null
+	 */
+	protected function setAssembler(AssemblerInterface $asm)
+	{
+		$this->asm = $asm;
+	}
+
+	/**
+	 * @param	OrmFactoryInterface	$factory
+	 * @return	AssemblerInterface
+	 */
+	protected function createAssembler(OrmFactoryInterface $factory)
+	{
+		$sourceHandler = $factory->createSourceHandler();
+		$dataBuilder   = $factory->createDataBuilder();
+		return new Assembler($sourceHandler, $dataBuilder);
 	}
 }

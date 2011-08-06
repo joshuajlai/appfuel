@@ -8,30 +8,30 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Orm\Domain;
+namespace Test\Appfuel\Orm\Source\Db\Identity;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Orm\Domain\DbIdentity;
+	Appfuel\Orm\Source\Db\Identity\IdentityHandler;
 
 /**
  * Db Identity maps database properties like table, columns, primary keys to
  * to domain members
  */
-class DbIdentityTest extends ParentTestCase
+class IdentityHandlerTest extends ParentTestCase
 {
 	/**
 	 * System under test
 	 * @var DbIdentity
 	 */
-	protected $identity = null;
+	protected $handler = null;
 
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->identity = new DbIdentity();
+		$this->identity = new IdentityHandler();
 	}
 
 	/**
@@ -48,7 +48,7 @@ class DbIdentityTest extends ParentTestCase
 	public function testImplementedInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DbDomainIdentityInterface',
+			'Appfuel\Framework\Orm\Source\Db\Identity\IdentityHandlerInterface',
 			$this->identity
 		);
 	}

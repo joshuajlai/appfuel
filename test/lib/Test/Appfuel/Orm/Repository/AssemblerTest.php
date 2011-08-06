@@ -39,15 +39,28 @@ class AssemblerTest extends ParentTestCase
 	 * @var DbHandler
 	 */
 	protected $dbHandler = null;
+
+	/**
+	 * @var DataBuilderInterface
+	 */
+	protected $dataBuilder = null;
 	
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
+		$this->dataBuilder   = $this->getMock(
+			'Appfuel\Framework\Orm\Domain\DataBuilderInterface'
+		);
+
 		$this->dbHandler     = new DbHandler();
 		$this->sourceHandler = new SourceHandler($this->dbHandler);
-		$this->asm			 = new Assembler($this->sourceHandler);
+		
+		$this->asm = new Assembler(
+			$this->sourceHandler,
+			$this->dataBuilder
+		);
 	}
 
 	/**

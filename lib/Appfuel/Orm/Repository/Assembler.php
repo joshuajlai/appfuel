@@ -42,16 +42,26 @@ class Assembler implements AssemblerInterface
 	 * @param	AssemblerInterface $asm
 	 * @return	OrmRepository
 	 */
-	public function __construct(SourceHandlerInterface $sourceHandler)
+	public function __construct(SourceHandlerInterface $sourceHandler,
+								DataBuilderInterface   $dataBuilder)
 	{
 		$this->sourceHandler = $sourceHandler;
+		$this->dataBuilder   = $dataBuilder;
 	}
 
 	/**
-	 * @return	DataSourceInterface
+	 * @return	SourceHandlerInterface
 	 */
 	public function getSourceHandler()
 	{
 		return $this->sourceHandler;
+	}
+
+	/**
+	 * @return	DataBuilderInterface
+	 */
+	public function getDataBuilder()
+	{
+		return $this->dataBuilder;
 	}
 }

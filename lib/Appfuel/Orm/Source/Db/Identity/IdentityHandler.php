@@ -8,15 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Orm\Domain;
+namespace Appfuel\Orm\Source\Db\Identity;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Orm\Domain\DbDomainIdentityInterface;
+	Appfuel\Framework\Orm\Source\Db\Identity\IdentityHandlerInterface;
 
 /**
  * Maps the domain members to a database table and columns
  */
-class DbIdentity implements DbDomainIdentityInterface
+class IdentityHandler implements IdentityHandlerInterface
 {
 	/**
 	 * Domain name used to refer to this domain so you don't have to use 

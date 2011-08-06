@@ -8,13 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Orm\Domain;
+namespace Appfuel\Framework\Orm\Source\Db\Identity;
 
 /**
  * The domain identity is responsible for mapping datasource properity names
  * to the corresponding domain.
  */
-interface DbDomainIdentityInterface
+interface IdentityHandlerInterface
 {
     /**
      * @return  array
