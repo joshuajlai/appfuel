@@ -12,7 +12,8 @@ namespace Appfuel\Orm\Domain;
 
 use Appfuel\Framework\Registry,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\Orm\Domain\ObjectFactoryInterface;
+	Appfuel\Framework\Orm\Domain\ObjectFactoryInterface,
+	Appfuel\Framework\Orm\Domain\MappedObjectNotFoundException;
 
 /**
  * The object factory is resposible for converting domain keys into domain 
@@ -21,20 +22,20 @@ use Appfuel\Framework\Registry,
 class ObjectFactory implements ObjectFactoryInterface
 {
 	/**
-	 * @param	string	$domainKey
+	 * @param	string	$key
 	 * @return	mixed
 	 */
-	public function createDomainObject($domainKey, $isDomain = true)
+	public function createDomainObject($key, $isDomain = true)
 	{
 		$map = Registry::get('domain-keys', false);
-		if (! $namespace) {
+		if (! $map) {
 			return false;
 		}
 
-		if (! is_array($map) || ! array_key_exists($domainkey, $map)) {
+		if (! is_array($map) || ! array_key_exists($key, $map)) {
 			return false;
 		}
-		$namespace = $map[$domainKey];
+		$namespace = $map[$key];
 
 		if (! $isDomain) {
 			return new $namespace();
@@ -49,6 +50,11 @@ class ObjectFactory implements ObjectFactoryInterface
 			$qualified = "$namespace\\$class";
 		}
 
-		return new $qualified();
+		try {
+			return new $qualified();
+		} catch (\Exception $e) {
+			$err = "object not found for ($key) at ($qualified)";
+			throw new MappedObjectNotFoundException($err, 0, $e);
+		}
 	}
 }

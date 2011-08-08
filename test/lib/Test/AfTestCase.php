@@ -228,7 +228,7 @@ class AfTestCase extends ParentTestCase
 	 */
 	public function initializeRegistry(array $data)
 	{
-		Registry::initialize($this->bkRegistry);
+		Registry::initialize($data);
 	}
 
 	/**
