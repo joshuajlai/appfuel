@@ -48,8 +48,6 @@ class DataBuilderTest extends ParentTestCase
 		$path = __NAMESPACE__ . '\DataBuilder';
 		$this->map = array(
 			'user'		 => "$path\User",
-			'user-email' => "$path\User\Email",
-			'role'		 => "$path\\Role",
 		);
 
 
@@ -77,5 +75,121 @@ class DataBuilderTest extends ParentTestCase
 			'Appfuel\Framework\Orm\Domain\DataBuilderInterface',
 			$this->builder
 		);
+	}
+
+	/**
+	 * The object factory is immutable object passed into the constructor
+	 *
+	 * @return null
+	 */
+	public function testGetObjectFactory()
+	{
+		$this->assertSame($this->factory, $this->builder->getObjectFactory());
+	}
+
+	/**
+	 * Positive test case when the key is mapped and the qualified classname
+	 * can be found and that class extends a domain model
+	 * 
+	 * @return null
+	 */
+	public function testBuildDomainModel()
+	{
+		$data = array(
+			'id'		=> 101,
+			'firstName' => 'Robert',
+			'lastName'	=> 'Scott-Buccleuch',
+			'email'		=> 'rsb.code@gmail.com'
+		);
+
+		$user = $this->builder->buildDomainModel('user', $data);
+
+		$class = $this->map['user'] . '\UserModel';
+		$this->assertInstanceOf($class, $user);
+		$this->assertInstanceOf('Appfuel\Orm\Domain\DomainModel', $user);
+
+		$state = $user->_getDomainState();
+		$this->assertTrue($state->isMarshal());
+		$this->assertEquals($data['id'], $user->getId());
+		$this->assertEquals($data['firstName'], $user->getFirstName());
+		$this->assertEquals($data['lastName'], $user->getLastName());
+		$this->assertEquals($data['email'], $user->getEmail());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBuildDomainModelKeyDoesNotExist()
+	{
+		$data = array('id' => 1);
+		$domain = $this->builder->buildDomainModel('key-not-found', $data);
+	}
+
+	/**
+	 * This would usually occur during an initialization error where the
+	 * domain-keys map was not added to the registry
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBuildDomainModelKeyMapDoesNotExist()
+	{
+		/* clears out the registry */
+		$this->initializeRegistry(array());
+		
+		$data = array('id' => 1);
+		$user = $this->builder->buildDomainModel('user', $data);
+	}
+
+	/**
+	 * Another miss configuration type error that might occur. In this case
+	 * the map is suppose to be an array and was set to a string
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBuildDomainModelKeyMapIsAString()
+	{
+		$this->initializeRegistry(array('domain-keys' => 'bad-value'));
+		
+		$data = array('id' => 1);
+		$user = $this->builder->buildDomainModel('user', $data);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBuildDomainModelKeyMapIsAnInt()
+	{
+		$this->initializeRegistry(array('domain-keys' => 12345));
+		
+		$data = array('id' => 1);
+		$user = $this->builder->buildDomainModel('user', $data);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBuildDomainModelKeyMapIsAnObject()
+	{
+		$this->initializeRegistry(array('domain-keys' => new StdClass()));
+		
+		$data = array('id' => 1);
+		$user = $this->builder->buildDomainModel('user', $data);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBuildDomainModelKeyMapIsEmptyArray()
+	{
+		$this->initializeRegistry(array('domain-keys' => array()));
+		
+		$data = array('id' => 1);
+		$user = $this->builder->buildDomainModel('user', $data);
 	}
 }

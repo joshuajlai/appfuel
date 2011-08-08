@@ -127,7 +127,12 @@ abstract class DomainModel implements DomainModelInterface
 
 	/**
 	 * Marshal the datasource values into the domain members and updata the 
-	 * state object
+	 * state object. This relys on one of two assumptions to be true:
+	 * 1) when the setter does not exist the original __call is executed
+	 *	  to automate the setting of the member
+	 * or 
+	 * 
+	 * 2) the developer overrides the __call with their own setter. 
 	 *
 	 * @param	array	$data	member name names and values 
 	 * @return	DomainModel

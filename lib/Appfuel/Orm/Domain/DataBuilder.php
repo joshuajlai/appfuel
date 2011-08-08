@@ -54,5 +54,15 @@ class DataBuilder implements DataBuilderInterface
 			return false;
 		}
 
+		$err = "buildDomainModel failed: ";
+		$factory = $this->getObjectFactory();
+		$domain  = $factory->createDomainObject($key);
+		if (! $domain) {
+			$err .= "domain key ($key) is not mapped";
+			throw new Exception($err);
+		}
+
+		$domain->_marshal($data);
+		return $domain;
 	}
 }
