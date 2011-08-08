@@ -46,4 +46,12 @@ interface OrmFactoryInterface
 	 * @return	IdentityHandlerInterface
 	 */
 	public function createIdentityHandler();
+	
+	/**
+	 * The object factory is responsible for create new domain or domain 
+	 * related objects.
+	 *
+	 * @return	Domain\ObjectFactory
+	 */
+	public function createObjectFactory();
 }

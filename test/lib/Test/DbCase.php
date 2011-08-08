@@ -10,7 +10,7 @@
  */
 namespace Test;
 
-use Appfuel\App\Registry,
+use Appfuel\Framework\Registry,
 	Appfuel\Framework\Exception,
 	Appfuel\Framework\Db\Connection\ConnectionDetailInterface,
 	Appfuel\Framework\Db\Connection\DetailFactoryInterface,

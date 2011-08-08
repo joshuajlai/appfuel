@@ -42,6 +42,7 @@ class Dependency
 			"{$fw}Exception.php",
 			"{$fw}DataStructure/DictionaryInterface.php",
 			"{$fw}DataStructure/Dictionary.php",
+			"{$fw}Registry.php",
 			"{$fw}File/FileManager.php",
 			"{$fw}Env/ErrorDisplay.php",
 			"{$fw}Env/ErrorReporting.php",
@@ -51,7 +52,6 @@ class Dependency
 			"{$fw}Env/IncludePath.php",
 			"{$app}Initializer.php",
 			"{$app}Factory.php",
-			"{$app}Registry.php",
 		);
 	}
 

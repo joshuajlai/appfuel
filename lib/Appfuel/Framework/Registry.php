@@ -8,10 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App;
+namespace Appfuel\Framework;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\DataStructure\DictionaryInterface,
+use Appfuel\Framework\DataStructure\DictionaryInterface,
 	Appfuel\Framework\DataStructure\Dictionary;
 
 /**

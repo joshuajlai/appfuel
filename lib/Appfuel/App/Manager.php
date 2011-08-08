@@ -10,7 +10,8 @@
  */
 namespace Appfuel\App;
 
-use Appfuel\Framework\Exception,
+use Appfuel\Framework\Registry,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\MessageInterface,
 	Appfuel\Framework\App\FrontControllerInterface;
 

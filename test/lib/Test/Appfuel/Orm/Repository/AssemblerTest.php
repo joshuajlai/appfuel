@@ -94,5 +94,11 @@ class AssemblerTest extends ParentTestCase
 			$this->asm->getSourceHandler(),
 			'should be the same source handler passed into the constructor'
 		);
+
+		$this->assertSame(
+			$this->dataBuilder,
+			$this->asm->getDataBuilder(),
+			'should be the same data builder passed into the constructor'
+		);
 	}
 }
