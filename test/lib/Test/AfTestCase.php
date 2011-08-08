@@ -11,6 +11,7 @@
 namespace Test;
 
 use PHPUnit_Extensions_OutputTestCase as ParentTestCase,
+	Appfuel\Framework\Registry,
 	Appfuel\Framework\File\FileManager,
 	Appfuel\App\Manager	as AppManager;
 
@@ -43,6 +44,12 @@ class AfTestCase extends ParentTestCase
 	 * @var string
 	 */
 	protected $bkIncludePath = NULL;
+
+	/**
+	 * Used to backup the contents of the registry
+	 * @var array
+	 */
+	protected $bkRegistry = array();
 
 	/**
 	 * @return string
@@ -211,6 +218,42 @@ class AfTestCase extends ParentTestCase
 			$full .= DIRECTORY_SEPARATOR . $relPath;
 		}
 		return $full;
+	}
+
+	/**
+	 * Clears out the registry and initializes it with new data
+	 * 
+	 * @param	array $data
+	 * @return	null
+	 */
+	public function initializeRegistry(array $data)
+	{
+		Registry::initialize($this->bkRegistry);
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function backupRegistry()
+	{
+		$data = Registry::getAll();
+		if (empty($data)) {
+			return;
+		}
+
+		$this->bkRegistry = $data;
+	}
+	
+	/**
+	 * @return null
+	 */
+	public function restoreRegistry()
+	{
+		if (empty($this->bkRegistry) || ! is_array($this->bkRegistry)) {
+			return;
+		}
+
+		Registry::initialize($this->bkRegistry);
 	}
 
 	/**
