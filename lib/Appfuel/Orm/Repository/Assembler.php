@@ -12,6 +12,7 @@ namespace Appfuel\Orm\Repository;
 
 use BadMethodCallException,
 	Appfuel\Framework\Exception,
+	Appfuel\Framework\AppfuelErrorInterface,
 	Appfuel\Framework\Orm\Domain\DataBuilderInterface,
 	Appfuel\Framework\Orm\Source\SourceHandlerInterface,
 	Appfuel\Framework\Orm\Repository\CriteriaInterface,
@@ -67,14 +68,92 @@ class Assembler implements AssemblerInterface
 	}
 
 	/**
+	 * @param	CriteriaInterface $src	criteria for source handler
+	 * @param	CriteriaInterface $bld	criteria for data builder
+	 * @return	mixed
+	 */
+	public function process(CriteriaInterface $src, CriteriaInterface $bld)
+	{
+		$data = $this->executeSource($src);
+		if ($this->isError($data)) {
+			return $data;
+		}
+	
+		/* 
+		 * some data does not require a build process and results can be
+		 * returned as is
+		 */	
+		if (true === $src->get('ignore-build', false)) {
+			return $data;
+		}
+	
+		$ignoreType = $src->get('ignore-return-type', false);
+
+		/*
+		 * you would ignore the array type if you have a custom build
+		 * that expects something other than an array
+		 */ 
+		if (false === $ignoreType && ! is_array($data)) {
+			$err  = "processData failed: data returned from the source handler";
+			$err .= " must be an array";
+			throw new Exception($err);
+		}
+
+		return $this->buildData($bld, $data);
+	}
+
+	/**
+	 * @param	CriteriaInterface $criteria describes what to to be 
+	 * @return	OrmResponseInterface
+	 */
+	public function executeSource(CriteriaInterface $criteria)
+	{
+		$err	 = 'executeDataSource failed: ';
+		$source  = $this->getSourceHandler();
+		
+		/* 
+		 * Find the correct method in the source handle to execute
+		 */
+		$method = $criteria->get('source-method', false);
+		if (empty($method) || ! is_string($method)) {
+			$err .= "SourceHandler method must be a non empty string";
+			throw new Exception($err);
+		}
+
+		if (! method_exists($source, $method)) {
+			$err .= "SourceHandler method ($method) not found";
+			throw new Exception($err);
+		}
+
+		return $source->$method($criteria);
+	}
+
+	/**
+	 * This can create a brand new domain object to be inserted into the
+	 * the datasource. It can populate data into the domain or just create
+	 * an empty domain, either way the domain is marked new.
+	 *
+	 * @param	array	$data	
+	 * @return	mixed
+	 */
+	public function createNewDomainObject($key, array $data = null)
+	{
+		$builder = $this->getDataBuilder();
+		return $builder->buildDomainModel($key, $data, true);
+	}
+
+	/**
+	 * Build domain models or objects. Any domain model will be marked as 
+	 * marshalled.
+	 *
 	 * @param	CriteriaInterface	$criteria
 	 * @return	mixed	
 	 */
-	public function buildData(CriteriaInterface $criteria, array $data)
+	public function buildData(CriteriaInterface $criteria, $data)
 	{
-		$err = 'buildData failed: ';
-		$domainKey = $criteria->get('domain-key', false);
+		$err	 = 'buildData failed: ';
 		$builder = $this->getDataBuilder();
+		$domainKey = $criteria->get('domain-key', false);
 		$custom	 = $criteria->get('custom-build', false);
 		$params  = $criteria->get('custom-build-params', false);
 
@@ -83,7 +162,7 @@ class Assembler implements AssemblerInterface
 		 * domain data. When closures are used they must follow the format
 		 * front of the argument list
 		 */
-		if (! empty($custom) && is_callable($custom)) {
+		if (is_callable($custom)) {
 			/* 
 			 * no params supplied so add data to the param list otherwise
 			 * prepend data to be the first param in the function signature
@@ -95,7 +174,6 @@ class Assembler implements AssemblerInterface
 			else {
 				array_unshift($params, $data);
 				array_unshift($params, $domainKey);
-
 			}
 				
 			return call_user_func_array($custom, $params);
@@ -125,17 +203,16 @@ class Assembler implements AssemblerInterface
 			throw new Exception($err);
 		}
 
-		/*
-		 * return the already pre mapped array of data
-		 */
-		if ('no-build' === $method) {
-			return $data;
-		}
-
 		if (! method_exists($builder, $method)) {
 			throw new Exception("$err DataBuilder method ($method) not found");
 		}
 
 		return $builder->$method($domainKey, $data);
+
+	}
+
+	public function isError($data)
+	{
+		return $data instanceof AppfuelErrorInterface;
 	}
 }

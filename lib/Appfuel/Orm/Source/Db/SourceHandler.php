@@ -47,11 +47,6 @@ class SourceHandler implements SourceHandlerInterface
 		return $this->dbHandler;
 	}
 
-	public function handleCriteria()
-	{
-
-	}
-
 	/**
 	 * @param	string	$cat	this is the category of request to use
 	 * @param	string	$type	type of operation the request will ask for

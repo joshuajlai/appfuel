@@ -48,13 +48,14 @@ class DataBuilder implements DataBuilderInterface
 	 * @param	string	$key
 	 * @return	mixed
 	 */
-	public function buildDomainModel($key, array $data)
+	public function buildDomainModel($key, array $data = null, $isNew = false)
 	{
 		if (empty($key) || ! is_string($key)) {
 			return false;
 		}
-
-		$err = "buildDomainModel failed: ";
+	
+		$isNew	 = (bool)$isNew;
+		$err	 = "buildDomainModel failed: ";
 		$factory = $this->getObjectFactory();
 		$domain  = $factory->createDomainObject($key);
 		if (! $domain) {
@@ -63,6 +64,10 @@ class DataBuilder implements DataBuilderInterface
 		}
 
 		$domain->_marshal($data);
+		if ($isNew) {
+			$domain->_markNew();
+		}
+
 		return $domain;
 	}
 }

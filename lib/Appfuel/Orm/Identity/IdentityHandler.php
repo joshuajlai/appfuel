@@ -29,25 +29,7 @@ class IdentityHandler implements IdentityHandlerInterface
 	 * List of the initial member marshalled into the domain
 	 * @var array
 	 */
-	protected $map = array();
-
-	/**
-	 * Name of the table this domain belongs too
-	 * @var array
-	 */
-	protected $table = null;
-
-	/**
-	 * List of domains columns that represent the primary key
-	 * @var string
-	 */
-	protected $primaryKey = array();
-
-	/**
-	 * List of domain labels this domain has access to and there relationships
-	 * @var array
-	 */
-	protected $dependencies = array();
+	protected $mappers = array();
 
 	/**
 	 * @return	array
@@ -61,20 +43,9 @@ class IdentityHandler implements IdentityHandlerInterface
 	 * @param	array	$map
 	 * @return	DbIdentity
 	 */
-	public function setMap(array $map)
+	public function setMapper($name, closure $mapper)
 	{
-		if (empty($map)) {
-			throw new Exception("setMap failed: domain map can not be empty");
-		}
-
-		$err = "invalid column map: column of member is not a valid string";
-		foreach ($map as $member => $column) {
-			if (! $this->isString($column) || ! $this->isString($member)) {
-				throw new Exception($err);
-			}
-		}
-
-		$this->map = $map;
+		$this->map[$name] = $mapper;
 		return $this;
 	}
 

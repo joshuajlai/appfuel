@@ -12,13 +12,15 @@ namespace Test\Appfuel\Orm\Repository;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
+	Appfuel\Db\DbError,
 	Appfuel\Db\Handler\DbHandler,
 	Appfuel\Orm\Domain\ObjectFactory,
 	Appfuel\Orm\Domain\DataBuilder,
 	Appfuel\Orm\Repository\Criteria,
 	Appfuel\Orm\Repository\Assembler,
 	Appfuel\Orm\Source\Db\SourceHandler,
-	Appfuel\Framework\DataStructure\Dictionary;
+	Appfuel\Framework\DataStructure\Dictionary,
+	Appfuel\Framework\Orm\Repository\CriteriaInterface;
 
 /**
  * We are creating a class that extends the data builder to test
@@ -31,6 +33,79 @@ class MyDataBuilder extends DataBuilder
 	{
 		return array('domain-key' => $domainKey, 'data' => $data);
 	}
+}
+
+/**
+ * Extends the source handler and is used to test that the assembler
+ * can find and execute method in this class indicated by the criteria
+ * key 'source-method'. All of these methods must take a criteria as
+ * a parameter.
+ */
+class MySourceHandler extends SourceHandler
+{
+	/**
+	 * Return back the parameter in a known format so any test can assert
+	 * the it was correctly called
+	 *
+	 * @param	CriteriaInterface $criteria
+	 * @return	array
+	 */
+	public function fetchMyData(CriteriaInterface $criteria)
+	{
+		return array('first' => $criteria);
+	}
+
+	/**	
+	 * Hand back some fake user data to build a domain with
+	 * 
+	 * @param	CriteriaInterface	$criteria
+	 * @return	array
+	 */
+	public function fetchUserData(CriteriaInterface $criteria)
+	{
+		return array(
+			'id'		=> 99,
+			'firstName' => 'Robert',
+			'lastName'	=> 'Scott-Buccleuch',
+			'email'		=> 'rsb.code@gmail.com'
+		);
+	}
+
+	/**
+	 * Used to test the assembler process when the source handler
+	 * returns an error
+	 *
+	 * @param	CriteriaInterface $criteria
+	 * @return	DbError
+	 */
+	public function fetchUserWithError(CriteriaInterface $criteria)
+	{
+		return new DbError(99, 'this is an error');
+	}
+
+	/**
+	 * Used to return custom data
+	 *
+	 * @param	CriteriaInterface	$criteria
+	 * @return	string
+	 */
+	public function fetchStringData(CriteriaInterface $criteria)
+	{
+		return 'Assembler expects an array not a string';
+	}
+
+	/**
+	 * Used to return custom data
+	 *
+	 * @param	CriteriaInterface	$criteria
+	 * @return	true
+	 */
+	public function fetchBoolData(CriteriaInterface $criteria)
+	{
+		return true;
+	}
+
+
 }
 
 /**
@@ -119,7 +194,7 @@ class AssemblerTest extends ParentTestCase
 
 		$this->dataBuilder   = new MyDataBuilder(new ObjectFactory());
 		$this->dbHandler     = new DbHandler();
-		$this->sourceHandler = new SourceHandler($this->dbHandler);
+		$this->sourceHandler = new MySourceHandler($this->dbHandler);
 		
 		$this->asm = new Assembler(
 			$this->sourceHandler,
@@ -177,7 +252,7 @@ class AssemblerTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function xtestImplementedInterfaces()
+	public function testImplementedInterfaces()
 	{
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Orm\Repository\AssemblerInterface',
@@ -188,7 +263,7 @@ class AssemblerTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function xtestGetSourceHandler()
+	public function testGetSourceHandler()
 	{
 		$this->assertSame(
 			$this->sourceHandler,
@@ -204,6 +279,93 @@ class AssemblerTest extends ParentTestCase
 	}
 
 	/**
+	 * Execute source looks into the Criteria for the method to be used 
+	 * in the source handler. It then check the source handler for the 
+	 * existence of the method and executes the method pushing the criteria
+	 * as the only parameter and handing back the results
+	 *
+	 * @return null
+	 */
+	public function testExecuteSource()
+	{
+		$criteria = new Criteria();
+
+		/* special method we used in the source handler class declared at 
+		 * the top of this file to prove we can fire any method in this class
+		 * if it exists publicly
+		 */
+		$criteria->add('source-method', 'fetchMyData');
+		$result = $this->asm->executeSource($criteria);
+		$expected = array('first' => $criteria);
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * Method defined can not be an empty string
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testExecuteSourceMethodEmptyString()
+	{
+		$criteria = new Criteria();
+
+		$criteria->add('source-method', '');
+		$result = $this->asm->executeSource($criteria);
+	}
+
+	/**
+	 * Method defined can not be an integer
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testExecuteSourceMethodInt()
+	{
+		$criteria = new Criteria();
+
+		$criteria->add('source-method', 12345);
+		$result = $this->asm->executeSource($criteria);
+	}
+
+	/**
+	 * Method defined can not be an array
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testExecuteSourceMethodArray()
+	{
+		$criteria = new Criteria();
+
+		$criteria->add('source-method', array(1,2,3));
+		$result = $this->asm->executeSource($criteria);
+	}
+
+	/**
+	 * Method defined can not be an object
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testExecuteSourceMethodObject()
+	{
+		$criteria = new Criteria();
+
+		$criteria->add('source-method', new StdClass());
+		$result = $this->asm->executeSource($criteria);
+	}
+
+	/**
+	 * Method defined must exist
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testExecuteSourceMethodNotFound()
+	{
+		$criteria = new Criteria();
+
+		$criteria->add('source-method', 'does-not-exist');
+		$result = $this->asm->executeSource($criteria);
+	}
+
+	/**
 	 * This test represents the general use case where the repository
 	 * create a criteria used to describe what to build and the source
 	 * handler has alreay return the pre mapped data to be built into
@@ -216,7 +378,7 @@ class AssemblerTest extends ParentTestCase
 	 * @param	array	$data		data needed to build domain
 	 * @return	null
 	 */
-	public function xtestBuildData($key, $keys, $userClass, $data)
+	public function testBuildData($key, $keys, $userClass, $data)
 	{
 		$this->initializeRegistry($keys);
 
@@ -244,7 +406,7 @@ class AssemblerTest extends ParentTestCase
 	 * @param	array	$data		data needed to build domain
 	 * @return	null
 	 */
-	public function xtestBuildDataMethodEmptyStr($key, $keys, $userClass, $data)
+	public function testBuildDataMethodEmptyStr($key, $keys, $userClass, $data)
 	{
 		$this->initializeRegistry($keys);
 		
@@ -261,30 +423,6 @@ class AssemblerTest extends ParentTestCase
 		$this->assertEquals($data['email'], $user->getEmail());	
 	}
 
-
-	/**
-	 * In this test we are going to tell the assembler to hand back just
-	 * the array comming back from the datasource by using the no-build with
-	 * build-method in the criteria
-	 *	
-	 * @dataProvider	provideUserData
-	 * @param	string	$key		used to find the domain namespace
-	 * @param	array	$keys		the list of namespaces mapped
-	 * @param	string	$userClass	qualified class name of domain for key
-	 * @param	array	$data		data needed to build domain
-	 * @return	null 
-	 */
-	public function xtestBuildDataJustData($key, $keys, $userClass, $data)
-	{
-		$this->initializeRegistry($keys);
-		$criteria = new Criteria();
-		$criteria->add('domain-key', $key)
-				 ->add('build-method', 'no-build');
-
-		$result = $this->asm->buildData($criteria, $data);
-		$this->assertEquals($data, $result);
-	}
-
 	/**
 	 * Here we have added a custom method to MyDataHandler for which will
 	 * will tell the assembler to use to build our data. With these custom 
@@ -298,7 +436,7 @@ class AssemblerTest extends ParentTestCase
 	 * @param	array	$data		data needed to build domain
 	 * @return	null 
 	 */
-	public function xtestBuildDataOtherMethod($key, $keys, $userClass, $data)
+	public function testBuildDataOtherMethod($key, $keys, $userClass, $data)
 	{
 		$this->initializeRegistry($keys);
 		
@@ -322,7 +460,7 @@ class AssemblerTest extends ParentTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function xtestBuildDataNoDomainKey()
+	public function testBuildDataNoDomainKey()
 	{
 		$criteria = new Criteria();
 	
@@ -335,7 +473,7 @@ class AssemblerTest extends ParentTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function xtestBuildDataBuildMethodIsInt()
+	public function testBuildDataBuildMethodIsInt()
 	{
 		$criteria = new Criteria();
 		$criteria->add('domain-key', 'user')
@@ -350,7 +488,7 @@ class AssemblerTest extends ParentTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function xtestBuildDataBuildMethodIsArray()
+	public function testBuildDataBuildMethodIsArray()
 	{
 		$criteria = new Criteria();
 		$criteria->add('domain-key', 'user')
@@ -365,7 +503,7 @@ class AssemblerTest extends ParentTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function xtestBuildDataBuildMethodIsObject()
+	public function testBuildDataBuildMethodIsObject()
 	{
 		$criteria = new Criteria();
 		$criteria->add('domain-key', 'user')
@@ -380,7 +518,7 @@ class AssemblerTest extends ParentTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return null
 	 */
-	public function xtestBuildDataBuildMethodDoesNotExist()
+	public function testBuildDataBuildMethodDoesNotExist()
 	{
 		$criteria = new Criteria();
 		$criteria->add('domain-key', 'user')
@@ -511,8 +649,7 @@ class AssemblerTest extends ParentTestCase
 	 *
 	 * @dataProvider	provideUserData
 	 *
-	 * @param	string	$key		ignored, custom functions are responsible
-	 *								for passing in the domain key
+	 * @param	string	$key		the domain key used in criteria
 	 * @param	array	$keys		the list of namespaces mapped
 	 * @param	string	$userClass	qualified class name of domain for key
 	 * @param	array	$data		data needed to build domain
@@ -548,6 +685,215 @@ class AssemblerTest extends ParentTestCase
 		);
 		$this->assertEquals($expected, $result);
 	}
+
+	/**
+	 * When no params are given for custom builds two params are always added
+	 * which means custom builds require at min two params. The first is 
+	 * @dataProvider	provideUserData
+	 *
+	 * @param	string	$key		the domain key used in criteria
+	 * @param	array	$keys		the list of namespaces mapped
+	 * @param	string	$userClass	qualified class name of domain for key
+	 * @param	array	$data		data needed to build domain
+	 * @return	null
+	 */
+	public function testBuildDataCustom1Param($key, $keys, $userClass, $data)
+	{
+		$this->initializeRegistry($keys);
+		
+		$callback = function ($domainKey, $dataSource, $param1) {
+			return array(
+				'first'		=> $domainKey, 
+				'second'	=> $dataSource,
+				'third'		=> $param1
+			);
+		};
+
+		$params = array('param1');
+
+		$criteria = new Criteria();
+		$criteria->add('domain-key', $key)
+				 ->add('custom-build', $callback)
+				 ->add('custom-build-params', $params);
+		
+		$result = $this->asm->buildData($criteria, $data);
+		/* the custom method will return the function signature as an 
+		 * associative array
+		 */
+		$expected = array(
+			'first'  => $key,
+			'second' => $data,
+			'third'  => $params[0],
+		);
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * When no params are given for custom builds two params are always added
+	 * which means custom builds require at min two params. The first is 
+	 * @dataProvider	provideUserData
+	 *
+	 * @param	string	$key		the domain key used in criteria
+	 * @param	array	$keys		the list of namespaces mapped
+	 * @param	string	$userClass	qualified class name of domain for key
+	 * @param	array	$data		data needed to build domain
+	 * @return	null
+	 */
+	public function testBuildDataCustomNoParam($key, $keys, $userClass, $data)
+	{
+		$this->initializeRegistry($keys);
+		
+		$callback = function ($domainKey, $dataSource) {
+			return array(
+				'first'		=> $domainKey, 
+				'second'	=> $dataSource,
+			);
+		};
+
+		$criteria = new Criteria();
+		$criteria->add('domain-key', $key)
+				 ->add('custom-build', $callback);
+		
+		$result = $this->asm->buildData($criteria, $data);
+		/* the custom method will return the function signature as an 
+		 * associative array
+		 */
+		$expected = array(
+			'first'  => $key,
+			'second' => $data,
+		);
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * Here we will test process with our custom source handler returning
+	 * known data that will be used to build a user object via the default
+	 * databuilder method buildDomainModel. Note: that this user model
+	 * is just a fake domain we created for this test to prove this works
+	 *
+	 * @return null
+	 */
+	public function testProcess()
+	{
+        /* declare where the fake domain will be found */
+        $map = array('user' => __NAMESPACE__ . '\Assembler\User');
+        $domainKeys = array('domain-keys' => $map);
+		$this->initializeRegistry($domainKeys);
+
+        $userClass = $map['user'] . '\UserModel';
+
+		$source = new Criteria();
+		$source->add('source-method', 'fetchUserData');
+
+		$build = new Criteria();
+		$build->add('domain-key', 'user');
+
+		$user = $this->asm->process($source, $build);
+		$this->assertInstanceOf($userClass, $user);
+		$this->assertInstanceOf('Appfuel\Orm\Domain\DomainModel', $user);
+		$state = $user->_getDomainState();
+		
+		$this->assertTrue($state->isMarshal());
+		$this->assertEquals(99, $user->getId());
+		$this->assertEquals('Robert', $user->getFirstName());
+		$this->assertEquals('Scott-Buccleuch', $user->getLastName());
+		$this->assertEquals('rsb.code@gmail.com', $user->getEmail());
+	}
+
+	/**
+	 * Here we will instruct the assembler to ignore the build and return
+	 * the data raw
+	 *
+	 * @return null
+	 */
+	public function testProcessIgnoreBuild()
+	{
+		$source = new Criteria();
+		$source->add('source-method', 'fetchUserData')
+			   ->add('ignore-build', true);
+
+		$build = new Criteria();
+		$build->add('domain-key', 'user');
+
+		$user = $this->asm->process($source, $build);
+		$expected = array(
+            'id'        => 99,
+            'firstName' => 'Robert',
+            'lastName'  => 'Scott-Buccleuch',
+            'email'     => 'rsb.code@gmail.com'
+        );
+		$this->assertEquals($expected, $user);
+	}
+
+	/**
+	 * Here we will show the assmebler returns immediate when an error 
+	 * interface is detected
+	 *
+	 * @return null
+	 */
+	public function testProcessErrorReturned()
+	{
+		$source = new Criteria();
+		$source->add('source-method', 'fetchUserWithError');
+
+		$build = new Criteria();
+		$build->add('domain-key', 'user');
+
+		$user = $this->asm->process($source, $build);
+		$this->assertInstanceOf(
+			'Appfuel\Framework\AppfuelErrorInterface',
+			$user
+		);
+	}
+
+	/**
+	 * Here we will show the assmebler will throw an exception when anything
+	 * but an array is returned. If you truely need the data then specify 
+	 * ignore build
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testProcessInvalidReturnData()
+	{
+		$source = new Criteria();
+		$source->add('source-method', 'fetchStringData');
+
+		$build = new Criteria();
+		$build->add('domain-key', 'user');
+
+		$user = $this->asm->process($source, $build);
+	}
+
+	/**
+	 * In this test we will have the source return a bool and have a 
+	 * custom closure accept it. To do this we need to specify the 
+	 * key ignore-return-type
+	 *
+	 * @return null
+	 */
+	public function testProcessInvalidReturnCustomData()
+	{
+		$callback = function($key, $data) {
+			return array('domain-key' => $key, 'data' => $data);
+		};
+
+		$source = new Criteria();
+		$source->add('source-method', 'fetchBoolData')
+		       ->add('ignore-return-type', true);
+
+		$build = new Criteria();
+		$build->add('domain-key', 'user')
+			  ->add('custom-build', $callback);
+
+		$result = $this->asm->process($source, $build);
+		$expected = array(
+			'domain-key' => 'user',
+			'data'		 => true
+		);
+		$this->assertEquals($expected, $result);
+	}
+
 
 
 }

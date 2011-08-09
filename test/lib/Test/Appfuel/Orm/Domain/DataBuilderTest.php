@@ -117,6 +117,85 @@ class DataBuilderTest extends ParentTestCase
 	}
 
 	/**
+	 * @return null
+	 */
+	public function testBuildDomainNewNoData()
+	{
+		$user  = $this->builder->buildDomainModel('user', null, true);
+		$class = $this->map['user'] . '\UserModel';
+		
+		$this->assertInstanceOf($class, $user);
+		$this->assertInstanceOf('Appfuel\Orm\Domain\DomainModel', $user);
+		
+		$state = $user->_getDomainState();
+		$this->assertEmpty($state->getInitialMembers());
+		$this->assertTrue($state->isNew());
+
+		$this->assertNull($user->getId());
+		$this->assertNull($user->getFirstName());
+		$this->assertNull($user->getLastName());
+		$this->assertNull($user->getEmail());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testBuildDomainNewWithData()
+	{
+		$data = array(
+			'id'		=> 101,
+			'firstName' => 'Robert',
+			'lastName'	=> 'Scott-Buccleuch',
+			'email'		=> 'rsb.code@gmail.com'
+		);
+
+
+		$user  = $this->builder->buildDomainModel('user', $data, true);
+		$class = $this->map['user'] . '\UserModel';
+		
+		$this->assertInstanceOf($class, $user);
+		$this->assertInstanceOf('Appfuel\Orm\Domain\DomainModel', $user);
+		
+		$state = $user->_getDomainState();
+		$this->assertEquals($data, $state->getInitialMembers());
+		$this->assertTrue($state->isNew());
+
+		$this->assertEquals($data['id'], $user->getId());
+		$this->assertEquals($data['firstName'], $user->getFirstName());
+		$this->assertEquals($data['lastName'], $user->getLastName());
+		$this->assertEquals($data['email'], $user->getEmail());
+	}
+
+	/**
+	 * You should not use the method this was but the combination exists 
+	 * because i didn't refactor the double responsiblity of marshalling
+	 * a new domain and one built from the datasource. In this case 
+	 * we marshalled a domain object with no data which means eventually
+	 * when you mark dirty all the other members are immediately invalid.
+	 * Luckly the Repository controls the assembler and prevents this from
+	 * happening
+	 *
+	 * @return null
+	 */
+	public function testBuildDomainNoNewNoData()
+	{
+		$user  = $this->builder->buildDomainModel('user');
+		$class = $this->map['user'] . '\UserModel';
+		
+		$this->assertInstanceOf($class, $user);
+		$this->assertInstanceOf('Appfuel\Orm\Domain\DomainModel', $user);
+		
+		$state = $user->_getDomainState();
+		$this->assertEmpty($state->getInitialMembers());
+		$this->assertTrue($state->isMarshal());
+
+		$this->assertNull($user->getId());
+		$this->assertNull($user->getFirstName());
+		$this->assertNull($user->getLastName());
+		$this->assertNull($user->getEmail());
+	}
+
+	/**
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return	null
 	 */

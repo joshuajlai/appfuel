@@ -8,11 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Db;
-
-use Appfuel\Framework\AppfuelErrorInterface;
+namespace Appfuel\Framework;
 
 /**
+ * Appfuel Framework Exception
  */
-interface DbErrorInterface extends AppfuelErrorInterface
-{}
+interface AppfuelErrorInterface
+{
+	public function getCode();
+	public function getMessage();
+	//public function buildError();
+	public function __toString();
+}
