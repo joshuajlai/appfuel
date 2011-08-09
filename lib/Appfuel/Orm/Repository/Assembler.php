@@ -81,22 +81,27 @@ class Assembler implements AssemblerInterface
 		/*
 		 * Allow for custom functions or closures to be used to build
 		 * domain data. When closures are used they must follow the format
-		 * closure($domain-key, array $data). custom callbacks can do as they
-		 * please with the exception that data is alway prepended to the 
 		 * front of the argument list
 		 */
-		if (is_callable($custom)) {
-			if ($custom instanceof Closure) {
-				return $custom($domainKey, $data);
-			}
-
+		if (! empty($custom) && is_callable($custom)) {
+			/* 
+			 * no params supplied so add data to the param list otherwise
+			 * prepend data to be the first param in the function signature
+			 */
 			if (! is_array($params)) {
+				$params[] = $domainKey;
 				$params[] = $data;
 			}
 			else {
-				unshift($params, $data);
-				return call_user_func_array($custom, $params);
+				array_unshift($params, $data);
+				array_unshift($params, $domainKey);
+
 			}
+				
+			return call_user_func_array($custom, $params);
+		}
+		else if (! empty($custom) && ! is_callable($custom)) {
+			throw new Exception("$err custom build declared but not callable");
 		}
 
 		/* for regular builds make sure the domain key exists */
