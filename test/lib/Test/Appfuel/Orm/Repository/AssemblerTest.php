@@ -13,7 +13,8 @@ namespace Test\Appfuel\Orm\Repository;
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
 	Appfuel\Db\Handler\DbHandler,
-	Appfuel\Orm\Domain\DomainExpr,
+	Appfuel\Orm\Domain\ObjectFactory,
+	Appfuel\Orm\Domain\DataBuilder,
 	Appfuel\Orm\Repository\Criteria,
 	Appfuel\Orm\Repository\Assembler,
 	Appfuel\Orm\Source\Db\SourceHandler,
@@ -50,10 +51,9 @@ class AssemblerTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->dataBuilder   = $this->getMock(
-			'Appfuel\Framework\Orm\Domain\DataBuilderInterface'
-		);
+		$this->backupRegistry();
 
+		$this->dataBuilder   = new DataBuilder(new ObjectFactory());
 		$this->dbHandler     = new DbHandler();
 		$this->sourceHandler = new SourceHandler($this->dbHandler);
 		
@@ -68,6 +68,7 @@ class AssemblerTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
+		$this->restoreRegistry();
 		unset($this->dbHandler);
 		unset($this->sourceHandler);
 		unset($this->asm);
@@ -100,5 +101,44 @@ class AssemblerTest extends ParentTestCase
 			$this->asm->getDataBuilder(),
 			'should be the same data builder passed into the constructor'
 		);
+	}
+
+	/**
+	 * This test represents the general use case where the repository
+	 * create a criteria used to describe what to build and the source
+	 * handler has alreay return the pre mapped data to be built into
+	 * the domains
+	 *
+	 * @return	null
+	 */
+	public function testBuildDataDefaultBuildMethod()
+	{
+		/* declare where the fake domain will be found */
+		$map = array('user' => __NAMESPACE__ . '\Assembler\User');
+		$this->initializeRegistry(array('domain-keys' => $map));
+		$userClass = $map['user'] . '\UserModel';
+
+		/*
+		 * The represents the premapped data that would come back from the
+		 * data source
+		 */
+		$data = array(
+			'id'		=> 101,
+			'firstName' => 'Robert',
+			'lastName'  => 'Scott-Buccluech',
+			'email'		=> 'rsb.code@gmail.com' 
+		);
+		
+		$criteria = new Criteria();
+		$criteria->add('domain-key', 'user');
+		$user = $this->asm->buildData($criteria, $data);
+		$this->assertInstanceOf($userClass, $user);
+	
+		$state = $user->_getDomainState();
+		$this->assertTrue($state->isMarshal());
+		$this->assertEquals($data['id'], $user->getId());
+		$this->assertEquals($data['firstName'], $user->getFirstName());
+		$this->assertEquals($data['lastName'], $user->getLastName());
+		$this->assertEquals($data['email'], $user->getEmail());	
 	}
 }
