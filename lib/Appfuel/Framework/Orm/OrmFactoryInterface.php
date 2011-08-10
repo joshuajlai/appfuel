@@ -52,4 +52,13 @@ interface OrmFactoryInterface
 	 * @return	Domain\ObjectFactory
 	 */
 	public function createObjectFactory();
+
+	/**
+	 * The assembler is used by the repository to coordinate the interactions
+	 * with the source handler (getting data to and from the data source) and
+	 * the data builder (marshalling domain and datasets into existence)
+	 *
+	 * @return	Repository\AssemblerInterface
+	 */
+	public function createAssembler();
 }

@@ -22,7 +22,7 @@ use Appfuel\Framework\Exception,
  * The database source handles preparing the sql and executing the database
  * handler and passing back the result
  */
-class SourceHandler implements SourceHandlerInterface
+class OrmSourceHandler implements SourceHandlerInterface
 {
 	/**
 	 * Database handler used to issue database operations

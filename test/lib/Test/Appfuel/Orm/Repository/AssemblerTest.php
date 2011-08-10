@@ -18,7 +18,7 @@ use StdClass,
 	Appfuel\Orm\Domain\DataBuilder,
 	Appfuel\Orm\Repository\Criteria,
 	Appfuel\Orm\Repository\Assembler,
-	Appfuel\Orm\Source\Db\SourceHandler,
+	Appfuel\Orm\Source\Db\OrmSourceHandler,
 	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\Orm\Repository\CriteriaInterface;
 
@@ -41,7 +41,7 @@ class MyDataBuilder extends DataBuilder
  * key 'source-method'. All of these methods must take a criteria as
  * a parameter.
  */
-class MySourceHandler extends SourceHandler
+class MySourceHandler extends OrmSourceHandler
 {
 	/**
 	 * Return back the parameter in a known format so any test can assert

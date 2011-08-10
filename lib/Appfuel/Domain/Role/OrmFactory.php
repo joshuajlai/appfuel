@@ -13,9 +13,17 @@ namespace Appfuel\Domain\Role;
 use Appfuel\Orm\AbstractOrmFactory;
 
 /**
- *
+ * The Role OrmFactory exposes custom source handler, identity handler 
+ * but uses the orms databuilder, object factory and assembler
  */
-class Repository extends AbstractOrmRepository
+class OrmFactory extends AbstractOrmFactory
 {
+	/**
+	 * 
+	 * @return	SourceHandler
+	 */
+	public function createSourceHandler()
+	{
 
+	}
 }

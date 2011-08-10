@@ -10,9 +10,7 @@
  */
 namespace Appfuel\Orm;
 
-use Appfuel\Orm\Domain\DataBuilder,
-	Appfuel\Orm\Domain\ObjectFactory,
-	Appfuel\Framework\Orm\OrmFactoryInterface;
+use Appfuel\Framework\Orm\OrmFactoryInterface;
 
 /**
  * The Orm factory interface enforces a series of creation methods used 
@@ -32,7 +30,7 @@ abstract class AbstractOrmFactory implements OrmFactoryInterface
 	 */
 	public function createDataBuilder()
 	{
-		return new DataBuilder($this->createObjectFactory());
+		return new Domain\DataBuilder($this->createObjectFactory());
 	}
 
 	/**
@@ -43,6 +41,19 @@ abstract class AbstractOrmFactory implements OrmFactoryInterface
 	 */
 	public function createObjectFactory()
 	{
-		return new ObjectFactory();
+		return new Domain\ObjectFactory();
+	}
+
+	/**
+	 * Assembler which is exclusively used by the repository requires
+	 * a source handler and data builder to function
+	 *
+	 * @return	Respository\Assembler
+	 */
+	public function createAssembler()
+	{
+		$source  = $this->createSourceHandler();
+		$builder = $this->createDataBuilder();
+		return new Repository\Assembler($source, $builder);
 	}
 }
