@@ -62,7 +62,7 @@ class AbstractOrmFactoryTest extends ParentTestCase
 	{
 		$objectFactory = $this->factory->createObjectFactory();
 		$this->assertInstanceOf(
-			'Appfuel\Orm\Domain\ObjectFactory',
+			'Appfuel\Framework\Orm\Domain\ObjectFactoryInterface',
 			$objectFactory
 		);
 
@@ -86,6 +86,4 @@ class AbstractOrmFactoryTest extends ParentTestCase
 
 		$this->assertEquals($objectFactory, $builder->getObjectFactory());
 	}
-
-
 }

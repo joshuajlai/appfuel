@@ -14,7 +14,7 @@ use StdClass,
 	Test\AfTestCase as ParentTestCase,
 	Appfuel\Db\DbError,
 	Appfuel\Db\Handler\DbHandler,
-	Appfuel\Orm\Domain\ObjectFactory,
+	Appfuel\Orm\Domain\OrmObjectFactory,
 	Appfuel\Orm\Domain\DataBuilder,
 	Appfuel\Orm\Repository\Criteria,
 	Appfuel\Orm\Repository\Assembler,
@@ -104,8 +104,6 @@ class MySourceHandler extends OrmSourceHandler
 	{
 		return true;
 	}
-
-
 }
 
 /**
@@ -192,7 +190,7 @@ class AssemblerTest extends ParentTestCase
 	{
 		$this->backupRegistry();
 
-		$this->dataBuilder   = new MyDataBuilder(new ObjectFactory());
+		$this->dataBuilder   = new MyDataBuilder(new OrmObjectFactory());
 		$this->dbHandler     = new DbHandler();
 		$this->sourceHandler = new MySourceHandler($this->dbHandler);
 		

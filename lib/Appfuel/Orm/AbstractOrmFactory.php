@@ -41,7 +41,7 @@ abstract class AbstractOrmFactory implements OrmFactoryInterface
 	 */
 	public function createObjectFactory()
 	{
-		return new Domain\ObjectFactory();
+		return new Domain\OrmObjectFactory();
 	}
 
 	/**

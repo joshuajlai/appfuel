@@ -12,13 +12,13 @@ namespace Test\Appfuel\Orm\Domain;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Orm\Domain\ObjectFactory;
+	Appfuel\Orm\Domain\OrmObjectFactory;
 
 /**
  * Test the ablity of the object factory to pull a domain key mapping from
  * the registry convert it to fully qualifed namespace and instantiate it
  */
-class ObjectFactoryTest extends ParentTestCase
+class OrmObjectFactoryTest extends ParentTestCase
 {
 	/**
 	 * System under test
@@ -49,7 +49,7 @@ class ObjectFactoryTest extends ParentTestCase
 
 
 		$this->initializeRegistry(array('domain-keys' => $this->map));
-		$this->factory = new ObjectFactory();
+		$this->factory = new OrmObjectFactory();
 	}
 
 	/**

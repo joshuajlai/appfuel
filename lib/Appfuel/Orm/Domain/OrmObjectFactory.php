@@ -19,7 +19,7 @@ use Appfuel\Framework\Registry,
  * The object factory is resposible for converting domain keys into domain 
  * objects. It is not responsible for marshalling data into those objects.
  */
-class ObjectFactory implements ObjectFactoryInterface
+class OrmObjectFactory implements ObjectFactoryInterface
 {
 	/**
 	 * Create a domain model based on the naming convention 

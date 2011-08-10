@@ -13,7 +13,7 @@ namespace Test\Appfuel\Orm\Domain;
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
 	Appfuel\Orm\Domain\DataBuilder,
-	Appfuel\Orm\Domain\ObjectFactory;
+	Appfuel\Orm\Domain\OrmObjectFactory;
 
 /**
  * Test the ability to build out domains
@@ -52,7 +52,7 @@ class DataBuilderTest extends ParentTestCase
 
 
 		$this->initializeRegistry(array('domain-keys' => $this->map));
-		$this->factory = new ObjectFactory();
+		$this->factory = new OrmObjectFactory();
 		$this->builder = new DataBuilder($this->factory);
 	}
 
