@@ -42,6 +42,33 @@ class ColumnMap implements ColumnMapInterface
 	{
 		return $this->map;
 	}
+
+	/**
+	 * Returns a list of all columns
+	 *
+	 * @return	array
+	 */
+	public function getColumns()
+	{
+		return array_values($this->map);
+	}
+
+	/**
+	 * @param	string	$member	  domain member to be mapped to column
+	 * @return	string | false when not found or invalid
+	 */
+	public function mapColumn($member)
+	{
+		if (empty($member) || ! is_string($member)) {
+			return false;
+		}
+
+		if (! isset($this->map[$member])) {
+			return false;
+		}
+
+		return $this->map[$member];
+	}
 	
 	/**
 	 * Validate that both column and members are valid strings then assign

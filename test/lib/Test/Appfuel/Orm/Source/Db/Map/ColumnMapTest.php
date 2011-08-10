@@ -29,20 +29,18 @@ class ColumnMapTest extends ParentTestCase
 	 * Valid array map to pass into the constructor
 	 * @var array
 	 */
-	protected $mapArray = null;
-	
+	protected $mapArray = array(
+		'id'			=> 'user_id',
+		'fistName'		=> 'first_name',
+		'lastName'		=> 'last_name',
+		'email'			=> 'primary_email'
+	);
+
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->mapArray = array(
-			'user_id'		=> 'id',
-			'fist_name'		=> 'firstName',
-			'last_name'		=> 'lastName',
-			'primary_email' => 'email'
-		);
-
 		$this->map = new ColumnMap($this->mapArray);
 	}
 
@@ -52,6 +50,35 @@ class ColumnMapTest extends ParentTestCase
 	public function tearDown()
 	{
 		unset($this->map);
+	}
+
+	/**
+	 * @return array
+	 */
+	public function provideColumnMap()
+	{
+		$map = array();
+		foreach ($this->mapArray as $member => $column) {
+			$map[] = array($member, $column);
+		}
+
+		return $map;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function provideInvalidMaps()
+	{	
+		return array(
+			array(array(123 => 'value')),
+			array(array('key' => 'value', 123 => 'value')),
+			array(array('key' => array())),
+			array(array('key' => array('value'))),
+			array(array('key' => 1234)),
+			array(array('key' => 'value', 'key1' => '')),
+			array(array('key' => new StdClass())),
+		);
 	}
 
 	/**
@@ -74,5 +101,59 @@ class ColumnMapTest extends ParentTestCase
 	public function testGetMap()
 	{
 		$this->assertEquals($this->mapArray, $this->map->getMap());	
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testGetColumns()
+	{
+		$this->assertEquals(
+			array_values($this->mapArray),
+			$this->map->getColumns(),
+			'returns a list of database columns'
+		);	
+	}
+
+	/**
+	 * @dataProvider	provideColumnMap
+	 * @return null
+	 */
+	public function testMapColumn($member, $column)
+	{
+		$this->assertEquals($column, $this->map->mapColumn($member));
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testMapColumnMemberNotFound()
+	{
+		$this->assertFalse($this->map->mapColumn('member-not-found'));
+	}
+
+	/**
+	 * Anything the is not a valid string or emoty returns false
+	 *
+	 * @return null
+	 */
+	public function testMapColumnInvalidMember()
+	{
+		$this->assertFalse($this->map->mapColumn(''));
+		$this->assertFalse($this->map->mapColumn(array()));
+		$this->assertFalse($this->map->mapColumn(array(1,2,3)));
+		$this->assertFalse($this->map->mapColumn(12345));
+		$this->assertFalse($this->map->mapColumn(0));
+		$this->assertFalse($this->map->mapColumn(new StdClass()));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @dataProvider		provideInvalidMaps
+	 * @return	null
+	 */
+	public function testConstructorInvalidMaps($map)
+	{
+		$map = new ColumnMap($map);
 	}
 }
