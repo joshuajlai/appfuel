@@ -50,4 +50,5 @@ class RepositoryTest extends ParentTestCase
 			$this->repo
 		);
 	}
+
 }

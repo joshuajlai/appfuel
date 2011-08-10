@@ -10,12 +10,22 @@
  */
 namespace Appfuel\Domain\Role;
 
-use Appfuel\Orm\Source\Db\OrmSourceHandler;
+use Appfuel\Orm\Source\Db\OrmSourceHandler,
+	Appfuel\Framework\Orm\Repository\CriteriaInterface;
 
 /**
  * Used to perform specific database operations and provide a mapped dataset.
  */
 class SourceHandler extends OrmSourceHandler
 {
-
+	/**
+	 * Fetch a list of desendants based on the role id
+	 *
+	 * @param	CriteriaInterface $criteria
+	 * @return	array | DbErrorInterface on failure
+	 */
+	public function fetchDesendantsById(CriteriaInterface $criteria)
+	{
+		echo "\n", print_r($criteria,1), "\n";exit;
+	}
 }

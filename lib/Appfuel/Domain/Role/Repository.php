@@ -19,6 +19,11 @@ use Appfuel\Orm\Repository\OrmRepository;
 class Repository extends OrmRepository
 {
 
+	public function findDecendants($roleId)
+	{
+		
+	}
+
 	/**
 	 * Orm factory is used to create objects needed by the assembler
 	 * which manages the datasource and databuilder
