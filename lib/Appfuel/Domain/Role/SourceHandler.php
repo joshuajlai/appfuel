@@ -10,23 +10,12 @@
  */
 namespace Appfuel\Domain\Role;
 
-use Appfuel\Orm\Repository\OrmRepository;
+use Appfuel\Orm\Source\Db\OrmSourceHandler;
 
 /**
- * Used to manage database interaction throught a uniform interface that 
- * does not care about the specifics of the database
+ * Used to perform specific database operations and provide a mapped dataset.
  */
-class Repository extends OrmRepository
+class SourceHandler extends OrmSourceHandler
 {
 
-	/**
-	 * Orm factory is used to create objects needed by the assembler
-	 * which manages the datasource and databuilder
-	 *
-	 * @return	OrmFactory
-	 */
-	protected function createOrmFactory()
-	{
-		return new OrmFactory();
-	}
 }

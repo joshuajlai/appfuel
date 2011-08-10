@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Orm;
 
-use Appfuel\Framework\Orm\OrmFactoryInterface;
+use Appfuel\Db\Handler\DbHandler,
+	Appfuel\Framework\Orm\OrmFactoryInterface;
 
 /**
  * The Orm factory interface enforces a series of creation methods used 
@@ -21,6 +22,16 @@ use Appfuel\Framework\Orm\OrmFactoryInterface;
  */
 abstract class AbstractOrmFactory implements OrmFactoryInterface
 {
+	/**
+	 * The database handler is used to communicate with the database 
+	 *
+	 * @return	DbHandler
+	 */
+	public function createDbHandler()
+	{
+		return new DbHandler();
+	}
+
 	/**
 	 * The data builder is used to convert raw data from a given source into
 	 * domain models or domain datasets into different formats like arrays

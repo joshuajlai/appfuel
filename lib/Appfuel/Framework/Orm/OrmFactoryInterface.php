@@ -20,6 +20,13 @@ namespace Appfuel\Framework\Orm;
 interface OrmFactoryInterface
 {
 	/**
+	 * Handles interactions with the database
+	 *
+	 * @return	Appfuel\Framework\Db\DbHandlerInterface
+	 */
+	public function createDbHandler();
+
+	/**
 	 * The source handler is the generic system used to handle specific
 	 * data sources. This way the respository does not care about the specific 
 	 * data source just the SourceHandlers interface

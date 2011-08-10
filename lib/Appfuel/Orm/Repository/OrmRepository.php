@@ -16,13 +16,13 @@ use BadMethodCallException,
 	Appfuel\Framework\Orm\Domain\DomainStateInterface,
 	Appfuel\Framework\Orm\Domain\DomainModelInterface,
 	Appfuel\Framework\Orm\Repository\AssemblerInterface,
-	Appfuel\Framework\Orm\Repository\OrmRespositoryInterface;
+	Appfuel\Framework\Orm\Repository\RepositoryInterface;
 
 /**
  * The repository is facade for the orm systems. Developers use the repo to 
  * create, modify, delete or find domains in the database. 
  */
-abstract class OrmRepository implements OrmRepositoryInterface
+abstract class OrmRepository implements RepositoryInterface
 {
 	/**
 	 * Criteria stores options in the form of key/value pair and named 
@@ -56,7 +56,7 @@ abstract class OrmRepository implements OrmRepositoryInterface
 	/**
 	 * @return	OrmFactoryInterface
 	 */
-	abstract protected function creeateOrmFactory();
+	abstract protected function createOrmFactory();
 
 	/**
 	 * @return	AssemblerInterface

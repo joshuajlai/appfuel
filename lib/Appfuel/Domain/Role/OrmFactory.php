@@ -19,10 +19,22 @@ use Appfuel\Orm\AbstractOrmFactory;
 class OrmFactory extends AbstractOrmFactory
 {
 	/**
-	 * 
+	 * The Source handler manages db and sql operations. Used by the assembler
+	 * for the repository
+	 *
 	 * @return	SourceHandler
 	 */
 	public function createSourceHandler()
+	{
+		return new SourceHandler($this->createDbHandler());
+	}
+
+	/**
+	 * Handles all domain mapping for the database
+	 *
+	 * @return	IndentityHandlerInterface
+	 */
+	public function createIdentityHandler()
 	{
 
 	}

@@ -86,4 +86,15 @@ class AbstractOrmFactoryTest extends ParentTestCase
 
 		$this->assertEquals($objectFactory, $builder->getObjectFactory());
 	}
+
+	/**
+	 * @return	null
+	 */
+	public function testCreateDbHandler()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Db\Handler\HandlerInterface',
+			$this->factory->createDbHandler()
+		);
+	}
 }
