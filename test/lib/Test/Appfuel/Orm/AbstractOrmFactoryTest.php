@@ -80,7 +80,7 @@ class AbstractOrmFactoryTest extends ParentTestCase
 	{
 		$builder = $this->factory->createDataBuilder();
 		$this->assertInstanceOf(
-			'Appfuel\Orm\Domain\DataBuilder',
+			'Appfuel\Framework\Orm\Domain\DataBuilderInterface',
 			$builder
 		);
 

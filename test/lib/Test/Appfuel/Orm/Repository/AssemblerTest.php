@@ -15,7 +15,7 @@ use StdClass,
 	Appfuel\Db\DbError,
 	Appfuel\Db\Handler\DbHandler,
 	Appfuel\Orm\Domain\OrmObjectFactory,
-	Appfuel\Orm\Domain\DataBuilder,
+	Appfuel\Orm\Domain\OrmDataBuilder,
 	Appfuel\Orm\Repository\Criteria,
 	Appfuel\Orm\Repository\Assembler,
 	Appfuel\Orm\Source\Db\OrmSourceHandler,
@@ -27,7 +27,7 @@ use StdClass,
  * the ability of the assembler to call different/custom methods 
  * from the data builder
  */
-class MyDataBuilder extends DataBuilder
+class MyDataBuilder extends OrmDataBuilder
 {
 	public function myCustomBuild($domainKey, array $data)
 	{

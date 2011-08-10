@@ -18,7 +18,7 @@ use Appfuel\Framework\Exception,
  * The object factory is resposible for converting domain keys into domain 
  * objects. It is not responsible for marshalling data into those objects.
  */
-class DataBuilder implements DataBuilderInterface
+class OrmDataBuilder implements DataBuilderInterface
 {
 	/**
 	 * Object Factory is used to build domain objects based on domain keys

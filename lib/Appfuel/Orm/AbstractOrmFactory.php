@@ -30,7 +30,7 @@ abstract class AbstractOrmFactory implements OrmFactoryInterface
 	 */
 	public function createDataBuilder()
 	{
-		return new Domain\DataBuilder($this->createObjectFactory());
+		return new Domain\OrmDataBuilder($this->createObjectFactory());
 	}
 
 	/**
