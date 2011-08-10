@@ -12,7 +12,8 @@ namespace Test\Appfuel\Orm\DataSource;
 
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
-	Appfuel\Orm\Source\Db\Map\ColumnMap;
+	Appfuel\Orm\Source\Db\Map\ColumnMap,
+	Appfuel\Framework\DataStructure\ArrayMap;
 
 /**
  * Test that a column map can map from key to value
@@ -98,7 +99,7 @@ class ColumnMapTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testGetMap()
+	public function estGetMap()
 	{
 		$this->assertEquals($this->mapArray, $this->map->getMap());	
 	}
@@ -106,7 +107,7 @@ class ColumnMapTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testGetColumns()
+	public function estGetColumns()
 	{
 		$this->assertEquals(
 			array_values($this->mapArray),
@@ -119,7 +120,7 @@ class ColumnMapTest extends ParentTestCase
 	 * @dataProvider	provideColumnMap
 	 * @return null
 	 */
-	public function testMapColumn($member, $column)
+	public function estMapColumn($member, $column)
 	{
 		$this->assertEquals($column, $this->map->mapColumn($member));
 	}
@@ -127,7 +128,7 @@ class ColumnMapTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testMapColumnMemberNotFound()
+	public function estMapColumnMemberNotFound()
 	{
 		$this->assertFalse($this->map->mapColumn('member-not-found'));
 	}
@@ -137,7 +138,7 @@ class ColumnMapTest extends ParentTestCase
 	 *
 	 * @return null
 	 */
-	public function testMapColumnInvalidMember()
+	public function estMapColumnInvalidMember()
 	{
 		$this->assertFalse($this->map->mapColumn(''));
 		$this->assertFalse($this->map->mapColumn(array()));
@@ -152,7 +153,7 @@ class ColumnMapTest extends ParentTestCase
 	 * @dataProvider		provideInvalidMaps
 	 * @return	null
 	 */
-	public function testConstructorInvalidMaps($map)
+	public function estConstructorInvalidMaps($map)
 	{
 		$map = new ColumnMap($map);
 	}
