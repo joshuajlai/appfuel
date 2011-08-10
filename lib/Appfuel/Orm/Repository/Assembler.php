@@ -72,9 +72,9 @@ class Assembler implements AssemblerInterface
 	 * @param	CriteriaInterface $bld	criteria for data builder
 	 * @return	mixed
 	 */
-	public function process(CriteriaInterface $src, CriteriaInterface $bld)
+	public function process(CriteriaInterface $criteria)
 	{
-		$data = $this->executeSource($src);
+		$data = $this->executeSource($criteria);
 		if ($data instanceof AppfuelErrorInterface) {
 			return $data;
 		}
@@ -83,11 +83,11 @@ class Assembler implements AssemblerInterface
 		 * some data does not require a build process and results can be
 		 * returned as is
 		 */	
-		if (true === $src->get('ignore-build', false)) {
+		if (true === $criteria->get('ignore-build', false)) {
 			return $data;
 		}
 	
-		$ignoreType = $src->get('ignore-return-type', false);
+		$ignoreType = $criteria->get('ignore-return-type', false);
 
 		/*
 		 * you would ignore the array type if you have a custom build
@@ -99,7 +99,7 @@ class Assembler implements AssemblerInterface
 			throw new Exception($err);
 		}
 
-		return $this->buildData($bld, $data);
+		return $this->buildData($criteria, $data);
 	}
 
 	/**

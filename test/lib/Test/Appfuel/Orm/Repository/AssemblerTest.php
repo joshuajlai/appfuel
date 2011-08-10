@@ -782,13 +782,13 @@ class AssemblerTest extends ParentTestCase
 
         $userClass = $map['user'] . '\UserModel';
 
-		$source = new Criteria();
-		$source->add('source-method', 'fetchUserData');
+		$criteria = new Criteria();
+		$criteria->add('domain-key', 'user')
+				 ->add('source-method', 'fetchUserData');
 
 		$build = new Criteria();
-		$build->add('domain-key', 'user');
 
-		$user = $this->asm->process($source, $build);
+		$user = $this->asm->process($criteria);
 		$this->assertInstanceOf($userClass, $user);
 		$this->assertInstanceOf('Appfuel\Orm\Domain\DomainModel', $user);
 		$state = $user->_getDomainState();
@@ -808,14 +808,12 @@ class AssemblerTest extends ParentTestCase
 	 */
 	public function testProcessIgnoreBuild()
 	{
-		$source = new Criteria();
-		$source->add('source-method', 'fetchUserData')
-			   ->add('ignore-build', true);
+		$criteria = new Criteria();
+		$criteria->add('domain-key', 'user')
+				 ->add('source-method', 'fetchUserData')
+				 ->add('ignore-build', true);
 
-		$build = new Criteria();
-		$build->add('domain-key', 'user');
-
-		$user = $this->asm->process($source, $build);
+		$user = $this->asm->process($criteria);
 		$expected = array(
             'id'        => 99,
             'firstName' => 'Robert',
@@ -833,13 +831,11 @@ class AssemblerTest extends ParentTestCase
 	 */
 	public function testProcessErrorReturned()
 	{
-		$source = new Criteria();
-		$source->add('source-method', 'fetchUserWithError');
+		$criteria = new Criteria();
+		$criteria->add('domain-key', 'user')
+				 ->add('source-method', 'fetchUserWithError');
 
-		$build = new Criteria();
-		$build->add('domain-key', 'user');
-
-		$user = $this->asm->process($source, $build);
+		$user = $this->asm->process($criteria);
 		$this->assertInstanceOf(
 			'Appfuel\Framework\AppfuelErrorInterface',
 			$user
@@ -856,13 +852,11 @@ class AssemblerTest extends ParentTestCase
 	 */
 	public function testProcessInvalidReturnData()
 	{
-		$source = new Criteria();
-		$source->add('source-method', 'fetchStringData');
+		$criteria = new Criteria();
+		$criteria->add('source-method', 'fetchStringData')
+				 ->add('domain-key', 'user');
 
-		$build = new Criteria();
-		$build->add('domain-key', 'user');
-
-		$user = $this->asm->process($source, $build);
+		$user = $this->asm->process($criteria);
 	}
 
 	/**
@@ -878,22 +872,17 @@ class AssemblerTest extends ParentTestCase
 			return array('domain-key' => $key, 'data' => $data);
 		};
 
-		$source = new Criteria();
-		$source->add('source-method', 'fetchBoolData')
-		       ->add('ignore-return-type', true);
+		$criteria = new Criteria();
+		$criteria->add('domain-key', 'user')
+				 ->add('custom-build', $callback)
+			     ->add('source-method', 'fetchBoolData')
+				 ->add('ignore-return-type', true);
 
-		$build = new Criteria();
-		$build->add('domain-key', 'user')
-			  ->add('custom-build', $callback);
-
-		$result = $this->asm->process($source, $build);
+		$result = $this->asm->process($criteria);
 		$expected = array(
 			'domain-key' => 'user',
 			'data'		 => true
 		);
 		$this->assertEquals($expected, $result);
 	}
-
-
-
 }

@@ -25,16 +25,20 @@ use BadMethodCallException,
 abstract class OrmRepository implements OrmRepositoryInterface
 {
 	/**
+	 * Criteria stores options in the form of key/value pair and named 
+	 * expression lists which are generally used by the data source to
+	 * construct things like sql.
+	 *
 	 * @var Criteria
 	 */
-	protected $criteria  = null;
+	protected $criteria = null;
 
 	/**
 	 * Adapter that performs concrete operations for database, flat files,
 	 * rest services or key value stores
 	 * @var	 AssemblerInterface
 	 */
-	protected $asm = null;
+	protected $_asm = null;
 
 	/**
 	 * @param	OrmFactoryInterface $factory
@@ -46,20 +50,20 @@ abstract class OrmRepository implements OrmRepositoryInterface
 			$factory = $this->createOrmFactory();
 		}
 
-		$this->setAssembler($this->createAssembler($factory);
+		$this->setAssembler($factory->createAssembler());
 	}
 
 	/**
 	 * @return	OrmFactoryInterface
 	 */
 	abstract protected function creeateOrmFactory();
-	
+
 	/**
 	 * @return	AssemblerInterface
 	 */
 	protected function getAssembler()
 	{
-		return $this->asm;
+		return $this->_asm;
 	}
 
 	/**
@@ -69,16 +73,5 @@ abstract class OrmRepository implements OrmRepositoryInterface
 	protected function setAssembler(AssemblerInterface $asm)
 	{
 		$this->asm = $asm;
-	}
-
-	/**
-	 * @param	OrmFactoryInterface	$factory
-	 * @return	AssemblerInterface
-	 */
-	protected function createAssembler(OrmFactoryInterface $factory)
-	{
-		$sourceHandler = $factory->createSourceHandler();
-		$dataBuilder   = $factory->createDataBuilder();
-		return new Assembler($sourceHandler, $dataBuilder);
 	}
 }
