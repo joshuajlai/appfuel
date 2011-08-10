@@ -75,7 +75,7 @@ class Assembler implements AssemblerInterface
 	public function process(CriteriaInterface $src, CriteriaInterface $bld)
 	{
 		$data = $this->executeSource($src);
-		if ($this->isError($data)) {
+		if ($data instanceof AppfuelErrorInterface) {
 			return $data;
 		}
 	
@@ -209,10 +209,5 @@ class Assembler implements AssemblerInterface
 
 		return $builder->$method($domainKey, $data);
 
-	}
-
-	public function isError($data)
-	{
-		return $data instanceof AppfuelErrorInterface;
 	}
 }

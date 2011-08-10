@@ -1,4 +1,5 @@
 -- holds a list of appfuel users
+drop table if exists role_paths;
 drop table if exists roles;
 create table roles (
 	role_id			smallint unsigned not null auto_increment,
@@ -10,10 +11,10 @@ create table roles (
 	index		(role_code)
 ) engine = InnoDB  default charset=utf8 auto_increment=1;
 
-drop table if exists role_paths;
 create table role_paths (
 	ancestor		smallint unsigned not null,
 	descendant		smallint unsigned not null,
+	length			smallint unsigned not null default 0,
 
 	primary key	(ancestor, descendant),
 	foreign key (ancestor)   references roles (role_id),

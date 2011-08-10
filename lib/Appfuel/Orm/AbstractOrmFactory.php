@@ -8,7 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Orm;
+namespace Appfuel\Orm;
+
+use Appfuel\Orm\Domain\DataBuilder,
+	Appfuel\Orm\Domain\ObjectFactory,
+	Appfuel\Framework\Orm\OrmFactoryInterface;
 
 /**
  * The Orm factory interface enforces a series of creation methods used 
@@ -17,39 +21,28 @@ namespace Appfuel\Framework\Orm;
  * DataBuilder which determines how the data will be formatted and built, and
  * IdentityHandler which is used for mapping raw data into domain data
  */
-interface OrmFactoryInterface
+abstract class AbstractOrmFactory implements OrmFactoryInterface
 {
 	/**
-	 * The source handler is the generic system used to handle specific
-	 * data sources. This way the respository does not care about the specific 
-	 * data source just the SourceHandlers interface
-	 *
-	 * @return SourceHandlerInterface
-	 */
-	public function createSourceHandler();
-	
-	/**
-	 * The data builder is used to convert raw data from the source into
-	 * domain models or domain data shapped into different formats like arrays
+	 * The data builder is used to convert raw data from a given source into
+	 * domain models or domain datasets into different formats like arrays
 	 * or strings
 	 *
 	 * @return	DataBuilderInterface
 	 */
-	public function createDataBuilder();
+	public function createDataBuilder()
+	{
+		return new DataBuilder($this->createObjectFactory());
+	}
 
 	/**
-	 * The identity handler is a facade hiding simple or complex mapping 
-	 * systems depending on what is needed
-	 *
-	 * @return	IdentityHandlerInterface
-	 */
-	public function createIdentityHandler();
-	
-	/**
 	 * The object factory is responsible for create new domain or domain 
-	 * related objects.
+	 * related objects. It is used by the domains data builder
 	 *
 	 * @return	Domain\ObjectFactory
 	 */
-	public function createObjectFactory();
+	public function createObjectFactory()
+	{
+		return new ObjectFactory();
+	}
 }

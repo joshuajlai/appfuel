@@ -22,7 +22,14 @@ use Appfuel\Framework\Registry,
 class ObjectFactory implements ObjectFactoryInterface
 {
 	/**
-	 * @param	string	$key
+	 * Create a domain model based on the naming convention 
+	 * <parent-dir-name>Model. When isDomain is false then the mapped namespace
+	 * will be treated as the fully qualified namespace with no naming 
+	 * convention applied.
+	 *
+	 * @param	string	$key		key used to map the domain namespace
+	 * @param	bool	$isDomain	flag used to determine if the naming 
+	 *								convention should be applied
 	 * @return	mixed
 	 */
 	public function createDomainObject($key, $isDomain = true)
