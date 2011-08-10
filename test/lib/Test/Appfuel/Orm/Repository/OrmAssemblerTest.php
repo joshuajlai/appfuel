@@ -17,7 +17,7 @@ use StdClass,
 	Appfuel\Orm\Domain\OrmObjectFactory,
 	Appfuel\Orm\Domain\OrmDataBuilder,
 	Appfuel\Orm\Repository\Criteria,
-	Appfuel\Orm\Repository\Assembler,
+	Appfuel\Orm\Repository\OrmAssembler,
 	Appfuel\Orm\Source\Db\OrmSourceHandler,
 	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\Orm\Repository\CriteriaInterface;
@@ -194,7 +194,7 @@ class AssemblerTest extends ParentTestCase
 		$this->dbHandler     = new DbHandler();
 		$this->sourceHandler = new MySourceHandler($this->dbHandler);
 		
-		$this->asm = new Assembler(
+		$this->asm = new OrmAssembler(
 			$this->sourceHandler,
 			$this->dataBuilder
 		);

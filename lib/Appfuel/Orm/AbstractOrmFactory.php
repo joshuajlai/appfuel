@@ -54,6 +54,6 @@ abstract class AbstractOrmFactory implements OrmFactoryInterface
 	{
 		$source  = $this->createSourceHandler();
 		$builder = $this->createDataBuilder();
-		return new Repository\Assembler($source, $builder);
+		return new Repository\OrmAssembler($source, $builder);
 	}
 }

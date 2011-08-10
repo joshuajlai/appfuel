@@ -25,7 +25,7 @@ use BadMethodCallException,
  * the data into an appropriate format which could a domain object, array, 
  * string, etc...
  */
-class Assembler implements AssemblerInterface
+class OrmAssembler implements AssemblerInterface
 {
 	/**
 	 * Handles actual operations to and from the data source
