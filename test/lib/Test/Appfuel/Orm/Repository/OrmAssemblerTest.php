@@ -14,10 +14,11 @@ use StdClass,
 	Test\AfTestCase as ParentTestCase,
 	Appfuel\Db\DbError,
 	Appfuel\Db\Handler\DbHandler,
-	Appfuel\Orm\Domain\OrmObjectFactory,
-	Appfuel\Orm\Domain\OrmDataBuilder,
 	Appfuel\Orm\Repository\Criteria,
+	Appfuel\Orm\Domain\OrmDataBuilder,
 	Appfuel\Orm\Repository\OrmAssembler,
+	Appfuel\Orm\Domain\OrmObjectFactory,
+	Appfuel\Orm\Identity\OrmIdentityHandler,
 	Appfuel\Orm\Source\Db\OrmSourceHandler,
 	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\Orm\Repository\CriteriaInterface;
@@ -172,6 +173,12 @@ class AssemblerTest extends ParentTestCase
 	 * @var	SourceHandlerInterface
 	 */	
 	protected $sourceHandler = null;
+	
+	/**
+	 * Second Param of the SourceHandler
+	 * @var IdentityHandler
+	 */
+	protected $identity = null;
 
 	/**
 	 * @var DbHandler
@@ -191,8 +198,12 @@ class AssemblerTest extends ParentTestCase
 		$this->backupRegistry();
 
 		$this->dataBuilder   = new MyDataBuilder(new OrmObjectFactory());
+		$this->identity		 = new OrmIdentityHandler();
 		$this->dbHandler     = new DbHandler();
-		$this->sourceHandler = new MySourceHandler($this->dbHandler);
+		$this->sourceHandler = new MySourceHandler(
+			$this->dbHandler,
+			$this->identity
+		);
 		
 		$this->asm = new OrmAssembler(
 			$this->sourceHandler,

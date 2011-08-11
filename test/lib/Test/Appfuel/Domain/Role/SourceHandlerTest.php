@@ -14,7 +14,8 @@ use Test\AfTestCase as ParentTestCase,
 	Appfuel\Db\Handler\DbHandler,
 	Appfuel\Orm\Domain\DomainExpr,
 	Appfuel\Orm\Repository\Criteria,
-	Appfuel\Domain\Role\SourceHandler;
+	Appfuel\Domain\Role\SourceHandler,
+	Appfuel\Domain\Role\IdentityHandler;
 
 /**
  * Executes sql against the database and returns the result 
@@ -27,12 +28,16 @@ class SourceHandlerTest extends ParentTestCase
 	 */
 	protected $handler = null;
 
+
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->handler = new SourceHandler(new DbHandler());
+		$this->handler = new SourceHandler(
+			new DbHandler(),
+			new IdentityHandler()
+		);
 	}
 
 	/**
@@ -61,12 +66,15 @@ class SourceHandlerTest extends ParentTestCase
 	{
 		$criteria = new Criteria();
 	
-		$where = new DomainExpr('role.id=3');
+		$expr1 = new DomainExpr('role.id=3');
+		$expr2 = new DomainExpr('role.id=3');
+		
 		$criteria->add('domain-key', 'role')
-				 ->addExpr('where-filters', $where);
+				 ->addExpr('where-filters', $expr1)
+				 ->addExpr('where-filters', $expr2);
 
-	//	$result = $this->handler->fetchDesendantsById($criteria);
-	//	echo "\n", print_r($result,1), "\n";exit;
+		//$result = $this->handler->fetchDesendantsById($criteria);
+		//echo "\n", print_r($result,1), "\n";exit;
 				
 	}
 }

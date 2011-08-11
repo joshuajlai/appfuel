@@ -18,7 +18,8 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\File\FileManager,
 	Appfuel\Framework\Db\Request\RequestInterface,
 	Appfuel\Framework\Db\Handler\HandlerInterface,
-	Appfuel\Framework\Orm\Source\SourceHandlerInterface;
+	Appfuel\Framework\Orm\Source\SourceHandlerInterface,
+	Appfuel\Framework\Orm\Identity\IdentityHandlerInterface;
 
 /**
  * The database source handles preparing the sql and executing the database
@@ -30,23 +31,40 @@ class OrmSourceHandler implements SourceHandlerInterface
 	 * Database handler used to issue database operations
 	 * @var DbHandler
 	 */
-	protected $dbHandler = null;
+	protected $db = null;
+
+	/**
+	 * The identity handler takes care of all the mapping and location 
+	 * of objects concerned with the domain
+	 * @var IdentityHandlerInterface
+	 */
+	protected $identity = null;
 
 	/**
 	 * @param	AssemblerInterface $asm
 	 * @return	OrmRepository
 	 */
-	public function __construct(HandlerInterface $dbHandler)
+	public function __construct(HandlerInterface $db,
+								IdentityHandlerInterface $identity)
 	{
-		$this->dbHandler = $dbHandler;
+		$this->db = $db;
+		$this->identity = $identity;
 	}
 
 	/**
-	 * @return	HandlerInterface
+	 * @return	DbHandlerInterface
 	 */
 	public function getDataHandler()
 	{
-		return $this->dbHandler;
+		return $this->db;
+	}
+
+	/**
+	 * @return	IndentityHandlerInterface
+	 */
+	public function getIdentityHandler()
+	{
+		return $this->identity;
 	}
 
 	/**
@@ -79,12 +97,34 @@ class OrmSourceHandler implements SourceHandlerInterface
 	 * @param	string	$path	relative path to sql file
 	 * @return	ViewTemplate
 	 */
-	public function createTemplate($relativePath)
+	public function createTemplate($relativePath, $fullDomainPath = false)
 	{
-		$dirPath  = FileManager::classNameToDir(get_class($this));
+		$identity = $this->getIdentityHandler();
+
+		if (true === $fullDomainPath) {
+			$namespace = $identity->getRootNamespace();
+			$dirPath  = FileManager::namespaceToPath($namespace);
+		}
+		else {
+			$namespace = get_class($this);
+			$dirPath  = FileManager::classNameToDir($namespace);
+		}
+			
 		$fullPath = "{$dirPath}/{$relativePath}";
 		$file     = FileManager::createAppfuelFile($fullPath);
-		return new ViewTemplate($file);
+		$scope    = $this->createSqlScope();
+
+		return new ViewTemplate($file, $scope);
+	}
+	
+	/**
+	 * Scope used in sql templates
+	 * 
+	 * @return	Sql\Scope
+	 */
+	public function createSqlScope()
+	{
+		return new Sql\SqlScope();
 	}
 
 	/**

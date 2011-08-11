@@ -52,9 +52,10 @@ class FileManager
 	static public function classNameToFileName($cname)
 	{
 		if (empty($cname)) {
-			return FALSE;
+			return false;
 		}
 		$file = str_replace(array('\\','_'), DIRECTORY_SEPARATOR, $cname);
+
 		return trim($file, DIRECTORY_SEPARATOR) . '.php';
 	}
 
@@ -67,11 +68,26 @@ class FileManager
 	static public function classNameToDir($cname)
 	{
 		if (empty($cname)) {
-			return FALSE;
+			return false;
 		}
 
 		$path = str_replace(array('\\','_'), DIRECTORY_SEPARATOR, $cname);
         return substr($path, 0, strrpos($path, DIRECTORY_SEPARATOR));
+	}
+
+	/**
+	 * @param	string	
+	 * @return	string
+	 */
+	static public function namespaceToPath($ns)
+	{
+		if (empty($ns)) {
+			return false;
+		}
+
+	
+		$path = str_replace(array('\\','_'), DIRECTORY_SEPARATOR, $ns);
+		return trim($path, DIRECTORY_SEPARATOR);
 	}
 
 	/**

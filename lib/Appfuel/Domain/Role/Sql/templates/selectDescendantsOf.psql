@@ -4,9 +4,9 @@ SELECT
 ,		r.role_code		AS authLevel
 ,		r.role_desc		AS description
 
-FROM	roles AS r
+FROM		roles AS r
 
-INNER JOIN	role_paths as t 
-ON			r.role_id = t.descendant
+INNER JOIN	role_paths as t ON r.role_id = t.descendant
 
-WHERE t.descendant = <?php $this->render('role_id') ?>
+WHERE		t.ancestor = <?php $this->render('role_id', 3) ?>
+

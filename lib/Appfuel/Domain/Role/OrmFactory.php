@@ -26,7 +26,10 @@ class OrmFactory extends AbstractOrmFactory
 	 */
 	public function createSourceHandler()
 	{
-		return new SourceHandler($this->createDbHandler());
+		return new SourceHandler(
+			$this->createDbHandler(),
+			$this->createIdentityHandler()
+		);
 	}
 
 	/**
@@ -36,6 +39,6 @@ class OrmFactory extends AbstractOrmFactory
 	 */
 	public function createIdentityHandler()
 	{
-
+		return new IdentityHandler();
 	}
 }

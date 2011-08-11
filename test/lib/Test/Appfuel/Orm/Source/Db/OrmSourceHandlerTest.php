@@ -13,7 +13,8 @@ namespace Test\Appfuel\Orm\DataSource;
 use StdClass,
 	Test\AfTestCase as ParentTestCase,
 	Appfuel\Db\Handler\DbHandler,
-	Appfuel\Orm\Source\Db\OrmSourceHandler;
+	Appfuel\Orm\Source\Db\OrmSourceHandler,
+	Appfuel\Orm\Identity\OrmIdentityHandler;
 
 /**
  * The Database source handler builds the sql and the database request and
@@ -39,7 +40,11 @@ class OrmSourceHandlerTest extends ParentTestCase
 	public function setUp()
 	{
 		$this->dbHandler     = new DbHandler();
-		$this->sourceHandler = new OrmSourceHandler($this->dbHandler);
+		$this->identity		 = new OrmIdentityHandler();
+		$this->sourceHandler = new OrmSourceHandler(
+			$this->dbHandler,
+			$this->identity
+		);
 	}
 
 	/**
