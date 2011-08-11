@@ -70,7 +70,7 @@ class FileManager
 			return FALSE;
 		}
 
-		$path = str_replace(array('\\','_'),DIRECTORY_SEPARATOR,$cname);
+		$path = str_replace(array('\\','_'), DIRECTORY_SEPARATOR, $cname);
         return substr($path, 0, strrpos($path, DIRECTORY_SEPARATOR));
 	}
 
@@ -105,4 +105,26 @@ class FileManager
 		$sec  = (bool) $sec;
 		return parse_ini_file($path, $sec, $mode);
 	}
+
+	/**
+	 * @param	string	$path			path to the file
+	 * @param	bool	$includeBase	when true the basePath is prepended
+	 * @return	FrameworkFile
+	 */
+	static public function createFrameworkFile($path, $includeBase = true)
+	{
+		return new FrameworkFile((string)$path, (bool)$includeBase);
+	}
+
+	/**
+	 * @param	string	$path			path to the file
+	 * @param	bool	$includeBase	when true the basePath is prepended
+	 * @return	FrameworkFile
+	 */
+	static public function createAppfuelFile($path, $top = 'lib')
+	{
+		return new AppfuelFile((string)$path, $top);
+	}
+
+
 }

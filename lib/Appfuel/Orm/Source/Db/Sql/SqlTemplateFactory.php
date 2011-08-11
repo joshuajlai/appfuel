@@ -11,11 +11,9 @@
 namespace Appfuel\Orm\Source\Db;
 
 use Appfuel\Framework\Exception,
-	Appfuel\View\Template as ViewTemplate,
 	Appfuel\Db\Request\QueryRequest,
 	Appfuel\Db\Request\MultiQueryRequest,
 	Appfuel\Db\Request\PreparedRequest,
-	Appfuel\Framework\File\FileManager,
 	Appfuel\Framework\Db\Request\RequestInterface,
 	Appfuel\Framework\Db\Handler\HandlerInterface,
 	Appfuel\Framework\Orm\Source\SourceHandlerInterface;
@@ -71,20 +69,6 @@ class OrmSourceHandler implements SourceHandlerInterface
 		}
 				
 		return $request;
-	}
-
-	/**
-	 * Create a simple view template for the sql file given
-	 *
-	 * @param	string	$path	relative path to sql file
-	 * @return	ViewTemplate
-	 */
-	public function createTemplate($relativePath)
-	{
-		$dirPath  = FileManager::classNameToDir(get_class($this));
-		$fullPath = "{$dirPath}/{$relativePath}";
-		$file     = FileManager::createAppfuelFile($fullPath);
-		return new ViewTemplate($file);
 	}
 
 	/**

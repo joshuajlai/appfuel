@@ -11,13 +11,13 @@
 namespace Appfuel\View;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\File\FrameworkFile;
+	Appfuel\Framework\File\AppfuelFile;
 
 /**
  * The view file hides the absolute path to a directory of templates and
  * allows the user to specify a relative path from that directory. 
  */
-class ViewFile extends FrameworkFile
+class ViewFile extends AppfuelFile
 {
 
 	/**
@@ -31,7 +31,7 @@ class ViewFile extends FrameworkFile
 	 * The top level directory for all clientside files is ui (user interface)
 	 * @var string
 	 */
-	protected $rootDirName = 'ui';
+	protected $rootDirName = '';
 
 	/**
 	 * The child directory under the root. Every application uses there 
@@ -60,8 +60,7 @@ class ViewFile extends FrameworkFile
 		$path = $this->buildViewPath($path);
 		$this->setViewPath($path);
 
-		$includeBasePath = true;
-        parent::__construct($path, $includeBasePath);
+        parent::__construct($path, 'ui');
     }
 
 	/**
@@ -144,7 +143,7 @@ class ViewFile extends FrameworkFile
 	{
 		$rootDir   = $this->getRootDirName();
 		$namespace = $this->getNamespace();
-		return "{$this->getRootDirName()}/{$this->getNamespace()}/{$path}";
+		return "{$this->getNamespace()}/{$path}";
 	}
 
 	/**

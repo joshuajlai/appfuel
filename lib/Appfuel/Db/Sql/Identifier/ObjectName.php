@@ -37,7 +37,7 @@ abstract class ObjectName extends BasicExpr
     {
 		$pos = strpos($name, '.');
 		if (false !== $pos) {
-			$this->qName = substr($nsmr, 0, $pos);
+			$this->qName = substr($name, 0, $pos);
 			$operand     = substr($name, $pos+1);
 			$this->enableQualifiedName();
 		} else {
@@ -87,6 +87,14 @@ abstract class ObjectName extends BasicExpr
 		}
 
 		return $str;
+	}
+
+	/**
+	 * @return	string | null 
+	 */
+	public function getParent()
+	{
+		return $this->qName;
 	}
 
 	/**

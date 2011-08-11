@@ -56,23 +56,29 @@ class TableNameTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testSchema()
+	public function testQualifiedName()
 	{
-		$this->assertTrue($this->tableName->isSchema());
-		$this->assertSame($this->tableName, $this->tableName->disableSchema());
-		$this->assertFalse($this->tableName->isSchema());
-		$this->assertSame($this->tableName, $this->tableName->enableSchema());
-		$this->assertTrue($this->tableName->isSchema());
+		$this->assertTrue($this->tableName->isQualifiedName());
+		$this->assertSame(
+			$this->tableName, 
+			$this->tableName->disableQualifiedName()
+		);
+		$this->assertFalse($this->tableName->isQualifiedName());
+		$this->assertSame(
+			$this->tableName, 
+			$this->tableName->enableQualifiedName()
+		);
+		$this->assertTrue($this->tableName->isQualifiedName());
 	}
 
 	/**
 	 * @return	null
 	 */
-	public function testConstructorGetSchema()
+	public function testConstructorQualifiedName()
 	{
-		$this->assertTrue($this->tableName->isSchema());
+		$this->assertTrue($this->tableName->isQualifiedName());
 		$this->assertEquals('users', $this->tableName->getOperand());
-		$this->assertEquals('appfuel', $this->tableName->getSchema());
+		$this->assertEquals('appfuel', $this->tableName->getParent());
 		$this->assertEquals(
 			'appfuel.users',
 			$this->tableName->getQualifiedName()
@@ -83,7 +89,7 @@ class TableNameTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testConstructorNoSchema()
+	public function xtestConstructorNoSchema()
 	{
 		$tableName = new TableName('users');
 		$this->assertFalse($tableName->isSchema());
@@ -102,7 +108,7 @@ class TableNameTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testOutputWithSchema()
+	public function xtestOutputWithSchema()
 	{
 		$this->expectOutputString('appfuel.users');
 		echo $this->tableName;
@@ -111,7 +117,7 @@ class TableNameTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testOutputWithoutSchema()
+	public function xtestOutputWithoutSchema()
 	{
 		$tableName = new TableName('users');
 		$this->expectOutputString('users');
@@ -121,7 +127,7 @@ class TableNameTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testOutputWithSchemaDisables()
+	public function xtestOutputWithSchemaDisables()
 	{
 		$this->tableName->disableSchema();
 		$this->expectOutputString('users');
@@ -131,14 +137,11 @@ class TableNameTest extends ParentTestCase
 	/**
 	 * @return null
 	 */
-	public function testOutputWithoutSchemaSchemaEnabled()
+	public function xtestOutputWithoutSchemaSchemaEnabled()
 	{
 		$tableName = new TableName('users');
 		$tableName->enableSchema();
 		$this->expectOutputString('users');
 		echo $tableName;
 	}
-
-
-
 }

@@ -26,6 +26,9 @@ class SourceHandler extends OrmSourceHandler
 	 */
 	public function fetchDesendantsById(CriteriaInterface $criteria)
 	{
-		echo "\n", print_r($criteria,1), "\n";exit;
+		$path = 'Sql/templates/selectDescendantsOf.psql';
+		$template = $this->createTemplate($path);
+		$template->assign('role_id', 3);
+		echo "\n", print_r($template->build(),1), "\n";exit;
 	}
 }

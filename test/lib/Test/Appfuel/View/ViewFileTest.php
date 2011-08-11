@@ -49,23 +49,6 @@ class ClientsideFileFileTest extends ParentTestCase
 		unset($this->file);
 	}
 
-	/**
-	 * Test that the default value for the root dir is 'ui' for user interface
-	 * and that it can be overwritten
-	 *
-	 * @return null
-	 */
-	public function testGetSetRootDir()
-	{
-		$this->assertEquals('ui', $this->file->getRootDirName());
-		$name = 'someOtherDir';
-		$this->assertSame(
-			$this->file,
-			$this->file->setRootDirName($name),
-			'must use a fluent interface'
-		);
-		$this->assertEquals($name, $this->file->getRootDirName());
-	}
 
 	/**
 	 * @expectedException	Appfuel\Framework\Exception
@@ -154,28 +137,6 @@ class ClientsideFileFileTest extends ParentTestCase
 		$this->file->setNamespace(new StdClass());
 	}
 
-
-	/**
-	 * Test the file is an SplFileInfo, Appfuel\App\File and getResource
-	 * returns the relative path from the resource directory.
-	 *
-	 * @return null
-	 */
-	public function testConstructorGetViewPathDefault()
-	{
-		$this->assertInstanceOf(
-			'Appfuel\Framework\File\FrameworkFileInterface',
-			$this->file
-		);
-
-		/* test returning relative */
-		$expected = "ui/appfuel/{$this->relativePath}";
-		$this->assertEquals($expected, $this->file->getViewPath());
-	
-		/* test returning absolute */
-		$expected = "{$this->file->getBasePath()}/{$expected}";	
-		$this->assertEquals($expected, $this->file->getViewPath(true));
-	}
 
 	/**
 	 * @expectedException	Appfuel\Framework\Exception

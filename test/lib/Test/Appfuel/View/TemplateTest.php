@@ -61,7 +61,10 @@ class TemplateTest extends ParentTestCase
 			'must use a fluent interface'
 		);
 		$this->assertTrue($this->template->fileExists());
-		$this->assertEquals($file, $this->template->getFile());	
+		
+		$result = $this->template->getFile();	
+		$this->assertInstanceOf('Appfuel\View\ViewFile', $result);
+		$this->assertContains($file, $result->getFullPath());
 	}
 
 	/**
@@ -113,7 +116,14 @@ class TemplateTest extends ParentTestCase
 		$file     = 'path/to/some/where';
 		$template = new Template($file); 
 		$this->assertTrue($template->fileExists());
-		$this->assertEquals($file, $template->getFile());	
+		
+		$result = $template->getFile();
+		$this->assertInstanceOf(
+			'Appfuel\View\ViewFile',
+			$result,
+			'constructor used setFile which will create a viewFileByDefault'
+		);
+		$this->assertContains($file, $result->getFullPath());
 	}
 
 	/**

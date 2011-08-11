@@ -65,7 +65,8 @@ class SourceHandlerTest extends ParentTestCase
 		$criteria->add('domain-key', 'role')
 				 ->addExpr('where-filters', $where);
 
-		//$result = $this->handler->fetchDesendantsById($criteria);
+	//	$result = $this->handler->fetchDesendantsById($criteria);
+	//	echo "\n", print_r($result,1), "\n";exit;
 				
 	}
 }

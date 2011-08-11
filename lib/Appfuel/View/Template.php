@@ -78,8 +78,8 @@ class Template extends Dictionary implements TemplateInterface
 	 */
     public function fileExists()
 	{
-		return is_string($this->file) || 
-			   $this->file instanceof FrameworkFileInterface;
+		return $this->file instanceof FrameworkFileInterface ||
+			   $this->file instanceof SplFileInfo;
 	}
 
 	/**
@@ -90,23 +90,30 @@ class Template extends Dictionary implements TemplateInterface
 	 * @param	string	$path
 	 * @return	Template
 	 */
-    public function setFile($path)
+    public function setFile($path, $isViewFile = true)
 	{
+		$err = "setFile failed: path";
 		if (empty($path)) {
-			throw new Exception("addFile failed: path can not be empty");
+			throw new Exception("$err can not be empty");
 		}
 		
-		if (is_string($path)						  ||  
-			$path instanceof FrameworkFileInterface   || 
+		/* we can assign directly because it is already the required object */
+		if ($path instanceof FrameworkFileInterface || 
 			$path instanceof SplFileInfo) {
-
 			$this->file = $path;
+			return $this;
+		}
+
+		/* from this point it can only be a string which will convert into
+		 * a file object that the build expects 
+		 */
+		if (! is_string($path)) {
+			$err .= " must of one of the following";
+			$err .= " (string|FrameworkFileInterface|SplFileInfo)";
+			throw new Exception($err); 
 		} 
-		else {
-			throw new Exception(
-				"addFile faild: path must be a string or file interface"
-			); 
-		}	
+		
+		$this->file = $this->createViewFile($path, $isViewFile);
 		return $this;
 	}
 
@@ -122,9 +129,16 @@ class Template extends Dictionary implements TemplateInterface
 	 * @param	string	$path
 	 * @return	ClientsideFile
 	 */
-	public function createViewFile($path)
+	public function createViewFile($path, $isViewFile = true)
 	{
-		return new ViewFile($path);
+		if (true === $isViewFile) {
+			$file = new ViewFile($path);
+		}
+		else {
+			$file = new FrameworkFile($path);
+		}
+		
+		return $file;
 	}
 
 	/**
@@ -164,20 +178,16 @@ class Template extends Dictionary implements TemplateInterface
 	 */
     public function build(array $data = array(), $isPrivate = false)
 	{
-		$file = $this->getFile();
-		if (empty($file)) {
-			$err = "BuildFile failed: file does not exist path is empty";
+		$err = "Template::build failed: ";
+		if (! $this->fileExists()) {
+			$err .= "file does not exist path is empty";
 			throw new Exception($err);
 		}
 
-		/* convert this path string to a file */
-		if (is_string($file)) {
-			$file = $this->createViewFile($file);
-		}
-
+		$file = $this->getFile();
 		if (! $file->isFile()) {
 			$path = $file->getFullPath();
-			$err = "BuildFile failed: file does not exist at $path";
+			$err .= "file does not exist at $path";
 			throw new Exception($err);
 		}
 			
