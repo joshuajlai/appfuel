@@ -26,6 +26,7 @@ class EmailFilter extends ValidateFilter
 	 */	
 	public function filter($raw, DictionaryInterface $params)
 	{
+		$this->clearFailure();
 		$default = $params->get('default', null);
 		$options = array('options' => array());
 		if (null !== $default) {
@@ -35,7 +36,8 @@ class EmailFilter extends ValidateFilter
 		$result = filter_var($raw, FILTER_VALIDATE_EMAIL, $options);
 
 		if (! $result) {
-			return $this->failedFilterToken();
+			$this->enableFailure();
+			return null;
 		}
 
 		return $result;

@@ -58,14 +58,29 @@ class ValidateFilterTest extends ParentTestCase
 	}
 
 	/**
-	 * Token string failure 
+	 * Immutable name is the key used by the factory to create the filter and
+	 * is used in the default error message
+	 *
+	 * @return	null
 	 */
-	public function testFailedFilterToken()
+	public function testGetName()
 	{
-		$this->assertEquals(
-			'__AF_VALIDATE_FILTER_FAILURE__',
-			$this->filter->failedFilterToken(),
-			'key used that is likely not to be a value'
-		);
+		$this->assertEquals($this->filterName, $this->filter->getName());
+	}
+
+	public function testGetSetDefaultError()
+	{
+		$expected = "Filter failure has occured for {$this->filterName}";
+		$this->assertEquals($expected, $this->filter->getDefaultError());
+	}
+
+	/**
+	 * Used to determine if a filter failed. The enableFailure is a protected
+	 * method and used internally so we don't need to test it.
+	 */
+	public function testIsFailure()
+	{
+		/* default value of a filter is false */
+		$this->assertFalse($this->filter->isFailure());
 	}
 }

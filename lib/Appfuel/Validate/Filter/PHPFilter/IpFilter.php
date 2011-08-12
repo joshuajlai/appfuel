@@ -26,6 +26,7 @@ class IpFilter extends ValidateFilter
 	 */	
 	public function filter($raw, DictionaryInterface $params)
 	{
+		$this->clearFailure();
 		$default = $params->get('default', null);
 		$options = array('options' => array());
 		if (null !== $default) {
@@ -51,7 +52,8 @@ class IpFilter extends ValidateFilter
 		$result = filter_var($raw, FILTER_VALIDATE_IP, $options);
 
 		if (! $result) {
-			return $this->failedFilterToken();
+			$this->enableFailure();
+			return null;
 		}
 
 		return $result;

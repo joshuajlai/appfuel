@@ -125,6 +125,7 @@ class FloatFilterTest extends ParentTestCase
 		$params = new Dictionary();
 		$result = $this->filter->filter($raw, $params);
 		$this->assertEquals($raw, $result);
+		$this->assertFalse($this->filter->isFailure());
 	}
 
 	/**
@@ -136,10 +137,8 @@ class FloatFilterTest extends ParentTestCase
 	{
 		$params = new Dictionary();
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
-			$result
-		);
+		$this->assertNull($result);
+		$this->assertTrue($this->filter->isFailure());
 	}
 
 	/**
@@ -152,6 +151,7 @@ class FloatFilterTest extends ParentTestCase
 		$params = new Dictionary(array('allow-thousands' => true));
 		$result = $this->filter->filter($raw, $params);
 		$this->assertEquals($final, $result);
+		$this->assertFalse($this->filter->isFailure());
 	}
 
 	/**
@@ -166,6 +166,7 @@ class FloatFilterTest extends ParentTestCase
 		$params = new Dictionary(array('decimal-sep' => ','));
 		$raw = '100,45';
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		
 		/* filters it back into the decimal separator '.' */
 		$this->assertEquals('100.45', $result);
@@ -173,11 +174,13 @@ class FloatFilterTest extends ParentTestCase
 		$params = new Dictionary(array('decimal-sep' => ':'));
 		$raw = '100:45';
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals('100.45', $result);
 	
 		/* works ok when no separated is given */	
 		$raw = '10045';
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals('10045', $result);
 	}
 
@@ -206,6 +209,7 @@ class FloatFilterTest extends ParentTestCase
 
 		$raw = '100,789:5';
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		/* filters it back into the decimal separator '.' */
 		$this->assertEquals('100789.5', $result);
 	}
@@ -218,9 +222,7 @@ class FloatFilterTest extends ParentTestCase
 		$params = new Dictionary(array('allow-thousands' => true));
 		$raw    = '100, 000.00';
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals(
-			$this->filter->failedFilterToken(),
-			$result
-		); 	
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result); 	
 	}
 }

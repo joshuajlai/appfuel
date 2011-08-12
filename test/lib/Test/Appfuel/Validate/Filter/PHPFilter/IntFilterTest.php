@@ -69,161 +69,192 @@ class IntFilterTest extends ParentTestCase
 		$params = new Dictionary();
 		$raw    = 12345;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 0;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = -12345;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw = PHP_INT_MAX;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		/* strings that are numbers will pass */
 		$raw = "12345";
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(12345, $result);
 
 		$raw = "+12345";
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(12345, $result);
 
 		$raw = "-12345";
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(-12345, $result);
 
 		/* php manual says these should fail but they don't */
 		$raw = -0;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(-0, $result);
 
 		$raw = +0;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(+0, $result);
 
 		/* sign makes no difference on zero */
 		$raw = +0;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(-0, $result);
 	}
 	
 	/**
 	 * @return null
 	 */
-	public function estFilterNoOptionsInvalidInt()
+	public function testFilterNoOptionsInvalidInt()
 	{
 		$params = new Dictionary();
 		$raw    = 'abcd';
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals($this->filter->failedFilterToken(), $result);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 
 		$raw    = array(1,2,3,4);
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals($this->filter->failedFilterToken(), $result);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 
 		$raw    = new StdClass();
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals($this->filter->failedFilterToken(), $result);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 	}
 
 	/**
 	 * @return null
 	 */
-	public function estFilterRangeMinMaxValid()
+	public function testFilterRangeMinMaxValid()
 	{
 		$params = new Dictionary(array('min'=>2,'max'=>5));
 
 		$raw    = 2;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 3;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 4;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 5;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 6;
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals($this->filter->failedFilterToken(), $result);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 
 		$raw    = 1;
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals($this->filter->failedFilterToken(), $result);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 
 		$raw    = "5";
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 	}
 
 	/**
 	 * @return null
 	 */
-	public function estFilterMinNoMax()
+	public function testFilterMinNoMax()
 	{
 		$params = new Dictionary(array('min' => 0));
 			
 		$raw    = 0;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 10;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = PHP_INT_MAX;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = -10;
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals($this->filter->failedFilterToken(), $result);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 
 		$raw    = -0;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(0, $result);
 
 		$raw    = -PHP_INT_MAX;
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals($this->filter->failedFilterToken(), $result);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 	}
 
 	/**
 	 * @return null
 	 */
-	public function estFilterMaxNoMin()
+	public function testFilterMaxNoMin()
 	{
 		$params = new Dictionary(array('max' => 1));
 
 		$raw    = 0;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 1;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = -11;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = -PHP_INT_MAX;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 2;
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals($this->filter->failedFilterToken(), $result);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 	}
 
 	/**
@@ -231,22 +262,25 @@ class IntFilterTest extends ParentTestCase
 	 *
 	 * @return	null
 	 */
-	public function estFilterDefault()
+	public function testFilterDefault()
 	{
 		$params = new Dictionary(array('default' => 22));
 
 		$raw    = 'abc';
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(22, $result);
 
 		$params = new Dictionary(array('default' => 22, 'max' => 2));	
 		$raw    = 3;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(22, $result);
 
 		$params = new Dictionary(array('default' => 22, 'min' => 2));	
 		$raw    = 0;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(22, $result);
 
 		$params = new Dictionary(
@@ -254,6 +288,7 @@ class IntFilterTest extends ParentTestCase
 		);	
 		$raw    = 8;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(22, $result);
 	}
 
@@ -265,34 +300,42 @@ class IntFilterTest extends ParentTestCase
 		$params = new Dictionary(array('allow-octal' => true));
 		$raw    = 0;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 01;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 02;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 03;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 04;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 05;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 06;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 07;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		/* 
@@ -302,7 +345,8 @@ class IntFilterTest extends ParentTestCase
 		 */
 		$raw = '099';	
 		$result = $this->filter->filter('099', $params);
-		$this->assertEquals($this->filter->failedFilterToken(), $result);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 	}
 
 	/**
@@ -316,10 +360,12 @@ class IntFilterTest extends ParentTestCase
 
 		$raw = '0889';
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(0755, $result);
 
 		$raw = 0555;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 	}
 
@@ -331,26 +377,32 @@ class IntFilterTest extends ParentTestCase
 		$params = new Dictionary(array('allow-hex' => true));
 		$raw    = 0xfff;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 0xABC;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 0x123;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 0xddd;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 0x000;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 0xffffff;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		$raw    = 0x12345;
@@ -359,6 +411,7 @@ class IntFilterTest extends ParentTestCase
 
 		$raw    = 0x2;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 
 		/* 
@@ -368,7 +421,8 @@ class IntFilterTest extends ParentTestCase
 		 */
 		$raw = '0xjjj';	
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals($this->filter->failedFilterToken(), $result);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 	}
 
 	/**
@@ -382,14 +436,17 @@ class IntFilterTest extends ParentTestCase
 
 		$raw = '0889';
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(0x123, $result);
 
 		$raw = '0xjjzz';
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(0x123, $result);
 
 		$raw = 0xfff;
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals(0xfff, $result);
 	}
 }

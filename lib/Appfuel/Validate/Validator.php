@@ -11,6 +11,7 @@
 namespace Appfuel\Validate;
 
 use Appfuel\Framework\Exception,
+	Appfuel\Framework\DataSource\Dictionary,
 	Appfuel\Framework\Validate\CoordinatorInterface,
 	Appfuel\Framework\Validate\Filter\FilterInterface,
 	Appfuel\Framework\Validate\SingleFieldValidatorInterface;,
@@ -41,73 +42,95 @@ class Validator implements SingleFieldValidatorInterface
 	 * @return	Controller
 	 */
 	public function __construct($field, 
-								FilterInterface $filter = null, 
-								$errorMessage = null)
+								FilterInterface $filter = null,
+								array $params = null, 
+								$error = null)
 	{
-		
+		if (empty($field) || ! is_scalar($field)) {
+			throw new Exception("Field must be a non empty scalar");
+		}
+
+		$this->field = $field;
+		if (null !== $filter) {
+			$this->addFilter($filter, $params, $error);
+		}
 	}
 
 	/**
-	 * @param	string	$field		field used to filter on
-	 * @param	string	$error		text used when filter fails
-	 * @param	string	$filter		name of the filter need for field
-	 * @param	array	$params		list of optional parameter for filter
-	 * @return	Controller
-	 */	
-	public function addFilter($field, $error, $filter, array $params = null)
+	 * @return	string
+	 */
+	public function getField()
 	{
+		return $this->field;
+	}
 
+	/**
+	 * @param	FilterInterface	$filter		name of the filter need for field
+	 * @param	array			$params		optional parameters
+	 * @param	string			$error		text used when filter fails
+	 * @return	Validate
+	 */	
+	public function addFilter(FilterInterface $filter, 
+							  array $params = null,
+							 $error = null)
+	{
+		$this->filters[] = array(
+			'filter' => $filter, 
+			'params' => $params,
+			'error'  => $error
+		);
+
+		return $this;	
 	}
 
 	/**
 	 * @param	mixed	$raw	data used to validate with filters
 	 * @return	bool
 	 */
-	public function validate($raw)
+	public function isSatifiedBy(CoordintorInterface $coord)
 	{
+		$field     = $this->getField();
+		$raw       = $coord->getRaw($field);
+		$filters   = $this->getFilters();
+		$isFailure = false;
 
-	}
+		foreach ($filters as $list) {
+			if (! is_array($list) || ! isset($list['filter'])) {
+				continue;
+			}
+			
+			$filter = $list['filter'];
 
-	/**
-	 * @return array
-	 */
-	public function getErrors()
-	{
+			$params = array();
+			if (isset($list['params']) && is_array($list['params')) {
+				$params = $list['params'];
+			}
+			$params = new Dictionary($params);
 
-	}
+			$error  = $filter->getDefaultError();
+			if (isset($list['error']) && is_string($list['error'])) {
+				$error = $list['error'];
+			}
 
-	/**
-	 * @return	array
-	 */
-	public function getAllClean()
-	{
+			$clean = $filter->filter($raw, $params);
+			if ($clean === $filter->failedFilterToken()) {
+				$coord->addError($error);
+				$isFailure = true;
+				continue;
+			}
+			
+			/* 
+			 * filter has passed so we pipe the clean value as the raw to
+			 * the next filter
+			 */
+			$raw = $clean;
+		}
 
-	}
+		if (true === $isFailure) {
+			return false;
+		}
 
-	/**
-	 * @return	mixed
-	 */
-	public function getClean($field)
-	{
-
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isError()
-	{
-
-	}
-
-	/**
-	 * Because the controller is a facade the coordinator is hidden for 
-	 * internal implementation.
-	 *
-	 * @return	CoordinatorInterface
-	 */
-	protected function getCoordinator()
-	{
-		return $this->coord;	
+		$coord->addClean($field, $clean);
+		return true;
 	}
 }

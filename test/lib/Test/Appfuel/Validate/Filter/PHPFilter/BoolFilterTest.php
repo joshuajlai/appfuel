@@ -165,34 +165,33 @@ class BoolFilterTest extends ParentTestCase
 	public function testFailedFalseWithStrictParams()
 	{
 		$params = new Dictionary(array('strict' => true));
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
+		$this->assertNull(
 			$this->filter->filter(false, $params),
 			'php filter_var does not think this is really false go figure'
 		);
+		$this->assertTrue($this->filter->isFailure());
 
 		/* the string false on the other hand is acceptable */
 		$this->assertFalse($this->filter->filter('false', $params));
 
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
+		$this->assertNull(
 			$this->filter->filter(null, $params),
 			'php filter_var does not consider null false'
 		);
+		$this->assertTrue($this->filter->isFailure());
 
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
+		$this->assertNull(
 			$this->filter->filter('null', $params),
 			'php filter_var does not consider null false'
 		);
+		$this->assertTrue($this->filter->isFailure());
 
 
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
+		$this->assertNull(
 			$this->filter->filter('abc', $params),
 			'php filter_var does not consider null false'
 		);
-
+		$this->assertTrue($this->filter->isFailure());
 
 		$this->assertTrue($this->filter->filter('1', $params));
 	}

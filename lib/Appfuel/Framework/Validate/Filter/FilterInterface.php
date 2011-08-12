@@ -28,5 +28,5 @@ interface FilterInterface
 	 *
 	 * @return	string
 	 */
-	public function failedFilterToken();
+	public function isFailure();
 }

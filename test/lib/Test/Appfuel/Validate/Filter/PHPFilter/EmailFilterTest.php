@@ -96,6 +96,7 @@ class EmailFilterTest extends ParentTestCase
 	{
 		$params = new Dictionary();
 		$this->assertEquals($raw, $this->filter->filter($raw, $params));
+		$this->assertFalse($this->filter->isFailure());
 	}
 
 	/**
@@ -106,10 +107,11 @@ class EmailFilterTest extends ParentTestCase
 	public function testInvalidEmail($raw)
 	{
 		$params = new Dictionary();
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
+		$this->assertNull(
 			$this->filter->filter($raw, $params)
 		);
+		
+		$this->assertTrue($this->filter->isFailure());
 
 	}
 
@@ -125,5 +127,6 @@ class EmailFilterTest extends ParentTestCase
 			'rsb@me.com', 
 			$this->filter->filter($raw, $params)
 		);
+		$this->assertFalse($this->filter->isFailure());
 	}
 }

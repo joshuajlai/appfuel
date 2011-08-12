@@ -160,6 +160,7 @@ class IpFilterTest extends ParentTestCase
 		$params = new Dictionary();
 		$result = $this->filter->filter($raw, $params);
 		$this->assertEquals($raw, $result);
+		$this->assertFalse($this->filter->isFailure());
 	}
 
 	/**
@@ -171,11 +172,8 @@ class IpFilterTest extends ParentTestCase
 	{
 		$params = new Dictionary();
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
-			$result
-		);
-
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 	}
 
 	/**
@@ -189,10 +187,8 @@ class IpFilterTest extends ParentTestCase
 	{
 		$params = new Dictionary(array('ipv4' => true));
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
-			$result
-		);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 	}
 
 	/**
@@ -206,10 +202,8 @@ class IpFilterTest extends ParentTestCase
 	{
 		$params = new Dictionary(array('ipv6' => true));
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
-			$result
-		);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 	}
 
 	/**
@@ -221,6 +215,7 @@ class IpFilterTest extends ParentTestCase
 	{
 		$params = new Dictionary(array('ipv6' => true));
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 	}
 
@@ -233,10 +228,8 @@ class IpFilterTest extends ParentTestCase
 	{
 		$params = new Dictionary(array('no-private-ranges' => true));
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
-			$result
-		);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 	}
 
 	/**
@@ -248,6 +241,7 @@ class IpFilterTest extends ParentTestCase
 	{
 		$params = new Dictionary(array('ipv4' => true));
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 	}
 
@@ -260,6 +254,7 @@ class IpFilterTest extends ParentTestCase
 	{
 		$params = new Dictionary(array('ipv4' => true));
 		$result = $this->filter->filter($raw, $params);
+		$this->assertFalse($this->filter->isFailure());
 		$this->assertEquals($raw, $result);
 	}
 
@@ -272,12 +267,7 @@ class IpFilterTest extends ParentTestCase
 	{
 		$params = new Dictionary(array('no-reserved-ranges' => true));
 		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals(
-			$this->filter->failedFilterToken(), 
-			$result
-		);
+		$this->assertTrue($this->filter->isFailure());
+		$this->assertNull($result);
 	}
-
-
-
 }

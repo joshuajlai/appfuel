@@ -29,18 +29,16 @@ abstract class ValidateFilter implements FilterInterface
 	protected $name = null;
 
 	/**
-	 * A string not likely to occur in everyday use for values, this will
-	 * indicate a filter failure
-	 *
-	 * @var string
-	 */
-	protected $failureToken = '__AF_VALIDATE_FILTER_FAILURE__';
-
-	/**
 	 * Default error message to used when no other error messages 
 	 * @var string
 	 */
 	protected $defaultError = 'Filter validation failure has occured for ';
+
+	/**
+	 * Flag used to indicate a failure has occured
+	 * @var bool
+	 */
+	protected $isFailure = false;
 
 	/**
 	 * @param	string	$name	name of the filter used by the factory to
@@ -55,14 +53,6 @@ abstract class ValidateFilter implements FilterInterface
 
 		$this->name = $name;
 		$this->setDefaultError("Filter failure has occured for $name");
-	}
-
-	/**
-	 * @return	string
-	 */	
-	public function failedFilterToken()
-	{
-		return $this->failureToken;
 	}
 
 	/**
@@ -93,5 +83,29 @@ abstract class ValidateFilter implements FilterInterface
 
 		$this->defaultError = $error;
 		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isFailure()
+	{
+		return $this->isFailure;
+	}
+
+	/**
+	 * @return	null
+	 */
+	protected function enableFailure()
+	{
+		$this->isFailure = true;
+	}
+
+	/**
+	 * @return null
+	 */
+	protected function clearFailure()
+	{
+		$this->isFailure = false;
 	}
 }

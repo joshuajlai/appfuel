@@ -24,6 +24,7 @@ class FloatFilter extends ValidateFilter
 	 */	
 	public function filter($raw, DictionaryInterface $params)
 	{
+		$this->clearFailure();
 		$default = $params->get('default', null);
 		$options = array('options' => array());
 		if (null !== $default) {
@@ -54,7 +55,8 @@ class FloatFilter extends ValidateFilter
 		
 		$result = filter_var($raw, FILTER_VALIDATE_FLOAT, $options);
 		if (false === $result) {
-			return $this->failedFilterToken();
+			$this->enableFailure();
+			return null;
 		}
 
 		return $result;
