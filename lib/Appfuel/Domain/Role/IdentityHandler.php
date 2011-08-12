@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Domain\Role;
 
-use Appfuel\Domain\DomainIdentityHandler;
+use Appfuel\Domain\DomainIdentityHandler,
+	Appfuel\Framework\DataStructure\ArrayMap;
 
 /**
  * Used to manage database interaction throught a uniform interface that 
@@ -18,10 +19,37 @@ use Appfuel\Domain\DomainIdentityHandler;
  */
 class IdentityHandler extends DomainIdentityHandler
 {
-
+	/**
+	 * Define the domain name this identity is in charge of
+	 * 
+	 * @return	IdentityHandler
+	 */
 	public function __construct()
 	{
-		$this->setRootNamespace('Appfuel\Domain');
-		$this->setDomainName('role');
+		parent::__construct('role');
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function loadMaps()
+	{
+		$columns = array(
+			'id'			=> 'role_id',
+			'name'			=> 'role_name',
+			'authLevel'		=> 'role_code',
+			'description'	=> 'role_desc'
+		);
+
+		$map = new ArrayMap($columns);
+		$this->addMapper('memberToColumn', $map->getKeyToValueMapper());
+		$this->addMapper('columnToMember', $map->getValueToKeyMapper());
+
+		$tables = array(
+			'role'		=> 'roles',
+			'closure'	=> 'role_paths'
+		);
+		$map = new ArrayMap($tables);
+		$this->addMapper('table', $map->getKeyToValueMapper());
 	}
 }

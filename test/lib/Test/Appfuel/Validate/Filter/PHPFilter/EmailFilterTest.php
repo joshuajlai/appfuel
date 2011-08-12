@@ -16,7 +16,7 @@ use StdClass,
 	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
- * Test bool filter which wraps php filter var
+ * Email filter wraps php email filter var
  */
 class EmailFilterTest extends ParentTestCase
 {
@@ -31,7 +31,7 @@ class EmailFilterTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->filter = new EmailFilter();
+		$this->filter = new EmailFilter('php-email-filter');
 	}
 
 	/**

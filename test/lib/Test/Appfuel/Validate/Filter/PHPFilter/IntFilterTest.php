@@ -32,7 +32,7 @@ class IntFilterTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->filter = new IntFilter();
+		$this->filter = new IntFilter('int-filter');
 	}
 
 	/**

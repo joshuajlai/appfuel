@@ -31,7 +31,7 @@ class BoolFilterTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->filter = new BoolFilter();
+		$this->filter = new BoolFilter('php-bool-filter');
 	}
 
 	/**

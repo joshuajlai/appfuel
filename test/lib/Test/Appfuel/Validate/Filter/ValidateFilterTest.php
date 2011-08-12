@@ -30,9 +30,12 @@ class ValidateFilterTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->filter = $this->getMockForAbstractClass(
-			'Appfuel\Validate\Filter\ValidateFilter'
-		);
+		$this->filterName = 'my-filter';
+		$class = 'Appfuel\Validate\Filter\ValidateFilter';
+		$this->filter = $this->getMockBuilder($class)
+							 ->setConstructorArgs(array($this->filterName))
+							 ->getMockForAbstractClass();
+
 	}
 
 	/**

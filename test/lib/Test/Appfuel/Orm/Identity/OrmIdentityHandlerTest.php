@@ -159,4 +159,83 @@ class OrmIdentityHandlerTest extends ParentTestCase
 	{
 		$this->identity->setRootNamespace(new StdClass());
 	}
+
+	/**
+	 * @return	null
+	 */
+	public function testAddGetIsMapper()
+	{
+		$key1 = 'memberToColumn';
+		$mapper1 = function ($target) {
+			return $target;
+		};
+
+		$this->assertFalse($this->identity->isMapper($key1));
+		$this->assertFalse($this->identity->getMapper($key1));
+		$this->assertSame(
+			$this->identity,
+			$this->identity->addMapper($key1, $mapper1),
+			'exposes a fluent interface'
+		);
+
+		$this->assertTrue($this->identity->isMapper($key1));
+		$this->assertSame($mapper1, $this->identity->getMapper($key1));
+
+		$key2 = 'keyToTable';
+		$mapper2 = function ($target) {
+			return $target;
+		};
+
+		$this->assertFalse($this->identity->isMapper($key2));
+		$this->assertFalse($this->identity->getMapper($key2));
+		$this->assertSame(
+			$this->identity,
+			$this->identity->addMapper($key2, $mapper2),
+			'exposes a fluent interface'
+		);
+
+		$this->assertTrue($this->identity->isMapper($key1));
+		$this->assertTrue($this->identity->isMapper($key2));
+		$this->assertSame($mapper1, $this->identity->getMapper($key1));
+		$this->assertSame($mapper2, $this->identity->getMapper($key2));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testAddMapperKeyEmptyString()
+	{
+		$this->identity->addMapper('', function () {return 'blah';});
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testAddMapperKeyArray()
+	{
+		$this->identity->addMapper(array(1,2), function () {return 'blah';});
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testAddMapperKeyInt()
+	{
+		$this->identity->addMapper(123, function () {return 'blah';});
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testAddMapperKeyObj()
+	{
+		$this->identity->addMapper(
+			new StdClass(), 
+			function () {return 'blah';}
+		);
+	}
 }

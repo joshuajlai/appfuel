@@ -23,12 +23,13 @@ class FilterFactory implements FilterFactoryInterface
 	 * @var array
 	 */
 	protected $map = array(
-		'ip-filter'				=> 'IpFilter',
-		'float-filter'			=> 'FloatFilter',
-		'int-filter'			=> 'PHPFilter\IntFilter',
-		'bool-php-filtervar'	=> 'PHPFilter\BoolFilter',
-		'regex-filter'			=> 'RegexFilter',
-		'url-filter'			=> 'UrlFilter',
+		'php-ip-filter'			=> 'PHPFilter\IpFilter',
+		'php-float-filter'		=> 'PHPFilter\FloatFilter',
+		'php-int-filter'		=> 'PHPFilter\IntFilter',
+		'php-bool-filter'		=> 'PHPFilter\BoolFilter',
+		'php-email-filter'		=> 'PHPFilter\EmailFilter',
+		'php-regex-filter'		=> 'PHPFilter\RegexFilter',
+		'php-url-filter'		=> 'PHPFilter\UrlFilter',
 	);
 
 	/**
@@ -43,6 +44,6 @@ class FilterFactory implements FilterFactoryInterface
 		}
 
 		$class = __NAMESPACE__ . "\\{$this->map[$name]}";
-		return new $class();
+		return new $class($name);
 	}
 }

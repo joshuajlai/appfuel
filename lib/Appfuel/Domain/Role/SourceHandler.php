@@ -26,11 +26,12 @@ class SourceHandler extends OrmSourceHandler
 	 */
 	public function fetchDesendantsById(CriteriaInterface $criteria)
 	{
-		echo "\n", print_r($criteria,1), "\n";exit;
 		$path = 'Sql/templates/selectDescendantsOf.psql';
 		$template = $this->createTemplate($path);
-		$sql = $template->build(array('role_id' => 3));
 		
+		$id = $criteria->get('id', 0);
+		$sql = $template->build(array('role_id' => $id));
+	
 		$request = $this->createRequest('query', 'read');
 		$request->setSql($sql);
 

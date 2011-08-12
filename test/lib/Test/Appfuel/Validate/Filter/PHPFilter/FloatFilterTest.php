@@ -31,7 +31,7 @@ class FloatFilterTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->filter = new FloatFilter();
+		$this->filter = new FloatFilter('float-filter');
 	}
 
 	/**

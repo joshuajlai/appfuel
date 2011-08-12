@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Orm\Identity;
 
-use Appfuel\Framework\Exception,
+use Closure,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\Orm\Identity\IdentityHandlerInterface;
 
 /**
@@ -34,6 +35,13 @@ class OrmIdentityHandler implements IdentityHandlerInterface
 	protected $rootNamespace = null;
 
 	/**
+	 * Mappers are a list of named closures the perform a very specific
+	 * mapping operation
+	 * @var	array
+	 */
+	protected $mappers = array();
+
+	/**
 	 * @return string
 	 */
 	public function getDomainName()
@@ -49,6 +57,7 @@ class OrmIdentityHandler implements IdentityHandlerInterface
 		if (! $this->isString($label)) {
 			throw new Exception("label must be a valid string");
 		}
+
 		$this->domainName = $label;
 		return $this;
 	}
@@ -73,6 +82,54 @@ class OrmIdentityHandler implements IdentityHandlerInterface
 		$this->rootNamespace = $namespace;
 		return $this;
 	}
+
+	/**	
+	 * @return
+	 */
+	public function addMapper($key, Closure $mapper)
+	{
+		if (! $this->isString($key)) {
+			throw new Exception("key name for map must be a non empty string");
+		}
+
+		$this->mappers[$key] = $mapper;
+		return $this;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	Closure	| false on failure
+	 */
+	public function getMapper($key)
+	{
+		if (! $this->isMapper($key)) {
+			return false;
+		}
+
+		return $this->mappers[$key];
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	bool
+	 */
+	public function isMapper($key)
+	{
+		if (! $this->isString($key)) {
+			return false;
+		}
+
+		return isset($this->mappers[$key]) && 
+			   $this->mappers[$key] instanceof Closure;
+	}
+
+	/**
+	 * Used by Concrete Identity handlers to load thier mappers
+	 * 
+	 * @return	null
+	 */
+	public function loadMaps()
+	{}
 
 	/**
 	 * @param	mixed	$str

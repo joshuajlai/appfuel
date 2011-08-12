@@ -23,8 +23,10 @@ class DomainIdentityHandler extends OrmIdentityHandler
 	 * Assign the root level namespace
 	 * @return	IdentityHandler
 	 */
-	public function __construct()
+	public function __construct($domainName)
 	{
+		$this->setDomainName($domainName);
 		$this->setRootNamespace(__NAMESPACE__);
+		$this->loadMaps();
 	}
 }

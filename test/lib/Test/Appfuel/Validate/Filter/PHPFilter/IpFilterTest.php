@@ -31,7 +31,7 @@ class IpFilterTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->filter = new IpFilter();
+		$this->filter = new IpFilter('ip-filter');
 	}
 
 	/**

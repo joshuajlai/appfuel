@@ -8,5 +8,5 @@ FROM		roles AS r
 
 INNER JOIN	role_paths as t ON r.role_id = t.descendant
 
-WHERE		t.ancestor = <?php $this->render('role_id', 3) ?>
+WHERE		t.ancestor = <?php $this->render('role_id') ?>
 

@@ -67,11 +67,11 @@ class SourceHandlerTest extends ParentTestCase
 		$criteria = new Criteria();
 	
 		$expr1 = new DomainExpr('role.id=3');
-		$expr2 = new DomainExpr('role.id=3');
-		
+		$expr2 = new DomainExpr('user.name is not empty');
+
 		$criteria->add('domain-key', 'role')
-				 ->addExpr('where-filters', $expr1)
-				 ->addExpr('where-filters', $expr2);
+				 ->add('id', 3)
+				 ->addExpr('where-filters', $expr1, 'or');
 
 		//$result = $this->handler->fetchDesendantsById($criteria);
 		//echo "\n", print_r($result,1), "\n";exit;
