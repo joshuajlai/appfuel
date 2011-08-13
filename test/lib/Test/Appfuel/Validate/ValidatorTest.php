@@ -36,10 +36,18 @@ class ValidatorTest extends ParentTestCase
 	protected $field = null;
 
 	/**
+	 * Used to buld mock object of filters
+	 * @var string
+	 */
+	protected $filterInterface = null;
+ 
+	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
+		$class = 'Appfuel\Framework\Validate\Filter\FilterInterface';
+		$this->filterInterface = $class;
 		$this->field = 'my-field';
 		$this->validator = new Validator($this->field);
 	}
@@ -50,6 +58,15 @@ class ValidatorTest extends ParentTestCase
 	public function tearDown()
 	{
 		unset($this->validator);
+	}
+
+	/**
+	 * @return	Appfuel\Framework\Validate\Filter\FilterInterface
+	 */
+	public function getMockFilter()
+	{
+		$methods = array('filter', 'getDefaultError', 'isFailure');
+		return $this->getMock($this->filterInterface, $methods);
 	}
 
 	/**
@@ -120,8 +137,7 @@ class ValidatorTest extends ParentTestCase
 	 */
 	public function testAddFilterConstructorWithFilterNoParamsNoErrorMsg()
 	{
-		$interface = 'Appfuel\Framework\Validate\Filter\FilterInterface';
-		$filter = $this->getMock($interface);
+		$filter = $this->getMock($this->filterInterface);
 		$field  = 'my-field';
 
 		$validator = new Validator($field, $filter);
@@ -143,8 +159,7 @@ class ValidatorTest extends ParentTestCase
 	 */
 	public function testAddFilterConstructorWithFilterParamsNoErrorMsg()
 	{
-		$interface = 'Appfuel\Framework\Validate\Filter\FilterInterface';
-		$filter = $this->getMock($interface);
+		$filter = $this->getMock($this->filterInterface);
 		$field  = 'my-field';
 		$params = array('a' => 'b');
 
@@ -167,8 +182,7 @@ class ValidatorTest extends ParentTestCase
 	 */
 	public function testAddFilterConstructorWithFilterParamsrrorMsg()
 	{
-		$interface = 'Appfuel\Framework\Validate\Filter\FilterInterface';
-		$filter = $this->getMock($interface);
+		$filter = $this->getMock($this->filterInterface);
 		$field  = 'my-field';
 		$params = array('a' => 'b');
 		$error  = 'this is an error message';
@@ -193,8 +207,7 @@ class ValidatorTest extends ParentTestCase
 	{
 		$this->assertEquals(array(), $this->validator->getFilters());
 	
-		$interface = 'Appfuel\Framework\Validate\Filter\FilterInterface';
-		$filter1 = $this->getMock($interface);
+		$filter1 = $this->getMock($this->filterInterface);
 		$field1  = 'my-field';
 		$params1 = null;
 		$error1  = null;
@@ -213,7 +226,7 @@ class ValidatorTest extends ParentTestCase
 		$expected = array($filterData1);
 		$this->assertEquals($expected, $this->validator->getFilters());
 
-		$filter2 = $this->getMock($interface);
+		$filter2 = $this->getMock($this->filterInterface);
 		$field2  = 'my-field';
 		$params2 = array('c' => 'b');
 		$error2  = null;
@@ -232,7 +245,7 @@ class ValidatorTest extends ParentTestCase
 		$expected = array($filterData1, $filterData2);
 		$this->assertEquals($expected, $this->validator->getFilters());
 
-		$filter3 = $this->getMock($interface);
+		$filter3 = $this->getMock($this->filterInterface);
 		$field3  = 'my-field';
 		$params3 = array('c' => 'b');
 		$error3  = 'this is an error message';
@@ -258,10 +271,8 @@ class ValidatorTest extends ParentTestCase
 	 * @return null
 	 */
 	public function testAddParamsDuplicates()
-	{
-	
-		$interface = 'Appfuel\Framework\Validate\Filter\FilterInterface';
-		$filter1 = $this->getMock($interface);
+	{	
+		$filter1 = $this->getMock($this->filterInterface);
 		$field1  = 'my-field';
 		$params1 = null;
 		$error1  = null;
@@ -306,11 +317,8 @@ class ValidatorTest extends ParentTestCase
 	 *
 	 * @return	null
 	 */
-	public function testIsSatiSingleFilter()
+	public function testIsValidSingleFilterA()
 	{
-		$interface = 'Appfuel\Framework\Validate\Filter\FilterInterface';
-		$methods   = array('filter', 'getDefaultError', 'isFailure');
-		
 		$value  = 123;
 		$field  = 'my-field';
 		$params = new Dictionary();
@@ -319,7 +327,7 @@ class ValidatorTest extends ParentTestCase
 		/* create a new coorinator with the source the filter will pull from */
 		$coord = new Coordinator(array($field=>$value));
 
-		$filter = $this->getMock($interface, $methods);
+		$filter = $this->getMockFilter();
 		$filter->expects($this->once())
 			   ->method('filter')
 			   ->with($this->equalTo($value), $this->equalTo($params))
@@ -337,5 +345,45 @@ class ValidatorTest extends ParentTestCase
 		$this->assertTrue($validator->isValid($coord));
 		$this->assertEquals($value, $coord->getClean($field));
 		$this->assertFalse($coord->isError());
+	}
+
+	/**
+	 * This test only proves the existence of error message are not relevent
+	 * when the filter passes because they are not used
+	 * 
+	 * @depends	testIsValidSingleFilterA
+	 * @return	null
+	 */
+	public function testIsValidSingleFilterB()
+	{
+		
+		$value  = 123;
+		$field  = 'my-field';
+		$params = new Dictionary();
+		$error = 'I am a default error';
+		
+		/* create a new coorinator with the source the filter will pull from */
+		$coord = new Coordinator(array($field=>$value));
+
+		$filter = $this->getMockFilter();
+		$filter->expects($this->once())
+			   ->method('filter')
+			   ->with($this->equalTo($value), $this->equalTo($params))
+			   ->will($this->returnValue($value));
+
+		$filter->expects($this->once())
+			   ->method('getDefaultError')
+			   ->will($this->returnValue('someError'));
+
+		$filter->expects($this->once())
+			   ->method('isFailure')
+			   ->will($this->returnValue(false));
+
+		$validator = new Validator($field, $filter);
+		$this->assertTrue($validator->isValid($coord));
+		$this->assertEquals($value, $coord->getClean($field));
+		$this->assertFalse($coord->isError());
+
+
 	}
 }
