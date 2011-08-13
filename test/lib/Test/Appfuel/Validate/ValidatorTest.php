@@ -70,6 +70,35 @@ class ValidatorTest extends ParentTestCase
 	}
 
 	/**
+	 * @param	mixed	$raw		the first param of the filter method
+	 * @param	array	$param		the second param of the filter method
+	 * @param	mixed	$returned	value the filter method returns
+	 * @param	mixed	$err		default error message of filter
+	 * @param	bool	$isFail		indicates a filter failure
+	 * @return	Appfuel\Framework\Validate\Filter\FilterInterface
+	 */ 
+	public function buildMockFilter($raw, $params, $returned, $err, $isFail)
+	{
+		$params = new Dictionary($params);
+		$filter = $this->getMockFilter();
+		$filter->expects($this->once())
+			   ->method('filter')
+			   ->with($this->equalTo($raw), $this->equalTo($params))
+			   ->will($this->returnValue($returned));
+
+		$filter->expects($this->once())
+			   ->method('getDefaultError')
+			   ->will($this->returnValue($err));
+
+		$filter->expects($this->once())
+			   ->method('isFailure')
+			   ->will($this->returnValue($isFail));
+
+
+		return $filter;
+	}
+
+	/**
 	 * @return null
 	 */
 	public function testInterfaces()
@@ -348,42 +377,48 @@ class ValidatorTest extends ParentTestCase
 	}
 
 	/**
-	 * This test only proves the existence of error message are not relevent
-	 * when the filter passes because they are not used
-	 * 
+	 * In this test we are going apply the following conditions:
+	 * 1) Only one filter is used
+	 * 2) No error message will be given so the default error of the filter
+	 *	  will be expected
+	 * 3) the filter will fail isFailure will return true and the data
+	 *	  return will be a null value
+	 * 4) the filter will be mocked to replicate the above conditions
+	 * 5) the coordintor will not be mocked and we will use it to collect
+	 *	  the expected results.
+	 *
+	 * Expected results:
+	 *	1) isValid should return false
+	 *  2) field and value should not appear as clean data in the coordinator
+	 *  3) coordinator should have one error for that field
+	 *
 	 * @depends	testIsValidSingleFilterA
 	 * @return	null
 	 */
 	public function testIsValidSingleFilterB()
 	{
-		
 		$value  = 123;
 		$field  = 'my-field';
 		$params = new Dictionary();
-		$error = 'I am a default error';
+		$err    = 'I am a default error';
 		
 		/* create a new coorinator with the source the filter will pull from */
 		$coord = new Coordinator(array($field=>$value));
 
-		$filter = $this->getMockFilter();
-		$filter->expects($this->once())
-			   ->method('filter')
-			   ->with($this->equalTo($value), $this->equalTo($params))
-			   ->will($this->returnValue($value));
-
-		$filter->expects($this->once())
-			   ->method('getDefaultError')
-			   ->will($this->returnValue('someError'));
-
-		$filter->expects($this->once())
-			   ->method('isFailure')
-			   ->will($this->returnValue(false));
-
+		$filter = $this->buildMockFilter($value, array(), null, $err, true);
+		
 		$validator = new Validator($field, $filter);
-		$this->assertTrue($validator->isValid($coord));
-		$this->assertEquals($value, $coord->getClean($field));
-		$this->assertFalse($coord->isError());
+		$this->assertFalse($validator->isValid($coord));
+		$this->assertFalse($coord->getClean($field, false));
+		$this->assertTrue($coord->isError());
+		$this->assertTrue($coord->isFieldError($field));
+		
+		$error = $coord->getError($field);
+		$this->assertInstanceOf(
+			'Appfuel\Validate\Error',
+			$error
+		);
 
-
+		$this->assertEquals($err, $error->current());
 	}
 }

@@ -129,7 +129,7 @@ class Validator implements FieldValidatorInterface
 
 			$clean = $filter->filter($raw, $params);
 			if ($filter->isFailure()) {
-				$coord->addError($error);
+				$coord->addError($field, $error);
 				return false;
 			}
 			
