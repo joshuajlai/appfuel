@@ -70,10 +70,11 @@ class SourceHandlerTest extends ParentTestCase
 		$expr2 = new DomainExpr('user.name is not empty');
 
 		$criteria->add('domain-key', 'role')
-				 ->add('id', 3)
+				 ->add('closure-type', 'descendant')
+				 ->add('node-id', 3)
 				 ->addExpr('where-filters', $expr1, 'or');
 
-		//$result = $this->handler->fetchDesendantsById($criteria);
+		//$result = $this->handler->insertSubtree($criteria);
 		//echo "\n", print_r($result,1), "\n";exit;
 				
 	}

@@ -14,7 +14,7 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\DataSource\Dictionary,
 	Appfuel\Framework\Validate\CoordinatorInterface,
 	Appfuel\Framework\Validate\Filter\FilterInterface,
-	Appfuel\Framework\Validate\SingleFieldValidatorInterface;,
+	Appfuel\Framework\Validate\FieldValidatorInterface;
 
 /**
  * During validation the validator grab the field from the coordinators raw
@@ -22,7 +22,7 @@ use Appfuel\Framework\Exception,
  * errors back to the coordinator or adds the now clean data into the 
  * coordinators clean datasource.
  */
-class Validator implements SingleFieldValidatorInterface
+class Validator implements FieldValidatorInterface
 {
 	/**
 	 * Name of the field in the source we are looking to validate. The source
@@ -102,7 +102,7 @@ class Validator implements SingleFieldValidatorInterface
 			$filter = $list['filter'];
 
 			$params = array();
-			if (isset($list['params']) && is_array($list['params')) {
+			if (isset($list['params']) && is_array($list['params'])) {
 				$params = $list['params'];
 			}
 			$params = new Dictionary($params);
