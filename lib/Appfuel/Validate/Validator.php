@@ -11,7 +11,7 @@
 namespace Appfuel\Validate;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\DataSource\Dictionary,
+	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\Validate\CoordinatorInterface,
 	Appfuel\Framework\Validate\Filter\FilterInterface,
 	Appfuel\Framework\Validate\FieldValidatorInterface;
@@ -84,6 +84,14 @@ class Validator implements FieldValidatorInterface
 	}
 
 	/**
+	 * @return	array
+	 */
+	public function getFilters()
+	{
+		return $this->filters;
+	}
+
+	/**
 	 * @param	mixed	$raw	data used to validate with filters
 	 * @return	bool
 	 */
@@ -113,7 +121,7 @@ class Validator implements FieldValidatorInterface
 			}
 
 			$clean = $filter->filter($raw, $params);
-			if ($clean === $filter->failedFilterToken()) {
+			if ($filter->isFailure()) {
 				$coord->addError($error);
 				$isFailure = true;
 				continue;

@@ -15,4 +15,10 @@ namespace Appfuel\Framework\Validate;
  */
 interface FieldValidatorInterface
 {
+	/**
+	 * Return the name of the field we are validating against
+	 *
+	 * @return	string
+	 */
+	public function getField();
 }
