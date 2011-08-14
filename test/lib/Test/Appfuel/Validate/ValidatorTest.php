@@ -508,6 +508,92 @@ class ValidatorTest extends ParentTestCase
 		$this->assertEquals($err, $error->current());
 	}
 
+	/**
+	 * In this test we are going apply the following conditions:
+	 * 1) Two filters wil be used. 
+	 * 2) Filter A will pass returning the value passed in
+	 * 3) Filter B will fail returning null
+	 *
+	 * Expected results:
+	 *	1) isValid should return false
+	 *  2) field should not show up in clean data
+	 *  3) coordinator should have one custom error message for field
+	 *
+	 * @return	null
+	 */
+	public function testIsValidDoubleFilterSecondFilterFails()
+	{
+		$value  = 'filtera';
+		$field  = 'my-field';
+		$param  = array();
+		$err    = 'second filter failure';
+		
+		/* create a new coorinator with the source the filter will pull from */
+		$coord = new Coordinator(array($field=>$value));
+
+		$filter1 = $this->buildMockFilter($value, $param, $value, '', false);
+		$filter2 = $this->buildMockFilter($value, $param, null, '', true);
+		
+		$validator = new Validator($field, $filter1);
+		$validator->addFilter($filter2, $param, $err);
+
+		$this->assertFalse($validator->isValid($coord));
+		$this->assertFalse($coord->getClean($field, false));
+		$this->assertTrue($coord->isError());
+
+		$error = $coord->getError($field);
+		$this->assertInstanceOf(
+			'Appfuel\Validate\Error',
+			$error
+		);
+		$this->assertEquals($err, $error->current());
+	}
+
+	/**
+	 * In this test we are going apply the following conditions:
+	 * 1) Two filters wil be used. 
+	 * 2) Filter A will fail returning null
+	 * 3) Filter B will fail returning null
+	 *
+	 * Expected results:
+	 *	1) isValid should return false
+	 *  2) field should not show up in clean data
+	 *  3) coordinator should have two custom error message for field
+	 *
+	 * @return	null
+	 */
+	public function testIsValidDoubleFilterBothFiltersFails()
+	{
+		$value  = 'filtera';
+		$field  = 'my-field';
+		$param  = array();
+		$errA   = 'this is a default error message';
+		$errB   = 'this is a custom error message for filter b'; 
+		/* create a new coorinator with the source the filter will pull from */
+		$coord = new Coordinator(array($field=>$value));
+
+		$filter1 = $this->buildMockFilter($value, $param, null, $errA, true);
+		$filter2 = $this->buildMockFilter($value, $param, null, '', true);
+		
+		$validator = new Validator($field, $filter1, $param, $errA);
+		$validator->addFilter($filter2, $param, $errB);
+
+		$this->assertFalse($validator->isValid($coord));
+		$this->assertFalse($coord->getClean($field, false));
+		$this->assertTrue($coord->isError());
+
+		$error = $coord->getError($field);
+		$this->assertInstanceOf(
+			'Appfuel\Validate\Error',
+			$error
+		);
+		$this->assertEquals(2, $error->count());
+		$this->assertEquals($errA, $error->current());
+		
+		$error->next();
+		$this->assertEquals($errB, $error->current());	
+	}
+
 
 
 }
