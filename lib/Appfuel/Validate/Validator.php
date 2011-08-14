@@ -92,20 +92,22 @@ class Validator implements FieldValidatorInterface
 	}
 
 	/**
-	 * Run though each filter and pass the raw data into it and report back 
-	 * any errors to the coordinator. When the filter passes assign the filter
-	 * back to the raw data to be used in the next filter. On failure return
-	 * false otherwise one the data has been passed though all the filters 
-	 * return true
+	 * Run though each filter and pass the raw data into it, reporting back 
+	 * any errors to the coordinator. We do not bail when a failure is first
+	 * detected. Instead we not the error occurs and continue to feed the 
+	 * raw data into the next filter until all filters have run. When no errors
+	 * have occured we add the clean data into the coordinator and return true
+	 * otherwise we return false
 	 *
 	 * @param	mixed	$raw	data used to validate with filters
 	 * @return	bool
 	 */
 	public function isValid(CoordinatorInterface $coord)
 	{
-		$field     = $this->getField();
-		$raw       = $coord->getRaw($field);
+		$field = $this->getField();
+		$raw   = $coord->getRaw($field);
 		
+		$isError   = false;
 		$filters   = $this->getFilters();
 		foreach ($filters as $list) {
 			if (! is_array($list) || ! isset($list['filter'])) {
@@ -130,13 +132,18 @@ class Validator implements FieldValidatorInterface
 			$clean = $filter->filter($raw, $params);
 			if ($filter->isFailure()) {
 				$coord->addError($field, $error);
-				return false;
+				$isError = true;
+				continue;
 			}
 			
 			/* 
 			 * the newly clean data becomes the raw data for the next filter
 			 */
 			$raw = $clean;
+		}
+
+		if ($isError) {
+			return false;
 		}
 
 		$coord->addClean($field, $clean);

@@ -421,4 +421,43 @@ class ValidatorTest extends ParentTestCase
 
 		$this->assertEquals($err, $error->current());
 	}
+
+	/**
+	 * In this test we are going apply the following conditions:
+	 * 1) Two filters wil be used. 
+	 * 2) Filter A will provide the same value and filter be will add
+	 *	  the letter b to that value
+	 * 3) All filters will pass
+	 *
+	 * Expected results:
+	 *	1) isValid should return true
+	 *  2) new modified field sould appear in clean data
+	 *  3) coordinator should have no errors
+	 *
+	 * @return	null
+	 */
+	public function testIsValidDoubleFilterA()
+	{
+		$value  = 'filtera';
+		$field  = 'my-field';
+		$param  = array();
+		$err    = 'I am a default error';
+		
+		/* create a new coorinator with the source the filter will pull from */
+		$coord = new Coordinator(array($field=>$value));
+
+		$filter1 = $this->buildMockFilter($value, $param, $value, $err, false);
+		
+		$value2  = "{$value}b";
+		$filter2 = $this->buildMockFilter($value, $param, $value2, $err, false);
+		
+		$validator = new Validator($field, $filter1);
+		$validator->addFilter($filter2, $param);
+
+		$this->assertTrue($validator->isValid($coord));
+		$this->assertEquals($value2, $coord->getClean($field, false));
+		$this->assertFalse($coord->isError());
+	}
+
+
 }
