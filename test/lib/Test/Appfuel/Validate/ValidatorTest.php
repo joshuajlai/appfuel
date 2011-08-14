@@ -459,5 +459,55 @@ class ValidatorTest extends ParentTestCase
 		$this->assertFalse($coord->isError());
 	}
 
+	/**
+	 * In this test we are going apply the following conditions:
+	 * 1) Two filters wil be used. 
+	 * 2) Filter A will fail returning null an provide a custom error
+	 * 3) Filter B will pass returning the value passed ito it
+	 *
+	 * Expected results:
+	 *	1) isValid should return false
+	 *  2) field should not show up in clean data
+	 *  3) coordinator should have one custom error message for field
+	 *
+	 * @return	null
+	 */
+	public function testIsValidDoubleFilterFirstFilterFails()
+	{
+		$value  = 'filtera';
+		$field  = 'my-field';
+		$param  = array();
+		$err    = 'first filter failure';
+		
+		/* create a new coorinator with the source the filter will pull from */
+		$coord = new Coordinator(array($field=>$value));
+
+		/*
+		 * this filter will fail and return null. We pass in an empty string
+		 * for the default error because a manual error will be supplied
+		 */
+		$filter1 = $this->buildMockFilter($value, $param, null, '', true);
+		
+		/*
+		 * this filter will pass and return the value passed into it
+		 */
+		$filter2 = $this->buildMockFilter($value, $param, $value, '', false);
+		
+		$validator = new Validator($field, $filter1, $param, $err);
+		$validator->addFilter($filter2, $param);
+
+		$this->assertFalse($validator->isValid($coord));
+		$this->assertFalse($coord->getClean($field, false));
+		$this->assertTrue($coord->isError());
+
+		$error = $coord->getError($field);
+		$this->assertInstanceOf(
+			'Appfuel\Validate\Error',
+			$error
+		);
+		$this->assertEquals($err, $error->current());
+	}
+
+
 
 }
