@@ -8,13 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Adapter;
+namespace Test\Appfuel\Db;
 
 use Test\AfTestCase as ParentTestCase,
 	Appfuel\Db\DbError;
 
 /**
- * Test the adapters ability to wrap mysqli
+ * Test the ability of the db error to handle codes messages and sql state
  */
 class ErrorTest extends ParentTestCase
 {

@@ -262,11 +262,7 @@ class ControllerTest extends ParentTestCase
 		$this->assertEquals($expected, $this->controller->getAllClean());
 		
 		$error = $this->controller->getError('field-a');
-		$this->assertInstanceOf(
-			'Appfuel\Validate\Error',
-			$error
-		);
-
+		$this->assertInstanceOf('Appfuel\Validate\Error', $error);
 		$this->assertEquals($err, $error->current());
 	}
 
