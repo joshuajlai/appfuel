@@ -11,8 +11,11 @@
 namespace Appfuel\Validate;
 
 use Appfuel\Framework\Exception,
+	Appfuel\Framework\Validate\ValidatorInterface,
 	Appfuel\Framework\Validate\ControllerInterface,
-	Appfuel\Framework\Validate\CoordinatorInterface;
+	Appfuel\Framework\Validate\CoordinatorInterface,
+	Appfuel\Framework\Validate\Filter\FilterInterface,
+	Appfuel\Framework\Validate\Filter\FilterFactoryInterface;
 
 /**
  * This is a Facade that unifies all the validation subsystems allowing
@@ -38,58 +41,90 @@ class Controller implements ControllerInterface
 	 * @param	CoordinatorInterface
 	 * @return	Controller
 	 */
-	public function __construct(CoordinatorInterface $coord = null)
+	public function __construct(CoordinatorInterface $coord = null,
+								FilterFactoryInterface $factory = null)
 	{
-		if (null !== $coord) {
-			$coord = new Coordinator();
+		if (null === $coord) {
+			$coord = $this->createCoordinator();
 		}
+		$this->setCoordinator($coord);
 
-		$this->coord = $coord;
+		if (null === $factory) {
+			$factory = $this->createFilterFactory();
+		}
+		$this->setFilterFactory($factory);
 	}
 
 	/**
 	 * @param	string	$field		field used to filter on
-	 * @param	string	$error		text used when filter fails
-	 * @param	string	$filter		name of the filter need for field
-	 * @param	array	$params		list of optional parameter for filter
+	 * @param	string	$fltr		text used when filter fails
+	 * @param	string	$params		name of the filter need for field
+	 * @param	array	$err		list of optional parameter for filter
 	 * @return	Controller
 	 */	
-	public function addFilter($field, $error, $filter, array $params = null)
-	{
+	public function addFilter($field, $fltr, array $params = null, $err = null)
+	{	
+		$errmsg = "addFilter failed:";
+		if (empty($field) || ! is_string($field)) {
+			throw new Exception("$errmsg field must be a non empty string");
+		}
 
+		if (is_string($fltr)) {
+			$filterFactory = $this->getFilterFactory();
+			$fltr = $filterFactory->createFilter($fltr);
+		}
+		else if (! $fltr instanceof FilterInterface) {
+			$errmsg .= " filter must be a string or implement the ";
+			$errmsg .= "Appfuel\Framework\Validator\Filter\FilterInterface";
+			throw new Exception($errmsg);
+		}
+
+		if (isset($this->validators[$field])) {
+			$validator = $this->validators[$field];
+			if ($validator instanceof ValidatorInterface) {
+				$errmsg .= " validator must implment the ";
+				$errmsg .= "Appfuel\Framework\Validate\ValidatorInterface";
+				throw new Exception($errmsg);
+			}
+				
+			$validator->addFilter($fltr, $params, $err);
+		}
+		else {
+			$validator = $this->createValidator($field, $fltr, $params, $err);
+			$this->validators[$field] = $validator;
+		}
+
+		return $this;
 	}
 
 	/**
 	 * @param	mixed	$raw	data used to validate with filters
 	 * @return	bool
 	 */
-	public function validate($raw)
+	public function isSatisfiedBy(array $raw)
 	{
+		$coord = $this->getCoordinator();
+		
+		/* 
+		 * Clear any errors, clean and raw data. this allows filters to be
+		 * reused across multiple raw sources
+		 */
+		$coord->reset();
+		$coord->setSource($raw);
+		
+		$failureCount  = 0;
+		$validators = $this->getValidators();
+		foreach ($validators as $field => $validator) {
+			if (! $validator->isValid($coord)) {
+				$failureCount++;
+			}
+		}
 
-	}
+		if ($failureCount > 0) {
+			return false;
+		}
 
-	/**
-	 * @return array
-	 */
-	public function getErrors()
-	{
-
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getAllClean()
-	{
-
-	}
-
-	/**
-	 * @return	mixed
-	 */
-	public function getClean($field)
-	{
-
+		return true;
 	}
 
 	/**
@@ -97,7 +132,104 @@ class Controller implements ControllerInterface
 	 */
 	public function isError()
 	{
+		return $this->getCoordinator()
+					->isError();
+	}
 
+	/**
+	 * @return array
+	 */
+	public function getErrors()
+	{
+		return $this->getCoordinator()
+					->getErrors();
+	}
+
+	/**
+	 * @return	Error | null when no errors exist
+	 */
+	public function getError($field)
+	{
+		return $this->getCoordinator()
+					->getError($field);
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getAllClean()
+	{
+		return $this->getCoordinator()
+					->getAllClean();
+	}
+
+	/**
+	 * @return	mixed
+	 */
+	public function getClean($field, $default = null)
+	{
+		return $this->getCoordinator()
+					->getClean($field, $default);
+	}
+
+	/**
+	 * @return	array
+	 */
+	protected function getValidators()
+	{
+		return $this->validators;
+	}
+
+	/**
+	 * Creates a validator with the first filter
+	 * 
+	 * @param	string	$field
+	 * @param	FilterInterface	$filter
+	 * @param	array	$params 
+	 * @param	stirng	$error
+	 * @return	Validator
+	 */
+	protected function createValidator($field, 
+									   FilterInterface $filter, 
+									   array $params = null,	
+									   $error = null) 
+									
+	{
+		return new Validator($field, $filter, $params, $error);
+	}
+
+	/**
+	 * @param	FilterFactoryInterface $factory
+	 * @return	null
+	 */
+	protected function setFilterFactory(FilterFactoryInterface $factory)
+	{
+		$this->filterFactory = $factory;
+	}
+
+	/**
+	 * @return	Filter\FilterFactory
+	 */
+	protected function getFilterFactory()
+	{
+		return $this->filterFactory;	
+	}
+
+	/**
+	 * @return	Filter\FilterFactory
+	 */
+	protected function createFilterFactory()
+	{
+		return new Filter\FilterFactory();
+	}
+
+	/**
+	 * @param	CoordinatorInterface
+	 * @return	null
+	 */
+	protected function setCoordinator(CoordinatorInterface $coord)
+	{
+		$this->coord = $coord;
 	}
 
 	/**
@@ -109,5 +241,13 @@ class Controller implements ControllerInterface
 	protected function getCoordinator()
 	{
 		return $this->coord;	
+	}
+
+	/**	
+	 * @return	Coordinator
+	 */
+	protected function createCoordinator()
+	{
+		return new Coordinator();
 	}
 }

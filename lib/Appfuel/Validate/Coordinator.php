@@ -222,6 +222,19 @@ class Coordinator implements CoordinatorInterface
 	}
 
 	/**
+	 * This is used when you want to re-use the coordinator for the same fields
+	 * but a new set of raw input
+	 *
+	 * @return null
+	 */	
+	public function reset()
+	{
+		$this->clearErrors();
+		$this->clean = array();
+		$this->raw   = array();
+	}
+
+	/**
 	 * @param	string	$field
 	 * @param	string	$msg
 	 * @return	Error
