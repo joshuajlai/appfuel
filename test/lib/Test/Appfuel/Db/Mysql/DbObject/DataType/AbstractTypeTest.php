@@ -27,21 +27,17 @@ class AbstractTypeTest extends ParentTestCase
 	 * Parameters used to describe the type
 	 * @var array
 	 */
-	protected $typeParams = null;
+	protected $sqlName = null;
 
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->typeParams = array(
-			'min' => 0,
-			'max' => 255,
-		);
-
+		$this->sqlName = 'TINYINT';
 		$class = 'Appfuel\Db\Mysql\DbObject\DataType\AbstractType';
 		$this->type = $this->getMockBuilder($class)
-						   ->setConstructorArgs(array($this->typeParams))
+						   ->setConstructorArgs(array($this->sqlName))
 						   ->getMockForAbstractClass();
 	}
 
@@ -54,19 +50,10 @@ class AbstractTypeTest extends ParentTestCase
 	}
 
 	/**
-	 * The only public method used in the abstract by all other class is 
-	 * getParams to get the dictionary of parameters for the data type
-	 *
 	 * @return	null
 	 */
-	public function testGetParams()
+	public function testGetSqlName()
 	{
-		$result = $this->type->getParams();
-		$this->assertInstanceOf(
-			'Appfuel\Framework\DataStructure\Dictionary',
-			$result
-		);
-
-		$this->assertEquals($this->typeParams, $result->getAll());
+		$this->assertEquals($this->sqlName, $this->type->getSqlName());
 	}
 }

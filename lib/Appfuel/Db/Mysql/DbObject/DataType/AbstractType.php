@@ -16,19 +16,10 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\DataStructure\DictionaryInterface;
 
 /**
- * The abstract tpe handles the common details of all datatypes. Because
- * datatypes have a wide varity of rules the change across different categories
- * of types, they are kept in a dictionary are referred to a parameters. This
- * class manages the common login of data type parameters.
+ * The abstract tpe handles the common details of all datatypes
  */
 abstract class AbstractType
 {
-	/**
-	 * Hold the different parameters for a particular data type
-	 * @var Dictionary
-	 */
-	protected $params = null;
-
 	/**
 	 * Name used in sql statements
 	 * @var string
@@ -39,38 +30,17 @@ abstract class AbstractType
 	 * @param	array	$params		optionally allows you to set params
 	 * @return	AbstractType
 	 */
-	public function __construct(array $params = null)
+	public function __construct($name)
 	{
-		if (null === $params) {
-			$params = array();
-		}
-
-		$this->setParams(new Dictionary($params));
+		$this->setSqlName($name);
 	}
 
 	/**
 	 * @return	Dictionary
 	 */
-	public function getParams()
+	public function getSqlName()
 	{
-		return $this->params;
-	}
-
-	/**
-	 * @param	DictionaryInterface		$params
-	 * @return	null
-	 */
-	protected function setParams(DictionaryInterface $params)
-	{
-		$this->params = $params;
-	}
-
-	/**
-	 * @return	string
-	 */
-	protected function getSqlName()
-	{
-		return $this->sqlName;	
+		return $this->sqlName;
 	}
 
 	/**
