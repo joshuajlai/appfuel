@@ -155,7 +155,4 @@ abstract class AbstractIntType extends AbstractType
 
 		$this->max = $max;
 	}
-
-
-
 }

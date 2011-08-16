@@ -10,19 +10,23 @@
  */
 namespace Appfuel\Db\Mysql\DbObject\DataType\Number;
 
-use Appfuel\Framework\Exception;
-
 /**
- * Define the parameters for a mysql tinyint
+ * Define the parameters for a mysql bigint
  */
-class TinyIntType extends AbstractIntType
+class BigIntType extends AbstractIntType
 {
 	/**
 	 * @param	bool	$isUnsigned		determines if this type is unsigned
-	 * @return	TinyIntType
+	 * @return	SmallIntType
 	 */
 	public function __construct($isUnsigned = false)
 	{
-		parent::__construct('tinyint', 255, -128, 127, (bool) $isUnsigned);
+		parent::__construct(
+			'bigint', 
+			18446744073709551615, 
+			-9223372036854775808, 
+			9223372036854775807, 
+			(bool) $isUnsigned
+		);
 	}
 }
