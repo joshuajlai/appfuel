@@ -72,13 +72,14 @@ class AbstractIntTypeTest extends ParentTestCase
 		$this->min = -128;
 		$this->max = 127;
 		$this->isUnsigned = true;
-
+		
+		$attrs = array('unsigned' => true);
 		$params = array(
 			$this->sqlName,
 			$this->umax,
 			$this->min,
 			$this->max,
-			$this->isUnsigned
+			$attrs
 		);
 		
 		$this->type = $this->getMockBuilder($this->typeClass)
@@ -126,21 +127,22 @@ class AbstractIntTypeTest extends ParentTestCase
 	 */
 	public function testEnableUnsigned()
 	{
-		$this->assertTrue($this->type->isUnsigned());
+		$attrs = $this->type->getAttributes();
+		$this->assertTrue($attrs->get('unsigned'));
 		$this->assertSame(
 			$this->type,
 			$this->type->disableUnsigned(),
 			'exposes a fluent interface'
 		);
-		
-		$this->assertFalse($this->type->isUnsigned());
+
+		$this->assertFalse($attrs->get('unsigned'));
 	
 		$this->assertSame(
 			$this->type,
 			$this->type->enableUnsigned(),
 			'exposes a fluent interface'
 		);
-		$this->assertTrue($this->type->isUnsigned());
+		$this->assertTrue($attrs->get('unsigned'));
 	}
 
 	/**
@@ -154,7 +156,6 @@ class AbstractIntTypeTest extends ParentTestCase
 			-122,
 			-128,
 			255,
-			true
 		);
 		
 		$this->type = $this->getMockBuilder($this->typeClass)
@@ -173,7 +174,7 @@ class AbstractIntTypeTest extends ParentTestCase
 			127,
 			122,
 			255,
-			true
+			array('unsigned' => true)
 		);
 		
 		$this->type = $this->getMockBuilder($this->typeClass)
@@ -192,7 +193,7 @@ class AbstractIntTypeTest extends ParentTestCase
 			127,
 			-128,
 			-122,
-			true
+			array('unsigned' => true)
 		);
 		
 		$this->type = $this->getMockBuilder($this->typeClass)

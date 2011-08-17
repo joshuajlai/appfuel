@@ -27,12 +27,21 @@ abstract class AbstractType
 	protected $sqlName = null;
 
 	/**
+	 * List of attributes associated with this datatype. Attributes are not
+	 * static and can be added or removed dynamically
+	 *
+	 * @var Dictionary
+	 */
+	protected $attrs = null;
+	
+	/**
 	 * @param	array	$params		optionally allows you to set params
 	 * @return	AbstractType
 	 */
-	public function __construct($name)
+	public function __construct($name, DictionaryInterface $attrs)
 	{
 		$this->setSqlName($name);
+		$this->setAttributes($attrs);
 	}
 
 	/**
@@ -55,5 +64,39 @@ abstract class AbstractType
 		}
 
 		$this->sqlName = $name;
+	}
+
+	/**
+	 * @return	Dictionary
+	 */
+	public function getAttributes()
+	{
+		return $this->attrs;
+	}
+
+	/**
+	 * @param	string	$name,	
+	 * @param	mixed	$value
+	 * @return	AbstractDataType
+	 */
+	protected function addAttribute($name, $value)
+	{
+		if (empty($name) || ! is_string($name)) {
+			throw new Exception("attr name must be non empty string");
+		}
+
+		$this->getAttributes()
+			 ->add($name, $value);
+
+		return $this;
+	}
+
+	/**
+	 * @param	DictionaryInterface $attrs
+	 * @return	null
+	 */
+	protected function setAttributes(DictionaryInterface $attrs)
+	{
+		$this->attrs = $attrs;
 	}
 }

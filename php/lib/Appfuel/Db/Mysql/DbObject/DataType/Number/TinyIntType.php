@@ -21,8 +21,8 @@ class TinyIntType extends AbstractIntType
 	 * @param	bool	$isUnsigned		determines if this type is unsigned
 	 * @return	TinyIntType
 	 */
-	public function __construct($isUnsigned = false)
+	public function __construct(array $attrs = null)
 	{
-		parent::__construct('tinyint', 255, -128, 127, (bool) $isUnsigned);
+		parent::__construct('tinyint', 255, -128, 127, $attrs);
 	}
 }

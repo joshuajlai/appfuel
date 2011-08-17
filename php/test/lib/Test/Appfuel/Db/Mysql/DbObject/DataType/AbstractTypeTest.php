@@ -10,7 +10,8 @@
  */
 namespace Test\Appfuel\Db\Mysql\DbObject\DataType;
 
-use Test\AfTestCase as ParentTestCase;
+use Test\AfTestCase as ParentTestCase,
+	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
  * The AbstractType handle common functionality to all data types
@@ -30,14 +31,23 @@ class AbstractTypeTest extends ParentTestCase
 	protected $sqlName = null;
 
 	/**
+	 * @var Dictionary
+	 */
+	protected $attrs = null;
+
+	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
+		$attrs = array('unsigned' => true);
+		$this->attrs = new Dictionary($attrs);
 		$this->sqlName = 'TINYINT';
+
+		$params = array($this->sqlName, $this->attrs);
 		$class = 'Appfuel\Db\Mysql\DbObject\DataType\AbstractType';
 		$this->type = $this->getMockBuilder($class)
-						   ->setConstructorArgs(array($this->sqlName))
+						   ->setConstructorArgs($params)
 						   ->getMockForAbstractClass();
 	}
 

@@ -11,6 +11,7 @@
 namespace Appfuel\Db\Mysql\DbObject\DataType\Number;
 
 use Appfuel\Framework\Exception,
+	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Db\Mysql\DbObject\DataType\AbstractType;
 
 /**
@@ -37,26 +38,28 @@ abstract class AbstractIntType extends AbstractType
 	protected $max  = null;
 
 	/**
-	 * Flag used to determine if this int type is unsigned
-	 * @var bool
-	 */
-	protected $isUnsigned = false;
-
-
-	/**
 	 * @param	string	$name	sql name used for datatype
 	 * @param	int		$umax	unsigned max value
 	 * @param	int		$min	signed min value
 	 * @param	int		$max	signed max value
 	 * @return	AbstractType
 	 */
-	public function __construct($name, $umax, $min, $max, $isUnsigned = false)
+	public function __construct($name, $umax, $min, $max, array $attrs = null)
 	{
 		$this->setUmax($umax);
 		$this->setMin($min);
 		$this->setMax($max);
-		$this->isUnsigned =(bool) $isUnsigned;
-		parent::__construct($name);
+
+		/* default attributes when none are given */
+		if (null === $attrs) {
+			$attrs = array(
+				'unsigned'		=> false,
+				'is-nullable'	=> true,
+			);
+		}
+
+		$attrs = new Dictionary($attrs);
+		parent::__construct($name, $attrs);
 	}
 
 	/**
@@ -64,8 +67,7 @@ abstract class AbstractIntType extends AbstractType
 	 */
 	public function enableUnsigned()
 	{
-		$this->isUnsigned = true;
-		return $this;
+		return $this->addAttribute('unsigned', true);
 	}
 
 	/**
@@ -73,16 +75,7 @@ abstract class AbstractIntType extends AbstractType
 	 */
 	public function disableUnsigned()
 	{
-		$this->isUnsigned = false;
-		return $this;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isUnsigned()
-	{
-		return $this->isUnsigned;
+		return $this->addAttribute('unsigned', false);
 	}
 
 	/**
