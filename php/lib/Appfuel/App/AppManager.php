@@ -21,7 +21,7 @@ use Appfuel\Framework\Registry,
  * file the calling code is likely to use it will not be governed by an 
  * interface. It will also hold the responsibility of initializing the system.
  */
-class Manager
+class AppManager
 {
 	/**
 	 * Flag to determine if dependencies have been loaded

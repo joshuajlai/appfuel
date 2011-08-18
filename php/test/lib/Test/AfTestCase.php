@@ -11,9 +11,9 @@
 namespace Test;
 
 use PHPUnit_Extensions_OutputTestCase as ParentTestCase,
+	Appfuel\App\AppManager,
 	Appfuel\Framework\Registry,
-	Appfuel\Framework\File\FileManager,
-	Appfuel\App\Manager	as AppManager;
+	Appfuel\Framework\File\FileManager;
 
 /**
  * All Appfuel test cases will extend this class which provides features like
@@ -128,9 +128,7 @@ class AfTestCase extends ParentTestCase
 			} else if (is_array($item) && 2 === count($item)) {
 				spl_autoload_unregister(array($item[0], $item[1]));
 			}
-
 		}
-
 	}
 	
 	/**
