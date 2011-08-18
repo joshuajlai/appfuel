@@ -66,4 +66,15 @@ class AbstractTypeTest extends ParentTestCase
 	{
 		$this->assertEquals($this->sqlName, $this->type->getSqlName());
 	}
+
+	/**
+	 * Attributes are them selves not immutable but the dictionary they live 
+	 * in are.
+	 *
+	 * @return	null
+	 */
+	public function testGetAttributes()
+	{
+		$this->assertSame($this->attrs, $this->type->getAttributes());
+	}
 }

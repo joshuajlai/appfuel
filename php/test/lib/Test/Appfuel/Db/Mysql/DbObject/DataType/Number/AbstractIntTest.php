@@ -96,6 +96,43 @@ class AbstractIntTypeTest extends ParentTestCase
 	}
 
 	/**
+	 * @return	int
+	 */
+	public function testGetSetDisplayWidth()
+	{
+		/* default value is 0 */
+		$this->assertEquals(0, $this->type->getDisplayWidth());
+		$this->assertSame(
+			$this->type,
+			$this->type->setDisplayWidth(6),
+			'exposes a fluent interface'
+		);
+		$this->assertEquals(6, $this->type->getDisplayWidth());
+	}
+
+	/**
+	 * Must be between 0 and 255
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDisplayWidthLessThan0()
+	{
+		$this->type->setDisplayWidth(-7);
+	}
+
+	/**
+	 * Must be between 0 and 255
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testSetDisplayWidthGreaterThan255()
+	{
+		$this->type->setDisplayWidth(256);
+	}
+
+
+
+	/**
 	 * @return null
 	 */
 	public function testUminMmax()

@@ -11,22 +11,22 @@
 namespace Appfuel\Db\Mysql\DbObject\DataType\Number;
 
 /**
- * Define the parameters for a mysql tinyint
+ * Define the parameters for a mysql int
  */
-class SmallIntType extends AbstractIntType
+class Int extends AbstractIntType
 {
 	/**
 	 * @param	bool	$isUnsigned		determines if this type is unsigned
 	 * @return	SmallIntType
 	 */
-	public function __construct($isUnsigned = false)
+	public function __construct(array $attrs = null)
 	{
 		parent::__construct(
-			'smallint', 
-			65535, 
-			-32768, 
-			-32767, 
-			(bool) $isUnsigned
+			'int', 
+			4294967295, 
+			-2147483648, 
+			2147483647, 
+			$attrs
 		);
 	}
 }

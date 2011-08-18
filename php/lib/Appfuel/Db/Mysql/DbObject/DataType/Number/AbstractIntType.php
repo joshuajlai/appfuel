@@ -38,6 +38,14 @@ abstract class AbstractIntType extends AbstractType
 	protected $max  = null;
 
 	/**
+	 * The display width of the number represents the padding used to display
+	 * the number so columns of numbers may look uniform
+	 * @var int
+	 */
+	protected $width = 0;
+
+
+	/**
 	 * @param	string	$name	sql name used for datatype
 	 * @param	int		$umax	unsigned max value
 	 * @param	int		$min	signed min value
@@ -60,6 +68,28 @@ abstract class AbstractIntType extends AbstractType
 
 		$attrs = new Dictionary($attrs);
 		parent::__construct($name, $attrs);
+	}
+
+	/**
+	 * @return	int
+	 */
+	public function getDisplayWidth()
+	{
+		return $this->width;
+	}
+
+	/**
+	 * @param	int	$int
+	 * @return	AbstractIntType
+	 */
+	public function setDisplayWidth($int)
+	{
+		if (! is_int($int) || $int < 0 || $int > 255) {
+			throw new Exception("display width must be between 0 and 255");
+		}
+
+		$this->width = $int;
+		return $this;
 	}
 
 	/**

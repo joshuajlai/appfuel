@@ -10,19 +10,17 @@
  */
 namespace Appfuel\Db\Mysql\DbObject\DataType\Number;
 
-use Appfuel\Framework\Exception;
-
 /**
- * Define the parameters for a mysql tinyint
+ * Define the parameters for a mysql smallint
  */
-class TinyIntType extends AbstractIntType
+class SmallInt extends AbstractIntType
 {
 	/**
 	 * @param	bool	$isUnsigned		determines if this type is unsigned
-	 * @return	TinyIntType
+	 * @return	SmallIntType
 	 */
 	public function __construct(array $attrs = null)
 	{
-		parent::__construct('tinyint', 255, -128, 127, $attrs);
+		parent::__construct('smallint', 65535, -32768, 32767, $attrs);
 	}
 }
