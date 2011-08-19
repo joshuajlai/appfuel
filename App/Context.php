@@ -11,7 +11,7 @@
 namespace Appfuel\App;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\App\MessageInterface,
+	Appfuel\Framework\App\ContextInterface,
 	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\App\Route\RouteInterface,
 	Appfuel\Framework\App\Request\RequestInterface;
@@ -22,7 +22,7 @@ use Appfuel\Framework\Exception,
  * all the necessary objects into the action controllers and lets the 
  * controller pass back the document and any other meta data 
  */
-class Message extends Dictionary implements MessageInterface
+class Context extends Dictionary implements ContextInterface
 {
 	/**
 	 * Used by the front controller to build and configure an action controller
