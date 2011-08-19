@@ -1,1 +1,0 @@
-Test buildFile with private scope:foo=<?php $this->render('foo');?> and bar=<?php $this->render('bar');?> and baz=<?php $this->render('baz');?> EOF
