@@ -3,7 +3,7 @@
 <phpunit backupGlobals="false" bootstrap="bootstrap.php" colors="true">
 <testsuites>
 	<testsuite name="Database Tests">
-		<directory suffix="Test.php">./lib/Test/Appfuel/Db</directory>
+		<directory suffix="Test.php">./lib/Test/Appfuel/Framework/Env</directory>
 	</testsuite>
 
 

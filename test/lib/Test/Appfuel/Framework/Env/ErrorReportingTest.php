@@ -66,6 +66,7 @@ class ErrorReportingTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
+		$this->currentLevel = error_reporting();
 		error_reporting(E_ALL | E_STRICT);
 		$this->error = new ErrorReporting();
 	}
