@@ -12,7 +12,7 @@ namespace Appfuel\Framework\App;
 
 use Appfuel\Framework\App\Action\ControllerInterface,
     Appfuel\Framework\App\Route\RouteInterface,
-    Appfuel\Framework\App\MessageInterface,
+    Appfuel\Framework\App\ContextInterface,
     Appfuel\App\Action\Error\Handler\Invalid\Controller as ErrorController;
 
 
@@ -29,7 +29,7 @@ interface FrontControllerInterface
      * @param   MessageInterface    $msg
      * @return  bool
      */
-	public function isSatisfiedBy(MessageInterface $msg);
+	public function isSatisfiedBy(ContextInterface $msg);
 
     /**
      * Dispatch
@@ -40,7 +40,7 @@ interface FrontControllerInterface
      * @param   Dictionary $data
      * @return  Dictionary
      */
-    public function dispatch(MessageInterface $msg);
+    public function dispatch(ContextInterface $msg);
 
     /**
 	 * The dispatch does not have a controller so this method is used to 
@@ -63,18 +63,18 @@ interface FrontControllerInterface
 	 * handled and put back into the message so dispatch can deal with them.
 	 *
 	 * @param	ControllerInterface $ctr
-	 * @param	MessageInterface $msg
-	 * @return	MessageInterface
+	 * @param	ContextInterface $con
+	 * @return	ContextInterface
 	 */
-	public function initialize(ControllerInterface $ctr, MessageInterface $msg);
+	public function initialize(ControllerInterface $ctr, ContextInterface $con);
 	
 	/**
 	 * execute is called on the action controller and errors should be
 	 * handled and put back into the message so dispatch can deal with them.
 	 *
 	 * @param	ControllerInterface $ctr
-	 * @param	MessageInterface $msg
-	 * @return	MessageInterface
+	 * @param	ContextInterface $con
+	 * @return	ContextInterface
 	 */
-	public function execute(ControllerInterface $ctr, MessageInterface $msg);
+	public function execute(ControllerInterface $ctr, ContextInterface $con);
 }

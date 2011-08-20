@@ -16,9 +16,11 @@ use Appfuel\Framework\DataStructure\DictionaryInterface,
 	Appfuel\Framework\App\Request\RequestInterface;
 
 /**
- *
+ * The context is an object that contains all the necessary information for
+ * the mvc system to execute an action on a controller pointed to by a route
+ * for a system or user.
  */
-interface MessageInterface extends DictionaryInterface
+interface ContextInterface extends DictionaryInterface
 {
 	public function getRoute();
 	public function setRoute(RouteInterface $route);

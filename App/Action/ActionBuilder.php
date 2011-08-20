@@ -14,7 +14,7 @@ namespace Appfuel\App\Action;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\Action\ActionBuilderInterface,
 	Appfuel\Framework\App\Route\RouteInterface,
-    Appfuel\Framework\App\MessageInterface,
+    Appfuel\Framework\App\ContextInterface,
     Appfuel\Framework\View\DocumentInterface,
 	Appfuel\Framework\View\ViewManagerInterface,
 	Appfuel\App\View\ViewManager;

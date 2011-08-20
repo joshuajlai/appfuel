@@ -33,25 +33,29 @@ class Dependency
 	 */
 	public function __construct($libDir)
 	{
-		$sep  = DIRECTORY_SEPARATOR;
-		$path = "{$libDir}/Appfuel/";
-		$app  = "{$path}App/";
-		$fw   = "{$path}Framework/";
+		$path = "{$libDir}/Appfuel";
+		$app  = "{$path}/App";
+		$fw   = "{$path}/Framework";
 
 		$this->files = array(
-			"{$fw}Exception.php",
-			"{$fw}DataStructure/DictionaryInterface.php",
-			"{$fw}DataStructure/Dictionary.php",
-			"{$fw}Registry.php",
-			"{$fw}File/FileManager.php",
-			"{$fw}Env/ErrorDisplay.php",
-			"{$fw}Env/ErrorReporting.php",
-			"{$fw}Env/AutoloadInterface.php",
-			"{$fw}Env/Autoloader.php",
-			"{$fw}Env/Timezone.php",
-			"{$fw}Env/IncludePath.php",
-			"{$app}Initializer.php",
-			"{$app}Factory.php",
+			"{$fw}/Exception.php",
+			"{$fw}/DataStructure/DictionaryInterface.php",
+			"{$fw}/DataStructure/Dictionary.php",
+			"{$fw}/Registry.php",
+			"{$fw}/File/FileManager.php",
+			"{$fw}/Env/ErrorDisplay.php",
+			"{$fw}/Env/ErrorReporting.php",
+			"{$fw}/Env/AutoloadInterface.php",
+			"{$fw}/Env/Autoloader.php",
+			"{$fw}/Env/Timezone.php",
+			"{$fw}/Env/IncludePath.php",
+			"{$fw}/App/Init/InitializerInterface.php",
+			"{$fw}/App/Init/TaskInterface.php",
+			"{$fw}/App/AppFactoryInterface.php",
+			"{$app}/Init/Initializer.php",
+			"{$app}/Init/SystemTask.php",
+			"{$app}/Init/DbTask.php",
+			"{$app}/AppFactory.php",
 		);
 	}
 

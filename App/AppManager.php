@@ -12,7 +12,9 @@ namespace Appfuel\App;
 
 use Appfuel\Framework\Registry,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\MessageInterface,
+	Appfuel\Framework\File\FileManager,
+	Appfuel\Framework\App\ContextInterface,
+	Appfuel\Framework\App\AppFactoryInterface,
 	Appfuel\Framework\App\FrontControllerInterface;
 
 /**
@@ -24,173 +26,88 @@ use Appfuel\Framework\Registry,
 class AppManager
 {
 	/**
-	 * Flag to determine if dependencies have been loaded
+	 * Flag used to determine if dependencies have been looded
 	 * @var bool
 	 */
-	static protected $isLoaded = FALSE;
-
-    /**
-     * Flag used to determine if the framework has been initialized
-     * @return bool
-     */
-    static protected $isInitialized = FALSE;
+	static protected$isLoaded = false;
 
 	/**
 	 * Front controller used dispatching and rendering of the app message
 	 * @var FrontController
 	 */
-	static protected $front = null;
+	protected $front = null;
 
 	/**
-	 * Initialization: This is the first phase in the an application request
-	 * life cycle. In this phase we must put the framework into a known state.
-	 * We use the config file given from which to initialize errors, timezone,
-	 * autoloading, and include path. We also add all data in the config file
-	 * into the application registry so the framework can have access. Finally,
-	 * we check the env has been set and tell the manager we are initialized.
-	 *
-	 * @throw	Appfuel\Framework\Exception
-	 *
-	 * @param	string	$basePath	root path of the application
-	 * @param	string	$file		path to the config file
-	 * @return	null
+	 * Relative path to the class file that loads appfuel dependencies
+	 * @var string
 	 */
-	static public function initialize($basePath, $file)
-	{
-		/* only used to resolve the base path in any config files */
-        if (! defined('AF_BASE_PATH')) {
-            define('AF_BASE_PATH', $basePath);
-        }
+	protected $dependFile = 'Appfuel/App/Dependency.php';
 
-		if (! self::isDependenciesLoaded()) {
-			self::loadDependencies($basePath);		
+	/**
+	 * Absolute path to the base of the application
+	 * @vat string
+	 */
+	protected $base = null;
+
+	/**
+	 * Relative path to the config file
+	 * @var string
+	 */
+	protected $configFile = 'config/app.ini';
+
+
+	/**
+	 * @param	string	$basePath
+	 * @param	string	$configFile
+	 * @return	AppManager
+	 */	
+	public function __construct($base, 
+								$configFile = null, 
+								AppFactoryInterface $factory = null)
+	{
+		$this->setBasePath($base);
+		if (null !== $configFile) {
+			$this->setConfigFile($configFile);
 		}
-		
-		Registry::initialize(array('base_path' => $basePath));
-		Initializer::initialize($file);
-		
-		/*
-		 * During the app install a master ini file which contains sections 
-		 * for each environment is reduced to the environment the app is
-		 * is installed on. The install then puts the env name in the config
-		 * for which we use to bootstrap the framework
-		 */
-		if (! Registry::exists('env')) {
-			throw new Exception('Initialize error: env not found in Registry');
+
+		if (! self::isDependencyLoaded()) {
+			$this->loadDependency();
 		}
-		self::setFrontController(Factory::createFrontController());
 
-		/* tell the manager we are initialized and ready */
-		self::setInitializedFlag(true);
-	}
-
-    static public function run($basePath, $file, $type)
-    { 
-        if (! self::isInitialized()) {
-			self::initialize($basePath, $file);
-        }
-
-        Registry::add('app_type', $type);
-        $msg = Factory::createMessage();
-
-        $msg = self::startUp($type, $msg);
-        $msg = self::dispatch($msg);
-
-        self::render($msg);
-    }
-
-	/**
-	 * @param	MessageInterface $msg
-	 * @return	MessageInterface
-	 */
-	static public function startUp($type, MessageInterface $msg = NULL)
-	{
-        if (! self::isInitialized()) {
-            throw new Exception("Must initialize before startup");
-        }
-
-		$basePath  = Registry::get('base_path');
-		$routeFile = $basePath . DIRECTORY_SEPARATOR . 
-					 'config'  . DIRECTORY_SEPARATOR .
-					 'routes.ini';
-
-        $bootstrap = Factory::createBootstrapper($type);
-		$request = $bootstrap->buildRequest();
-		$msg->add('request', $request);
-	
-		$routeBuilder = Factory::createRouteBuilder($routeFile);
-		$routeString = $request->getRouteString();
-		$route       = $routeBuilder->build($routeString);
-		
-		$msg->add('request', $request)
-            ->add('responseType', $responseType)
-			->add('route', $route);
-
-		return $msg;
-	}
-
-	static public function dispatch(MessageInterface $msg)
-	{
-	    if (! self::isInitialized()) {
-            throw new Exception("Must initialize before startup");
-        }
-
-		$front = self::getFrontController();
-		return $front->dispatch($msg);
-	}
-
-	static public function render(MessageInterface $msg)
-	{
-	    if (! self::isInitialized()) {
-            throw new Exception("Must initialize before startup");
-        }
-
-		$front = self::getFrontController();
-		return $front->render($msg);	
+		if (null === $factory) {
+			$factory = $this->createAppFactory();
+		}
+		$this->setAppFactory($factory);
 	}
 
 	/**
-	 * @return FrontControllerInterface
+	 * @return	string
 	 */
-	static public function getFrontController()
+	public function getBasePath()
 	{
-		return self::$front;
+		return $this->base;
 	}
 
 	/**
-	 * @param	FrontControllerInterface
-	 * @return	null
+	 * @return	string
 	 */
-	static public function setFrontController(FrontControllerInterface $ctr)
+	public function getDependencyFile()
 	{
-		self::$front = $ctr;
-	}
-
-    /**
-     * Has the system been initialized through the initializer
-     *
-     * @return  bool
-     */
-    static public function isInitialized()
-    {
-        return self::$isInitialized;
-    }
-
-	/**
-	 * Inform the manager that all system initialization needed is completed
-	 * 
-	 * @param	bool	$flag
-	 * @return	null
-	 */
-	static public function setInitializedFlag($flag)
-	{
-		self::$isInitialized =(bool) $flag;
+		return $this->dependFile;
 	}
 
 	/**
-	 * @return bool
+	 * @return	string
 	 */
-	static public function isDependenciesLoaded()
+	public function getConfigFile()
+	{
+		return $this->configFile;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	static public function isDependencyLoaded()
 	{
 		return self::$isLoaded;
 	}
@@ -203,23 +120,98 @@ class AppManager
 	 * @param	string	$basePath
 	 * @return	NULL
 	 */
-	static public function loadDependencies($basePath)
+	public function loadDependency()
 	{
-		$path = $basePath . DIRECTORY_SEPARATOR . 'lib';
-		$file = $path     . DIRECTORY_SEPARATOR . 
-				'Appfuel' . DIRECTORY_SEPARATOR . 
-				'App'	  . DIRECTORY_SEPARATOR .
-				'Dependency.php';
-
+		$lib  = "{$this->getBasePath()}/lib";
+		$file = "{$lib}/{$this->getDependencyFile()}";
 		if (! file_exists($file)) {
 			throw new \Exception("Dependency file could not be found ($file)");
 		}
-
 		require_once $file;
 
-		$depend = new Dependency($path);
+		$depend = new Dependency($lib);
 		$depend->load();
 
 		self::$isLoaded = TRUE;
+	}
+
+	/**
+	 * Initialize the framework by creating the intializer which runs 
+	 * init tasks defined in the app.ini. Assign the front controller.
+	 * 
+	 * @return	null
+	 */
+	public function initialize()
+	{
+		/* initialize the registry with the app base path */
+		$base = $this->getBasePath();
+		Registry::initialize(array('base-path' => $base));
+		
+		$file = "{$base}/{$this->getConfigFile()}";
+		$data = FileManager::parseIni($file);
+		if (is_array($data) && ! empty($data)) {
+			Registry::load($data);	
+		}
+
+		$factory = $this->getAppFactory();
+		$init = $factory->createInitializer();
+		$init->initialize();
+
+		$this->front = $factory->createFrontController();
+	}
+
+	/**
+	 * @param	string	$base
+	 * @return	null
+	 */	
+	protected function setBasePath($base)
+	{
+		if (empty($base) || ! is_string($base)) {
+			throw new \Exception("Invalid base path: must be non empty string");
+		}
+
+		if (! defined('AF_BASE_PATH')) {
+			define('AF_BASE_PATH', $base);
+		}
+
+		$this->base = AF_BASE_PATH;
+	}
+
+	/**
+	 * @param	string	$file
+	 * @return	null
+	 */
+	protected function setConfigFile($file)
+	{
+		if (empty($file) || ! is_string($file)) {
+			throw new \Exception("Invalid file path: must be non empty string");
+		}
+	
+		$this->configFile = $file;
+	}
+
+	/**
+	 * @return	AppFactoryInterface
+	 */
+	protected function createAppFactory()
+	{
+		return new AppFactory();
+	}
+
+	/**
+	 * @param	AppFactoryInterface		$factory
+	 * @return	null
+	 */
+	protected function setAppFactory(AppFactoryInterface $factory)
+	{
+		$this->appFactory = $factory;
+	}
+
+	/**
+	 * @return	AppFactoryInterface
+	 */
+	protected function getAppFactory()
+	{
+		return $this->appFactory;
 	}
 }

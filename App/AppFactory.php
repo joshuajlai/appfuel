@@ -15,14 +15,23 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\Env\ErrorReporting,
 	Appfuel\Framework\Env\ErrorDisplay,
 	Appfuel\Framework\Env\TimeZone,
-	Appfuel\Framework\Env\IncludePath;
+	Appfuel\Framework\Env\IncludePath,
+	Appfuel\Framework\App\AppFactoryInterface;
 
 /**
  * Responsible for creating objects required by the framework for 
  * initializaion, bootstrapping, dispatching and outputting.
  */
-class Factory
+class AppFactory implements AppFactoryInterface
 {
+	/**
+	 * @return	Init\Initializer
+	 */
+	public function createInitializer()
+	{
+		return new Init\Initializer();
+	}
+
 	/**
 	 * Used to register spl autoloader for the framework
 	 *

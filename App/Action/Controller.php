@@ -13,7 +13,7 @@ namespace Appfuel\App\Action;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\Action\ControllerInterface,
-    Appfuel\Framework\App\MessageInterface,
+    Appfuel\Framework\App\ContextInterface,
     Appfuel\Framework\View\DocumentInterface,
 	Appfuel\Framework\View\ViewManagerInterface;
 
@@ -116,7 +116,7 @@ class Controller implements ControllerInterface
 	 * 
 	 * @param	MessageInterface $msg
 	 */
-	public function initialize(MessageInterface $msg)
+	public function initialize(ContextInterface $msg)
 	{
 		return $msg;		
 	}
@@ -124,10 +124,8 @@ class Controller implements ControllerInterface
 	/**
 	 * @param	MessageInterface $msg
 	 */
-	public function execute(MessageInterface $msg)
+	public function execute(ContextInterface $msg)
 	{
 		return $msg;	
 	}
-
-
 }

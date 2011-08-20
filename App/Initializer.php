@@ -37,7 +37,7 @@ class Initializer
 		if (! $data) {
 			$data = array();
 		}
-
+		echo "\n", print_r($data,1), "\n";exit;
 		/*
 		 * The registry is central for allowing the system to share 
 		 * configuration information. I try to use it only within the framework

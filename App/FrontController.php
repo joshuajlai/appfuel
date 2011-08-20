@@ -16,7 +16,7 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\Action\ControllerInterface,
 	Appfuel\Framework\App\Action\ActionBuilderInterface,
 	Appfuel\Framework\App\Route\RouteInterface,
-    Appfuel\Framework\App\MessageInterface,
+    Appfuel\Framework\App\ContextInterface,
     Appfuel\Framework\View\DocumentInterface,
 	Appfuel\App\Route\ErrorRoute;
 
@@ -68,15 +68,15 @@ class FrontController implements FrontControllerInterface
 	 * @param	MessageInterface	$msg
 	 * @return	bool
 	 */
-	public function isSatisfiedBy(MessageInterface $msg)
+	public function isSatisfiedBy(ContextInterface $context)
 	{        
-		if (! $msg->isRequest()) {
-			$msg->setError('request is missing from the message');
+		if (! $context->isRequest()) {
+			$context->setError('request is missing from the message');
 			return false;
         }
 
-		if (! $msg->isRoute()) {
-			$msg->setError('route is missing from the message');
+		if (! $context->isRoute()) {
+			$context->setError('route is missing from the message');
 			return false;
 		}
 
@@ -91,26 +91,26 @@ class FrontController implements FrontControllerInterface
      * @param   MessageInterface $msg
      * @return  MessageInterface
      */
-    public function dispatch(MessageInterface $msg)
+    public function dispatch(ContextInterface $context)
     {
 		try {
-			$controller = $this->buildController($msg);
+			$controller = $this->buildController($context);
 		} catch (Exception $e) {
 			$msg->setError($e->getMessage());
-			return $this->dispatchError($msg);
+			return $this->dispatchError($context);
 		}
 
-		$msg = $this->initialize($controller, $msg);
-		if ($msg->isError()) {
-			return $this->dispatchError($msg);
+		$context = $this->initialize($controller, $context);
+		if ($context->isError()) {
+			return $this->dispatchError($context);
 		}
 
-		$msg = $this->execute($controller, $msg);
-		if ($msg->isError()) {
-			return $this->dispatchError($msg);
+		$context = $this->execute($controller, $context);
+		if ($context->isError()) {
+			return $this->dispatchError($context);
 		}
 
-        return $msg;
+        return $context;
     }
 	
 	/**
@@ -118,14 +118,14 @@ class FrontController implements FrontControllerInterface
 	 * @param	string		   $responseType
 	 * @return	ControllerInterface
 	 */
-	public function buildController(MessageInterface $msg)
+	public function buildController(ContextInterface $context)
 	{
 		$errText = 'buildController failed:';
-		if (! $this->isSatisfiedBy($msg)) {
-			throw new Exception("$errText {$msg->getError()}");
+		if (! $this->isSatisfiedBy($context)) {
+			throw new Exception("$errText {$context->getError()}");
 		}
 
-		$msg     = $this->assignResponseType($msg);
+		$context     = $this->assignResponseType($context);
 		$builder = $this->createActionBuilder($route);
 		if (! $builder instanceof ActionBuilderInterface) {
 			throw new Exception(
@@ -154,11 +154,11 @@ class FrontController implements FrontControllerInterface
 	 * @param	MessageInterface	$msg
 	 * @return	MessageInterface
 	 */
-	public function assignResponseType(MessageInterface $msg)
+	public function assignResponseType(ContextInterface $context)
 	{
-		$route   = $msg->getRoute();
-		$request = $msg->getRequest();
-		$responseType = $msg->calculateResponseType($route, $request);
+		$route   = $context->getRoute();
+		$request = $context->getRequest();
+		$responseType = $context->calculateResponseType($route, $request);
 		$msg->setResponseType($responseType);
 
 		return $msg;
@@ -210,17 +210,17 @@ class FrontController implements FrontControllerInterface
 	 * @param	MessageInterface	$msg	
 	 * @return	MessageInterface		
 	 */
-	public function dispatchError(MessageInterface $msg)
+	public function dispatchError(ContextInterface $context)
 	{
 		$route = $this->getErrorRoute();
 
-		$msg->setRoute($route);
+		$context->setRoute($route);
 		$responseType = $msg->loadResponseType();
 
 		$controller = $this->buildController($route, $responseType);
 
-		$msg = $this->initialize($controller, $msg);
-		return $this->execute($controller, $msg);
+		$context = $this->initialize($controller, $context);
+		return $this->execute($controller, $context);
 	}
 
 	/**
@@ -230,18 +230,18 @@ class FrontController implements FrontControllerInterface
 	 * @param	MessageInterface	$msg	
 	 * @return	MessageInterface		
 	 */
-	public function initialize(ControllerInterface $ctr, MessageInterface $msg)
+	public function initialize(ControllerInterface $ctr, ContextInterface $con)
 	{
 		try {
-			$tmp = $ctr->initialize($msg);
+			$tmp = $ctr->initialize($con);
 			if ($tmp instanceof MessageInterface) {
-				$msg = $tmp;
+				$con = $tmp;
 			}
 		} catch (Exception $e) {
-			$msg->setError($e->getMessage());
+			$con->setError($e->getMessage());
 		}
 
-		return $msg;
+		return $con;
 	}
 	
 	/**
@@ -251,17 +251,17 @@ class FrontController implements FrontControllerInterface
 	 * @param	MessageInterface	$msg	
 	 * @return  MessageInterface		
 	 */
-	public function execute(ControllerInterface $ctr, MessageInterface $msg)
+	public function execute(ControllerInterface $ctr, ContextInterface $con)
 	{
         try {
-            $tmp = $ctr->execute($msg);
+            $tmp = $ctr->execute($con);
 			if ($tmp instanceof MessageInterface) {
-				$msg = $tmp;
+				$con = $tmp;
 			}
         } catch (Exception $e) {
-			$msg->setError($e->getMessage());
+			$con->setError($e->getMessage());
 		}
 
-		return $msg;
+		return $con;
 	}
 }
