@@ -8,18 +8,18 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\Env;
+namespace TestFuel\Test\Framework\Env;
 
-use Test\AfTestCase					  as ParentTestCase,
-	Appfuel\Stdlib\Filesystem\Manager as FileManager,
-	Appfuel\Registry,
-	Appfuel\Framework\Env\IncludePath;
+use Appfuel\Registry,
+	TestFuel\TestCase\FrameworkTestCase,
+	Appfuel\Framework\Env\IncludePath,
+	Appfuel\Framework\File\FileManager;
 
 /**
  * Test the ability to change the php include path. These changes include 
  * appending to the path, prepending to the path and replacing the path. 
  */
-class IncludePathTest extends ParentTestCase
+class IncludePathTest extends FrameworkTestCase
 {
 	/**
 	 * System under test
@@ -33,7 +33,7 @@ class IncludePathTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->backupIncludePath();
+		parent::setUp();
 		$this->includePath = new IncludePath();
 	}
 
@@ -43,9 +43,8 @@ class IncludePathTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
+		parent::tearDown();
 		unset($this->includePath);
-		$this->restoreIncludePath();
-		$this->restoreAppfuelSettings();
 	}
 
 	/**
@@ -139,4 +138,3 @@ class IncludePathTest extends ParentTestCase
 		$this->assertEquals($expected, $includePath);
 	}
 }
-

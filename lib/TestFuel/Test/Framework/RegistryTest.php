@@ -8,18 +8,18 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel;
+namespace TestFuel\Test\Framework;
 
-use Test\AfTestCase as ParentTestCase,
+use StdClass,
 	Appfuel\Framework\Registry,
-	StdClass;
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * The Registry is a global object used to hold information that can be
  * easily accessed. There is only one registry its not a singleton but
  * rather a static class that uses a dictionary to hold all the data items.
  */
-class RegistryTest extends ParentTestCase
+class RegistryTest extends BaseTestCase
 {
 	/**
 	 * Back up the data in the registry

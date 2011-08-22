@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\Env;
+namespace TesFuel\Test\Framework\Env;
 
-use Test\AfTestCase	as ParentTestCase,
+use TestFuel\TestCase\FrameworkTestCase,
 	Appfuel\Framework\Env\ErrorDisplay;
 
 /**
@@ -20,19 +20,13 @@ use Test\AfTestCase	as ParentTestCase,
  * on, off and error states into just one valid indicator for each category
  * 'on', 'off', 'stderr'.
  */
-class ErrorDisplayTest extends ParentTestCase
+class DisplayErrorTest extends FrameworkTestCase
 {
 	/**
 	 * System Under Test
 	 * @var PHPError
 	 */
 	protected $error = NULL;
-
-	/**
-	 * Current display settings as used to be restore this setting
-	 * @var string
-	 */
-	protected $currentDisplay = NULL;
 
 	/**
 	 * Save the current reporting level and display setting so they can be
@@ -42,8 +36,7 @@ class ErrorDisplayTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		error_reporting(E_ALL | E_STRICT);
-		$this->currentDisplay = ini_get('display_errors');
+		parent::setUp();
 		$this->error = new ErrorDisplay();
 	}
 
@@ -54,8 +47,7 @@ class ErrorDisplayTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
-		error_reporting(E_ALL | E_STRICT);
-		ini_set('display_errors', $this->currentDisplay);
+		parent::tearDown();
 		unset($this->error);
 	}
 

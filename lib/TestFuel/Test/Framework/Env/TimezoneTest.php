@@ -8,15 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\Env;
+namespace TestFuel\Test\Framework\Env;
 
-use Test\AfTestCase					  as ParentTestCase,
+use TestFuel\TestCase\FrameworkTestCase,
 	Appfuel\Framework\Env\Timezone;
 
 /**
  * Test the ability to get and set the default timezone
  */
-class TimezoneTest extends ParentTestCase
+class TimezoneTest extends FrameworkTestCase
 {
 	/**
 	 * System under test
@@ -30,6 +30,7 @@ class TimezoneTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
+		parent::setUp();
 		$this->timezone = new Timezone();
 	}
 
@@ -39,11 +40,14 @@ class TimezoneTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
+		parent::tearDown();
 		unset($this->timezone);
-		$this->restoreAppfuelSettings();
 	}
 
 	/**
+	 * App the name of each valid timezone php knows about to ensure they
+	 * are accepted
+	 *
 	 * @return null
 	 */
 	public function testSetDefault()
@@ -63,4 +67,3 @@ class TimezoneTest extends ParentTestCase
         $this->assertFalse($this->timezone->setDefault('blahs'));
 	}
 }
-

@@ -18,6 +18,13 @@ use Appfuel\Framework\Exception;
 class AppState
 {
 	/**
+	 * State of the php env like error reporting, error display, default
+	 * timezone, autoload function stack etc..
+	 * @var array
+	 */
+	protected $env = array();
+
+	/**
 	 * List of data stored in the application registry
 	 * @var array
 	 */

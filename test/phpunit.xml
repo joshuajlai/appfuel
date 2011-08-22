@@ -2,8 +2,9 @@
 
 <phpunit backupGlobals="false" bootstrap="bootstrap.php" colors="true">
 <testsuites>
-	<testsuite name="Database Tests">
-		<directory suffix="Test.php">./lib/Test/Appfuel/Framework/Env</directory>
+	<testsuite name="local tests">
+		<directory suffix="Test.php">../lib/TestFuel/Test/Framework/Env</directory>
+		<file>../lib/TestFuel/Test/Framework/RegistryTest.php</file>
 	</testsuite>
 
 

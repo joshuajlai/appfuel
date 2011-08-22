@@ -27,17 +27,10 @@ class State
 	protected $includePath = null;
 	
 	/**
-	 * The action used on the orignal include path to get the include path.
-	 * Did the include path replace, append, or prepend the orignal path
-	 * @var string
-	 */
-	protected $includePathAction = null;
-
-	/**
 	 * Value used to turn display_errors on or off
 	 * @var string
 	 */
-	protected $errorDisplay = null;
+	protected $displayError = null;
 	
 	/**
 	 * Level used in error reporting. This is the same codes used in the config
@@ -62,37 +55,33 @@ class State
 	protected $autoloadStack = null;
 
 	/**
-	 * @return bool
-	 */
-	public function isErrorDisplay()
-	{
-		return null !== $this->errorDisplay;
-	}
-
-	/**
-	 * @param	string	$value
+	 * pull all the settings togather to determine the state of the env
 	 * @return	State
 	 */
-	public function setErrorDisplay($value)
+	public function __construct()
 	{
-		$this->errorDisplay = $value;
-		return $this;
+		$this->displayError   = ini_get('display_errors');
+		
+		$reporting = new ErrorReporting();
+		
+		$this->errorReporting = error_reporting();
+		$this->errorLevel     = $reporting->getLevel();
+
+		$this->defaultTimezone = date_default_timezone_get();
+		
+		$stack  = spl_autoload_functions();
+		$this->autoloadStack  = $stack;
+		$this->isAutoloadEnabled = is_array($stack) && ! empty($stack);
+
+		$this->includePath = get_include_path();
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getErrorDisplay()
+	public function getDisplayError()
 	{
-		return $this->errorDisplay;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isErrorReporting()
-	{
-		return null !== $this->errorReporting;
+		return $this->displayError;
 	}
 
 	/**
@@ -106,43 +95,9 @@ class State
 	/**
 	 * @return string
 	 */
-	public function setErrorReporting($codes)
-	{
-		$this->errorReporting = $codes;
-		return $this;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isDefaultTimezone()
-	{
-		return null !== $this->defaultTimezone;
-	}
-
-	/**
-	 * @return string
-	 */
 	public function getDefaultTimezone()
 	{
 		return $this->defaultTimezone;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function setDefaultTimezone($zone)
-	{
-		$this->defaultTimezone = $zone;
-		return $this;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isIncludePath()
-	{
-		return null !== $this->includePath;
 	}
 
 	/**
@@ -154,24 +109,6 @@ class State
 	}
 
 	/**
-	 * @return string
-	 */
-	public function setIncludePath($path, $action = null)
-	{
-		$this->includePath       = $path;
-		$this->includePathAction = $action; 
-		return $this;
-	}
-
-	/**
-	 * @return 
-	 */
-	public function getIncludePathAction()
-	{
-		return $this->includePathAction;
-	}
-
-	/**
 	 * @return bool
 	 */
 	public function isAutoloadEnabled()
@@ -180,37 +117,10 @@ class State
 	}
 
 	/**
-	 * @return bool
-	 */
-	public function isAutoloadStack()
-	{
-		return null !== $this->autoloadStack;
-	}
-
-	/**
-	 * @param	bool $flag
-	 * @return	State
-	 */
-	public function setEnableAutoload($flag)
-	{
-		$this->isAutoloadEnabled =(bool) $flag;
-		return $this;
-	}
-
-	/**
 	 * @return	bool
 	 */
 	public function getAutoloadStack()
 	{
 		return $this->autoloadStack;
-	}
-
-	/**
-	 * @return Stack
-	 */
-	public function setAutoloadStack($stack)
-	{
-		$this->autoloadStack = $stack;
-		return $this;
 	}
 }

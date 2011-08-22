@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\Env;
+namespace TestFuel\Test\Framework\Env;
 
-use Test\AfTestCase	as ParentTestCase,
+use TestFuel\TestCase\FrameworkTestCase,
 	Appfuel\Framework\Env\ErrorReporting;
 
 /**
@@ -18,19 +18,13 @@ use Test\AfTestCase	as ParentTestCase,
  * php method error_reporting. The intent is to create a uniform set of
  * of error levels that can be used in a config file.
  */
-class ErrorReportingTest extends ParentTestCase
+class ErrorReportingTest extends FrameworkTestCase
 {
 	/**
 	 * System Under Test
 	 * @var PHPError
 	 */
 	protected $error = NULL;
-
-	/**
-	 * Error level as reported by php. Used to restore the level
-	 * @var int
-	 */
-	protected $currentLevel = NULL;
 
 	/**
 	 * List of php error constants. The 0 and -1 have no constants they
@@ -66,8 +60,7 @@ class ErrorReportingTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->currentLevel = error_reporting();
-		error_reporting(E_ALL | E_STRICT);
+		parent::setUp();
 		$this->error = new ErrorReporting();
 	}
 
@@ -78,7 +71,7 @@ class ErrorReportingTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
-		error_reporting($this->currentLevel);
+		parent::tearDown();
 		unset($this->error);
 	}
 

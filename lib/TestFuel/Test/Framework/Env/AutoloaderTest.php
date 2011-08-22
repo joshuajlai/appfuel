@@ -8,15 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\Env;
+namespace TestFuel\Appfuel\Framework\Env;
 
-use Test\AfTestCase	as ParentTestCase,
+use TestFuel\TestCase\FrameworkTestCase,
 	Appfuel\Framework\Env\Autoloader;
 
 /**
  * 
  */
-class AutoloaderTest extends ParentTestCase
+class AutoloaderTest extends FrameworkTestCase
 {
 	/**
 	 * System Under Test
@@ -25,17 +25,11 @@ class AutoloaderTest extends ParentTestCase
 	protected $loader = NULL;
 
 	/**
-	 * Previous state of registered spl autoload functions
-	 * @var array
-	 */
-	protected $splFunctions = NULL;
-
-	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->backupAutoloaders();
+		parent::setUp();
 		$this->loader = new Autoloader();
 	}
 
@@ -44,7 +38,7 @@ class AutoloaderTest extends ParentTestCase
 	 */
 	public function tearDown()
 	{
-		$this->restoreAutoloaders();
+		parent::tearDown();
 		unset($this->loader);
 	}
 
@@ -125,33 +119,27 @@ class AutoloaderTest extends ParentTestCase
 	}
 
 	/**
-	 * In order to test the class loader we have a directory located in the 
-	 * same directory as this test class called files. In that directory 
-	 * includes the namespace we will try to load. First we clear any 
-	 * autoloaders to prevent loading of this file. then we set the include
-	 * path to only the directory with the namespace. We prove the file is not
-	 * loaded. We then load it and prove with isLoaded that it worked and 
-	 * finally restore the include path
+	 * Clear out any current autoloaders so we can test the autoloader's
+	 * loadClass without automatically firing off the autoloader.
 	 *
+	 * Assumptions:	classes that are used are located in 
+	 *				<base-path>/tests/classes and this directory is already
+	 *				in the include path
+	 * 
 	 * @return NULL
 	 */
 	public function testLoadClass()
 	{
 		/* clear the autoloaders so nothing else tries to load this class */
 		$this->clearAutoloaders();
-		$this->backupIncludePath();
-		
-		/* prove class does not exist */
-		$class = '\AutoloadExample\Instance';
-		$this->assertFalse($this->loader->isLoaded($class));
+		$this->assertEmpty(spl_autoload_functions());
 
-		/* location of example class to find */
-		$path = $this->getCurrentPath('files');
-		set_include_path($path);
+		/* prove class does not exist */
+		$class = '\Example\Autoloader\MyLoader';
+		$this->assertFalse($this->loader->isLoaded($class));
 
 		$this->loader->loadClass($class);
 	
-		$this->restoreIncludePath();
 		$this->restoreAutoloaders();
 		$this->assertTrue($this->loader->isLoaded($class));
 	}

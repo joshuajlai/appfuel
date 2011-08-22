@@ -47,7 +47,13 @@ class AppManager
 	 * Absolute path to the base of the application
 	 * @vat string
 	 */
-	protected $base = null;
+	protected $basePath = null;
+
+	/**
+	 * Absolute path to the lib directory
+	 * @var string
+	 */
+	protected $libPath = null;
 
 	/**
 	 * Relative path to the config file
@@ -66,6 +72,8 @@ class AppManager
 								AppFactoryInterface $factory = null)
 	{
 		$this->setBasePath($base);
+		$this->setLibPath("$base/lib");
+
 		if (null !== $configFile) {
 			$this->setConfigFile($configFile);
 		}
@@ -85,7 +93,15 @@ class AppManager
 	 */
 	public function getBasePath()
 	{
-		return $this->base;
+		return $this->basePath;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getLibPath()
+	{
+		return $this->libPath;
 	}
 
 	/**
@@ -122,7 +138,7 @@ class AppManager
 	 */
 	public function loadDependency()
 	{
-		$lib  = "{$this->getBasePath()}/lib";
+		$lib  = $this->getLibPath();
 		$file = "{$lib}/{$this->getDependencyFile()}";
 		if (! file_exists($file)) {
 			throw new \Exception("Dependency file could not be found ($file)");
@@ -149,6 +165,7 @@ class AppManager
 		
 		$file = "{$base}/{$this->getConfigFile()}";
 		$data = FileManager::parseIni($file);
+		
 		if (is_array($data) && ! empty($data)) {
 			Registry::load($data);	
 		}
@@ -174,8 +191,26 @@ class AppManager
 			define('AF_BASE_PATH', $base);
 		}
 
-		$this->base = AF_BASE_PATH;
+		$this->basePath = AF_BASE_PATH;
 	}
+
+	/**
+	 * @param	string	$base
+	 * @return	null
+	 */	
+	protected function setLibPath($path)
+	{
+		if (empty($path) || ! is_string($path)) {
+			throw new \Exception("Invalid lib path: must be non empty string");
+		}
+
+		if (! defined('AF_LIB_PATH')) {
+			define('AF_LIB_PATH', $path);
+		}
+
+		$this->libPath = AF_LIB_PATH;
+	}
+
 
 	/**
 	 * @param	string	$file
