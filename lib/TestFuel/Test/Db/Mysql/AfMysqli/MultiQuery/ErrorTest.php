@@ -8,15 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\AfMysqli\MultiQuery;
+namespace TestFuel\Test\Db\Mysql\AfMysqli\MultiQuery;
 
-use Test\AfTestCase as ParentTestCase,
+use TestFuel\TestCase\BaseTestCase,
 	Appfuel\Db\Mysql\AfMysqli\MultiQuery\Error;
 
 /**
  * Test the adapters ability to wrap mysqli
  */
-class ErrorTest extends ParentTestCase
+class ErrorTest extends BaseTestCase
 {
 	/**
 	 * @return	null

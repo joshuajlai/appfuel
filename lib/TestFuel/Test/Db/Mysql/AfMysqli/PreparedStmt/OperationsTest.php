@@ -8,13 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\Mysqli\Prepared;
+namespace TestFuel\Test\Db\Mysql\Mysqli\Prepared;
 
 use mysqli,
     StdClass,
     mysqli_stmt,
     mysqli_result,
-    Test\DbCase as ParentTestCase,
+    TestFuel\TestCase\DbTestCase,
     Appfuel\Db\Mysql\AfMysqli\Connection,
     Appfuel\Db\Mysql\AfMysqli\PreparedStmt\Stmt;
 
@@ -22,7 +22,7 @@ use mysqli,
  * Test actual sql operations for prepared statements. Tests select,insert,
  * update and delete
  */
-class OperationsTest extends ParentTestCase
+class OperationsTest extends DbTestCase
 {
 
     /**
@@ -48,7 +48,7 @@ class OperationsTest extends ParentTestCase
      */
     public function setUp()
     {  
-        $this->conn = new Connection($this->getConnDetail());
+        $this->conn = new Connection($this->getConnectionDetail());
         $this->assertTrue($this->conn->initialize());
         $this->assertTrue($this->conn->connect());
 

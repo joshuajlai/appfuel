@@ -8,20 +8,20 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\AfMysqli\Query;
+namespace TestFuel\Test\Db\Mysql\AfMysqli\Query;
 
 use mysqli,
-	Test\DbCase as ParentTestCase,
-    Appfuel\Db\Connection\ConnectionDetail,
+	TestFuel\TestCase\DbTestCase,
     Appfuel\Db\Mysql\AfMysqli\Connection,
-	Appfuel\Db\Mysql\AfMysqli\Query\Stmt;
+	Appfuel\Db\Mysql\AfMysqli\Query\Stmt,
+    Appfuel\Db\Connection\ConnectionDetail;
 
 /**
  * This class holds only the functionality to perform and debug queries.
  * The QueryTestCase holds all setUp and tearDown code aswell as 
  * data providers
  */
-class StmtTest extends ParentTestCase
+class StmtTest extends DbTestCase
 {
     /**
      * System under test
@@ -40,7 +40,7 @@ class StmtTest extends ParentTestCase
      */
     public function setUp()
     {
-        $this->conn = new Connection($this->getConnDetail());
+        $this->conn = new Connection($this->getConnectionDetail());
         $this->assertTrue($this->conn->initialize());
         $this->assertTrue($this->conn->connect());
 

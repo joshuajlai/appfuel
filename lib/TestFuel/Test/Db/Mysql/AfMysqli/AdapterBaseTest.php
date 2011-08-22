@@ -8,18 +8,18 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\AfMysqli;
+namespace TestFuel\Test\Db\Mysql\AfMysqli;
 
 use mysqli,
-	Test\DbCase as ParentTestCase,
-	Appfuel\Db\Connection\ConnectionDetail,
+	TestFuel\TestCase\DbTestCase,
 	Appfuel\Db\Mysql\AfMysqli\Connection,
-	Appfuel\Db\Mysql\AfMysqli\AdapterBase;
+	Appfuel\Db\Mysql\AfMysqli\AdapterBase,
+	Appfuel\Db\Connection\ConnectionDetail;
 
 /**
  * Test the adapters ability to wrap mysqli
  */
-class AdapterBaseTest extends ParentTestCase
+class AdapterBaseTest extends DbTestCase
 {
 	/**
 	 * System under test
@@ -50,7 +50,7 @@ class AdapterBaseTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->conn = new Connection($this->getConnDetail());
+		$this->conn = new Connection($this->getConnectionDetail());
 		$this->assertTrue($this->conn->initialize());
 		$this->driver = $this->conn->getDriver();
 		

@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\AfMysqli;
+namespace TestFuel\Test\Db\Mysql\AfMysqli;
 
-use Test\DbCase as ParentTestCase,
-	Appfuel\Db\Mysql\AfMysqli\Connection,
-	Appfuel\Db\Mysql\AfMysqli\Result;
+use TestFuel\TestCase\DbTestCase,
+	Appfuel\Db\Mysql\AfMysqli\Result,
+	Appfuel\Db\Mysql\AfMysqli\Connection;
 
 /**
  * Callback used in test below
@@ -37,7 +37,7 @@ function myResultMapper(array $row)
 
 /**
  */
-class ResultTest extends ParentTestCase
+class ResultTest extends DbTestCase
 {
 	protected $adapter = null;
 	protected $driver = null;
@@ -50,7 +50,7 @@ class ResultTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-        $this->conn = new Connection($this->getConnDetail());
+        $this->conn = new Connection($this->getConnectionDetail());
 		$this->assertTrue($this->conn->initialize());
 		$this->assertTrue($this->conn->connect());
 

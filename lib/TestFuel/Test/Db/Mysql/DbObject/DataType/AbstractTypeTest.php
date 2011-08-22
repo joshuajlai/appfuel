@@ -8,15 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\DbObject\DataType;
+namespace TestFuel\Test\Db\Mysql\DbObject\DataType;
 
-use Test\AfTestCase as ParentTestCase,
+use TestFuel\TestCase\BaseTestCase,
 	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
  * The AbstractType handle common functionality to all data types
  */
-class AbstractTypeTest extends ParentTestCase
+class AbstractTypeTest extends BaseTestCase
 {
 	/**
 	 * System under test

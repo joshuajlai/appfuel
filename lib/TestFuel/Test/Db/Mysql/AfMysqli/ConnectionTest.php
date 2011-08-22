@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\AfMysqli;
+namespace TestFuel\Test\Db\Mysql\AfMysqli;
 
 use mysqli,
-	Test\DbCase as ParentTestCase,
-	Appfuel\Db\Connection\ConnectionDetail,
-	Appfuel\Db\Mysql\AfMysqli\Connection;
+	TestFuel\TestCase\DbTestCase,
+	Appfuel\Db\Mysql\AfMysqli\Connection,
+	Appfuel\Db\Connection\ConnectionDetail;
 
 /**
  * Test the adapters ability to wrap mysqli
  */
-class ConnectionTest extends ParentTestCase
+class ConnectionTest extends DbTestCase
 {
 	/**
 	 * System under test
@@ -31,7 +31,7 @@ class ConnectionTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->conn = new Connection($this->getConnDetail());
+		$this->conn = new Connection($this->getConnectionDetail());
 	}
 
 	/**
@@ -129,7 +129,7 @@ class ConnectionTest extends ParentTestCase
 	 */
 	public function testConnectBadConnectionPermissionDenied()
 	{
-		$connDetail = $this->getConnDetail();
+		$connDetail = $this->getConnectionDetail();
 		$connDetail->setUserName('_not_likely_to_exist_appfuel__');
 
 		$conn = new Connection($connDetail);
@@ -156,7 +156,7 @@ class ConnectionTest extends ParentTestCase
 	 */
 	public function testConnectBadConnectionIncorrectDb()
 	{
-		$connDetail = $this->getConnDetail();
+		$connDetail = $this->getConnectionDetail();
 		$connDetail->setDbName('_not_likely_to_exist_appfuel__');
 
 		$conn = new Connection($connDetail);
@@ -181,7 +181,7 @@ class ConnectionTest extends ParentTestCase
 	 */
 	public function testConnectBadConnectionIncorrectPassword()
 	{
-		$connDetail = $this->getConnDetail();
+		$connDetail = $this->getConnectionDetail();
 		$connDetail->setPassword('xxxx');
 
 		$conn = new Connection($connDetail);
@@ -199,34 +199,4 @@ class ConnectionTest extends ParentTestCase
 
 		$this->assertEquals($expected, $conn->getErrorText());
 	}
-
-	/**
-	 * @return null
-	 */
-	public function xtestCreateStmtHandle()
-	{
-		$this->assertTrue($this->conn->connect());
-		$this->assertInstanceOf(
-			'mysqli_stmt', 
-			$this->conn->createStmtDriver()
-		);
-		
-		$this->assertTrue($this->conn->close());
-	}
-
-	/**
-	 * @return null
-	 */
-	public function xtestCreateStmtHandleNoConnection()
-	{
-		$this->assertFalse($this->conn->createStmtDriver());
-		$this->assertTrue($this->conn->isError());
-		$this->assertEquals('AF_CONN_ERR', $this->conn->getErrorCode());
-	
-		$expected = 'connect failure: must be connected to create stmt handle';
-		$this->assertEquals($expected, $this->conn->getErrorText());
-		
-	}
-
-
 }

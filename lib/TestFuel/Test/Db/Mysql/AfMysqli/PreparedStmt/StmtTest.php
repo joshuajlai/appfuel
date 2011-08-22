@@ -8,13 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\AfMysqli\PreparedStmt;
+namespace TestFuel\Test\Db\Mysql\AfMysqli\PreparedStmt;
 
 use mysqli,
 	StdClass,
     mysqli_stmt,
     mysqli_result,
-	Test\DbCase as ParentTestCase,
+	TestFuel\TestCase\DbTestCase,
     Appfuel\Db\Mysql\AfMysqli\Connection,
     Appfuel\Db\Mysql\AfMysqli\PreparedStmt\Stmt;
 
@@ -22,7 +22,7 @@ use mysqli,
  * Test the ability to use a mysqli_stmt to performe a query with prepared
  * statements
  */
-class StmtTest extends ParentTestCase
+class StmtTest extends DbTestCase
 {
     /**
      * System under test
@@ -47,7 +47,7 @@ class StmtTest extends ParentTestCase
      */
     public function setUp()
     {  
-        $this->conn = new Connection($this->getConnDetail());
+        $this->conn = new Connection($this->getConnectionDetail());
 		$this->assertTrue($this->conn->initialize());
         $this->assertTrue($this->conn->connect());
 

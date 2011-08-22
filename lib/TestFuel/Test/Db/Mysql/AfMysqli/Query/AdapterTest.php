@@ -8,18 +8,18 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\AfMysqli\Query;
+namespace TestFuel\Test\Db\Mysql\AfMysqli\Query;
 
 use mysqli,
-    Test\DbCase as ParentTestCase,
+    TestFuel\TestCase\DbTestCase,
 	Appfuel\Db\Request\QueryRequest,
-    Appfuel\Db\Connection\ConnectionDetail,
     Appfuel\Db\Mysql\AfMysqli\Connection,
+    Appfuel\Db\Connection\ConnectionDetail,
     Appfuel\Db\Mysql\AfMysqli\Query\Adapter;
 
 /**
  */
-class AdapterTest extends ParentTestCase
+class AdapterTest extends DbTestCase
 {
     /**
      * System under test
@@ -38,7 +38,7 @@ class AdapterTest extends ParentTestCase
      */
     public function setUp()
     {  
-        $this->conn = new Connection($this->getConnDetail());
+        $this->conn = new Connection($this->getConnectionDetail());
         $this->assertTrue($this->conn->initialize());
         $this->assertTrue($this->conn->connect());
 

@@ -8,26 +8,27 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\AfMysqli\MultiQuery;
+namespace TestFuel\Test\Db\Mysql\AfMysqli\MultiQuery;
 
 use mysqli,
-    Test\DbCase as ParentTestCase,
-    Appfuel\Db\Connection\ConnectionDetail,
+    TestFuel\TestCase\DbTestCase,
     Appfuel\Db\Mysql\AfMysqli\Connection,
-    Appfuel\Db\Mysql\AfMysqli\MultiQuery\Adapter,
-    Appfuel\Db\Mysql\AfMysqli\MultiQuery\Stmt;
+	Appfuel\Db\Request\MultiQueryRequest,
+    Appfuel\Db\Connection\ConnectionDetail,
+    Appfuel\Db\Mysql\AfMysqli\MultiQuery\Stmt,
+    Appfuel\Db\Mysql\AfMysqli\MultiQuery\Adapter;
 
 
 /**
  * This class holds only the functionality to perform and debug queries
  */
-class StmtTest extends ParentTestCase
+class AdapterTest extends DbTestCase
 {
     /**
      * System under test
      * @var MysqliQuery
      */
-    protected $query = null;
+    protected $adapter = null;
 
     /**
      * Hold the connection details
@@ -42,29 +43,22 @@ class StmtTest extends ParentTestCase
 	protected $driver = null;
 
 	/**
-	 * Callback used to create a reponse object
-	 * @var array
-	 */	
-	protected $responseCallback = array();
+	 * Used to test the instance of for responses
+	 * @var string
+	 */
+	protected $responseClass = 'Appfuel\Db\DbResponse';
 
     /**
      * @return null
      */
     public function setUp()
     {  
-        $this->conn = new Connection($this->getConnDetail());
+        $this->conn = new Connection($this->getConnectionDetail());
         $this->assertTrue($this->conn->initialize());
         $this->assertTrue($this->conn->connect());
 
 		$this->driver = $this->conn->getDriver();
-		$adapter = new Adapter($this->driver);
-
-		$this->responseCallback = array(
-			$adapter,
-			'createResponse'
-		);
-
-        $this->query = new Stmt();
+		$this->adapter = new Adapter($this->driver);
     }
 
     /**
@@ -75,7 +69,7 @@ class StmtTest extends ParentTestCase
         $this->assertTrue($this->conn->close());
         unset($this->driver);
 		unset($this->conn);
-        unset($this->query);
+        unset($this->adapter);
 		
     }
 
@@ -86,19 +80,23 @@ class StmtTest extends ParentTestCase
 	{
 		$sql  = 'SELECT query_id, result FROM test_queries WHERE query_id=3;';
 		$sql .= 'SELECT query_id, result FROM test_queries WHERE query_id=1';
-		$result = $this->query->execute(
-			$this->driver, 
-			$sql,
-			$this->responseCallback
-		);
-		$this->assertInternalType('array', $result);
-		$this->assertEquals(2, count($result));
-		$this->assertArrayHasKey(0, $result);
-		$this->assertArrayHasKey(1, $result);
+
+		$request = new MultiQueryRequest('read');
+		$request->setSql($sql);
+
+		$response = $this->adapter->execute($request);
+		$this->assertInstanceOf($this->responseClass, $response);
+		$this->assertTrue($response->isSuccess());
+		$this->assertTrue($response->getStatus());
+		$this->assertFalse($response->isError());
 		
-		$class = 'Appfuel\Db\DbResponse';
-		$this->assertInstanceOf($class, $result[0]);
-		$this->assertInstanceOf($class, $result[0]);
+		/* this is the count of dataset's each dataset as its own row count */
+		$this->assertEquals(2, $response->getRowCount());
+
+		$result = $response->getResultset();
+
+		$this->assertInstanceOf($this->responseClass, $result[0]);
+		$this->assertInstanceOf($this->responseClass, $result[0]);
 
 		$expected = array(
 			'query_id' => 3,
@@ -115,12 +113,6 @@ class StmtTest extends ParentTestCase
 	}
 
 	/**
-	 * Multiqueries are usually returned as an array index numerically 
-	 * increasing by one where each index represents the result from the 
-	 * sql given. In this test we have three sql stmts separated by semicolons.
-	 * The method executeMultiple takes an optional options arrray. With this
-	 * we can provide a map to translate index numbers into names keys.
-	 *
 	 * @return null
 	 */
 	public function testMutlipleQueriesKeysResultKeys()
@@ -135,12 +127,21 @@ class StmtTest extends ParentTestCase
 			2 => array('result-key' => 'third-query')
 		);
 
-		$result = $this->query->execute(
-			$this->driver, 
-			$sql,
-			$this->responseCallback, 
-			$options
-		);
+		$request = new MultiQueryRequest('read');
+		$request->setSql($sql)
+				->setResultOptions($options);
+		
+		$response = $this->adapter->execute($request);
+		$this->assertInstanceOf($this->responseClass, $response);
+		$this->assertTrue($response->isSuccess());
+		$this->assertTrue($response->getStatus());
+		$this->assertFalse($response->isError());
+		
+		/* this is the count of dataset's each dataset as its own row count */
+		$this->assertEquals(3, $response->getRowCount());
+
+		$result = $response->getResultset();
+
 
 		$this->assertInternalType('array', $result);
 		$this->assertEquals(3, count($result));
@@ -148,14 +149,13 @@ class StmtTest extends ParentTestCase
 		$this->assertArrayHasKey('second-query', $result);
 		$this->assertArrayHasKey('third-query', $result);
 	
-		$class = 'Appfuel\Db\DbResponse';
 		$firstRs  = $result['first-query'];
 		$secondRs = $result['second-query'];
 		$thirdRs  = $result['third-query'];
 
-		$this->assertInstanceOf($class, $firstRs);
-		$this->assertInstanceOf($class, $secondRs);
-		$this->assertInstanceOf($class, $thirdRs);
+		$this->assertInstanceOf($this->responseClass, $firstRs);
+		$this->assertInstanceOf($this->responseClass, $secondRs);
+		$this->assertInstanceOf($this->responseClass, $thirdRs);
 
 		$expected = array(
 			'query_id' => 3,
@@ -223,23 +223,30 @@ class StmtTest extends ParentTestCase
 			1 => array('callback' => $secondMapper),
 		);
 
-		$result = $this->query->execute(
-			$this->driver, 
-			$sql,
-			$this->responseCallback, 
-			$options
-		);
+		$request = new MultiQueryRequest('read');
+		$request->setSql($sql)
+				->setResultOptions($options);
+		
+		$response = $this->adapter->execute($request);
+		$this->assertInstanceOf($this->responseClass, $response);
+		$this->assertTrue($response->isSuccess());
+		$this->assertTrue($response->getStatus());
+		$this->assertFalse($response->isError());
+		
+		/* this is the count of dataset's each dataset as its own row count */
+		$this->assertEquals(2, $response->getRowCount());
+
+		$result = $response->getResultset();
 		$this->assertInternalType('array', $result);
 		$this->assertEquals(2, count($result));
 		$this->assertArrayHasKey(0, $result);
 		$this->assertArrayHasKey(1, $result);
 	
-		$class = 'Appfuel\Db\DbResponse';
 		$firstRs  = $result[0];
 		$secondRs = $result[1];
 
-		$this->assertInstanceOf($class, $firstRs);
-		$this->assertInstanceOf($class, $secondRs);
+		$this->assertInstanceOf($this->responseClass, $firstRs);
+		$this->assertInstanceOf($this->responseClass, $secondRs);
 
 		$expected = array(
 			'my-id'		=> 3,
@@ -272,21 +279,23 @@ class StmtTest extends ParentTestCase
 			1 => array('result-key' => 'second-query'),
 			2 => array('result-key' => 'third-query'),
 		);
-		$result = $this->query->execute(
-			$this->driver, 
-			$sql,
-			$this->responseCallback, 
-			$options
-		);
+
+		$request = new MultiQueryRequest('read');
+		$request->setSql($sql)
+				->setResultOptions($options);
 		
-		$this->assertInstanceOf(
-			'Appfuel\Db\DbResponse',
-			$result
-		);
+		$response = $this->adapter->execute($request);
 
-		$this->assertTrue($result->isError());
+		$this->assertInstanceOf($this->responseClass, $response);
+		$this->assertFalse($response->isSuccess());
+		$this->assertFalse($response->getStatus());
+		$this->assertTrue($response->isError());
+		
+		$this->assertEquals(0, $response->getRowCount());
 
-		$error = $result->getError();
+
+
+		$error = $response->getError();
 		$this->assertInstanceOf(
 			'Appfuel\Db\Mysql\AfMysqli\MultiQuery\Error',
 			$error

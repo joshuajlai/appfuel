@@ -8,19 +8,19 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Db\Mysql\DbObject\DataType;
+namespace TestFuel\Test\Db\Mysql\DbObject\DataType;
 
-use Test\AfTestCase as ParentTestCase,
-	Appfuel\Db\Mysql\DbObject\DataType\Number\SmallInt;
+use TestFuel\TestCase\BaseTestCase,
+	Appfuel\Db\Mysql\DbObject\DataType\Number\BigInt;
 
 /**
- * Mysql small int test
+ * Mysql big int test
  */
-class SmallIntTypeTest extends ParentTestCase
+class BigIntTest extends BaseTestCase
 {
 	/**
 	 * System under test
-	 * @var SmallInt
+	 * @var Int
 	 */
 	protected $type = null;
 
@@ -29,7 +29,7 @@ class SmallIntTypeTest extends ParentTestCase
 	 */
 	public function setUp()
 	{
-		$this->type = new SmallInt();
+		$this->type = new BigInt();
 	}
 
 	/**
@@ -47,7 +47,7 @@ class SmallIntTypeTest extends ParentTestCase
 	{
 		/* unsigned min is always 0 */
 		$this->assertEquals(0, $this->type->getUmin());
-		$this->assertEquals(65535, $this->type->getUmax());
+		$this->assertEquals(18446744073709551615, $this->type->getUmax());
 	}
 
 	/**
@@ -55,7 +55,7 @@ class SmallIntTypeTest extends ParentTestCase
 	 */
 	public function testSqlName()
 	{
-		$this->assertEquals('smallint', $this->type->getSqlName());
+		$this->assertEquals('bigint', $this->type->getSqlName());
 	}
 
 	/**
@@ -63,7 +63,7 @@ class SmallIntTypeTest extends ParentTestCase
 	 */
 	public function testMaxMin()
 	{
-		$this->assertEquals(-32768, $this->type->getMin());
-		$this->assertEquals(32767, $this->type->getMax());
+		$this->assertEquals(-9223372036854775808, $this->type->getMin());
+		$this->assertEquals(9223372036854775807, $this->type->getMax());
 	}
 }
