@@ -8,19 +8,19 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\View;
+namespace TestFuel\Test\Validate;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase,
-	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Validate\Controller,
-	Appfuel\Validate\Coordinator;
+	Appfuel\Validate\Coordinator,
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
  * Test the controller's ability to add rules or filters to fields and 
  * validate or sanitize those fields
  */
-class ControllerTest extends ParentTestCase
+class ControllerTest extends BaseTestCase
 {
 	/**
 	 * System under test

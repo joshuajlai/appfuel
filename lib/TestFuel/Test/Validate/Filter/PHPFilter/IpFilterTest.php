@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Validate\Filter;
+namespace TestFuel\Test\Validate\Filter\PHPFilter;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase,
-	Appfuel\Validate\Filter\PHPFilter\IpFilter,
-	Appfuel\Framework\DataStructure\Dictionary;
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Framework\DataStructure\Dictionary,
+	Appfuel\Validate\Filter\PHPFilter\IpFilter;
 
 /**
  * Test ip filter
  */
-class IpFilterTest extends ParentTestCase
+class IpFilterTest extends BaseTestCase
 {
 	/**
 	 * System under test

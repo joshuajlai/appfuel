@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Validate\Filter;
+namespace TestFuel\Test\Validate\Filter\PHPFilter;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase,
-	Appfuel\Validate\Filter\PHPFilter\FloatFilter,
-	Appfuel\Framework\DataStructure\Dictionary;
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Framework\DataStructure\Dictionary,
+	Appfuel\Validate\Filter\PHPFilter\FloatFilter;
 
 /**
  * Test the validation of floating point numbers
  */
-class FloatFilterTest extends ParentTestCase
+class FloatFilterTest extends BaseTestCase
 {
 	/**
 	 * System under test

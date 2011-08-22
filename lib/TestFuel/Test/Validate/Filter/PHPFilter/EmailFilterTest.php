@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Validate\Filter;
+namespace TestFuel\Test\Validate\Filter\PHPFilter;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase,
-	Appfuel\Validate\Filter\PHPFilter\EmailFilter,
-	Appfuel\Framework\DataStructure\Dictionary;
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Framework\DataStructure\Dictionary,
+	Appfuel\Validate\Filter\PHPFilter\EmailFilter;
 
 /**
  * Email filter wraps php email filter var
  */
-class EmailFilterTest extends ParentTestCase
+class EmailFilterTest extends BaseTestCase
 {
 	/**
 	 * System under test

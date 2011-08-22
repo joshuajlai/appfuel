@@ -8,16 +8,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Validate\Filter;
+namespace TestFuel\Test\Validate\Filter;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase;
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * Test the controller's ability to add rules or filters to fields and 
  * validate or sanitize those fields
  */
-class ValidateFilterTest extends ParentTestCase
+class ValidateFilterTest extends BaseTestCase
 {
 	/**
 	 * System under test

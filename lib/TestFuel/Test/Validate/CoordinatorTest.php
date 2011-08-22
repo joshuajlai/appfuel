@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\View;
+namespace TestFuel\Test\Validate;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase,
-	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Validate\Coordinator;
+	Appfuel\Validate\Coordinator,
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
  * Test the coordinator's ability to move raw and clean data aswell as add error text
  */
-class CoordinatorTest extends ParentTestCase
+class CoordinatorTest extends BaseTestCase
 {
 	/**
 	 * System under test

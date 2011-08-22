@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Validate\Filter;
+namespace TestFuel\Test\Validate\Filter\PHPFilter;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase,
+	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Validate\Filter\PHPFilter\BoolFilter,
 	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
  * Test bool filter which wraps php filter var
  */
-class BoolFilterTest extends ParentTestCase
+class BoolFilterTest extends BaseTestCase
 {
 	/**
 	 * System under test

@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\App;
+namespace TestFuel\Test\Framework\File;
 
 use SplFileInfo,
-	Appfuel\File\FrameworkFile,
-	Test\AfTestCase as ParentTestCase,
-	Appfuel\Stdlib\Filesystem\Manager as FileManager;
+	Appfuel\Framework\File\FrameworkFile,
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Framework\File\FileManager;
 
 /**
  * The Appfuel\App\File extends SplFileInfo for two reason. Firstly, to give
@@ -23,7 +23,7 @@ use SplFileInfo,
  * string but we generally need that string, so we supply getFullPath which
  * reports the absolute path even if it does not exist.
  */
-class FileTest extends ParentTestCase
+class FrameworkFileTest extends BaseTestCase
 {
 	/**
 	 * Test the file is an SplFileInfo, Appfuel\App\File and getResource
@@ -38,9 +38,9 @@ class FileTest extends ParentTestCase
 		$path .= DIRECTORY_SEPARATOR . 'files' . DIRECTORY_SEPARATOR;
 		$path .= 'app_sample_file.txt';
 
-		$file = new File($path);
+		$file = new FrameworkFile($path);
 		$this->assertInstanceOf(
-			'Appfuel\File\FrameworkFile',
+			'Appfuel\Framework\File\FrameworkFile',
 			$file
 		);
 		$this->assertInstanceOf(
@@ -61,11 +61,11 @@ class FileTest extends ParentTestCase
 	public function testFileDoesNotExist()
 	{
 		$path = 'this/is/some/path';
-		$file = new File($path);
+		$file = new FrameworkFile($path);
 		
 		/* not that this would change */
 		$this->assertInstanceOf(
-			'Appfuel\File\FrameworkFile',
+			'Appfuel\Framework\File\FrameworkFile',
 			$file
 		);
 		$this->assertInstanceOf(
@@ -79,6 +79,5 @@ class FileTest extends ParentTestCase
 
 		$fullPath = $basePath . DIRECTORY_SEPARATOR . $path;
 		$this->assertEquals($fullPath, $file->getFullPath());
-
 	}
 }

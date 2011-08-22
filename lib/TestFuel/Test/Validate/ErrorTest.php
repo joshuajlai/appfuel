@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\View;
+namespace TestFuel\Test\Validate;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase,
-	Appfuel\Validate\Error;
+	Appfuel\Validate\Error,
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * Test the errors ability to hold, display and retrieve errors for a single
  * field
  */
-class ErrorTest extends ParentTestCase
+class ErrorTest extends BaseTestCase
 {
 	/**
 	 * System under test

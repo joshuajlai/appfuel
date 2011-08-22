@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Validate\Filter;
+namespace TestFuel\Test\Validate\Filter;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase,
+	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Validate\Filter\FilterFactory;
 
 /**
  * Filter factory is responsible for removing the need for knowing the name of
  * the filter class.
  */
-class FilterFactoryTest extends ParentTestCase
+class FilterFactoryTest extends BaseTestCase
 {
 	/**
 	 * System under test
