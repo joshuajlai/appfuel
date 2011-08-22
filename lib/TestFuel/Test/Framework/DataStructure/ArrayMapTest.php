@@ -8,18 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Orm\DataSource;
+namespace TestFuel\Test\Framework\DataStructure;
 
 use StdClass,
-	Test\AfTestCase as ParentTestCase,
-	Appfuel\Orm\Source\Db\Map\ColumnMap,
+	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Framework\DataStructure\ArrayMap;
 
 /**
  * Test the ability to map keys to values and values to keys. Also to provide
  * closures that do the same.
  */
-class ArrayMapTest extends ParentTestCase
+class ArrayMapTest extends BaseTestCase
 {
 	/**
 	 * System under test

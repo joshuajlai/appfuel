@@ -8,19 +8,19 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\DataStructure;
+namespace TestFuel\Framework\DataStructure;
 
-use Test\AfTestCase	as ParentTestCase,
-	Appfuel\Framework\DataStructure\Dictionary,
-	StdClass;
+use StdClass,
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
- * A data dictionary is a general data structure used to manage an associative array. 
- * The primary focus of this structure is to remove the need to check if the 
- * keys exists. It also provides the ability to return a default value when
- * the key you are looking for does not exist. 
+ * A data dictionary is a general data structure used to manage an associative 
+ * array. The primary focus of this structure is to remove the need to check 
+ * if the keys exists. It also provides the ability to return a default value 
+ * when the key you are looking for does not exist. 
  */
-class DictionaryTest extends ParentTestCase
+class DictionaryTest extends BaseTestCase
 {
 	/**
 	 * System Under Test

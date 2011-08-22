@@ -5,6 +5,7 @@
 	<testsuite name="local tests">
 		<directory suffix="Test.php">../lib/TestFuel/Test/Framework/Env</directory>
 		<file>../lib/TestFuel/Test/Framework/RegistryTest.php</file>
+		<directory suffix="Test.php">../lib/TestFuel/Test/Framework/DataStructure</directory>
 	</testsuite>
 
 
