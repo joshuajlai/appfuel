@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\Expr;
+namespace TestFuel\Test\Framework\Expr;
 
 use StdClass,
 	SplFileInfo,
-	Test\AfTestCase as ParentTestCase,
+	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Framework\Expr\BasicExpr,
 	Appfuel\Framework\Expr\UnaryExpr,
 	Appfuel\Framework\Expr\BinaryExpr;
@@ -20,7 +20,7 @@ use StdClass,
 /**
  * Test capabilities of the binary expression class
  */
-class BinaryExprTest extends ParentTestCase
+class BinaryExprTest extends BaseTestCase
 {
 	/**
 	 * System under test

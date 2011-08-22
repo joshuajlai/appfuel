@@ -8,18 +8,18 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Framework\Expr;
+namespace TestFuel\Test\Framework\Expr;
 
 use StdClass,
 	SplFileInfo,
-	Test\AfTestCase as ParentTestCase,
+	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Framework\Expr\ExprList;
 	
 
 /**
  * Test capabilities of handling a list of expressions
  */
-class ExprTest extends ParentTestCase
+class ExprTest extends BaseTestCase
 {
 	/**
 	 * System under test
