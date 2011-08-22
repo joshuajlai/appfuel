@@ -8,16 +8,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\App\Action;
+namespace TestFuel\Test\App\Action;
 
-use Test\AfTestCase	as ParentTestCase,
+use StdClass,
 	Appfuel\App\Action\Controller,
-	StdClass;
+	TestFuel\TestCase\ControllerTestCase;
 
 /**
  * The request object was designed to service web,api and cli request
  */
-class ControllerTest extends ParentTestCase
+class ControllerTest extends ControllerTestCase
 {
 	/**
 	 * System under test

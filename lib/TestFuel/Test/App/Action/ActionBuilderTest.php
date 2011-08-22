@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\App\Action;
+namespace TestFuel\Test\App\Action;
 
-use Test\AfTestCase	as ParentTestCase,
+use StdClass,
 	Appfuel\App\Action\ActionBuilder,
-	StdClass;
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * The action builder encapsulates the logic needed to build a fully functional
  * action controller.
  */
-class ActionBuilderTest extends ParentTestCase
+class ActionBuilderTest extends BaseTestCase
 {
 	/**
 	 * System under test
