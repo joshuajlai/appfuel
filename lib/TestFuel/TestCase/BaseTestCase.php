@@ -35,6 +35,12 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	static protected $testPath = null;
 
 	/**
+	 * Absolute path to the test files directory
+	 * @var string
+	 */
+	static protected $testFilesPath = null;
+
+	/**
 	 * Absolute path to the application root directory. We cache it here, to
 	 * avoid calling the AppManager over and over again
 	 * @var string
@@ -46,12 +52,6 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	 * @var string
 	 */
 	static protected $appfuelTestPath = null;
-
-	/**
-	 * The original includepath used before initialization 
-	 * @var string
-	 */
-	static protected $originalIncludePath = null;
 
 	/**
 	 * AppManager is used to initialize the system. 
@@ -79,7 +79,6 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		}
 		require_once $file;
 
-		self::$originalIncludePath = get_include_path();
 		$manager = new AppManager($base, $configFile);
 		$manager->initialize();
 
@@ -91,6 +90,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		self::$appManager		= $manager;
 		self::$testConfigFile	= $configFile;
 		self::$testPath			= $test;
+		self::$testFilesPath	= "{$test}/files";
 		self::$appfuelTestPath  = "{$test}/appfuel";
 	}
 
@@ -108,6 +108,14 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	public function getTestPath()
 	{
 		return self::$testPath;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getTestFilesPath()
+	{
+		return self::$testFilesPath;
 	}
 
 	/**
@@ -141,4 +149,63 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	{
 		return	self::$envState;
 	}
+
+    /**
+     * Provides a mock route so you don't have to specify the all the methods
+     * 
+     * @return  RouteInteface
+     */
+    public function getMockRoute()
+    {  
+        /* namespace to the known action controller */
+        $routeInterface = 'Appfuel\Framework\App\Route\RouteInterface';
+        $methods = array(
+            'getRouteString',
+            'getAccessPolicy',
+            'getResponseType',
+            'getActionNamespace',
+            'getSubModuleNamespace',
+            'getModuleNamespace',
+            'getRootActionNamespace'
+        );
+    
+		return $this->getMockBuilder($routeInterface)
+                    ->setMethods($methods)
+                    ->getMock();
+    }
+
+
+    /**
+     * @return  MessageInteface
+     */
+    public function getMockContext()
+    {
+        /* namespace to the known action controller */
+        $msgInterface = 'Appfuel\Framework\App\ContextInterface';
+        $methods = array(
+            'getRoute',
+            'SetRoute',
+            'isRoute',
+            'getRequest',
+            'setRequest',
+            'isRequest',
+            'getResponseType',
+            'setResponseType',
+            'calculateResponseType',
+            'getError',
+            'setError',
+            'isError',
+            'clearError',
+            /* dictionary methods */
+            'add',
+            'get',
+            'getAll',
+            'count',
+            'load'
+        );
+
+        return $this->getMockBuilder($msgInterface)
+                    ->setMethods($methods)
+                    ->getMock();
+    }
 }
