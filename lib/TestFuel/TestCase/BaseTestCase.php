@@ -67,6 +67,12 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	static protected $envState = null;
 
 	/**
+	 * Backup of the registry just after intialization
+	 * @var	array
+	 */
+	static protected $registryData = null;
+
+	/**
 	 * @param	AppManager	$manager
 	 * @param	string		$configFile		absolute path to config file
 	 * @return	null
@@ -82,6 +88,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		$manager = new AppManager($base, $configFile);
 		$manager->initialize();
 
+		self::$registryData = Registry::getAll();
 
 		self::$envState = new EnvState();
 		
@@ -150,6 +157,25 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		return	self::$envState;
 	}
 
+	/**
+	 * Restore the registry to a state it was when we initialized
+	 *
+	 * @return	null
+	 */
+	public function restoreRegistry()
+	{
+		$this->initializeRegistry(self::$registryData);
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	null
+	 */
+	public function initializeRegistry(array $data)
+	{
+		Registry::initialize($data);
+	}
+
     /**
      * Provides a mock route so you don't have to specify the all the methods
      * 
@@ -173,7 +199,6 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
                     ->setMethods($methods)
                     ->getMock();
     }
-
 
     /**
      * @return  MessageInteface
