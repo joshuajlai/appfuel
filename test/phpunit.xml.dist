@@ -2,32 +2,8 @@
 
 <phpunit backupGlobals="false" bootstrap="bootstrap.php" colors="true">
 <testsuites>
-	<testsuite name="Appfuel Framework">
-		<directory suffix="Test.php">./lib/Test/Appfuel/Framework</directory>
-	</testsuite>
-
-	<testsuite name="Appfuel Validate">
-		<directory suffix="Test.php">./lib/Test/Appfuel/Validate</directory>
-	</testsuite>
-
-	<testsuite name="Appfuel View">
-		<directory suffix="Test.php">./lib/Test/Appfuel/View</directory>
-	</testsuite>
-
-	<testsuite name="Appfuel App">
-		<directory suffix="Test.php">./lib/Test/Appfuel/App</directory>
-	</testsuite>
-
-	<testsuite name="Appfuel Domains">
-		<directory suffix="Test.php">./lib/Test/Appfuel/Domain</directory>
-	</testsuite>
-
-	<testsuite name="Database Tests">
-		<directory suffix="Test.php">./lib/Test/Appfuel/Db</directory>
-	</testsuite>
-
-	<testsuite name="Orm Tests">
-		<directory suffix="Test.php">./lib/Test/Appfuel/Orm</directory>
+	<testsuite name="Appfuel">
+		<directory suffix="Test.php">../lib/TestFuel/Test</directory>
 	</testsuite>
 </testsuites>
 </phpunit>
