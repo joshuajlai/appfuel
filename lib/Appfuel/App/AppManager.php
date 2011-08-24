@@ -32,6 +32,12 @@ class AppManager
 	static protected$isLoaded = false;
 
 	/**
+	 * Type of application such as web, cli, api
+	 * @var string
+	 */
+	protected $appType = null;
+
+	/**
 	 * Front controller used dispatching and rendering of the app message
 	 * @var FrontController
 	 */
@@ -68,11 +74,13 @@ class AppManager
 	 * @return	AppManager
 	 */	
 	public function __construct($base, 
-								$configFile = null, 
+								$type,
+								$configFile = null,
 								AppFactoryInterface $factory = null)
 	{
 		$this->setBasePath($base);
 		$this->setLibPath("$base/lib");
+		$this->setAppType($type);
 
 		if (null !== $configFile) {
 			$this->setConfigFile($configFile);
@@ -176,6 +184,51 @@ class AppManager
 
 		$this->front = $factory->createFrontController();
 	}
+
+	/**
+	 * @reutrn	string
+	 */
+	public function getAppType()
+	{
+		return $this->appType;
+	}
+
+	/**
+	 * @param	string	$type
+	 * @return	bool
+	 */
+	public function isValidAppType($type)
+	{
+		if (empty($type) || ! is_string($type)) {
+			return false;
+		}
+
+		if (! in_array($type, array('web', 'cli', 'api', 'test'))) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param	string	$base
+	 * @return	null
+	 */	
+	protected function setAppType($type)
+	{
+		$type = strtolower($type);
+		if (! $this->isValidAppType($type)) {
+			throw new Exception("Invalid app type: ($type) not supported");
+		}
+
+
+		if (! defined('AF_APP_TYPE')) {
+			define('AF_APP_TYPE', $type);
+		}
+
+		$this->appType = AF_APP_TYPE;
+	}
+
 
 	/**
 	 * @param	string	$base

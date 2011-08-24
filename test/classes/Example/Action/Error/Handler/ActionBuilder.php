@@ -8,13 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Example\App\Action;
+namespace Example\Action\Error\Handler;
 
-use Appfuel\App\Action\ActionBuilder as ParentActionBuilder;
+use Example\Action\Error\ActionBuilder as ParentActionBuilder;
 
 /**
- * Designed only to test to how extendable appfuels action builder is. This 
- * class is used by unit tests.
  */
 class ActionBuilder extends ParentActionBuilder
 {

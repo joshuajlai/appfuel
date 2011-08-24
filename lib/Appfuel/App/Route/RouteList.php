@@ -71,12 +71,12 @@ class ActionRoute implements RouteInterface
 	 * @param	string	$responseType
      * @return	Route
      */
-    public function __construct($route, $action, $access, $defaultFormat)
+    public function __construct($route, $actionNs, $access, $responseType)
     {
 		$this->setRouteString($route)
 			 ->setAccessPolicy($access)
-			 ->setResponseType($defaultFormat)
-			 ->loadNamespace($action);
+			 ->setResponseType($responseType)
+			 ->loadNamespace($actionNs);
     }
 
     /**

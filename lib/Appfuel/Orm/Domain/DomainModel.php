@@ -150,10 +150,17 @@ abstract class DomainModel implements DomainModelInterface
 		}
 		
 		$isStrict = $this->_isStrictMarshalling();
-		$err = "Failed domain marshal: ";
+		$err = "Failed domain marshal:";
 		foreach ($data as $member => $value) {
 			$setter = 'set' . ucfirst($member);
-			$this->$setter($value);
+
+			try {
+				$this->$setter($value);
+			} catch (Exception $e) {
+				if ($isStrict) {
+					throw new Exception("$err $setter", null, $e);
+				}
+			}
 		}
 
 		$this->_markClean();
@@ -225,6 +232,15 @@ abstract class DomainModel implements DomainModelInterface
 			 ->markClean($member);
 
 		return $this;
+	}
+
+	/**
+	 * @param	string	$param
+	 * @return	bool
+	 */
+	protected function isNonEmptyString($param)
+	{
+		return ! empty($param) && is_string($param);
 	}
 
 	/**

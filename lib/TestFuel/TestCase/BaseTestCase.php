@@ -85,7 +85,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		}
 		require_once $file;
 
-		$manager = new AppManager($base, $configFile);
+		$manager = new AppManager($base, 'test', $configFile);
 		$manager->initialize();
 
 		self::$registryData = Registry::getAll();

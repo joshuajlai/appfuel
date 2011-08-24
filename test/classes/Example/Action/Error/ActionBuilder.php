@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Example\App\Action\Error;
+namespace Example\Action\Error;
 
-use Example\App\Action\ActionBuilder as ParentActionBuilder;
+use Example\Action\ActionBuilder as ParentActionBuilder;
 
 /**
  * Designed only to test to how extendable appfuels action builder is. This 

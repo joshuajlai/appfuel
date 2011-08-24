@@ -8,13 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Example\App\Action\Error\Handler;
+namespace Example\Action\Error\Handler\Invalid;
 
-use Example\App\Action\Error\ActionBuilder as ParentActionBuilder;
+use Example\Action\Error\Handler\ActionBuilder as ParentActionBuilder;
 
 /**
  */
 class ActionBuilder extends ParentActionBuilder
 {
 }
-

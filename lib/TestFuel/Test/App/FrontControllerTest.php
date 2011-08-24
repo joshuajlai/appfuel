@@ -300,12 +300,12 @@ class FrontControllerTest extends ControllerTestCase
 	public function testCreateActionBuilderRootNamespace()
 	{
 		/* namespace to the known action controller */
-		$namespace = '\Example\App\Action\Others\Dont\Exist';
+		$namespace = '\Example\Action\Others\Dont\Exist';
 		$route     = new ActionRoute('no/route', $namespace, 'public', 'json');
 	
 		$builder = $this->front->createActionBuilder($route);
 		$this->assertInstanceOf(
-			'\Example\App\Action\ActionBuilder',
+			'\Example\Action\ActionBuilder',
 			$builder,
 			'no other builders exist exception the root action builder'
 		);	
@@ -319,12 +319,12 @@ class FrontControllerTest extends ControllerTestCase
 	 */ 
 	public function testCreateActionBuilderModuleNamespace()
 	{
-		$ns    = '\Example\App\Action\Error\Not\Exist';
+		$ns    = '\Example\Action\Error\Not\Exist';
 		$route = new ActionRoute('no/route', $ns, 'public', 'json');
 	
 		$builder = $this->front->createActionBuilder($route);
 		$this->assertInstanceOf(
-			'\Example\App\Action\Error\ActionBuilder',
+			'\Example\Action\Error\ActionBuilder',
 			$builder,
 			'Module builder should be found before root level builder'
 		);	
@@ -339,13 +339,13 @@ class FrontControllerTest extends ControllerTestCase
 	 */ 
 	public function testCreateActionBuilderSubModuleNamespace()
 	{
-		$ns = '\Example\App\Action\Error\Handler\None';
+		$ns = '\Example\Action\Error\Handler\None';
 
 		$route     = new ActionRoute('no/route', $ns, 'public', 'json');
 	
 		$builder = $this->front->createActionBuilder($route);
 		$this->assertInstanceOf(
-			'\Example\App\Action\Error\Handler\ActionBuilder',
+			'\Example\Action\Error\Handler\ActionBuilder',
 			$builder,
 			'Module builder should be found before root level builder'
 		);	
@@ -359,14 +359,14 @@ class FrontControllerTest extends ControllerTestCase
 	 */ 
 	public function testCreateActionBuilderActionNamespace()
 	{
-		$ns = '\Example\App\Action\Error\Handler\Invalid';
+		$ns = '\Example\Action\Error\Handler\Invalid';
 
 		$route     = new ActionRoute('no/route', $ns, 'public', 'json');
 	
 		$builder  = $this->front->createActionBuilder($route);
 		
 		$this->assertInstanceOf(
-			'\Example\App\Action\Error\Handler\Invalid\ActionBuilder',
+			'\Example\Action\Error\Handler\Invalid\ActionBuilder',
 			$builder,
 			'Action builder should be found before sub module level builder'
 		);	
