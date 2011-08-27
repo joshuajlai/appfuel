@@ -34,4 +34,60 @@ class ControllerTestCase extends BaseTestCase
                     ->setMethods($methods)
                     ->getMock();
     }
+
+	/**
+	 * @return	Appfuel\Framework\App\RequestInterface
+	 */
+	public function getMockRequest()
+	{
+		$interface = 'Appfuel\Framework\App\Request\RequestInterface';
+		$methods   = array(
+			'isPost',
+			'isGet',
+			'isCli',
+			'getMethod',
+			'getRouteString',
+			'getUriString',
+			'getParamString',
+			'get',
+			'getAll',
+		);
+
+		return $this->getMockBuilder($interface)
+					->disableOriginalConstructor()
+					->setMethods($methods)
+					->getMock();
+
+	}
+
+	/**
+	 * @return	Appfuel\Framework\Domain\Operaton\OperatonInterface
+	 */
+	public function getMockOperation()
+	{
+		$interface = 'Appfuel\Framework\Domain\Operation\OperationInterface';
+		$methods   = array(
+			'getName',
+			'setName',
+			'getDescription',
+			'setDescription',
+			'getAccessPolicy',
+			'setAccessPolicy',
+			'getRoute',
+			'setRoute',
+			'getDefaultFormat',
+			'setDefaultFormat',
+			'getOpClass',
+			'setOpClass',
+			'getRequestType',
+			'setRequestType',
+			'getControllerDetail',
+			'setControllerDetail'
+		);
+
+		return $this->getMockBuilder($interface)
+					->disableOriginalConstructor()
+					->setMethods($methods)
+					->getMock();
+	}
 }

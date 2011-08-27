@@ -14,7 +14,8 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\ContextInterface,
 	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\App\Route\RouteInterface,
-	Appfuel\Framework\App\Request\RequestInterface;
+	Appfuel\Framework\App\Request\RequestInterface,
+	Appfuel\Framework\Domain\Operation\OperationInterface;
 
 /**
  * Message is a specialized disctionary used to pass throught the dispatch
@@ -49,11 +50,11 @@ class Context extends Dictionary implements ContextInterface
 	 * @param	RequestInterface	$request
 	 * @return	Context
 	 */
-	public function __construct(RequestInterface $request
+	public function __construct(RequestInterface $request,
 								OperationInterface $op)
 	{
 		$this->request  = $request;
-		$this->operation = $operation;
+		$this->operation = $op;
 	}
 
 	/**
@@ -77,17 +78,20 @@ class Context extends Dictionary implements ContextInterface
 	 */
 	public function isError()
 	{
-		return $this->error instanceof ErrorInterface;
+		return $this->error instanceof Exception;
 	}
 
 	/**
-	 * @param	string	$text
+	 * We type on any exception not just the framework exception
+	 *
+	 * @param	string		$text
+	 * @param	string		$code
+	 * @param	Exception	$prev
 	 * @return	Message
 	 */
-	public function setError($text, $code, $e = null)
+	public function setError($text, $code = 0, \Exception $prev = null)
 	{
-		$this->error   = $text;
-		$this->isError = true;
+		$this->error = new Exception($text, $code, $prev);
 		return $this;
 	}
 

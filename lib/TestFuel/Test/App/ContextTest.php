@@ -11,41 +11,61 @@
 namespace TestFuel\Test\App;
 
 use Appfuel\App\Context,
-	TestFuel\TestCase\BaseTestCase;
+	TestFuel\TestCase\ControllerTestCase;
 
 /**
- *
+ * A context is a container that holds all the information necessary to handle
+ * the operation the user has indicated they want to execute. The context is
+ * create by the AppManager given to the front controller passed into every
+ * intercept filter, though the action controller, back to the front controller
+ * and finally into the render engine. 
  */
-class ContextTest extends BaseTestCase
+class ContextTest extends ControllerTestCase
 {
     /**
      * System under test
-     * @var Message
+     * @var Context
      */
-    protected $message = null;
+    protected $context = null;
+
+	/**
+	 * Input Request
+	 * @var Request
+	 */
+	protected $request = null;
+
+	/**
+	 * @var OperationInterface
+	 */
+	protected $operation = null;
 
     /**
      * @return null
      */
     public function setUp()
     {
+		$this->request   = $this->getMockRequest();
+		$this->operation = $this->getMockOperation();
+		$this->context = new Context($this->request, $this->operation);
     }
 
     /**
      * @return null
      */
     public function tearDown()
-    {   
+    {
+		$this->request = null;
+		$this->operation = null;
+		$this->context = null;   
     }
 
     /**
-     * Testing how isRoute reacts when the route is present and abesent
-     * from the message. The key message uses for route is 'route'
      *
      * @return null
      */
-    public function testIsRoute()
+    public function testImmutableMembers()
     {
-		$this->assertTrue(true);
+		$this->assertSame($this->request, $this->context->getRequest());
+		$this->assertSame($this->operation, $this->context->getOperation());
     }
 }

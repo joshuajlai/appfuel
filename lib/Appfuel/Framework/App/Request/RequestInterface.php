@@ -19,19 +19,6 @@ namespace Appfuel\Framework\App\Request;
 interface RequestInterface
 {
     /**
-     * Assign the uri, parameters and request method. Because the uri contains
-	 * all the get parameters we pull them out and add them to the
-	 * the others (post, cookie, files) which are passed into the constructor.
-	 * We also look for additional get params and merge them as required.
-	 *
-	 * @param	Uri		$uri		holds the get string and paramaters
-	 * @param	array	$params		holds post, files, cookie parameters
-	 * @param	string	$method		request method
-     * @return	Request
-     */
-    public function __construct(UriInterface $uri);
-
-    /**
      * @return bool
      */
     public function isPost();
