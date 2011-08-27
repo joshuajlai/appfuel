@@ -15,7 +15,6 @@ use Appfuel\Framework\Registry,
     Appfuel\Framework\Env\Autoloader,
     Appfuel\Framework\Env\ErrorReporting,
     Appfuel\Framework\Env\ErrorDisplay,
-    Appfuel\Framework\Env\TimeZone,
     Appfuel\Framework\Env\IncludePath,
 	Appfuel\Framework\App\Init\TaskInterface,
 	Appfuel\Framework\DataStructure\DictionaryInterface;
@@ -52,8 +51,7 @@ class SystemTask implements TaskInterface
 
         $defaultTz = Registry::get('default_timezone', null);
         if (null !== $defaultTz) {
-            $timezone = $this->createTimezone();
-            $timezone->setDefault($defaultTz);
+			date_default_timezone_set($defaultTz);
         }
 
         $enableAutoloader =(bool) Registry::get('enable_autoloader', null);
@@ -86,14 +84,6 @@ class SystemTask implements TaskInterface
 	protected function createIncludePath()
 	{
 		return new IncludePath();
-	}
-
-	/**
-	 * @return	Timezone
-	 */
-	protected function createTimezone()
-	{
-		return new Timezone();
 	}
 
 	/**

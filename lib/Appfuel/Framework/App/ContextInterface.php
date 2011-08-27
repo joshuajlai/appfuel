@@ -22,21 +22,10 @@ use Appfuel\Framework\DataStructure\DictionaryInterface,
  */
 interface ContextInterface extends DictionaryInterface
 {
-	public function getRoute();
-	public function setRoute(RouteInterface $route);
-	public function isRoute();
-
+	public function getOperation();
 	public function getRequest();
-	public function setRequest(RequestInterface $request);
-	public function isRequest();
-
-	public function getResponseType();
-	public function setResponseType($type);
-	public function calculateResponseType(RequestInterface $reqest, 
-										  RouteInterface   $route);
 
 	public function getError();
-	public function setError($text);
 	public function isError();
 	public function clearError();
 }

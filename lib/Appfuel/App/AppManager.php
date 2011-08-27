@@ -97,6 +97,41 @@ class AppManager
 	}
 
 	/**
+	 * Initialize the framework by creating the intializer which runs 
+	 * init tasks defined in the app.ini. Assign the front controller.
+	 * 
+	 * @return	null
+	 */
+	public function initialize()
+	{
+		/* initialize the registry with the app base path */
+		$base = $this->getBasePath();
+		Registry::initialize(array('base-path' => $base));
+		
+		$file = "{$base}/{$this->getConfigFile()}";
+		$data = FileManager::parseIni($file);
+		
+		if (is_array($data) && ! empty($data)) {
+			Registry::load($data);	
+		}
+
+		$factory = $this->getAppFactory();
+		$init = $factory->createInitializer();
+		$init->initialize();
+
+		$this->front = $factory->createFrontController();
+	}
+
+	public function run()
+	{
+		$factory = $this->getAppFactory();
+		$request = $factory->createRequest($factory->createUriString());
+		$context = $factory->createContext(array('app-input' => $request));
+		echo "\n", print_r($context,1), "\n";exit;
+	}
+
+
+	/**
 	 * @return	string
 	 */
 	public function getBasePath()
@@ -157,32 +192,6 @@ class AppManager
 		$depend->load();
 
 		self::$isLoaded = TRUE;
-	}
-
-	/**
-	 * Initialize the framework by creating the intializer which runs 
-	 * init tasks defined in the app.ini. Assign the front controller.
-	 * 
-	 * @return	null
-	 */
-	public function initialize()
-	{
-		/* initialize the registry with the app base path */
-		$base = $this->getBasePath();
-		Registry::initialize(array('base-path' => $base));
-		
-		$file = "{$base}/{$this->getConfigFile()}";
-		$data = FileManager::parseIni($file);
-		
-		if (is_array($data) && ! empty($data)) {
-			Registry::load($data);	
-		}
-
-		$factory = $this->getAppFactory();
-		$init = $factory->createInitializer();
-		$init->initialize();
-
-		$this->front = $factory->createFrontController();
 	}
 
 	/**

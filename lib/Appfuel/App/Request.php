@@ -10,9 +10,9 @@
  */
 namespace Appfuel\App;
 
-use Appfuel\Framework\App\Request\RequestInterface,
+use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\Request\UriInterface,
-	Appfuel\Stdlib\Data\Dictionary;
+	Appfuel\Framework\App\Request\RequestInterface;
 
 /**
  * Common logic to handle requests given to the application from any type.
@@ -42,13 +42,6 @@ class Request implements RequestInterface
      */
     protected $method = null;
 
-	/**
-	 * Used to determine is a response type other than the routes registered
-	 * response type should be used
-	 * @var string
-	 */
-	protected $responseType = null;
-
     /**
      * Assign the uri, parameters and request method. Because the uri contains
 	 * all the get parameters we pull them out and add them to the
@@ -63,17 +56,19 @@ class Request implements RequestInterface
     public function __construct(UriInterface $uri)
     {
         $this->uri = $uri;
-
-        $method = 'get';
-        if (array_key_exists('REQUEST_METHOD', $_SERVER)) {
-            $method = $_SERVER['REQUEST_METHOD'];
-        }
-        $this->method = strtolower($method);
-        
 		$argv = array();
-        if (array_key_exists('argv', $_SERVER)) {
-            $argv = $_SERVER['argv'];
+        if (isset($_SERVER['REQUEST_METHOD'])) {
+            $method = strtolower($_SERVER['REQUEST_METHOD']);
         }
+		else if (isset($_SERVER['argv']) && is_array($_SERVER['argv'])) {
+			$method = 'cli';
+            $argv = $_SERVER['argv'];
+		}
+		else {
+			throw new Exception("Request could not be create method unkown");
+		}
+
+        $this->method = $method;
 
         $params = array(
 			'get'	 => $uri->getParams(),
@@ -82,13 +77,8 @@ class Request implements RequestInterface
             'cookie' => $_COOKIE,
             'argv'   => $argv
         );
-		$this->params = $params;
 
-		$responseType = null;
-		if (in_array($this->method, array('get', 'post'))) {
-			$responseType = $this->get('response-type', 'post', null);
-		}
-		$this->responseType = $responseType;
+		$this->params = $params;
     }
 
     /**
@@ -107,6 +97,14 @@ class Request implements RequestInterface
         return 'get' === $this->getMethod();
     }
 
+	/**
+	 * @return	string
+	 */
+	public function isCli()
+	{
+		return 'cli' === $this->getMethod();
+	}
+
     /**
      * @return string
      */
@@ -114,22 +112,6 @@ class Request implements RequestInterface
     {
         return $this->method;
     }
-
-	/**
-	 * @return string
-	 */
-	public function getResponseType()
-	{
-		return $this->responseType;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isResponseType()
-	{
-		return is_string($this->responseType) && ! empty($this->responseType);
-	}
 
 	/**
 	 * @return string
@@ -178,7 +160,7 @@ class Request implements RequestInterface
             return $default;
         }
 
-        if (!isset($this->params[$type]) || !is_array($this->params[$type])) {
+        if (! isset($this->params[$type]) || ! is_array($this->params[$type])) {
             return $default;
         }
 

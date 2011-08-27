@@ -25,63 +25,43 @@ use Appfuel\Framework\Exception,
 class Context extends Dictionary implements ContextInterface
 {
 	/**
-	 * Used by the front controller to build and configure an action controller
-	 * @var	RouteInterface
+	 * An operation defines the action this context was created for. It used
+	 * by the front controller for validation and execution
+	 * @var	OperationInterface
 	 */
-	protected $route = null;
+	protected $operation = null;
 
 	/**
-	 * Used by the front controller, action controller and possibly the 
-	 * action builder to retrieve user input
-	 *
+	 * Holds most of the user input given to the application. Used by the
+	 * Front controller and all action controllers
 	 * @var	RequestInterface
 	 */
 	protected $request = null;
 
 	/**
-	 * Determines how the data is returned. Can be specified by the user or
-	 * the route. 
-	 *
-	 * @var string
-	 */
-	protected $responseType = null;
-
-	/**
-	 * Error message for an error that occured during the dispatch/execute cycle
-	 * @var string
+	 * Holds errors handled by any of the subsystems the context travels 
+	 * through
+	 * @var ErrorInterface
 	 */
 	protected $error = null;
 	
 	/**
-	 * Flag used to determine if the message is in an error state
-	 * @var bool
+	 * @param	RequestInterface	$request
+	 * @return	Context
 	 */
-	protected $isError = false;
-
-	/**
-	 * @return	RouteInterface
-	 */
-	public function getRoute()
+	public function __construct(RequestInterface $request
+								OperationInterface $op)
 	{
-		return $this->route;
+		$this->request  = $request;
+		$this->operation = $operation;
 	}
 
 	/**
-	 * @param	RouteInterface $route
-	 * @return	Message
+	 * @return	OperationInterface
 	 */
-	public function setRoute(RouteInterface $route)
+	public function getOperation()
 	{
-		$this->route = $route;
-		return $this;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isRoute()
-	{
-		return $this->route instanceof RouteInterface;
+		return $this->operation;
 	}
 
 	/**
@@ -93,75 +73,18 @@ class Context extends Dictionary implements ContextInterface
 	}
 
 	/**
-	 * @param	RouteInterface $route
-	 * @return	Message
-	 */
-	public function setRequest(RequestInterface $request)
-	{
-		$this->request = $request;
-		return $this;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isRequest()
-	{
-		return $this->request instanceof RequestInterface;
-	}
-
-	/**
-	 * @return string
-	 */
-	public function getResponseType()
-	{
-		return $this->responseType;	
-	}
-
-	/**
-	 * @param	string	$type
-	 * @return	Message
-	 */
-	public function setResponseType($type)
-	{
-		if (! is_string($type) || empty($type)) {
-			throw new Exception("response type must be a non empty string");
-		}
-
-		$this->responseType = $type;
-		return $this;
-	}
-
-	/**
-	 *
-	 * @return string
-	 */
-	public function calculateResponseType(RequestInterface $request,
-										  RouteInterface   $route)
-	{
-		$responseType = $route->getResponseType();
-		if ($request->isResponseType()) {
-			$temp = $request->getResponseType();
-			if (is_string($temp) && ! empty($temp)) {
-				$responseType = $temp;
-			}
-		}
-		return $responseType;
-	}
-
-	/**
 	 * @return	bool
 	 */
 	public function isError()
 	{
-		return $this->isError;
+		return $this->error instanceof ErrorInterface;
 	}
 
 	/**
 	 * @param	string	$text
 	 * @return	Message
 	 */
-	public function setError($text)
+	public function setError($text, $code, $e = null)
 	{
 		$this->error   = $text;
 		$this->isError = true;
@@ -181,9 +104,7 @@ class Context extends Dictionary implements ContextInterface
 	 */
 	public function clearError()
 	{
-		$this->isError = false;
-		$this->error   = null;
-		
+		$this->error = null;
 		return $this;
 	}
 }
