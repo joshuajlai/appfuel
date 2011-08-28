@@ -8,13 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App;
+namespace Appfuel\App\Context;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\App\ContextInterface,
 	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\App\Route\RouteInterface,
 	Appfuel\Framework\App\Request\RequestInterface,
+	Appfuel\Framework\App\Context\ContextInterface,
+	Appfuel\Framework\Domain\User\UserInterface,
 	Appfuel\Framework\Domain\Operation\OperationInterface;
 
 /**
@@ -23,7 +24,7 @@ use Appfuel\Framework\Exception,
  * all the necessary objects into the action controllers and lets the 
  * controller pass back the document and any other meta data 
  */
-class Context extends Dictionary implements ContextInterface
+class AppContext extends Dictionary implements ContextInterface
 {
 	/**
 	 * An operation defines the action this context was created for. It used
@@ -38,6 +39,11 @@ class Context extends Dictionary implements ContextInterface
 	 * @var	RequestInterface
 	 */
 	protected $request = null;
+
+	/**
+	 * @var	UserInterface
+	 */
+	protected $currentUser = null;
 
 	/**
 	 * Holds errors handled by any of the subsystems the context travels 
@@ -71,6 +77,36 @@ class Context extends Dictionary implements ContextInterface
 	public function getRequest()
 	{
 		return $this->request;
+	}
+
+	/**
+	 * @return	UserInterface
+	 */
+	public function getCurrentUser()
+	{
+		return $this->currentUser;
+	}
+
+	/**
+	 * We make no assumption of the user implementation. Instead the developer
+	 * may override the isValidUser and isCurrentUser checks to suite their 
+	 * needs. Note: when using your own context remember to register the 
+	 * context with the operation
+	 *
+	 * @param	UserInterface	$user
+	 * @return	null
+	 */
+	public function setCurrentUser($user)
+	{
+		$this->currentUser = $user;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isCurrentUser()
+	{
+		return $this->currentUser instanceof UserInterface;
 	}
 
 	/**
@@ -110,5 +146,21 @@ class Context extends Dictionary implements ContextInterface
 	{
 		$this->exception = null;
 		return $this;
+	}
+
+	/**
+	 * Allows the deleveloper to define what interface is valid for their
+	 * user implementation
+	 *
+	 * @param	mixed	$user
+	 * @return	bool
+	 */
+	protected function  isValidUser($user)
+	{
+		if ($user instanceof UserInterface) {
+			return true;
+		}
+
+		return false;
 	}
 }

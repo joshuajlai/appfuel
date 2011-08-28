@@ -10,7 +10,7 @@
  */
 namespace TestFuel\Test\App;
 
-use Appfuel\App\Context,
+use Appfuel\App\Context\AppContext,
 	TestFuel\TestCase\ControllerTestCase;
 
 /**
@@ -20,7 +20,7 @@ use Appfuel\App\Context,
  * intercept filter, though the action controller, back to the front controller
  * and finally into the render engine. 
  */
-class ContextTest extends ControllerTestCase
+class AppContextTest extends ControllerTestCase
 {
     /**
      * System under test
@@ -46,7 +46,7 @@ class ContextTest extends ControllerTestCase
     {
 		$this->request   = $this->getMockRequest();
 		$this->operation = $this->getMockOperation();
-		$this->context = new Context($this->request, $this->operation);
+		$this->context = new AppContext($this->request, $this->operation);
     }
 
     /**
@@ -65,7 +65,7 @@ class ContextTest extends ControllerTestCase
 	public function testHasInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\App\ContextInterface',
+			'Appfuel\Framework\App\Context\ContextInterface',
 			$this->context
 		);
 		$this->assertInstanceOf(

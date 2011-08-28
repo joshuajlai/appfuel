@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App\View;
+namespace Appfuel\View\ViewManager;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\FileInterface,
-	Appfuel\Framework\App\View\ViewInterface,
-	Appfuel\Framework\App\View\ViewManagerInterface;
+	Appfuel\Framework\View\ViewInterface,
+	Appfuel\Framework\View\ViewManagerInterface;
 
 /**
  * Handles assignments to the view 
