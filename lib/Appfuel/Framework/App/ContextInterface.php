@@ -25,7 +25,8 @@ interface ContextInterface extends DictionaryInterface
 	public function getOperation();
 	public function getRequest();
 
-	public function getError();
-	public function isError();
-	public function clearError();
+	public function getException();
+	public function setException($text, $code = 0, \Exception $prev = null);
+	public function isException();
+	public function clearException();
 }

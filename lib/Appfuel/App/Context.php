@@ -42,9 +42,9 @@ class Context extends Dictionary implements ContextInterface
 	/**
 	 * Holds errors handled by any of the subsystems the context travels 
 	 * through
-	 * @var ErrorInterface
+	 * @var Appfuel\Framework\Exception
 	 */
-	protected $error = null;
+	protected $exception = null;
 	
 	/**
 	 * @param	RequestInterface	$request
@@ -76,9 +76,9 @@ class Context extends Dictionary implements ContextInterface
 	/**
 	 * @return	bool
 	 */
-	public function isError()
+	public function isException()
 	{
-		return $this->error instanceof Exception;
+		return $this->exception instanceof Exception;
 	}
 
 	/**
@@ -89,26 +89,26 @@ class Context extends Dictionary implements ContextInterface
 	 * @param	Exception	$prev
 	 * @return	Message
 	 */
-	public function setError($text, $code = 0, \Exception $prev = null)
+	public function setException($text, $code=0, \Exception $prev=null)
 	{
-		$this->error = new Exception($text, $code, $prev);
+		$this->exception = new Exception($text, $code, $prev);
 		return $this;
 	}
 
 	/**
 	 * @return	string
 	 */
-	public function getError()
+	public function getException()
 	{
-		return $this->error;
+		return $this->exception;
 	}
 
 	/**
 	 * @return	Message
 	 */
-	public function clearError()
+	public function clearException()
 	{
-		$this->error = null;
+		$this->exception = null;
 		return $this;
 	}
 }

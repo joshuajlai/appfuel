@@ -59,8 +59,24 @@ class ContextTest extends ControllerTestCase
 		$this->context = null;   
     }
 
+	/**
+	 * @return	null
+	 */
+	public function testHasInterfaces()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\Framework\App\ContextInterface',
+			$this->context
+		);
+		$this->assertInstanceOf(
+			'Appfuel\Framework\DataStructure\DictionaryInterface',
+			$this->context
+		);
+	}
+
     /**
-     *
+     * Both the request and the operation are immutable and can not be removed
+	 *
      * @return null
      */
     public function testImmutableMembers()
@@ -68,4 +84,128 @@ class ContextTest extends ControllerTestCase
 		$this->assertSame($this->request, $this->context->getRequest());
 		$this->assertSame($this->operation, $this->context->getOperation());
     }
+
+	/**
+	 * @return	null
+	 */
+	public function testGetIsSetExceptionDefautValues()
+	{
+		/* default value having an exception is null */
+		$this->assertNull($this->context->getException());
+		$this->assertFalse($this->context->isException());
+
+		$text = 'i am an error';
+		$code = null;
+		$prev = null;
+		$this->assertSame(
+			$this->context,
+			$this->context->setException($text, $code, $prev),
+			'must expose a fluent interface'
+		);
+		$this->assertTrue($this->context->isException());
+		
+		$exception = $this->context->getException();
+		$this->assertInstanceOf('Appfuel\Framework\Exception',$exception);
+		$this->assertEquals($text, $exception->getMessage());
+		$this->assertEquals(0, $exception->getCode(), 'default code is 0');
+		$this->assertNull($exception->getPrevious());
+	}
+
+	/**
+	 * @depends	testGetIsSetExceptionDefautValues
+	 * @return	null
+	 */
+	public function testSetExceptionWithCodeNoPrevious()
+	{
+		$text = 'i am an error';
+		$code = 66;
+		$prev = null;
+		$this->assertSame(
+			$this->context,
+			$this->context->setException($text, $code, $prev),
+			'must expose a fluent interface'
+		);
+		$this->assertTrue($this->context->isException());
+	
+		$exception = $this->context->getException();
+		$this->assertInstanceOf('Appfuel\Framework\Exception',$exception);
+		$this->assertEquals($text, $exception->getMessage());
+		$this->assertEquals($code, $exception->getCode());
+		$this->assertNull($exception->getPrevious());
+	}
+
+	/**
+	 * @depends	testSetExceptionWithCodeNoPrevious
+	 * @return	null
+	 */
+	public function testSetExceptionWithPreviousNoCode()
+	{
+		$text = 'i am an error';
+		$code = null;
+		$prev = new \Exception('previous exception', 2);
+		$this->assertSame(
+			$this->context,
+			$this->context->setException($text, $code, $prev),
+			'must expose a fluent interface'
+		);
+		$this->assertTrue($this->context->isException());
+	
+		$exception = $this->context->getException();
+		$this->assertInstanceOf('Appfuel\Framework\Exception',$exception);
+		$this->assertEquals($text, $exception->getMessage());
+		$this->assertEquals(0, $exception->getCode(), 'default code is 0');
+		$this->assertSame($prev, $exception->getPrevious());
+	}
+
+	/**
+	 * @depends	testSetExceptionWithPreviousNoCode
+	 * @return	null
+	 */
+	public function testSetExceptionWithCodeAndPrevious()
+	{
+		$text = 'i am an error';
+		$code = 66;
+		$prev = new \Exception('previous exception', 2);
+		$this->assertSame(
+			$this->context,
+			$this->context->setException($text, $code, $prev),
+			'must expose a fluent interface'
+		);
+		$this->assertTrue($this->context->isException());
+	
+		$exception = $this->context->getException();
+		$this->assertInstanceOf('Appfuel\Framework\Exception',$exception);
+		$this->assertEquals($text, $exception->getMessage());
+		$this->assertEquals($code, $exception->getCode());
+		$this->assertSame($prev, $exception->getPrevious());
+	}
+
+	/**
+	 * @depends	testSetExceptionWithCodeAndPrevious
+	 * @return	null
+	 */
+	public function testGetSetClearIsExceptioException()
+	{
+		$this->assertFalse($this->context->isException());
+		
+		$text = 'i am an error';
+		$code = 66;
+		$prev = new \Exception('previous exception', 2);
+		$this->assertSame(
+			$this->context,
+			$this->context->setException($text, $code, $prev),
+			'must expose a fluent interface'
+		);
+		$this->assertTrue($this->context->isException());
+	
+		$exception = $this->context->getException();
+		$this->assertInstanceOf('Appfuel\Framework\Exception',$exception);
+
+		$this->assertSame($this->context, $this->context->clearException());
+		$this->assertFalse($this->context->isException());
+		$this->assertNull($this->context->getException());	
+	}
+
+
+
 }

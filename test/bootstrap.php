@@ -10,7 +10,6 @@
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
 use TestFuel\TestCase\BaseTestCase;
-
 $base = realpath(dirname(__FILE__) . '/../');
 $file = "{$base}/lib/TestFuel/TestCase/BaseTestCase.php";
 if (! file_exists($file)) {
