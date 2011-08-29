@@ -63,6 +63,18 @@ interface ContextInterface extends DictionaryInterface
 	 * @return	Appfuel\Framework\Exception
 	 */
 	public function getException();
+
+	/**
+	 * This is an thing the controller saves as output for display to the user
+	 * @return	mixed
+	 */
+	public function getOutput();
+
+	/**
+	 * @param	mixed	any output
+	 * @return	null
+	 */
+	public function setOutput($data);
 	
 	/**
 	 * @param	string		$text

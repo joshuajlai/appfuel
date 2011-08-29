@@ -46,6 +46,12 @@ class AppContext extends Dictionary implements ContextInterface
 	protected $currentUser = null;
 
 	/**
+	 * Data the controller wants the render engine to output.
+	 * @var mixed
+	 */	
+	protected $output = null;
+
+	/**
 	 * Holds errors handled by any of the subsystems the context travels 
 	 * through
 	 * @var Appfuel\Framework\Exception
@@ -107,6 +113,23 @@ class AppContext extends Dictionary implements ContextInterface
 	public function isCurrentUser()
 	{
 		return $this->currentUser instanceof UserInterface;
+	}
+
+	/**
+	 * @return	mixed
+	 */
+	public function getOutput()
+	{
+		return $this->output;
+	}
+
+	/**
+	 * @param	mixed	$data
+	 * @return	null
+	 */
+	public function setOutput($data)
+	{
+		$this->output = $data;
 	}
 
 	/**

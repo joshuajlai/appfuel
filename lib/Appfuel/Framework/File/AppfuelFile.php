@@ -23,7 +23,7 @@ class AppfuelFile extends FrameworkFile
      */
     public function __construct($path, $top = 'lib')
     {
-		$valid = array('lib', 'config', 'db', 'test', 'ui', 'www');
+		$valid = array('lib', 'config', 'db', 'test', 'ui', 'www', 'codegen');
 		if (! in_array($top, $valid)) {
 			throw new Exception("invalid top level directory given as ($top)");
 		}
