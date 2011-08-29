@@ -53,4 +53,23 @@ class RepositoryTest extends BaseTestCase
 			$this->repo
 		);
 	}
+
+	/**
+	 * This repo has one inherited immutable member the ormFactory and
+	 * one defined in its own constructor which it the file path of the 
+	 * generated operation list.
+	 *
+	 * @return null
+	 */
+	public function testImmutableMembers()
+	{
+		$file = $this->repo->getOperationListFile();
+		$this->assertInstanceOf(
+			'Appfuel\Framework\File\FrameworkFile',
+			$file
+		);
+
+		$expected = AF_BASE_PATH . '/codegen/operations.php';
+		$this->assertEquals($expected, $file->getFullPath());
+	}
 }

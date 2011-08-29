@@ -1,0 +1,3 @@
+This directory is used by the framework to store any generated php files. 
+Code is usually generated via the build system which always behavior known 
+before the request to be available right away. Do not remove this directory.

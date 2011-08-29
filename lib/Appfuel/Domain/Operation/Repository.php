@@ -24,7 +24,7 @@ class Repository extends OrmRepository
 	 * accessing the database. This is the location of that file
 	 * @var Appfuel\Framework\File\FrameworkFile
 	 */
-	protected $opBuildFile = null;
+	protected $opListFile = null;
 
 	/**
 	 * Assign the location of the operations build file
@@ -35,15 +35,15 @@ class Repository extends OrmRepository
 	{
 		parent::__construct();
 		$path = 'codegen/operations.php';
-		$this->opBuildFile = FileManager::createFrameworkFile($path);
+		$this->opListFile = FileManager::createFrameworkFile($path);
 	}
 
 	/**
 	 * @return Appfuel\Framework\File\FrameworkFile
 	 */
-	public function getOperationsBuildFile()
+	public function getOperationListFile()
 	{
-		return $this->opBuildFile;
+		return $this->opListFile;
 	}
 
 	public function loadStaticOperations()

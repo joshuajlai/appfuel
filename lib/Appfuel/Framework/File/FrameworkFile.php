@@ -69,4 +69,3 @@ class FrameworkFile extends SplFileInfo implements FrameworkFileInterface
 		return $this->fullPath;
 	}
 }
-
