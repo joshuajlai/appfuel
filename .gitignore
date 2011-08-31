@@ -2,4 +2,4 @@
 *.swo
 *~
 www
-src/config/app.ini
+codegen/*

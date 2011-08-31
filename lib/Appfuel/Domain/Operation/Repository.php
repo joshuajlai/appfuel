@@ -46,6 +46,13 @@ class Repository extends OrmRepository
 		return $this->opListFile;
 	}
 
+	/**
+	 * The generated operation list is a basic array kept in a standard
+	 * variable name 'opList' which we will load in the OperationList class
+	 * which will allow us to search on available operations
+	 *
+	 * @return	null
+	 */
 	public function loadStaticOperations()
 	{
 

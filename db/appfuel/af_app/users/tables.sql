@@ -1,6 +1,5 @@
 -- holds a list of appfuel users
-drop table if exists users;
-create table users (
+create table if not exists af_users (
 	user_id			int unsigned not null,
 	system_name		char(64) not null,
 	first_name		varchar(100) not null,
@@ -12,4 +11,14 @@ create table users (
 
 	primary key	(user_id),
 	index		(system_name)
+) engine = InnoDB  default charset=utf8;
+
+create table if not exists af_user_org_assign (
+	user_assign_id	int unsigned not null,
+	user_id			int unsigned not null,
+	org_id			smallint unsigned not null,
+
+	primary key (user_assign_id),
+	foreign key (user_id) references af_users (user_id),
+	foreign key (org_id)  references af_organizations(org_id)
 ) engine = InnoDB  default charset=utf8;
