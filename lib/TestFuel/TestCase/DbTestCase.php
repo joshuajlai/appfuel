@@ -10,7 +10,8 @@
  */
 namespace TestFuel\TestCase;
 
-use Appfuel\Framework\Registry,
+use Appfuel\Db\DbManager,
+	Appfuel\Framework\Registry,
     Appfuel\Framework\Exception,
     Appfuel\Db\Connection\DetailFactory as ConnFactory,
     Appfuel\Framework\Db\Connection\DetailFactoryInterface,
@@ -28,12 +29,6 @@ class DbTestCase extends BaseTestCase
     protected $connFactory = null;
 
     /**
-     * Connection string to appfuel's unittest database
-     * @var array
-     */
-    protected $connStrings = array();
-
-    /**
      * Connection detail object represents the connection to the database.
      * Appfuel's db module only works with this object
      * @var ConnectionDetailInterface
@@ -48,46 +43,9 @@ class DbTestCase extends BaseTestCase
                                 $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
-
-        $connStrings = Registry::get('db_conns');
-        if (empty($connStrings)) {
-            throw new Exception("Db connection string empty can not proceed");
-        }
-
-        $this->conStrings = $connStrings;
-        $connFactory = new ConnFactory();
-        $this->setConnectionFactory($connFactory);
-	
-		$strings    = current($connStrings);
-        $connDetail = $this->createConnectionDetail($strings);
-        $this->setConnectionDetail($connDetail);
-    }
-
-    /**
-     * @return  ConnectionDetail
-     */
-    public function createConnectionDetail($connStr)
-    {  
-        return $this->getConnectionFactory()
-                    ->createConnectionDetail($connStr);
-    }
-
-    /**
-     * @return  ConnFactory
-     */
-    public function getConnectionFactory()
-    {
-        return $this->connFactory;
-    }
-
-    /**
-     * @param   DetailFactoryInterface  $factory
-     * @return  DbTestCase
-     */
-    public function setConnectionFactory(DetailFactoryInterface $factory)
-    {
-        $this->connFactory = $factory;
-        return $this;
+		$connector = DbManager::getConnector();
+		$master = $connector->getMaster();
+		$this->setConnectionDetail($master->getConnectionDetail());
     }
 
     /**

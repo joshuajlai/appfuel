@@ -28,6 +28,5 @@ class OperationListTest extends BaseTestCase
 	public function testGetFileData()
 	{
 		$data = OperationList::getOperationFileData();
-		echo "\n", print_r($data,1), "\n";exit;
 	}
 }

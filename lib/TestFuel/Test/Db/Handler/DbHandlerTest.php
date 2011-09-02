@@ -35,18 +35,10 @@ class DbHandlerTest extends BaseTestCase
 	protected $handler = null;
 
 	/**
-	 * Back up the connection pool because its static and we don't want to 
-	 * effect current database operations
-	 * @var Pool
-	 */
-	protected $bkPool = null;
-
-	/**
 	 * Save the current state of the Pool
 	 */
 	public function setUp()
 	{
-		$this->bkPool = DbHandler::getPool();
 		$this->handler = new DbHandler();
 	}
 
@@ -55,7 +47,6 @@ class DbHandlerTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		DbHandler::setPool($this->bkPool);
 		unset($this->handler);
 	}
 
@@ -72,20 +63,10 @@ class DbHandlerTest extends BaseTestCase
 	}
 
 	/**
-	 * @return null
-	 */
-	public function testGetSetPool()
-	{
-		$pool = $this->getMock('Appfuel\Framework\Db\Handler\PoolInterface');
-		$this->assertNull(DbHandler::setPool($pool));
-		$this->assertTrue(DbHandler::isPool());
-		$this->assertSame($pool, DbHandler::getPool());
-	}
-
-	/**
-	 * Using a QueryRequest set to read|write|both (should do slave connection)
-	 * but we don't really care as it is handled by the pool which connection 
-	 * is given as long as its a ConnectionInterface we run it
+	 * Using a QueryRequest set to read|write|both (should do slave 
+	 * connection) but we don't really care as it is handled by the pool 
+	 * which connection is given as long as its a ConnectionInterface we 
+	 * run it
 	 * 
 	 * @dataProvider	provideConnectionTypes
 	 * @return null

@@ -51,9 +51,7 @@ class AdapterBaseTest extends DbTestCase
 	public function setUp()
 	{
 		$this->conn = new Connection($this->getConnectionDetail());
-		$this->assertTrue($this->conn->initialize());
 		$this->driver = $this->conn->getDriver();
-		
 		$this->adapter = new AdapterBase($this->driver);
 	}
 

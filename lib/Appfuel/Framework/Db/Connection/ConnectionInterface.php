@@ -24,22 +24,14 @@ interface ConnectionInterface
 	 * @return	ConnectionDetailInterface
 	 */
 	public function getConnectionDetail();
-
-	/**
-	 * Value object used to hold the connection details
-	 *
-	 * @param	ConnectionDetailInterface $detail
-	 * @return	null
-	 */	
-	public function setConnectionDetail(ConnectionDetailInterface $detail);
-
-	/**
-	 * Connect has no parameters because the connection detail
-	 * is used by the connection to provide those details
-	 *
-	 * @return	bool
-	 */
 	public function connect();
-
-	
+	public function isConnected();
+	public function close();
+	public function getDriver();
+	public function isDriver();
+	public function createStmtDriver();
+	public function createAdapter($requestType);
+	public function isError();
+	public function getErrorCode();
+	public function getErrorText();
 }

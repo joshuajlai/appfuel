@@ -19,12 +19,14 @@ namespace Appfuel\Framework\Db\Connection;
  */
 interface ConnectionDetailInterface
 {
-	
+	public function getName();	
 	public function getVendor();
 	public function getAdapter();
-	public function getPort();
-	public function getDbName();
-	public function getSocket();
+	public function getHost();
 	public function getUserName();
 	public function getPassword();
+	public function getDbName();
+	public function getPort();
+	public function getSocket();
+	public function getType();
 }

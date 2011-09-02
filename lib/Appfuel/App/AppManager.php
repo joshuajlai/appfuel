@@ -32,12 +32,6 @@ class AppManager
 	static protected$isLoaded = false;
 
 	/**
-	 * Type of application such as web, cli, api
-	 * @var string
-	 */
-	protected $appType = null;
-
-	/**
 	 * Front controller used dispatching and rendering of the app message
 	 * @var FrontController
 	 */
@@ -50,41 +44,18 @@ class AppManager
 	protected $dependFile = 'Appfuel/App/Dependency.php';
 
 	/**
-	 * Absolute path to the base of the application
-	 * @vat string
-	 */
-	protected $basePath = null;
-
-	/**
-	 * Absolute path to the lib directory
-	 * @var string
-	 */
-	protected $libPath = null;
-
-	/**
-	 * Relative path to the config file
-	 * @var string
-	 */
-	protected $configFile = 'config/app.ini';
-
-
-	/**
 	 * @param	string	$basePath
 	 * @param	string	$configFile
 	 * @return	AppManager
 	 */	
 	public function __construct($base, 
 								$type,
-								$configFile = null,
 								AppFactoryInterface $factory = null)
 	{
 		$this->setBasePath($base);
 		$this->setLibPath("$base/lib");
 		$this->setAppType($type);
-
-		if (null !== $configFile) {
-			$this->setConfigFile($configFile);
-		}
+		$this->setCodeGenPath("$base/codegen");
 
 		if (! self::isDependencyLoaded()) {
 			$this->loadDependency();
@@ -102,19 +73,42 @@ class AppManager
 	 * 
 	 * @return	null
 	 */
-	public function initialize()
+	public function initialize($key = 'app')
 	{
-		/* initialize the registry with the app base path */
-		$base = $this->getBasePath();
-		Registry::initialize(array('base-path' => $base));
-		
-		$file = "{$base}/{$this->getConfigFile()}";
-		$data = FileManager::parseIni($file);
-		
-		if (is_array($data) && ! empty($data)) {
-			Registry::load($data);	
+		/* used to identify a named configuration */
+		if (empty($key) || ! is_string($key)) {
+			throw new Exception("config key must be a non empty string");
 		}
 
+		/* locate the generated configuration and make sure it exists */
+		$file = "{$this->getCodeGenPath()}/config.php";
+		if (! file_exists($file)) {
+			throw new Exception("config file was not generated at $file");
+		}
+
+		$data = include $file;
+		if (empty($data) || ! is_array($data)) {
+			throw new Exception("configuration must be a non empty array");
+		}
+
+		if (! isset($data[$key])) {
+			throw new Exception("could not locate named config with $key");
+		}
+
+		$config = $data[$key];
+		if (empty($config) || ! is_array($config)) {
+			throw new Exception("named config $key must be a non empty array");
+		}
+		
+		if (! isset($config['env']) || ! is_string($config['env'])) {
+			throw new Exception("env is not found or not a string");
+		}
+
+		if (! defined('AF_ENV')) {
+			define('AF_ENV', $config['env']);
+		}
+		Registry::initialize($config);
+		
 		$factory = $this->getAppFactory();
 		$init = $factory->createInitializer();
 		$init->initialize();
@@ -136,7 +130,7 @@ class AppManager
 	 */
 	public function getBasePath()
 	{
-		return $this->basePath;
+		return AF_BASE_PATH;
 	}
 
 	/**
@@ -144,8 +138,17 @@ class AppManager
 	 */
 	public function getLibPath()
 	{
-		return $this->libPath;
+		return AF_LIB_PATH;
 	}
+
+	/**
+	 * @return	string
+	 */
+	public function getCodeGenPath()
+	{
+		return AF_CODEGEN_PATH;
+	}
+
 
 	/**
 	 * @return	string
@@ -153,14 +156,6 @@ class AppManager
 	public function getDependencyFile()
 	{
 		return $this->dependFile;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getConfigFile()
-	{
-		return $this->configFile;
 	}
 
 	/**
@@ -199,7 +194,7 @@ class AppManager
 	 */
 	public function getAppType()
 	{
-		return $this->appType;
+		return AF_APP_TYPE;
 	}
 
 	/**
@@ -234,8 +229,6 @@ class AppManager
 		if (! defined('AF_APP_TYPE')) {
 			define('AF_APP_TYPE', $type);
 		}
-
-		$this->appType = AF_APP_TYPE;
 	}
 
 
@@ -252,8 +245,6 @@ class AppManager
 		if (! defined('AF_BASE_PATH')) {
 			define('AF_BASE_PATH', $base);
 		}
-
-		$this->basePath = AF_BASE_PATH;
 	}
 
 	/**
@@ -269,9 +260,23 @@ class AppManager
 		if (! defined('AF_LIB_PATH')) {
 			define('AF_LIB_PATH', $path);
 		}
-
-		$this->libPath = AF_LIB_PATH;
 	}
+
+	/**
+	 * @param	string	$base
+	 * @return	null
+	 */	
+	protected function setCodeGenPath($path)
+	{
+		if (empty($path) || ! is_string($path)) {
+			throw new \Exception("Invalid codegen path: must not be empty");
+		}
+
+		if (! defined('AF_CODEGEN_PATH')) {
+			define('AF_CODEGEN_PATH', $path);
+		}
+	}
+
 
 
 	/**

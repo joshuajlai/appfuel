@@ -75,7 +75,7 @@ class Connection implements ConnectionInterface
 	 * Textual information about the state of the connection
 	 * @var string
 	 */
-	protected $status = 'uninitialized';
+	protected $status = 'initialized';
 
 
 	/**
@@ -84,23 +84,22 @@ class Connection implements ConnectionInterface
 	 */
 	public function __construct(ConnectionDetailInterface $detail)
 	{
-		$this->setConnectionDetail($detail);
+		$this->connDetail = $detail;
+		$driver = mysqli_init();
+		if (! $driver instanceof mysqli) {
+			throw new Exception("Could not use mysqli_init()");
+		}
+		$this->driver = $driver;
+
+
 	}
 
 	/**
-	 * Create and set the mysqli drive
-	 *
-	 * @return	bool
+	 * @return	ConnectionDetail
 	 */
-	public function initialize()
+	public function getConnectionDetail()
 	{
-		$driver = mysqli_init();
-		if (! $driver instanceof mysqli) {
-			return false;
-		}
-
-		$this->setDriver($driver);
-		return true;
+		return $this->connDetail;
 	}
 
 	/**
@@ -109,16 +108,6 @@ class Connection implements ConnectionInterface
 	public function getDriver()
 	{
 		return $this->driver;
-	}
-
-	/**
-	 * @param	mysqli $driver
-	 * @return	null
-	 */
-	public function setDriver(mysqli $driver)
-	{
-		$this->setStatus('initialized');
-		$this->driver = $driver;
 	}
 
 	/**
@@ -156,10 +145,10 @@ class Connection implements ConnectionInterface
 			return true;
 		}
 
-		if ('initialized' !== $this->getStatus() || ! $this->isDriver()) {
+		if (! $this->isDriver()) {
 			$this->setError(
 				'AF_CONN_ERR',
-				'connect failure: connection must be intialized first'
+				'connect failure: must have an intialized mysqli driver'
 			); 
 			return false;
 		}
@@ -226,12 +215,11 @@ class Connection implements ConnectionInterface
 	public function close()
 	{
 		$status = $this->getStatus();
-		if (! $this->isDriver() || 'closed' === $status) {
+		if (! $this->isDriver()) {
 			return true;
 		}
 		
-		$driver = $this->getDriver();
-		if (! $driver->close()) {
+		if (! $this->driver->close()) {
 			$this->setError($driver->connect_errno, $driver->connect_error); 
 			$this->setStatus('connection closed failed');
 			return false;
@@ -240,8 +228,6 @@ class Connection implements ConnectionInterface
 		$this->setStatus('closed');
 		$this->isConnected = false;
 		$this->driver      = null;
-		unset($driver);
-
 		return true;
 	}
 
@@ -283,22 +269,6 @@ class Connection implements ConnectionInterface
 	public function getStatus()
 	{
 		return $this->status;
-	}
-
-	/**
-	 * @return	ConnectionDetail
-	 */
-	public function getConnectionDetail()
-	{
-		return $this->connDetail;
-	}
-
-	/**
-	 * @return	
-	 */
-	public function setConnectionDetail(ConnectionDetailInterface $detail)
-	{
-		$this->connDetail = $detail;
 	}
 
 	/**

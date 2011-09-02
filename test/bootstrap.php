@@ -16,6 +16,6 @@ if (! file_exists($file)) {
 	throw new \Exception("Could not find base test case file at $file");
 }
 require_once $file;
-BaseTestCase::initialize($base, "config/test.ini");
+BaseTestCase::initialize($base);
 unset($file);
 unset($base);

@@ -10,8 +10,8 @@
  */
 namespace Appfuel\Db\Handler;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Handler\PoolInterface,
+use Appfuel\Db\DbManager,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\Db\Request\RequestInterface,
 	Appfuel\Framework\Db\Handler\HandlerInterface,
 	Appfuel\Framework\Db\Connection\ConnectionInterface;
@@ -26,53 +26,6 @@ use Appfuel\Framework\Exception,
 class DbHandler implements HandlerInterface
 {
 	/**
-	 * The pool hold one or more connections for the database
-	 * @var	ConnectionInterface
-	 */
-	static protected $pool = null;
-
-	/**
-	 * @return	PoolInterface
-	 */
-	static public function getPool()
-	{
-		return self::$pool;
-	}
-
-	/**
-	 * @param	PoolInterface $pool
-	 * @return	null
-	 */
-	static public function setPool(PoolInterface $pool)
-	{
-		self::$pool = $pool;
-	}
-
-	/**
-	 * @return bool
-	 */
-	static public function isPool()
-	{
-		return self::$pool instanceof PoolInterface;
-	}
-
-	/**
-	 * close all the connections in the pool and unset it
-	 *
-	 * @return	true
-	 */
-	static public function clearPool()
-	{
-		if (! self::isPool()) {
-			return true;
-		}
-
-		self::$pool->shutdown();
-		self::$pool = null;
-		return true;
-	}
-
-	/**
 	 * Use the connection to create an adapter that will service the request.
 	 * Every request has a code that the connection object uses to determine
 	 * which adapter will be used. 
@@ -83,12 +36,9 @@ class DbHandler implements HandlerInterface
 	public function execute(RequestInterface $request)
 	{
 		$type = $request->getType();
-		if (! self::isPool()) {
-			throw new Exception("DbHandler in not initialized");
-		}
+		$connector = DbManager::getConnector();
 
-		$pool = self::getPool();
-		$conn = $pool->getConnection($type);
+		$conn = $connector->getConnection($type);
 		if (! $conn instanceof ConnectionInterface) {
 			throw new Exception("DbHandler not properly initialized");
 		}

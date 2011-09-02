@@ -51,7 +51,7 @@ class ResultTest extends DbTestCase
 	public function setUp()
 	{
         $this->conn = new Connection($this->getConnectionDetail());
-		$this->assertTrue($this->conn->initialize());
+		
 		$this->assertTrue($this->conn->connect());
 
 		$driver = $this->conn->getDriver();

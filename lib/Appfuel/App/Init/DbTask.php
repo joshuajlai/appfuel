@@ -10,9 +10,9 @@
  */
 namespace Appfuel\App\Init;
 
-use Appfuel\Framework\Registry,
+use Appfuel\Db\DbManager,
+	Appfuel\Framework\Registry,
 	Appfuel\Framework\Exception,
-	Appfuel\Db\Handler\DbInitializer,
 	Appfuel\Framework\App\Init\TaskInterface;
 
 /**
@@ -26,9 +26,17 @@ class DbTask implements TaskInterface
      */
 	public function init()
 	{
-        $conns = Registry::get('db_conns', array());
-		$init = $this->createDbInitializer();
-		return $init->initialize($conns);
+		$file = AF_CODEGEN_PATH . '/db.php';
+		if (! file_exists($file)) {
+			throw new Exception("Could not find generated db file at $file");
+		}
+		
+		$data = include $file;
+		if (empty($data) || ! is_array($data)) {
+			throw new Exception("Db data must be in an array");
+		}
+		DbManager::setRawData($data);
+		DbManager::initialize();
 	}
 
 	/**

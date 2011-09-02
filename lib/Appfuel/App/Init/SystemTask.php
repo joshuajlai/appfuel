@@ -30,31 +30,31 @@ class SystemTask implements TaskInterface
      */
 	public function init()
 	{
-        $display = Registry::get('display_errors', null);
+        $display = Registry::get('display-errors', null);
         if (null !== $display) {
             $errorDisplay = $this->createErrorDisplay();
             $errorDisplay->set($display);
         }
 
-        $level = Registry::get('error_reporting', null);
+        $level = Registry::get('error-reporting', null);
         if (null !== $level) {
             $errorReporting = $this->createErrorReporting();
             $errorReporting->setLevel($level);
         }
 
-        $ipath   = Registry::get('include_path', null);
-        $iaction = Registry::get('include_path_action', null);
+        $ipath   = Registry::get('include-path', null);
+        $iaction = Registry::get('include-path-action', null);
         if (null !== $ipath) {
             $includePath = $this->createIncludePath();
             $includePath->usePaths($ipath, $iaction);
         }
 
-        $defaultTz = Registry::get('default_timezone', null);
+        $defaultTz = Registry::get('default-timezone', null);
         if (null !== $defaultTz) {
 			date_default_timezone_set($defaultTz);
         }
 
-        $enableAutoloader =(bool) Registry::get('enable_autoloader', null);
+        $enableAutoloader =(bool) Registry::get('enable-autoloader', null);
         if (true === $enableAutoloader) {
             $autoloader = $this->createAutoloader();
             $autoloader->register();

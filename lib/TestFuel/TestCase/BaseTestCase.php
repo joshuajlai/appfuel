@@ -77,7 +77,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	 * @param	string		$configFile		absolute path to config file
 	 * @return	null
 	 */
-	static public function initialize($base, $configFile)
+	static public function initialize($base)
 	{
 		$file = "{$base}/lib/Appfuel/App/AppManager.php";
 		if (! file_exists($file)) {
@@ -85,8 +85,8 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		}
 		require_once $file;
 
-		$manager = new AppManager($base, 'test', $configFile);
-		$manager->initialize();
+		$manager = new AppManager($base, 'test');
+		$manager->initialize('test');
 
 		self::$registryData = Registry::getAll();
 
@@ -95,7 +95,6 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		$test = "$base/test";
 		self::$basePath			= $base;
 		self::$appManager		= $manager;
-		self::$testConfigFile	= $configFile;
 		self::$testPath			= $test;
 		self::$testFilesPath	= "{$test}/files";
 		self::$appfuelTestPath  = "{$test}/appfuel";
