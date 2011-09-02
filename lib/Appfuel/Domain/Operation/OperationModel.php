@@ -29,40 +29,7 @@ class OperationModel extends DomainModel implements OperationInterface
 	 * @var string
 	 */
 	protected $name = null;
-
-	/**
-	 * @var string
-	 */
-	protected $description = null;
 	
-	/**
-	 * Access policy determines if an operation is public|private
-	 * @var string
-	 */
-	protected $accessPolicy = null;
-
-	/**
-	 * Part of the url that describes the location of the controller
-	 * @var string
-	 */	
-	protected $route = null;
-
-	/**
-	 * The default return type of the operation. This can be overwritten by 
-	 * the user if the controller supports multiple return types
-	 * @var string
-	 */
-	protected $defaultFormat = null;
-	
-	/**
-	 * List of intercept filters to be added to the front controller
-	 * @var string
-	 */
-	protected $filters = array(
-		'pre'  => array(),
-		'post' => array()
-	);
-
 	/**
 	 * The class of operation the operation belongs to. Current their are the 
 	 * following classes: business|infrastructure|ui
@@ -72,19 +39,10 @@ class OperationModel extends DomainModel implements OperationInterface
 	protected $opClass = null;
 
 	/**
-	 * The request type is a key that represents the type of request expected 
-	 * for this given operation. Example http, cli, http-ajax,
-	 * @var	string
+	 * @var string
 	 */
-	protected $requestType = null;
-
-	/**
-	 * Value object that provides detail information about the controller that 
-	 * executes this operation. The front controller uses the controller detail
-	 * @var	ActionControllerDetail 
-	 */
-	protected $controllerDetail = null;
-
+	protected $description = null;
+	
 	/**
 	 * @param	string
 	 */
@@ -106,210 +64,6 @@ class OperationModel extends DomainModel implements OperationInterface
 		$this->name = $name;
 		$this->_markDirty('name');
 		return $this;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getDescription()
-	{
-		return $this->description;
-	}
-
-	/**
-	 * @param	string	$text
-	 * @return	OperationModel
-	 */
-	public function setDescription($text)
-	{
-		if (! is_string($text)) {
-			throw new Exception("Invalid description must be a string");
-		}
-
-		$this->description = $text;
-		$this->_markDirty('description');
-		return $this;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getAccessPolicy()
-	{
-		return $this->accessPolicy;
-	}
-
-	/**
-	 * @param	string	$level	either public | private
-	 * @return	OperationModel
-	 */
-	public function setAccessPolicy($level)
-	{
-		if (! $this->isNonEmptyString($level)) {
-			throw new Exception("Access policy must be a non empty string");
-		}
-
-		$level = strtolower($level);
-		if (! in_array($level, array('public', 'private'))) {
-			throw new Exception("Access policy must be either public|private");
-		}
-
-		$this->accessPolicy = $level;
-		$this->_markDirty('accessPolicy');
-		return $this;
-	}
-
-	/**
-	 * @param	string
-	 */
-	public function getRoute()
-	{
-		return	$this->route;
-	}
-
-	/**
-	 * @param	string	$route
-	 * @return	OperationModel
-	 */
-	public function setRoute($route)
-	{
-		if (! $this->isNonEmptyString($route)) {
-			throw new Exception("route must be a non empty string");
-		}
-
-		$this->route = $route;
-		$this->_markDirty('route');
-		return $this;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getDefaultFormat()
-	{
-		return $this->defaultFormat;
-	}
-
-	/**
-	 * @param	string	$format
-	 * @return	OperationModel
-	 */
-	public function setDefaultFormat($format)
-	{
-		if (! $this->isNonEmptyString($format)) {
-			throw new Exception("Default format must be a non empty string");
-		}
-
-		$this->defaultFormat = $format;
-		$this->_markDirty('defaultFormat');
-		return $this;
-	}
-
-	/**
-	 * Add a single filter to the filter list and mark the filters as dirty
-	 * 
-	 * @throws	Appfuel\Framework\Exception
-	 * @param	string	$filter
-	 * @return	null
-	 */
-	public function addFilter($filter, $type)
-	{
-		if (! $this->isNonEmptyString($filter)) {
-			throw new Exception("filter must be a non empty string");
-		}
-
-		if (! $this->isNonEmptyString($type)) {
-			throw new Exception("filter type must be a non empty string");
-		}
-
-		$type = strtolower($type);
-		if (! in_array($type, array('pre', 'post'))) {
-			$err = "filter type values must be pre|post -($type) ";
-			throw new Exception($err);
-		}
-
-		if (in_array($filter, $this->filters[$type])) {
-			return $this;
-		}
-
-		$this->filters[$type][] = $filter;
-		$this->_markDirty('filters');
-		return $this;
-	}
-
-	/**
-	 * Add many filters from a single datastructure with the following shape:
-	 * array (
-	 *	'pre'	=> array('filter1', 'filter2', 'filter3'),
-	 *  'post'	=> array('filter4', 'filter5', 'filter6')
-	 * );
-	 * 
-	 * or 
-	 * array (
-	 *	'pre'  => 'filter1',
-	 *	'post' => 'filter2'
-	 * );
-	 * 
-	 * @throws	Appfuel\Framework\Exception
-	 * @param	array	$filters
-	 * @return	OperationModel
-	 */
-	public function setFilters(array $filters)
-	{
-		if (empty($filters)) {
-			return $this;
-		}
-
-		/* 
-		 * clear out any existing filters
-		 */
-		$this->filters = array(
-			'pre'	=> array(),
-			'post'	=> array()
-		);
-		if (array_key_exists('pre', $filters)) {
-			$list = $filters['pre'];
-			if (! empty($list) && is_string($list)) {
-				$list = array($list);
-			}
-
-			if (! empty($list) && is_array($list)) {
-				foreach ($list as $filter) {
-					$this->addFilter($filter, 'pre');
-				}
-			}
-		}
-
-		if (array_key_exists('post', $filters)) {
-			$list = $filters['post'];
-			if (! empty($list) && is_string($list)) {
-				$list = array($list);
-			}
-
-			if (! empty($list) && is_array($list)) {
-				foreach ($list as $filter) {
-					$this->addFilter($filter, 'post');
-				}
-			}
-		}
-
-		return $this;
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getPreFilters()
-	{
-		return $this->filters['pre'];
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getPostFilters()
-	{
-		return $this->filters['post'];
 	}
 
 	/**
@@ -342,55 +96,28 @@ class OperationModel extends DomainModel implements OperationInterface
 		return $this;
 	}
 
+
 	/**
 	 * @return	string
 	 */
-	public function getRequestType()
+	public function getDescription()
 	{
-		return $this->requestType;
+		return $this->description;
 	}
-	
+
 	/**
-	 * @param	string	$type
+	 * @param	string	$text
 	 * @return	OperationModel
 	 */
-	public function setRequestType($type)
+	public function setDescription($text)
 	{
-		if (! $this->isNonEmptyString($type)) {
-			throw new Exception("Request type  must be a non empty string");
+		if (! is_string($text)) {
+			throw new Exception("Invalid description must be a string");
 		}
 
-		$type = strtolower($type);
-		if (! in_array($type, array('http','ajax', 'cli'))) {
-			throw new Exception("Request type must be http|ajax|cli -($type)");
-		}
-
-		$this->requestType = $type;
-		$this->_markDirty('requestType');
+		$this->description = $text;
+		$this->_markDirty('description');
 		return $this;
 	}
-
-	/**
-	 * @return	ActionControllerDetail
-	 */
-	public function getControllerDetail()
-	{
-		return $this->controllerDetail;
-	}
-
-	/**
-	 * @param	string	$actionNs	namespace of the action controller
-	 * @return	OperationModel
-	 */
-	public function setControllerDetail($actionNs)
-	{
-		if (! $this->isNonEmptyString($actionNs)) {
-			throw new Exception("Action namespace must be a non empty string");
-		}
-	
-		$this->controllerDetail = new ActionControllerDetail($actionNs);
-		return $this;
-	}
-
 
 }

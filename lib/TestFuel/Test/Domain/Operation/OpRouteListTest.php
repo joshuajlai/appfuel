@@ -11,7 +11,7 @@
 namespace TestFuel\Test\Domain\Operation;
 
 use TestFuel\TestCase\BaseTestCase,
-	Appfuel\Domain\Operation\OperationList,
+	Appfuel\Domain\Operation\OpRouteList,
 	Appfuel\Framework\Action\ActionControllerDetail;
 
 /**
@@ -27,6 +27,5 @@ class OperationListTest extends BaseTestCase
 	 */
 	public function testGetFileData()
 	{
-		$data = OperationList::getOperationFileData();
 	}
 }

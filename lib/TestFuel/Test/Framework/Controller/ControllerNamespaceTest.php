@@ -12,12 +12,12 @@ namespace TestFuel\Test\Framework\Action;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\Action\ActionControllerDetail;
+	Appfuel\Framework\Action\ControllerNamespace;
 
 /**
  * Test the value object to ensure the members are immutable
  */
-class ActionControllerDetailTest extends BaseTestCase
+class ControllerNamespaceTest extends BaseTestCase
 {
     /**
      * @return null
@@ -30,9 +30,9 @@ class ActionControllerDetailTest extends BaseTestCase
 		$root      = 'Appfuel\Action';
 		$ctrClass  = "$action\Controller";
 
-		$detail = new ActionControllerDetail($action);
+		$detail = new ControllerNamespace($action);
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Action\ActionControllerDetailInterface',
+			'Appfuel\Framework\Action\ControllerNamespaceInterface',
 			$detail,
 			'route must implement the route interface'
 		);

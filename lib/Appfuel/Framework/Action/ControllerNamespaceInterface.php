@@ -13,7 +13,7 @@ namespace Appfuel\Framework\Action;
 
 /**
  */
-interface ActionControllerDetailInterface
+interface ControllerNamespaceInterface
 {
     /**
      * @return string
@@ -34,5 +34,10 @@ interface ActionControllerDetailInterface
      * @return string
      */
     public function getRootNamespace();
+
+	/**
+	 * @return	string
+	 */
+	public function getControllerClass();
 
 }

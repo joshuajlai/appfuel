@@ -14,11 +14,11 @@ namespace Appfuel\Framework\Action;
 use Appfuel\Framework\Exception;
 
 /**
- * The action controller detail is a value object that holds detail info
- * about the action controller which is used by the front controller and 
- * is apart of the operation object
+ * Parse out the individual namespaces of the action controller so that the 
+ * front controller has a list of all the parent namespaces of the this
+ * action controller. Also holds the full classname of the action controller
  */
-class ActionControllerDetail implements ActionControllerDetailInterface
+class ControllerNamespace implements ControllerNamespaceInterface
 {
 	/**
 	 * The root level namespace is the top level namespace that holds 

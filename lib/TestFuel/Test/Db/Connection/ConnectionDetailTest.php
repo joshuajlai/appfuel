@@ -25,5 +25,3 @@ class ConnectionDetailTest extends BaseTestCase
 		$this->assertTrue(true);
 	}
 }
-
-

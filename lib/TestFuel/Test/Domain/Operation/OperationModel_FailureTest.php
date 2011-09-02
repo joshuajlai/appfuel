@@ -59,88 +59,9 @@ class OperationModel_FailureTest extends BaseTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return				null
 	 */
-	public function testFailedSetControllerDetail($param)
-	{
-		$this->model->setControllerDetail($param);
-	}
-
-	/**
-	 * @dataProvider		provideNotNonEmptyString
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return				null
-	 */
 	public function testFailedSetName($param)
 	{
 		$this->model->setName($param);
-	}
-
-	/**
-	 * @dataProvider		provideNotNonEmptyString
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return				null
-	 */
-	public function testFailedSetAccessPolicy($param)
-	{
-		$this->model->setAccessPolicy($param);
-
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return				null
-	 */
-	public function testFailedSetAccessPolicyNotPrivateOrPublic()
-	{
-
-		/* access policy is either private or public so lets test
-		 * some that is neither
-		 */
-		$this->model->setAccessPolicy('not-private-or-public');
-	}
-
-	/**
-	 * @dataProvider		provideNotNonEmptyString
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return				null
-	 */
-	public function testFailedSetRoute($param)
-	{
-		$this->model->setRoute($param);
-	}
-
-	/**
-	 * @dataProvider		provideNotNonEmptyString
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return				null
-	 */
-	public function testFailedAddFilterBadFilter($param)
-	{
-		/* know good second parameter */
-		$type = 'pre';
-		$this->model->setAddFilter($param, $type);
-	}
-
-	/**
-	 * @dataProvider		provideNotNonEmptyString
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return				null
-	 */
-	public function testFailedAddFilterBadType($param)
-	{
-		/* know good first parameter */
-		$filter = 'filter1';
-		$this->model->setAddFilter($filter, $param);
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return				null
-	 */
-	public function testFailedAddFilterTypeNotPreOrPost()
-	{
-		/* know good first parameter */
-		$filter = 'filter1';
-		$this->model->setAddFilter($filter, 'not-pre-or-post');
 	}
 
 	/**
@@ -162,27 +83,5 @@ class OperationModel_FailureTest extends BaseTestCase
 	public function testSetOpClassNotValidType()
 	{
 		$this->model->setOpClass('not-business-infra-or-ui');
-	}
-
-	/**
-	 * @dataProvider		provideNotNonEmptyString
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return				null
-	 */
-	public function testFailedSetRequestType($param)
-	{
-		$this->model->setRequestType($param);
-	}
-
-	/**
-	 * Valid request types are http, ajax or cli. Anything else will throw
-	 * an exception
-	 *
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return				null
-	 */
-	public function testSetRequestType()
-	{
-		$this->model->setOpClass('not-http-ajax-or-cli');
 	}
 }

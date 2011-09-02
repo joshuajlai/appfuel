@@ -28,8 +28,9 @@ class Initializer implements InitializerInterface
 	 * @var array
 	 */
 	protected $map = array(
-		'system' => 'SystemTask',
-		'db'	 => 'DbTask'
+		'system'	=> 'SystemTask',
+		'db'		=> 'DbTask',
+		'op-routes' => 'OpRouteTask'
 	);
 
     /**  
