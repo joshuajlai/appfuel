@@ -82,7 +82,7 @@ class OperationalRoute extends DomainModel implements OperationalRouteInterface
 
 	/**
 	 * @param	string	$name
-	 * @return	OperationModel
+	 * @return	OperationalModel
 	 */
 	public function setOperation(OperationInterface $op)
 	{

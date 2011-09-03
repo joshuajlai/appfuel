@@ -20,42 +20,11 @@ use Appfuel\Framework\File\FileManager,
 class Repository extends OrmRepository
 {
 	/**
-	 * Framework finds operations from a file built during deployment to avoid
-	 * accessing the database. This is the location of that file
-	 * @var Appfuel\Framework\File\FrameworkFile
-	 */
-	protected $opListFile = null;
-
-	/**
-	 * Assign the location of the operations build file
-	 * 
-	 * @return	Repository
-	 */
-	public function __construct()
-	{
-		parent::__construct();
-		$path = 'codegen/operations.php';
-		$this->opListFile = FileManager::createFrameworkFile($path);
-	}
-
-	/**
 	 * @return Appfuel\Framework\File\FrameworkFile
 	 */
-	public function getOperationListFile()
+	public function findOperationalRoute($routeString)
 	{
-		return $this->opListFile;
-	}
-
-	/**
-	 * The generated operation list is a basic array kept in a standard
-	 * variable name 'opList' which we will load in the OperationList class
-	 * which will allow us to search on available operations
-	 *
-	 * @return	null
-	 */
-	public function loadStaticOperations()
-	{
-
+		
 	}
 
 	/**
