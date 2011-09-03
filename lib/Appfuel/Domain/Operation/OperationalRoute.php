@@ -313,7 +313,7 @@ class OperationalRoute extends DomainModel implements OperationalRouteInterface
 		}
 
 		$type = strtolower($type);
-		if (! in_array($type, array('http','ajax', 'cli'))) {
+		if (! in_array($type, array('http','http-ajax', 'cli'))) {
 			throw new Exception("Request type must be http|ajax|cli -($type)");
 		}
 

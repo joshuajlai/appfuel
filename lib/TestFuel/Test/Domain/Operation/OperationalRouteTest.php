@@ -178,7 +178,307 @@ class OperationalRouteTest extends FrameworkTestCase
 			$this->model->setAccessPolicy('private')
 		);
 		$this->assertEquals('private', $this->model->getAccessPolicy());
+	}
+	/**
+	 * Request type has only three valid values (http|http-ajax|cli)
+	 * 
+	 * @return	null
+	 */
+	public function testRequestType()
+	{
+		$this->assertNull($this->model->getRequestType());
+		$this->assertSame(
+			$this->model, 
+			$this->model->setRequestType('http')
+		);
+		$this->assertEquals('http', $this->model->getRequestType());
 
+		$this->assertSame(
+			$this->model, 
+			$this->model->setRequestType('http-ajax')
+		);
+		$this->assertEquals('http-ajax', $this->model->getRequestType());
 
+		$this->assertSame(
+			$this->model, 
+			$this->model->setRequestType('cli')
+		);
+		$this->assertEquals('cli', $this->model->getRequestType());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testRouteString()
+	{
+		$this->assertNull($this->model->getRouteString());
+
+		$route = 'any/string/really';
+		$this->assertSame($this->model, $this->model->setRouteString($route));
+		$this->assertEquals($route, $this->model->getRouteString());
+	}
+
+	/**
+	 * @depends	testMarshal
+	 * @return	null
+	 */
+	public function testAddGetPreFilters()
+	{
+		$filters = array(
+			'pre'  => array(),
+			'post' => array()
+		);
+		$this->assertEquals($filters, $this->model->getFilters());
+
+		$this->assertNull($this->model->_getDomainState());
+
+		$this->assertSame(
+			$this->model, 
+			$this->model->addFilter('filter1', 'pre'),
+			'exposes a fluent interface'
+		);
+
+		$state = $this->model->_getDomainState();
+		$this->assertInstanceOf(
+			'Appfuel\Orm\Domain\DomainState',
+			$state
+		);
+
+		$this->assertTrue($state->isDirty());
+		
+		$expected = array('filter1');
+		$this->assertEquals($expected, $this->model->getPreFilters());
+	
+		/* 
+		 * will return everything in pre that getPreFilters returned 
+		 * plus an empty post
+		 */	
+		$expected = array(
+			'pre'  => $expected,
+			'post' => array()
+		);
+		$this->assertEquals($expected, $this->model->getFilters());
+	
+		$this->assertSame(
+			$this->model, 
+			$this->model->addFilter('filter2', 'pre'),
+			'exposes a fluent interface'
+		);
+		
+		$expected = array('filter1', 'filter2');
+		$this->assertEquals($expected, $this->model->getPreFilters());
+
+		$expected = array(
+			'pre'  => $expected,
+			'post' => array()
+		);
+		$this->assertEquals($expected, $this->model->getFilters());
+	
+		$this->assertSame(
+			$this->model, 
+			$this->model->addFilter('filter3', 'pre'),
+			'exposes a fluent interface'
+		);
+		
+		$expected = array('filter1', 'filter2', 'filter3');
+		$this->assertEquals($expected, $this->model->getPreFilters());
+
+		$expected = array(
+			'pre'  => $expected,
+			'post' => array()
+		);
+		$this->assertEquals($expected, $this->model->getFilters());
+	}
+
+	/**
+	 * @depends	testAddGetPreFilters
+	 * @return	null
+	 */
+	public function testAddGetPostFilters()
+	{
+		$this->assertSame(
+			$this->model, 
+			$this->model->addFilter('filter1', 'post'),
+			'exposes a fluent interface'
+		);
+
+		$state = $this->model->_getDomainState();
+		$this->assertInstanceOf(
+			'Appfuel\Orm\Domain\DomainState',
+			$state
+		);
+
+		$this->assertTrue($state->isDirty());
+		
+		$expected = array('filter1');
+		$this->assertEquals($expected, $this->model->getPostFilters());
+	
+		/* 
+		 * will return everything in pre that getPreFilters returned 
+		 * plus an empty post
+		 */	
+		$expected = array(
+			'pre'  => array(),
+			'post' => $expected
+		);
+		$this->assertEquals($expected, $this->model->getFilters());
+	
+		$this->assertSame(
+			$this->model, 
+			$this->model->addFilter('filter2', 'post'),
+			'exposes a fluent interface'
+		);
+		
+		$expected = array('filter1', 'filter2');
+		$this->assertEquals($expected, $this->model->getPostFilters());
+
+		$expected = array(
+			'pre'  => array(),
+			'post' => $expected
+		);
+		$this->assertEquals($expected, $this->model->getFilters());
+	
+		$this->assertSame(
+			$this->model, 
+			$this->model->addFilter('filter3', 'post'),
+			'exposes a fluent interface'
+		);
+		
+		$expected = array('filter1', 'filter2', 'filter3');
+		$this->assertEquals($expected, $this->model->getPostFilters());
+
+		$expected = array(
+			'pre'  => array(),
+			'post' => $expected
+		);
+		$this->assertEquals($expected, $this->model->getFilters());
+	}
+
+	/**
+	 * @depends	testAddGetPostFilters
+	 * @return	null
+	 */
+	public function testAddPreAndPostFilters()
+	{
+		$this->model->addFilter('filter1', 'PRE')
+					->addFilter('filter2', 'POST')
+					->addFilter('filter3', 'pRe')
+					->addFilter('filter4', 'POst')
+					->addFilter('filter5', 'pre')
+					->addFilter('filter6', 'post');
+
+		$expectedPre = array('filter1', 'filter3', 'filter5');
+		$this->assertEquals($expectedPre, $this->model->getPreFilters());
+
+		$expectedPost = array('filter2', 'filter4', 'filter6');
+		$this->assertEquals($expectedPost, $this->model->getPostFilters());
+
+		$expected = array(
+			'pre'	=> $expectedPre,
+			'post'	=> $expectedPost
+		);
+
+		$this->assertEquals($expected, $this->model->getFilters());
+
+	}
+
+	/**
+	 * @depends	testAddPreAndPostFilters
+	 * @return	null
+	 */
+	public function testAddPrePostFilterWithDuplications()
+	{
+		$this->model->addFilter('filter1', 'pre')
+					->addFilter('filter1', 'pre')
+					->addFilter('filter2', 'post')
+					->addFilter('filter2', 'post')
+					->addFilter('filter3', 'pre')
+					->addFilter('filter4', 'post')
+					->addFilter('filter4', 'post')
+					->addFilter('filter4', 'post')
+					->addFilter('filter5', 'pre')
+					->addFilter('filter5', 'pre')
+					->addFilter('filter5', 'pre')
+					->addFilter('filter5', 'pre')
+					->addFilter('filter6', 'post');
+
+		$expectedPre = array('filter1', 'filter3', 'filter5');
+		$this->assertEquals($expectedPre, $this->model->getPreFilters());
+
+		$expectedPost = array('filter2', 'filter4', 'filter6');
+		$this->assertEquals($expectedPost, $this->model->getPostFilters());
+
+		$expected = array(
+			'pre'	=> $expectedPre,
+			'post'	=> $expectedPost
+		);
+
+		$this->assertEquals($expected, $this->model->getFilters());
+	}
+
+	/**
+	 * Each time you run setFilters it wipes out any old filters already added
+	 * 
+	 * @depends	testAddPreAndPostFilters
+	 * @return	null
+	 */
+	public function testSetFiltersAlternateWays()
+	{
+		$filters = array(
+			'pre'  => 'filter1',
+			'post' => 'filter2'
+		);
+		$this->assertSame(
+			$this->model,
+			$this->model->setFilters($filters),
+			'exposes fluent interface'
+		);
+
+		$expected = array(
+			'pre'	=> array('filter1'),
+			'post'	=> array('filter2')
+		);
+
+		$this->assertEquals($expected, $this->model->getFilters());
+
+		$filters = array(
+			'pre'  => 'filter1'
+		);
+		$this->assertSame(
+			$this->model,
+			$this->model->setFilters($filters),
+			'exposes fluent interface'
+		);
+		$expected = array(
+			'pre'	=> array('filter1'),
+			'post'	=> array()
+		);
+
+		$this->assertEquals($expected, $this->model->getFilters());
+
+		$filters = array(
+			'post' => 'filter1'
+		);
+		$this->assertSame(
+			$this->model,
+			$this->model->setFilters($filters),
+			'exposes fluent interface'
+		);
+
+		$expected = array(
+			'pre'	=> array(),
+			'post'	=> array('filter1')
+		);
+
+		$this->assertEquals($expected, $this->model->getFilters());
+
+		/* an empty array is ignored */
+		$this->assertSame(
+			$this->model,
+			$this->model->setFilters(array()),
+			'exposes fluent interface'
+		);
+
+		$this->assertEquals($expected, $this->model->getFilters());
 	}
 }
