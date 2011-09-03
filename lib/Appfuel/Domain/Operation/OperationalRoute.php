@@ -12,29 +12,31 @@ namespace Appfuel\Domain\Operation;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Orm\Domain\DomainModel,
-	Appfuel\Framework\Action\ActionControllerDetail,
-	Appfuel\Framework\Domain\Operation\OperationInterface;
+	Appfuel\Framework\Action\ControllerNamespace,
+	Appfuel\Framework\Domain\Operation\OperationInterface,
+	Appfuel\Framework\Domain\Operation\OperationalRouteInterface;
 
 /**
- * An operation represents an action that can be preformed by a user or system.
- * The framework identitifies an operation by its route string while users 
- * refer to it by its name. The route string is a public string used to map an 
- * operation to an action controller namespace, decoupling the action 
- * controller class from the url used to request that action controller. 
+ * An operational route is an operation that bound to a action controller via
+ * the route string. Operational routes have additional properties that don't
+ * belong to either operations or controllers such as: accessPolicy, 
+ * routeString, defaultFormat and requestType
  */
-class OperationModel extends DomainModel implements OperationInterface
+class OperationalRoute extends DomainModel implements OperationalRouteInterface
 {
 	/**
 	 * Textual name 
 	 * @var string
 	 */
-	protected $name = null;
+	protected $operation = null;
 
 	/**
-	 * @var string
+	 * Value object used to holds the namespaces of the action controller
+	 * @var	ControllerNamespace
 	 */
-	protected $description = null;
-	
+	protected $controllerNamespace = null;
+
+
 	/**
 	 * Access policy determines if an operation is public|private
 	 * @var string
@@ -45,7 +47,7 @@ class OperationModel extends DomainModel implements OperationInterface
 	 * Part of the url that describes the location of the controller
 	 * @var string
 	 */	
-	protected $route = null;
+	protected $routeString = null;
 
 	/**
 	 * The default return type of the operation. This can be overwritten by 
@@ -64,14 +66,6 @@ class OperationModel extends DomainModel implements OperationInterface
 	);
 
 	/**
-	 * The class of operation the operation belongs to. Current their are the 
-	 * following classes: business|infrastructure|ui
-	 *
-	 * @var string
-	 */
-	protected $opClass = null;
-
-	/**
 	 * The request type is a key that represents the type of request expected 
 	 * for this given operation. Example http, cli, http-ajax,
 	 * @var	string
@@ -79,55 +73,43 @@ class OperationModel extends DomainModel implements OperationInterface
 	protected $requestType = null;
 
 	/**
-	 * Value object that provides detail information about the controller that 
-	 * executes this operation. The front controller uses the controller detail
-	 * @var	ActionControllerDetail 
-	 */
-	protected $controllerDetail = null;
-
-	/**
 	 * @param	string
 	 */
-	public function getName()
+	public function getOperation()
 	{
-		return $this->name;
+		return $this->operation;
 	}
 
 	/**
 	 * @param	string	$name
 	 * @return	OperationModel
 	 */
-	public function setName($name)
+	public function setOperation(OperationInterface $op)
 	{
-		if (! $this->isNonEmptyString($name)) {
-			throw new Exception("Operation name must be a non empty string");
-		}
-		
-		$this->name = $name;
-		$this->_markDirty('name');
+		$this->operation = $op;
+		$this->_markDirty('operation');
 		return $this;
 	}
 
 	/**
-	 * @return	string
+	 * @return	ControllerNamespaceInterface
 	 */
-	public function getDescription()
+	public function getControllerNamespace()
 	{
-		return $this->description;
+		return $this->controllerNamespace;
 	}
 
 	/**
-	 * @param	string	$text
-	 * @return	OperationModel
+	 * @param	string	$actionNs	namespace of the action controller
+	 * @return	ControllerNamespaceInterface
 	 */
-	public function setDescription($text)
+	public function setControllerNamespace($actionNs)
 	{
-		if (! is_string($text)) {
-			throw new Exception("Invalid description must be a string");
+		if (! $this->isNonEmptyString($actionNs)) {
+			throw new Exception("Action namespace must be a non empty string");
 		}
-
-		$this->description = $text;
-		$this->_markDirty('description');
+	
+		$this->controllerNamespace = new ControllerNamespace($actionNs);
 		return $this;
 	}
 
@@ -162,23 +144,23 @@ class OperationModel extends DomainModel implements OperationInterface
 	/**
 	 * @param	string
 	 */
-	public function getRoute()
+	public function getRouteString()
 	{
-		return	$this->route;
+		return	$this->routeString;
 	}
 
 	/**
 	 * @param	string	$route
 	 * @return	OperationModel
 	 */
-	public function setRoute($route)
+	public function setRouteString($route)
 	{
 		if (! $this->isNonEmptyString($route)) {
 			throw new Exception("route must be a non empty string");
 		}
 
-		$this->route = $route;
-		$this->_markDirty('route');
+		$this->routeString = $route;
+		$this->_markDirty('routeString');
 		return $this;
 	}
 
@@ -315,36 +297,6 @@ class OperationModel extends DomainModel implements OperationInterface
 	/**
 	 * @return	string
 	 */
-	public function getOpClass()
-	{
-		return $this->opClass;
-	}
-
-	/**
-	 * @throws	Appfuel\Framework\Exception
-	 * @param	string	$class	either business|infra|ui
-	 * @return	OperationModel
-	 */
-	public function setOpClass($class)
-	{
-		if (! $this->isNonEmptyString($class)) {
-			throw new Exception("Operation class must be a non empty string");
-		}
-
-		$class = strtolower($class);
-		if (! in_array($class, array('business','infra', 'ui'))) {
-			$err = "Operation class must be business|infra|ui -($class)";
-			throw new Exception($err);
-		}
-
-		$this->opClass = $class;
-		$this->_markDirty('opClass');
-		return $this;
-	}
-
-	/**
-	 * @return	string
-	 */
 	public function getRequestType()
 	{
 		return $this->requestType;
@@ -369,28 +321,4 @@ class OperationModel extends DomainModel implements OperationInterface
 		$this->_markDirty('requestType');
 		return $this;
 	}
-
-	/**
-	 * @return	ActionControllerDetail
-	 */
-	public function getControllerDetail()
-	{
-		return $this->controllerDetail;
-	}
-
-	/**
-	 * @param	string	$actionNs	namespace of the action controller
-	 * @return	OperationModel
-	 */
-	public function setControllerDetail($actionNs)
-	{
-		if (! $this->isNonEmptyString($actionNs)) {
-			throw new Exception("Action namespace must be a non empty string");
-		}
-	
-		$this->controllerDetail = new ActionControllerDetail($actionNs);
-		return $this;
-	}
-
-
 }
