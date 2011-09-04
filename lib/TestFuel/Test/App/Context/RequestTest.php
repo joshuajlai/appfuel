@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\App;
+namespace TestFuel\Test\App\Context;
 
-use Appfuel\App\Request,
+use Appfuel\App\Context\Request,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
@@ -91,7 +91,7 @@ class RequestTest extends BaseTestCase
 		}
 
 		$uriString = 'some/route';
-		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Context\UriInterface');
 		
 		$request = new Request($uri);
 	}
@@ -106,7 +106,7 @@ class RequestTest extends BaseTestCase
 	{
 		$_SERVER['REQUEST_METHOD'] = 'post';
 		
-		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Context\UriInterface');
 		$request = new Request($uri);
 		$this->assertTrue($request->isPost());
 		$this->assertFalse($request->isGet());
@@ -140,7 +140,7 @@ class RequestTest extends BaseTestCase
 			'param2' => 'value2',
 			'param3' => 'value3'
 		);
-		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Context\UriInterface');
 		$uri->expects($this->any())
 			->method('getParams')
 			->will($this->returnValue($params));
@@ -175,7 +175,7 @@ class RequestTest extends BaseTestCase
 		);		
 		$params = $_POST;
 
-		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Context\UriInterface');
 		$request = new Request($uri);
 		$this->assertEquals($params, $request->getAll('post'));
 
@@ -206,7 +206,7 @@ class RequestTest extends BaseTestCase
 		);		
 		$params = $_COOKIE;
 
-		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Context\UriInterface');
 		$request = new Request($uri);
 		$this->assertEquals($params, $request->getAll('cookie'));
 
@@ -237,7 +237,7 @@ class RequestTest extends BaseTestCase
 		);		
 		$params = $_FILES;
 
-		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Context\UriInterface');
 		$request = new Request($uri);
 		$this->assertEquals($params, $request->getAll('files'));
 
@@ -268,7 +268,7 @@ class RequestTest extends BaseTestCase
 		);		
 		$params = $_SERVER['argv'];
 
-		$uri = $this->getMock('Appfuel\Framework\App\Request\UriInterface');
+		$uri = $this->getMock('Appfuel\Framework\App\Context\UriInterface');
 		$request = new Request($uri);
 		$this->assertEquals($params, $request->getAll('argv'));
 

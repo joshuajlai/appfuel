@@ -10,7 +10,7 @@
  */
 namespace TestFuel\Test\App;
 
-use Appfuel\App\PrettyUri,
+use Appfuel\App\Context\PrettyUri,
 	TestFuel\TestCase\BaseTestCase;
 
 /**

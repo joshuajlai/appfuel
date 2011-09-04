@@ -13,7 +13,6 @@ namespace Appfuel\Framework\App\Context;
 
 use Appfuel\Framework\App\Route\RouteInterface,
 	Appfuel\Framework\Domain\User\UserInterface,
-	Appfuel\Framework\App\Request\RequestInterface,
 	Appfuel\Framework\DataStructure\DictionaryInterface;
 
 /**

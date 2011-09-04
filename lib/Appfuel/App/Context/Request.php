@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\App;
+namespace Appfuel\App\Context;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\App\Request\UriInterface,
-	Appfuel\Framework\App\Request\RequestInterface;
+	Appfuel\Framework\App\Context\UriInterface,
+	Appfuel\Framework\App\Context\RequestInterface;
 
 /**
  * Common logic to handle requests given to the application from any type.

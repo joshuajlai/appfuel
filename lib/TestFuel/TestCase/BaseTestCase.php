@@ -23,12 +23,6 @@ use Appfuel\App\AppManager,
 class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 {
 	/**
-	 * Absolute path to the test config file
-	 * @var string
-	 */
-	static protected $testConfigFile = null;
-
-	/**
 	 * Absolute path to the test directory
 	 * @var string
 	 */

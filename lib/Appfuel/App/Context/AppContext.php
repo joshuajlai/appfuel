@@ -12,10 +12,10 @@ namespace Appfuel\App\Context;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Framework\App\Route\RouteInterface,
-	Appfuel\Framework\App\Request\RequestInterface,
-	Appfuel\Framework\App\Context\ContextInterface,
 	Appfuel\Framework\Domain\User\UserInterface,
+	Appfuel\Framework\App\Context\RouteInterface,
+	Appfuel\Framework\App\Context\RequestInterface,
+	Appfuel\Framework\App\Context\ContextInterface,
 	Appfuel\Framework\Domain\Operation\OperationInterface;
 
 /**
