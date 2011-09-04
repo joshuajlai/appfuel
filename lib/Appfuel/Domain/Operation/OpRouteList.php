@@ -48,6 +48,8 @@ class OpRouteList
 		self::$raw = $routes;
 	}
 
+	static public function findOperationalRoute 
+
 	/**
 	 * Return all the operational routes in their raw form
 	 * 

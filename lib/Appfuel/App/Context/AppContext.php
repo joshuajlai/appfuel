@@ -13,6 +13,7 @@ namespace Appfuel\App\Context;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\Domain\User\UserInterface,
+	Appfuel\Framework\App\Context\UriInterface,
 	Appfuel\Framework\App\Context\RouteInterface,
 	Appfuel\Framework\App\Context\RequestInterface,
 	Appfuel\Framework\App\Context\ContextInterface,
@@ -41,6 +42,12 @@ class AppContext extends Dictionary implements ContextInterface
 	protected $request = null;
 
 	/**
+	 * Used to parse the route string and parameters from the http get or cli
+	 * @var	UriInterface
+	 */
+	protected $uri = null;
+
+	/**
 	 * @var	UserInterface
 	 */
 	protected $currentUser = null;
@@ -62,10 +69,12 @@ class AppContext extends Dictionary implements ContextInterface
 	 * @param	RequestInterface	$request
 	 * @return	Context
 	 */
-	public function __construct(RequestInterface $request,
+	public function __construct(UriInterface $uri,
+								RequestInterface $request,
 								OperationInterface $op)
 	{
-		$this->request  = $request;
+		$this->uri       = $uri;
+		$this->request   = $request;
 		$this->operation = $op;
 	}
 
@@ -84,6 +93,41 @@ class AppContext extends Dictionary implements ContextInterface
 	{
 		return $this->request;
 	}
+
+	/**
+	 * @return	UriInterface
+	 */
+	public function getUri()
+	{
+		return $this->uri;
+	}
+
+    /**
+     * @return string
+     */
+    public function getUriString()
+    {
+        return $this->getUri()
+                    ->getUriString();
+    }
+
+    /**
+     * @return  string
+     */
+    public function getRouteString()
+    {
+        return $this->getUri()
+                    ->getPath();
+    }
+
+    /**
+     * @return  string
+     */
+    public function getParamString()
+    {
+        return $this->getUri()
+                    ->getParamString();
+    }
 
 	/**
 	 * @return	UserInterface

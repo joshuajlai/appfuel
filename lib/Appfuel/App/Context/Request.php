@@ -23,12 +23,6 @@ use Appfuel\Framework\Exception,
 class Request implements RequestInterface
 {
     /**
-     * Uri Object that holds request info
-     * @var string
-     */
-    protected $uri = NULL;
-
-    /**
      * Request Parameters. We parse the uri string and create our own parameters
      * instead of using super global $_GET. This is due to the way we use the 
      * url for holding mvc data plus key value pairs
@@ -53,30 +47,36 @@ class Request implements RequestInterface
 	 * @param	string	$rm			request method
      * @return	Request
      */
-    public function __construct(UriInterface $uri)
+    public function __construct($method, array $params = array())
     {
-        $this->uri = $uri;
-		$argv = array();
-        if (isset($_SERVER['REQUEST_METHOD'])) {
-            $method = strtolower($_SERVER['REQUEST_METHOD']);
-        }
-		else if (isset($_SERVER['argv']) && is_array($_SERVER['argv'])) {
-			$method = 'cli';
-            $argv = $_SERVER['argv'];
+		$err = 'Failed to instantiate request: ';
+		if (empty($method) || ! is_string($method)) {
+			throw new Exception("$err method must be a non empty string");
 		}
-		else {
-			throw new Exception("Request could not be create method unkown");
+	
+		$method = strtolower($method);
+		if (! in_array($method, array('get', 'post', 'cli'))) {
+			throw new Exception("$err method must be one of -(get|post|cli)");
 		}
-
         $this->method = $method;
 
-        $params = array(
-			'get'	 => $uri->getParams(),
-            'post'   => $_POST,
-            'files'  => $_FILES,
-            'cookie' => $_COOKIE,
-            'argv'   => $argv
-        );
+		/*
+		 * Ensure each type exists as an array. because searching the
+		 * params uses functions the work on arrays
+		 */
+		$types = array('post', 'get', 'files', 'cookie', 'argv');
+		foreach ($types as $type) {
+
+			/* add missing type */
+			if (! isset($params[$type])) {
+				$params[$type] = array();
+			}
+			
+			if (! is_array($params[$type])) {
+				$err .= "request param for -($type) must be an array";
+				throw new Exception($err);
+			}
+		}
 
 		$this->params = $params;
     }
@@ -113,33 +113,6 @@ class Request implements RequestInterface
         return $this->method;
     }
 
-	/**
-	 * @return string
-	 */
-	public function getUriString()
-	{
-		return $this->getUri()
-					->getUriString();
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getRouteString()
-	{
-		return $this->getUri()
-					->getPath();
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getParamString()
-	{
-		return $this->getUri()
-					->getParamString();
-	}
-
     /**
      * The params member is a general array that holds any or all of the
      * parameters for this request. This method will search on a particular
@@ -151,20 +124,14 @@ class Request implements RequestInterface
      * @param   mixed   $default    value returned when key is not found
      * @return  mixed
      */
-	public function get($key, $type, $default = null)
+	public function get($type, $key, $default = null)
 	{
-        /*
-         * These values must be compatible with arrays
-         */
-        if (! is_scalar($key) || ! is_scalar($type)) {
-            return $default;
-        }
+		if (! $this->isValidParamType($type) || ! is_scalar($key)) {
+			return $default;
+		}
 
-        if (! isset($this->params[$type]) || ! is_array($this->params[$type])) {
-            return $default;
-        }
-
-        if (! array_key_exists($key, $this->params[$type])) {
+		$type = strtolower($type);
+        if (! isset($this->params[$type][$key])) {
             return $default;
         }
 
@@ -179,12 +146,12 @@ class Request implements RequestInterface
 	 * @param	array	$returnArray 
 	 * @return	Dictionary
 	 */
-	public function collect(array $keys, $type, $returnArray = false) 
+	public function collect($type, array $keys, $returnArray = false) 
 	{
 		$result = array();
 		$notFound = '__AF_KEY_NOT_FOUND__';
 		foreach ($keys as $key) {
-			$value = $this->get($key, $type, $notFound);
+			$value = $this->get($type, $key, $notFound);
 
 			/* 
 			 * null or false could be accepted values and we need to
@@ -210,19 +177,25 @@ class Request implements RequestInterface
      */
     public function getAll($type)
     {
-        $type = strtolower($type);
-        if (! array_key_exists($type, $this->params)) {
-            return array();
-        }
+		if (! $this->isValidParamType($type)) {
+			return false;
+		}
 
-        return $this->params[$type];
+        return $this->params[strtolower($type)];
     }
 
-	/**
-	 * @return Uri
-	 */
-	protected function getUri()
+	public function isValidParamType($type)
 	{
-		return $this->uri;
+		if (empty($type) || ! is_string($type)) {
+			return false;
+		}
+
+		$type  = strtolower($type);
+		$valid = array('get', 'post', 'cookie', 'files', 'argv'); 
+		if (! in_array($type, $valid)) {
+			return false;
+		}
+		
+		return true;
 	}
 }
