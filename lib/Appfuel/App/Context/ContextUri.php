@@ -10,13 +10,13 @@
  */
 namespace Appfuel\App\Context;
 
-use Appfuel\Framework\App\Context\UriInterface;
+use Appfuel\Framework\App\Context\ContextUriInterface;
 
 /**
  * The uri represents the string making the request to the server. All requests
  * must have a uri string that holds at min the route information.
  */
-class PrettyUri implements UriInterface
+class ContextUri implements ContextUriInterface
 {
 	/**
      * The original request uri string

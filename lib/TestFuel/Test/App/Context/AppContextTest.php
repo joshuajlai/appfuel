@@ -10,7 +10,9 @@
  */
 namespace TestFuel\Test\App;
 
-use Appfuel\App\Context\AppContext,
+use Appfuel\App\Context\ContextUri,
+	Appfuel\App\Context\AppContext,
+	Appfuel\App\Context\ContextInput,
 	TestFuel\TestCase\ControllerTestCase;
 
 /**
@@ -44,9 +46,14 @@ class AppContextTest extends ControllerTestCase
      */
     public function setUp()
     {
+		$this->uri       = new ContextUri('some/route/string');
 		$this->request   = $this->getMockRequest();
 		$this->operation = $this->getMockOperation();
-		$this->context = new AppContext($this->request, $this->operation);
+		$this->context = new AppContext(
+			$this->uri,
+			$this->request, 
+			$this->operation
+		);
     }
 
     /**

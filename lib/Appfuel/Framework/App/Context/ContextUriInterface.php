@@ -14,7 +14,7 @@ namespace Appfuel\Framework\App\Context;
  * The uri represents the string making the request to the server. All requests
  * must have a uri string that holds at min the route information.
  */
-interface UriInterface
+interface ContextUriInterface
 {
 	public function getUriString();
 	public function getPath();

@@ -40,15 +40,12 @@ class ControllerTestCase extends BaseTestCase
 	 */
 	public function getMockRequest()
 	{
-		$interface = 'Appfuel\Framework\App\Context\RequestInterface';
+		$interface = 'Appfuel\Framework\App\Context\ContextInputInterface';
 		$methods   = array(
 			'isPost',
 			'isGet',
 			'isCli',
 			'getMethod',
-			'getRouteString',
-			'getUriString',
-			'getParamString',
 			'get',
 			'getAll',
 		);

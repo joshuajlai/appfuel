@@ -13,10 +13,9 @@ namespace Appfuel\App\Context;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\Domain\User\UserInterface,
-	Appfuel\Framework\App\Context\UriInterface,
-	Appfuel\Framework\App\Context\RouteInterface,
-	Appfuel\Framework\App\Context\RequestInterface,
 	Appfuel\Framework\App\Context\ContextInterface,
+	Appfuel\Framework\App\Context\ContextUriInterface,
+	Appfuel\Framework\App\Context\ContextInputInterface,
 	Appfuel\Framework\Domain\Operation\OperationInterface;
 
 /**
@@ -69,8 +68,8 @@ class AppContext extends Dictionary implements ContextInterface
 	 * @param	RequestInterface	$request
 	 * @return	Context
 	 */
-	public function __construct(UriInterface $uri,
-								RequestInterface $request,
+	public function __construct(ContextUriInterface $uri,
+								ContextInputInterface $request,
 								OperationInterface $op)
 	{
 		$this->uri       = $uri;

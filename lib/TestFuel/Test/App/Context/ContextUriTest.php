@@ -10,7 +10,7 @@
  */
 namespace TestFuel\Test\App;
 
-use Appfuel\App\Context\PrettyUri,
+use Appfuel\App\Context\ContextUri,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
@@ -20,7 +20,7 @@ use Appfuel\App\Context\PrettyUri,
  * is a pretty url. The path path/info is what appfuel calls the route string.
  * The route string is restricted a min of 1 to a max of 3 paths. 
  */
-class PrettyUriTest extends BaseTestCase
+class ContextUriTest extends BaseTestCase
 {
 	/**
 	 * @return null
@@ -28,7 +28,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testEmptyPathRouteString()
 	{
 		$uriString = '';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 		
 		/* empty uri string always represents the root path */
 		$this->assertEquals('/', $uri->getUriString());	
@@ -45,7 +45,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testRootPathRouteString()
 	{
 		$uriString = '/';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 		
 		/* empty uri string always represents the root path */
 		$this->assertEquals('/', $uri->getUriString());	
@@ -60,7 +60,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testOnePathRouteString()
 	{
 		$uriString = '/one';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 		
 		$this->assertEquals('/one', $uri->getUriString());	
 		$this->assertEquals('one', $uri->getPath());
@@ -69,7 +69,7 @@ class PrettyUriTest extends BaseTestCase
 
 		/* same string with out the slash in the beginning */
 		$uriString = 'one';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 		
 		$this->assertEquals('one', $uri->getUriString());	
 		$this->assertEquals('one', $uri->getPath());
@@ -83,7 +83,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testTwoPathRouteString()
 	{
 		$uriString = '/one/two';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 
 		$this->assertEquals('/one/two', $uri->getUriString());	
 		$this->assertEquals('one/two', $uri->getPath());
@@ -92,7 +92,7 @@ class PrettyUriTest extends BaseTestCase
 
 		/* same string with out the slash in the beginning */
 		$uriString = 'one/two';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 		
 		$this->assertEquals('one/two', $uri->getUriString());	
 		$this->assertEquals('one/two', $uri->getPath());
@@ -106,7 +106,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testThreePathRouteString()
 	{
 		$uriString = '/one/two/three';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 
 		$this->assertEquals($uriString, $uri->getUriString());	
 		$this->assertEquals('one/two/three', $uri->getPath());
@@ -115,7 +115,7 @@ class PrettyUriTest extends BaseTestCase
 
 		/* same string with out the slash in the beginning */
 		$uriString = 'one/two/three';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 		
 		/* the uri string is exactly what you give it, not altered */	
 		$this->assertEquals($uriString, $uri->getUriString());	
@@ -133,7 +133,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testParamsSimpleRouteString()
 	{
 		$uriString = '/one/two/three/param1/value1';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 
 		$this->assertEquals($uriString, $uri->getUriString());	
 		$this->assertEquals('one/two/three', $uri->getPath());
@@ -168,7 +168,7 @@ class PrettyUriTest extends BaseTestCase
 		$paramString = trim($paramString, "/");
 
 		$uriString = "/one/two/three/$paramString";
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 
 		$this->assertEquals($uriString, $uri->getUriString());	
 		$this->assertEquals('one/two/three', $uri->getPath());
@@ -184,7 +184,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testParamQuestionMarkStyle()
 	{
 		$uriString = "/one/two/three?param1=value1";
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 
 		$this->assertEquals($uriString, $uri->getUriString());	
 		$this->assertEquals('one/two/three', $uri->getPath());
@@ -214,7 +214,7 @@ class PrettyUriTest extends BaseTestCase
 		$paramString = trim($paramString, "&");
 		
 		$uriString = "/one/two/three?$paramString";
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 		
 		$this->assertEquals($uriString, $uri->getUriString());	
 		$this->assertEquals('one/two/three', $uri->getPath());
@@ -243,7 +243,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testParamMissingValueForKey()
 	{
 		$uriString = '/one/two/three/param1/';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 
 		$this->assertEquals($uriString, $uri->getUriString());	
 		$this->assertEquals('one/two/three', $uri->getPath());
@@ -257,7 +257,7 @@ class PrettyUriTest extends BaseTestCase
 
 		/* test when there are more one or more good params with an odd one */
 		$uriString = '/one/two/three/param1/value1/param2';
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 
 		$this->assertEquals($uriString, $uri->getUriString());	
 		$this->assertEquals('one/two/three', $uri->getPath());
@@ -278,7 +278,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testParamMissingQuestionMarkStyle()
 	{
 		$uriString = "/one/two/three?param1=value1&param2";
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 
 		$this->assertEquals($uriString, $uri->getUriString());	
 		$this->assertEquals('one/two/three', $uri->getPath());
@@ -300,7 +300,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testParamEmptyQuestionMarkStyle()
 	{
 		$uriString = "/one/two/three?param1=value1&param2=";
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 		$this->assertEquals($uriString, $uri->getUriString());	
 		$this->assertEquals('one/two/three', $uri->getPath());
 
@@ -330,7 +330,7 @@ class PrettyUriTest extends BaseTestCase
 	public function testParamEmptyPrettyStyle()
 	{
 		$uriString = "/one/two/three/param1//param2/value2";
-		$uri = new PrettyUri($uriString);
+		$uri = new ContextUri($uriString);
 		
 		$this->assertEquals($uriString, $uri->getUriString());	
 		$this->assertEquals('one/two/three', $uri->getPath());
@@ -353,4 +353,3 @@ class PrettyUriTest extends BaseTestCase
 		$this->assertEquals('param1//param2/value2', $uri->getParamString());
 	}
 }
-

@@ -11,21 +11,15 @@
 namespace Appfuel\App\Context;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\App\Context\UriInterface,
-	Appfuel\Framework\App\Context\RequestInterface;
+	Appfuel\Framework\App\Context\ContextInputInterface;
 
 /**
- * Common logic to handle requests given to the application from any type.
- * Different types include web requests, cli request and api requests.
- * The request provides a common interface that all application types can
- * follow.
+ * Handles user input for the application context. 
  */
-class Request implements RequestInterface
+class ContextInput implements ContextInputInterface
 {
     /**
-     * Request Parameters. We parse the uri string and create our own parameters
-     * instead of using super global $_GET. This is due to the way we use the 
-     * url for holding mvc data plus key value pairs
+	 * User input parameters separated by parameter type.
      * @var array
      */
     protected $params = array();
@@ -35,6 +29,25 @@ class Request implements RequestInterface
      * @var string
      */
     protected $method = null;
+
+	/**
+	 * List of valid parameter types
+	 * get    - http get	
+	 * post   - http post
+	 * files  - user uploaded files
+	 * cookie - user http cookies or php sessions
+	 * argv   - commandline parameters
+	 *
+	 * @var array
+	 */
+	protected $validParamTypes = array('get','post','files','cookie','argv');
+
+	/**
+	 * Input method represents how the request was made
+	 *
+	 * @var	array
+	 */
+	protected $validMethods = array('get', 'post', 'cli');
 
     /**
      * Assign the uri, parameters and request method. Because the uri contains
@@ -175,8 +188,12 @@ class Request implements RequestInterface
      * @param   string  $type
      * @return  array
      */
-    public function getAll($type)
+    public function getAll($type = null)
     {
+		if (null === $type) {
+			return $this->params;
+		}
+
 		if (! $this->isValidParamType($type)) {
 			return false;
 		}
@@ -184,6 +201,10 @@ class Request implements RequestInterface
         return $this->params[strtolower($type)];
     }
 
+	/**
+	 * @param	string	$type	
+	 * @return	bool
+	 */
 	public function isValidParamType($type)
 	{
 		if (empty($type) || ! is_string($type)) {

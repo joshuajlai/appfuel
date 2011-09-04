@@ -35,6 +35,26 @@ interface ContextInterface extends DictionaryInterface
 	 */
 	public function getRequest();
 
+	/**
+	 * @return	UriInterface
+	 */
+	public function getUri();
+
+    /**
+     * @return string
+     */
+    public function getUriString();
+
+    /**
+     * @return  string
+     */
+    public function getRouteString();
+
+    /**
+     * @return  string
+     */
+    public function getParamString();
+
     /**
      * User requesting the execution of the current operation
      *
