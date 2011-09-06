@@ -107,6 +107,20 @@ class AppManager
 		if (! defined('AF_ENV')) {
 			define('AF_ENV', $config['env']);
 		}
+
+		/* parameter token is used by the context uri determine where the
+		 * route string ends and where the parameters begin
+		 */
+		$parseToken = 'pt';
+		if (isset($config['uri-parse-token']) && 
+			is_string($config['uri-parse-token'])) {
+			$paramToken = "{$config['uri-parse-token']}";	
+		}
+		
+		if (! defined('AF_URI_PARSE_TOKEN')) {
+			define('AF_URI_PARSE_TOKEN', $parseToken);
+		}
+
 		Registry::initialize($config);
 		
 		$factory = $this->getAppFactory();

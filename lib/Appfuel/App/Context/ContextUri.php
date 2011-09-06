@@ -10,7 +10,8 @@
  */
 namespace Appfuel\App\Context;
 
-use Appfuel\Framework\App\Context\ContextUriInterface;
+use Appfuel\Framework\Exception,
+	Appfuel\Framework\App\Context\ContextUriInterface;
 
 /**
  * The uri represents the string making the request to the server. All requests
@@ -19,16 +20,23 @@ use Appfuel\Framework\App\Context\ContextUriInterface;
 class ContextUri implements ContextUriInterface
 {
 	/**
+	 * Token used in the uri to determine where the route ends and where
+	 * the parameters begin
+	 * @var string
+	 */
+	protected $parseToken = null;
+
+	/**
      * The original request uri string
      * @var string
      */
-	protected $uriString = NULL;
+	protected $uri = NULL;
 
 	/**
 	 * The uri path is what Appfuel uses as its route string
 	 * @var string
 	 */
-	protected $path = NULL;
+	protected $route = NULL;
 	
 	/**
 	 * These could be http get parameters or cli parameters, both are 
@@ -38,7 +46,9 @@ class ContextUri implements ContextUriInterface
 	protected $params = array();
 	
 	/**
-	 * String consisting of only the parameters
+	 * String consisting of only the parameters in pretty params. Note that
+	 * even the query string '?param=value&param2=value2' will be converted 
+	 * to the pretty format of param/value/param2/value2
 	 * @var string
 	 */
 	protected $paramString = NULL;
@@ -50,34 +60,53 @@ class ContextUri implements ContextUriInterface
      * @param   string  $requestString
      * @return  Uri
      */
-    public function __construct($uriString)
+    public function __construct($uriString, $parseToken = 'qx')
     {
+		$err = 'Can not instantiate ContextUri:';
+		if (empty($parseToken) || ! is_string($parseToken)) {
+			throw new Exception("$err Parse token must be a non empty string");
+		}
+		$this->parseToken = $parseToken;
+
+		if (! is_string($uriString)) {
+			throw new Exception("$err uriString must be a string");
+		}
+
 		if (empty($uriString)) {
 			$uriString = '/';
 		}
-
-        $this->uriString = $uriString;
+		
+		/* save the original uri string */
+        $this->uri = $uriString;
+		
         $result = $this->parseUri($uriString);
-
-        $this->path			= $result['path'];
-        $this->params       = $result['params'];
-        $this->paramString  = $result['paramString'];
+        $this->route  = $result['route'];
+        $this->params = $result['params'];
+        $this->paramString = $result['paramString'];
     }
+	
+	/**
+	 * @return	string
+	 */
+	public function getParseToken()
+	{
+		return $this->parseToken;
+	}
 
 	/**
 	 * @return string
 	 */
 	public function getUriString()
 	{
-		return $this->uriString;
+		return $this->uri;
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getPath()
+	public function getRouteString()
 	{
-		return $this->path;
+		return $this->route;
 	}
 
 	/**
@@ -107,87 +136,113 @@ class ContextUri implements ContextUriInterface
      */
     protected function parseUri($uri)
     {
-        if (! is_string($uri)) {
-            throw new Exception("Invalid uri: request uri must be a string");
-        }
-		
         $uri = ltrim($uri, "' ', '/'");
 
-        /* 
-         * parse any get parameters and add them to the param stack
-         */
-        $params  = array();
-        $pstring = '';
-        $getPos  = strpos($uri, '?');
-        if (FALSE !== $getPos) {
-            $getParams  = substr($uri, $getPos+1, strlen($uri) - 1);
-            $uri        = substr($uri, 0, $getPos);
-            $paramParts = explode('&', $getParams);
-            $getParts   = array();
-            foreach ($paramParts as $paramCombo) {
-                $parts = explode('=', $paramCombo);
-                /* only allow name value pairs */
-                if (2 != count($parts)) {
-                    continue;
-                }
-                $key            = $parts[0];
-                $value          = $parts[1];
-                $params[$key]   = $value;
-                $getParts[]     = $key;
-                $getParts[]     = $value;
-            }
-            $pstring        .= implode('/', $getParts);
+		$route  = null;
+		$params	= array();
+		$token	= $this->getParseToken();
+		$paramString = '';
+		if ($uri === $token) {
+			$err  = "uri parse error: route can not the same as the uri parse ";
+			$err .= "token ";
+			throw new Exception($err);
+		}
+	
+		/* empty uri string needs no processing */
+		if (empty($uri) || '/' === $uri) {
+			return array(
+				'route'			=> '/',
+				'params'		=> $params,
+				'paramString'	=> $paramString
+			);
+		}
+		
+		/* process query string if it exists */
+        $queryPos = strpos($uri, '?');
+		if (false !== $queryPos) {
+			$query   = substr($uri, $queryPos + 1, strlen($uri) - 1);
+			$uri     = substr($uri, 0, $queryPos);
+			$qparams = explode('&', $query);
+			
+			$prettyList = array();
+			foreach ($qparams as $param) {
+				$parts = explode('=', $param);
+
+				/* only allow name value pairs */
+				if (2 != count($parts)) {
+					continue;
+				}
+				$key   = $parts[0];
+				$value = $parts[1];
+
+				$params[$key] = $value;
+				$prettyList[] = $key;
+				$prettyList[] = $value;
+			}
+			$paramString .= implode('/', $prettyList);
 		}
 
-        $nchars  = substr_count($uri, '/', 0);
-
-        if ($nchars >=0 && $nchars <=2) {
-			$path = $uri;		
-			if (empty($uri)) {
-				$path = '/';
+		$tokenPos = strpos($uri, "/$token/");
+		$tokenLen = strlen($token) + 2;
+		
+		/*
+		 * parse token was not found with both forward slashs on each side 
+		 * so look for parse token with out the forward slash on the right
+		 * and pull out the route or just assign the whole string as the route
+		 */
+		if (false === $tokenPos) {
+			$tokenPos = strpos($uri, "/$token");
+			if (false === $tokenPos) {
+				$route = $uri;
+			} 
+			else {
+				$route = substr($uri, 0, $tokenPos);
 			}
+			
+		}
+		/* found parse token so separate route and parameters */
+		else {
+			$pstring = substr($uri, $tokenPos + $tokenLen, strlen($uri) - 1);
+			$route   = substr($uri, 0, $tokenPos);
+			$parts   = explode('/', trim($pstring, "' ', '/' "));
 
-            return array(
-                'path'			=> $path,
-                'params'		=> $params,
-                'paramString'   => $pstring
-            );
+			/* convert /keyN/valueN/keyN+1/valueN+1.../keyN-1/valueN-1 */
+			$key        = null;
+			$lookAhead  = null;
+			$value      = null;
+			$max        = count($parts); 
+			for($i = 0; $i < $max; $i += 2) {
+				$key = $parts[$i];
+				if (empty($key) || ! is_string($key)) {
+					continue;
+				}
+				$lookAhead = $i + 1;
+				if (array_key_exists($lookAhead, $parts)) {
+					$value  = $parts[$lookAhead];
+					$params[$key] = $value;
+				}
+				else {
+					$params[$key] = null;
+				}
+			}
+			
+			/* append existing param string from query string */
+			$paramString  = $pstring . '/' . $paramString;
+		}
 
-        }
+        $paramString = trim($paramString, "' ', '/'");
 
-        $parts = explode('/', $uri);
-        if (count($parts) < 3) {
-            throw new Exception("Invalid uri:
-                invalid number of forward slashes (should not happen)"
-            );
-        }
+		/* last check to see if route is empty and turn it into the root
+		 * route
+		 */
+		if (empty($route)) {
+			$route = '/';
+		}
 
-        $module     = array_shift($parts);
-        $submodule  = array_shift($parts);
-        $action     = array_shift($parts);
-
-        /* convert /key/value/.../key/value into an array */
-        $max        = count($parts);
-        $key        = NULL;
-        $lookAhead  = NULL;
-        $value      = NULL;
-        for($i = 0; $i < $max; $i += 2) {
-            $key = $parts[$i];
-
-            $lookAhead = $i + 1;
-            if (array_key_exists($lookAhead, $parts)) {
-                $value  = $parts[$lookAhead];
-                $params[$key] = $value;
-            }
-        }
-
-        /* if ? was present then $pstring will have had parameters */
-        $pstring = implode('/', $parts) . '/' . $pstring;
-        $pstring = trim($pstring, "' ', '/'");
         return array(
-            'path'          => "$module/$submodule/$action",
+            'route'         => $route,
             'params'        => $params,
-            'paramString'   => $pstring
+            'paramString'   => $paramString
         );
     }
 }

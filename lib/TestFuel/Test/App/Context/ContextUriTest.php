@@ -10,31 +10,58 @@
  */
 namespace TestFuel\Test\App;
 
-use Appfuel\App\Context\ContextUri,
+use StdClass,
+	Appfuel\App\Context\ContextUri,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
- * Currenty the only supporting uri system is the pretty uri. The pretty uri
- * works on the premis that uri path and uri parameters look exactly the same.
- * For example http://www.somedomain.com/path/info/param1/value1/param2/value2
- * is a pretty url. The path path/info is what appfuel calls the route string.
- * The route string is restricted a min of 1 to a max of 3 paths. 
+ * The uri is what decouples an operation the user requests from the action
+ * the controller that executes it. The uri is designed to be a pretty uri 
+ * meaning ? is not necessary to find the query string. However, the problem
+ * this solution causes is knowing how to seperate the route string from the
+ * rest of the query string. We solve this problem by assigning the first three
+ * items in the path as the route and anything after that is the query string.
+ * So a uri might look like this:
+ *	something.com/my/route/string/param1/value1/param2/value2
+ * 
+ * Note: the Context uri can also handle ? so ?param=value will also get parsed
+ *		 as a get parameter.
  */
 class ContextUriTest extends BaseTestCase
 {
 	/**
 	 * @return null
 	 */
-	public function testEmptyPathRouteString()
+	public function testRootRoute()
 	{
-		$uriString = '';
+		$uriString = '/';
 		$uri = new ContextUri($uriString);
-		
+	
 		/* empty uri string always represents the root path */
 		$this->assertEquals('/', $uri->getUriString());	
-		$this->assertEquals('/', $uri->getPath());
+		$this->assertEquals('/', $uri->getRouteString());
 		$this->assertEquals(array(), $uri->getParams());
 		$this->assertEquals('', $uri->getParamString()); 
+	}
+	
+	/**
+	 * @depends	testRootRoute
+	 * @return	null
+	 */
+	public function testParseToken()
+	{
+		$uriString = '/';
+		$uri = new ContextUri($uriString);
+	
+		/* default parse token is 'pt' */
+		$this->assertEquals('qx', $uri->getParseToken());
+
+		$uri = new ContextUri($uriString, 'my-token');
+		$this->assertEquals('my-token', $uri->getParseToken());
+		
+		/* must be a string even if the token is a number */
+		$uri = new ContextUri($uriString, '123');
+		$this->assertEquals('123', $uri->getParseToken());
 	}
 
 	/**
@@ -42,314 +69,319 @@ class ContextUriTest extends BaseTestCase
 	 *
 	 * @return null
 	 */
-	public function testRootPathRouteString()
+	public function testEmptyRouteString()
 	{
-		$uriString = '/';
+		$uriString = '';
 		$uri = new ContextUri($uriString);
 		
 		/* empty uri string always represents the root path */
 		$this->assertEquals('/', $uri->getUriString());	
-		$this->assertEquals('/', $uri->getPath());
+		$this->assertEquals('/', $uri->getRouteString());
 		$this->assertEquals(array(), $uri->getParams());
 		$this->assertEquals('', $uri->getParamString()); 
 	}
 
 	/**
-	 * @return null
-	 */
-	public function testOnePathRouteString()
-	{
-		$uriString = '/one';
-		$uri = new ContextUri($uriString);
-		
-		$this->assertEquals('/one', $uri->getUriString());	
-		$this->assertEquals('one', $uri->getPath());
-		$this->assertEquals(array(), $uri->getParams());
-		$this->assertEquals('', $uri->getParamString()); 
-
-		/* same string with out the slash in the beginning */
-		$uriString = 'one';
-		$uri = new ContextUri($uriString);
-		
-		$this->assertEquals('one', $uri->getUriString());	
-		$this->assertEquals('one', $uri->getPath());
-		$this->assertEquals(array(), $uri->getParams());
-		$this->assertEquals('', $uri->getParamString()); 
-	}
-
-	/**
-	 * @return null
-	 */
-	public function testTwoPathRouteString()
-	{
-		$uriString = '/one/two';
-		$uri = new ContextUri($uriString);
-
-		$this->assertEquals('/one/two', $uri->getUriString());	
-		$this->assertEquals('one/two', $uri->getPath());
-		$this->assertEquals(array(), $uri->getParams());
-		$this->assertEquals('', $uri->getParamString()); 
-
-		/* same string with out the slash in the beginning */
-		$uriString = 'one/two';
-		$uri = new ContextUri($uriString);
-		
-		$this->assertEquals('one/two', $uri->getUriString());	
-		$this->assertEquals('one/two', $uri->getPath());
-		$this->assertEquals(array(), $uri->getParams());
-		$this->assertEquals('', $uri->getParamString()); 
-	}
-
-	/**
-	 * @return null
-	 */
-	public function testThreePathRouteString()
-	{
-		$uriString = '/one/two/three';
-		$uri = new ContextUri($uriString);
-
-		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals('one/two/three', $uri->getPath());
-		$this->assertEquals(array(), $uri->getParams());
-		$this->assertEquals('', $uri->getParamString()); 
-
-		/* same string with out the slash in the beginning */
-		$uriString = 'one/two/three';
-		$uri = new ContextUri($uriString);
-		
-		/* the uri string is exactly what you give it, not altered */	
-		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals($uriString, $uri->getPath());
-		$this->assertEquals(array(), $uri->getParams());
-		$this->assertEquals('', $uri->getParamString()); 
-	}
-
-	/**
-	 * The path can have only 3 parts to it. After that everything else are
-	 * considered GET parameters
+	 * The normal use case is to provide a parse token in the uri which 
+	 * tells the framework where the route ends and where the parameters 
+	 * begin
 	 *
-	 * @return null
+	 * @reutrn	null
 	 */
-	public function testParamsSimpleRouteString()
+	public function testRouteWithParseToken()
 	{
-		$uriString = '/one/two/three/param1/value1';
-		$uri = new ContextUri($uriString);
-
-		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals('one/two/three', $uri->getPath());
-
-		$params = $uri->getParams();
-		$this->assertInternalType('array', $params);
-		$this->assertEquals(1, count($params));
-		$this->assertEquals(array('param1'=>'value1'), $params);
-
-		$this->assertEquals('param1/value1', $uri->getParamString());
-
-	}
-
-
-	/**
-	 * @return null
-	 */
-	public function testParamsLongRouteString()
-	{
-		$params = array(
-			'param1' => 'value_1',
-			'param2' => '2',
-			'param3' => 'value_3',
-			'param4' => 'value_4'
-		);
-
-		/* make a param string and remove the trailing slash when done */
-		$paramString = '';
-		foreach ($params as $key => $value) {
-			$paramString .= "$key/$value/";
-		}
-		$paramString = trim($paramString, "/");
-
-		$uriString = "/one/two/three/$paramString";
-		$uri = new ContextUri($uriString);
-
-		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals('one/two/three', $uri->getPath());
-
-		$result = $uri->getParams();
-		$this->assertInternalType('array', $result);
-		$this->assertEquals(4, count($result));
-		$this->assertEquals($params, $result);
-
-		$this->assertEquals($paramString, $uri->getParamString());
-	}
-
-	public function testParamQuestionMarkStyle()
-	{
-		$uriString = "/one/two/three?param1=value1";
-		$uri = new ContextUri($uriString);
-
-		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals('one/two/three', $uri->getPath());
-
-		$params = $uri->getParams();
-		$this->assertInternalType('array', $params);
-		$this->assertEquals(1, count($params));
-		$this->assertEquals(array('param1'=>'value1'), $params);
-
-		$this->assertEquals('param1/value1', $uri->getParamString());
-	}
-
-	public function testParamQuestionMarkStyleMany()
-	{
-		$params = array(
-			'param1' => 'value_1',
-			'param2' => '2',
-			'param3' => 'value_3',
-			'param4' => 'value_4'
-		);
-
-		/* make a param string and remove the trailing slash when done */
-		$paramString = '';
-		foreach ($params as $key => $value) {
-			$paramString .= "$key=$value&";
-		}
-		$paramString = trim($paramString, "&");
-		
-		$uriString = "/one/two/three?$paramString";
+		$uriString = 'myroute/qx/param1/value1/param2/value2/param3/value3';
 		$uri = new ContextUri($uriString);
 		
-		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals('one/two/three', $uri->getPath());
-
-		$result = $uri->getParams();
-		$this->assertInternalType('array', $result);
-		$this->assertEquals(4, count($result));
-		$this->assertEquals($params, $result);
-
-		/* the parameter string will always be returned as pretty */
-		$paramString = '';
-		foreach ($params as $key => $value) {
-			$paramString .= "$key/$value/";
-		}
-		$paramString = trim($paramString, "/");
-			
-		$this->assertEquals($paramString, $uri->getParamString());
-	}
-
-	/**
-	 * The pretty uri must always have key/value pairs if a pair can not
-	 * be matched up one then it is ignored
-	 *
-	 * @return null
-	 */
-	public function testParamMissingValueForKey()
-	{
-		$uriString = '/one/two/three/param1/';
-		$uri = new ContextUri($uriString);
-
-		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals('one/two/three', $uri->getPath());
-
-		$params = $uri->getParams();
-		$this->assertInternalType('array', $params);
-		$this->assertEquals(1, count($params));
-		$this->assertEquals(array('param1' => null), $params);
-
-		$this->assertEquals('param1', $uri->getParamString());
-
-		/* test when there are more one or more good params with an odd one */
-		$uriString = '/one/two/three/param1/value1/param2';
-		$uri = new ContextUri($uriString);
-
-		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals('one/two/three', $uri->getPath());
-
-		$params = $uri->getParams();
-		$this->assertInternalType('array', $params);
-		$this->assertEquals(1, count($params));
-		$this->assertEquals(array('param1' => 'value1'), $params);
-
-		$this->assertEquals('param1/value1/param2', $uri->getParamString());
-	}
-
-	/**
-	 * Odd parameters when params are declared using ?
-	 *
-	 * @return null
-	 */
-	public function testParamMissingQuestionMarkStyle()
-	{
-		$uriString = "/one/two/three?param1=value1&param2";
-		$uri = new ContextUri($uriString);
-
-		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals('one/two/three', $uri->getPath());
-
-		$params = $uri->getParams();
-		$this->assertInternalType('array', $params);
-		$this->assertEquals(1, count($params));
-		$this->assertEquals(array('param1'=>'value1'), $params);
-
-		$this->assertEquals('param1/value1', $uri->getParamString());
-	}
-
-	/**
-	 * Empty parameters when params are declared using ? the
-	 * param would look like param1=
-	 *
-	 * @return null
-	 */
-	public function testParamEmptyQuestionMarkStyle()
-	{
-		$uriString = "/one/two/three?param1=value1&param2=";
-		$uri = new ContextUri($uriString);
-		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals('one/two/three', $uri->getPath());
-
-		$params = $uri->getParams();
-		$this->assertInternalType('array', $params);
-		$this->assertEquals(2, count($params));
-
-		$expected = array(
+		$expectedParams = array(
 			'param1' => 'value1',
-			'param2' => null,
+			'param2' => 'value2',
+			'param3' => 'value3',
 		);
+		$expectedString = 'param1/value1/param2/value2/param3/value3';
 
-		$this->assertEquals($expected, $params);
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('myroute', $uri->getRouteString());
 
-		/* 
-		 * note the trailing slash because we are converting to pretty url
-		 * which can not account for an empty value
-		 */
-		$this->assertEquals('param1/value1/param2/', $uri->getParamString());
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expectedString, $uri->getParamString()); 
 	}
 
 	/**
-	 * Empty parameters with pretty uri
-	 *
-	 * @return null
+	 * @reutrn	null
 	 */
-	public function testParamEmptyPrettyStyle()
+	public function testRouteLooksLikePathWithParseToken()
 	{
-		$uriString = "/one/two/three/param1//param2/value2";
+		$uriString = 'my/other/route/qx/param1/value1/param2/value2';
 		$uri = new ContextUri($uriString);
 		
+		$expectedParams = array(
+			'param1' => 'value1',
+			'param2' => 'value2',
+		);
+		$expectedString = 'param1/value1/param2/value2';
+
 		$this->assertEquals($uriString, $uri->getUriString());	
-		$this->assertEquals('one/two/three', $uri->getPath());
+		$this->assertEquals('my/other/route', $uri->getRouteString());
 
-		$params = $uri->getParams();
-		$this->assertInternalType('array', $params);
-		$this->assertEquals(2, count($params));
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expectedString, $uri->getParamString()); 
+	}
 
-		$expected = array(
-			'param1' => null,
+	/**
+	 * @reutrn	null
+	 */
+	public function testRouteNoParams()
+	{
+		$uriString = 'myroute';
+		$uri = new ContextUri($uriString);
+		
+		$expectedParams = array();
+		$expectedString = '';
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('myroute', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expectedString, $uri->getParamString()); 
+	}
+
+	/**
+	 * @reutrn	null
+	 */
+	public function testRouteNoParamsWithTokenOneSlash()
+	{
+		$uriString = 'myroute/qx';
+		$uri = new ContextUri($uriString);
+		$expectedParams = array();
+		$expectedString = '';
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('myroute', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expectedString, $uri->getParamString()); 
+	}
+
+	/**
+	 * @reutrn	null
+	 */
+	public function testRouteNoParamsWithTokenBothSlashes()
+	{
+		$uriString = 'myroute/qx/';
+		$uri = new ContextUri($uriString);
+		$expectedParams = array();
+		$expectedString = '';
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('myroute', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expectedString, $uri->getParamString()); 
+	}
+
+	/**
+	 * @reutrn	null
+	 */
+	public function testRouteNoParamsQueryStringWithParams()
+	{
+		$uriString = 'myroute?param1=value1&param2=value2';
+		$uri = new ContextUri($uriString);
+		$expectedParams = array(
+			'param1' => 'value1',
 			'param2' => 'value2',
 		);
 
-		$this->assertEquals($expected, $params);
+		$expectedString = 'param1/value1/param2/value2';
 
-		/* 
-		 * note the trailing slash because we are converting to pretty url
-		 * which can not account for an empty value
-		 */
-		$this->assertEquals('param1//param2/value2', $uri->getParamString());
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('myroute', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expectedString, $uri->getParamString()); 
+	}
+
+	/**
+	 * @reutrn	null
+	 */
+	public function testRouteWithParamsQueryStringWithParams()
+	{
+		$uriString = 'myroute/qx/param1/value1?param2=value2&param3=value3';
+		$uri = new ContextUri($uriString);
+		$expectedParams = array(
+			'param2' => 'value2',
+			'param3' => 'value3',
+			'param1' => 'value1',
+			
+		);
+
+		$expectedString = 'param1/value1/param2/value2/param3/value3';
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('myroute', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expectedString, $uri->getParamString()); 
+	}
+
+	/**
+	 * When the route is empty it is automatically assigned to the root route
+	 * as '/'
+	 * 
+	 * @reutrn	null
+	 */
+	public function testNoRouteWithQueryStringWithParams()
+	{
+		$uriString = '?param2=value2&param3=value3';
+		$uri = new ContextUri($uriString);
+		$expectedParams = array(
+			'param2' => 'value2',
+			'param3' => 'value3',
+			
+		);
+
+		$expectedString = 'param2/value2/param3/value3';
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('/', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expectedString, $uri->getParamString()); 
+	}
+
+	/**
+	 * The default parse token is qx so we will use that. When only the parse
+	 * token is available then the whole string is treated as a route. This is
+	 * an error condition probably from automated build of the uri
+	 * 
+	 * @reutrn	null
+	 */
+	public function testRouteAsTheParseToken()
+	{
+		$uriString = '/qx/param1/value1';
+		$uri = new ContextUri($uriString);
+		$expectedParams = array();
+
+		$expectedString = '';
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals(
+			trim($uriString, "' ','/' "), 
+			$uri->getRouteString()
+		);
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expectedString, $uri->getParamString()); 
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testRouteSameAsParseTokenWithParams()
+	{
+		$uriString = 'my-token/my-token/param1/value1';
+		$uri = new ContextUri($uriString, 'my-token');
+
+		$expectedParams = array(
+			'param1' => 'value1'
+		);
+		$expected = 'param1/value1';
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('my-token', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expected, $uri->getParamString()); 
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testRouteSameAsParseTokenWithParamsWithForwardSlash()
+	{
+		$uriString = '/my-token/my-token/param1/value1';
+		$uri = new ContextUri($uriString, 'my-token');
+		
+		$expectedParams = array(
+			'param1' => 'value1'
+		);
+		$expected = 'param1/value1';
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('my-token', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expected, $uri->getParamString()); 
+
+	}
+
+	/**
+	 * You can not have a route string thats the same as the parse token when
+	 * the route string is the only text of the uri
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testRouteSameAsParseToken_Failure()
+	{
+		$uriString = 'my-token';
+		$uri = new ContextUri($uriString, $uriString);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testRouteParseTokenEmptyString_Failure()
+	{
+		$uriString = 'my-route//param1/value1';
+		$uri = new ContextUri($uriString, '');
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testRouteParseTokenArray_Failure()
+	{
+		$uriString = 'my-route//param1/value1';
+		$uri = new ContextUri($uriString, array(1,2,3));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testRouteParseTokenObject_Failure()
+	{
+		$uriString = 'my-route//param1/value1';
+		$uri = new ContextUri($uriString, new StdClass());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testUriStringIsInt_Failure()
+	{
+		$uri = new ContextUri(12345);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testUriStringIsArray_Failure()
+	{
+		$uri = new ContextUri(array(1,2,3));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return null
+	 */
+	public function testUriStringIsObject_Failure()
+	{
+		$uri = new ContextUri(new StdClass());
 	}
 }

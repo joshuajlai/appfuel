@@ -17,7 +17,7 @@ namespace Appfuel\Framework\App\Context;
 interface ContextUriInterface
 {
 	public function getUriString();
-	public function getPath();
+	public function getRouteString();
 	public function getParams();
 	public function getParamString();
 }
