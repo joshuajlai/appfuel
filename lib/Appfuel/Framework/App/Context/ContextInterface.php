@@ -23,27 +23,16 @@ use Appfuel\Framework\App\Route\RouteInterface,
 interface ContextInterface extends DictionaryInterface
 {
 	/**
-	 * The operation the user requested based on the routestring 
-	 * @return	Appfuel\Framework\Domain\Operation\OperationInterface
-	 */
-	public function getOperation();
-
-	/**
 	 * The object that olds all the user input. Http GET and POST aswell
 	 * as the commandline's argv are found in this object
 	 * @return Appfuel\Framework\App\Request\RequestInterface
 	 */
-	public function getRequest();
-
-	/**
-	 * @return	UriInterface
-	 */
-	public function getUri();
+	public function getInput();
 
     /**
      * @return string
      */
-    public function getUriString();
+    public function getOriginalUriString();
 
     /**
      * @return  string
@@ -53,7 +42,7 @@ interface ContextInterface extends DictionaryInterface
     /**
      * @return  string
      */
-    public function getParamString();
+    public function getUriParamString();
 
     /**
      * User requesting the execution of the current operation

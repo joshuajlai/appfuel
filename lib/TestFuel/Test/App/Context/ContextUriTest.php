@@ -362,10 +362,4 @@ class ContextUriTest extends BaseTestCase
 		$this->assertEquals($expectedParams, $uri->getParams());
 		$this->assertEquals($expected, $uri->getParamString()); 
 	}
-
-
-
-
-
-
 }

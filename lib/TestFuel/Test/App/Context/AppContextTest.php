@@ -13,7 +13,9 @@ namespace TestFuel\Test\App;
 use Appfuel\App\Context\ContextUri,
 	Appfuel\App\Context\AppContext,
 	Appfuel\App\Context\ContextInput,
-	TestFuel\TestCase\ControllerTestCase;
+	TestFuel\TestCase\ControllerTestCase,
+	Appfuel\Domain\Operation\OperationalRoute,
+	Appfuel\Framework\Action\ControllerNamespace;
 
 /**
  * A context is a container that holds all the information necessary to handle
@@ -31,28 +33,47 @@ class AppContextTest extends ControllerTestCase
     protected $context = null;
 
 	/**
-	 * Input Request
-	 * @var Request
+	 * Uri object used to find the operational route
+	 * @var ContextUriInterface
 	 */
-	protected $request = null;
+	protected $uri = null;
 
 	/**
-	 * @var OperationInterface
+	 * Context Input
+	 * @var ContextInputInterface
 	 */
-	protected $operation = null;
+	protected $input = null;
+
+	/**
+	 * @var OperationalRouteInterface
+	 */
+	protected $opRoute = null;
 
     /**
      * @return null
      */
     public function setUp()
     {
-		$this->uri       = new ContextUri('some/route/string');
-		$this->request   = $this->getMockRequest();
-		$this->operation = $this->getMockOperation();
+		$this->uri = new ContextUri('my-route/qx/param1/value1');
+		$this->input   = new ContextInput('get');
+		$this->opRoute = new OperationalRoute();
+	
+		$filters = array(
+			'pre'	=> array('filter1', 'filter2'),
+			'post'	=> array('filter3', 'filter4')
+		);
+
+		$this->opRoute->setControllerNamespace('My\Controller\Ns\Action')
+					  ->setAccessPolicy('public')
+					  ->setDefaultFormat('html')
+					  ->setRequestType('http')
+					  ->setFilters($filters)
+					  ->_markClean();
+
 		$this->context = new AppContext(
 			$this->uri,
-			$this->request, 
-			$this->operation
+			$this->opRoute,
+			$this->input
 		);
     }
 
@@ -61,8 +82,8 @@ class AppContextTest extends ControllerTestCase
      */
     public function tearDown()
     {
-		$this->request = null;
-		$this->operation = null;
+		$this->input = null;
+		$this->opRoute = null;
 		$this->context = null;   
     }
 
@@ -88,8 +109,53 @@ class AppContextTest extends ControllerTestCase
      */
     public function testImmutableMembers()
     {
-		$this->assertSame($this->request, $this->context->getRequest());
-		$this->assertSame($this->operation, $this->context->getOperation());
+		$this->assertSame($this->input, $this->context->getInput());
+
+		$this->assertEquals(
+			$this->uri->getRouteString(), 
+			$this->context->getRouteString()
+		);
+
+		$this->assertEquals(
+			$this->uri->getUriString(), 
+			$this->context->getOriginalUriString()
+		);
+
+		$this->assertEquals(
+			$this->uri->getParamString(), 
+			$this->context->getUriParamString()
+		);
+
+		$ctrNs = $this->context->getControllerNamespace();
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Action\ControllerNamespaceInterface',
+			$ctrNs
+		);
+
+		$this->assertEquals(
+			$this->opRoute->getAccessPolicy(),
+			$this->context->getAccessPolicy()
+		);
+
+		$this->assertEquals(
+			$this->opRoute->getDefaultFormat(),
+			$this->context->getDefaultFormat()
+		);
+
+		$this->assertEquals(
+			$this->opRoute->getRequestType(),
+			$this->context->getRequestType()
+		);
+
+		$this->assertEquals(
+			array('filter1', 'filter2'),
+			$this->context->getPreFilters()
+		);
+
+		$this->assertEquals(
+			array('filter3', 'filter4'),
+			$this->context->getPostFilters()
+		);
     }
 
 	/**

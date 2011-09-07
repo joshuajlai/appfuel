@@ -16,7 +16,8 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\Context\ContextInterface,
 	Appfuel\Framework\App\Context\ContextUriInterface,
 	Appfuel\Framework\App\Context\ContextInputInterface,
-	Appfuel\Framework\Domain\Operation\OperationInterface;
+	Appfuel\Framework\Action\ControllerNamespaceInterface,
+	Appfuel\Framework\Domain\Operation\OperationalRouteInterface;
 
 /**
  * Message is a specialized disctionary used to pass throught the dispatch
@@ -27,32 +28,79 @@ use Appfuel\Framework\Exception,
 class AppContext extends Dictionary implements ContextInterface
 {
 	/**
-	 * An operation defines the action this context was created for. It used
-	 * by the front controller for validation and execution
-	 * @var	OperationInterface
+	 * Route string used to find the operational route.
+	 * @var	string
 	 */
-	protected $operation = null;
+	protected $routeString = null;
+
+	/**
+	 * Parameter string used in the uri. This does not have any route info
+	 * @var string
+	 */
+	protected $uriParamString = null;
+
+	/**
+	 * The original uri string.
+	 * @var string
+	 */
+	protected $uriString = null;
+
+	/**
+	 * Controller namespace is used by the front controller to create the
+	 * controller that will execute the assigned operation.
+	 * @var ControllerNamespace
+	 */
+	protected $ctrNamepace = null;
+
+	/**
+	 * The access policy is a general permission flag that allows public routes
+	 * to by pass authentication
+	 * @return	string
+	 */
+	protected $accessPolicy = null;
+
+	/**
+	 * Default format is the format of the output data returned by the action
+	 * controller when no other format is specified.
+	 * @var string
+	 */
+	protected $defaultFormat = null;
+
+	/**
+	 * Request type names the major request type such as http, http-ajax or
+	 * cli
+	 * @var string
+	 */
+	protected $requestType = null;
+
+	/**
+	 * List of pre filters to be create
+	 * @var array
+	 */
+	protected $preFilters = array();
+
+	/**
+	 * List of post filters to be created
+	 * @var array
+	 */
+	protected $postFilters = array();
 
 	/**
 	 * Holds most of the user input given to the application. Used by the
 	 * Front controller and all action controllers
-	 * @var	RequestInterface
+	 * @var	ContextInputInterface
 	 */
-	protected $request = null;
+	protected $input = null;
 
 	/**
-	 * Used to parse the route string and parameters from the http get or cli
-	 * @var	UriInterface
-	 */
-	protected $uri = null;
-
-	/**
+	 * Holds the user domain that is preforming the operation in this context
 	 * @var	UserInterface
 	 */
 	protected $currentUser = null;
 
 	/**
-	 * Data the controller wants the render engine to output.
+	 * Resulting output from the controller reponsible for executing the 
+	 * operation.
 	 * @var mixed
 	 */	
 	protected $output = null;
@@ -65,49 +113,67 @@ class AppContext extends Dictionary implements ContextInterface
 	protected $exception = null;
 	
 	/**
-	 * @param	RequestInterface	$request
+	 * @param	ContextUriInterface		$uri
+	 * @param	ContextInputInterface	$input
+	 * @param	OperationalRouteInterface $opRoute
 	 * @return	Context
 	 */
 	public function __construct(ContextUriInterface $uri,
-								ContextInputInterface $request,
-								OperationInterface $op)
+								OperationalRouteInterface $opRoute,
+								ContextInputInterface $input)
 	{
-		$this->uri       = $uri;
-		$this->request   = $request;
-		$this->operation = $op;
+		$this->routeString	  = $uri->getRouteString();
+		$this->uriParamString = $uri->getParamString();
+		$this->uriString	  = $uri->getUriString();
+
+		$ctrNs = $opRoute->getControllerNamespace();
+		if (! $ctrNs instanceof ControllerNamespaceInterface) {
+			$err  = 'Controller Namespace in the operational route must ';
+			$err .= 'implement Appfuel\Framework\Action\ControllerNamespace';
+			$err .= 'Interface';
+			throw new Exception($err);
+		}
+
+		$policy = $opRoute->getAccessPolicy();
+		if (empty($policy) || ! is_string($policy)) {
+			throw new Exception("Access Policy must be a non empty string");
+		}
+
+		$format = $opRoute->getDefaultFormat();
+		if (empty($format) || ! is_string($format)) {
+			throw new Exception("Default format must be a non empty string");
+		}
+
+		$type = $opRoute->getRequestType();
+		if (empty($type) || ! is_string($type)) {
+			throw new Exception("Request type must be a non empty string");
+		}
+
+
+		$this->ctrNamespace  = $ctrNs;
+		$this->accessPolicy  = $policy;
+		$this->defaultFormat = $format;
+		$this->requestType   = $type;
+		$this->preFilters    = $opRoute->getPreFilters();
+		$this->postFilters   = $opRoute->getPostFilters();
+
+		$this->input = $input;
 	}
 
 	/**
-	 * @return	OperationInterface
+	 * @return	ContextInputInterface
 	 */
-	public function getOperation()
+	public function getInput()
 	{
-		return $this->operation;
-	}
-
-	/**
-	 * @return	RequestInterface
-	 */
-	public function getRequest()
-	{
-		return $this->request;
-	}
-
-	/**
-	 * @return	UriInterface
-	 */
-	public function getUri()
-	{
-		return $this->uri;
+		return $this->input;
 	}
 
     /**
      * @return string
      */
-    public function getUriString()
+    public function getOriginalUriString()
     {
-        return $this->getUri()
-                    ->getUriString();
+        return $this->uriString;
     }
 
     /**
@@ -115,18 +181,64 @@ class AppContext extends Dictionary implements ContextInterface
      */
     public function getRouteString()
     {
-        return $this->getUri()
-                    ->getPath();
+        return $this->routeString;
     }
 
     /**
      * @return  string
      */
-    public function getParamString()
+    public function getUriParamString()
     {
-        return $this->getUri()
-                    ->getParamString();
+        return $this->uriParamString;
     }
+
+	/**
+	 * @return	Appfuel\Framework\Action\ControllerNamespace
+	 */
+	public function getControllerNamespace()
+	{
+		return $this->ctrNamespace;
+	}
+
+	/**
+	 * @return	string	
+	 */
+	public function getAccessPolicy()
+	{
+		return $this->accessPolicy;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getDefaultFormat()
+	{
+		return $this->defaultFormat;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getRequestType()
+	{
+		return $this->requestType;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getPreFilters()
+	{
+		return $this->preFilters;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getPostFilters()
+	{
+		return $this->postFilters;
+	}
 
 	/**
 	 * @return	UserInterface
