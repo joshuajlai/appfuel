@@ -31,18 +31,6 @@ class ContextInput implements ContextInputInterface
     protected $method = null;
 
 	/**
-	 * List of valid parameter types
-	 * get    - http get	
-	 * post   - http post
-	 * files  - user uploaded files
-	 * cookie - user http cookies or php sessions
-	 * argv   - commandline parameters
-	 *
-	 * @var array
-	 */
-	protected $validParamTypes = array('get','post','files','cookie','argv');
-
-	/**
 	 * Input method represents how the request was made
 	 *
 	 * @var	array
@@ -88,6 +76,14 @@ class ContextInput implements ContextInputInterface
 			if (! is_array($params[$type])) {
 				$err .= "request param for -($type) must be an array";
 				throw new Exception($err);
+			}
+			
+			/* make sure he the array of key value pairs have valid keys */
+			foreach ($params[$type] as $key => $value) {
+				if (empty($key)) {
+					$err .= "request param for -($type) key must not be empty";
+					throw new Exception($err);
+				}
 			}
 		}
 
@@ -212,8 +208,7 @@ class ContextInput implements ContextInputInterface
 		}
 
 		$type  = strtolower($type);
-		$valid = array('get', 'post', 'cookie', 'files', 'argv'); 
-		if (! in_array($type, $valid)) {
+		if (! isset($this->params[$type])) {
 			return false;
 		}
 		

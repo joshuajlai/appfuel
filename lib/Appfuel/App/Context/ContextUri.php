@@ -14,8 +14,12 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\Context\ContextUriInterface;
 
 /**
- * The uri represents the string making the request to the server. All requests
- * must have a uri string that holds at min the route information.
+ * The uri represents the string making the request to the server. In general,
+ * the context uri is retrieved from $_SERVER['REQUEST_URI'], but the actual
+ * value is supplied by the context builder so as far as the context uri is
+ * concerned any string given as the first paramter is the uri string. This
+ * allows the uri to be used in the command line, web and api without 
+ * modification.
  */
 class ContextUri implements ContextUriInterface
 {
