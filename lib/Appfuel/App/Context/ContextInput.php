@@ -135,7 +135,8 @@ class ContextInput implements ContextInputInterface
      */
 	public function get($type, $key, $default = null)
 	{
-		if (! $this->isValidParamType($type) || ! is_scalar($key)) {
+		if (! $this->isValidParamType($type) || 
+				empty($key) || ! is_scalar($key)) {
 			return $default;
 		}
 

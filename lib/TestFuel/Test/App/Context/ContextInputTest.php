@@ -10,7 +10,8 @@
  */
 namespace TestFuel\Test\App\Context;
 
-use Appfuel\App\Context\ContextInput,
+use StdClass,
+	Appfuel\App\Context\ContextInput,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
@@ -49,10 +50,10 @@ class ContextInputTest extends BaseTestCase
 		$this->method = 'get';
 		$this->params = array(
 			'get'	 => array('param1' => 'value1', 'param2' => 12344),
-			'post'   => array('param3' => array(1,2,3), 'param3' => 'test'),
-			'files'  => array('param4' => 'value4'),
-			'cookie' => array('param5' => 'value5'),
-			'argv'   => array('param6' => 'value6')
+			'post'   => array('param3' => array(1,2,3), 'param4' => 'value4'),
+			'files'  => array('param5' => 'value5'),
+			'cookie' => array('param6' => 'value6'),
+			'argv'   => array('param7' => 'value7')
 		);
 
 		$this->input = new ContextInput($this->method, $this->params);
@@ -141,4 +142,127 @@ class ContextInputTest extends BaseTestCase
 		$this->assertFalse($input->isPost());
 		$this->assertEquals('cli', $input->getMethod());
 	}
+
+	/**
+	 * The parameter type is the name of the array that holds all the input
+	 * parameters for that type. By default get, post, files, cookie and argv
+	 * exist, and you can define custom types by adding it to params in the
+	 * ContextInput constructor.
+	 *
+	 * @return	null
+	 */
+	public function testIsValidParamType()
+	{
+		/* test defaults exist */
+		$this->assertTrue($this->input->isValidParamType('get'));
+		$this->assertTrue($this->input->isValidParamType('post'));
+		$this->assertTrue($this->input->isValidParamType('files'));
+		$this->assertTrue($this->input->isValidParamType('cookie'));
+		$this->assertTrue($this->input->isValidParamType('argv'));
+		$this->assertFalse($this->input->isValidParamType('does-not-exist'));
+
+		$params = array('custom-type' => array('param1' => 'value1'));
+		$input = new ContextInput('get', $params);
+
+		/* added even though we did not supply them. They always exist */
+		$this->assertTrue($input->isValidParamType('get'));
+		$this->assertTrue($input->isValidParamType('post'));
+		$this->assertTrue($input->isValidParamType('files'));
+		$this->assertTrue($input->isValidParamType('cookie'));
+		$this->assertTrue($input->isValidParamType('argv'));
+
+		$this->assertTrue($input->isValidParamType('custom-type'));
+		$this->assertFalse($input->isValidParamType('does-not-exist'));	
+
+		$this->assertFalse($this->input->isValidParamType(array(1,2,3)));
+		$this->assertFalse($this->input->isValidParamType(new StdClass()));
+		$this->assertFalse($this->input->isValidParamType(''));
+	}
+
+	/**
+	 * This is how you get input parameters from the ContextInput. This test
+	 * will retrieve all the known values added to the input during setup.
+	 *
+	 * @return	null
+	 */
+	public function testGet()
+	{
+		$this->assertEquals(
+			$this->params['get']['param1'], 
+			$this->input->get('get', 'param1')
+		);
+		/* prove first param is not case sensitive */
+		$this->assertEquals(
+			$this->params['get']['param1'], 
+			$this->input->get('GET', 'param1')
+		);
+
+		$this->assertEquals(
+			$this->params['get']['param2'], 
+			$this->input->get('get', 'param2')
+		);
+	
+		$this->assertEquals(
+			$this->params['post']['param3'], 
+			$this->input->get('post', 'param3')
+		);
+
+		$this->assertEquals(
+			$this->params['post']['param4'], 
+			$this->input->get('post', 'param4')
+		);
+
+		$this->assertEquals(
+			$this->params['files']['param5'], 
+			$this->input->get('files', 'param5')
+		);
+
+		$this->assertEquals(
+			$this->params['cookie']['param6'], 
+			$this->input->get('cookie', 'param6')
+		);
+
+		$this->assertEquals(
+			$this->params['argv']['param7'], 
+			$this->input->get('argv', 'param7')
+		);	
+	}
+
+	/**
+	 * Will return null when type does not exist or is not a string
+	 *
+	 * @depends	testGet
+	 * @return	null
+	 */
+	public function testGetTypeDoesNotExist()
+	{
+		$this->assertFalse($this->input->isValidParamType('does-not-exist'));
+		
+		/* the default return value when not found is null */
+		$this->assertNull($this->input->get('does-not-exist', 'param1'));
+		$this->assertEquals(
+			'custom default',
+			$this->input->get('does-not-exist', 'param1', 'custom default'),
+			'you can supply your own custom default'
+		);
+
+		
+		$this->assertNull($this->input->get(array(1,2,3), 'param1'));
+		$this->assertNull($this->input->get(new StdClass(), 'param1'));
+		$this->assertNull($this->input->get('', 'param1'));
+	}
+
+	/**
+	 * @depends	testGet
+	 * @return	null
+	 */
+	public function testGetKeyIsNotScalarOrEmpty()
+	{
+		/* the default return value when not found is null */
+		$this->assertNull($this->input->get('get', array(1,2,3)));
+		$this->assertNull($this->input->get('get', new StdClass()));
+		$this->assertNull($this->input->get('get', ''));
+	}
+
+
 }
