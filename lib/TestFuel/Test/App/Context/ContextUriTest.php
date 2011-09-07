@@ -316,72 +316,56 @@ class ContextUriTest extends BaseTestCase
 	}
 
 	/**
-	 * You can not have a route string thats the same as the parse token when
-	 * the route string is the only text of the uri
-	 *
-	 * @expectedException	Appfuel\Framework\Exception
 	 * @return	null
 	 */
-	public function testRouteSameAsParseToken_Failure()
+	public function testRouteParamHasNoValue()
 	{
-		$uriString = 'my-token';
-		$uri = new ContextUri($uriString, $uriString);
+		$uriString = 'my-route/qx/param1/';
+		$uri = new ContextUri($uriString);
+		$expectedParams = array(
+			'param1' => null
+		);
+		$expected = 'param1';
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('my-route', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expected, $uri->getParamString()); 
+
+		$uriString = 'my-route/qx/param1';
+		$uri = new ContextUri($uriString);
+		
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('my-route', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expected, $uri->getParamString());
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
+	 * @return	null
 	 */
-	public function testRouteParseTokenEmptyString_Failure()
+	public function testRouteParamHasNoValueOtherParamsDo()
 	{
-		$uriString = 'my-route//param1/value1';
-		$uri = new ContextUri($uriString, '');
+		$uriString = 'my-route/qx/param1//param2/value2';
+		$uri = new ContextUri($uriString);
+		$expectedParams = array(
+			'param1' => null,
+			'param2' => 'value2'
+		);
+		$expected = 'param1//param2/value2';
+
+		$this->assertEquals($uriString, $uri->getUriString());	
+		$this->assertEquals('my-route', $uri->getRouteString());
+
+		$this->assertEquals($expectedParams, $uri->getParams());
+		$this->assertEquals($expected, $uri->getParamString()); 
 	}
 
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testRouteParseTokenArray_Failure()
-	{
-		$uriString = 'my-route//param1/value1';
-		$uri = new ContextUri($uriString, array(1,2,3));
-	}
 
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testRouteParseTokenObject_Failure()
-	{
-		$uriString = 'my-route//param1/value1';
-		$uri = new ContextUri($uriString, new StdClass());
-	}
 
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testUriStringIsInt_Failure()
-	{
-		$uri = new ContextUri(12345);
-	}
 
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testUriStringIsArray_Failure()
-	{
-		$uri = new ContextUri(array(1,2,3));
-	}
 
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return null
-	 */
-	public function testUriStringIsObject_Failure()
-	{
-		$uri = new ContextUri(new StdClass());
-	}
+
 }

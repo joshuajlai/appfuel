@@ -11,6 +11,7 @@
 namespace Appfuel\App\Context;
 
 use Appfuel\Framework\Exception,
+	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\App\Context\ContextInputInterface;
 
 /**
@@ -151,12 +152,12 @@ class ContextInput implements ContextInputInterface
 	/**
 	 * Used to collect serval parameters based on an array of keys.
 	 * 
-	 * @param	array	$keys	list of parameter labels to collect
-	 * @param	array	$type	which request type get, post, argv etc..
-	 * @param	array	$returnArray 
+	 * @param	array	$type	type of parameter stored
+	 * @param	array	$key	which request type get, post, argv etc..
+	 * @param	array	$isArray 
 	 * @return	Dictionary
 	 */
-	public function collect($type, array $keys, $returnArray = false) 
+	public function collect($type, array $keys, $isArray = false) 
 	{
 		$result = array();
 		$notFound = '__AF_KEY_NOT_FOUND__';
@@ -174,7 +175,7 @@ class ContextInput implements ContextInputInterface
 			$result[$key] = $value;
 		}
 
-		if (true === $returnArray) {
+		if (true === $isArray) {
 			return $result;
 		}
 

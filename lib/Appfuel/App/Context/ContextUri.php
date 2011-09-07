@@ -147,8 +147,8 @@ class ContextUri implements ContextUriInterface
 		$token	= $this->getParseToken();
 		$paramString = '';
 		if ($uri === $token) {
-			$err  = "uri parse error: route can not the same as the uri parse ";
-			$err .= "token ";
+			$err  = "uri parse error: route can not be the same as ";
+			$err .= "the uri parse token ";
 			throw new Exception($err);
 		}
 	
@@ -210,11 +210,14 @@ class ContextUri implements ContextUriInterface
 			$route   = substr($uri, 0, $tokenPos);
 			$parts   = explode('/', trim($pstring, "' ', '/' "));
 
-			/* convert /keyN/valueN/keyN+1/valueN+1.../keyN-1/valueN-1 */
 			$key        = null;
 			$lookAhead  = null;
 			$value      = null;
-			$max        = count($parts); 
+			$max        = count($parts);
+
+			/* convert /keyN/valueN/keyN+1/valueN+1.../keyN-1/valueN-1 
+			 * into an array of key => value pairs 
+			 */
 			for($i = 0; $i < $max; $i += 2) {
 				$key = $parts[$i];
 				if (empty($key) || ! is_string($key)) {
@@ -225,6 +228,10 @@ class ContextUri implements ContextUriInterface
 					$value  = $parts[$lookAhead];
 					$params[$key] = $value;
 				}
+				/* catch on the case when param exists but has no lookAhead 
+				 * because the forward slash was trimmed off. 
+				 * ex) my-route/qt/param1
+				 */
 				else {
 					$params[$key] = null;
 				}

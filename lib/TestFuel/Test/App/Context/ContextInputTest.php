@@ -12,7 +12,8 @@ namespace TestFuel\Test\App\Context;
 
 use StdClass,
 	Appfuel\App\Context\ContextInput,
-	TestFuel\TestCase\BaseTestCase;
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
  * The request object was designed to service web,api and cli request
@@ -264,5 +265,187 @@ class ContextInputTest extends BaseTestCase
 		$this->assertNull($this->input->get('get', ''));
 	}
 
+	/**
+	 * Trying to get a parameter that does not exist returns null by default
+	 * but the third parameter always you to define that default value
+	 *
+	 * @depends	testGet
+	 */
+	public function testGetParamDoesNotExist()
+	{
+		$this->assertNull($this->input->get('get', 'param99'));
+	
+		$default = 'my-default';
+		$this->assertEquals(
+			$default, 
+			$this->input->get('get', 'param99', $default)
+		);
 
+		$default = array(1,2,3);
+		$this->assertEquals(
+			$default, 
+			$this->input->get('get', 'param99', $default)
+		);
+
+		$default = new StdClass();
+		$this->assertEquals(
+			$default, 
+			$this->input->get('get', 'param99', $default)
+		);
+
+		$default = 123;
+		$this->assertEquals(
+			$default, 
+			$this->input->get('get', 'param99', $default)
+		);
+
+		$default = 123.123;
+		$this->assertEquals(
+			$default, 
+			$this->input->get('get', 'param99', $default)
+		);
+	}
+
+	/**
+	 * Collect will gather parameters for a type and return them
+	 * 
+	 * @depends	testGet
+	 * @return	null
+	 */
+	public function testCollectReturnsDictionary()
+	{
+		$params = array(
+			'get' => array(
+				'param1' => 'value1',
+				'param2' => 'value2',
+				'param3' => 'value3',
+				'param4' => 'value4'
+			)
+		);
+
+		$input  = new ContextInput('get', $params);
+		$result = $input->collect('get', array('param1', 'param4'));
+		
+		$expected = array(
+			'param1' => 'value1',
+			'param4' => 'value4'
+		);
+		$expected = new Dictionary($expected);
+		$this->assertEquals($expected, $result);
+
+		$result = $input->collect('get', array('param3', 'param2'));
+
+		/*
+		 * note that it is returned in the order requested 
+		 */
+		$expected = array(
+			'param3' => 'value3',
+			'param2' => 'value2'
+		);
+		$expected = new Dictionary($expected);
+		$this->assertEquals($expected, $result);
+
+		/* keys that don't exist will not be returned */
+		$result = $input->collect('get', array('param3','not-found','param2'));
+		$this->assertEquals($expected, $result);
+
+		$result = $input->collect('get', array('nope', 'nada', 'nilch'), true);
+		$this->assertEquals(array(), $result);
+
+		return $params;
+	}
+
+	/**
+	 * When the third parameter is true the collection will be an array
+	 *
+	 * @depends	testCollectReturnsDictionary
+	 * @return	null
+	 */
+	public function testCollectReturnsArray(array $params)
+	{
+		$input  = new ContextInput('get', $params);
+		$result = $input->collect('get', array('param1', 'param4'), true);
+		
+		$expected = array(
+			'param1' => 'value1',
+			'param4' => 'value4'
+		);
+		$this->assertEquals($expected, $result);
+
+		$result = $input->collect('get', array('param3', 'param2'), true);
+
+		/*
+		 * note that it is returned in the order requested 
+		 */
+		$expected = array(
+			'param3' => 'value3',
+			'param2' => 'value2'
+		);
+		$this->assertEquals($expected, $result);
+
+		/* keys that don't exist will not be returned */
+		$result = $input->collect(
+			'get', 
+			array('param3','not-found','param2'),
+			true
+		);
+		$this->assertEquals($expected, $result);
+
+		$result = $input->collect('get', array('nope', 'nada', 'nilch'), true);
+		$this->assertEquals(array(), $result);
+	}
+
+	/**
+	 * GetAll will return all of one parameter type like get or post when that
+	 * type is given as a parameter. When no parameter is given it will return
+	 * all parameter types
+	 *
+	 * @return	null
+	 */
+	public function testGetAll()
+	{
+		$this->assertEquals($this->params, $this->input->getAll());
+		$this->assertEquals($this->params['get'], $this->input->getAll('get'));
+		$this->assertEquals(
+			$this->params['post'], 
+			$this->input->getAll('post')
+		);
+
+		$this->assertEquals(
+			$this->params['files'], 
+			$this->input->getAll('files')
+		);
+
+		$this->assertEquals(
+			$this->params['cookie'], 
+			$this->input->getAll('cookie')
+		);
+
+		$this->assertEquals(
+			$this->params['argv'], 
+			$this->input->getAll('argv')
+		);
+
+		$input  = new ContextInput('get');
+		$result = $input->getAll();
+		$expected = array(
+			'get'	 => array(),
+			'post'	 => array(),
+			'files'  => array(),
+			'cookie' => array(),
+			'argv'   => array()
+		);
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * @depends	testGetAll
+	 * @return	null
+	 */	
+	public function testGetAllParamTypeDoesNotExist()
+	{
+		$this->assertFalse($this->input->getAll('does-not-exist'));
+		$this->assertFalse($this->input->getAll(array(12345)));
+		$this->assertFalse($this->input->getAll(new StdClass()));
+	}
 }
