@@ -31,7 +31,7 @@ class OpRouteTask implements TaskInterface
 		if (! file_exists($file)) {
 			throw new Exception("Could not find generated db file at $file");
 		}
-		
+
 		$data = require $file;
 		if (empty($data) || ! is_array($data)) {
 			throw new Exception("Static operational routes must be an array");

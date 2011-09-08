@@ -11,7 +11,8 @@
 namespace Appfuel\Domain\Operation;
 
 use Appfuel\Framework\File\FileManager,
-	Appfuel\Orm\Repository\OrmRepository;
+	Appfuel\Orm\Repository\OrmRepository,
+	Appfuel\Framework\Domain\Operation\OperationalRouteInterface;
 
 /**
  * Used to manage database interaction throught a uniform interface that 
@@ -24,7 +25,19 @@ class Repository extends OrmRepository
 	 */
 	public function findOperationalRoute($routeString)
 	{
-		
+		$object = OpRouteList::findObject($routeString);
+		if (! $object instanceof OperationalRouteInterface) {
+			$raw = OpRouteList::findRaw($routeString);
+			if (! $raw) {
+				return false;
+			}
+			$opRoute = new OperationalRoute();
+			$opRoute->_marshal($raw)
+					->_markClean();
+			OpRouteList::addObject($routeString, $opRoute);
+		}
+
+		return $opRoute;
 	}
 
 	/**

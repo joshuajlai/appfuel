@@ -278,7 +278,4 @@ class AppContextTest extends ControllerTestCase
 		$this->assertFalse($this->context->isException());
 		$this->assertNull($this->context->getException());	
 	}
-
-
-
 }

@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Domain\Operation;
 
-use Appfuel\Framework\Exception;
+use Appfuel\Framework\Exception,
+	Appfuel\Framework\Domain\Operation\OperationalRouteInterface;
 
 /**
  * Used to manage database interaction throught a uniform interface that 
@@ -32,20 +33,39 @@ class OpRouteList
 	static protected $objects = array();
 
 	/**
-	 * @return	null
-	 */
-	static public function loadOperationFile()
-	{
-		self::loadOperations(self::getOperationFileData());
-	}
-
-	/**
 	 * @param	array
 	 * @return	null
 	 */
 	static public function setOperationalRoutes(array $routes)
 	{
 		self::$raw = $routes;
+	}
+
+	static public function findObject($route)
+	{
+		if (! isset(self::$objects[$route])) {
+			return false;
+		}
+			
+		return self::$objects[$route];
+	}
+
+	static public function findRaw($route)
+	{
+		if (! isset(self::$raw[$route])) {
+			return false;
+		}
+	
+		return self::$raw[$route];
+	}
+
+	static public function addObject($route, OperationalRouteInterface $op)
+	{
+		if (empty($route) || ! is_string($route)) {
+			throw new Exception("route string must be a non empty string");
+		}
+
+		self::$objects[$route] = $op;
 	}
 
 	/**

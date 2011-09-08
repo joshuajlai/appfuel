@@ -81,7 +81,7 @@ class ContextInput implements ContextInputInterface
 			
 			/* make sure he the array of key value pairs have valid keys */
 			foreach ($params[$type] as $key => $value) {
-				if (empty($key)) {
+				if (strlen($key) === 0 || ! is_scalar($key)) {
 					$err .= "request param for -($type) key must not be empty";
 					throw new Exception($err);
 				}
