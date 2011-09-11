@@ -175,7 +175,7 @@ class Scope implements ScopeInterface
      * @param   File  $file path to template
 	 * @return	string
      */
-    public function build($file)
+    public function build($file = null)
     {
 		if (is_string($file) && ! empty($file) && file_exists($file)) {
 			return $this->includeTemplate($file);

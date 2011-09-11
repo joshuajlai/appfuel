@@ -8,16 +8,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\App\Route;
+namespace Appfuel\Framework\Output;
+
+use Appfuel\Framework\App\Context\ContextInterface;
 
 /**
- * The route is used by the dispatcher in order to build an controller
- * to execute
+ * Appfuel Framework Exception
  */
-interface RouteInterface
+interface OutputEngineInterface
 {
-	public function getRouteString();
-	public function getActionNamespace();
-	public function getAccessPolicy();
-	public function getResponseType();
+	public function getAdapter();
+	public function setAdapter(EngineAdapterInterface $adapter);
+	public function render(ContextInterface $context);
 }

@@ -218,4 +218,18 @@ class Template extends Dictionary implements TemplateInterface
 	
 		return $scope->build($file->getRealPath());
 	}
+
+	/**
+	 * @return	string
+	 */
+	public function __toString()
+	{
+		try {
+			$result = $this->build();
+		} catch (\Exception $e) {
+			$result = $e->getMessage();
+		}
+
+		return $result;
+	}
 }

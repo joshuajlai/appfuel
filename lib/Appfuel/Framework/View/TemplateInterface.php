@@ -22,4 +22,5 @@ interface TemplateInterface
 	public function setScope(ScopeInterface $scope);
 	public function createScope(array $data = array());
 	public function build(array $data = array(), $isPrivate = false);
+	public function __toString();
 }
