@@ -12,13 +12,13 @@ namespace Appfuel\Http;
 
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Http\HttpResponseStatusInterface;
+	Appfuel\Framework\Http\HttpStatusInterface;
 
 /**
  * Value object used to wrap parameters php uses to send a header
  * with its header function
  */
-class HttpResponseStatus implements HttpResponseStatusInterface
+class HttpStatus implements HttpStatusInterface
 {
 	/**
 	 * Data to be sent in this response
@@ -122,5 +122,13 @@ class HttpResponseStatus implements HttpResponseStatusInterface
 	public function getText()
 	{
 		return $this->text;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function __toString()
+	{
+		return "{$this->getCode()} {$this->getText()}";
 	}
 }

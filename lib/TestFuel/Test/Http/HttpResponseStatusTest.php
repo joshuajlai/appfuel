@@ -11,13 +11,13 @@
 namespace TestFuel\Test\Http;
 
 use StdClass,
-	Appfuel\Http\HttpResponseStatus,
+	Appfuel\Http\HttpStatus,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
  * A value object that handles mapping of default text for a given status
  */
-class HttpResponseStatusTest extends BaseTestCase
+class HttpStatusTest extends BaseTestCase
 {
 	/**
 	 * System under test
@@ -30,7 +30,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$this->status = new HttpResponseStatus();
+		$this->status = new HttpStatus();
 	}
 
 	/**
@@ -47,7 +47,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Http\HttpResponseStatusInterface',
+			'Appfuel\Framework\Http\HttpStatusInterface',
 			$this->status
 		);
 	}
@@ -83,6 +83,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	{
 		$this->assertEquals(200, $this->status->getCode());
 		$this->assertEquals('OK',$this->status->getText());
+		$this->assertEquals("200 OK", $this->status->__toString());
 	}
 
 	/**
@@ -96,9 +97,10 @@ class HttpResponseStatusTest extends BaseTestCase
 	{
 		$map = $this->status->getStatusMap();
 		foreach ($map as $code => $text) {
-			$status = new HttpResponseStatus($code);
+			$status = new HttpStatus($code);
 			$this->assertEquals($code, $status->getCode());
 			$this->assertEquals($text, $status->getText());
+			$this->assertEquals("$code $text", $status->__toString());
 		}
 	}
 
@@ -112,9 +114,10 @@ class HttpResponseStatusTest extends BaseTestCase
 	{
 		$code = 200;
 		$text = 'my own text';
-		$status = new HttpResponseStatus($code, $text);
+		$status = new HttpStatus($code, $text);
 		$this->assertEquals($code, $status->getCode());
 		$this->assertEquals($text, $status->getText());
+		$this->assertEquals("$code $text", $status->__toString());
 	}
 
 	/**
@@ -123,7 +126,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	 */
 	public function testCodeIsNotAnInt_EmptyStringFailure()
 	{
-		$status = new HttpResponseStatus('');
+		$status = new HttpStatus('');
 	}
 
 	/**
@@ -132,7 +135,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	 */
 	public function testCodeIsNotAnInt_NonEmptyStringFailure()
 	{
-		$status = new HttpResponseStatus('Abc');
+		$status = new HttpStatus('Abc');
 	}
 
 	/**
@@ -141,7 +144,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	 */
 	public function testCodeIsNotAnInt_ArrayFailure()
 	{
-		$status = new HttpResponseStatus(array(1,2,3));
+		$status = new HttpStatus(array(1,2,3));
 	}
 
 	/**
@@ -150,7 +153,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	 */
 	public function testCodeIsNotAnInt_ObjectFailure()
 	{
-		$status = new HttpResponseStatus(new StdClass());
+		$status = new HttpStatus(new StdClass());
 	}
 
 	/**
@@ -159,7 +162,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	 */
 	public function testCodeIsNotAnInt_FloadFailure()
 	{
-		$status = new HttpResponseStatus(103.233);
+		$status = new HttpStatus(103.233);
 	}
 
 	/**
@@ -168,7 +171,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	 */
 	public function testCodeIntLessThan100_ZeroFailure()
 	{
-		$status = new HttpResponseStatus(0);
+		$status = new HttpStatus(0);
 	}
 
 	/**
@@ -177,7 +180,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	 */
 	public function testCodeIntLessThan100_Failure()
 	{
-		$status = new HttpResponseStatus(99);
+		$status = new HttpStatus(99);
 	}
 
 	/**
@@ -186,7 +189,7 @@ class HttpResponseStatusTest extends BaseTestCase
 	 */
 	public function testCodeIntGreaterThan600_Failure()
 	{
-		$status = new HttpResponseStatus(700);
+		$status = new HttpStatus(700);
 	}
 
 	/**
@@ -195,8 +198,6 @@ class HttpResponseStatusTest extends BaseTestCase
 	 */
 	public function testCodeIntEqual600_Failure()
 	{
-		$status = new HttpResponseStatus(600);
+		$status = new HttpStatus(600);
 	}
-
-
 }

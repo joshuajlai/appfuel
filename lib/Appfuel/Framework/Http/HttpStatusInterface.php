@@ -13,7 +13,7 @@ namespace Appfuel\Framework\Http;
 /**
  * Defines functionality needed to use php header function
  */
-interface HttpResponseStatusInterface
+interface HttpStatusInterface
 {
 	/**
 	 * @return	string
@@ -24,4 +24,9 @@ interface HttpResponseStatusInterface
 	 * @return	bool
 	 */
 	public function getText();
+
+	/**
+	 * @return	string
+	 */
+	public function __toString();
 }
