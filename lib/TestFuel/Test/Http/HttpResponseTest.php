@@ -144,6 +144,36 @@ class HttpResponseTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
+	public function testContructorWithProtocolStatusHeaders()
+	{
+		$content = 'this is my content';
+		$version = '1.1';
+		$status = new HttpStatus(202);
+		$headers = array(
+			new HttpHeaderField('Status: 404 Not Found'),
+			new HttpHeaderField('WWW-Authenticate: Negotiate'),
+			new HttpHeaderField('Content-type: application/pdf'),
+		);
+			
+		$response = new HttpResponse($content, $version, $status, $headers);
+		$this->assertEquals($content, $response->getContent());
+		$this->assertEquals($version, $response->getProtocolVersion());
+		$this->assertSame($status, $response->getStatus());
+
+		$expected = "HTTP/1.1 $status";
+		$statusLine = $response->getStatusLineHeader();
+		$this->assertInstanceOf(
+			'Appfuel\Http\HttpHeaderField',
+			$statusLine
+		);
+		$this->assertEquals($expected, $statusLine->getField());
+		$this->assertEquals($headers, $response->getHeaders());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
 	public function testGetAddHeader()
 	{
 		$this->assertEquals(array(), $this->response->getHeaders());
@@ -317,5 +347,42 @@ class HttpResponseTest extends BaseTestCase
 		);
 		
 		$this->assertEquals((string)$data, $this->response->getContent());	
-	}	
+	}
+
+	/**
+	 * @depends testGetSetContentString
+	 * @return	null
+	 */
+	public function testRenderContentNonEmptyString()
+	{
+		$content = "this is my content";
+		$response = new HttpResponse($content);
+		$this->expectOutputString($content);
+		$response->renderContent();
+	}
+
+	/**
+	 * @depends testGetSetContentString
+	 * @return	null
+	 */
+	public function testRenderContentObjectSupportsToString()
+	{
+		$path = "/some/path/of/mine";
+		$content = new SplFileInfo($path);
+		$response = new HttpResponse($content);
+		$this->expectOutputString($path);
+		$response->renderContent();
+	}
+	
+	/**
+	 * @depends testIsValidContent
+	 * @return	null
+	 */
+	public function testRenderContentEmptyString()
+	{
+		$response = new HttpResponse();
+		$this->expectOutputString('');
+		$response->renderContent();
+	}
+	
 }
