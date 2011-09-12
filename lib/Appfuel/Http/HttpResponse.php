@@ -60,10 +60,16 @@ class HttpResponse implements HttpResponseInterface
 		$this->setContent($data);
 
 		$valid = array('1.0', '1.1');
+		if (null === $version) {
+			$version = '1.0';
+		}
+		elseif (is_float($version)) {
+			$version =(string) $version;
+		}
+		
 		if (empty($version) 
 			|| ! is_string($version) || ! in_array($version, $valid)) {
 			$type = gettype($version);
-			$version = (string) $version;
 			$err   = "Failed to instantiate HttpResponse: ";
 			$err  .= "Can not set http protocol version must be one of the ";
 			$err  .= "following strings '1.0' or '1.1' type given -($type) ";

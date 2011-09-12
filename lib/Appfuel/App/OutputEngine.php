@@ -79,30 +79,23 @@ class OutputEngine implements OutputEngineInterface
 	public function render(ContextInterface $context)
 	{
 		$adapter = $this->getAdapter();
-		$format  = $context->getOutputFormat();
-		if (! $adapter->isFormatSupported($format)) {
-			$adapter->renderFormatNotSupportedError($format);
-			return;
-		}
-		$adapter->setFormatter($format);
-		
 		/*
 		 * used mainly by http adapters for the reponse headers
 		 */
 		if ($adapter instanceof AdapterHeaderInterface) {
-			$profile = $content->get('output-header-profile', null);
+			$profile = $content->get('output-profile', null);
 			$headers = $context->get('output-headers', array());
-			$adapter->setResponseHeaders($headers);
-		
-			if (null !== $profile) {
-				$adapter->setHeaderProfile($profile);
+			
+			if (! empty($profile) && is_string($profile)) {
+				$adapter->loadOutputProfile($profile);
+			}
+
+			if (! empty($headers) && is_array($headers)) {
+				$adapter->addResponseHeaders($headers);
 			}
 		}
 
-		$output   = $context->getOutput();
-		$strategy = $context->getOutputStrategy();
-
-		return $adapter->output($output, $strategy);
+		return $adapter->output($context->getOutput());
 	}
 
 	/**

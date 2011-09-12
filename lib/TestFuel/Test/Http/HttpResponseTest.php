@@ -384,5 +384,4 @@ class HttpResponseTest extends BaseTestCase
 		$this->expectOutputString('');
 		$response->renderContent();
 	}
-	
 }

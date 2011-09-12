@@ -86,66 +86,28 @@ class HttpOutputAdapter
     }
 
     /**
-     *  
      * @param   mixed   $data
      * @param   string  $strategy
      * @return  mixed
      */
-    public function output($data, $strategy = 'render')
+    public function output($data)
     {  
-        if ('render' === $strategy) {
-            $result = $this->render();
-        } else {
-            $result = $this->build();
-        }
-
-        return $result;
+		$result   = null;
+		$response = $this->getResponse();
+		$response->setContent($data);
+		$response->send();
+        return;
     }
 
-    /**
-     * @param   mixed   $data
-     * @return  string
-     */
-    public function build($data)
-    {  
-        if (! $this->isValidOutput($data)) {
-            return '';
-        }
-
-        if (is_scalar($data)) {
-            return $data;
-        }
-
-        return $data->__toString();
-    }
-
-
-    /**
-     * Render output to the stdout.
-     * 
-     * @param   mixed   $data
-     * @return  null
-     */
-    public function render($data)
-    {  
-        if (! $this->isValidOutput($data)) {
-			
-        }
-		
-		echo $data;
-    }
-
-	public function read($data)
-	{
-		// some read operations
-	}
-
-	public function applyHeaders(array $headers = array())
+	public function setResponseHeaders(array $headers)
 	{
 		if (empty($headers)) {
 			return;
 		}
 
+		$response = $this->getResponse();
+		$response->loadHeaders($headers);
+		return $this;
 	}
 
     /**
@@ -154,21 +116,10 @@ class HttpOutputAdapter
      */
     public function renderFormatNotSupportedError($format)
     {
+		$response = $this->getResponse();
         $format =(string) $format;
         $error ="http ouput error: format -($format) is not supported";
-    }
-
-    /**
-     * @param   mixed   $data
-     * @return  bool
-     */
-    public function isValidOutput($data)
-    {
-        if (is_scalar($data) ||
-            is_object($data) && method_exists($data, '__toString')) {
-            return true;
-        }
-
-        return false;
+		$response->setContent($error);
+		$reponse->send();
     }
 }
