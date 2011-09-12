@@ -11,8 +11,7 @@
 namespace Appfuel\Http;
 
 
-use Appfuel\Http\HeaderList,
-	Appfuel\Http\HttpResponse,
+use Appfuel\Http\HttpResponse,
 	Appfuel\Framework\Exception,
 	Appfuel\Framework\Output\AdapterHeaderInterface,
 	Appfuel\Framework\Output\EngineAdapterInterface,
@@ -23,7 +22,7 @@ use Appfuel\Http\HeaderList,
  * Handle specific details for outputting http data
  */
 class HttpOutputAdapter 
-	implements AdapterEngineInterface, AdapterHeaderInterface
+	implements EngineAdapterInterface, AdapterHeaderInterface
 {
 	/**
 	 * Any php related functionality like sending headers is done here
@@ -45,45 +44,36 @@ class HttpOutputAdapter
 	}
 
 	/**
+	 * @param	array	$headers
+	 * @return	HttpOutputAdapter
+	 */
+	public function addResponseHeaders(array $headers)
+	{
+		if (empty($headers)) {
+			return;
+		}
+
+		$response = $this->getResponse();
+		$response->loadHeaders($headers);
+		return $this;
+	}
+
+	/**
+	 * @param	string	$profile	name of the profile to load
+	 * @return	HttpOutputAdapter
+	 */
+	public function loadHeaderProfile($profile)
+	{
+		return $this;
+	}	
+
+	/**
 	 * @return	HttpResponseInterface
 	 */
 	public function getResponse()
 	{
-		return $this->reponse;	
+		return $this->response;	
 	}
-
-	/**
-	 * @param	array	$headers	list of header field objects
-	 * @return	null
-	 */
-	public function setHeaders(array $headers)
-	{
-		$response = $this->getResponse();
-		foreach ($headers as $header) {
-			if ($header instanceof HttpHeaderFieldInterface) {
-				$response->addHeader($header);
-			}
-		}
-	}
-
-    /**
-     * @param   string  $format 
-     * @return  bool
-     */
-    public function isFormatSupported($format)
-    {
-        if (empty($format) || ! is_string($format)) {
-            return false;
-        }
-
-        $format = strtolower($format);
-        $supported = array('text', 'json', 'csv', 'html', 'bin');
-        if (in_array($format, $supported)) {
-            return true;
-        }
-
-        return false;
-    }
 
     /**
      * @param   mixed   $data
@@ -97,29 +87,5 @@ class HttpOutputAdapter
 		$response->setContent($data);
 		$response->send();
         return;
-    }
-
-	public function setResponseHeaders(array $headers)
-	{
-		if (empty($headers)) {
-			return;
-		}
-
-		$response = $this->getResponse();
-		$response->loadHeaders($headers);
-		return $this;
-	}
-
-    /**
-     * @param   string  $format
-     * @return  null
-     */
-    public function renderFormatNotSupportedError($format)
-    {
-		$response = $this->getResponse();
-        $format =(string) $format;
-        $error ="http ouput error: format -($format) is not supported";
-		$response->setContent($error);
-		$reponse->send();
     }
 }

@@ -13,6 +13,6 @@ namespace Appfuel\Framework\Output;
 /**
  * Defines functionality needed to use headers
  */
-interface HttpHeaderInterface
+interface AdapterHeaderInterface
 {
 }
