@@ -12,6 +12,8 @@ namespace Appfuel\Http;
 
 
 use Appfuel\Framework\Exception,
+	Appfuel\Framework\Http\HttpStatusInterface,
+	Appfuel\Framework\Http\HttpResponseInterface,
 	Appfuel\Framework\Http\HttpHeaderFieldInterface;
 
 /**
@@ -25,6 +27,12 @@ class HttpResponse implements HttpResponseInterface
 	 * @var array
 	 */
 	protected $headers = array();
+
+	/**
+	 * This is the text of the first header to be send
+	 * @var	HttpHeaderField
+	 */
+	protected $statusLine = null;
 
 	/**
 	 * Data to be sent in this response
@@ -44,15 +52,110 @@ class HttpResponse implements HttpResponseInterface
 	 * @param	array	$headers	list of header objects to be used
 	 * @return	HttpResponse
 	 */
-	public function __construct($data = '', $status = 200, $statusText = null)
+	public function __construct($data = '',
+								$version = '1.0',
+								HttpStatusInterface $status = null,
+								array $headers = null)
 	{
 		$this->setContent($data);
-		$this->setStatus(new HttResponseStatus($status, $statusText));
-		$this->setProtocolVersion('1.0');
 
-		if (! empty($headers)) {
+		$valid = array('1.0', '1.1');
+		if (empty($version) 
+			|| ! is_string($version) || ! in_array($version, $valid)) {
+			$type = gettype($version);
+			$version = (string) $version;
+			$err   = "Failed to instantiate HttpResponse: ";
+			$err  .= "Can not set http protocol version must be one of the ";
+			$err  .= "following strings '1.0' or '1.1' type given -($type) ";
+			throw new Exception($err);
+		}
+		$this->version = $version;
+
+	
+		if (null === $status) {
+			$status = new HttpStatus();
+		}
+		$this->setStatus($status);
+
+		if (null !== $headers) {
 			$this->loadHeaders($headers);
 		}
+	}
+	
+	/**
+	 * Assign the content to be used and convert it to a string in necessary
+	 * 
+	 * @param	mixed	scalar|object	$data
+	 * @return	HttpResponse
+	 */
+	public function setContent($data)
+	{
+		if (! $this->isValidContent($data)) {
+			$type = gettype($data);
+			$err  = "Http response content must be a string or an object ";
+			$err .= "implementing __toString(). parameter type -($type)";
+			throw new Exception($err);
+		}
+
+		$this->content = (string) $data;
+		return $this;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getContent()
+	{
+		return $this->content;
+	}
+
+	/**
+	 * @param	mixed	$data
+	 * @return	bool
+	 */
+	public function isValidContent($data)
+	{
+		if (null !== $data && 
+			! is_scalar($data) && ! is_callable(array($data, '__toString'))) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getProtocolVersion()
+	{
+		return $this->version;
+	}
+
+	/**
+	 * @return	int
+	 */
+	public function getStatus()
+	{
+		return $this->status;
+	}
+
+	/**
+	 * @param	HttpResponseStatus
+	 * @return	HttpResponse
+	 */
+	public function setStatus(HttpStatus $status)
+	{
+		$this->status = $status;
+		$this->updateStatusLineHeader();
+		return $this;
+	}
+
+	/**
+	 * @return	HttpHeaderStatus
+	 */
+	public function getStatusLineHeader()
+	{
+		return $this->statusLine;
 	}
 
 	/**
@@ -72,7 +175,7 @@ class HttpResponse implements HttpResponseInterface
 	public function loadHeaders(array $headers) 
 	{
 		foreach ($headers as $idx => $header) {
-			if (! instanceof HttpHeaderFieldInterface $header) {
+			if (! $header instanceof HttpHeaderFieldInterface) {
 				$type = gettype($header);
 				$err  = "Can not load headers: header must be an object ";
 				$err .= "that implments Appfuel\Framework\Http\HttpHeader";
@@ -96,89 +199,47 @@ class HttpResponse implements HttpResponseInterface
 	}
 
 	/**
-	 * Assign the content to be used and convert it to a string in necessary
-	 * 
-	 * @param	mixed	scalar|object	$data
-	 * @return	HttpResponse
+	 * @return null
 	 */
-	public function setContent($data)
+	public function renderContent()
 	{
-		if (! $this->isValidContent($data)) {
-			$type = gettype($data);
-			$err  = "Http response content must be a string or an object ";
-			$err .= "implementing __toString(). parameter type -($type)";
-			throw new Exception($err);
+		echo $this->content;
+	}
+
+	/**
+	 * @return null
+	 */
+	public function sendHeaders()
+	{
+		if (headers_sent()) {
+			return;
 		}
 
-		$this->content = (string) $data;
+		header($this->getStatusLine()->getField());
+		
+		$headers = $this->getHeaders();
+		foreach ($headers as $header) {
+			header($header->getField());
+		}
 	}
 
 	/**
-	 * @return	string
+	 * @return null
 	 */
-	public function getContent()
+	public function send()
 	{
-		return $this->content;
+		$this->sendHeaders();
+		$this->renderContent();
 	}
 
 	/**
-	 * @return	string
-	 */
-	public function getProtocolVersion()
-	{
-		return $this->version;
-	}
-
-	/**
-	 * @param	string	$version	1.0 or 1.1
+	 * @param	HttpStatus	$status
 	 * @return	HttpResponse
 	 */
-	public function setProtocolVersion($version)
+	protected function updateStatusLineHeader()
 	{
-		$valid = array('1.0', '1.1');
-		if (empty($version) 
-			|| ! is_string($version) || ! in_array($version, $valid)) {
-			$type = gettype($version);
-			$version = (string) $version;
-			$err  .= "Can not set http protocol version: must be on of the ";
-			$err  .= "following strings '1.0' or '1.1' type given -($type) "
-			$err  .= "value given -($version)";
-			throw new Exception($err);
-		}
-
-		$this->version = $version;
+		$statusLine = "HTTP/{$this->getProtocolVersion()} {$this->getStatus()}";
+		$this->statusLine = new HttpHeaderField($statusLine);
 		return $this;
-	}
-
-	/**
-	 * @return	int
-	 */
-	public function getStatus()
-	{
-		return $this->status;
-	}
-
-	/**
-	 * @param	HttpResponseStatus
-	 * @return	HttpResponse
-	 */
-	public function setStatus(HttpResponseStatus $status)
-	{
-		$this->status = $status;
-		return $this;
-	}
-
-	/**
-	 * @param	mixed	$data
-	 * @return	bool
-	 */
-	public function isValidContent($data)
-	{
-		if (null !== $data && 
-			! is_scalar($data) && ! is_callable(array($data, '__toString'))) {
-			return false;
-		}
-
-		return true;
 	}
 }

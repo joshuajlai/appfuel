@@ -86,4 +86,12 @@ class HttpHeaderField implements HttpHeaderFieldInterface
     {  
         return $this->code;
     }
+
+	/**
+	 * @return	string
+	 */
+	public function __toString()
+	{
+		return $this->getField();
+	}
 }

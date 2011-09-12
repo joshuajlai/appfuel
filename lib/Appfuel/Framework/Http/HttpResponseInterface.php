@@ -13,27 +13,6 @@ namespace Appfuel\Framework\Http;
 /**
  * Defines functionality needed to use php header function
  */
-interface HttpHeaderFieldInterface
+interface HttpResponseInterface
 {
-	/**
-	 * @return	string
-	 */
-	public function getField();
-	
-	/**
-	 * @return	bool
-	 */
-	public function isReplace();
-	
-	/**
-	 * @return	null | int
-	 */
-	public function getCode();
-
-	/**
-	 * Should return getFiled
-	 * 
-	 * @return	string
-	 */
-	public function __toString();
 }
