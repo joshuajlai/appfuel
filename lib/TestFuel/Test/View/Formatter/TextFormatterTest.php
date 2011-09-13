@@ -18,7 +18,7 @@ use StdClass,
 /**
  * The text formmater converts and array of key=>value pairs into a string
  */
-class FormatterTest extends BaseTestCase
+class TextFormatterTest extends BaseTestCase
 {
 	/**
 	 * System under test
@@ -389,4 +389,88 @@ class FormatterTest extends BaseTestCase
 		$expected = 'key1:key2:key3';
 		$this->assertEquals($expected, $formatter->format($data));
 	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBadDelimiterKeyDelimiterInt_Failure()
+	{
+		$formatter = new TextFormatter(1234);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBadDelimiterKeyDelimiterArray_Failure()
+	{
+		$formatter = new TextFormatter(array(1,2,3));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBadDelimiterKeyDelimiterObject_Failure()
+	{
+		$formatter = new TextFormatter(new StdClass());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBadDelimiterItemDelimiterInt_Failure()
+	{
+		$formatter = new TextFormatter(':', 1234);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBadDelimiterItemDelimiterArray_Failure()
+	{
+		$formatter = new TextFormatter(':', array(1,2,3));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBadDelimiterItemDelimiterObject_Failure()
+	{
+		$formatter = new TextFormatter(':', new StdClass());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBadArrayStrategyInt_Failure()
+	{
+		$formatter = new TextFormatter(':', ':', 1234);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBadArrayStrategyArray_Failure()
+	{
+		$formatter = new TextFormatter(':', array(1,2,3));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testBadArrayStrategyObject_Failure()
+	{
+		$formatter = new TextFormatter(':', new StdClass());
+	}
+
+
+
 }
