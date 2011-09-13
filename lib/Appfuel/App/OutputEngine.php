@@ -83,13 +83,8 @@ class OutputEngine implements OutputEngineInterface
 		 * used mainly by http adapters for the reponse headers
 		 */
 		if ($adapter instanceof AdapterHeaderInterface) {
-			$profile = $content->get('output-profile', null);
 			$headers = $context->get('output-headers', array());
 			
-			if (! empty($profile) && is_string($profile)) {
-				$adapter->loadOutputProfile($profile);
-			}
-
 			if (! empty($headers) && is_array($headers)) {
 				$adapter->addResponseHeaders($headers);
 			}
