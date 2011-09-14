@@ -10,7 +10,8 @@
  */
 namespace Appfuel\View\Formatter;
 
-use SplFileInfo,
+use Countable,
+	SplFileInfo,
 	Appfuel\Framework\Exception,
 	Appfuel\Framework\View\Formatter\ViewFormatterInterface;
 
@@ -19,7 +20,7 @@ use SplFileInfo,
  * means the $this in the template file is this object. The format function
  * will convert the template is 
  */
-class TemplateFormatter implements ViewFormatterInterface
+class TemplateFormatter implements ViewFormatterInterface, Countable
 {
     /**
      * Hold name => value pairs to be used in templates
@@ -37,8 +38,12 @@ class TemplateFormatter implements ViewFormatterInterface
      * @param   array   $data
      * @return  Template
      */
-    public function __construct($file)
+    public function __construct($file, array $data = null)
     {
+		if (null !== $data) {
+			$this->load($data);
+		}
+
 		if ($file instanceof SplFileInfo && $file->isFile()) {
 			$this->filePath = $file->getRealPath();		
 		}
@@ -52,6 +57,36 @@ class TemplateFormatter implements ViewFormatterInterface
     }
 
     /**
+     * Load a list of key/value pairs into template file
+     * 
+     * @param   array   $data
+     * @return  TemplateFormatter
+     */
+    public function load(array $data)
+    {
+        foreach ($data as $key => $value) {
+            $this->assign($key, $value);
+        }
+
+        return $this;
+    }
+
+	/**
+	 * @param	scalar	$key
+	 * @param	mixed	$value
+	 * @return	TemplateFormatter
+	 */
+	public function assign($key, $value)
+	{
+		if (! is_scalar($key)) {
+			throw new Exception("assign failed: key must be a scalar value");
+		}
+
+		$this->data[$key] = $value;
+		return $this;
+	}
+
+    /**
      * Get the value for the given label from scope. If the value does not 
 	 * exist then return the default parameter
      *
@@ -60,14 +95,24 @@ class TemplateFormatter implements ViewFormatterInterface
      * @return  mixed
      */
     public function get($key, $default = null)
-    {   
+    {
         if (! $this->exists($key)) {
             return $default;
         }
 
         return $this->data[$key];
     }
-	
+
+	/**
+	 * @param	scalar	$key	
+	 * @param	mixed	$default
+	 * @return	mixed
+	 */	
+	public function getFrom($key, $default = null)
+	{
+
+	}
+
 	/**
 	 * Return all the data in scope
 	 * 
@@ -90,10 +135,10 @@ class TemplateFormatter implements ViewFormatterInterface
     {
          if (! $this->exists($key)) {
 			if (is_array($default)) {
-				$default = implode($sep, $default);;
+				$default = implode($sep, $default);
 			} 
 			else if (is_object($default) && 
-					! method_exists($default, '__toString')) {
+					 ! is_callable(array($default, '__toString'))) {
 				$default = '';
 			}
 
@@ -104,7 +149,8 @@ class TemplateFormatter implements ViewFormatterInterface
         $data = $this->get($key);
         if (is_array($data)) {
             $data = implode($sep, $data);
-        } elseif (is_object($data) && ! method_exists($data, '__toString')) {
+        } elseif (is_object($data) && 
+				 ! is_callable(array($data, '__toString'))) {
             $data = '';
         }
 
@@ -165,19 +211,22 @@ class TemplateFormatter implements ViewFormatterInterface
 
 
 		if (is_string($data)) {
-			$this->data = array('default-item' => $data);
+			$this->assign('default-item', $data);
 		}
 		else if (is_object($data) && is_callable(array($data, '__toString'))) {
-			$this->data = array('default-item' => $data->__toString());
-		} else if (! is_array($data)) {
-			$this->data = array();
-		}
-		else {
-			$this->data = $data;
+			$this->assign('default-item',$data->__toString());
+		} else if (is_array($data)) {
+			$this->load($data);
 		}
 
 		return $this->includeTemplate($filePath);
     }
+
+	public function importTemplate($file, array $data = null)
+	{
+		$formatter = new self($file);
+		return $formatter->format($data);
+	}
 
     /**
      * Include Template
@@ -188,7 +237,7 @@ class TemplateFormatter implements ViewFormatterInterface
      * @param   string  arguement 0     file path to template
      * @return  string
      */
-    protected function includeTemplate()
+    private function includeTemplate()
     {
         ob_start();
         include func_get_arg(0);
