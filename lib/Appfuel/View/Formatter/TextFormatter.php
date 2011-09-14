@@ -176,6 +176,13 @@ class TextFormatter implements ViewFormatterInterface
 			case 'assoc':
 				$result  = '';
 				foreach ($data as $key => $value) {
+					if (is_array($value)) {
+						$value = $this->format($value);
+					}
+					else if (is_object($value) && 
+							! is_callable(array($value, '__toString'))) {
+						$value = '';
+					}
 					$result .= $key . $keyDelimiter . $value . $itemDelimiter;
 				}
 				$result = trim($result, "$itemDelimiter");

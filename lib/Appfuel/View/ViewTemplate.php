@@ -10,21 +10,29 @@
  */
 namespace Appfuel\View;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\View\TemplateInterface,
-	Appfuel\Framework\View\ViewFormatterInterface;
+use Appfuel\Framework\View\Formatter\ViewFormatterInterface,
+	Appfuel\Framework\View\ViewTemplateInterface,
+	Appfuel\Framework\Exception,
+	Appfuel\View\Formatter\TextFormatter,
+	Countable;
 
 /**
  * The view template is the most basic of the templates. Holding all its data
  * in key/value pair it uses a formatter to convert it a string.
  */
-class ViewTemplate implements TemplateInterface
+class ViewTemplate implements ViewTemplateInterface, Countable
 {
 	/**
 	 * Holds assignment until build time where they are passed into scope
 	 * @var array
 	 */
 	protected $assign = array();
+
+	/**
+	 * The formatter is reponsible for formatting templating data into a string
+	 * @var	ViewFormatterInterface
+	 */
+	protected $formatter = null;
 
 	/**
 	 * @param	mixed	$file 
@@ -37,6 +45,38 @@ class ViewTemplate implements TemplateInterface
 		if (null !== $data) {
 			$this->load($data);
 		}
+
+		if (null === $formatter) {
+			$formatter = new TextFormatter();
+		}
+	
+		$this->setViewFormatter($formatter);
+	}
+
+	/**
+	 * @return	ViewFormatterInterface
+	 */
+	public function getViewFormatter()
+	{
+		return $this->formatter;
+	}
+
+	/**
+	 * @param	ViewFormatterInterface $formatter
+	 * @return	ViewTemplate
+	 */
+	public function setViewFormatter(ViewFormatterInterface $formatter)
+	{
+		$this->formatter = $formatter;
+		return $this;
+	}
+
+	/**
+	 * @return	int
+	 */
+	public function count()
+	{
+		return count($this->assign);
 	}
 
 	/**
@@ -63,7 +103,7 @@ class ViewTemplate implements TemplateInterface
 	 */
 	public function assign($key, $value)
 	{
-        if (empty($key) || ! is_scalar($key)) {
+        if (! is_scalar($key)) {
 			throw new Exception("Template assignment keys must be scalar ");
         }
 
@@ -90,7 +130,7 @@ class ViewTemplate implements TemplateInterface
 	 */
 	public function isAssigned($key)
 	{
-		if (empty($key) || ! is_scalar($key) || ! isset($this->assign[$key])) {
+		if (! is_scalar($key) || ! array_key_exists($key, $this->assign)) {
 			return false;
 		}
 
@@ -115,8 +155,12 @@ class ViewTemplate implements TemplateInterface
 	 */
     public function build(array $data = null, $isPrivate = false)
 	{
-		$isPrivate = (bool) $isPrivate;
-		$formatter = $this->getFormatter();
+		$isPrivate = false;
+		if (true === $isPrivate) {
+			$isPrivate = true;
+		}
+
+		$formatter = $this->getViewFormatter();
 	
 		/*
 		 * When private use only data in the second parameter. 
