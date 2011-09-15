@@ -73,6 +73,5 @@ class ViewPathFinderTest extends BaseTestCase
 		
 		$this->finder->enableBasePath();
 		$this->assertEquals($expected, $this->finder->resolveRootPath());
-		
 	}
 }

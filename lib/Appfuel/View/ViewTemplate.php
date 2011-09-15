@@ -40,7 +40,7 @@ class ViewTemplate implements ViewTemplateInterface, Countable
 	 * @return	FileTemplate
 	 */
 	public function __construct(array $data = null, 
-								ViewFormatterInterfaace $formatter = null)
+								ViewFormatterInterface $formatter = null)
 	{
 		if (null !== $data) {
 			$this->load($data);

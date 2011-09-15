@@ -48,7 +48,7 @@ class ViewFileTemplate extends ViewTemplate implements ViewFileTemplateInterface
 			throw new Exception("could not find template at -($filePath)");
 		}
 
-		$formatter = new Formmater\TemplateFormatter($filePath);
+		$formatter = new Formatter\TemplateFormatter($filePath);
 		parent::__construct($data, $formatter);
 	}
 

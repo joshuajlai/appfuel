@@ -113,6 +113,52 @@ class ViewTemplateTest extends BaseTestCase
 	}
 
 	/**
+	 * @depends	testDefaultsFromConstructor
+	 * @return	null
+	 */
+	public function testConstructorData()
+	{
+		$data = array('foo' => 'bar', 'baz' => 'biz');
+		$template = new ViewTemplate($data);
+		$this->assertEquals(count($data), $template->count());
+		$this->assertEquals($data, $template->getAllAssigned());
+	}
+
+	/**
+	 * @depends	testDefaultsFromConstructor
+	 * @return	null
+	 */
+	public function testConstructorViewFormatter()
+	{
+		$interface = 'Appfuel\Framework\View\Formatter\ViewFormatterInterface';
+		$formatter = $this->getMock($interface);
+		$template = new ViewTemplate(null, $formatter);
+
+		$this->assertEquals(0, $template->count());
+		$this->assertEquals(array(), $template->getAllAssigned());
+		$this->assertSame($formatter, $template->getViewFormatter());
+	}
+
+	/**
+	 * @depends	testDefaultsFromConstructor
+	 * @return	null
+	 */
+	public function testConstructorDataAndViewFormatter()
+	{
+		$interface = 'Appfuel\Framework\View\Formatter\ViewFormatterInterface';
+		$formatter = $this->getMock($interface);
+		$data = array('foo' => 'bar', 'baz' => 'biz');
+		
+		$template = new ViewTemplate($data, $formatter);
+
+		$this->assertEquals(count($data), $template->count());
+		$this->assertEquals($data, $template->getAllAssigned());
+		$this->assertSame($formatter, $template->getViewFormatter());
+	}
+
+
+
+	/**
 	 * @depends	testInterface
 	 * @return	null
 	 */
