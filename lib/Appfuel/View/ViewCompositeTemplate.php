@@ -11,15 +11,18 @@
 namespace Appfuel\View;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\View\TemplateInterface,
-	Appfuel\Framework\View\BuildItemInterface,
 	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Framework\View\CompositeTemplateInterface;
+	Appfuel\Framework\File\PathFinderInterface,
+	Appfuel\Framework\View\ViewTemplateInterface,
+	Appfuel\Framework\View\BuildItemInterface,
+	Appfuel\Framework\View\ViewCompositeTemplateInterface,
+	Appfuel\Framework\View\Formatter\ViewFormatterInterface;
 
 /**
  * The composite 
  */
-class CompositeTemplate extends Template implements CompositeTemplateInterface
+class ViewCompositeTemplate 
+	extends ViewFileTemplate implements ViewCompositeTemplateInterface
 {
 	/**
 	 * List of templates used by this template
@@ -40,11 +43,47 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 	protected $currentBuildItem = null;
 
 	/**
+	 * If you pass in a template path then the constructor will inherit the
+	 * FileTemplates constructor which sets the template formmatter by default.
+	 * Otherwise we will default to a text formatter. The reason for this is 
+	 * to allow console apps to have composite templates without the need
+	 * to use .phtml template files.
+	 *
+	 * @param	string				$filePath	relative path to template
+	 * @param	PathFinderInterface $pathFinder	resolves the relative path
+	 * @param	array				$data		data to be assigned
+	 * @param	ViewFormmaterInterface	$formatter determines how to format
+	 * @return	ViewCompositeTemplate
+	 */
+	public function __construct($templatePath = null,
+								PathFinderInterface $finder = null,
+								array $data = null,
+								ViewFormatterInterface $formatter = null)
+	{
+		if (null !== $templatePath && is_string($templatePath)) {
+			parent::__construct($templatePath, $data, $finder);
+			if (null !== $formatter) {
+				$this->setViewFormatter($formatter);
+			}
+			return;
+		}
+
+		if (null === $formatter) {
+			$formatter = new Formatter\TextFormatter();
+		}
+		$this->setViewFormatter($formatter);
+
+		if (null !== $data) {
+			$this->load($data);
+		}
+	}
+
+	/**
 	 * @param	array	$data
 	 * @param	bool	$isPrivate
 	 * @return	string
 	 */
-	public function build(array $data = array(), $isPrivate = false)
+	public function build(array $data = null, $isPrivate = false)
 	{
 		$err = 'Build failed:';
 		$this->finalizeCurrentBuildItem();
@@ -98,7 +137,6 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 			$target = $this->getTemplate($targetKey);
 			$target->assign($assignLabel, $result);
 		}
-
 		return parent::build($data, $isPrivate);
 	}
 
@@ -111,7 +149,7 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
     public function templateExists($key)
 	{
 		return array_key_exists($key, $this->templates) &&
-				$this->templates[$key] instanceof TemplateInterface;
+				$this->templates[$key] instanceof ViewTemplateInterface;
 	}
 
 	/**
@@ -119,7 +157,7 @@ class CompositeTemplate extends Template implements CompositeTemplateInterface
 	 * @param	TemplateInterface	$template
 	 * @return	CompositeTemplate
 	 */
-	public function addTemplate($key, TemplateInterface $template)
+	public function addTemplate($key, ViewTemplateInterface $template)
 	{
 		if (! is_scalar($key)) {
 			throw new Exception("Invalid key: must be a scalar value");

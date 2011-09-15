@@ -18,7 +18,8 @@ use Appfuel\Framework\View\Formatter\ViewFormatterInterface,
 	Countable;
 
 /**
- * A FileView
+ * A ViewFileTemplate is a view template that is designed to work with the
+ * template formatter. It has a path finder to locate template files. 
  */
 class ViewFileTemplate extends ViewTemplate implements ViewFileTemplateInterface
 {

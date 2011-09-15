@@ -207,7 +207,6 @@ class TemplateFormatter implements ViewFormatterInterface, Countable
     {
 		/* we unset the file path so it is not visible to the template file */
 		$filePath = $this->filePath;
-		unset($this->filePath);
 
 
 		if (is_string($data)) {
@@ -222,6 +221,11 @@ class TemplateFormatter implements ViewFormatterInterface, Countable
 		return $this->includeTemplate($filePath);
     }
 
+	/**
+	 * @param	string $file
+	 * @param	array	$data
+	 * @return	string
+	 */
 	public function importTemplate($file, array $data = null)
 	{
 		$formatter = new self($file);
