@@ -12,6 +12,7 @@ namespace Appfuel\Console;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\File\PathFinder,
+	Appfuel\View\ViewCompositeTemplate,
 	Appfuel\View\Formatter\TextFormatter,
 	Appfuel\Framework\Console\ConsoleHelpTemplateInterface;
 
@@ -19,7 +20,7 @@ use Appfuel\Framework\Exception,
  * Template used to generate generic html documents
  */
 class ConsoleHelpTemplate 
-	extends ConsoleViewTemplate implements ConsoleHelpTemplateInterface
+	extends ViewCompositeTemplate implements ConsoleHelpTemplateInterface
 {
 	/**
 	 * Return code for the console
@@ -54,6 +55,15 @@ class ConsoleHelpTemplate
 		$this->setStatusCode(1);
 		$this->setStatusText('unkown error has occured');
 		$this->enableErrorTitle();
+        if (null === $formatter) {
+            /*
+             * first param:  character to delimit keys from values
+             * second param: character to delimit each array item
+             * third param:  parse only array values, ignore keys
+             */
+            $formatter = new TextFormatter(' ', ' ', 'values');
+
+        }
 		parent::__construct($templatePath, $finder, $data, $formatter);
 		
     }
@@ -108,8 +118,8 @@ class ConsoleHelpTemplate
 	 */
 	public function setStatus($code, $text)
 	{
-		$this->setStatusText($code)
-			 ->setSatusText($text);
+		$this->setStatusCode($code)
+			 ->setStatusText($text);
 
 		return $this;
 	}
@@ -154,7 +164,7 @@ class ConsoleHelpTemplate
          */
         $body = parent::build($data, $isPrivate);
 		$title = '';
-		if ($this->isErrorTitleEnable()) {
+		if ($this->isErrorTitleEnabled()) {
 			$title = "[$code] $text" . PHP_EOL;
 		}
 		

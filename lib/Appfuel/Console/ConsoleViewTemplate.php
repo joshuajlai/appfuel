@@ -44,6 +44,7 @@ class ConsoleViewTemplate
 			$formatter = new TextFormatter(' ', ' ', 'values');
 			
 		}
+		$this->addTemplate('error', new ConsoleHelpTemplate());
 		parent::__construct($templatePath, $finder, $data, $formatter);
     }
 

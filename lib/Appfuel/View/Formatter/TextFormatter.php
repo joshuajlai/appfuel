@@ -153,44 +153,69 @@ class TextFormatter implements ViewFormatterInterface
      */
     public function format($data)
     {
-		if (is_string($data)) {
+		if (! is_array($data)) {
+			return $this->parseString($data);
+		}
+
+		return $this->parseArray($data, $this->getArrayStrategy());	
+    }
+
+	public function parseString($data)
+	{
+		if (is_scalar($data)) {
 			return $data;
 		}
 		else if (is_object($data) && is_callable(array($data, '__toString'))) {
 			return $data->__toString();
 		}
-		else if (! is_array($data)) {
+		else {
 			return '';
 		}
+	}
 
+	/**
+	 * Parse Array will parse out the data array depending on type
+	 * values:	parse only values - will travel down sub arrays 
+	 * keys:	parse only keys	  - will not travel down sub arrays
+	 * assoc:	parse both keys and values - will travel down sub arrays
+	 * 
+	 * @param	array	$data
+	 * @param	string	$type	values|keys|assoc
+	 * @return	string
+	 */
+	public function parseArray(array $data, $type = 'assoc')
+	{
 		$itemDelimiter = $this->getItemDelimiter();
 		$keyDelimiter  = $this->getKeyDelimiter();
+		$trimDelimiter = ' ';
 
-		switch ($this->getArrayStrategy()) {
-			case 'keys':
-				$result = implode($keyDelimiter, array_keys($data));
-				break;
-			case 'values':
-				$result = implode($itemDelimiter, array_values($data));
-				break;
-			case 'assoc':
-				$result  = '';
-				foreach ($data as $key => $value) {
-					if (is_array($value)) {
-						$value = $this->format($value);
-					}
-					else if (is_object($value) && 
-							! is_callable(array($value, '__toString'))) {
-						$value = '';
-					}
+		$result = '';
+		$isProcessValues = in_array($type, array('values', 'assoc'));
+		foreach ($data as $key => $value) {
+			if (is_array($value) && $isProcessValues) {
+				$value = $this->parseArray($value, $type);
+			}
+			else {
+				$value = $this->parseString($value);
+			}
+
+			switch($type) {
+				case 'assoc':
 					$result .= $key . $keyDelimiter . $value . $itemDelimiter;
-				}
-				$result = trim($result, "$itemDelimiter");
-				break;
-			default:
-				$result = '';
+					$trimDelimiter = $itemDelimiter;
+					break;
+				case 'keys': 
+					$result .= $key . $keyDelimiter;
+					$trimDelimiter = $keyDelimiter;
+					break;
+				case 'values':
+					$result .= $value . $itemDelimiter;
+					$trimDelimiter = $itemDelimiter;
+					break;
+				default:
+					continue;
+			}
 		}
-
-		return $result;
-    }
+		return trim($result, "$trimDelimiter");
+	}
 }

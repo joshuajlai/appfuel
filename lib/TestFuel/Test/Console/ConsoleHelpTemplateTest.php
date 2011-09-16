@@ -70,29 +70,29 @@ class ConsoleHelpTemplateTest extends BaseTestCase
 	 *
 	 * @return	null
 	 */
-	public function xtestDefaultConstructor()
+	public function testDefaultConstructor()
 	{
 		$formatter = $this->template->getViewFormatter();
 		$this->assertInstanceOf(
-			'Appfuel\View\Formatter\JsonFormatter',
+			'Appfuel\View\Formatter\TextFormatter',
 			$formatter
 		);
 
 		$this->assertEquals(array(), $this->template->getAllAssigned());
-		$this->assertEquals(200, $this->template->getStatusCode());
-		$this->assertEquals('OK', $this->template->getStatusText());
+		$this->assertEquals(1, $this->template->getStatusCode());
 
-		$expected = '{"code":200,"message":"OK","data":[]}';
-		$this->assertEquals($expected, $this->template->build());
+		$expected = 'unkown error has occured';
+		$this->assertEquals($expected, $this->template->getStatusText());
+		$this->assertTrue($this->template->isErrorTitleEnabled());
 	}
 
 	/**
-	 * @depends	testInterface
+	 * @depends	testDefaultConstructor
 	 * @return	null
 	 */
-	public function xtestSetStatusCode()
+	public function testSetStatusCode()
 	{
-		$this->assertEquals(200, $this->template->getStatusCode());
+		/* you can have a code of zero */	
 		$this->assertSame(
 			$this->template,
 			$this->template->setStatusCode(500),
@@ -100,7 +100,6 @@ class ConsoleHelpTemplateTest extends BaseTestCase
 		);
 		$this->assertEquals(500, $this->template->getStatusCode());
 
-		/* you can have a code of zero */	
 		$this->assertSame(
 			$this->template,
 			$this->template->setStatusCode(0),
@@ -108,36 +107,33 @@ class ConsoleHelpTemplateTest extends BaseTestCase
 		);
 		$this->assertEquals(0, $this->template->getStatusCode());
 	
-		/* you can have a code that is a string */
 		$this->assertSame(
 			$this->template,
-			$this->template->setStatusCode("i am a code"),
+			$this->template->setStatusCode(-1),
 			'uses a fluent interface'
 		);
-		$this->assertEquals('i am a code', $this->template->getStatusCode());
+		$this->assertEquals(-1, $this->template->getStatusCode());
 
-		/* you can have a code that is an empty string */	
 		$this->assertSame(
 			$this->template,
-			$this->template->setStatusCode(''),
+			$this->template->setStatusCode('255'),
 			'uses a fluent interface'
 		);
-		$this->assertEquals('', $this->template->getStatusCode());	
+		$this->assertEquals('255', $this->template->getStatusCode());	
 	}
 
 	/**
-	 * @depends	testInterface
+	 * @depends	testDefaultConstructor
 	 * @return	null
 	 */
-	public function xtestSetStatusText()
+	public function testSetStatusText()
 	{
-		$this->assertEquals('OK', $this->template->getStatusText());
 		$this->assertSame(
 			$this->template,
-			$this->template->setStatusCode('I am some text'),
+			$this->template->setStatusText('I am some text'),
 			'uses a fluent interface'
 		);
-		$this->assertEquals('I am some text', $this->template->getStatusCode());
+		$this->assertEquals('I am some text', $this->template->getStatusText());
 
 		/* you can have a code that is an empty string */	
 		$this->assertSame(
@@ -149,14 +145,11 @@ class ConsoleHelpTemplateTest extends BaseTestCase
 	}
 
 	/**
-	 * @depends	testInterface
+	 * @depends	testDefaultConstructor
 	 * @return	null
 	 */
-	public function xtestSetStatus()
+	public function testSetStatus()
 	{
-		$this->assertEquals(200, $this->template->getStatusCode());
-		$this->assertEquals('OK', $this->template->getStatusText());
-
 		$this->assertSame(
 			$this->template,
 			$this->template->setStatus(500, 'Error'),
@@ -176,30 +169,57 @@ class ConsoleHelpTemplateTest extends BaseTestCase
 	}
 
 	/**
-	 * @depends	testInterface
+	 * @depends	testDefaultConstructor
+	 * @return null
+	 */
+	public function testEnableDisableIsErrorTitleEnabled()
+	{
+		$this->assertTrue($this->template->isErrorTitleEnabled());
+		$this->assertSame(
+			$this->template,
+			$this->template->disableErrorTitle(),
+			'uses a fluent interface'
+		);
+
+		$this->assertFalse($this->template->isErrorTitleEnabled());
+		$this->assertSame(
+			$this->template,
+			$this->template->enableErrorTitle(),
+			'uses a fluent interface'
+		);
+		$this->assertTrue($this->template->isErrorTitleEnabled());
+
+
+	}
+
+	/**
+	 * @depends	testEnableDisableIsErrorTitleEnabled
 	 * @return	null
 	 */
-	public function xtestBuild()
+	public function testBuild()
 	{
 		$data = array(
 			'foo' => 'bar',
 			'baz' => array(1,2,3)
 		);
 
-		$this->template->setStatus(3001, "Custom Message")
+		$this->template->setStatus(-1, "Some error has occured")
 					   ->load($data);
 
-		$expected  = '{"code":3001,"message":"Custom Message",';
-		$expected .= '"data":{"foo":"bar","baz":[1,2,3]}}';
+		$expected  = '[-1] Some error has occured' . PHP_EOL;
+		$expected .= 'bar 1 2 3';
+		$this->assertEquals($expected, $this->template->build());
 
-		$this->assertEquals($expected, $this->template->build());		
+		$this->template->disableErrorTitle();
+		$expected = 'bar 1 2 3';
+		$this->assertEquals($expected, $this->template->build());
 	}
 
 	/**
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return				null
 	 */
-	public function xtestSetStatusCodeNotScalarArray_Failure()
+	public function testSetStatusCodeNotScalarArray_Failure()
 	{
 		$this->template->setStatusCode(array(1,2,3));
 	}
@@ -208,7 +228,7 @@ class ConsoleHelpTemplateTest extends BaseTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return				null
 	 */
-	public function xtestSetStatusCodeNotScalarObj_Failure()
+	public function testSetStatusCodeNotScalarObj_Failure()
 	{
 		$this->template->setStatusCode(new StdClass());
 	}
@@ -217,7 +237,7 @@ class ConsoleHelpTemplateTest extends BaseTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return				null
 	 */
-	public function xtestSetStatusTextNotStringArray_Failure()
+	public function testSetStatusTextNotStringArray_Failure()
 	{
 		$this->template->setStatusText(array(1,2,3));
 	}
@@ -226,7 +246,7 @@ class ConsoleHelpTemplateTest extends BaseTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return				null
 	 */
-	public function xtestSetStatusTextNotStringObj_Failure()
+	public function testSetStatusTextNotStringObj_Failure()
 	{
 		$this->template->setStatusText(new StdClass());
 	}
@@ -235,7 +255,7 @@ class ConsoleHelpTemplateTest extends BaseTestCase
 	 * @expectedException	Appfuel\Framework\Exception
 	 * @return				null
 	 */
-	public function xtestSetStatusTextNotStringInt_Failure()
+	public function testSetStatusTextNotStringInt_Failure()
 	{
 		$this->template->setStatusText(12345);
 	}
