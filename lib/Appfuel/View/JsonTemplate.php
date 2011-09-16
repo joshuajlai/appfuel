@@ -95,6 +95,8 @@ class JsonTemplate extends ViewTemplate implements JsonTemplateInterface
 	{
 		$this->setStatusCode($code)
 			 ->setStatusText($text);
+
+		return $this;
 	}
 
 	/**
