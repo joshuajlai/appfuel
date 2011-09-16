@@ -39,6 +39,10 @@ class ViewFileTemplate extends ViewTemplate implements ViewFileTemplateInterface
 								array $data = null,
 								PathFinderInterface $finder = null)
 	{
+		if (empty($filePath) || ! is_string($filePath)) {
+			throw new Exception("File path must be a non empty string");
+		}
+
 		if (null === $finder) {
 			$finder = new ViewPathFinder();
 		}

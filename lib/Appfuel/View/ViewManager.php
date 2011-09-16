@@ -21,13 +21,18 @@ use Appfuel\Framework\Exception,
 class ViewManager implements ViewManagerInterface
 {
 	/**
+	 * @var	ViewCompositeInterface
+	 */
+	protected $htmlLayout = null;
+
+	/**
 	 * View Response used to render out the the user
 	 * @var	ViewInterface
 	 */
 	protected $view = null;
 
 	/**
-	 * @return	ViewInterface
+	 * @return	ViewTemplateInterface
 	 */
 	public function getView()
 	{
@@ -35,13 +40,37 @@ class ViewManager implements ViewManagerInterface
 	}
 
 	/**
-	 * @param	ViewInterface	$view
+	 * @param	ViewTemplateInterface
 	 * @return	ViewManager
 	 */
-	public function setView(ViewInterface $view)
+	public function setView(ViewTemplateInterface $view)
 	{
 		$this->view = $view;
 		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isHtml()
+	{
+		return $this->view instanceof HtmlDocTemplateInterface;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isJson()
+	{
+		return $this->view instanceof JsonTemplateInterface;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isConsole()
+	{
+		return $this->view instanceof ConsoleTemplateInterface;
 	}
 
 	/**
@@ -53,17 +82,29 @@ class ViewManager implements ViewManagerInterface
 	public function assignTo($location, $name, $value)
 	{
 		$view = $this->getView();
-		if (! $view instanceof ViewInterface) {
-			throw new Exception("can not assign to a view that is not set");
+		if (! $view instanceof ViewCompositeInterface) {
+			throw new Exception("Can only assign to a composite view");
 		}
 
-		if ($view instanceof Html\Response) {
-			$layout = $view->getLayout();
-			$layout->assignTo($location, $name, $value);
-		} else {
-			$view->assign($name, $value);
+		if (empty($location) || ! is_string($location)) {
+			throw new Exception("location must be a non empty string");
 		}
 
+		$parts = explode('.', $location);
+		
+		$template = $view;
+		foreach ($parts as $key) {
+			if (empty($key)) {
+				continue;
+			}
+			if (! $view->templateExists($key)) {
+				throw new Exception("could not find template -($key)");
+			}
+			$template = $template->getTemplate($key);
+		}
+
+		$template->assign($name, $value);
+		return $this;
 	}
 
 	/**
@@ -73,13 +114,10 @@ class ViewManager implements ViewManagerInterface
 	 */
 	public function assign($name, $value)
 	{
-		if ($view instanceof Html\Response) {
-			$layout = $view->getLayout();
-			$layout->assignTo('body', $name, $value);
-		} else {
-			$view->assign($name, $value);
+		$view = $this->getView();
+		if (! $view instanceof ViewTemplateInterface) {
+			throw new Exception("Can only assign to a ViewTemplateInterface");
 		}
-
-		return $this;
+		$view->assign($name, $value);
 	}
 }
