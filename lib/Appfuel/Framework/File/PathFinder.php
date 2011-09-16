@@ -45,12 +45,16 @@ class PathFinder implements PathFinderInterface
      * @param   bool    $includeBase
      * @return  File
      */
-    public function __construct($enableBasePath = true)
+    public function __construct($relativePath = '', $enableBasePath = true)
     {
 		if (! defined('AF_BASE_PATH')) {
 			throw new Exception("base path constant must be set AF_BASE_PATH");
 		}
 		$this->basePath = AF_BASE_PATH;
+
+		if (is_string($relativePath) && ! empty($relativePath)) {
+			$this->setRelativeRootPath($relativePath);
+		}
 
 		if (false === $enableBasePath) {
 			$this->disableBasePath();
