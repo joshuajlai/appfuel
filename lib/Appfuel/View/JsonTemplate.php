@@ -10,17 +10,15 @@
  */
 namespace Appfuel\View;
 
-use Appfuel\Framework\View\Formatter\ViewFormatterInterface,
-	Appfuel\Framework\View\ViewTemplateInterface,
+use Appfuel\Framework\View\JsonTemplateInterface,
 	Appfuel\Framework\Exception,
-	Appfuel\View\Formatter\TextFormatter,
-	Countable;
+	Appfuel\View\Formatter\JsonFormatter;
 
 /**
  * The view template is the most basic of the templates. Holding all its data
  * in key/value pair it uses a formatter to convert it a string.
  */
-class JsonTemplate extends ViewTemplate implements 
+class JsonTemplate extends ViewTemplate implements JsonTemplateInterface
 {
 	/**
 	 * Code sent back to clientside to determine the status of the request
