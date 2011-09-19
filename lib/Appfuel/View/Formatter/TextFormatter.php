@@ -160,6 +160,10 @@ class TextFormatter implements ViewFormatterInterface
 		return $this->parseArray($data, $this->getArrayStrategy());	
     }
 
+	/**
+	 * @param	mixed	$data
+	 * @return	string
+	 */
 	public function parseString($data)
 	{
 		if (is_scalar($data)) {

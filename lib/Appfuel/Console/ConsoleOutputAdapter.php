@@ -48,9 +48,9 @@ class ConsoleOutputAdapter implements EngineAdapterInterface
 	public function output($data, $strategy = 'render')
 	{
 		if ('render' === $strategy) {
-			$result = $this->render();
+			$result = $this->render($data);
 		} else {
-			$result = $this->build();
+			$result = $this->build($data);
 		}
 
 		return $result;
@@ -88,17 +88,6 @@ class ConsoleOutputAdapter implements EngineAdapterInterface
 	}
 
 	/**
-	 * @param	string	$format
-	 * @return	null
-	 */
-	public function renderFormatNotSupportedError($format)
-	{
-		$format =(string) $format;
-		$error ="Console ouput error: format -($format) is not supported";
-		$this->renderError($error);
-	}
-
-	/**
 	 * Render output to the stdout.
 	 * 
 	 * @param	mixed	$data
@@ -117,6 +106,7 @@ class ConsoleOutputAdapter implements EngineAdapterInterface
 			$data = $data->__toString();
 		}
 
+		$data .= PHP_EOL;
 		fwrite(STDOUT, $data);
 	}
 

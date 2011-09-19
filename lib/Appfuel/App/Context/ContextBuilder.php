@@ -24,6 +24,14 @@ use Appfuel\Framework\Exception,
  */
 class ContextBuilder implements ContextBuilderInterface
 {
+	/**
+	 * The uri parse token is ment for pretty uri's. It is a series of 
+	 * characters not likely to occur in the url. It used to delineate where
+	 * the route string ends and where get paramters begin. 
+	 * @var string
+	 */
+	protected $uriParseToken = 'qx';
+
     /**
      * Request Parameters. We parse the uri string and create our own parameters
      * instead of using super global $_GET. This is due to the way we use the 
@@ -37,6 +45,34 @@ class ContextBuilder implements ContextBuilderInterface
      * @var string
      */
     protected $input = null;
+
+	/**
+	 * @var	Error
+	 */
+	protected $exception = null;
+
+	/**
+	 * @return	string
+	 */
+	public function getUriParseToken()
+	{
+		return $this->uriParseToken;
+	}
+
+	/**
+	 * @param	string	$token
+	 * @return	ContextBuilder
+	 */
+	public function setUriParseToken($token)
+	{
+		if (! is_string($token)) {
+			$this->setException(new Exception("parse token must be a string"));
+			return false;
+		}
+
+		$this->uriParseToken = $token;
+		return $this;
+	}
 
 	/**
 	 * @return	ContextUriInterface
@@ -67,15 +103,16 @@ class ContextBuilder implements ContextBuilderInterface
 		$err  = 'ConextBuilder failed: php super global ';
 		$err .= '$_SERVER[\'REQUEST_URI\']';
 		if (! isset($_SERVER['REQUEST_URI'])) {
-			throw new Exception("$err is not set");
+			$this->setException(new Exception("$err is not set"));
 		}
 
 		$uri = $_SERVER['REQUEST_URI'];
 		if (! is_string($uri)) {
-			throw new exception("$err value must be a valid string");
+			$this->setException(new Exception("$err must be a valid string"));
 		}
 
-		return $this->setUri(new ContextUri($uri));
+		$token = $this->getUriParseToken();
+		return $this->setUri(new ContextUri($uri, $token));
 	}
 
 	/**
@@ -86,10 +123,11 @@ class ContextBuilder implements ContextBuilderInterface
 	{
 		$err  = 'ConextBuilder failed: uri string given ';
 		if (! is_string($uri)) {
-			throw new exception("$err must be a valid string");
+			$this->setException(new Exception("$err must be a valid string"));
 		}
 
-		return $this->setUri(new ContextUri($uri));
+		$token = $this->getUriParseToken();
+		return $this->setUri(new ContextUri($uri, $token));
 	}
 
 	/**
@@ -125,14 +163,14 @@ class ContextBuilder implements ContextBuilderInterface
 		
 		if (empty($method) || ! is_string($method)) {
 			$err .= 'request method is empty or not a string';
-			throw new Exception($err);
+			$this->setException(new Exception($err));
 		}
 
 		$uri = $this->getUri();
 		if (! $uri instanceof ContextUriInterface) {
 			$err .= 'default get params come from the context uri but the ';
 			$err .= 'context uri has not been set';
-			throw new Exception($err);
+			$this->setException(new Exception($err));
 		}
 
 		$params = array();
@@ -167,19 +205,24 @@ class ContextBuilder implements ContextBuilderInterface
 		return new ContextInput($method, $params);
 	}
 
+	/**
+	 * @return	AppContext
+	 */
 	public function build()
 	{
 		$err = 'Build failed: ';
 		$uri = $this->getUri();
 		if (! $uri instanceof ContextUriInterface) {
 			$err .= 'context uri has not been set';
-			throw new Exception($err);
+			$this->setException(new Exception($err));
+			return false;
 		}
 
 		$input = $this->getInput();
 		if (! $input instanceof ContextInputInterface) {
 			$err .= 'context input has not been set';
-			throw new Exception($err); 
+			$this->setException(new Exception($err));
+			return false;
 		}
 
 		$repo = new Repository();
@@ -187,9 +230,34 @@ class ContextBuilder implements ContextBuilderInterface
 		$opRoute = $repo->findOperationalRoute($routeString);
 		if (! $opRoute instanceof OperationalRouteInterface) {
 			$err .= "could not find route $routeString";
-			throw new Exception($err);
+			$this->setException(new Exception($err));
+			return false;
 		}
 
 		return new AppContext($uri, $opRoute, $input);
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isException()
+	{
+		return $this->exception instanceof Exception;
+	}
+
+	/**
+	 * @return	Exception
+	 */
+	public function getException()
+	{
+		return $this->exception;
+	}
+
+	/**
+	 * @param	Exception
+	 */
+	protected function setException(Exception $e)
+	{
+		$this->exception = $e;
 	}
 }

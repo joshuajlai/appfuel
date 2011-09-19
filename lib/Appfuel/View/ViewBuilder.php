@@ -11,10 +11,11 @@
 namespace Appfuel\View;
 
 use Appfuel\Framework\Exception,
+	Appfuel\Console\ConsoleViewTemplate,
 	Appfuel\Framework\View\ViewBuilderInterface;
 
 /**
- *
+ * The view builder knows how to build views for Console, Html, Json 
  */
 class ViewBuilder implements ViewBuilderInterface
 {
@@ -23,22 +24,12 @@ class ViewBuilder implements ViewBuilderInterface
 	 */
 	protected $pageView = null;
 
-	protected $htmlFile = 'html/doc/standard.phtml';
-
-	/**
-	 * @return	string
-	 */
-	public function getHtmlFile()
-	{
-		return $this->htmlFile; 
-	}
-
 	/**
 	 * @return	HtmlDocTemplate
 	 */
 	public function createHtmlTemplate()
 	{
-		return new ViewCompositeTemplate($this->getHtmlFile());
+		return new HtmlDocTemplate();
 	}
 
 	/**
@@ -80,8 +71,12 @@ class ViewBuilder implements ViewBuilderInterface
 	/**
 	 * @return	ConsoleViewTemplate
 	 */
-	public function buildConsoleView($namespace)
+	public function buildConsoleView($namespace = null)
 	{
+		if (null === $namespace) {
+			return new ConsoleViewTemplate();
+		}
+
 		$class = "$namespace\ConsoleView";
 		try {
 			$view = new $class();

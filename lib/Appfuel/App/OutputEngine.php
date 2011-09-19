@@ -14,7 +14,7 @@ namespace Appfuel\App;
 use Appfuel\Framework\Exception,
 	Appfuel\Http\HttpOutputAdapter,
 	Appfuel\Console\ConsoleOutputAdapter,
-	Appfuel\Framework\Context\ContextInterface,
+	Appfuel\Framework\App\Context\ContextInterface,
 	Appfuel\Framework\Output\OutputEngineInterface,
 	Appfuel\Framework\Output\AdapterHeaderInterface,
 	Appfuel\Framework\Output\EngineAdapterInterface;
@@ -76,7 +76,7 @@ class OutputEngine implements OutputEngineInterface
 	 * @param	ContextInterface	$context
 	 * @return	null
 	 */
-	public function render(ContextInterface $context)
+	public function renderContext(ContextInterface $context)
 	{
 		$adapter = $this->getAdapter();
 		/*
@@ -92,6 +92,19 @@ class OutputEngine implements OutputEngineInterface
 
 		return $adapter->output($context->getOutput());
 	}
+	
+	public function renderRaw($data)
+	{
+		$adapter = $this->getAdapter();
+		return $adapter->output($data);
+	}
+
+	public function renderError($msg)
+	{
+		$adapter = $this->getAdapter();
+		return $adapter->renderError($msg);
+		
+	}
 
 	/**
 	 * @param	string	$type
@@ -105,15 +118,15 @@ class OutputEngine implements OutputEngineInterface
 		}
 
 		$httpTypes = array('app-page', 'app-api', 'app-service');
-		if ('app-cli' === $type) {
-			return = new ConsoleOutputAdapter();
+		if ('app-console' === $type) {
+			return new ConsoleOutputAdapter();
 		}
 		else if (in_array($type, $httpTypes)) {
-			return = new HttpOutputAdapter();
+			return new HttpOutputAdapter();
 		}
 		else {
 			$err .= " Only support adapters for the following application";
-			$err .= " types: app-page, app-service, app-api and app-cli";
+			$err .= " types: app-page, app-service, app-api and app-console";
 			throw new Exception($err);
 		}
 	}

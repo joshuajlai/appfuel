@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\App;
+namespace Appfuel\Framework\App\Filter;
 
 
 use Appfuel\Framework\App\ContextInterface;
@@ -18,8 +18,17 @@ use Appfuel\Framework\App\ContextInterface;
  * the front controller to perform business logic before and after a 
  * user request is executed in the action controller
  */
-interface FilterItemInterface
+interface InterceptingFilterInterface
 {
+	/**
+	 * This is used to determine if this filter is pre or post filter.
+	 * How you set the member is implementation specific. I prefer to 
+	 * have this member immutable.
+	 *
+	 * @return	string	must be (pre|post)
+	 */
+	public function getType();
+
 	/**
 	 * Used to determine if the filter experienced any errors
 	 * 

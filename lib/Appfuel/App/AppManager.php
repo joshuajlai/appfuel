@@ -15,6 +15,7 @@ use Appfuel\Framework\Registry,
 	Appfuel\Framework\File\FileManager,
 	Appfuel\Framework\App\ContextInterface,
 	Appfuel\Framework\App\AppFactoryInterface,
+	Appfuel\Framework\Output\OutputEngineInterface,
 	Appfuel\Framework\App\FrontControllerInterface;
 
 /**
@@ -29,7 +30,7 @@ class AppManager
 	 * Flag used to determine if dependencies have been looded
 	 * @var bool
 	 */
-	static protected$isLoaded = false;
+	static protected $isLoaded = false;
 
 	/**
 	 * Front controller used dispatching and rendering of the app message
@@ -108,34 +109,85 @@ class AppManager
 			define('AF_ENV', $config['env']);
 		}
 
-		/* parameter token is used by the context uri determine where the
-		 * route string ends and where the parameters begin
-		 */
-		$parseToken = 'pt';
-		if (isset($config['uri-parse-token']) && 
-			is_string($config['uri-parse-token'])) {
-			$paramToken = "{$config['uri-parse-token']}";	
-		}
-		
-		if (! defined('AF_URI_PARSE_TOKEN')) {
-			define('AF_URI_PARSE_TOKEN', $parseToken);
-		}
-
 		Registry::initialize($config);
+		
 		
 		$factory = $this->getAppFactory();
 		$init = $factory->createInitializer();
 		$init->initialize();
 
-		$this->front = $factory->createFrontController();
 	}
 
-	public function run()
+	/**
+	 * @param	string	$routeString
+	 * @return	null
+	 */
+	public function run($routeString = null)
 	{
 		$factory = $this->getAppFactory();
-		$request = $factory->createRequest($factory->createUriString());
-		$context = $factory->createContext(array('app-input' => $request));
-		echo "\n", print_r($context,1), "\n";exit;
+		$outputEngine = $factory->createOutputEngine();
+		if (! $outputEngine instanceof OutputEngineInterface) {
+			throw new Exception("output engine has the wrong interface");
+		}
+
+		$builder = $factory->createContextBuilder();
+
+		/*
+		 * used to delineate where the route ends and params begin in the 
+		 * the url
+		 */		
+		$parseToken = Registry::get('uri-parse-token', 'qx');
+		$builder->setUriParseToken($parseToken);
+
+		/* 
+		 * Generally commandline apps pass their route strings as the 
+		 * first parameter and web app, web app ajax calls and api calls
+		 * all use the request uri in the server super global
+		 */
+		if (! empty($routeString) && is_string($routeString)) {
+			$builder->useUriString($routeString);					
+		}
+		else {
+			$builder->useServerRequestUri();
+		}
+		$context = $builder->buildInputFromDefaults()
+						   ->build();
+
+		/*
+		 * We can not dispatch when the context builder can not create 
+		 * a valid context for the application to operate in
+		 */
+		if ($builder->isException()) {
+			$outputEngine->renderError($builder->getException());
+			return 1;
+		}
+		
+		$manager = $factory->createFilterManager();
+		$filters = Registry::get('intercepting-filters', array());
+		$manager->loadFilters($filters);
+		echo "\n", print_r($manager,1), "\n";exit;
+
+		$front = $factory->createFrontController($outputEngine);		
+
+		$context = $front->dispatch($context);
+	
+		/*
+		 * Commandline apps will use this return value to exit their apps.
+		 * This means we use a unix convention of success is 0 errors are
+		 * non zero. While the output engine takes care of whether to use
+		 * stderr or stdout we must handle the return code. Any exception
+		 * that has a code of 0 will be moved to 1 as a result.
+		 */
+		if (! $context->isException()) {
+			return 0;
+		}
+
+		$e = $context->getException();
+		$code = $e->getCode();
+		if (0 === $code) {
+			$code = 1;
+		}
+		return $code;
 	}
 
 
@@ -220,8 +272,16 @@ class AppManager
 		if (empty($type) || ! is_string($type)) {
 			return false;
 		}
+	
+		$valid = array(
+			'app-page',
+			'app-console',
+			'app-api',
+			'app-service',
+			'app-test'
+		);
 
-		if (! in_array($type, array('web', 'cli', 'api', 'test'))) {
+		if (! in_array($type, $valid)) {
 			return false;
 		}
 
@@ -236,7 +296,7 @@ class AppManager
 	{
 		$type = strtolower($type);
 		if (! $this->isValidAppType($type)) {
-			throw new Exception("Invalid app type: ($type) not supported");
+			throw new \Exception("Invalid app type: ($type) not supported");
 		}
 
 

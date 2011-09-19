@@ -1,0 +1,27 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @license		http://www.apache.org/licenses/LICENSE-2.0
+ */
+use \Exception,
+    Appfuel\App\AppManager;
+
+/* index is always one dir below the base path of the app */
+$base = realpath(dirname(__FILE__) . '/..');
+
+/* the one file we must require once on is the AppManager */
+$file = "$base/lib/Appfuel/App/AppManager.php";
+if (! file_exists($file)) {
+    throw new Exception("Init script error: index can not find AppManager");
+}
+require_once $file;
+$manager = new AppManager($base, 'app-console');
+$manager->initialize();
+
+exit($manager->run('error-handler'));

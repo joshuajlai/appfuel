@@ -19,5 +19,6 @@ interface OutputEngineInterface
 {
 	public function getAdapter();
 	public function setAdapter(EngineAdapterInterface $adapter);
-	public function render(ContextInterface $context);
+	public function renderContext(ContextInterface $context);
+	public function renderRaw($data);
 }

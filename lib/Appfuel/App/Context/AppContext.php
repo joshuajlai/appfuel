@@ -111,7 +111,7 @@ class AppContext extends Dictionary implements ContextInterface
 	 * @var Appfuel\Framework\Exception
 	 */
 	protected $exception = null;
-	
+
 	/**
 	 * @param	ContextUriInterface		$uri
 	 * @param	ContextInputInterface	$input

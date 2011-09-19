@@ -33,59 +33,34 @@ class AppFactory implements AppFactoryInterface
 	}
 
 	/**
-	 * @return string
+	 * @return	ContextBuilder
 	 */
-	public function createUriString()
+	public function createContextBuilder()
 	{
-		$key   = 'REQUEST_URI';
-		if (! array_key_exists($key, $_SERVER) || empty($_SERVER[$key])) {
-            $err = "Request uri is missing from the server super global " .
-                   "and is required by the framework";
-            throw new Exception($err);
-        }
-
-		return $_SERVER[$key];
-	}
-
-	/**
-	 * @return Uri
-	 */
-	public function createUri($uriString)
-	{
-		return	new PrettyUri($uriString);
-	}
-
-	/**
-	 * @return	Request
-	 */
-	public function createRequest($uriString)
-	{
-		$uri = $this->createUri($uriString);
-		return new Request($uri);
-	}
-
-	/**
-	 * @param	array	$data	
-	 * @return	Context
-	 */
-	public function createContext(array $data = array())
-	{
-		return new Context($data);
+		return new Context\ContextBuilder();
 	}
 
 	/**
 	 * @return	Front
 	 */
-    static public function createFrontController()
+    public function createFrontController()
 	{
 		return new FrontController();
 	}
 
 	/**
-	 * @return	RenderEngine
+	 * @return	OutputEngine
 	 */
-    static public function createRenderEngine()
+    public function createOutputEngine()
 	{
-		return new Render\Engine();
+		return new OutputEngine();
+	}
+
+	/**
+	 * @return	Filter\FilterManager
+	 */
+	public function createFilterManager()
+	{
+		return new Filter\FilterManager();
 	}
 }

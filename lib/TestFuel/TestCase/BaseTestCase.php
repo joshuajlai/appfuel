@@ -79,7 +79,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		}
 		require_once $file;
 
-		$manager = new AppManager($base, 'test');
+		$manager = new AppManager($base, 'app-test');
 		$manager->initialize('test');
 
 		self::$registryData = Registry::getAll();
