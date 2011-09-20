@@ -11,7 +11,7 @@
 namespace Appfuel\App\Filter;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\App\ContextInterface,
+	Appfuel\Framework\App\Context\ContextInterface,
 	Appfuel\Framework\App\Filter\InterceptingFilterInterface;
 
 /**
@@ -69,6 +69,20 @@ abstract class InterceptingFilter
 	public function isNext()
 	{
 		return $this->next instanceof InterceptingFilterInterface;
+	}
+
+	/**
+	 * @param	ContextInterface	$context
+	 * @return	ContextInterface | Appfuel\Framework\Exception on failure
+	 */ 
+	public function next(ContextInterface $context)
+	{
+		if (! $this->isNext()) {
+			return $context;
+		}
+
+		$next = $this->getNext();
+		return $next->filter($context);
 	}
 
 	/**

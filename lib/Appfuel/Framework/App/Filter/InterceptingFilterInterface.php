@@ -11,7 +11,7 @@
 namespace Appfuel\Framework\App\Filter;
 
 
-use Appfuel\Framework\App\ContextInterface;
+use Appfuel\Framework\App\Context\ContextInterface;
 
 /**
  * Filters are registered and run by the filter manager which is used by
@@ -30,13 +30,6 @@ interface InterceptingFilterInterface
 	public function getType();
 
 	/**
-	 * Used to determine if the filter experienced any errors
-	 * 
-	 * @return	bool
-	 */
-	public function isError();
-	
-	/**
 	 * Perform an concrete business logic on the context given. Return
 	 * true when everything when well and you don't need to replace the 
 	 * context. Return the context if you need to replace the existing context
@@ -47,10 +40,6 @@ interface InterceptingFilterInterface
 	 */
 	public function filter(ContextInterface $context);
 	
-	/**
-	 * Object used to describe the error the filter encountered 
-	 * 
-	 * @return	Error
-	 */
-	public function getError();
+	public function next(ContextInterface $context);
+	
 }
