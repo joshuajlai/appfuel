@@ -10,12 +10,12 @@
  */
 namespace Example\App\Filter;
 
-use AppFuel\App\Filter\IntercetingFilter;
-
+use AppFuel\App\Filter\IntercetingFilter,
+    Appfuel\Framework\App\Filter\InterceptingFilterInterface;
 /**
  * Used for unit testing this will append to the test-var
  */
-class PostFilterB extends InterceptingFilter
+class PostFilterB extends AbstractFilter implements InterceptingFilterInterface
 {
     public function __construct(ContextInterface $context = null)
     {

@@ -11,15 +11,14 @@
 namespace Example\App\Filter;
 
 use Appfuel\Framework\Exception,
-	AppFuel\App\Filter\InterceptingFilter,
+	AppFuel\App\Filter\AbstractFilter,
 	Appfuel\Framework\App\Context\ContextInterface,
-	Appfuel\Framework\App\Filter\InterceptingFilterInterface;
+    Appfuel\Framework\App\Filter\InterceptingFilterInterface;
 
 /**
  * Used for unit testing this will allways return an exception
  */
-class PreFilterD 
-	extends InterceptingFilter implements InterceptingFilterInterface
+class PreFilterD extends AbstractFilter implements InterceptingFilterInterface
 {
     public function __construct(ContextInterface $context = null)
     {

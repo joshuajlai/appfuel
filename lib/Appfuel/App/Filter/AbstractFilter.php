@@ -18,7 +18,7 @@ use Appfuel\Framework\Exception,
  * This intercepting filter pattern has been modified. The knowledge of the
  * the next filter has been offloaded onto the filter manager.
  */
-abstract class InterceptingFilter
+abstract class AbstractFilter
 {
 	/**
 	 * Determines is this is a post or pre filter. We have to so that the 
@@ -110,4 +110,4 @@ abstract class InterceptingFilter
 		$this->type = $type;
 		return $this;
 	}
-}	
+}

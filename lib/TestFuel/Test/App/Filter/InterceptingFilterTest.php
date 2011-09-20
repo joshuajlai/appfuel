@@ -10,14 +10,12 @@
  */
 namespace TestFuel\Test\Filter;
 
-use StdClass,
-	Appfuel\App\Filter\FilterManager,
-	TestFuel\TestCase\BaseTestCase;
+use TestFuel\TestCase\BaseTestCase;
 
 /**
  * Controls the usage for all interceptiong filters
  */
-class InterceptingTest extends BaseTestCase
+class AbstractFilterTest extends BaseTestCase
 {
 	/**
 	 * System under test
@@ -30,7 +28,7 @@ class InterceptingTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$class = 'Appfuel\App\Filter\InterceptingFilter';
+		$class = 'Appfuel\App\Filter\AbstractFilter';
 		$this->filter	= $this->getMockBuilder($class)
 							   ->setConstructorArgs(array('pre'))
 							   ->setMethods(array('filter'))
@@ -64,5 +62,22 @@ class InterceptingTest extends BaseTestCase
 			'uses fluent interface'
 		);
 		$this->assertEquals('pre', $this->filter->getType());
+	}
+
+	public function testGetSetIsNext()
+	{
+		$this->assertFalse($this->filter->isNext());
+		$this->assertNull($this->filter->getNext());
+	
+		$filter = $this->getMock(
+			'Appfuel\Framework\App\Filter\InterceptingFilterInterface'
+		);
+		$this->assertSame(
+			$this->filter,
+			$this->filter->setNext($filter),
+			'uses a fluent interface'
+		);
+		$this->assertSame($filter, $this->filter->getNext());
+		$this->assertTrue($this->filter->isNext());
 	}
 }

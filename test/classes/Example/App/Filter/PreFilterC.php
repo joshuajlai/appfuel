@@ -10,12 +10,15 @@
  */
 namespace Example\App\Filter;
 
-use AppFuel\App\Filter\IntercetingFilter;
+use AppFuel\App\Filter\AbstractFilter,
+	Appfuel\Framework\App\Context\ContextInterface,
+    Appfuel\Framework\App\Filter\InterceptingFilterInterface;
 
 /**
- * Used for unit testing this will append to the test-var
+ * Designed for unit tests this filter simply adds a string to a variable
+ * and calls the next filter. Its intended to be the first filter in a chain
  */
-class PreFilterC extends InterceptingFilter
+class PreFilterC extends AbstractFilter implements InterceptingFilterInterface
 {
     public function __construct(ContextInterface $context = null)
     {
