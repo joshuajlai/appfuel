@@ -51,4 +51,9 @@ class FilterManagerTest extends BaseTestCase
 			$this->manager
 		);
 	}
+
+	public function testAddFilter()
+	{
+
+	}
 }
