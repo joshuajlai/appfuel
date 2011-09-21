@@ -18,7 +18,7 @@ use Appfuel\Framework\Exception,
  * This intercepting filter is responsible for authenticating the current user
  * users request. Private user sessions are created or validated
  */
-class AuthFilter extends InterceptingFilter
+class AuthFilter extends AbstractFilter implements InterceptingFilterInterface
 {
 	/**
 	 * @return	AuthFilter

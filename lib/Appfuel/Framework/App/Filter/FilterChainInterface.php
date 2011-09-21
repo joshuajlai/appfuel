@@ -11,7 +11,7 @@
 namespace Appfuel\Framework\App\Filter;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\App\ContextInterface,
+	Appfuel\Framework\App\Context\ContextInterface,
 	Appfuel\Framework\App\Filter\FilterChainInterface,
 	Appfuel\Framework\App\Filter\InterceptingFilterInterface;
 

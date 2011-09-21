@@ -11,7 +11,7 @@
 namespace Example\App\Filter;
 
 use AppFuel\App\Filter\AbstractFilter,
-	Appfuel\Framework\App\Context\ContextInterface
+	Appfuel\Framework\App\Context\ContextInterface,
     Appfuel\Framework\App\Filter\InterceptingFilterInterface;
 
 /**

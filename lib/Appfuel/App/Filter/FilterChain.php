@@ -11,7 +11,7 @@
 namespace Appfuel\App\Filter;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\App\ContextInterface,
+	Appfuel\Framework\App\Context\ContextInterface,
 	Appfuel\Framework\App\Filter\FilterChainInterface,
 	Appfuel\Framework\App\Filter\InterceptingFilterInterface;
 
@@ -67,11 +67,14 @@ class FilterChain implements FilterChainInterface
 	}
 
 	/**
+	 * @throws	Appfuel\Framework\Exception
 	 * @param	InterceptingFilterInterface	$filter
 	 * @return	InterceptingFilter
 	 */
 	public function setHead(InterceptingFilterInterface $filter)
 	{
+		$this->typeCheck($filter);
+
 		$this->head = $filter;
 		return $this;
 	}
@@ -81,20 +84,18 @@ class FilterChain implements FilterChainInterface
 	 * Otherwise it will set the filter in head to the next filter of the 
 	 * filter passed and use the filter passed as head.
 	 *
+	 * @throws	Appfuel\Framework\Exception
 	 * @return	InterceptingFilterInterface | null when not set
 	 */
 	public function addFilter(InterceptingFilterInterface $filter)
 	{
-		$type = $this->getType();
-		if ($this->getType() !== $filter->getType()) {
-			throw new Exception("Filter given is should be $type");
-		}
+		$this->typeCheck($filter);
+
 		$head = $this->getHead();
-		if (null === $head) {
-			return $this->setHead($filter);
+		if (null !== $head) {
+			$filter->setNext($head);
 		}
 
-		$filter->setNext($head);
 		return $this->setHead($filter);
 	}
 
@@ -122,5 +123,21 @@ class FilterChain implements FilterChainInterface
 
 		$this->type = $type;
 		return $this;
+	}
+
+	/**
+	 * @throws	Appfuel\Framework\Exception
+	 * @param	InterceptingFilterInterface
+	 * @return	null
+	 */
+	protected function typeCheck(InterceptingFilterInterface $filter)
+	{
+		$chainType  = $this->getType();
+		$filterType = $filter->getType();
+		if ($chainType !== $filterType) {
+			$err  = "addFilter failed: Filter type give is -($filterType) ";
+			$err .= "but does not match chain type -($chainType)";
+			throw new Exception($err);
+		}
 	}
 }
