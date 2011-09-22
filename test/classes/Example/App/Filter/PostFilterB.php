@@ -10,7 +10,8 @@
  */
 namespace Example\App\Filter;
 
-use AppFuel\App\Filter\IntercetingFilter,
+use AppFuel\App\Filter\AbstractFilter,
+	AppFuel\Framework\App\Context\ContextInterface,
     Appfuel\Framework\App\Filter\InterceptingFilterInterface;
 /**
  * Used for unit testing this will append to the test-var

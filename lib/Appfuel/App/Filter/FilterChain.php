@@ -45,6 +45,14 @@ class FilterChain implements FilterChainInterface
 	}
 
 	/**
+	 * @return	bool
+	 */
+	public function hasFilters()
+	{
+		return $this->head instanceof InterceptingFilterInterface;
+	}
+
+	/**
 	 * @param	ContextInterface
 	 * @return	mixed	Exception | ContextInterface
 	 */

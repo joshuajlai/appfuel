@@ -12,6 +12,7 @@ namespace Appfuel\App\Filter;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\Context\ContextInterface,
+	Appfuel\Framework\App\Filter\FilterChainInterface,
 	Appfuel\Framework\App\Filter\FilterManagerInterface,
 	Appfuel\Framework\App\Filter\InterceptingFilterInterface;
 
@@ -125,6 +126,7 @@ class FilterManager implements FilterManagerInterface
 				throw new Exception("Filter type does not match pre or post");
 			}
 		}
+		return $this;
 	}
 
 	/**
