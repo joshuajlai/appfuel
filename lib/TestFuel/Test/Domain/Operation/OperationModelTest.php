@@ -76,7 +76,7 @@ class OperationModelTest extends BaseTestCase
 			$this->model
 		);
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Domain\Operation\OperationInterface',
+			'Appfuel\Framework\Domain\Operation\OperationDomainInterface',
 			$this->model
 		);
 

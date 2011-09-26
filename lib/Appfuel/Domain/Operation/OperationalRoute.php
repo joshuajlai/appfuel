@@ -13,7 +13,8 @@ namespace Appfuel\Domain\Operation;
 use Appfuel\Framework\Exception,
 	Appfuel\Orm\Domain\DomainModel,
 	Appfuel\Framework\Action\ControllerNamespace,
-	Appfuel\Framework\Domain\Operation\OperationInterface,
+	Appfuel\Framework\Domain\Action\ActionDomainInterface,
+	Appfuel\Framework\Domain\Operation\OperationDomainInterface,
 	Appfuel\Framework\Domain\Operation\OperationalRouteInterface;
 
 /**
@@ -31,11 +32,10 @@ class OperationalRoute extends DomainModel implements OperationalRouteInterface
 	protected $operation = null;
 
 	/**
-	 * Value object used to holds the namespaces of the action controller
-	 * @var	ControllerNamespace
+	 * The action domain describes the action controller used to execute the operation 
+	 * @var	ActionModel
 	 */
-	protected $controllerNamespace = null;
-
+	protected $action = null;
 
 	/**
 	 * Access policy determines if an operation is public|private
@@ -50,13 +50,6 @@ class OperationalRoute extends DomainModel implements OperationalRouteInterface
 	protected $routeString = null;
 
 	/**
-	 * The default return type of the operation. This can be overwritten by 
-	 * the user if the controller supports multiple return types
-	 * @var string
-	 */
-	protected $defaultFormat = null;
-	
-	/**
 	 * List of intercept filters to be added to the front controller
 	 * @var string
 	 */
@@ -64,13 +57,6 @@ class OperationalRoute extends DomainModel implements OperationalRouteInterface
 		'pre'  => array(),
 		'post' => array()
 	);
-
-	/**
-	 * The request type is a key that represents the type of request expected 
-	 * for this given operation. Example http, cli, http-ajax,
-	 * @var	string
-	 */
-	protected $requestType = null;
 
 	/**
 	 * @param	string
@@ -84,7 +70,7 @@ class OperationalRoute extends DomainModel implements OperationalRouteInterface
 	 * @param	string	$name
 	 * @return	OperationalModel
 	 */
-	public function setOperation(OperationInterface $op)
+	public function setOperation(OperationDomainInterface $op)
 	{
 		$this->operation = $op;
 		$this->_markDirty('operation');
@@ -94,22 +80,18 @@ class OperationalRoute extends DomainModel implements OperationalRouteInterface
 	/**
 	 * @return	ControllerNamespaceInterface
 	 */
-	public function getControllerNamespace()
+	public function getAction()
 	{
-		return $this->controllerNamespace;
+		return $this->action;
 	}
 
 	/**
-	 * @param	string	$actionNs	namespace of the action controller
-	 * @return	ControllerNamespaceInterface
+	 * @param	ActionDomainInterface $action
+	 * @return	OperationalRoute
 	 */
-	public function setControllerNamespace($actionNs)
+	public function setAction(ActionDomainInterface $action)
 	{
-		if (! $this->isNonEmptyString($actionNs)) {
-			throw new Exception("Action namespace must be a non empty string");
-		}
-	
-		$this->controllerNamespace = new ControllerNamespace($actionNs);
+		$this->action = $action;
 		return $this;
 	}
 
@@ -161,29 +143,6 @@ class OperationalRoute extends DomainModel implements OperationalRouteInterface
 
 		$this->routeString = $route;
 		$this->_markDirty('routeString');
-		return $this;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getDefaultFormat()
-	{
-		return $this->defaultFormat;
-	}
-
-	/**
-	 * @param	string	$format
-	 * @return	OperationModel
-	 */
-	public function setDefaultFormat($format)
-	{
-		if (! $this->isNonEmptyString($format)) {
-			throw new Exception("Default format must be a non empty string");
-		}
-
-		$this->defaultFormat = $format;
-		$this->_markDirty('defaultFormat');
 		return $this;
 	}
 
@@ -292,33 +251,5 @@ class OperationalRoute extends DomainModel implements OperationalRouteInterface
 	public function getPostFilters()
 	{
 		return $this->filters['post'];
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getRequestType()
-	{
-		return $this->requestType;
-	}
-	
-	/**
-	 * @param	string	$type
-	 * @return	OperationModel
-	 */
-	public function setRequestType($type)
-	{
-		if (! $this->isNonEmptyString($type)) {
-			throw new Exception("Request type  must be a non empty string");
-		}
-
-		$type = strtolower($type);
-		if (! in_array($type, array('http','http-ajax', 'cli'))) {
-			throw new Exception("Request type must be http|ajax|cli -($type)");
-		}
-
-		$this->requestType = $type;
-		$this->_markDirty('requestType');
-		return $this;
 	}
 }

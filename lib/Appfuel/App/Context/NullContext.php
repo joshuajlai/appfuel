@@ -13,6 +13,8 @@ namespace Appfuel\App\Context;
 use Appfuel\Framework\Action\NullControllerNamespace;
 
 /**
+ * Used when running the framework that depends on the context but the context
+ * is not required for your needs.
  */
 class NullContext extends AppContext
 {
@@ -35,6 +37,6 @@ class NullContext extends AppContext
 		$this->preFilters    = array();
 		$this->postFilters   = array();
 
-		$this->input = new ContextInput('get');;
+		$this->input = new ContextInput('get');
 	}
 }

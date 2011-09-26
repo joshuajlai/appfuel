@@ -11,6 +11,14 @@
 namespace TestFuel\Test\Filter;
 
 use StdClass,
+	Example\App\Filter\PreFilterA,
+	Example\App\Filter\PreFilterB,
+	Example\App\Filter\PreFilterC,
+	Example\App\Filter\PreFilterD,
+	Example\App\Filter\PostFilterA,
+	Example\App\Filter\PostFilterB,
+	Example\App\Filter\PostFilterC,
+	Appfuel\App\Context\NullContext,
 	Appfuel\App\Filter\FilterManager,
 	TestFuel\TestCase\BaseTestCase;
 
@@ -47,7 +55,14 @@ class FilterManagerTest extends BaseTestCase
 	public function createMockFilterChain()
 	{
 		$interface = 'Appfuel\Framework\App\Filter\FilterChainInterface';
-		$methods   = array('getType','apply','getHead','setHead','addFilter'); 
+		$methods   = array(
+			'hasFilters',
+			'getType',
+			'apply',
+			'getHead',
+			'setHead',
+			'addFilter'
+		); 
 		
 		return $this->getMockBuilder($interface)
 						 ->setConstructorArgs(array('pre'))
@@ -327,5 +342,200 @@ class FilterManagerTest extends BaseTestCase
 		$filterD = $filterC->getNext();
 		$this->assertInstanceOf($filters[5], $filterD);
 		$this->assertNull($filterD->getNext());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testAddFilterPre()
+	{
+		$filterA = new PreFilterA();
+		$this->assertSame(
+			$this->manager,
+			$this->manager->addFilter($filterA),
+			'uses fluent interface'
+		);
+		$chain = $this->manager->getPreChain();
+		$this->assertTrue($chain->hasFilters());
+		
+		$head = $chain->getHead();
+		$this->assertSame($filterA, $head);
+
+		$filterB = new PreFilterB();
+		$this->assertSame(
+			$this->manager,
+			$this->manager->addFilter($filterB),
+			'uses fluent interface'
+		);
+
+		$head = $chain->getHead();
+		$this->assertSame($filterB, $head);
+		$this->assertSame($filterA, $head->getNext());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testAddFilterPost()
+	{
+		$filterA = new PostFilterA();
+		$this->assertSame(
+			$this->manager,
+			$this->manager->addFilter($filterA),
+			'uses fluent interface'
+		);
+		$chain = $this->manager->getPostChain();
+		$this->assertTrue($chain->hasFilters());
+		
+		$head = $chain->getHead();
+		$this->assertSame($filterA, $head);
+
+		$filterB = new PostFilterB();
+		$this->assertSame(
+			$this->manager,
+			$this->manager->addFilter($filterB),
+			'uses fluent interface'
+		);
+
+		$head = $chain->getHead();
+		$this->assertSame($filterB, $head);
+		$this->assertSame($filterA, $head->getNext());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testApplyPreFiltersWithNoFilters()
+	{
+		$context = new NullContext();
+		$chain   = $this->manager->getPreChain();
+		$this->assertFalse($chain->hasFilters());
+		
+		$result = $this->manager->applyPreFilters($context);
+		$this->assertSame($context, $result);
+		$this->assertEquals(0, $result->count());
+	}
+
+	/**
+	 * This filter is designed to produce a known result that we can test
+	 * agaist. It will add to the context dictionary 
+	 * test-var => first-pre-filterA
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testApplyPreFilterSingleFilter()
+	{
+		$context = new NullContext();
+		$filters = 'Example\App\Filter\PreFilterA';
+
+		$this->manager->loadFilters($filters);
+		$chain   = $this->manager->getPreChain();
+		$this->assertTrue($chain->hasFilters());
+		
+		$result = $this->manager->applyPreFilters($context);
+		$this->assertSame($context, $result);
+		$this->assertEquals(1, $result->count());
+		
+		$var = $context->get('test-var');
+		$this->assertEquals('first-pre-filterA', $var);
+	}
+
+	/**
+	 * Each filter is designed to concatenate on to the string the 
+	 * the first filter put in
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testApplyPreFilterManyFilters()
+	{
+		$context = new NullContext();
+		$filters = array(
+			'Example\App\Filter\PreFilterA',
+			'Example\App\Filter\PreFilterB',
+			'Example\App\Filter\PreFilterC',
+		);
+
+		$this->manager->loadFilters($filters);
+		$chain   = $this->manager->getPreChain();
+		$this->assertTrue($chain->hasFilters());
+		
+		$result = $this->manager->applyPreFilters($context);
+		$this->assertSame($context, $result);
+		$this->assertEquals(1, $result->count());
+
+		$expected = 'first-pre-filterA:second-pre-filterB:third-pre-filterC';
+		$var = $context->get('test-var');
+		$this->assertEquals($expected, $var);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testApplyPostFiltersWithNoFilters()
+	{
+		$context = new NullContext();
+		$chain   = $this->manager->getPostChain();
+		$this->assertFalse($chain->hasFilters());
+		
+		$result = $this->manager->applyPostFilters($context);
+		$this->assertSame($context, $result);
+		$this->assertEquals(0, $result->count());
+	}
+
+	/**
+	 * This filter is designed to produce a known result that we can test
+	 * agaist. It will add to the context dictionary 
+	 * test-var => first-post-filterA
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testApplyPostFilterSingleFilter()
+	{
+		$context = new NullContext();
+		$filters = 'Example\App\Filter\PostFilterA';
+
+		$this->manager->loadFilters($filters);
+		$chain   = $this->manager->getPostChain();
+		$this->assertTrue($chain->hasFilters());
+		
+		$result = $this->manager->applyPostFilters($context);
+		$this->assertSame($context, $result);
+		$this->assertEquals(1, $result->count());
+		
+		$var = $context->get('test-var');
+		$this->assertEquals('first-post-filterA', $var);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testApplyPostFilterManyFilters()
+	{
+		$context = new NullContext();
+		$filters = array(
+			'Example\App\Filter\PostFilterA',
+			'Example\App\Filter\PostFilterB',
+			'Example\App\Filter\PostFilterC',
+		);
+
+		$this->manager->loadFilters($filters);
+		$chain = $this->manager->getPostChain();
+		$this->assertTrue($chain->hasFilters());
+		
+		$result = $this->manager->applyPostFilters($context);
+		$this->assertSame($context, $result);
+		$this->assertEquals(1, $result->count());
+
+		$expected = 'first-post-filterA:second-post-filterB:third-post-filterC';
+		$var = $context->get('test-var');
+		$this->assertEquals($expected, $var);
 	}
 }

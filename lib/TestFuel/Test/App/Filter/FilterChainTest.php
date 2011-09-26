@@ -114,6 +114,7 @@ class FilterChainTest extends BaseTestCase
 	public function testGetSetHead()
 	{
 		$this->assertNull($this->chain->getHead());
+		$this->assertFalse($this->chain->hasFilters());
 		
 		$filterD = new PreFilterD();
 		$this->assertSame(
@@ -122,6 +123,7 @@ class FilterChainTest extends BaseTestCase
 			'uses a fluent interface'
 		);
 		$this->assertSame($filterD, $this->chain->getHead());
+		$this->assertTrue($this->chain->hasFilters());
 	}
 
 	/**

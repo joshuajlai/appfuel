@@ -15,21 +15,24 @@ use AppFuel\App\Filter\AbstractFilter,
     Appfuel\Framework\App\Filter\InterceptingFilterInterface;
 
 /**
- * Designed for unit tests this filter simply adds a string to a variable
- * and calls the next filter. Its intended to be the first filter in a chain
+ * Designed to have an invalid type which is neither pre or post
  */
-class PreFilterC extends AbstractFilter implements InterceptingFilterInterface
+class InvalidTypeFilter 
+	extends AbstractFilter implements InterceptingFilterInterface
 {
-    public function __construct(ContextInterface $context = null)
-    {
-        parent::__construct('pre', $context);
-    }
+	/**
+	 * @var string
+	 */
+	protected $type = 'foo';
+
+	/** 
+	 * override original constructor
+	 * @return	InvalidTypeFilter
+	 */
+	public function __construct(){}
 
     public function filter(ContextInterface $context)
     {
-		$var = $context->get('test-var', '');
-		$var .= ':third-pre-filterC';
-        $context->add('test-var', $var);
-        return $this->next($context);
+        return $context;
     }
 }

@@ -1,41 +1,25 @@
--- holds a list of action controller, submodule, modules and root namespace
--- for the frameworks actions
-create table if not exists af_action_roots (
-	root_id		tinyint unsigned not null,
-	root_ns char(64) not null,
+create table if not exists af_apps (
+	app_id					tinyint unsigned not null,
+	app_ns					char(64) not null,
+	action_root_ns			char(128) not null,
+	action_class			char(64) not null default 'Controller',
+	action_builder_class	char(64) not null default 'ActionBuilder',
 
-	primary key (root_id),
-	index (root_ns)
+	primary_key (app_id),
+	index		(app_namespace),
+	index		(action_namespace)
 ) engine = InnoDB default charset=utf8;
 
-create table if not exists af_action_modules (
-	module_id	smallint unsigned not null,
-	root_id		tinyint unsigned not null,
-	module_name	char(64) not null,
-
-	primary key	(module_id),
-	index		(module_name),
-	foreign key (root_id) references af_action_roots (root_id)
-) engine = InnoDB  default charset=utf8;
-
-create table if not exists af_action_submodules (
-	submodule_id	smallint unsigned not null,
-	module_id		smallint unsigned not null,
-	submodule_name	char(64),
-
-	primary key (submodule_id),
-	foreign key (module_id)	references af_action_modules (module_id),
-	index (submodule_name)
-) engine = InnoDB  default charset=utf8;
-
-create table if not exists af_action_controllers (
-	controller_id	smallint unsigned not null,
-	submodule_id	smallint unsigned not null,
-	controller_name	char(64),
-	builder_class	char(128) not null default 'Appfuel\\Framework\\Action\\ActionBuilder',
-	is_forward		boolean not null default 0,
-
-	primary key (controller_id),
-	foreign key (submodule_id)   references af_action_submodules (submodule_id),
-	index (controller_name)
-) engine = InnoDB  default charset=utf8;
+-- holds a list of action controller, submodule, modules and root namespace
+-- for the frameworks actions
+create table if not exists af_actions (
+	action_id				smallint unsigned not null,
+	app_id					tinyint unsigned not null,
+	action_ns				char(255) not null,
+	override_builder_class	char(128) not null default '',
+	override_action_class	char(128) not null default '',,
+	
+	primary key (action_id),
+	foreign key (app_id) references af_apps (app_id),
+	index		(action_ns)
+) engine = InnoDB default charset=utf8;

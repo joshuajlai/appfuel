@@ -45,7 +45,7 @@ class ViewBuilder implements ViewBuilderInterface
 		try {
 			$view = new $class();
 		} catch (Exception $e) {
-			throw new Exception("Could not find class $class", 0, $e);
+			$view = new HtmlSectionTemplate();
 		}
 
 		if (! $view instanceof HtmlViewInterface) {

@@ -14,6 +14,7 @@ use Appfuel\App\Context\ContextUri,
 	Appfuel\App\Context\AppContext,
 	Appfuel\App\Context\ContextInput,
 	TestFuel\TestCase\ControllerTestCase,
+	Appfuel\Domain\Action\ActionModel,
 	Appfuel\Domain\Operation\OperationalRoute,
 	Appfuel\Framework\Action\ControllerNamespace;
 
@@ -49,6 +50,11 @@ class AppContextTest extends ControllerTestCase
 	 */
 	protected $opRoute = null;
 
+	/**
+	 * @var ActionModel
+	 */
+	protected $action = null;
+
     /**
      * @return null
      */
@@ -57,16 +63,19 @@ class AppContextTest extends ControllerTestCase
 		$this->uri = new ContextUri('my-route/qx/param1/value1');
 		$this->input   = new ContextInput('get');
 		$this->opRoute = new OperationalRoute();
+		$this->action  = new ActionModel();
+
+		$this->action->setRootNamespace('Appfuel\App\Action')
+					 ->setRelativeNamespace('Error\Handler\Default')
+					 ->_markClean();
 	
 		$filters = array(
 			'pre'	=> array('filter1', 'filter2'),
 			'post'	=> array('filter3', 'filter4')
 		);
 
-		$this->opRoute->setControllerNamespace('My\Controller\Ns\Action')
-					  ->setAccessPolicy('public')
-					  ->setDefaultFormat('html')
-					  ->setRequestType('http')
+		$this->opRoute->setAccessPolicy('public')
+					  ->setAction($this->action)
 					  ->setFilters($filters)
 					  ->_markClean();
 
@@ -126,25 +135,16 @@ class AppContextTest extends ControllerTestCase
 			$this->context->getUriParamString()
 		);
 
-		$ctrNs = $this->context->getControllerNamespace();
+		$action = $this->context->getAction();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Action\ControllerNamespaceInterface',
-			$ctrNs
-		);
+			'Appfuel\Framework\Domain\Action\ActionDomainInterface',
+			$action
+		);		
+		$this->assertSame($action, $this->opRoute->getAction());
 
 		$this->assertEquals(
 			$this->opRoute->getAccessPolicy(),
 			$this->context->getAccessPolicy()
-		);
-
-		$this->assertEquals(
-			$this->opRoute->getDefaultFormat(),
-			$this->context->getDefaultFormat()
-		);
-
-		$this->assertEquals(
-			$this->opRoute->getRequestType(),
-			$this->context->getRequestType()
 		);
 
 		$this->assertEquals(

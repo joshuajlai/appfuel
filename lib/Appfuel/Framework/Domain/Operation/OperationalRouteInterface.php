@@ -10,6 +10,7 @@
  */
 namespace Appfuel\Framework\Domain\Operation;
 
+use Appfuel\Framework\Domain\Action\ActionDomainInterface;
 
 /**
  * The operational route is the binding of an operation and a controller.
@@ -28,21 +29,19 @@ interface OperationalRouteInterface
      * @param   OperationInterface  $op
      * @return  OperationalRoute
      */
-    public function setOperation(OperationInterface $op);
+    public function setOperation(OperationDomainInterface $op);
 
     /**
-     * @return  ControllerNamespaceInterface
+     * @param   string
      */
-    public function getControllerNamespace();
+    public function getAction();
 
     /**
-	 * Developer is responsible for creating the ControllerNamespace object
-	 * from the namespace of the controller passed in.
-	 *
-     * @param   string  $actionNs   namespace of the action controller
+     * @param   OperationInterface  $op
      * @return  OperationalRoute
      */
-    public function setControllerNamespace($actionNs);
+    public function setAction(ActionDomainInterface $op);
+
 
     /**
      * @return  string
@@ -65,17 +64,6 @@ interface OperationalRouteInterface
      * @return  OperationalRoute
      */
     public function setRouteString($route);
-
-    /**
-     * @return  string
-     */
-    public function getDefaultFormat();
-
-    /**
-     * @param   string  $format
-     * @return  OperationalRoute
-     */
-    public function setDefaultFormat($format);
 
     /**
      * Add a single filter to the filter list and mark the filters as dirty
@@ -103,15 +91,4 @@ interface OperationalRouteInterface
      * @return  array
      */
     public function getPostFilters();
-
-    /**
-     * @return  string
-     */
-    public function getRequestType();
-
-    /**
-     * @param   string  $type
-     * @return  OperationalRoute
-     */
-    public function setRequestType($type);
 }

@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Action\Null;
+namespace Appfuel\Action\Null\SubModule\Action;
 
 
 use Appfuel\Framework\Exception,

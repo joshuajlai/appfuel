@@ -23,6 +23,13 @@ use Appfuel\Framework\Exception,
 interface FilterChainInterface
 {
 	/**
+	 * Used to determine if this chain has added any filters. Make no sense 
+	 * trying to a apply a chain with no filters
+	 * @return	bool
+	 */
+	public function hasFilters();
+	
+	/**
 	 * @param	ContextInterface
 	 * @return	mixed	Exception | ContextInterface
 	 */

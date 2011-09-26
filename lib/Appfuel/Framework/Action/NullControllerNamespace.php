@@ -22,7 +22,7 @@ class NullControllerNamespace extends ControllerNamespace
 	 * @param	string	$actionNs	full namespace of the action controller
 	 * @return	ActionControllerDetail
 	 */
-	public function __construct($actionNs)
+	public function __construct()
 	{
         parent::__construct('Appfuel\Action\Null\SubModule\Action');
 	}

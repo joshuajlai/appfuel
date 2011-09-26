@@ -13,7 +13,7 @@ namespace Appfuel\Domain\Operation;
 use Appfuel\Framework\Exception,
 	Appfuel\Orm\Domain\DomainModel,
 	Appfuel\Framework\Action\ActionControllerDetail,
-	Appfuel\Framework\Domain\Operation\OperationInterface;
+	Appfuel\Framework\Domain\Operation\OperationDomainInterface;
 
 /**
  * An operation represents an action that can be preformed by a user or system.
@@ -22,7 +22,7 @@ use Appfuel\Framework\Exception,
  * operation to an action controller namespace, decoupling the action 
  * controller class from the url used to request that action controller. 
  */
-class OperationModel extends DomainModel implements OperationInterface
+class OperationModel extends DomainModel implements OperationDomainInterface
 {
 	/**
 	 * Textual name 

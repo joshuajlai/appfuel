@@ -148,36 +148,39 @@ class FilterManager implements FilterManagerInterface
 
 	/**
 	 * @param	ContextInterface
-	 * @return	ContextInterface | null
+	 * @return	ContextInterface
 	 */
-	public function applyFilterChain($type, ContextInterface $context)
+	public function applyPreFilters(ContextInterface $context)
 	{
-		if (empty($type) || ! is_string($type)) {
-			throw new Exception("type must be a non empty string -(pre|post)");
-		}
-		
-		$type  = strtolower($type);
-		$valid = array('post', 'pre');
-		if (! in_array($type, $valid)) {
-			throw new Exception("type must be pre|post. given: -($type)");
-		}
-		
-		$method = 'get' . ucfirst($type) . 'Chain';
-		$chain = $this->$method();
+		return $this->applyChain($this->getPreChain(), $context);
+	}
+
+	/**
+	 * @param	ContextInterface
+	 * @return	ContextInterface
+	 */
+	public function applyPostFilters(ContextInterface $context)
+	{
+		return $this->applyChain($this->getPostChain(), $context);
+	}
+
+	/**
+	 * @param	FilterChainInterface $chain
+	 * @param	ContextInterface $context
+	 * @return	ContextInterface
+	 */
+	protected function applyChain(FilterChainInterface $chain, 
+							   ContextInterface $context)
+	{
 		if (! $chain->hasFilters()) {
 			return $context;
 		}
-
-		/* all filter results and exceptions are set directly in the context.
-		 * a filter can return null or the context itself. Usually when the 
-		 * filter wants to replace the context with a new on it will return
-		 * the new context
-		 */
+		
 		$result = $chain->apply($context);
 		if (! $result instanceof ContextInterface) {
-			$result = $context;
+			return $result;
 		}
-
-		return $result;
+	
+		return $context;
 	}
 }

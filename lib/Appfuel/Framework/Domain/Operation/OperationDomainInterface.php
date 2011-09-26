@@ -13,7 +13,7 @@ namespace Appfuel\Framework\Domain\Operation;
 
 /**
  */
-interface OperationInterface
+interface OperationDomainInterface
 {
 	public function getName();
 	public function setName($text);

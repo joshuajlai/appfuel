@@ -17,6 +17,7 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\App\Context\ContextUriInterface,
 	Appfuel\Framework\App\Context\ContextInputInterface,
 	Appfuel\Framework\Action\ControllerNamespaceInterface,
+	Appfuel\Framework\Domain\Action\ActionDomainInterface,
 	Appfuel\Framework\Domain\Operation\OperationalRouteInterface;
 
 /**
@@ -46,11 +47,11 @@ class AppContext extends Dictionary implements ContextInterface
 	protected $uriString = null;
 
 	/**
-	 * Controller namespace is used by the front controller to create the
-	 * controller that will execute the assigned operation.
-	 * @var ControllerNamespace
+	 * The action domain holds all the necessary info about the action 
+	 * controller being executed. 
+	 * @var ActionDomainInterface
 	 */
-	protected $ctrNamepace = null;
+	protected $action = null;
 
 	/**
 	 * The access policy is a general permission flag that allows public routes
@@ -58,20 +59,6 @@ class AppContext extends Dictionary implements ContextInterface
 	 * @return	string
 	 */
 	protected $accessPolicy = null;
-
-	/**
-	 * Default format is the format of the output data returned by the action
-	 * controller when no other format is specified.
-	 * @var string
-	 */
-	protected $defaultFormat = null;
-
-	/**
-	 * Request type names the major request type such as http, http-ajax or
-	 * cli
-	 * @var string
-	 */
-	protected $requestType = null;
 
 	/**
 	 * List of pre filters to be create
@@ -126,34 +113,21 @@ class AppContext extends Dictionary implements ContextInterface
 		$this->uriParamString = $uri->getParamString();
 		$this->uriString	  = $uri->getUriString();
 
-		$ctrNs = $opRoute->getControllerNamespace();
-		if (! $ctrNs instanceof ControllerNamespaceInterface) {
-			$err  = 'Controller Namespace in the operational route must ';
-			$err .= 'implement Appfuel\Framework\Action\ControllerNamespace';
-			$err .= 'Interface';
+		$action = $opRoute->getAction();
+		if (! $action instanceof ActionDomainInterface) {
+			$err  = 'The action domain which details the action controller ';
+		    $err .= ' need must implement Appfuel\Framework\Domain\Action';
+			$err .= '\ActionDomainInterface';
 			throw new Exception($err);
 		}
+		$this->action = $opRoute->getAction();
 
 		$policy = $opRoute->getAccessPolicy();
 		if (empty($policy) || ! is_string($policy)) {
 			throw new Exception("Access Policy must be a non empty string");
 		}
 
-		$format = $opRoute->getDefaultFormat();
-		if (empty($format) || ! is_string($format)) {
-			throw new Exception("Default format must be a non empty string");
-		}
-
-		$type = $opRoute->getRequestType();
-		if (empty($type) || ! is_string($type)) {
-			throw new Exception("Request type must be a non empty string");
-		}
-
-
-		$this->ctrNamespace  = $ctrNs;
 		$this->accessPolicy  = $policy;
-		$this->defaultFormat = $format;
-		$this->requestType   = $type;
 		$this->preFilters    = $opRoute->getPreFilters();
 		$this->postFilters   = $opRoute->getPostFilters();
 
@@ -193,11 +167,11 @@ class AppContext extends Dictionary implements ContextInterface
     }
 
 	/**
-	 * @return	Appfuel\Framework\Action\ControllerNamespace
+	 * @return	Appfuel\Framework\Domain\Action\ActionDomainInterface
 	 */
-	public function getControllerNamespace()
+	public function getAction()
 	{
-		return $this->ctrNamespace;
+		return $this->action;
 	}
 
 	/**
