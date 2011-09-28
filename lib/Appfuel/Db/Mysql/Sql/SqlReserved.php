@@ -10,7 +10,6 @@
  */
 namespace Appfuel\Db\Mysql\Sql;
 
-
 /**
  * Validates if a string is located inside the words list
  */
