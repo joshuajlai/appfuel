@@ -47,7 +47,7 @@ class TinyIntTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Db\Mysql\DataType\IntTypeInterface',
+			'Appfuel\Framework\Db\Mysql\DataType\NumberTypeInterface',
 			$this->type
 		);
 	}

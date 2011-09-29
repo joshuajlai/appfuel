@@ -14,7 +14,7 @@ namespace Appfuel\Framework\Db\Mysql\DataType;
 /**
  * Decribes the functionality of Integer datatypes
  */
-interface IntTypeInterface
+interface NumberTypeInterface
 {
 	public function getSqlUnsigned();
 	public function getSqlZeroFill();

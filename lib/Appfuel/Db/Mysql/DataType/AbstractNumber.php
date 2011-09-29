@@ -11,12 +11,17 @@
 namespace Appfuel\Db\Mysql\DataType;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Mysql\DataType\IntTypeInterface;
+	Appfuel\Framework\Db\Mysql\DataType\NumberTypeInterface;
 
 /**
- * The abstract tpe handles the common details of all mysql datatypes
+ * Encapsulates mostly attribute handling routines common to most number
+ * datatypes. Integers and floating point can have the unsigned attribute
+ * as well as the auto_increment. The reason auto_increment is at the type
+ * level an not the column is because you can have a primary key column that
+ * is a string which you would not be able to increment.
  */
-abstract class AbstractInt extends AbstractType implements IntTypeInterface
+abstract class AbstractNumber 
+	extends AbstractType implements NumberTypeInterface
 {
 	/**
 	 * Used in sql string
@@ -40,7 +45,7 @@ abstract class AbstractInt extends AbstractType implements IntTypeInterface
      * @param   string  $sql    string used in sql statements
      * @param   string  $validator  name of the validator for this type
 	 * @param	string	$attrs	space delimited string of attributes	
-     * @return  AbstractType
+     * @return  AbstractNumber
      */
 	public function __construct($sql,$validator, $attrs = null)
 	{
@@ -54,7 +59,7 @@ abstract class AbstractInt extends AbstractType implements IntTypeInterface
 	 * Parse the option string into validate type attributes
 	 * 
 	 * @param	string	$attrString
-	 * @return	AbstractInt
+	 * @return	AbstractNumber
 	 */
 	public function loadAttributes($attrString)
 	{
@@ -153,7 +158,7 @@ abstract class AbstractInt extends AbstractType implements IntTypeInterface
 	}
 
 	/**
-	 * @return	AbstractInt
+	 * @return	AbstractNumber
 	 */
 	public function enableSigned()
 	{
@@ -162,7 +167,7 @@ abstract class AbstractInt extends AbstractType implements IntTypeInterface
 	}
 
 	/**
-	 * @return	AbstractInt
+	 * @return	AbstractNumber
 	 */
 	public function enableUnsigned()
 	{
@@ -184,7 +189,7 @@ abstract class AbstractInt extends AbstractType implements IntTypeInterface
 	}
 
 	/**
-	 * @return	AbstractInt
+	 * @return	AbstractNumber
 	 */
 	public function enableAutoIncrement()
 	{
@@ -193,7 +198,7 @@ abstract class AbstractInt extends AbstractType implements IntTypeInterface
 	}
 
 	/**
-	 * @return	AbstractInt
+	 * @return	AbstractNumber
 	 */
 	public function disableAutoIncrement()
 	{
@@ -224,7 +229,7 @@ abstract class AbstractInt extends AbstractType implements IntTypeInterface
 
 	/**
 	 * @param	int	$width
-	 * @return	AbstractInt
+	 * @return	AbstractNumber
 	 */
 	public function setDisplayWidth($width)
 	{
@@ -236,7 +241,7 @@ abstract class AbstractInt extends AbstractType implements IntTypeInterface
 	}
 
 	/**
-	 * @return	AbstractInt
+	 * @return	AbstractNumber
 	 */
 	public function enableZeroFill()
 	{
@@ -244,7 +249,7 @@ abstract class AbstractInt extends AbstractType implements IntTypeInterface
 	}
 
 	/**
-	 * @return	AbstractInt
+	 * @return	AbstractNumber
 	 */
 	public function disableZeroFill()
 	{

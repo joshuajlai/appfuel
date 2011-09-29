@@ -11,8 +11,7 @@
 namespace TestFuel\Test\Db\Mysql\DataType;
 
 use StdClass,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\DataStructure\Dictionary;
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * The AbstractType handle common functionality for integer types
@@ -47,7 +46,7 @@ class AbstractTypeIntTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-        $this->class = 'Appfuel\Db\Mysql\DataType\AbstractInt';
+        $this->class = 'Appfuel\Db\Mysql\DataType\AbstractNumber';
 		$this->sqlString = 'tinyint';
 		$this->validator = 'tinyint-type';
 

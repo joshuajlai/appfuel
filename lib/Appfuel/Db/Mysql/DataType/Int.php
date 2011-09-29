@@ -13,7 +13,7 @@ namespace Appfuel\Db\Mysql\DataType;
 /**
  * Defines the sql string and what validator is used to validate this type
  */
-class Int extends AbstractInt
+class Int extends AbstractNumber
 {
 	/**
 	 * Fixed assignements include the sql string and the name of the 

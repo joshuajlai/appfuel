@@ -13,19 +13,18 @@ namespace Appfuel\Db\Mysql\DataType;
 /**
  * Defines the sql string and what validator is used to validate this type
  */
-class MediumInt extends AbstractNumber
+class Bit extends AbstractNumber
 {
 	/**
 	 * Fixed assignements include the sql string and the name of the 
-	 * validator used for this datatype
+	 * validator used for this datatype. Mysql implements a bit as
+	 * tinyint(1) 
 	 *
-     * @param	string   $attrs	 space delimited assignments
-	 * @return	MediumInt
+	 * @param	string	$attrs space delimited string of attributes
+	 * @return	TinyInt
 	 */
 	public function __construct($attrs = null)
 	{
-		$sql = 'mediumint';
-		$validator = 'datatype-mediumint';
-		parent::__construct($sql, $validator, $attrs);
+		parent::__construct('bit', 'datatype-tinyint', $attrs);
 	}
 }
