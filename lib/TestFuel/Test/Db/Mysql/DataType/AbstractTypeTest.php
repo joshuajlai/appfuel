@@ -101,16 +101,16 @@ class AbstractTypeTest extends BaseTestCase
 	 *
 	 * @return	null
 	 */
-	public function testEnableDisableUppercase()
+	public function testIsEnableDisableUpperCase()
 	{
-		$this->assertNull($this->type->getAttribute('isUppercase'));
+		$this->assertFalse($this->type->isUpperCase());
 		$this->assertSame(
 			$this->type,
-			$this->type->enableUppercase(),
+			$this->type->enableUpperCase(),
 			'uses a fluent interface'
 		);
 
-		$this->assertTrue($this->type->getAttribute('isUppercase'));
+		$this->assertTrue($this->type->isUpperCase());
 	
 		$this->assertSame(
 			$this->type,
@@ -118,12 +118,11 @@ class AbstractTypeTest extends BaseTestCase
 			'uses a fluent interface'
 		);
 
-		$this->assertFalse($this->type->getAttribute('isUppercase'));
-			
+		$this->assertFalse($this->type->isUpperCase());
 	}
 
 	/**
-	 * @depends	testEnableDisableUppercase
+	 * @depends	testIsEnableDisableUpperCase
 	 */
 	public function testBuildSql()
 	{

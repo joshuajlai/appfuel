@@ -46,10 +46,16 @@ abstract class AbstractType
 	 * @param	DictionaryInterface	$attrs		dictionary of type attributes
 	 * @return	AbstractType
 	 */
-	public function __construct($sql, $validator, DictionaryInterface $attrs)
+	public function __construct($sql, 
+								$validator, 
+								DictionaryInterface $attrs = null)
 	{
 		$this->setSqlString($sql);
 		$this->setValidator($validator);
+
+		if (null === $attrs) {
+			$attrs = new Dictionary();
+		}
 		$this->setAttributes($attrs);
 	}
 
@@ -59,7 +65,7 @@ abstract class AbstractType
 	public function buildSql()
 	{
 		$sql = $this->getSqlString();
-		if ($this->getAttribute('isUppercase', false)) {
+		if ($this->isUpperCase()) {
 			$sql = strtoupper($sql);
 		}
 		else {
@@ -72,19 +78,32 @@ abstract class AbstractType
 	/**
 	 * @return	AbstractType
 	 */
-	public function enableUppercase()
+	public function enableUpperCase()
 	{
-		$this->addAttribute('isUppercase', true);
+		$this->addAttribute('is-uppercase', true);
 		return $this;
 	}
 
 	/**
 	 * @return	AbstractType
 	 */
-	public function disableUppercase()
+	public function disableUpperCase()
 	{
-		$this->addAttribute('isUppercase', false);
+		$this->addAttribute('is-uppercase', false);
 		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isUpperCase()
+	{
+		$result = false;
+		if (true === $this->getAttribute('is-uppercase', false)) {
+			$result = true;
+		}
+
+		return $result;
 	}
 
 	/**
