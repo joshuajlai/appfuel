@@ -81,32 +81,36 @@ class Dictionary implements DictionaryInterface
     /**
      * Answers the question does this exist and is it a particular type
      *
-     * @param   string  $key    thing i am looking for
-     * @param   string  $type   type that thing should be
+     * @param   string  $key
+     * @param   mixed string|object  $type   type that thing should be
      * @return  bool
      */
     public function existsAs($key, $type)
     {   
-        if (! $this->exists($key)) {
+        if (empty($type) || ! $this->exists($key)) {
             return false;
         }
 
         $item = $this->items[$key];
+		if (is_object($type)) {
+			return $item instanceof $type;
+		}
+
         switch ($type) {
             case 'array'   : $isType  = is_array($item);    break;
             case 'bool'    : $isType  = is_bool($item);     break;
             case 'float'   : $isType  = is_float($item);    break;
             case 'int'     : $isType  = is_int($item);      break;
             case 'numeric' : $isType  = is_numeric($item);  break;
-            case 'real'    : $isType  = is_real($item);     break;
-            case 'long'    : $isType  = is_long($item);     break;
             case 'scalar'  : $isType  = is_scalar($item);   break;
             case 'object'  : $isType  = is_object($item);   break;
             case 'string'  : $isType  = is_string($item);   break;
             case 'resource': $isType  = is_resource($item); break;
             case 'callable': $isType  = is_callable($item); break;
             case 'null'    : $isType  = is_null($item);     break;
-            default        : $isType  = false;
+			case 'empty'   : $isType  = empty($item);		break;
+            default        : 
+				$isType  = $item instanceof $type;
         }
 
         return $isType;

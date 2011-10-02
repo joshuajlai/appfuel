@@ -156,4 +156,56 @@ class DictionaryTest extends BaseTestCase
 		$this->assertEquals(count($data), $this->dictionary->count());
 		$this->assertEquals($data, $this->dictionary->getAll());
 	}
+
+	/**
+	 * @return null
+	 */
+	public function testExistAs()
+	{
+		$myList = new Dictionary();
+		$data = array(
+			'array'			=> array(1,2,3,4),
+			'bool_true'		=> true,
+			'bool_false'	=> false,
+			'int'			=> 12345,
+			'numeric'		=> '12345',
+			'float'			=> 1.234,
+			'scalar_str'	=> 'this is a string',
+			'scalar_int'	=> 12345,
+			'scalar_float'	=> 1.2345,
+			'string'		=> 'this is a string',
+			'object'		=> new StdClass(),
+			'null'			=> null,
+			'empty'			=> '',
+			'my-list'		=> $myList
+		);
+		$list = new Dictionary($data);
+	
+		$this->assertTrue($list->existsAs('array', 'array'));
+		$this->assertTrue($list->existsAs('bool_true', 'bool'));
+		$this->assertTrue($list->existsAs('bool_false', 'bool'));
+		$this->assertTrue($list->existsAs('numeric', 'numeric'));
+		$this->assertTrue($list->existsAs('float', 'float'));
+		$this->assertTrue($list->existsAs('scalar_str', 'scalar'));
+		$this->assertTrue($list->existsAs('scalar_int', 'scalar'));
+		$this->assertTrue($list->existsAs('scalar_float', 'scalar'));
+		$this->assertTrue($list->existsAs('string', 'string'));
+		$this->assertTrue($list->existsAs('object', 'object'));
+		$this->assertTrue($list->existsAs('null', 'null'));
+		$this->assertTrue($list->existsAs('null', 'empty'));
+		$this->assertTrue($list->existsAs('empty', 'empty'));
+		$this->assertTrue($list->existsAs('my-list', $myList));
+		$this->assertTrue($list->existsAs('my-list', new Dictionary()));
+		
+	
+		$class = '\Appfuel\Framework\DataStructure\Dictionary';
+		$interface = '\Appfuel\Framework\DataStructure\DictionaryInterface';
+
+		$this->assertTrue($list->existsAs('my-list', $class));
+		$this->assertTrue($list->existsAs('my-list', $interface));
+		$this->assertFalse($list->existsAs('my-list', array()));
+			
+		$this->assertTrue($list->existsAs('object', 'StdClass'));
+		$this->assertTrue($list->existsAs('object', new StdClass()));
+	}
 }
