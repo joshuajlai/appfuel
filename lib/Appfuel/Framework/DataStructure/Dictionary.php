@@ -92,9 +92,6 @@ class Dictionary implements DictionaryInterface
         }
 
         $item = $this->items[$key];
-		if (is_object($type)) {
-			return $item instanceof $type;
-		}
 
         switch ($type) {
             case 'array'   : $isType  = is_array($item);    break;
