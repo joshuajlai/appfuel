@@ -86,18 +86,69 @@ class DefaultValueTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testDefaultNumeric()
+	public function testDefaultInt()
 	{
-		$default = new DefaultValue(99);
-		$this->assertEquals(99, $default->getValue());
+		$value = 99;
+		$default = new DefaultValue($value);
+		$this->assertEquals($value, $default->getValue());
 		
-		$expected = 'default 99';
+		$expected = "default $value";
 		$this->assertEquals($expected, $default->buildSql());
 
 		$default->enableUpperCase();
-		$expected = 'DEFAULT 99';
+		$expected = strtoupper($expected);
 		$this->assertEquals($expected, $default->buildSql());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testDefaultFloat()
+	{
+		$value = 99.99;
+		$default = new DefaultValue($value);
+		$this->assertEquals($value, $default->getValue());
 		
+		$expected = "default $value";
+		$this->assertEquals($expected, $default->buildSql());
+
+		$default->enableUpperCase();
+		$expected = strtoupper($expected);
+		$this->assertEquals($expected, $default->buildSql());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testDefaultString()
+	{
+		$value = 'some value';
+		$default = new DefaultValue($value);
+		$this->assertEquals($value, $default->getValue());
+		
+		$expected = "default '$value'";
+		$this->assertEquals($expected, $default->buildSql());
+
+		$default->enableUpperCase();
+		$expected = "DEFAULT '$value'";
+		$this->assertEquals($expected, $default->buildSql());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testDefaultEmptyString()
+	{
+		$value = '';
+		$default = new DefaultValue($value);
+		$this->assertEquals($value, $default->getValue());
+		
+		$expected = "default ''";
+		$this->assertEquals($expected, $default->buildSql());
+
+		$default->enableUpperCase();
+		$expected = "DEFAULT ''";
+		$this->assertEquals($expected, $default->buildSql());
 	}
 
 	/**
@@ -118,7 +169,38 @@ class DefaultValueTest extends BaseTestCase
 		
 	}
 
-	
-	
+	/**
+	 * @return	null
+	 */
+	public function testDefaultNull()
+	{
+		$default = new DefaultValue(null);
+		$this->assertNull($default->getValue());
+		
+		$expected = "default null";
+		$this->assertEquals($expected, $default->buildSql());
+
+		$default->enableUpperCase();
+		$expected = "DEFAULT NULL";
+		$this->assertEquals($expected, $default->buildSql());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testDefaultObjectNotSupportingToString_Failure()
+	{
+		$default = new DefaultValue(new StdClass());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testDefaultArray_Failure()
+	{
+		$default = new DefaultValue(array(1,2,3));
+	}	
 }
 

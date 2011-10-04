@@ -29,7 +29,8 @@ class DefaultValue extends  AbstractConstraint
 	 */
 	public function __construct($value) 
 	{	
-		if (is_scalar($value) || 
+		if (is_null($value)   || 
+			is_scalar($value) || 
 			(is_object($value) && is_callable(array($value, '__toString')))) {
 			$this->value = $value;
 		}
