@@ -109,6 +109,17 @@ class AbstractConstraintTest extends BaseTestCase
 	}
 
 	/**
+	 * There is no public interface for adding columns because that is done
+	 * by the concrete implementation during the constructor.
+	 *
+	 * @return	null
+	 */
+	public function testGetColumns()
+	{
+		$this->assertEquals(array(), $this->constraint->getColumns());
+	}
+
+	/**
 	 * Sql string can not be empty	
 	 * 
 	 * @expectedException	Appfuel\Framework\Exception
@@ -167,5 +178,8 @@ class AbstractConstraintTest extends BaseTestCase
                      ->setConstructorArgs($params)
                      ->getMockForAbstractClass();
 	}
+
+
+
 }
 

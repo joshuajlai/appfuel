@@ -32,6 +32,19 @@ abstract class AbstractConstraint
 	protected $isUpperCase = false;
 
 	/**
+	 * This is depends on the constraint. NotNull has no value while
+	 * unique and primary key use it the column name
+	 * @var	string
+	 */
+	protected $value = null;
+
+	/**
+	 * List of columns that this constaint controls
+	 * @var array
+	 */
+	protected $columns = array();
+
+	/**
 	 * @param	string	$sql	string used in sql statements
 	 * @param	string	$validator	name of the validator for this type
 	 * @param	DictionaryInterface	$attrs		dictionary of type attributes
@@ -104,5 +117,48 @@ abstract class AbstractConstraint
 		}
 
 		$this->sqlString = $sql;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getValue()
+	{
+		return $this->value;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getColumns()
+	{
+		return $this->columns;
+	}
+
+	/**
+	 * @param	string	$name	name of the column
+	 * @return	AbstractConstraint
+	 */
+	protected function addColumn($name)
+	{
+		if (empty($name) || ! is_string($name)) {
+			throw new Exception("column name must be a non empty string");
+		}
+
+		if (in_array($name, $this->columns)) {
+			return $this;
+		}
+
+		$this->columns[] = $name;
+		return $this;
+	}
+
+	protected function buildColumnString()
+	{
+		if (empty($this->columns)) {
+			return '';
+		}
+
+		return implode(',', $this->columns);
 	}
 }
