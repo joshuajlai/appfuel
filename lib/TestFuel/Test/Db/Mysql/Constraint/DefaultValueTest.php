@@ -54,9 +54,9 @@ class DefaultValueTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testGetSqlString()
+	public function testGetSqlPhrase()
 	{
-		$this->assertEquals('default', $this->constraint->getSqlString());
+		$this->assertEquals('default', $this->constraint->getSqlPhrase());
 	}
 
 	/**

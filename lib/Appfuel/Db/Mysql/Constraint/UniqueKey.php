@@ -15,27 +15,15 @@ use Appfuel\Framework\Exception;
 /**
  * Constaint used in tables to limit a column or columns to unique values
  */
-class UniqueKey extends AbstractConstraint
+class UniqueKey extends Key
 {
 	/**
 	 * @return	DefaultValue
 	 */
-	public function __construct($columns) 
+	public function __construct($name, $columns) 
 	{	
-		if (is_string($columns)) {
-			$this->addColumn($columns);	
-		} 
-		else if (is_array($columns)) {
-			foreach ($columns as $column) {
-				$this->addColumn($column);
-			}
-		}
-		else {
-			$err = "columns must be a string or an array of strings";
-			throw new Exception($err); 
-		}
-		
-		parent::__construct('unique key');
+		parent::__construct($name, $columns);
+		$this->setSqlPhrase('unique key');
 	}
 
 	/**

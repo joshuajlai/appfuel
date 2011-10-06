@@ -28,15 +28,15 @@ class AbstractConstraintTest extends BaseTestCase
 	 * Parameters used to describe the type
 	 * @var array
 	 */
-	protected $sqlString = null;
+	protected $sqlPhrase = null;
 
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->sqlString = 'not null';
-		$params = array($this->sqlString);
+		$this->sqlPhrase = 'not null';
+		$params = array($this->sqlPhrase);
 		$class = 'Appfuel\Db\Mysql\Constraint\AbstractConstraint';
 		$this->constraint = $this->getMockBuilder($class)
 						   ->setConstructorArgs($params)
@@ -54,11 +54,11 @@ class AbstractConstraintTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testGetSqlString()
+	public function testGetSqlPhrase()
 	{
 		$this->assertEquals(
-			$this->sqlString, 
-			$this->constraint->getSqlString()
+			$this->sqlPhrase, 
+			$this->constraint->getSqlPhrase()
 		);
 	}
 
@@ -94,7 +94,7 @@ class AbstractConstraintTest extends BaseTestCase
 	public function testBuildSql()
 	{
 		$this->assertEquals(
-			strtolower($this->sqlString), 
+			strtolower($this->sqlPhrase), 
 			$this->constraint->buildSql(),
 			'unless isUppercase is false so should be lowercase'
 		);
@@ -102,21 +102,10 @@ class AbstractConstraintTest extends BaseTestCase
 		$this->constraint->enableUppercase();
 		
 		$this->assertEquals(
-			strtoupper($this->sqlString), 
+			strtoupper($this->sqlPhrase), 
 			$this->constraint->buildSql(),
 			'should be all uppercase'
 		);	
-	}
-
-	/**
-	 * There is no public interface for adding columns because that is done
-	 * by the concrete implementation during the constructor.
-	 *
-	 * @return	null
-	 */
-	public function testGetColumns()
-	{
-		$this->assertEquals(array(), $this->constraint->getColumns());
 	}
 
 	/**
@@ -178,8 +167,5 @@ class AbstractConstraintTest extends BaseTestCase
                      ->setConstructorArgs($params)
                      ->getMockForAbstractClass();
 	}
-
-
-
 }
 

@@ -13,13 +13,12 @@ namespace TestFuel\Test\Db\Mysql\Constraint;
 use StdClass,
 	SplFileInfo,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Db\Mysql\Constraint\UniqueKey;
+	Appfuel\Db\Mysql\Constraint\Key;
 
 /**
- * Testing the constructor used to add columns and the buildSql which is 
- * the sql fragment in a create or alter table
+ * Testing the mysql key constraint
  */
-class UniqueKeyTest extends BaseTestCase
+class KeyTest extends BaseTestCase
 {
 	/**
 	 * System under test
@@ -28,13 +27,7 @@ class UniqueKeyTest extends BaseTestCase
 	protected $constraint = null;
 
 	/**
-	 * First parameter in the constructor
-	 * @var string
-	 */
-	protected $indexName = null;
-
-	/**
-	 * Second paramter in the constructor
+	 * Column name of list of column names
 	 * @var string
 	 */
 	protected $columnName = null;
@@ -44,9 +37,9 @@ class UniqueKeyTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$this->indexName  = 'my-index';
+		$this->indexName  = 'my-index-name';
 		$this->columnName = 'my-column';
-		$this->constraint = new UniqueKey($this->indexName, $this->columnName);
+		$this->constraint = new Key($this->indexName, $this->columnName);
 	}
 
 	/**
@@ -60,9 +53,20 @@ class UniqueKeyTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
+	public function testInterface()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Db\Constraint\ConstraintKeyInterface',
+			$this->constraint
+		);
+	}
+
+	/**
+	 * @return	null
+	 */
 	public function testGetSqlPhrase()
 	{
-		$this->assertEquals('unique key', $this->constraint->getSqlPhrase());
+		$this->assertEquals('key', $this->constraint->getSqlPhrase());
 	}
 }
 

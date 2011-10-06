@@ -45,9 +45,9 @@ class NotNullTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testGetSqlString()
+	public function testGetSqlPhrase()
 	{
-		$this->assertEquals('not null', $this->constraint->getSqlString());
+		$this->assertEquals('not null', $this->constraint->getSqlPhrase());
 	}
 
 	/**

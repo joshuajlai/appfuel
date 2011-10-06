@@ -11,19 +11,19 @@
 namespace Appfuel\Db\Mysql\Constraint;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Framework\DataStructure\DictionaryInterface;
+	Appfuel\Framework\Db\Constraint\ConstraintInterface;
 
 /**
  * The abstract tpe handles the common details of all mysql constraints
  */
-abstract class AbstractConstraint
+abstract class AbstractConstraint implements ConstraintInterface
 {
 	/**
-	 * Text used in sql statements to represent this constraint
+	 * Sql word used in sql fragment for this constraint for example,
+	 * 'default', 'not null', 'primary key' etc...
 	 * @var string
 	 */
-	protected $sqlString = null;
+	protected $sqlPhrase = null;
 
 	/**
 	 * Flag used to determine if the sql string will be uppercase
@@ -32,27 +32,12 @@ abstract class AbstractConstraint
 	protected $isUpperCase = false;
 
 	/**
-	 * This is depends on the constraint. NotNull has no value while
-	 * unique and primary key use it the column name
-	 * @var	string
-	 */
-	protected $value = null;
-
-	/**
-	 * List of columns that this constaint controls
-	 * @var array
-	 */
-	protected $columns = array();
-
-	/**
-	 * @param	string	$sql	string used in sql statements
-	 * @param	string	$validator	name of the validator for this type
-	 * @param	DictionaryInterface	$attrs		dictionary of type attributes
-	 * @return	AbstractType
+	 * @param	string	$sql keyword that represents the sql constraint
+	 * @return	AbstractConstraint
 	 */
 	public function __construct($sql) 
 	{
-		$this->setSqlString($sql);
+		$this->setSqlPhrase($sql);
 	}
 
 	/**
@@ -60,7 +45,7 @@ abstract class AbstractConstraint
 	 */
 	public function buildSql()
 	{
-		$sql = $this->getSqlString();
+		$sql = $this->getSqlPhrase();
 		if ($this->isUpperCase()) {
 			$sql = strtoupper($sql);
 		}
@@ -100,9 +85,9 @@ abstract class AbstractConstraint
 	/**
 	 * @return	string
 	 */
-	public function getSqlString()
+	public function getSqlPhrase()
 	{
-		return $this->sqlString;
+		return $this->sqlPhrase;
 	}
 
 	/**
@@ -110,55 +95,30 @@ abstract class AbstractConstraint
 	 * @param	string
 	 * @return	null
 	 */
-	protected function setSqlString($sql)
+	protected function setSqlPhrase($sql)
 	{
 		if (empty($sql) || ! is_string($sql)) {
 			throw new Exception("sql string must be a non empty string");
 		}
 
-		$this->sqlString = $sql;
+		$this->sqlPhrase = $sql;
 	}
 
 	/**
+	 * I can not anticipate how a developer might extend buildSql and
+	 * this method is not allowed to pass on exceptions so I catch 
+	 * and return an empty string
+	 *
 	 * @return	string
 	 */
-	public function getValue()
+	public function __toString()
 	{
-		return $this->value;
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getColumns()
-	{
-		return $this->columns;
-	}
-
-	/**
-	 * @param	string	$name	name of the column
-	 * @return	AbstractConstraint
-	 */
-	protected function addColumn($name)
-	{
-		if (empty($name) || ! is_string($name)) {
-			throw new Exception("column name must be a non empty string");
+		try {
+			$sql = $this->buildSql();
+		} catch (\Exception $e) {
+			$sql = '';
 		}
 
-		if (in_array($name, $this->columns)) {
-			return $this;
-		}
-
-		$this->columns[] = $name;
-		return $this;
-	}
-
-	protected function buildColumnString()
-	{
-		if (empty($this->columns)) {
-			return '';
-		}
-
-		return implode(',', $this->columns);
+		return $sql;
 	}
 }

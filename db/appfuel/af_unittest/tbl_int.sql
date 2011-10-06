@@ -1,4 +1,9 @@
-create table if not exists tbl_int (
-	col_1	tinyint not null primary key,
-	col_2	float(3,2) zerofill not null
+
+drop table if exists mytable;
+create table if not exists mytable (
+	col_1	tinyint not null,
+	col_2	int unsigned not null, 
+
+	constraint my_con unique key my_key (col_1),
+	key (col_2)
 ) engine = InnoDB;
