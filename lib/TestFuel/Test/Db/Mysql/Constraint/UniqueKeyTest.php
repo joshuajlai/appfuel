@@ -56,13 +56,52 @@ class UniqueKeyTest extends BaseTestCase
 	{
 		$this->constraint = null;
 	}
+	
+	/**
+	 * @return	null
+	 */
+	public function testInterface()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Db\Constraint\ConstraintInterface',
+			$this->constraint
+		);
+
+		$this->assertInstanceOf(
+			'Appfuel\Framework\Db\Constraint\ConstraintKeyInterface',
+			$this->constraint
+		);
+	}
 
 	/**
+	 * @depends	testInterface
 	 * @return	null
 	 */
 	public function testGetSqlPhrase()
 	{
 		$this->assertEquals('unique key', $this->constraint->getSqlPhrase());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testGetIndexName()
+	{
+		$this->assertEquals(
+			$this->indexName, 
+			$this->constraint->getIndexName()
+		);
+	}
+
+	/**
+	 * only a single column was added in the constructor during setup
+	 * 
+	 * @return	null
+	 */
+	public function getColumnsWhenSingleColumn()
+	{
+		$expected = array($this->columnName);
+		$this->assertEquals($expected, $this->constraint->getColumns());
 	}
 }
 

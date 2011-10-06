@@ -33,7 +33,7 @@ class Key extends AbstractConstraint implements ConstraintKeyInterface
 	/**
 	 * @return	DefaultValue
 	 */
-	public function __construct($name, $columns) 
+	public function __construct($name, $columns, $isUnique = false) 
 	{
 		if (! empty($name)) {
 			$this->setIndexName($name);
@@ -52,7 +52,11 @@ class Key extends AbstractConstraint implements ConstraintKeyInterface
 			throw new Exception($err); 
 		}
 		
-		parent::__construct('key');
+		$sqlPhrase = 'key';
+		if (true === $isUnique) {
+			$sqlPhrase = 'unique key';
+		}
+		parent::__construct($sqlPhrase);
 	}
 
 	/**
@@ -79,19 +83,7 @@ class Key extends AbstractConstraint implements ConstraintKeyInterface
 			$sqlValue = strtoupper($sqlValue);
 		}
 
-		return parent::buildSql() . "$sqlValue";
-	}
-
-	/**
-	 * @param	string	$name
-	 * @return	null
-	 */
-	protected function setIndexName($name)
-	{
-		if (! is_string($name)) {
-			throw new Exception("index name must be string");
-		}
-		$this->indexName = $name;
+		return parent::buildSql() . " $sqlValue";
 	}
 
     /**
@@ -134,4 +126,15 @@ class Key extends AbstractConstraint implements ConstraintKeyInterface
         return implode(',', $this->columns);
     }
 
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setIndexName($name)
+	{
+		if (! is_string($name)) {
+			throw new Exception("index name must be string");
+		}
+		$this->indexName = $name;
+	}
 }

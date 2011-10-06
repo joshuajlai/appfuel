@@ -56,17 +56,55 @@ class KeyTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
+			'Appfuel\Framework\Db\Constraint\ConstraintInterface',
+			$this->constraint
+		);
+
+		$this->assertInstanceOf(
 			'Appfuel\Framework\Db\Constraint\ConstraintKeyInterface',
 			$this->constraint
 		);
 	}
 
 	/**
+	 * @depends	testInterface
 	 * @return	null
 	 */
 	public function testGetSqlPhrase()
 	{
 		$this->assertEquals('key', $this->constraint->getSqlPhrase());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testGetIndexName()
+	{
+		$this->assertEquals(
+			$this->indexName,
+			$this->constraint->getIndexName()
+		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testGetColumns()
+	{
+		$expected = array($this->columnName);
+		$this->assertEquals($expected, $this->constraint->getColumns());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testBuildSqlSingleColumnWithIndexName()
+	{
+		$expected = "key {$this->indexName} ({$this->columnName})";
+		$this->assertEquals($expected, $this->constraint->buildSql());
 	}
 }
 

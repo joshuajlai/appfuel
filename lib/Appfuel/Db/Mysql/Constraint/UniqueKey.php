@@ -22,20 +22,6 @@ class UniqueKey extends Key
 	 */
 	public function __construct($name, $columns) 
 	{	
-		parent::__construct($name, $columns);
-		$this->setSqlPhrase('unique key');
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function buildSql()
-	{
-		$sqlValue = strtolower($this->buildColumnString());			 
-		if ($this->isUpperCase()) {
-			$sqlValue = strtoupper($sqlValue);
-		}
-
-		return parent::buildSql() . ' ' . $sqlValue;
+		parent::__construct($name, $columns, true);
 	}
 }
