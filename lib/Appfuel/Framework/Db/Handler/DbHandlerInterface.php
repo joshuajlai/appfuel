@@ -10,13 +10,11 @@
  */
 namespace Appfuel\Framework\Db\Handler;
 
-use Appfuel\Framework\Db\Connection\ConnectionInterface;
-
 /**
+ * The database handle process the request and hands back the results without
+ * having to care about the specific database vendor in use. 
  */
-interface PoolInterface
+interface DbHandlerInterface
 {
-	public function addConnection(ConnectionInterface $conn, $type = null);
-	public function getConnection($type = null);
-	public function shutdown();
+	public function execute(RequestInterface $request);
 }

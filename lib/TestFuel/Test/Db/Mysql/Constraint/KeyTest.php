@@ -106,5 +106,55 @@ class KeyTest extends BaseTestCase
 		$expected = "key {$this->indexName} ({$this->columnName})";
 		$this->assertEquals($expected, $this->constraint->buildSql());
 	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testKeyNoIndexSingleColumn()
+	{
+		$column = 'my-column';
+		$key = new key(null, $column);
+		$this->assertNull($key->getIndexName());
+		
+		$expected = "key ($column)";
+		$this->assertEquals($expected, $key->buildSql());
+
+		$key = new key('', $column);
+		$this->assertNull($key->getIndexName());
+		$this->assertEquals($expected, $key->buildSql());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testKeyNoIndexManyColumns()
+	{
+		$column = array('col1', 'col2');
+		$key = new key(null, $column);
+		$this->assertNull($key->getIndexName());
+		
+		$expected = "key (col1,col2)";
+		$this->assertEquals($expected, $key->buildSql());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testKeyIndexManyColumns()
+	{
+		$column = array('col1', 'col2');
+		$key = new key('my_index', $column);
+		$this->assertEquals('my_index', $key->getIndexName());
+		
+		$expected = "key my_index (col1,col2)";
+		$this->assertEquals($expected, $key->buildSql());
+	}
+
+
+
+	
 }
 
