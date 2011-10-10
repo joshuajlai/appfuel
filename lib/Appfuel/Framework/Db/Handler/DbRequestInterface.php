@@ -45,13 +45,6 @@ interface DbRequestInterface
 	public function enableWrite();
 
 	/**
-	 * Alias for setServerMode('both')
-	 *
-	 * @return	RequestInterface
-	 */
-	public function enableReadWrite();
-
-	/**
 	 * Alias for setServerMode('ignore')
 	 *
 	 * @return	RequestInterface

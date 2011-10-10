@@ -29,6 +29,15 @@ class DbRequest implements DbRequestInterface
 	protected $requestType = null;
 
 	/**
+	 * Valid request types  used by appfuel. 
+	 * query		 - default way of sending a query
+	 * multi-query	 - send more than one sql query in the request
+	 * prepared-stmt - sql is a perpared statement 
+	 * @var array
+	 */
+	protected $validRequestTypes = array('query','multi-query','prepared-stmt');
+
+	/**
 	 * Mode the database server is to be treated. The DbHandler will use this
 	 * to get the correct connector. 
 	 *
@@ -37,19 +46,34 @@ class DbRequest implements DbRequestInterface
 	protected $serverMode = null;
 
 	/**
+	 * Valid server modes used by appfuel. 
+	 * read   - read only (slave connections)
+	 * write  - read/write (master connections)
+	 * ignore - replication not available
+	 * @var array
+	 */
+	protected $validServerModes = array('read', 'write', 'ignore');
+
+	/**
 	 * Sql string used to run the query
 	 * @var string
 	 */
 	protected $sql = null;
 
 	/**
+	 * Controls the returning db dataset array
+	 * @var string
+	 */ 
+	protected $resultType = 'name';
+
+	/**
 	 * Determines the format of the raw dataset. There are three formats
 	 *	name		=> dataset returned as associative array with column names,
 	 *	position	=> dataset returned as array index by column position
 	 *	both		=> dataset returned as both name and position
-	 * @var string
-	 */ 
-	protected $resultType = 'name';
+	 * @var array
+	 */
+	protected $validResultTypes = array('name', 'position', 'both');
 
 	/**
 	 * Flag used to tell the db adapter to buffer the results or with large
@@ -88,11 +112,11 @@ class DbRequest implements DbRequestInterface
 	 */
 	public function __construct($type = null, $mode = null, $sql = null)
 	{
-		if (null === $type) {
+		if (empty($type)) {
 			$type = 'query';
 		}
 		
-		if (null === $mode) {
+		if (empty($mode)) {
 			$mode = 'ignore';
 		}
 
@@ -123,10 +147,10 @@ class DbRequest implements DbRequestInterface
 			throw new Exception("$err a non empty string");
 		}
 
-		$type = strtolower($mode);
-		$valid = array('read', 'write', 'both', 'ignore');
-		if (! in_array($mode, $valid, true)) {
-			throw new Exception("$err one of (read|write|both|ignore)" );
+		$mode = strtolower($mode);
+		if (! in_array($mode, $this->validServerModes, true)) {
+			$err .= 'one of (' . implode('|', $this->validServerModes) . ')';
+			throw new Exception($err);
 		}
 
 		$this->serverMode = $mode;
@@ -147,14 +171,6 @@ class DbRequest implements DbRequestInterface
 	public function enableWrite()
 	{
 		return $this->setServerMode('write');
-	}
-
-	/**
-	 * @return	RequestQuery
-	 */
-	public function enableReadWrite()
-	{
-		return $this->setServerMode('both');
 	}
 
 	/**
@@ -188,9 +204,8 @@ class DbRequest implements DbRequestInterface
 		}
 
 		$type = strtolower($type);
-		$valid = array('query', 'multi-query', 'prepared-stmt');
-		if (! in_array($type, $valid, true)) {
-			$err .= "one of (" . implode('|', $valid) . ")";
+		if (! in_array($type, $this->validRequestTypes, true)) {
+			$err .= "one of (" . implode('|', $this->validRequestTypes) . ")";
 			throw new Exception($err);
 		}
 
@@ -246,6 +261,47 @@ class DbRequest implements DbRequestInterface
 		return $this;
 	}
 
+    /**
+     * @return  bool
+     */
+    public function isSql()
+    {  
+        return $this->isValidString($this->sql);
+    }
+
+    /**
+     * Add a sql string to the existsing sql strings
+     * 
+     * @param   string  $sql
+     * @return  MultiQueryRequest
+     */
+    public function addSql($sql)
+    {
+        if (! $this->isValidString($sql)) {
+            throw new Exception("Invalid sql: must be non empty string");
+        }
+
+        if ($this->isSql()) {
+			$sql = "{$this->getSql()};$sql";
+		}
+
+        $this->setSql($sql);
+        return $this;
+    }
+
+    /**
+     * @param   array   $List
+     * @return  DbRequest
+     */
+    public function loadSql(array $list)
+    {  
+        foreach ($list as $sql) {
+            $this->addSql($sql);
+        }
+
+        return $this;
+    }
+
 	/**
 	 * @return	string
 	 */
@@ -267,8 +323,9 @@ class DbRequest implements DbRequestInterface
 		}
 
 		$type = strtolower($type);
-		if (! in_array($type, array('name', 'position', 'both'), true)) {
-			throw new Exception("$err one of (name|position|both)" );
+		if (! in_array($type, $this->validResultTypes, true)) {
+			$err .= 'one of (' . implode('|', $this->validResultTypes) . ') ';
+			throw new Exception($err);
 		}
 
 		$this->resultType = $type;
@@ -325,47 +382,6 @@ class DbRequest implements DbRequestInterface
 	}
 
     /**
-     * Add a sql string to the existsing sql strings
-     * 
-     * @param   string  $sql
-     * @return  MultiQueryRequest
-     */
-    public function addSql($sql)
-    {
-        if (! $this->isValidString($sql)) {
-            throw new Exception("Invalid sql: must be non empty string");
-        }
-
-        if ($this->isSql()) {
-			$sql = "{$this->getSql()};$sql";
-		}
-
-        $this->setSql($sql);
-        return $this;
-    }
-
-    /**
-     * @param   array   $List
-     * @return  DbRequest
-     */
-    public function loadSql(array $list)
-    {  
-        foreach ($list as $sql) {
-            $this->addSql($sql);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return  bool
-     */
-    public function isSql()
-    {  
-        return $this->isValidString($this->sql);
-    }
-
-    /**
      * @return  array
      */
     public function getResultOptions()
@@ -377,8 +393,7 @@ class DbRequest implements DbRequestInterface
 	 * Used in multi query request to control the callbacks for the resultset
 	 * of each sql query
 	 *
-     * @throws  Appfuel\Framework\Exception
-     * @param   string  $type
+     * @param   array  $type
      * @return  DbRequest
      */
     public function setResultOptions(array $options)
