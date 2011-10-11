@@ -12,12 +12,13 @@ namespace Appfuel\Db\Mysql\DataType;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Framework\DataStructure\DictionaryInterface;
+	Appfuel\Framework\DataStructure\DictionaryInterface,
+	Appfuel\Framework\Db\Schema\Table\DataTypeInterface;
 
 /**
  * The abstract tpe handles the common details of all mysql datatypes
  */
-abstract class AbstractType
+abstract class AbstractType implements DataTypeInterface
 {
 	/**
 	 * Text used in sql statements to represent this type ex) INT, TEXT 
@@ -131,6 +132,14 @@ abstract class AbstractType
 	{
 		return $this->getAttributes()
 					->get($name, $default);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function __toString()
+	{
+		return $this->buildSql();
 	}
 
 	/**

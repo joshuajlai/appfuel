@@ -34,7 +34,7 @@ class Stmt
 	 * @param	string	$sql		sql statements joined into one string
 	 * @param	array	$options	map used to convert dataset indexes into
 	 *								meaningful keys and hold callbacks
-	 * @return 
+	 * @return array	list of DbResponseInterface
 	 */
 	public function execute(mysqli $drv, 
 								   $sql, 

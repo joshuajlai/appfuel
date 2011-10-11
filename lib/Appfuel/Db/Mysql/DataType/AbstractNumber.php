@@ -47,7 +47,7 @@ abstract class AbstractNumber
 	 * @param	string	$attrs	space delimited string of attributes	
      * @return  AbstractNumber
      */
-	public function __construct($sql,$validator, $attrs = null)
+	public function __construct($sql, $validator, $attrs = null)
 	{
 		parent::__construct($sql, $validator);
 		if (null !== $attrs) {
