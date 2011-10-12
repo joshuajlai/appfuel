@@ -39,12 +39,6 @@ class AppManager
 	protected $front = null;
 
 	/**
-	 * Relative path to the class file that loads appfuel dependencies
-	 * @var string
-	 */
-	protected $dependFile = 'Appfuel/App/Dependency.php';
-
-	/**
 	 * @param	string	$basePath
 	 * @param	string	$configFile
 	 * @return	AppManager
@@ -59,7 +53,11 @@ class AppManager
 		$this->setCodeGenPath("$base/codegen");
 
 		if (! self::isDependencyLoaded()) {
-			$this->loadDependency();
+			$this->loadDependency(
+				'Appfuel/App/Dependency.php',
+				'Appfuel\App\Dependency'
+			);
+			self::$isLoaded = true;
 		}
 
 		if (null === $factory) {
@@ -215,15 +213,6 @@ class AppManager
 		return AF_CODEGEN_PATH;
 	}
 
-
-	/**
-	 * @return	string
-	 */
-	public function getDependencyFile()
-	{
-		return $this->dependFile;
-	}
-
 	/**
 	 * @return	bool
 	 */
@@ -240,19 +229,18 @@ class AppManager
 	 * @param	string	$basePath
 	 * @return	NULL
 	 */
-	public function loadDependency()
+	public function loadDependency($file, $class)
 	{
 		$lib  = $this->getLibPath();
-		$file = "{$lib}/{$this->getDependencyFile()}";
+		$file = "{$lib}/{$file}";
 		if (! file_exists($file)) {
 			throw new \Exception("Dependency file could not be found ($file)");
 		}
 		require_once $file;
-
-		$depend = new Dependency($lib);
+		
+		$depend = new $class($lib);
 		$depend->load();
 
-		self::$isLoaded = TRUE;
 	}
 
 	/**
@@ -350,8 +338,6 @@ class AppManager
 			define('AF_CODEGEN_PATH', $path);
 		}
 	}
-
-
 
 	/**
 	 * @param	string	$file
