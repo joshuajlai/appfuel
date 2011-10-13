@@ -25,11 +25,27 @@ class ColumnTest extends BaseTestCase
 	protected $column = null;
 
 	/**
+	 * First parameter of the constructor. Then name of the column
+	 * @var string
+	 */
+	protected $name = null;
+
+	/**
+	 * Second parameter of the constructor. The data type of the column
+	 * @var DataTypeInterface
+	 */
+	protected $dataType = null;
+
+	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->column = new Column();
+		$this->name = 'my-column';
+		$interface = 'Appfuel\Framework\Db\Schema\Table\DataTypeInterface';
+		$this->dataType = $this->getMock($interface);
+
+		$this->column = new Column($this->name, $this->dataType);
 	}
 
 	/**
@@ -49,5 +65,17 @@ class ColumnTest extends BaseTestCase
 			'Appfuel\Framework\Db\Schema\Table\ColumnInterface',
 			$this->column
 		);
+	}
+
+	/**
+	 * Immutable members are name and dataType
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testImmutableMembers()
+	{
+		$this->assertEquals($this->name, $this->column->getName());
+		$this->assertEquals($this->dataType, $this->column->getDataType());
 	}
 }

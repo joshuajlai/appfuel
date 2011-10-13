@@ -12,7 +12,8 @@ namespace Appfuel\Db\Schema\Table;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\Db\Schema\Table\ColumnInterface,
-	Appfuel\Framework\Db\Schema\Table\DataTypeInterface;
+	Appfuel\Framework\Db\Schema\Table\DataTypeInterface,
+	Appfuel\Framework\Db\Schema\Table\Constraint\ConstraintInterface;
 
 /**
  * 
@@ -35,11 +36,27 @@ class Column implements ColumnInterface
 	protected $isUpperCase = false;
 
 	/**
-	 * @return	string
+	 * @param	string	$name	name of the column
+	 * @param	DataTypeInterface	$type 
+	 * @param	ConstraintInterface	$notNull
+	 * @param	ConstraintInterface $default
+	 * @return	Column
 	 */
-	public function buildSql()
+	public function __construct($name, 
+								DataTypeInterface $type, 
+								ConstraintInterface $notNull = null,
+								ConstraintInterface $default = null)
 	{
-		return '';
+		$this->setName($name);
+		$this->setDataType($type);
+		
+		if (null !== $notNull) {
+			$this->setNotNullConstraint($notNull);
+		}
+
+		if (null !== $default) {
+			$this->setDefaultValueConstraint($default);
+		}
 	}
 
 	/**
@@ -51,20 +68,6 @@ class Column implements ColumnInterface
 	}
 
 	/**
-	 * @param	string	$name
-	 * @return	Column
-	 */
-	public function setName($name)
-	{
-		if (empty($name) || ! is_string($name)) {
-			throw new Exception("Column name must be a non empty string");
-		}
-
-		$this->name = $name;
-		return $this;
-	}
-
-	/**
 	 * @return	DataTypeInterface
 	 */
 	public function getDataType()
@@ -73,13 +76,16 @@ class Column implements ColumnInterface
 	}
 
 	/**
-	 * @param	DataTypeInterface
-	 * @return	Column
+	 * @return	bool
 	 */
-	public function setDataType(DataTypeInterface $dataType)
+	public function isNullAllowed()
 	{
-		$this->dataType = $dataType;
-		return $this;
+		return $this->notNull instanceof ConstraintInterface;
+	}
+
+	public function isDefaultValue()
+	{
+		return $this->default instanceof ConstaintInterface;
 	}
 
     /**
@@ -111,8 +117,63 @@ class Column implements ColumnInterface
 	/**
 	 * @return	string
 	 */
+	public function buildSql()
+	{
+		return '';
+	}
+
+	/**
+	 * @return	string
+	 */
 	public function __toString()
 	{
 		return $this->buildSql();
+	}
+
+	/**
+	 * Only used internally by the column
+	 *
+	 * @return	ConstraintInterface
+	 */
+	protected function getNotNullConstraint()
+	{
+		return $this->notNull;
+	}
+
+	/**
+	 * @param	ConstraintInterface $constraint
+	 * @return	null
+	 */
+	protected function setNotNullConstraint(ConstraintInterface $constraint)
+	{
+		$sql = strtolower($constraint->getSqlPhrase());
+		if ('not null' !== $sql) {
+			throw new Exception("Constraint must be not null");
+		}
+		$this->notNull = $constraint;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	Column
+	 */
+	protected function setName($name)
+	{
+		if (empty($name) || ! is_string($name)) {
+			throw new Exception("Column name must be a non empty string");
+		}
+
+		$this->name = $name;
+		return $this;
+	}
+
+	/**
+	 * @param	DataTypeInterface
+	 * @return	Column
+	 */
+	protected function setDataType(DataTypeInterface $dataType)
+	{
+		$this->dataType = $dataType;
+		return $this;
 	}
 }
