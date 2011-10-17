@@ -60,6 +60,12 @@ class DataTypeTest extends BaseTestCase
 	 */
 	public function testInterface()
 	{
+        $this->assertInstanceOf(
+            'Appfuel\Framework\Db\Schema\SchemaObjectInterface',
+            $this->type,
+            'must implment this interface'
+        );
+
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Db\Schema\DataTypeInterface',
 			$this->type,

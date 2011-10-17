@@ -16,7 +16,7 @@ namespace Appfuel\Framework\Db\Schema;
  * removing version and sql differences. This interface is ment to used by
  * database vendor specific code because it does not generate sql itself.
  */
-interface ColumnInterface
+interface ColumnInterface extends SchemaObjectInterface
 {
 	/**
 	 * Name of the column
@@ -31,12 +31,12 @@ interface ColumnInterface
 	/**
 	 * @return	bool
 	 */
-	public function isNullEnabled();
+	public function isNullable();
 
 	/**
 	 * @return	bool
 	 */
-	public function isDefaultEnabled();
+	public function isDefault();
 
 	/**
 	 * @return	mixed

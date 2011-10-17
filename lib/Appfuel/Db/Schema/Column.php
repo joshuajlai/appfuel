@@ -11,7 +11,7 @@
 namespace Appfuel\Db\Schema;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Scheme\ColumnInterface,
+	Appfuel\Framework\Db\Schema\ColumnInterface,
 	Appfuel\Framework\Db\Schema\DataTypeInterface,
 	Appfuel\Framework\DataStructure\Dictionary,
 	Appfuel\Framework\DataStructure\DictionaryInterface;
@@ -59,18 +59,21 @@ class Column extends SchemaObject implements ColumnInterface
 	 */
 	public function __construct($details)
 	{
+		/*
+		 * inherit from schema object which will setup the dictionary for
+		 * attribute list
+		 */
 		parent::__construct($details);
-		
-		$attrList = $this->getAttibuteList();
-		$name = $attrList->get('name');
+		$attrList = $this->getAttributeList();
 
 		$err = "Failed to instatiate:";
+		$name = $attrList->get('column-name');
 		if (empty($name) || ! is_string($name)) {
 			throw new Exception("$err column name must be a non empty string");
 		}
 		$this->name = $name;
 
-		$type = $this->getAttributeType('data-type');
+		$type = $attrList->get('data-type');
 		if (! ($type instanceof DataTypeInterface)) {
 			$err .= " Data Type not found for key 'data-type' or does not";
 			$err .= " implment Appfuel\Framework\Db\Schema\DataTypeInterface";
@@ -106,8 +109,27 @@ class Column extends SchemaObject implements ColumnInterface
 		return $this->dataType;
 	}
 
+	/**
+	 * @return	bool
+	 */
 	public function isNullable()
 	{
 		return $this->isNullable;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isDefault()
+	{
+		return $this->isDefault;
+	}
+
+	/**
+	 * @return	mixed
+	 */
+	public function getDefaultValue()
+	{
+		return $this->defaultValue;
 	}
 }
