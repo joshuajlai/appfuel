@@ -8,81 +8,83 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Db\Schema\Table;
+namespace Appfuel\Db\Schema;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Schema\Table\ColumnInterface,
-	Appfuel\Framework\Db\Schema\Table\DataTypeInterface,
-	Appfuel\Framework\Db\Schema\Table\DataTypeEngineInterface;
+	Appfuel\Framework\Db\Scheme\ColumnInterface,
+	Appfuel\Framework\Db\Schema\DataTypeInterface,
+	Appfuel\Framework\DataStructure\Dictionary,
+	Appfuel\Framework\DataStructure\DictionaryInterface;
 
 /**
- * 
+ * Vendor agnostic object that decribes a table column. The column is designed
+ * to be as dumb as possible, holding only critical info. This means the column
+ * does not even know if it is a key of an index, that job is delagated to the
+ * table.
  */
-class Column implements ColumnInterface
+class Column extends SchemaObject implements ColumnInterface
 {
 	/**
-	 * The type engine is reposible for creating the datatype which are
-	 * specific to the vendor so the column does not need to care
-	 * @var	TypeEngineInterface
-	 */
-	protected $typeEngine = null;
-
-	/**
-	 * Name of the column
-	 * @var string 
+	 * @var string
 	 */
 	protected $name = null;
 
-
 	/**
-	 * Name of the data type used for this column
-	 * @var string
+	 * @var DataTypeInterface
 	 */
 	protected $dataType = null;
-	
+
 	/**
 	 * Flag used to determine if nulls are allowed
 	 * @var bool
 	 */
-	protected $isNull = null;
+	protected $isNullable = false;
 
 	/**
-	 * Flag used to determine if default values are enabled
+	 * Flag used to determine if default value is enabled
 	 * @var bool
 	 */
-	protected $isDefaultValue = false;
+	protected $isDefault = false;
 
 	/**
-	 * Default value used if not value is given
+	 * Should only be used when isDefault is true
 	 * @var mixed
 	 */
 	protected $defaultValue = null;
 
 
 	/**
-	 * @param	string	$name		name of the column
-	 * @param	string	$dataType	name used to identify the datatype
-	 * @param	bool	$isNull		flag used to allow nulls
-	 * @param	bool	$isDefault	flag used to enable default values
-	 * @param	mixed	$value		default value used when its enabled
+	 * @param	array|DictionaryInterface	$details  list of column attrs
 	 * @return	Column
 	 */
-	public function __construct(DataTypeEngine $dataTypeEngine)
+	public function __construct($details)
 	{
-		$this->setName($name);
-		$this->setDataType($type);
+		parent::__construct($details);
 		
-		if (null !== $attributes) {
-			$this->setAttributes($attributes);
+		$attrList = $this->getAttibuteList();
+		$name = $attrList->get('name');
+
+		$err = "Failed to instatiate:";
+		if (empty($name) || ! is_string($name)) {
+			throw new Exception("$err column name must be a non empty string");
+		}
+		$this->name = $name;
+
+		$type = $this->getAttributeType('data-type');
+		if (! ($type instanceof DataTypeInterface)) {
+			$err .= " Data Type not found for key 'data-type' or does not";
+			$err .= " implment Appfuel\Framework\Db\Schema\DataTypeInterface";
+			throw new Exception($err);
+		}
+		$this->dataType = $type;
+	
+		if ($attrList->existsAs('is-nullable', 'bool-true')) {
+			$this->isNullable = true;
 		}
 
-		$this->setAttributes($attributes);
-		if (true === $isNull) {
-			$this->enableNullValues();
-		}
-
-		if (true === $isDefault) {
-			$this->setDefaultValue($value);
+		if ($attrList->existsAs('is-default', 'bool-true')) {
+			$this->isDefault    = true;
+			$this->defaultValue = $attrList->get('default-value', null);
 		}
 	}
 
@@ -104,82 +106,8 @@ class Column implements ColumnInterface
 		return $this->dataType;
 	}
 
-	/**
-	 * @return	bool
-	 */
-	public function isNullAllowed()
+	public function isNullable()
 	{
-		return $this->isNull;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isDefaultValue()
-	{
-		return $this->isDefaultValue;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function getDefaultValue()
-	{
-		return $this->defaultValue;
-	}
-
-	/**
-	 * @return	null
-	 */
-	protected function enableNullValues()
-	{
-		$this->isNull = true;
-	}
-
-	/**
-	 * @param	string	$name
-	 * @return	Column
-	 */
-	protected function setName($name)
-	{
-		if (empty($name) || ! is_string($name)) {
-			throw new Exception("Column name must be a non empty string");
-		}
-
-		$this->name = $name;
-		return $this;
-	}
-
-	/**
-	 * @param	DataTypeInterface
-	 * @return	Column
-	 */
-	protected function setDataType($dataType)
-	{
-		if (empty($dataType) || ! is_string($dataType)) {
-			throw new Exception("DataType name must be a non empty string");
-		}
-		$this->dataType = $dataType;
-		return $this;
-	}
-
-	/**
-	 * Because the constructor only calls this when isDefault is true we
-	 * must assign the default value and toggle the flag
-	 *
-	 * @param	mixed	$value
-	 * @return	null
-	 */
-	protected function setDefaultValue($value)
-	{
-		if (is_object($value) && ! is_callable(array($value, '__toString'))) {
-			throw new Exception('Objects must support  __toString');
-		}
-		else if (! is_scalar($value)) {
-			throw new Exception("must be scalar or supports __toString");
-		}
-
-		$this->isDefaultValue = true;
-		$this->defaultValue =(string) $value;
+		return $this->isNullable;
 	}
 }

@@ -106,6 +106,8 @@ class Dictionary implements DictionaryInterface
             case 'callable': $isType  = is_callable($item); break;
             case 'null'    : $isType  = is_null($item);     break;
 			case 'empty'   : $isType  = empty($item);		break;
+			case 'bool-true'  : $isType  = $item === true;	break;
+			case 'bool-false' : $isType  = $item === false;	break;
 			case 'non-empty-string': 
 				$isType = ! empty($item) && is_string($item); 
 				break;

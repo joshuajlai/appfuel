@@ -11,9 +11,7 @@
 namespace Appfuel\Db\Schema;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Schema\DataTypeInterface,
-	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Framework\DataStructure\DictionaryInterface;
+	Appfuel\Framework\Db\Schema\DataTypeInterface;
 
 /**
  * Vendor agnostic object that decribes a data type. There are two fixed 
@@ -23,7 +21,7 @@ use Appfuel\Framework\Exception,
  * 
  * everything else is obtained through getAttribute 
  */
-class DataType implements DataTypeInterface
+class DataType extends SchemaObject implements DataTypeInterface
 {
 	/**
 	 * Name of the datatype
@@ -37,42 +35,24 @@ class DataType implements DataTypeInterface
 	protected $typeModifier = null;
 
 	/**
-	 * Name of the column
-	 * @var string 
-	 */
-	protected $attrs = null;
-
-	/**
-	 * @return	Column
+	 * @param	mixed	array|DictionaryInterface	$details
+	 * @return	DataType
 	 */
 	public function __construct($details)
 	{
-		/*
-		 * Allow only associative arrays and dictionary interfaces
-		 */
-		if (is_array($details) && !(array_values($details) === $details)) {
-			$attrs = new Dictionary($details);
-		}
-		else if ($details instanceof DictionaryInterface) {
-			$attrs = $details;
-		}
-		else {
-			$err  = "parameter used in constructor must be an associative ";
-			$err .= " or an object that implements Appfuel\Framework";
-			$err .= "\DataSource\DictionaryInterface";
-			throw new Exception($err);
-		}
-		
-		$name = $attrs->get('type-name', null);
+		parent::__construct($details);
+
+		$attrList = $this->getAttributeList();
+	
+		$name = $attrList->get('type-name', null);
 		if (empty($name) || ! is_string($name)) {
 			throw new Exception("type-name must be a non empty string");
 		}
 		$this->name = $name;
-		$modifier = $attrs->get('type-modifier', null);
+		$modifier = $attrList->get('type-modifier', null);
 		if (! empty($modifier)) {
 			$this->typeModifier = $modifier;
 		}
-		$this->attrs = $attrs;
 	}
 
 	/**
@@ -99,34 +79,5 @@ class DataType implements DataTypeInterface
 	public function isTypeModifier()
 	{
 		return ! empty($this->typeModifier);
-	}
-
-	/**
-	 * @param	string	$name of the attribute
-	 * @return	bool
-	 */
-	public function isAttribute($name) 
-	{
-		return $this->getAttributeList()
-					->exists($name);
-	}
-
-	/**
-	 * @param	string	$name		name of the attribute
-	 * @param	mixed	$default	returned when attr not found
-	 * @return	mixed
-	 */
-	public function getAttribute($name, $default = null)
-	{
-		return $this->getAttributeList()
-					->get($name, $default);
-	}
-
-	/**
-	 * @return	DictionaryInterface
-	 */
-	protected function getAttributeList()
-	{
-		return $this->attrs;
 	}
 }

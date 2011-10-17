@@ -16,28 +16,30 @@ namespace Appfuel\Framework\Db\Schema;
  * removing version and sql differences. This interface is ment to used by
  * database vendor specific code because it does not generate sql itself.
  */
-interface DataTypeInterface extends SchemaObjectInterface
+interface ColumnInterface
 {
 	/**
-	 * Name of the datatype 
+	 * Name of the column
 	 */
 	public function getName();
 
 	/**
-	 * The type modified is an appfuel convention used to decribe an attribute
-	 * that can have different meaning across datatypes and databases. 
-	 * Basically it is whatever follows the attribute name in parentheses.
-	 * Examples		ENUM('a', 'b', 'c')  type modifer is 'a', 'b', 'c'
-	 *				INT(6)				 type modified is 6
-	 *				VARCHAR(128)		 type modified is 128
-	 *				INT					 no type modifier
-	 *
-	 * @return	mixed  array|string|null when not set
+	 * @return	DataTypeInterface 
 	 */
-	public function getTypeModifier();
+	public function getDataType();
 
 	/**
 	 * @return	bool
 	 */
-	public function isTypeModifier();
+	public function isNullEnabled();
+
+	/**
+	 * @return	bool
+	 */
+	public function isDefaultEnabled();
+
+	/**
+	 * @return	mixed
+	 */
+	public function getDefaultValue();
 }
