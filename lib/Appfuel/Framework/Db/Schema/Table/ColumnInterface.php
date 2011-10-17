@@ -10,27 +10,11 @@
  */
 namespace Appfuel\Framework\Db\Schema\Table;
 
-use Appfuel\Framework\Db\Sql\SqlStringInterface,
-	Appfuel\Framework\Db\Schema\Table\Constraint\ConstraintInterface;
-
 /**
- * Functionality used by all constraints.
+ * Functionality used by columns
  */
-interface ColumnInterface extends SqlStringInterface
+interface ColumnInterface
 {
-	/**
-	 * Enforce immutable members for name and data type
-	 * public function setDataType(DataTypeInterface $dataType);
-	 *
-	 * @param	string	$name	name of the column
-	 * @param	DataTypeInterface $dataType		
-	 * @return	ColumnInterface
-	 */
-	public function __construct($name, 
-								DataTypeInterface $dataType,
-								ConstraintInterface $notNull = null,
-                                ConstraintInterface $default = null);
-
 	/**
 	 * @return	string
 	 */
@@ -50,6 +34,10 @@ interface ColumnInterface extends SqlStringInterface
 	 * @return	bool
 	 */
 	public function isDefaultValue();
-	
+
+	/**
+	 * @return	scalar
+	 */
+	public function getDefaultValue();	
 
 }
