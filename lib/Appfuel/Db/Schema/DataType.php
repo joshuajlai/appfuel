@@ -68,7 +68,10 @@ class DataType implements DataTypeInterface
 			throw new Exception("type-name must be a non empty string");
 		}
 		$this->name = $name;
-		$this->typeModifier = $attrs->get('type-modifier', null);
+		$modifier = $attrs->get('type-modifier', null);
+		if (! empty($modifier)) {
+			$this->typeModifier = $modifier;
+		}
 		$this->attrs = $attrs;
 	}
 
