@@ -12,12 +12,12 @@ namespace Appfuel\Db\Schema;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Framework\Db\Schema\StringParserInterface;
+	Appfuel\Framework\Db\Schema\ColumnParserInterface;
 
 /**
  * Parser a string that represents a column into a dictionary
  */
-class StringParser implements StringParserInterface
+class ColumnParser implements ColumnParserInterface
 {
 	/**
 	 * Error text detailing what when wrong
@@ -72,10 +72,14 @@ class StringParser implements StringParserInterface
 	}
 
 	/**
+	 * Extract the column name from the string. With an identifier it will
+	 * ignore spaces and grab including the identifier. With no identifier
+	 * it grabs up to the first whitespace (tab or space but no newline)
+	 *
 	 * @param	string	$str
 	 * @return	string
 	 */
-	protected function extractColumnName($str)
+	public function extractColumnName($str)
 	{
 		$err = "parse error:";
 		$str = trim($str);
@@ -100,7 +104,7 @@ class StringParser implements StringParserInterface
 
 		return array(
 			'column-name'  => $column,
-			'input-string' => substr($str, strlen($column))
+			'input-string' => trim(substr($str, strlen($column)))
 		);
 	}
 
