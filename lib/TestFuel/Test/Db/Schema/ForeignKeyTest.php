@@ -16,6 +16,9 @@ use StdClass,
 	Appfuel\Framework\DataStructure\Dictionary;
 
 /**
+ * The foreign key holds the columns from the table it belongs to aswell as the
+ * reference table and columns that bind them togather. Like the other objects
+ * this is an immutable so all setting is done via that constructor
  */
 class ForeignKeyTest extends BaseTestCase
 {
@@ -67,7 +70,20 @@ class ForeignKeyTest extends BaseTestCase
 	}
 
 	/**
-	 * @dends	testInterface
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testGetReferenceTableName()
+	{
+		$this->assertEquals(
+			$this->refTable, 
+			$this->key->getReferenceTableName()
+		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
 	 */
 	public function testIsGetColumnNames()
 	{
@@ -77,6 +93,23 @@ class ForeignKeyTest extends BaseTestCase
 			$this->assertTrue($this->key->isKey($col));
 		}
 		$this->assertFalse($this->key->isKey('not-likely-a-column__Name'));
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testIsGetReferenceColumnNames()
+	{
+		$this->assertEquals(
+			$this->refColumns, 
+			$this->key->getReferenceColumnNames()
+		);
+
+		foreach ($this->refColumns as $col) {
+			$this->assertTrue($this->key->isReferenceKey($col));
+		}
+		$this->assertFalse($this->key->isReferenceKey('not-a-columnName'));
 	}
 
 	/**
@@ -100,6 +133,34 @@ class ForeignKeyTest extends BaseTestCase
 	public function testEmptyArrayColumns()
 	{
 		$key = new ForeignKey(array(), 'tbl', 'ref-col');
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testEmptyStringTableName()
+	{
+		$key = new ForeignKey('col', '', 'ref-col');
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testEmptyStringReferenceColName()
+	{
+		$key = new ForeignKey('col', 'table', '');
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return	null
+	 */
+	public function testEmptyColumnInListReferenceColumn()
+	{
+		$list = array('colA', '', 'colb');
+		$key = new ForeignKey('col', 'tbl', $list);
 	}
 
 	/**

@@ -93,6 +93,9 @@ class ForeignKey implements ForeignKeyInterface
 		return $this->refTable;
 	}
 
+	/**
+	 * @return	array
+	 */
 	public function getReferenceColumnNames()
 	{
 		return $this->refColumns;
@@ -161,5 +164,4 @@ class ForeignKey implements ForeignKeyInterface
 
 		return $columns;
 	}
-
 }
