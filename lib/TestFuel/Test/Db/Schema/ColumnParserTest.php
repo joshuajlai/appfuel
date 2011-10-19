@@ -141,6 +141,100 @@ class ColumnParserTest extends BaseTestCase
 	}
 
 	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testExtractColumnNameEmptyString()
+	{
+		$this->assertFalse($this->parser->extractColumnName(''));
+		$expected = "parse error: input must be a non empty string";
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+
+		$expected = "parse error: input string can not be all whitespaces";
+		$this->assertFalse($this->parser->extractColumnName(' '));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+
+		$this->assertFalse($this->parser->extractColumnName("\t"));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+
+		$this->assertFalse($this->parser->extractColumnName("\t\t\t"));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+
+		$this->assertFalse($this->parser->extractColumnName(" \t \t \t "));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+
+		/* parser does not validate vendor specific rules it only pulls 
+		 * out the column name right or wrong. Column validation is the
+		 * reponsibility of another object.
+		 */
+		$this->parser->clearError();
+		$result = $this->parser->extractColumnName('" "');
+		$expected = array(
+			'column-name'  => '" "',
+			'input-string' => ''
+		);
+		$this->assertEquals($expected, $result);
+		$this->assertFalse($this->parser->isError());
+	
+		$expected['column-name'] = "' '";	
+		$result = $this->parser->extractColumnName("' '");
+		$this->assertEquals($expected, $result);
+		$this->assertFalse($this->parser->isError());
+		
+		$expected['column-name'] = "` `";	
+		$result = $this->parser->extractColumnName("` `");
+		$this->assertEquals($expected, $result);
+		$this->assertFalse($this->parser->isError());
+
+		/* when column length is 2 we know its an empty column name which
+		 * is not allowed in any db vendor
+		 */
+		$this->parser->clearError();
+		$expected = 'parse error: column name can not be empty';	
+		$this->assertFalse($this->parser->extractColumnName('""'));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+
+		$this->assertFalse($this->parser->extractColumnName("''"));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+
+		$this->assertFalse($this->parser->extractColumnName("``"));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testExtractColumnNameIncompleteIdentifier()
+	{
+		$col = '"col integer not null';
+		$expected = 'parse error: no end identifier for -(")';
+		$this->assertFalse($this->parser->extractColumnName($col));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+
+		$col = "'col integer not null";
+		$expected = "parse error: no end identifier for -(')";
+		$this->assertFalse($this->parser->extractColumnName($col));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+
+		$col = "`col integer not null";
+		$expected = "parse error: no end identifier for -(`)";
+		$this->assertFalse($this->parser->extractColumnName($col));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($expected, $this->parser->getError());
+	}
+
+	/**
 	 * 
 	 * @depends	testInterface
 	 * @return	null

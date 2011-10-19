@@ -42,6 +42,62 @@ class ColumnParser implements ColumnParserInterface
 	}
 
 	/**
+	 * @return	ColumnParser
+	 */
+	public function clearError()
+	{
+		$this->error = null;
+		return $this;
+	}
+
+	/**
+	 * Extract the column name from the string. With an identifier it will
+	 * ignore spaces and grab including the identifier. With no identifier
+	 * it grabs up to the first whitespace (tab or space but no newline)
+	 *
+	 * @param	string	$str
+	 * @return	string
+	 */
+	public function extractColumnName($str)
+	{
+		$err = "parse error:";
+		if (empty($str) || ! is_string($str)) {
+			$this->setError("$err input must be a non empty string");
+			return false;
+		}
+	
+		/* catch padded empty strings */
+		$str = trim($str);
+		if (empty($str)) {
+			$this->setError("$err input string can not be all whitespaces");
+			return false;
+		}
+
+		$first = $str{0};
+		if (in_array($first, array("'", '"', '`'))) {
+			$last = strpos($str, $first, 1);
+			if (false === $last) {
+				$this->setError("$err no end identifier for -($first)");
+				return false;
+			}
+			$column = substr($str, 0, $last+1);
+			if (strlen($column) <= 2) {
+				$this->setError("$err column name can not be empty");
+				return false;
+			}
+		}
+		else {
+			$column = strtok($str, " \t");
+		}
+	
+		return array(
+			'column-name'  => $column,
+			'input-string' => trim(substr($str, strlen($column)))
+		);
+	}
+
+
+	/**
 	 * @param	string	$str
 	 * @return	Dictionary
 	 */
@@ -69,43 +125,6 @@ class ColumnParser implements ColumnParserInterface
 		$results = $this->extractDefault($str);
 		echo "\n", print_r($results,1), "\n";exit;
 		return new Dictionary();
-	}
-
-	/**
-	 * Extract the column name from the string. With an identifier it will
-	 * ignore spaces and grab including the identifier. With no identifier
-	 * it grabs up to the first whitespace (tab or space but no newline)
-	 *
-	 * @param	string	$str
-	 * @return	string
-	 */
-	public function extractColumnName($str)
-	{
-		$err = "parse error:";
-		$str = trim($str);
-		$identifiers = array("'", '"', "`");
-		$first = $str{0};
-		if (in_array($first, array("'", '"', '`'))) {
-			$last = strpos($str, $first, 1);
-			if (false === $last) {
-				$this->setError("$err no end identifier for -($first)");
-				return false;
-			}
-			$column = substr($str, 0, $last+1);
-		}
-		else {
-			$column = strtok($str, " \t");
-		}
-		
-		if (empty($column)) {
-			$this->setError("$err column name can not be empty");
-			return false;
-		}
-
-		return array(
-			'column-name'  => $column,
-			'input-string' => trim(substr($str, strlen($column)))
-		);
 	}
 
 	/**

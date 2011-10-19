@@ -29,6 +29,11 @@ interface ColumnParserInterface
 	public function getError();
 
 	/**
+	 * @return	ColumnParserInterface
+	 */	
+	public function clearError();
+
+	/**
 	 * Extract the column name while taking into consideration database 
 	 * identifiers. Returns an array with keys 'column-name' and 
 	 * 'input-string'. The column name is to be removed from the input string
