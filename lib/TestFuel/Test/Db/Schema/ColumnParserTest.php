@@ -134,7 +134,6 @@ class ColumnParserTest extends BaseTestCase
         );
     }
 
-
 	/**
 	 * @return null
 	 */
@@ -310,36 +309,64 @@ class ColumnParserTest extends BaseTestCase
 		);
 		$this->assertEquals($expected, $result);
 	}
-	/**
-	 * 
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function xtestParserColumn_EmptyString()
+
+	public function testExtractDataTypeEmptyString()
 	{
-		$this->assertFalse($this->parser->parseColumn(''));
+		$error = 'parse error: input must be a non empty string';
+		$this->assertFalse($this->parser->extractDataType(''));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($error, $this->parser->getError());
+		
+		$this->assertFalse($this->parser->extractDataType(" \t"));
 		$this->assertTrue($this->parser->isError());
 		$this->assertEquals(
-			'parse error: column definition string can not be empty',
+			'parse error: input string can not be all whitespaces', 
 			$this->parser->getError()
 		);
+
+		/* error occurs when input is not a string */
+		$this->assertFalse($this->parser->extractDataType(12345));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($error, $this->parser->getError());
+	
+		$this->assertFalse($this->parser->extractDataType(array(1,2,3)));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($error, $this->parser->getError());
+
+		$this->assertFalse($this->parser->extractDataType(new StdClass()));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($error, $this->parser->getError());
 	}
 
 	/**
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function xtestParseColumn_NoColumnNoType()
+	public function testExtractDataTypeMalformedParentheses()
 	{
-		$column = 'column_name ';
-		$expectedError  = 'parse error: column definition ';
-		$expectedError .= 'must have at least name and data type';
+		$error  = 'parse error: malformed parenthese pair start detected at ';
+		$error .= '-(7) close detected at -(28)';
 
-		$this->assertFalse($this->parser->parseColumn($column));
+		$str = 'integer(8 not null default 9)';
+		$this->assertFalse($this->parser->extractDataType($str));
 		$this->assertTrue($this->parser->isError());
-		$this->assertEquals(
-			$expectedError,
-			$this->parser->getError()
-		);
+		$this->assertEquals($error, $this->parser->getError());
+
+		$str = 'integer(8 not null default 9';
+		$error  = 'parse error: malformed parenthese pair start detected at ';
+		$error .= '-(7) close detected at -()';
+		$this->parser->clearError();
+		$this->assertFalse($this->parser->extractDataType($str));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($error, $this->parser->getError());
+
+		$str = 'integer8) not null default(9)';
+		$error  = 'parse error: malformed parenthese pair start detected at ';
+		$error .= '-(26) close detected at -(8)';
+		$this->parser->clearError();
+		$this->assertFalse($this->parser->extractDataType($str));
+		$this->assertTrue($this->parser->isError());
+		$this->assertEquals($error, $this->parser->getError());
+
 	}
 }

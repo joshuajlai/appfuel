@@ -111,16 +111,19 @@ class ColumnParser implements ColumnParserInterface
 	{
 		$err = "parse error:";
 		$str = $this->filterInputString($str);
+		if (false === $str) {
+			return false;
+		}
 	
-		/* check for the first open parenthese */
-		$start   = strpos($str, '(');
-		$default = stripos($str, 'default');
-
-		/* the second part of the if exists to catch the case where there are no
-		 * parenthese but the open parenthese was found for the default 
-		 * constraint
+		/* 
+		 * Both start and end of the parenthese are found and they do 
+		 * not belong to the parentheses of the default keyword
 		 */
-		if (false !== $start && (false === $default || $start < $default)) {
+		$start = strpos($str, '(');
+		$end   = strpos($str, ')');
+		$default = stripos($str, 'default');
+		if ((false !== $start && false !== $end) &&
+			(false === $default || ($start < $default && $end < $default))) {
 			$max = strlen($str);
 			$end = null;
 			for ($i=$start; $i < $max; $i++) {
@@ -138,20 +141,29 @@ class ColumnParser implements ColumnParserInterface
 			}
 			$dataType = substr($str, 0, $start);
 			$modifier = substr($str, $start+1, $end - $start-1);
-			
 			$end++;
 		}
-		else {
+		/* either no parenthese exist at all or they belong to the default
+		 * keyword
+		 */
+		else if ((false === $start && false === $end) || 
+				 (false !== $default && 
+				  ($start > $default && $end > $default))) {
 			$dataType = strtok($str, " \t");
 			$modifier = null;
 			$end = strlen($dataType) + 1;
 		}
+		else {
+			$err .= " malformed parenthese pair start detected at -($start) ";
+			$err .= "close detected at -($end)";
+			$this->setError($err);
+			return false;
+		}
 
-		$str = trim(substr($str, $end));
 		return array(
 			'data-type'		=> trim($dataType),
 			'modifier'		=> $modifier,
-			'input-string'	=> $str
+			'input-string'	=> trim(substr($str, $end))
 		);
 	}
 	
@@ -167,7 +179,7 @@ class ColumnParser implements ColumnParserInterface
 			return false;
 		}
 	
-		/* catch padded empty strings */
+		/* whitespaces are considered empty */
 		$str = trim($str);
 		if (empty($str)) {
 			$this->setError("$err input string can not be all whitespaces");
