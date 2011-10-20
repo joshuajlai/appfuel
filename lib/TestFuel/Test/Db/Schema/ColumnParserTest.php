@@ -93,6 +93,47 @@ class ColumnParserTest extends BaseTestCase
 		);
 	}
 
+    /**
+     * @return  array
+     */
+    public function provideDataTypeValueNoParenthese()
+    {
+        $name     = 'integer';
+        $newInput = 'not null default 9';
+        return array(
+            array('integer not null default 9', $name, $newInput),
+            array(' integer  not null default 9 ', $name, $newInput),
+            array("\tinteger  not null default 9", $name, $newInput),
+            array("\t integer  not null default 9", $name, $newInput),
+            array("\t integer\t  not null default 9", $name, $newInput),
+            array("\t integer \t  not null default 9", $name, $newInput),
+            array("\t\t\tinteger\t\t   not null default 9", $name, $newInput),
+        );
+    }
+
+    /**
+     * @return  array
+     */
+    public function provideDataTypeValueParentheses()
+    {
+        $name     = 'integer';
+		$mod      = 4;
+        $newInput = 'default 9';
+        return array(
+            array('integer(4) default 9',			 $name, $mod, $newInput),
+            array(' integer(4)  default 9 ',		 $name, $mod, $newInput),
+            array("\tinteger(4) default 9",			 $name, $mod, $newInput),
+            array("\t integer(4) default 9",		 $name, $mod, $newInput),
+            array("\t integer\t(4) default 9",		 $name, $mod, $newInput),
+            array("\t integer \t(4) default 9",		 $name, $mod, $newInput),
+            array("\t\t\tinteger\t\t(4)\tdefault 9", $name, $mod, $newInput),
+            array('integer(4) default(9)',	$name, $mod, 'default(9)'),
+            array('integer(4) default (9)',	$name, $mod, 'default (9)'),
+            array("integer(4) \tdefault\t( 9 )", $name, $mod,"default\t( 9 )"),
+            array("integer(4) default(\t9\t)", $name, $mod,"default(\t9\t)"),
+        );
+    }
+
 
 	/**
 	 * @return null
@@ -234,6 +275,41 @@ class ColumnParserTest extends BaseTestCase
 		$this->assertEquals($expected, $this->parser->getError());
 	}
 
+	/**
+	 * 
+	 * @dataProvider	provideDataTypeValueNoParenthese
+	 * @depends			testInterface
+	 * @return			null
+	 */
+	public function testExtractDataTypeNoParenthese($str, $type, $newInput)
+	{
+		$this->parser->clearError();
+		$result = $this->parser->extractDataType($str);
+		$expected = array(
+			'data-type'		=> $type,
+			'modifier'		=> null,
+			'input-string'  => $newInput,
+		);
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * 
+	 * @dataProvider	provideDataTypeValueParentheses
+	 * @depends			testInterface
+	 * @return			null
+	 */
+	public function testExtractDataTypeParentheses($str,$type,$mod,$newInput)
+	{
+		$this->parser->clearError();
+		$result = $this->parser->extractDataType($str);
+		$expected = array(
+			'data-type'		=> $type,
+			'modifier'		=> $mod,
+			'input-string'  => $newInput,
+		);
+		$this->assertEquals($expected, $result);
+	}
 	/**
 	 * 
 	 * @depends	testInterface

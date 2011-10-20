@@ -53,23 +53,21 @@ class ColumnParser implements ColumnParserInterface
 	/**
 	 * Extract the column name from the string. With an identifier it will
 	 * ignore spaces and grab including the identifier. With no identifier
-	 * it grabs up to the first whitespace (tab or space but no newline)
+	 * it grabs up to the first whitespace (tab or space but no newline). 
+	 * Returns false and error and an array with the following structure:
+	 * array (
+	 *	'column-name'  => <string-value>,
+	 *  'input-string' => <string-value>
+	 * )
 	 *
 	 * @param	string	$str
-	 * @return	string
+	 * @return	array | false on failure
 	 */
 	public function extractColumnName($str)
 	{
 		$err = "parse error:";
-		if (empty($str) || ! is_string($str)) {
-			$this->setError("$err input must be a non empty string");
-			return false;
-		}
-	
-		/* catch padded empty strings */
-		$str = trim($str);
-		if (empty($str)) {
-			$this->setError("$err input string can not be all whitespaces");
+		$str = $this->filterInputString($str);
+		if (false === $str) {
 			return false;
 		}
 
@@ -96,48 +94,33 @@ class ColumnParser implements ColumnParserInterface
 		);
 	}
 
-
 	/**
-	 * @param	string	$str
-	 * @return	Dictionary
-	 */
-	public function parseColumn($str)
-	{
-		$result = $this->extractColumnName($str);	
-		if (false === $result) {
-			return false;
-		}
-
-		$columnName = $result['column-name'];
-		$result		= $this->extractDataType($result['input-string']);
-		if (false === $result) {
-			return false;
-		}
-		$dataType   = $result['data-type'];
-		$modifier   = $result['modifier'];
-		$str        = $result['input-string'];
-		$isNullable = false;
-		$found = stripos($str, 'not null');
-		if (false !== $found) {
-			$isNullable = true;
-			$str = trim(str_ireplace('not null', '', $str));
-		}
-		$results = $this->extractDefault($str);
-		echo "\n", print_r($results,1), "\n";exit;
-		return new Dictionary();
-	}
-
-	/**
+	 * This assumes the column name has already been extracted, making the
+	 * the datatype the first paramater. This method does not attempt to pull 
+	 * all the data type attributes out of the string because those can be 
+	 * largely vendor specific. Instead it extracts the data type name 
+	 * what I call a type modifier. This expects the column name has
+	 * been extracted so the datatype is the next token. Type modifier is
+	 * any thing in parentheses and can be interpreted by vendor specific code
+	 * sql validator and generators. 
+	 *
 	 * @param	string
 	 * @return	array
 	 */
-	protected function extractDataType($str)
+	public function extractDataType($str)
 	{
 		$err = "parse error:";
-		$str = trim($str);
-		$start = strpos($str, '(');
-			
-		if (false !== $start) {
+		$str = $this->filterInputString($str);
+	
+		/* check for the first open parenthese */
+		$start   = strpos($str, '(');
+		$default = stripos($str, 'default');
+
+		/* the second part of the if exists to catch the case where there are no
+		 * parenthese but the open parenthese was found for the default 
+		 * constraint
+		 */
+		if (false !== $start && (false === $default || $start < $default)) {
 			$max = strlen($str);
 			$end = null;
 			for ($i=$start; $i < $max; $i++) {
@@ -166,11 +149,33 @@ class ColumnParser implements ColumnParserInterface
 
 		$str = trim(substr($str, $end));
 		return array(
-			'data-type'		=> $dataType,
+			'data-type'		=> trim($dataType),
 			'modifier'		=> $modifier,
 			'input-string'	=> $str
 		);
 	}
+	
+	/**
+	 * @param	string
+	 * @return	string	| false on error
+	 */
+	protected function filterInputString($str)
+	{
+		$err = "parse error:";
+		if (empty($str) || ! is_string($str)) {
+			$this->setError("$err input must be a non empty string");
+			return false;
+		}
+	
+		/* catch padded empty strings */
+		$str = trim($str);
+		if (empty($str)) {
+			$this->setError("$err input string can not be all whitespaces");
+			return false;
+		}
+		return $str;
+	}
+
 
 	public function extractDefault($str)
 	{

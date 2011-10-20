@@ -48,5 +48,5 @@ interface ColumnParserInterface
 	 * @param	string	$str	column definition
 	 * @return	Appfuel\Framework\DataStructure\DictionaryInterface
 	 */
-	public function parseColumn($str);
+	//public function parseColumn($str);
 }
