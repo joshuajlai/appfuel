@@ -163,15 +163,16 @@ class AmqpProfile implements AmqpProfileInterface
     protected function setExchange(array $data)
     {
         if (isset($data['exchange']) && is_string($data['exchange'])) {
-            $this->bind['exchange']     = $data['exchange'];
-            $this->exchange['exchange'] = $data['exchange'];
+			$exchange = trim($data['exchange']);
+			$this->bind['exchange']     = $exchange;
+            $this->exchange['exchange'] = $exchange;
         }
 
         $validTypes = array('direct', 'fanout', 'topic', 'header');
         if (isset($data['type']) &&
             is_string($data['type']) &&
-            in_array($data['type'], $validTypes)) {
-            $this->exchange['type'] = $data['type'];
+            in_array(strtolower($data['type']), $validTypes)) {
+            $this->exchange['type'] = strtolower($data['type']);
         }
 
         if (isset($data['passive']) && true === $data['passive']) {
@@ -211,7 +212,7 @@ class AmqpProfile implements AmqpProfileInterface
     protected function setQueueBind(array $data)
     {
         if (isset($data['route-key']) && is_string($data['route-key'])) {
-            $this->bind['route-key'] = $data['route-key'];
+            $this->bind['route-key'] = trim($data['route-key']);
         }
 
         if (isset($data['no-wait']) && true === $data['no-wait']) {

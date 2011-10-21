@@ -134,6 +134,41 @@ class ColumnParserTest extends BaseTestCase
         );
     }
 
+    /**
+	 * Used to test extractKeywordConstraints.
+     * @return  array
+     */
+    public function provideFlagKeywords()
+    {
+        $newInput = 'int';
+        return array(
+            array('int not null primary key', true, true, $newInput),
+            array(' int  not null  primary key ', true, true, $newInput),
+            array(" \tint\tnot null\tprimary key\t", true, true, $newInput),
+            array('int primary key not null', true, true, $newInput),
+            array('int PRIMARY KEY NOT NULL', true, true, $newInput),
+            array('int Primary Key Not Null', true, true, $newInput),
+            array('int not null', true, false, $newInput),
+            array('int primary key', false, true, $newInput),
+            array('int', false, false, $newInput),
+            array('', false, false, ''),
+            array(" ", false, false, ''),
+            array("\t", false, false, ''),
+            array("\t \t \n", false, false, ''),
+            array(array(1,2,3), false, false, ''),
+            array(12345, false, false, ''),
+            array(12.345, false, false, ''),
+            array(new StdClass(), false, false, ''),
+            array('primary key', false, true, ''),
+            array("\tprimary key\t", false, true, ''),
+            array('not null', true, false, ''),
+            array("\tnot null\t", true, false, ''),
+            array("some random string", false, false, 'some random string'),
+            array("\tsome random string ", false, false, 'some random string'),
+        );
+    }
+
+
 	/**
 	 * @return null
 	 */
@@ -368,5 +403,22 @@ class ColumnParserTest extends BaseTestCase
 		$this->assertTrue($this->parser->isError());
 		$this->assertEquals($error, $this->parser->getError());
 
+	}
+
+	/**
+	 * @dataProvider	provideFlagKeywords
+	 * @depends			testInterface
+	 * @return			null
+	 */
+	public function testExtractKeywordContraints($str, $notNull, $primary, $new)
+	{
+		$expected = array(
+			'is-not-null'	 => $notNull,
+			'is-primary-key' => $primary,
+			'input-string'	 => $new
+		);
+		$result = $this->parser->extractKeywordConstraints($str);
+		$this->assertFalse($this->parser->isError());
+		$this->assertEquals($expected, $result);
 	}
 }

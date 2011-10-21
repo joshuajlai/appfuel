@@ -166,32 +166,68 @@ class ColumnParser implements ColumnParserInterface
 			'input-string'	=> trim(substr($str, $end))
 		);
 	}
-	
+
 	/**
-	 * @param	string
-	 * @return	string	| false on error
+	 * Search for case insentive strings 'not null' and 'primary key', mark
+	 * them as found and remove them from the input string then return a 
+	 * array of results. This should be run after extractDataType and 
+	 * extractDefault to avoid incorrectly extracting a default value 
+	 * that is the same as the keyword.
+	 *
+	 * @param	string	$str
+	 * @param	array	
 	 */
-	protected function filterInputString($str)
+	public function extractKeywordConstraints($str)
 	{
-		$err = "parse error:";
 		if (empty($str) || ! is_string($str)) {
-			$this->setError("$err input must be a non empty string");
-			return false;
+			return array(
+				'is-not-null'		=> false,
+				'is-primary-key'	=> false,
+				'input-string'		=> ''
+			);
 		}
-	
-		/* whitespaces are considered empty */
-		$str = trim($str);
-		if (empty($str)) {
-			$this->setError("$err input string can not be all whitespaces");
-			return false;
+
+		$pos = stripos($str, 'not null');
+		
+		$isNotNull = false;
+		if (false !== $pos) {
+			$isNotNull = true;
+			$str = str_ireplace('not null', '', $str);
 		}
-		return $str;
+
+		$pos = stripos($str, 'primary key');
+		$isPrimary = false;
+		if (false !== $pos) {
+			$isPrimary = true;
+			$str = str_ireplace('primary key', '', $str);
+		}
+
+		return array(
+			'is-not-null'    => $isNotNull,
+			'is-primary-key' => $isPrimary,
+			'input-string'	 => trim($str)
+		);
 	}
 
-
+	/**
+	 * Extract the default keyword and specified value from the column 
+	 * definition and return an array with flag that indicates if the default
+	 * keyword was found, the value given with it and the modified input string
+	 * 
+	 * @param	string	$str
+	 * @return	array
+	 */
 	public function extractDefault($str)
 	{
-		$str   = trim($str);
+		if (empty($str) || ! is_string($str)) {
+			return array(
+				'is-default'	=> false,
+				'default-value'	=> null,
+				'input-string'	=> ''
+			);
+		}
+
+		$str = trim($str);
 		$found = stripos($str, 'default');
 		if (false !== $found) {
 			$end = strlen($str);
@@ -257,6 +293,27 @@ class ColumnParser implements ColumnParserInterface
 		}
 		
 		echo "\n", print_r($token,1), "\n";exit;
+	}
+	
+	/**
+	 * @param	string
+	 * @return	string	| false on error
+	 */
+	protected function filterInputString($str)
+	{
+		$err = "parse error:";
+		if (empty($str) || ! is_string($str)) {
+			$this->setError("$err input must be a non empty string");
+			return false;
+		}
+	
+		/* whitespaces are considered empty */
+		$str = trim($str);
+		if (empty($str)) {
+			$this->setError("$err input string can not be all whitespaces");
+			return false;
+		}
+		return $str;
 	}
 
 	/**

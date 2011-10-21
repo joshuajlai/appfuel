@@ -2,10 +2,8 @@
 
 <phpunit backupGlobals="false" bootstrap="bootstrap.php" colors="true">
 <testsuites>
-	<testsuite name="local tests">
-		<file>../lib/TestFuel/Test/App/Context/ContextUriTest.php</file>
+	<testsuite name="Appfuel">
+		<directory suffix="Test.php">../lib/TestFuel/Test/MsgBroker</directory>
 	</testsuite>
-
-
 </testsuites>
 </phpunit>
