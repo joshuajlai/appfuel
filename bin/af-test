@@ -10,104 +10,37 @@
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
 
-$param = $_SERVER['argv'][1];
-$pattern = '/[ \t]+/';
-$keywords = preg_split($pattern, $param);
-if (isset($keywords[0]) && empty($keywords[0])) {
-	array_shift($keywords);
+use Appfuel\App\AppManager;
+
+/* we kmow we are in the bin directory and one level up is the base path */
+$base = realpath(dirname(__FILE__) . '/..');
+
+$file = "$base/lib/Appfuel/App/AppManager.php";
+if (! file_exists($file)) {
+    $err = "Could not locate Manager file at ($file)\n";
+    fwrite(STDERR, $err);
+    exit;
 }
+require_once $file;
 
-$size = count($keywords);
-if ($size < 2) {
-	throw new Exception("column definition must have at least col and type");
+//define("AMQP_DEBUG", true);
+$manager = new AppManager($base, 'app-console');
+$manager->initialize();
+
+$depend = new \Appfuel\MsgBroker\Amqp\Dependency();
+$depend->load();
+
+$conn = new AMQPConnection('localhost', 5672, 'unit_tester', 'w3bG33k3r', 'unit_test');
+$channel = $conn->channel();
+
+//$channel->exchange_delete('my-exchange');
+$channel->queue_delete('my-test-queue');
+
+
+function shutdown($channel, $conn){
+    $channel->close();
+    $conn->close();
 }
+register_shutdown_function('shutdown', $channel, $conn);
 
-$columnName = array_shift($keywords);
-$dataType   = array_shift($keywords);
-
-$parts = array();
-if (false !== strpos($dataType, '(')) {
-	foreach ($keywords as $index =>&$word) {
-		if (false !== strpos($word, ')')) {
-			$parts[] = array_shift($keywords);
-			break;
-		}
-		$parts[] = array_shift($keywords);
-	}
-	$dataType = $dataType . implode('', $parts);
-}
-
-$isPrimary = false;
-$isNotNull = false;
-$isDefault = false;
-$defaultValue = null;
-foreach ($keywords as $index =>&$word) {
-	$word = strtolower($word);
-	if ('not' === $word) {
-		$isNotNull = true;
-		array_splice($keywords, $index, 2);
-	}
-
-	if ('default' === $word) {
-		$isDefault = true;
-		$start = $index+1;
-		$stop  = null;
-		$value = $keywords[$start];
-		$last  = strlen($value) -1;
-
-		/* when the default value has spaces in it then we have to 
-		 * put back the parts that we split out. We do this by looking
-		 * determining if the first element is single or double qoute 
-		 * without its corresponding end, then we loop through each item
-		 * looking for the end single or double qoute, accounting for 
-		 * escaped strings
-		 */
-		$isSingle = "'" === $value{0} && $value{$last} !== "'";
-		$isDouble = '"' === $value{0} && $value{$last} !== '"';
-
-		if ($isSingle || $isDouble) {
-			$found = array();
-			$currentSize = count($keywords);
-			for($i=$start; $i < $currentSize; $i++) {
-				$target = $keywords[$i];
-				$len = strlen($target) -1;
-				if (("'" === $target{$len} && '\\' !== $target{$len-1}) ||
-					('"' === $target{$len} && '\\' !== $target{$len-1})) {
-					$stop = $i;
-					break;
-				}
-			}
-			if (null === $stop) {
-				throw new Exception("malformed default statement");
-			}
-			
-			/* start - 1 so we can remove the default keyword 
-			 * we also have to remove the default keyword from parts
-			 * because we are only interested in the value
-			 */
-			$parts = array_splice($keywords, $start - 1, $stop);
-			array_shift($parts);
-			$defaultValue = implode('', $parts);
-		} 
-		else {
-			$items = array_splice($keywords, $index, 2);
-			$defaultValue = $items[1];
-		}
-	}
-
-	if ('primary' === $word) {
-		$isPrimary = true;
-		array_splice($keywords, $index, 2);
-	}
-}
-
-$results = array(
-	'columnName'	=> $columnName,
-	'dataType'		=> $dataType,
-	'isPrimary'		=> $isPrimary,
-	'isNotNull'		=> $isNotNull,
-	'isDefault'		=> $isDefault,
-	'defaultValue'	=> $defaultValue,
-	'remaining'		=> $keywords
-);
-echo "\n", print_r($results,1), "\n";exit;
+echo "\n", print_r('ok',1), "\n";exit;

@@ -35,7 +35,7 @@ class AmqpChannel implements AmqpChannelInterface
 	 * @return	AmqpConnector
 	 */
 	public function __construct(AmqpChannelAdapter $adapter, 
-								AmqpProfileInterface, $profile)
+								AmqpProfileInterface $profile)
 	{
 		$this->profile = $profile;
 		$this->adapter = $adapter;
@@ -48,12 +48,87 @@ class AmqpChannel implements AmqpChannelInterface
 	{
 		return $this->profile;
 	}
-	
+
 	/**
 	 * @return	AmqpChannelAdapter
 	 */
-	protected function getAdapter()
+	public function getAdapter()
 	{
 		return $this->adapter;
+	}
+
+	/**
+	 * @return	
+	 */
+	public function close()
+	{
+		return $this->adapter->close();
+	}
+
+	/**
+	 * @return null
+	 */
+	public function initialize()
+	{
+		$this->declareExchange();
+		$this->declareQueue();
+		$this->bindQueue();	
+	}
+
+	/**
+	 * @reutrn	
+	 */
+	public function declareExchange()
+	{
+		return call_user_func_array(
+			array($this->adapter, 'exchange_declare'),
+			$this->getExchangeValues()
+		);
+	}
+
+	/**
+	 * @reutrn	
+	 */
+	public function declareQueue()
+	{
+		return call_user_func_array(
+			array($this->adapter, 'queue_declare'),
+			$this->getQueueValues()
+		);
+	}
+
+	/**
+	 * @reutrn	
+	 */
+	public function bindQueue()
+	{
+		return call_user_func_array(
+			array($this->adapter, 'queue_bind'),
+			$this->getBindValues()
+		);
+	}
+
+	/**
+	 * @return	array
+	 */	
+	public function getExchangeValues()
+	{
+		return array_values($this->profile->getExchangeData());
+	}
+
+	/**
+	 * @return	array
+	 */	
+	public function getQueueValues()
+	{
+		return array_values($this->profile->getQueueData());
+	}
+
+	/**
+	 * @return	array
+	 */	
+	public function getBindValues()
+	{
+		return array_values($this->profile->getBindData());
 	}
 }

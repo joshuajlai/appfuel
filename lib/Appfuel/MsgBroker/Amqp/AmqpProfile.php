@@ -85,6 +85,14 @@ class AmqpProfile implements AmqpProfileInterface
         }
 	}
 
+	/**
+	 * @return	string
+	 */
+	public function getQueueName()
+	{
+		return $this->queue['queue'];
+	}
+
     /**
      * @return  array
      */

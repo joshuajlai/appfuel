@@ -1056,6 +1056,7 @@ class AMQPChannel extends AbstractChannel
                                      $arguments=NULL,
                                      $ticket=NULL)
     {
+		echo "\n", print_r('insert here',1), "\n";
         if($arguments==NULL)
             $arguments = array();
 
