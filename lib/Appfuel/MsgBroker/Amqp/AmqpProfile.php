@@ -93,6 +93,14 @@ class AmqpProfile implements AmqpProfileInterface
 		return $this->queue['queue'];
 	}
 
+	/**
+	 * @return	string
+	 */
+	public function getExchangeName()
+	{
+		return $this->exchange['exchange'];
+	}
+
     /**
      * @return  array
      */

@@ -13,15 +13,15 @@ namespace Appfuel\Framework\MsgBroker\Amqp;
 /**
  * Value object that holds valid connection data
  */
-interface ConsumerInterface extends AmqpTaskInterface
+interface PublisherInterface extends AmqpTaskInterface
 {
 	/**
-	 * @return	array
+	 * @return	null
 	 */	
-	public function setCallback($callback);
+	public function setMessage($msg);
 
 	/**
-	 * @return	ConsumerResponseInterface | null
+	 * @return	null
 	 */
-	public function process($body);
+	public function setRouteKey($key);
 }

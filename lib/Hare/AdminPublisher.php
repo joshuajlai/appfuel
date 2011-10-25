@@ -8,20 +8,21 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\MsgBroker\Amqp;
+namespace TaskManager;
+
+use Appfuel\Framework\Exception,
+	Appfuel\MsgBroker\Amqp\Publisher;
 
 /**
- * Value object that holds valid connection data
  */
-interface ConsumerInterface extends AmqpTaskInterface
+class AdminPublisher extends Publisher
 {
 	/**
-	 * @return	array
-	 */	
-	public function setCallback($callback);
-
-	/**
-	 * @return	ConsumerResponseInterface | null
+	 * @return	AdminPublisher
 	 */
-	public function process($body);
+	public function __construct()
+	{
+		parent::__construct(new AdminProfile);
+	}
+
 }

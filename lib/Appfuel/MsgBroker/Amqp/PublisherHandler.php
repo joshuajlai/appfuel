@@ -17,18 +17,18 @@ use	Appfuel\Framework\Exception,
 	Appfuel\Framework\MsgBroker\Amqp\AmqpProfileInterface,
 	Appfuel\Framework\MsgBroker\Amqp\AmqpConnectorInterface,
 	Appfuel\Framework\MsgBroker\Amqp\AmqpConnectionInterface,
-	Appfuel\Framework\MsgBroker\Amqp\Consume\ConsumeHandlerInterface;
+	Appfuel\Framework\MsgBroker\Amqp\ConsumeHandlerInterface;
 
 /**
  * Adapter for the AMQPChannel
  */
-class ConsumeHandler implements AmqpConsumeHandlerInterface
+class PublishHandler implements AmqpConsumeHandlerInterface
 {
 	/**
 	 * Holds details about the exchange, queue and queue binding
-	 * @var	ConsumerInterface
+	 * @var	PublisherInterface
 	 */
-	protected $consumer = null;
+	protected $publisher = null;
 
 	/**
 	 * Value object used to descibe the connection details
@@ -53,7 +53,7 @@ class ConsumeHandler implements AmqpConsumeHandlerInterface
 	/**
 	 * @return	AmqpConnector
 	 */
-	public function __construct($conn, ConsumerInterface $consumer)
+	public function __construct($conn, PublisherInterface $consumer)
 	{
 		$this->consumer = $consumer;
 
@@ -172,8 +172,8 @@ class ConsumeHandler implements AmqpConsumeHandlerInterface
 		$consumer->setCallback(array($this, 'callback'));
 
 		call_user_func_array(
-			array($adapter, 'basic_consume'), 
-			$consumer->getConsumeValues()
+			array($adapter, $consumer->getAdapterMethod()), 
+			$consumer->getAdapterValues()
 		);
 
 

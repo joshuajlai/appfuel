@@ -9,38 +9,34 @@
  * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
+use Appfuel\App\AppManager,
+	Hare\Messenger;
 
-use Appfuel\App\AppManager;
-
-/* we kmow we are in the bin directory and one level up is the base path */
-$base = realpath(dirname(__FILE__) . '/..');
-
-$file = "$base/lib/Appfuel/App/AppManager.php";
-if (! file_exists($file)) {
-    $err = "Could not locate Manager file at ($file)\n";
-    fwrite(STDERR, $err);
-    exit;
-}
-require_once $file;
-
-//define("AMQP_DEBUG", true);
+/*
+ * returns the base path and makes sure the app manager file and dependencies
+ * are run
+ */
+$base    = require 'af-cli-header.php';
 $manager = new AppManager($base, 'app-console');
 $manager->initialize();
+
+$messenger = new Messenger();
+$messenger->sendTo('this is a message', 'hare-broadcaster');
+
+$messenger->consume('local-connection', 'hare-consumer');
 
 $depend = new \Appfuel\MsgBroker\Amqp\Dependency();
 $depend->load();
 
-$conn = new AMQPConnection('localhost', 5672, 'unit_tester', 'w3bG33k3r', 'unit_test');
-$channel = $conn->channel();
+$params = array(
+	'host'		=> 'localhost', 
+	'port'		=> 5672, 
+	'user'		=> 'unit_tester', 
+	'password'	=> 'w3bG33k3r', 
+	'vhost'		=> 'unit_test'
+);
 
-//$channel->exchange_delete('my-exchange');
-$channel->queue_delete('my-test-queue');
-
-
-function shutdown($channel, $conn){
-    $channel->close();
-    $conn->close();
-}
-register_shutdown_function('shutdown', $channel, $conn);
-
-echo "\n", print_r('ok',1), "\n";exit;
+$consumer = new \TaskManager\TMConsumer();
+$handler  = new \Appfuel\MsgBroker\Amqp\ConsumeHandler($params, $consumer);
+$handler->initialize();
+$handler->consume();
