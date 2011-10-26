@@ -13,7 +13,7 @@ namespace Appfuel\Framework\MsgBroker\Amqp;
 /**
  * Value object that holds valid connection data
  */
-interface PublisherInterface extends AmqpTaskInterface
+interface PublisherTaskInterface extends AmqpTaskInterface
 {
 	/**
 	 * @return	null

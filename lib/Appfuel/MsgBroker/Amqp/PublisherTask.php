@@ -10,15 +10,16 @@
  */
 namespace Appfuel\MsgBroker\Amqp;
 
-use Appfuel\Framework\Exception,
+use AmqpMessage,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\MsgBroker\Amqp\AmqpProfileInterface,
-	Appfuel\Framework\MsgBroker\Amqp\PublisherInterface;
+	Appfuel\Framework\MsgBroker\Amqp\PublisherTaskInterface;
 
 /**
  * Holds a profile and manages setting for basic_publish function of the 
  * amqp library
  */
-class Publisher extends AbstractTask implements PublisherInterface
+class PublisherTask extends AbstractTask implements PublisherTaskInterface
 {
     /**
      * Datastructure to hold the info required for method call to basic_publish
@@ -39,7 +40,7 @@ class Publisher extends AbstractTask implements PublisherInterface
 	 */
 	public function __construct(AmqpProfileInterface $prof, array $data = null)
 	{
-		parent::__construct($prof, 'basic_publish', $data);
+		parent::__construct($prof, $data);
 	}
 
 	/**
@@ -48,7 +49,8 @@ class Publisher extends AbstractTask implements PublisherInterface
 	 */
 	public function setMessage($msg)
 	{
-		$this->adapterData['message'] = $msg;
+		$this->adapterData['message'] = new AMQPMessage($msg);
+		return $this;
 	}
 
 	/**
@@ -62,6 +64,7 @@ class Publisher extends AbstractTask implements PublisherInterface
 		}
 
 		$this->adapterData['route-key'] = $key;
+		return $this;
 	}
 
 	/**
@@ -75,7 +78,8 @@ class Publisher extends AbstractTask implements PublisherInterface
 	{
 		$profile = $this->getProfile();
 		$this->adapterData['message'] = '';
-		if (isset($data['message'])) {
+		if (isset($data['message']) && 
+			$data['message'] instanceof AMQPMessage) {
 			$this->adapterData['message'] = $data['message'];
 		}
 

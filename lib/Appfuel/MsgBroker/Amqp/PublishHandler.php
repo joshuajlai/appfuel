@@ -82,7 +82,7 @@ class PublishHandler extends AbstractHandler
 	public function setMessage($body)
 	{
 		$this->getTask()
-			 ->setMessage(new AMQPMessage($body));
+			 ->setMessage($body);
 
 		return $this;
 	}
