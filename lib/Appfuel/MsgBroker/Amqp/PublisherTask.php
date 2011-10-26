@@ -15,7 +15,8 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\MsgBroker\Amqp\PublisherInterface;
 
 /**
- * Publish is used by the publish handler
+ * Holds a profile and manages setting for basic_publish function of the 
+ * amqp library
  */
 class Publisher extends AbstractTask implements PublisherInterface
 {
