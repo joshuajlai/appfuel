@@ -11,17 +11,21 @@
 namespace Appfuel\MsgBroker\Amqp;
 
 use	Appfuel\Framework\Exception,
-	AmqpMessage,
-	AmqpChannel as AmqpChannelAdapter,
+	AmqpChannel		as AmqpChannelAdapter,
+	AmqpConnection  as AmqpConnectionAdapter,
 	Appfuel\Framework\MsgBroker\Amqp\AmqpTaskInterface,
 	Appfuel\Framework\MsgBroker\Amqp\TaskHandlerInterface,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpChannelInterface,
 	Appfuel\Framework\MsgBroker\Amqp\AmqpProfileInterface,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpConnectorInterface,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpConnectionInterface;
+	Appfuel\Framework\MsgBroker\Amqp\AmqpConnectorInterface;
 
 /**
- * Adapter for the AMQPChannel
+ * This class holds the common logic needed to handle either publishing or 
+ * consuming messages in rabbitmq. Both consumers and publisher implement
+ * the AmqpTaskInterface and are know as tasks. The repsonsibility is to
+ * assign the connector and use it to create an amqp connection. That 
+ * connection adapter is used to create a channel for which we use a task 
+ * profile to declare the exchange, declare the queue and bind them. 
+ * We also can register a shutdown function for cleanup. 
  */
 abstract class AbstractHandler implements TaskHandlerInterface
 {
@@ -42,7 +46,7 @@ abstract class AbstractHandler implements TaskHandlerInterface
 	/**
 	 * Conection controls the amqp connection and creates the channel 
 	 * object.
-	 * @var	AmqpConnectionInterface
+	 * @var	AmqpConnectionAdapter
 	 */
 	protected $connection = null;
 
@@ -54,16 +58,18 @@ abstract class AbstractHandler implements TaskHandlerInterface
 	protected $channelAdapter = null;
 
 	/**
-	 * @return	AmqpConnector
+	 * @param	mixed	array | AmqpConnectorInterface $conn
+	 * @param	AmqpTaskInterface $task
+	 * @return	AbstractHandler
 	 */
 	public function __construct($conn, AmqpTaskInterface $task)
 	{
 		$this->setTask($task);
-		$this->setConnection($conn);
+		$this->setConnector($conn);
 	}
 	
 	/**
-	 * @return	ConsumerInterface
+	 * @return	AmqpTaskInterface
 	 */
 	public function getTask()
 	{
@@ -87,7 +93,7 @@ abstract class AbstractHandler implements TaskHandlerInterface
 	}
 
 	/**
-	 * @return	AmqpConnectionInterface
+	 * @return	AmqpConnectionAdapter
 	 */
 	public function getConnection()
 	{
@@ -99,7 +105,7 @@ abstract class AbstractHandler implements TaskHandlerInterface
 	 */
 	public function isConnection()
 	{
-		if ($this->connection instanceof AmqpConnectionInterface) {
+		if ($this->connection instanceof AmqpConnectionAdapter) {
 			return true;
 		}
 
@@ -120,16 +126,20 @@ abstract class AbstractHandler implements TaskHandlerInterface
 
 	/**
 	 * Connect and create the channel adapter
+	 *
 	 * @return	null
 	 */
 	public function initialize()
 	{
-		$conn = $this->getConnection();
-		if (! $conn->isConnected()) {
-			$conn->connect();
+		if (! $this->isConnection()) {
+			$connector  = $this->getConnector();
+			$connection = $this->createConnection($connector); 
+		}
+		else {
+			$connection = $this->getConnection();
 		}
 
-		$this->channelAdapter = $conn->createChannelAdapter();
+		$this->channelAdapter = $connection->channel();
 	}
 
 	/**
@@ -138,38 +148,12 @@ abstract class AbstractHandler implements TaskHandlerInterface
 	 *
 	 * @return	null
 	 */
-	public function setupChannel()
+	public function setupChannel(AmqpChannelAdapter $adapter,
+                                    AmqpTaskInterface $task)
 	{
-		$adapter = $this->getChannelAdapter();
-		if (! $adapter) {
-			$err  = "Must initialize handler before channel can be setup ";
-			$err .= "be registered";
-			throw new Exception($err);
-		}
-
-        $this->declareExchange($adapter);
-        $this->declareQueue($adapter);
-        $this->bindQueue($adapter);
-	}
-
-	/**
-	 * Register the main consumer or publish method. This is the channel method
-	 * used to preform the given task. Consumer is basic_consume and Publish
-	 * is basic_publish
-	 */
-	public function registerAdapterMethod()
-	{
-		$task	 = $this->getTask();
-		$adapter = $this->getChannelAdapter();
-		if (! $adapter) {
-			$err  = "Must initialize handler before channel method can ";
-			$err .= "be registered";
-			throw new Exception($err);
-		}
-        return call_user_func_array(
-            array($adapter, $task->getAdapterMethod()),
-            $task->getAdapterValues()
-        );
+        $this->declareExchange($adapter, $task);
+        $this->declareQueue($adapter, $task);
+        $this->bindQueue($adapter, $task);
 	}
 
 	/**
@@ -183,42 +167,37 @@ abstract class AbstractHandler implements TaskHandlerInterface
     /**
      * @return  
      */
-    public function declareExchange(AmqpChannelAdapter $adapter)
+    public function declareExchange(AmqpChannelAdapter $adapter, 
+									AmqpTaskInterface $task)
     {
-		$values = $this->getTask()
-					   ->getExchangeValues();	
-        
 		return call_user_func_array(
             array($adapter, 'exchange_declare'),
-            $values
+			$task->getExchangeValues()
         );
     }
 
     /**
      * @return  
      */
-    public function declareQueue(AmqpChannelAdapter $adapter)
+    public function declareQueue(AmqpChannelAdapter $adapter,
+								 AmqpTaskInterface $task)
     {
-		$values = $this->getTask()
-					   ->getQueueValues();	
     
 		return call_user_func_array(
-            array($this->channelAdapter, 'queue_declare'),
-            $values
+            array($adapter, 'queue_declare'),
+			$task->getQueueValues()
         ); 
     }
 
     /**
      * @return  
      */
-    public function bindQueue(AmqpChannelAdapter $adapter)
+    public function bindQueue(AmqpChannelAdapter $adapter,
+							  AmqpTaskInterface $task)
     {
-		$values = $this->getTask()
-					   ->getBindValues();	
-        
 		return call_user_func_array(
-            array($this->channelAdapter, 'queue_bind'),
-            $values
+            array($adapter, 'queue_bind'),
+            $task->getBindValues()
         ); 
     }
 
@@ -251,44 +230,52 @@ abstract class AbstractHandler implements TaskHandlerInterface
 
 	/**
 	 * There are three ways to set the connection 
-	 * 1) Having an AmqpConnectionInterface 
-	 * 2) Having an AmqpConnector from a AmqpConnection is made
-	 * 3) Having an associative array of parameters to create an
+	 * 1) Having an AmqpConnector from a AmqpConnection is made
+	 * 2) Having an associative array of parameters to create an
 	 *	  AmqpConnector that will be used to create AmqpConnection
 	 *
 	 * @param	mixed	$conn 
 	 * @return	null
 	 */
-	protected function setConnection($conn)
+	protected function setConnector($conn)
 	{
-		if ($conn instanceof AmqpConnectionInterface) {
-			$this->connector  = $conn->getConnector();
-			$this->connection = $conn;
-		}
-		else if ($conn instanceof AmqpConnectorInterface) {
+		if ($conn instanceof AmqpConnectorInterface) {
 			$this->connector  = $conn;
-			$this->connection = $this->createConnection($conn); 
 		}
 		else if (is_array($conn)) {
-			$this->connection = $this->createConnection($conn);
-			$this->connector  = $this->connection->getConnector();
+			$this->connector = $this->createConnector($conn);
 		}
 		else {
 			$err = "parameter must implement AmqpConnectorInterface | ";
-			$err = "AmqpConnectionInterface"; 
+			$err = "or associative array of connection parameters "; 
 			throw new Exception($err); 
 		}
 	}
 
 	/**
-	 * @param	AmqpConnectorInterface $conn
-	 * @return	AmqpConnection
+	 * @param	array  $conn
+	 * @return	AmqpConnector
 	 */
-	protected function createConnection($conn)
+	protected function createConnector(array $conn)
 	{	
-		if (is_array($conn)) {
-			$conn = new AmqpConnector($conn);
-		}
-		return new AmqpConnection($conn);
+		return new AmqpConnector($conn);
+	}
+
+	/**
+	 * This will create the phplib AMQPConnection which will connect to
+	 * rabbit right array
+	 *
+	 * @param	AmqpConnectorInterface $conn
+	 * @return	\AMQPConnection alias as AmqpConnectionAdapter
+	 */
+	protected function createConnection(AmqpConnectorInterface $conn)
+	{
+        return new AmqpConnectionAdapter(
+            $conn->getHost(),
+            $conn->getPort(),
+            $conn->getUser(),
+            $conn->getPassword(),
+            $conn->getVirtualHost()
+        );
 	}
 }

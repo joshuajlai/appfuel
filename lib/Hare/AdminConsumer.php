@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace AdminConsumer;
+namespace Hare;
 
 use Appfuel\Framework\Exception,
 	Appfuel\MsgBroker\Amqp\Consumer;
@@ -18,17 +18,11 @@ use Appfuel\Framework\Exception,
 class AdminConsumer extends Consumer
 {
 	/**
-	 * @param	AqpProfileInterface	$prof
-     * @param   array				$data	
 	 * @return	Consumer
 	 */
-	public function __construct(AmqpProfileInterface $profile = null)
+	public function __construct()
 	{
-		if (null === $profile) {
-			$profile = new AdminProfile();
-		}
-
-		parent::__construct($profile, $data);
+		parent::__construct(new AdminProfile);
 	}
 
 	public function process($msg)

@@ -9,21 +9,15 @@
  * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\App\AppManager,
-	Hare\Messenger;
+use Appfuel\App\AppManager;
 
 /*
  * returns the base path and makes sure the app manager file and dependencies
  * are run
  */
-$base    = require 'af-cli-header.php';
+$base	 = require 'af-cli-header.php';
 $manager = new AppManager($base, 'app-console');
 $manager->initialize();
-
-$messenger = new Messenger();
-$messenger->sendTo('this is a message', 'hare-broadcaster');
-
-$messenger->consume('local-connection', 'hare-consumer');
 
 $depend = new \Appfuel\MsgBroker\Amqp\Dependency();
 $depend->load();
@@ -36,7 +30,7 @@ $params = array(
 	'vhost'		=> 'unit_test'
 );
 
-$consumer = new \TaskManager\TMConsumer();
+$consumer = new \Hare\AdminConsumer();
 $handler  = new \Appfuel\MsgBroker\Amqp\ConsumeHandler($params, $consumer);
 $handler->initialize();
 $handler->consume();

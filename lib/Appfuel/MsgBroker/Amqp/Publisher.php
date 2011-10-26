@@ -63,7 +63,6 @@ class Publisher extends AbstractTask implements PublisherInterface
 		$this->adapterData['route-key'] = $key;
 	}
 
-
 	/**
 	 * Data holds the parameters used in basic_publish for the channel adapter
 	 *

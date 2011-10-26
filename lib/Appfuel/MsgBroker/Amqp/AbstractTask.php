@@ -15,9 +15,13 @@ use Appfuel\Framework\Exception,
 	Appfuel\Framework\MsgBroker\Amqp\AmqpTaskInterface;
 
 /**
- * Consumer is used by the ConsumeHandler where process is called and handled
- * during the handlers callback. The Consume Handler also uses the consumer
- * to intialize the channel. 
+ * A task can either be a publisher or consumer. This class encapsulates the
+ * logic needed by both. All tasks must be given a profile which can only
+ * be set from the constructor and retrieved through a getter. The adapter
+ * data is an associative array of key/value pairs where the values map
+ * to the function paramters of basic_consume for consumers and basic_publish
+ * for publishers. Setting and validating the adapter data is the reponsibility
+ * of the concrete class.
  */
 abstract class AbstractTask implements AmqpTaskInterface
 {	
@@ -28,14 +32,6 @@ abstract class AbstractTask implements AmqpTaskInterface
 	protected $adapterData = array();
 
 	/**
-	 * Name of the adapter method used for the task like basic_consume or
-	 * basic_publish
-	 *
-	 * @var string
-	 */
-	protected $adapterMethod = null;
-
-	/**
 	 * @var AmqpProfileInterface
 	 */
 	protected $profile = null;
@@ -44,13 +40,10 @@ abstract class AbstractTask implements AmqpTaskInterface
      * @param   AmqpProfileInterface	$profile
 	 * @return	AbstractTask
 	 */
-	public function __construct(AmqpProfileInterface $profile, 
-								$method,
-								array $data = null)
+	public function __construct(AmqpProfileInterface $prof, array $data = null)
 	{
 
-		$this->setAdapterMethod($method);
-        $this->setProfile($profile);
+        $this->setProfile($prof);
 		
 		if (null === $data) {
 			$data = array();
@@ -80,14 +73,6 @@ abstract class AbstractTask implements AmqpTaskInterface
 	public function getProfile()
 	{
 		return $this->profile;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getAdapterMethod()
-	{
-		return $this->adapterMethod;
 	}
 
 	/**

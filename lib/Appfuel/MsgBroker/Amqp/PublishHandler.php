@@ -14,16 +14,16 @@ use	Appfuel\Framework\Exception,
 	AmqpMessage,
 	AmqpChannel as AmqpChannelAdapter,
 	Appfuel\Framework\MsgBroker\Amqp\PublisherInterface,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpChannelInterface,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpProfileInterface,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpConnectorInterface,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpConnectionInterface,
 	Appfuel\Framework\MsgBroker\Amqp\PublishHandlerInterface;
 
 /**
+ * The core repsonsibility is found in the publish method. The publisher holds
+ * all the information about exchanges, queues, bindings and publishing. The
+ * handler sets up the channel (declare exchanges, declare queues and make 
+ * one or more bindings of the queues and exchanges). Registers a shutdown 
+ * method and publishes by registering the adapter method.
  */
-class PublishHandler 
-	extends AbstractHandler
+class PublishHandler extends AbstractHandler
 {
 	/**
 	 * @param	mixed	$conn	
@@ -44,16 +44,35 @@ class PublishHandler
 	 *
 	 * @return null
 	 */
-	public function publish($msg, $routeKey = null)
+	public function publish($msg = null, $routeKey = null)
 	{
-		$this->setMessage($msg);
-		if (null !== $routeKey) {
-			$this->setRouteKey($routeKey);
+		$publisher = $this->getTask();
+        $adapter = $this->getChannelAdapter();
+        if (! $adapter) {
+            $err  = "Must initialize handler before channel can be setup ";
+            $err .= "be registered";
+            throw new Exception($err);
+        }
+		$this->setupChannel($adapter, $publisher);
+
+		
+		if (null !== $msg) {
+			$publisher->setMessage($msg);
 		}
 
-		$this->setupChannel();
+		if (null !== $routeKey) {
+			$publisher->setRouteKey($routeKey);
+		}
+
 		$this->registerShutDown();
-		$this->registerAdapterMethod();
+
+		$params  = $publisher->getAdapterValues();
+		$ok = call_user_func_array(array($adapter, $method), $values);
+        if (false === $ok) {
+            throw new Exception("failed call to basic_publish");
+        }
+		/* this is where the basic_publish is called */
+		$this->registerAdapterMethod('basic_publish', $methodParams);
 	}
 
 	/**
@@ -62,8 +81,10 @@ class PublishHandler
 	 */
 	public function setMessage($body)
 	{
-		$publisher = $this->getTask();
-		$publisher->setMessage(new AMQPMessage($body));	
+		$this->getTask()
+			 ->setMessage(new AMQPMessage($body));
+
+		return $this;
 	}
 
 	/**
@@ -72,7 +93,9 @@ class PublishHandler
 	 */
 	public function setRouteKey($key)
 	{
-		$publisher = $this->getTask();
-		$publisher->setRouteKey($key);
+		$this->getTask()
+			 ->setRouteKey($key);
+
+		return $this;
 	}
 }

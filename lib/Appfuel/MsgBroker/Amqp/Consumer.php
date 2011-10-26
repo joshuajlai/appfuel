@@ -12,14 +12,14 @@ namespace Appfuel\MsgBroker\Amqp;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\MsgBroker\Amqp\AmqpProfileInterface,
-	Appfuel\Framework\MsgBroker\Amqp\ConsumerInterface;
+	Appfuel\Framework\MsgBroker\Amqp\ConsumerTaskInterface;
 
 /**
  * Consumer is used by the ConsumeHandler where process is called and handled
  * during the handlers callback. The Consume Handler also uses the consumer
  * to intialize the channel. 
  */
-class Consumer extends AbstractTask implements ConsumerInterface
+class ConsumerTask extends AbstractTask 
 {
     /**
      * Datastructure to hold the info required for method call to basic_consume
@@ -46,7 +46,53 @@ class Consumer extends AbstractTask implements ConsumerInterface
 	 */
 	public function __construct(AmqpProfileInterface $prof, array $data = null)
 	{
-		parent::__construct($prof, 'basic_consume', $data);
+		parent::__construct($prof, $data);
+	}
+
+	/**
+	 * @param	scalar	$tag
+	 * @return	ConsumerTask
+	 */
+	public function setConsumerTag($tag)
+	{
+		if (! is_scalar($tag)) {
+			throw new Exception("consumer tag must be a scalar value");
+		}
+	
+		$this->adapterData['consumer-tag'] = $tag;
+		return $this;
+	}
+
+	/**
+	 * @return	scalar
+	 */
+	public function getConsumerTag()
+	{
+		return $this->adapterData['consumer-tag'];
+	}
+
+	/**
+	 * This puts the responsibility of the consumer task to send back an 
+	 * acknowledgement onces processing is complete
+	 *
+	 * @return	ConsumerTask
+	 */
+	public function enableManualAck()
+	{
+		$this->adapterData['no-ack'] = true;
+		return $this;
+	}
+
+	/**
+	 * Rabbitmq will take the message out of memory as soon as it as been
+	 * delivered to the consumer
+	 *
+	 * @return	ConsumerTask
+	 */
+	public function disableManualAck()
+	{
+		$this->adapterData['no-ack'] = false;
+		return $this;
 	}
 
 	/**
@@ -62,14 +108,6 @@ class Consumer extends AbstractTask implements ConsumerInterface
 		$this->adapterData['callback'] = $callback;
 	}
 
-	/**
-	 * @param	string	
-	 * @return	mixed
-	 */
-	public function process($body)
-	{
-		return null;
-	}
 	/**
 	 * Data holds the parameters used in basic_comsume for the channel adapter
 	 *

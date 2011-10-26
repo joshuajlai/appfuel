@@ -38,8 +38,8 @@ $params = array(
 	'vhost'		=> 'unit_test'
 );
 
-$publisher = new \TaskManager\TMPublisher();
+$publisher = new \Hare\AdminPublisher();
 $handler  = new \Appfuel\MsgBroker\Amqp\PublishHandler($params, $publisher);
 $handler->initialize();
-$handler->publish('i am here');
+$handler->publish('af-consumer-quit');
 

@@ -10,20 +10,19 @@
  */
 namespace Appfuel\MsgBroker\Amqp;
 
-use	Appfuel\Framework\Exception,
-	AmqpMessage,
-	AmqpChannel as AmqpChannelAdapter,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpChannelInterface,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpProfileInterface,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpConnectorInterface,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpConnectionInterface,
+use AmqpMessage,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\MsgBroker\Amqp\ConsumerInterface;
 
 /**
- * Adapter for the AMQPChannel
+ * The core repsonsibility is found in the consume method. The consumer holds
+ * all the information about exchanges, queues, bindings and consuming. The
+ * handler sets up the channel (declare exchanges, declare queues and make 
+ * one or more bindings of the queues and exchanges). Registers a shutdown 
+ * method and consumes by registering the adapter method and entering a 
+ * a callback loop for processing.
  */
-class ConsumeHandler 
-	extends AbstractHandler
+class ConsumeHandler extends AbstractHandler
 {
 	/**
 	 * @param	mixed	$conn	
@@ -36,31 +35,41 @@ class ConsumeHandler
 	}
 	
 	/**
-	 * Connect if we are not already connected. declare the exchange, queue
-	 * and bind them which is down in the channel initialize. Override the
-	 * the callback so the this object will handle the callback and use the
-	 * the consumers interface to process the message. Also setup shutdown
-	 * function to close down the amqp library that we are using
-	 *
 	 * @return null
 	 */
 	public function consume()
 	{
 		/* ensure this handler is registered as the callback */
 		$consumer = $this->getTask();
-		$consumer->setCallback(array($this, 'callback'));
-		
-        $this->setupChannel();
-        $this->registerShutDown();
-        $this->registerAdapterMethod();
-
 		$adapter = $this->getChannelAdapter();
+        if (! $adapter) {
+            $err  = "Must initialize handler before channel can be setup ";
+            $err .= "be registered";
+            throw new Exception($err);
+        }
+
+		$consumer->setCallback(array($this, 'callback'))
+				 ->setManualAck();
+
+        $this->setupChannel($adapter, $task);
+        $this->registerShutDown();
+		
+
+		$params = $consumer->getAdapterValues();
+		$ok = call_user_func_array(array($adapter, 'basic_consume'), $params);
+		if (false === $ok) {
+			throw new Exception("failed call to basic_consume");
+		}
+
 		while (count($adapter->callbacks)) {
 			$adapter->wait();
 		}
 	}
 
 	/**
+	 * The callback loop uses the consumer's process method and passes the
+	 * body of the message into it and interprets the response
+	 *
 	 * @param	\AMQPMessage
 	 * @return	null
 	 */
