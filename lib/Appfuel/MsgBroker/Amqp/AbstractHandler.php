@@ -139,6 +139,7 @@ abstract class AbstractHandler implements TaskHandlerInterface
 			$connection = $this->getConnection();
 		}
 
+		$this->connection     = $connection;
 		$this->channelAdapter = $connection->channel();
 	}
 
@@ -211,11 +212,14 @@ abstract class AbstractHandler implements TaskHandlerInterface
 		if ($this->isChannelAdapter()) {
 			$this->getChannelAdapter()
 				 ->close();
+			$this->channelAdapter = null;
 		}
 
 		if ($this->isConnection()) {
 			$this->getConnection()
 				 ->close();
+
+			$this->connection = null;
 		}
 	}
 
