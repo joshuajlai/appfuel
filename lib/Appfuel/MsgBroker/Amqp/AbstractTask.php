@@ -31,6 +31,7 @@ abstract class AbstractTask implements AmqpTaskInterface
 	 */
 	protected $adapterData = array();
 
+
 	/**
 	 * @var AmqpProfileInterface
 	 */

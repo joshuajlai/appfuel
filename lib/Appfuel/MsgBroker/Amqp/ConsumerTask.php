@@ -106,6 +106,7 @@ class ConsumerTask extends AbstractTask
 		}
 
 		$this->adapterData['callback'] = $callback;
+		return $this;
 	}
 
 	/**
@@ -125,7 +126,7 @@ class ConsumerTask extends AbstractTask
 
 		$this->adapterData['queue'] = trim($data['queue']);
 		
-		if (isset($data['consumer-tag']) && is_string($data['consumer-tag'])) {
+		if (isset($data['consumer-tag']) && is_scalar($data['consumer-tag'])) {
 			$this->adapterData['consumer-tag'] = $data['consumer-tag'];	
 		}
 
@@ -137,8 +138,8 @@ class ConsumerTask extends AbstractTask
 			$this->adapterData['no-ack'] = true;	
 		}
 
-		if (isset($data['exclusive']) && true === $data['exclusive']) {
-			$this->adapterData['exclusive'] = true;	
+		if (isset($data['exclusive']) && false === $data['exclusive']) {
+			$this->adapterData['exclusive'] = false;	
 		}
 
 		if (isset($data['no-wait']) && true === $data['no-wait']) {
