@@ -13,7 +13,7 @@ namespace Appfuel\MsgBroker\Amqp;
 use	Appfuel\Framework\Exception,
 	AmqpMessage,
 	AmqpChannel as AmqpChannelAdapter,
-	Appfuel\Framework\MsgBroker\Amqp\PublisherInterface,
+	Appfuel\Framework\MsgBroker\Amqp\PublisherTaskInterface,
 	Appfuel\Framework\MsgBroker\Amqp\PublishHandlerInterface;
 
 /**
@@ -23,14 +23,14 @@ use	Appfuel\Framework\Exception,
  * one or more bindings of the queues and exchanges). Registers a shutdown 
  * method and publishes by registering the adapter method.
  */
-class PublishHandler extends AbstractHandler
+class PublishHandler extends AbstractHandler implements PublishHandlerInterface
 {
 	/**
 	 * @param	mixed	$conn	
 	 * @param	ConsumerInterface	$consumer
 	 * @return	ConsumeHandler
 	 */
-	public function __construct($conn, PublisherInterface $publisher)
+	public function __construct($conn, PublisherTaskInterface $publisher)
 	{
 		parent::__construct($conn, $publisher);
 	}

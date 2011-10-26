@@ -19,7 +19,7 @@ use Appfuel\Framework\Exception,
  * during the handlers callback. The Consume Handler also uses the consumer
  * to intialize the channel. 
  */
-class ConsumerTask extends AbstractTask 
+class ConsumerTask extends AbstractTask implements ConsumerTaskInterface
 {
     /**
      * Datastructure to hold the info required for method call to basic_consume
@@ -107,6 +107,15 @@ class ConsumerTask extends AbstractTask
 
 		$this->adapterData['callback'] = $callback;
 		return $this;
+	}
+
+	/**
+	 *	@param	string	$msgBody
+	 *	@return	string
+	 */
+	public function process($msgBody)
+	{
+		return $msgBody;
 	}
 
 	/**

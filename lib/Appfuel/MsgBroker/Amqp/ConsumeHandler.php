@@ -12,7 +12,7 @@ namespace Appfuel\MsgBroker\Amqp;
 
 use AmqpMessage,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\MsgBroker\Amqp\ConsumerInterface;
+	Appfuel\Framework\MsgBroker\Amqp\ConsumerTaskInterface;
 
 /**
  * The core repsonsibility is found in the consume method. The consumer holds
@@ -29,7 +29,7 @@ class ConsumeHandler extends AbstractHandler
 	 * @param	ConsumerInterface	$consumer
 	 * @return	ConsumeHandler
 	 */
-	public function __construct($conn, ConsumerInterface $consumer)
+	public function __construct($conn, ConsumerTaskInterface $consumer)
 	{
 		parent::__construct($conn, $consumer);
 	}
