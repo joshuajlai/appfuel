@@ -131,20 +131,6 @@ abstract class AbstractTask implements AmqpTaskInterface
 	}
 
 	/**
-	 * @throws	Appfuel\Framework\Exception
-	 * @param	string	$method
-	 * @return	null
-	 */
-	protected function setAdapterMethod($method)
-	{
-		if (empty($method) || ! is_string($method)) {
-			throw new Exception("adapter method must be a non empty string");
-		}
-
-		$this->adapterMethod = $method;
-	}
-
-	/**
 	 * @param	array
 	 * @return	null
 	 */
