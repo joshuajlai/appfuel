@@ -42,7 +42,7 @@ class AmqpProfile implements AmqpProfileInterface
      * @var array
      */
     protected $queue = array(
-        'queue'         => null,
+        'queue'         => '',
         'passive'       => false,
         'durable'       => false,
         'exclusive'     => false,
@@ -57,7 +57,7 @@ class AmqpProfile implements AmqpProfileInterface
      * @var arrray
      */
     protected $bind = array(
-        'queue'     => null,
+        'queue'     => '',
         'exchange'  => '',
         'route-key' => '',
         'no-wait'   => false,
@@ -75,7 +75,8 @@ class AmqpProfile implements AmqpProfileInterface
 								array $exchange = null,
 								array $bind = null)
 	{
-        $this->setQueue($queue);
+		$this->setQueue($queue);
+
         if (! empty($exchange)) {
             $this->setExchange($exchange);
         }
@@ -131,13 +132,11 @@ class AmqpProfile implements AmqpProfileInterface
      */
     protected function setQueue(array $data)
     {
-        if (! isset($data['queue']) || empty($data['queue']) ||
-            ! is_string($data['queue'])) {
-            throw new Exception("queue must be non empty string");
+        if (isset($data['queue']) || is_string($data['queue'])) {
+			$queue = trim($data['queue']);
+			$this->queue['queue'] = $queue;
+			$this->bind['queue']  = $queue;
         }
-
-        $this->queue['queue'] = $data['queue'];
-        $this->bind['queue']  = $data['queue'];
 
         if (isset($data['passive']) && true === $data['passive']) {
             $this->queue['passive'] = true;

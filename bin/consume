@@ -1,0 +1,44 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @license		http://www.apache.org/licenses/LICENSE-2.0
+ */
+use Appfuel\App\AppManager,
+	Appfuel\MsgBroker\Amqp\AmqpProfile,
+	Appfuel\MsgBroker\Amqp\ConsumerTask,
+	Appfuel\MsgBroker\Amqp\GuestConnector,
+	Appfuel\MsgBroker\Amqp\ConsumeHandler;
+
+/*
+ * returns the base path and makes sure the app manager file and dependencies
+ * are run
+ */
+$manager = require 'af-cli-header.php';
+
+$depend = new \Appfuel\MsgBroker\Amqp\Dependency();
+$depend->load();
+
+$conn = new AMQPConnection('localhost', 5672, 'guest', 'guest');
+$channel = $conn->channel();
+
+$channel->queue_delete('hello');
+//$channel->queue_declare('hello', false, false, false, false);
+
+echo "[x] waiting for messages ... \n";
+//$callback = function($msg) {
+//	echo "[x] received ", $msg->body, "\n";	
+//};
+
+//$channel->basic_consume('hello', '', false, true, false, false, $callback);
+//while(count($channel->callbacks)) {
+//    $channel->wait();
+//}
+
+$channel->close();
+$conn->close();

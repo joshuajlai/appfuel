@@ -10,7 +10,8 @@
  */
 namespace Appfuel\MsgBroker\Amqp;
 
-use Appfuel\Framework\Exception,
+use Closure,
+	Appfuel\Framework\Exception,
 	Appfuel\Framework\MsgBroker\Amqp\AmqpProfileInterface,
 	Appfuel\Framework\MsgBroker\Amqp\ConsumerTaskInterface;
 
@@ -37,6 +38,13 @@ class ConsumerTask extends AbstractTask implements ConsumerTaskInterface
     );
 
 	/**
+	 * This closure will be used for generic processing of the message
+	 * @var	Closure
+	 */
+	protected $processClosure = null;
+
+
+	/**
 	 * Set the adapter method to basic_consume. This method is found in the
 	 * \AMQPChannel object.
 	 *
@@ -47,6 +55,32 @@ class ConsumerTask extends AbstractTask implements ConsumerTaskInterface
 	public function __construct(AmqpProfileInterface $prof, array $data = null)
 	{
 		parent::__construct($prof, $data);
+	}
+	
+	/**
+	 * @param	Closure	$process
+	 * @return	ConsumerTask
+	 */
+	public function setProcessClosure(Closure $process)
+	{
+		$this->processClosure = $pocess;
+		return $this;
+	}
+
+	/**
+	 * @return	Closure
+	 */
+	public function getProcessClosure()
+	{
+		return $this->processClosure;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isProcessClosure()
+	{
+		return $this->processClosure instanceof Closure;
 	}
 
 	/**
@@ -115,6 +149,11 @@ class ConsumerTask extends AbstractTask implements ConsumerTaskInterface
 	 */
 	public function process($msgBody)
 	{
+		if ($this->isProcessClosure()) {
+			$method = $this->getProcessClosure();
+			return $method($msgBody);
+		}
+
 		return $msgBody;
 	}
 

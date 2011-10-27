@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @license		http://www.apache.org/licenses/LICENSE-2.0
+ */
+use Appfuel\App\AppManager,
+	Appfuel\MsgBroker\Amqp\AmqpProfile,
+	Appfuel\MsgBroker\Amqp\ConsumerTask,
+	Appfuel\MsgBroker\Amqp\GuestConnector,
+	Appfuel\MsgBroker\Amqp\ConsumeHandler;
+
+/*
+ * returns the base path and makes sure the app manager file and dependencies
+ * are run
+ */
+$cliHeader = realpath(dirname(__FILE__) . '/..') . '/af-cli-header.php';
+if (! file_exists($cliHeader)) {
+	fwrite(STDERR, "could not find file at $cliHeader");
+	exit(1);
+}
+$manager = require $cliHeader;
+
+$depend = new \Appfuel\MsgBroker\Amqp\Dependency();
+$depend->load();
+
+$profile  = new AmqpProfile(array('queue' => 'hello'));
+$consumer = new ConsumerTask($profile);
+
+$handler  = new ConsumeHandler(new GuestConnector(), $consumer);
+$handler->initialize();
+
+echo "[x] waiting for messages ... \n";
+$handler->consume();

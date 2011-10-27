@@ -152,9 +152,9 @@ abstract class AbstractHandler implements TaskHandlerInterface
 	public function setupChannel(AmqpChannelAdapter $adapter,
                                     AmqpTaskInterface $task)
 	{
-        $this->declareExchange($adapter, $task);
+        //$this->declareExchange($adapter, $task);
         $this->declareQueue($adapter, $task);
-        $this->bindQueue($adapter, $task);
+        //$this->bindQueue($adapter, $task);
 	}
 
 	/**

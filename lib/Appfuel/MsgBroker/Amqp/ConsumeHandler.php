@@ -49,9 +49,9 @@ class ConsumeHandler extends AbstractHandler
         }
 
 		$consumer->setCallback(array($this, 'callback'))
-				 ->setManualAck();
+				 ->enableManualAck();
 
-        $this->setupChannel($adapter, $task);
+        $this->setupChannel($adapter, $consumer);
         $this->registerShutDown();
 		
 
@@ -88,7 +88,7 @@ class ConsumeHandler extends AbstractHandler
 			$channel->basic_cancel($consumerTag);
 			return;
 		}
-		$result = $consumer->process($body);
+		$worker = $consumer->getProcess($body);
 		$channel->basic_ack($deliveryTag);
 	}
 }

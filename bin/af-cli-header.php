@@ -8,6 +8,7 @@
  * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
+use Appfuel\App\AppManager;
 
 /* we kmow we are in the bin directory and one level up is the base path */
 $base = realpath(dirname(__FILE__) . '/..');
@@ -20,4 +21,6 @@ if (! file_exists($file)) {
 }
 require_once $file;
 
-return $base;
+$manager = new AppManager($base, 'app-console');
+$manager->initialize();
+return $manager;
