@@ -277,12 +277,4 @@ class AmqpQueue implements AmqpQueueInterface
 	{
 		return $this->args;
 	}
-
-	/**
-	 * @return	int | null when not set
-	 */
-	public function getTicket()
-	{
-		return $this->ticket;
-	}
 }
