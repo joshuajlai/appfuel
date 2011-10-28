@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\MsgBroker\Amqp;
+namespace TestFuel\Test\MsgBroker\Amqp\Entity;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\MsgBroker\Amqp\AmqpBind;
+	Appfuel\MsgBroker\Amqp\Entity\AmqpBind;
 
 /**
  * The bind models the amqp bind entity and does not perform any
