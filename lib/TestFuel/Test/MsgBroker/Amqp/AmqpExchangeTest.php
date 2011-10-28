@@ -19,7 +19,7 @@ use StdClass,
  * operations. It is an immutable value object that can not be modified once
  * instantiated.
  */
-class ExchangeTest extends BaseTestCase
+class AmqpExchangeTest extends BaseTestCase
 {
 	/**
 	 * System under test
