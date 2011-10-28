@@ -67,4 +67,60 @@ class ProfileTest extends BaseTestCase
         );
     }
 
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testConstructorInSetup()
+	{
+		$this->assertSame($this->queue, $this->profile->getQueue());
+		$this->assertSame($this->exchange, $this->profile->getExchange());
+		$this->assertEquals(array(), $this->profile->getBindings());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testConstructorNoExchangeOrBindings()
+	{
+		$profile = new Profile($this->queue);
+		$this->assertSame($this->queue, $this->profile->getQueue());
+
+		/* 
+		 * will create a default exchange which is an exchange with an
+		 * empty string as the exchange name
+		 */
+		$exchange = $profile->getExchange();
+		$this->assertInstanceOf(
+			'Appfuel\Framework\MsgBroker\Amqp\Entity\AmqpExchangeInterface',
+			$exchange
+		);
+		$this->assertEquals('', $exchange->getExchangeName());
+		$this->assertEquals(array(), $profile->getBindings());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testConstructorNoExchangeBindings()
+	{
+		$bindA = new AmqpBind('queue', 'exchange', 'keyA');
+		$bindB = new AmqpBind('queue', 'exchange', 'keyB');
+		$bindC = new AmqpBind('queue', 'exchange', 'keyC');
+		$bindings = array($bindA, $bindB, $bindC);
+		$profile = new Profile($this->queue, null, $bindings);
+		$this->assertSame($this->queue, $this->profile->getQueue());
+		/* 
+		 * will create a default exchange which is an exchange with an
+		 * empty string as the exchange name
+		 */
+		$exchange = $profile->getExchange();
+		$this->assertInstanceOf(
+			'Appfuel\Framework\MsgBroker\Amqp\Entity\AmqpExchangeInterface',
+			$exchange
+		);
+		$this->assertEquals($bindings, $profile->getBindings());
+	}
 }

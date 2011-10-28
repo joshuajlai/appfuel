@@ -103,6 +103,16 @@ class Profile implements ProfileInterface
         return $this->bindings;
     }
 
+	/**
+	 * @param	AmqpBindInterface $bind
+	 * @return	Profile
+	 */
+	public function addBinding(AmqpBindInterface $bind)
+	{
+		$this->bindings[] = $bind;
+		return $this;
+	}
+
     /**
      * @param   array   $data
      * @return  null

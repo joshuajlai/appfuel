@@ -17,5 +17,18 @@ namespace Appfuel\Framework\MsgBroker\Amqp\Entity;
  */
 interface ProfileInterface
 {
+	/**
+	 * @return	AmqpQueueInterface
+	 */
+	public function getQueue();
 
+	/**
+	 * @return	AmqpExchangeInterface
+	 */
+	public function getExchange();
+
+	/**
+	 * @return	array
+	 */
+	public function getBindings();
 }
