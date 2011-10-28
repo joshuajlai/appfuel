@@ -63,7 +63,7 @@ class AmqpBindTest extends BaseTestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            'Appfuel\Framework\MsgBroker\Amqp\AmqpBindInterface',
+            'Appfuel\Framework\MsgBroker\Amqp\Entity\AmqpBindInterface',
             $this->bind
         );
     }

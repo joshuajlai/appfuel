@@ -49,7 +49,7 @@ class AmqpExchangeTest extends BaseTestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            'Appfuel\Framework\MsgBroker\Amqp\AmqpExchangeInterface',
+            'Appfuel\Framework\MsgBroker\Amqp\Entity\AmqpExchangeInterface',
             $this->exchange
         );
     }

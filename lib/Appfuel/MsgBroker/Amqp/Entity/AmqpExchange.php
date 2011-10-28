@@ -11,7 +11,7 @@
 namespace Appfuel\MsgBroker\Amqp\Entity;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpExchangeInterface;
+	Appfuel\Framework\MsgBroker\Amqp\Entity\AmqpExchangeInterface;
 
 /**
  * This is model of the amqp entity exchange. I only provides information 

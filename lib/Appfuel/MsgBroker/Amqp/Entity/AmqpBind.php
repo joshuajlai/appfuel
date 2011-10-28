@@ -11,7 +11,7 @@
 namespace Appfuel\MsgBroker\Amqp\Entity;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\MsgBroker\Amqp\AmqpBindInterface;
+	Appfuel\Framework\MsgBroker\Amqp\Entity\AmqpBindInterface;
 
 /**
  * This is model of the amqp entity bind. It only provides information 
