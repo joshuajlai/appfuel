@@ -20,25 +20,44 @@ use Appfuel\Framework\Exception,
 class DomainCollection implements DomainCollectionInterface
 {
 	/**
-	 * Class or interface of the domain that belong to this collection. Only
-	 * one type of domain is allowed in a collection
+	 * Domain key is used to identify the domain class which is mapped in
+	 * the registry.
 	 * @var string
 	 */
-	private $domainType = null;
+	private $domainKey = null;
+
+	/**
+	 * Used to create and marshel domain objects
+	 * @var string
+	 */	
+	private $dataBuilder = null;
 
 	/**
 	 * Raw data used to lazy load the the domain objects. Domains are
 	 * not created until they are needed
 	 * @var	array
 	 */
-	protected $raw = array();
+	private $raw = array();
 
 	/**
 	 * List of already created domains. These were either create from raw
 	 * or added to the collection
 	 * @var array
 	 */
-	protected $domains = array();
+	private $objCache = array();
+
+	/**
+	 * Current position of array pointer
+	 * @var int
+	 */
+	private $index = 0;
+
+	/**
+	 * total number of elements
+	 * @var int
+	 */
+	private $count = 0;
+
 
 	/**
 	 * The type of domain is immutable and can not be change during the 
@@ -47,56 +66,163 @@ class DomainCollection implements DomainCollectionInterface
 	 * @param	string	$type		class or interface of domain
 	 * @return	DomainCollection
 	 */
-	public function __construct($type, $ns = null)
+	public function __construct($key, DomainBuilderInterface $builder = null)
 	{
-		$this->setDomainType($type);
-		$this->setObjectFactory($ns);
+		$this->setDomainKey($key);
+
+		if (null === $builder) {
+			$builder = new DomainBuilder();
+		}
+		$this->setDomainBuilder($builder);
 	}
 
 	/**
 	 * @return	string
 	 */
-	public function getDomainType()
+	public function getDomainKey()
 	{
-		return $this->domainType;
+		return $this->domainKey;
+	}
+	
+	/**
+	 * @return	DomainBuilderInterface
+	 */
+	public function getDomainBuilder()
+	{
+		return $this->domainBuilder;
+	}
+
+	/**
+	 * @return	int
+	 */
+	public function count()
+	{
+		return count($this->raw);
+	}
+
+	/**
+	 * Make sure the index is back to zero restoring the array pointer back
+	 * to the beginning 
+	 *
+	 * @return	null
+	 */
+	public function rewind()
+	{
+		$this->index = 0;
+	}
+
+	/**
+	 * The domain at the current index
+	 *
+	 * @return	DomainModelInterface | false no domain exists
+	 */
+	public function current()
+	{
+		return $this->getRow($this->index);
+	}
+
+	/**
+	 * @return	int
+	 */
+	public function key()
+	{
+		return $this->index;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function valid()
+	{
+		return $this->current() instanceof DomainModelInterface;
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function next()
+	{
+		if ($this->isValid()) {
+			$this->index++;
+		}
+	}
+
+	/**
+	 * @param	DomainModelInterface	$domain
+	 * @return	null
+	 */
+	public function add(DomainModelInterface $domain)
+	{
+		$max = $this->count() + 1;
+		$this->raw[$max]      = '__NEW__';
+		$this->objCache[$max] = $domain;
+		return $this;
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	DomainCollection
+	 */
+	public function loadRawData(array $data)
+	{
+		$this->_raw = $data;
+		$this->rewind();
+		$this->objCache = array();
+		return $this;
+	}
+
+	/**
+	 * Looks for a domain in the object chache otherwise looks for the domain
+	 * in the raw data and then builds the domain and adds it to cache. When
+	 * not found returns false
+	 *
+	 * @param	int	$index
+	 * @return	DomainModelInterface | false when not found
+	 */
+	private function getRow($index)
+	{
+		if (! is_int($index) || $index >= $this->count || $index < 0) {
+			return false;
+		}
+
+		/*
+		 * domain found in object chache 
+		 */
+		if (isset($this->objCache[$index])) {
+			return $this->objCache[$index];
+		}
+
+		if (isset($this->raw[$index])) {
+			$builder = $this->getDomainBuilder();
+			$key	 = $this->getDomainKey();
+			$domain  = $builder->buildDomain($key, $this->raw[$index]);
+			$this->objCache[$index] = $domain;
+			return $domain;
+		}
+
+		return false;
 	}
 
 	/**
 	 * @throws	Appfuel\Framework\Exception
-	 * @param	string	$type
+	 * @param	string	$key
 	 * @return	null
 	 */
-	private function setDomainType($type)
+	private function setDomainKey($key)
 	{
-		if (empty($type) || ! is_string($type)) {
-			throw new Exception("domain type must be a non empty string");
+		if (empty($key) || ! is_string($key)) {
+			throw new Exception("domain key must be a non empty string");
 		}
 
-		$this->domainType = $type;
+		$this->domainKey = $key;
 	}
 
 	/**
 	 * @param	mixed	$ns
 	 * @return	null
 	 */
-	private function setObjectFactory($ns = null)
+	private function setDomainBuilder(DomainBuilderInterface $builder)
 	{
-		if ($ns === null) {
-			$ns = 'Appfuel\Domain';
-		}
-
-		if (is_string($ns)) {
-			$factory = new OrmObjectFactory($ns);
-		}
-		else if ($ns instanceof OrmObjectFactoryInterface) {
-			$factory = $ns;
-		}
-		else {
-			$err  = "setObjectFactory will take a string that is the root ";
-			$err .= "namespace of the domains for this collection or an ";
-			$err .= "object that implments Appfuel\Framework\Orm\Domain";
-			$err .= "\ObjectFactoryInterface";
-			throw new Exception($err);
-		}
+		$this->domainBuilder = $builder;
 	}
 }

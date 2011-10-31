@@ -23,7 +23,14 @@ interface DomainCollectionInterface implements Countable, Iterator
 	 * 
 	 * @return	string
 	 */
-	public function _getDomainType();
+	public function getDomainKey();
+
+	/**
+	 * Used to build domain objects from raw data
+	 * 
+	 * @return	DomainBuilderInterface
+	 */
+	public function getDomainBuilder();
 
 	/**
 	 * Used to load a collection as a raw dataset ready to be lazy loaded
@@ -32,7 +39,7 @@ interface DomainCollectionInterface implements Countable, Iterator
 	 * @param	array
 	 * @return	DomainCollectionInterface
 	 */
-	public function _loadRawData(array $data);
+	public function loadRawData(array $data);
 
 	/**
 	 * Adds a domain into this collection. It should be noted that 
@@ -43,14 +50,4 @@ interface DomainCollectionInterface implements Countable, Iterator
 	 * @return	DomainCollectionInterface
 	 */	
 	public function add(DomainModelInterface $domain);
-
-
-	/**
-	 * Search through all domains using method and testing it against value
-	 * 
-	 * @param	string	$method	 method to use against each domain in search
-	 * @param	mixed	$value	 value to test agains the method results
-	 * @return	mixed false when not found
-	 */
-	public function search($method, $value);
 }
