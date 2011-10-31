@@ -62,7 +62,7 @@ class AbstractOrmFactoryTest extends BaseTestCase
 	{
 		$objectFactory = $this->factory->createObjectFactory();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\ObjectFactoryInterface',
+			'Appfuel\Framework\Orm\Domain\DomainObjectFactoryInterface',
 			$objectFactory
 		);
 

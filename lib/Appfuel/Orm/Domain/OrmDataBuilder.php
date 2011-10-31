@@ -12,7 +12,7 @@ namespace Appfuel\Orm\Domain;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\Orm\Domain\DataBuilderInterface,
-	Appfuel\Framework\Orm\Domain\ObjectFactoryInterface;
+	Appfuel\Framework\Orm\Domain\DomainObjectFactoryInterface;
 
 /**
  * The object factory is resposible for converting domain keys into domain 
@@ -25,13 +25,12 @@ class OrmDataBuilder implements DataBuilderInterface
 	 * @var ObjectFactoryInterface
 	 */
 	protected $objFactory = null;
-
 	
 	/**
 	 * @param	ObjetFactoryInteface
 	 * @return	DataBuilder
 	 */
-	public function __construct(ObjectFactoryInterface $factory)
+	public function __construct(DomainObjectFactoryInterface $factory)
 	{
 		$this->objFactory = $factory;
 	}

@@ -16,11 +16,11 @@ namespace Appfuel\Framework\Orm\Domain;
  * only to map the domain key to a fully qualified class name and instantiate 
  * it
  */
-interface ObjectFactoryInterface
+interface DomainObjectFactoryInterface
 {
 	/**
 	 * @param	string	$key	used to determine which object to create
 	 * @return	mixed
 	 */
-	public function createDomainObject($key, $isDomain = true);
+	public function createDomainObject($key);
 }

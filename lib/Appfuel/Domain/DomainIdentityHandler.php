@@ -18,7 +18,6 @@ use Appfuel\Orm\Identity\OrmIdentityHandler;
  */
 class DomainIdentityHandler extends OrmIdentityHandler
 {
-
 	/**
 	 * Assign the root level namespace
 	 * @return	IdentityHandler

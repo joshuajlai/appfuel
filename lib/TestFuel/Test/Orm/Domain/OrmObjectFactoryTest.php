@@ -12,7 +12,7 @@ namespace TestFuel\Test\Orm\Domain;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Orm\Domain\OrmObjectFactory;
+	Appfuel\Orm\Domain\DomainObjectFactory;
 
 /**
  * Test the ablity of the object factory to pull a domain key mapping from
@@ -39,15 +39,15 @@ class OrmObjectFactoryTest extends BaseTestCase
 	public function setUp()
 	{
 		$this->map = array(
-			'user'		 => "\Example\Domain\User",
-			'user-email' => "\Example\Domain\User\Email",
-			'role'		 => "\Example\Domain\\Role",
+			'user'		 => "\Example\Domain\User\UserModel",
+			'user-email' => "\Example\Domain\User\Email\EmailModel",
+			'role'		 => "\Example\Domain\\Role\\RoleModel",
 			'non-domain' => "\Example\\Custom\\CustomDomainObject"
 		);
 
 
-		$this->initializeRegistry(array('domain-keys' => $this->map));
-		$this->factory = new OrmObjectFactory();
+		$this->initializeRegistry(null, $this->map);
+		$this->factory = new DomainObjectFactory();
 	}
 
 	/**
@@ -65,33 +65,26 @@ class OrmObjectFactoryTest extends BaseTestCase
 	public function testImplementInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\ObjectFactoryInterface',
+			'Appfuel\Framework\Orm\Domain\DomainObjectFactoryInterface',
 			$this->factory
 		);
 	}
 
 	/**
-	 * This test will use createDomainObject with the second param is 
-	 * missing giving a default of isDomain = true, meaning this domain
-	 * will be instantiated through naming convention
-	 *
 	 * @return null
 	 */
 	public function testCreateDomainObject()
 	{
 		$result = $this->factory->createDomainObject('user');
 		
-		$qualifiedClass = $this->map['user'] . '\UserModel';
-		$this->assertInstanceOf($qualifiedClass, $result);
+		$this->assertInstanceOf($this->map['user'], $result);
 
 		$result = $this->factory->createDomainObject('user-email');
-		$qualifiedClass = $this->map['user-email'] . '\EmailModel';
-		$this->assertInstanceOf($qualifiedClass, $result);
+		$this->assertInstanceOf($this->map['user-email'], $result);
 
 		/* second parameter is same as default */
 		$result = $this->factory->createDomainObject('role', true);
-		$qualifiedClass = $this->map['role'] . '\RoleModel';
-		$this->assertInstanceOf($qualifiedClass, $result);	
+		$this->assertInstanceOf($this->map['role'], $result);	
 	}
 
 	/**
@@ -118,45 +111,12 @@ class OrmObjectFactoryTest extends BaseTestCase
 	 */
 	public function testCreateDomainObjectNoKeyMapInRegistry()
 	{
-		$this->initializeRegistry(array());
+		$this->initializeRegistry(array(), array());
 		$this->assertFalse($this->factory->createDomainObject('user'));
 		$this->assertFalse($this->factory->createDomainObject('user-email'));
 		$this->assertFalse($this->factory->createDomainObject('role'));
 		$this->assertFalse($this->factory->createDomainObject('non-domain'));
 		$this->assertFalse($this->factory->createDomainObject('random-key'));	
-	}
-
-	/**
-	 * method will return false for anything that is not an array
-	 *
-	 * @return null
-	 */
-	public function testCreateDomainObjectMapExistIsString()
-	{
-		$this->initializeRegistry(array('domain-keys'=>'not correct'));
-		$this->assertFalse($this->factory->createDomainObject('user'));
-	}
-
-	/**
-	 * method will return false for anything that is not an array
-	 *
-	 * @return null
-	 */
-	public function testCreateDomainObjectMapExistIsInt()
-	{
-		$this->initializeRegistry(array('domain-keys'=> 12345));
-		$this->assertFalse($this->factory->createDomainObject('user'));
-	}
-
-	/**
-	 * method will return false for anything that is not an array
-	 *
-	 * @return null
-	 */
-	public function testCreateDomainObjectMapExistIsObject()
-	{
-		$this->initializeRegistry(array('domain-keys'=> new StdClass()));
-		$this->assertFalse($this->factory->createDomainObject('user'));
 	}
 
 	/**
@@ -167,7 +127,7 @@ class OrmObjectFactoryTest extends BaseTestCase
 	 */
 	public function testCreateDomainObjectMapExistEmptyArray()
 	{
-		$this->initializeRegistry(array('domain-keys'=> array()));
+		$this->initializeRegistry(null, array());
 		$this->assertFalse($this->factory->createDomainObject('user'));
 	}
 
@@ -183,7 +143,7 @@ class OrmObjectFactoryTest extends BaseTestCase
 	public function testCreateDomainKeyMappedClassNotFound()
 	{
 		$map = array('my-key' => 'MyClass\Does\NotExist');
-		$this->initializeRegistry(array('domain-keys' => $map));
+		$this->initializeRegistry(null, $map);
 
 		$this->factory->createDomainObject('my-key');
 	}

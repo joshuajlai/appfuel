@@ -10,17 +10,41 @@
  */
 namespace Appfuel\Orm\Domain;
 
-use Appfuel\Framework\Registry,
-	Appfuel\Framework\Exception,
+use Appfuel\Framework\Exception,
 	Appfuel\Framework\Orm\Domain\ObjectFactoryInterface,
 	Appfuel\Framework\Orm\Domain\MappedObjectNotFoundException;
 
 /**
  * The object factory is resposible for converting domain keys into domain 
  * objects. It is not responsible for marshalling data into those objects.
+ * Domain key mappings are handled by the static DomainRegistry
  */
 class OrmObjectFactory implements ObjectFactoryInterface
 {
+	/**
+	 * The location of the domains to be created. This allows the domains
+	 * to be mapped in configuation files relative to this namespace
+	 * @var	string
+	 */
+	protected $domainNs = null;
+	
+	/**
+	 * @param	string	$domainNs
+	 * @return	OrmObjectFactory
+	 */
+	public function __construct($domainNs)
+	{
+		$this->domainNs = $domainNs;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getDomainNamespace()
+	{
+		return $this->domainNs;
+	}
+
 	/**
 	 * Create a domain model based on the naming convention 
 	 * <parent-dir-name>Model. When isDomain is false then the mapped namespace
@@ -32,35 +56,19 @@ class OrmObjectFactory implements ObjectFactoryInterface
 	 *								convention should be applied
 	 * @return	mixed
 	 */
-	public function createDomainObject($key, $isDomain = true)
+	public function createDomainObject($key)
 	{
-		$map = Registry::get('domain-keys', false);
-		if (! $map) {
+		$domainNs = $this->getDomainNs();
+		$relative = DomainRegistry::getClass($key);
+		if (false === $relative) {
 			return false;
 		}
 
-		if (! is_array($map) || ! array_key_exists($key, $map)) {
-			return false;
-		}
-		$namespace = $map[$key];
-
-		if (! $isDomain) {
-			return new $namespace();
-		}
-
-		$pos = strrpos($namespace, '\\');
-		if (0 === $pos || false === $pos) {
-			$qualified= $namespace . 'Model';
-		} else {
-			$class = substr($namespace, $pos + 1);
-			$class = $class . 'Model';
-			$qualified = "$namespace\\$class";
-		}
-
+		$domainClass = "{$domainNs}\\{$relative}";
 		try {
-			return new $qualified();
+			return new $domainClass();
 		} catch (\Exception $e) {
-			$err = "object not found for ($key) at ($qualified)";
+			$err = "object not found for ($key) at ($domainClass)";
 			throw new MappedObjectNotFoundException($err, 0, $e);
 		}
 	}

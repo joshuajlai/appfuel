@@ -32,7 +32,7 @@ class OperationalRoute extends DomainModel implements OperationalRouteInterface
 	protected $operation = null;
 
 	/**
-	 * The action domain describes the action controller used to execute the operation 
+	 * Describes the action controller used to execute the operation 
 	 * @var	ActionModel
 	 */
 	protected $action = null;

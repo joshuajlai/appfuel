@@ -26,13 +26,19 @@ class Registry
 	static protected $dict = null;
 
 	/**
+	 * Holds a list of domain key to domain class mappings
+	 * @var array
+	 */
+	static protected $dmap = array();
+
+	/**
 	 * Reset the registry with a new dataset and if one is not given
 	 * then create an empty one
 	 *
 	 * @param	BagInterface	$bag
 	 * @return	null
 	 */
-	static public function initialize($data = null)
+	static public function initialize($data = null, array $domainMap = null)
 	{
 		/*
 		 * check is there is an array data with the initialization or if
@@ -48,6 +54,31 @@ class Registry
 		}
 
 		self::$dict = $dict;
+
+		if (null !== $domainMap) {
+			self::$dmap = $domainMap;
+		}
+	}
+
+	/**
+	 * @return	array
+	 */
+	static public function getDomainMap()
+	{
+		return	self::$dmap;
+	}
+
+	/**
+	 * @param	string	$key	domain key
+	 * @return	string
+	 */
+	static public function getDomainClass($key)
+	{
+		if (empty($key) || !is_string($key) || ! isset(self::$dmap[$key])) {
+			return false;
+		}
+
+		return self::$dmap[$key];
 	}
 
 	/**

@@ -67,6 +67,12 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	static protected $registryData = null;
 
 	/**
+	 * Backup of the domain map
+	 * @var	array
+	 */
+	static protected $domainMap = null;
+
+	/**
 	 * @param	AppManager	$manager
 	 * @param	string		$configFile		absolute path to config file
 	 * @return	null
@@ -83,6 +89,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		$manager->initialize('test');
 
 		self::$registryData = Registry::getAll();
+		self::$domainMap	= Registry::getDomainMap();
 
 		self::$envState = new EnvState();
 		
@@ -157,16 +164,22 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	 */
 	public function restoreRegistry()
 	{
-		$this->initializeRegistry(self::$registryData);
+		$this->initializeRegistry(
+			self::$registryData,
+			self::$domainMap
+		);
 	}
 
 	/**
 	 * @param	array	$data
 	 * @return	null
 	 */
-	public function initializeRegistry(array $data)
+	public function initializeRegistry($data = null, array $domainMap = null)
 	{
-		Registry::initialize($data);
+		if (null === $data) {
+			$data = self::$registryData;
+		}
+		Registry::initialize($data, $domainMap);
 	}
 
     /**

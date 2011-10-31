@@ -13,7 +13,7 @@ namespace Test\Appfuel\Orm\Domain;
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Orm\Domain\OrmDataBuilder,
-	Appfuel\Orm\Domain\OrmObjectFactory;
+	Appfuel\Orm\Domain\DomainObjectFactory;
 
 /**
  * Test the ability to build out domains
@@ -45,12 +45,12 @@ class DataBuilderTest extends BaseTestCase
 	public function setUp()
 	{
 		$this->map = array(
-			'user'		 => "\Example\Domain\User",
+			'user'	=> "\Example\Domain\User\UserModel",
 		);
 
 
-		$this->initializeRegistry(array('domain-keys' => $this->map));
-		$this->factory = new OrmObjectFactory();
+		$this->initializeRegistry(null, $this->map);
+		$this->factory = new DomainObjectFactory();
 		$this->builder = new OrmDataBuilder($this->factory);
 	}
 
@@ -102,8 +102,7 @@ class DataBuilderTest extends BaseTestCase
 
 		$user = $this->builder->buildDomainModel('user', $data);
 
-		$class = $this->map['user'] . '\UserModel';
-		$this->assertInstanceOf($class, $user);
+		$this->assertInstanceOf($this->map['user'], $user);
 		$this->assertInstanceOf('Appfuel\Orm\Domain\DomainModel', $user);
 
 		$state = $user->_getDomainState();
@@ -122,7 +121,7 @@ class DataBuilderTest extends BaseTestCase
 		$user  = $this->builder->buildDomainModel('user', null, true);
 		$class = $this->map['user'] . '\UserModel';
 		
-		$this->assertInstanceOf($class, $user);
+		$this->assertInstanceOf($this->map['user'], $user);
 		$this->assertInstanceOf('Appfuel\Orm\Domain\DomainModel', $user);
 		
 		$state = $user->_getDomainState();
@@ -149,9 +148,7 @@ class DataBuilderTest extends BaseTestCase
 
 
 		$user  = $this->builder->buildDomainModel('user', $data, true);
-		$class = $this->map['user'] . '\UserModel';
-		
-		$this->assertInstanceOf($class, $user);
+		$this->assertInstanceOf($this->map['user'], $user);
 		$this->assertInstanceOf('Appfuel\Orm\Domain\DomainModel', $user);
 		
 		$state = $user->_getDomainState();
@@ -178,9 +175,8 @@ class DataBuilderTest extends BaseTestCase
 	public function testBuildDomainNoNewNoData()
 	{
 		$user  = $this->builder->buildDomainModel('user');
-		$class = $this->map['user'] . '\UserModel';
 		
-		$this->assertInstanceOf($class, $user);
+		$this->assertInstanceOf($this->map['user'], $user);
 		$this->assertInstanceOf('Appfuel\Orm\Domain\DomainModel', $user);
 		
 		$state = $user->_getDomainState();
@@ -213,46 +209,7 @@ class DataBuilderTest extends BaseTestCase
 	public function testBuildDomainModelKeyMapDoesNotExist()
 	{
 		/* clears out the registry */
-		$this->initializeRegistry(array());
-		
-		$data = array('id' => 1);
-		$user = $this->builder->buildDomainModel('user', $data);
-	}
-
-	/**
-	 * Another miss configuration type error that might occur. In this case
-	 * the map is suppose to be an array and was set to a string
-	 *
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testBuildDomainModelKeyMapIsAString()
-	{
-		$this->initializeRegistry(array('domain-keys' => 'bad-value'));
-		
-		$data = array('id' => 1);
-		$user = $this->builder->buildDomainModel('user', $data);
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testBuildDomainModelKeyMapIsAnInt()
-	{
-		$this->initializeRegistry(array('domain-keys' => 12345));
-		
-		$data = array('id' => 1);
-		$user = $this->builder->buildDomainModel('user', $data);
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @return	null
-	 */
-	public function testBuildDomainModelKeyMapIsAnObject()
-	{
-		$this->initializeRegistry(array('domain-keys' => new StdClass()));
+		$this->initializeRegistry(array(), array());
 		
 		$data = array('id' => 1);
 		$user = $this->builder->buildDomainModel('user', $data);
@@ -264,8 +221,8 @@ class DataBuilderTest extends BaseTestCase
 	 */
 	public function testBuildDomainModelKeyMapIsEmptyArray()
 	{
-		$this->initializeRegistry(array('domain-keys' => array()));
 		
+		$this->initializeRegistry(array(), array());
 		$data = array('id' => 1);
 		$user = $this->builder->buildDomainModel('user', $data);
 	}

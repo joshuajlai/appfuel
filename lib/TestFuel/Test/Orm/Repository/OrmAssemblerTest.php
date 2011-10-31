@@ -17,7 +17,7 @@ use StdClass,
 	Appfuel\Orm\Repository\Criteria,
 	Appfuel\Orm\Domain\OrmDataBuilder,
 	Appfuel\Orm\Repository\OrmAssembler,
-	Appfuel\Orm\Domain\OrmObjectFactory,
+	Appfuel\Orm\Domain\DomainObjectFactory,
 	Appfuel\Orm\Identity\OrmIdentityHandler,
 	Appfuel\Orm\Source\Db\OrmSourceHandler,
 	Appfuel\Framework\DataStructure\Dictionary,
@@ -195,7 +195,7 @@ class AssemblerTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$this->dataBuilder   = new MyDataBuilder(new OrmObjectFactory());
+		$this->dataBuilder   = new MyDataBuilder(new DomainObjectFactory());
 		$this->identity		 = new OrmIdentityHandler();
 		$this->dbHandler     = new DbHandler();
 		$this->sourceHandler = new MySourceHandler(
@@ -237,10 +237,7 @@ class AssemblerTest extends BaseTestCase
 	{
 		$key = 'user';
 		/* declare where the fake domain will be found */
-		$map = array($key => '\Example\Domain\User');
-		$domainKeys = array('domain-keys' => $map);
-
-		$userClass = $map['user'] . '\UserModel';
+		$map = array($key => '\Example\Domain\User\UserModel');
 
 		/*
 		 * The represents the premapped data that would come back from the
@@ -253,7 +250,7 @@ class AssemblerTest extends BaseTestCase
 			'email'		=> 'rsb.code@gmail.com' 
 		);
 
-		return array(array($key, $domainKeys, $userClass, $data));
+		return array(array($key, $map, $map['user'], $data));
 	}
 
 	/**
@@ -387,7 +384,7 @@ class AssemblerTest extends BaseTestCase
 	 */
 	public function testBuildData($key, $keys, $userClass, $data)
 	{
-		$this->initializeRegistry($keys);
+		$this->initializeRegistry(array(), $keys);
 
 		$criteria = new Criteria();
 		$criteria->add('domain-key', $key);
@@ -415,7 +412,7 @@ class AssemblerTest extends BaseTestCase
 	 */
 	public function testBuildDataMethodEmptyStr($key, $keys, $userClass, $data)
 	{
-		$this->initializeRegistry($keys);
+		$this->initializeRegistry(array(), $keys);
 		
 		$criteria = new Criteria();
 		$criteria->add('domain-key', $key);
@@ -445,7 +442,7 @@ class AssemblerTest extends BaseTestCase
 	 */
 	public function testBuildDataOtherMethod($key, $keys, $userClass, $data)
 	{
-		$this->initializeRegistry($keys);
+		$this->initializeRegistry(array(), $keys);
 		
 		$criteria = new Criteria();
 		$criteria->add('domain-key', $key)
@@ -548,7 +545,7 @@ class AssemblerTest extends BaseTestCase
 	 */
 	public function testBuildDataCustom($key, $keys, $userClass, $data)
 	{
-		$this->initializeRegistry($keys);
+		$this->initializeRegistry(null, $keys);
 		
 		$class = __NAMESPACE__ . '\MyCustomClass';
 		$obj      = new $class();
@@ -590,7 +587,7 @@ class AssemblerTest extends BaseTestCase
 	 */
 	public function testBuildDataCustomStaticA($key, $keys, $userClass, $data)
 	{
-		$this->initializeRegistry($keys);
+		$this->initializeRegistry(null, $keys);
 		
 		$callback = __NAMESPACE__ . '\MyCustomClass::myOtherHandler';
 		$params   = array('param1');
@@ -627,7 +624,7 @@ class AssemblerTest extends BaseTestCase
 	 */
 	public function testBuildDataCustomStaticB($key, $keys, $userClass, $data)
 	{
-		$this->initializeRegistry($keys);
+		$this->initializeRegistry(null, $keys);
 		
 		$class    = __NAMESPACE__ . '\MyCustomClass';
 		$callback = array($class, 'myOtherHandler');
@@ -664,7 +661,7 @@ class AssemblerTest extends BaseTestCase
 	 */
 	public function testBuildDataCustomClosure($key, $keys, $userClass, $data)
 	{
-		$this->initializeRegistry($keys);
+		$this->initializeRegistry(null, $keys);
 		
 		$callback = function ($domainKey, $dataSource, $param1) {
 			return array(
@@ -706,7 +703,7 @@ class AssemblerTest extends BaseTestCase
 	 */
 	public function testBuildDataCustom1Param($key, $keys, $userClass, $data)
 	{
-		$this->initializeRegistry($keys);
+		$this->initializeRegistry(null, $keys);
 		
 		$callback = function ($domainKey, $dataSource, $param1) {
 			return array(
@@ -748,7 +745,7 @@ class AssemblerTest extends BaseTestCase
 	 */
 	public function testBuildDataCustomNoParam($key, $keys, $userClass, $data)
 	{
-		$this->initializeRegistry($keys);
+		$this->initializeRegistry(null, $keys);
 		
 		$callback = function ($domainKey, $dataSource) {
 			return array(
@@ -783,11 +780,9 @@ class AssemblerTest extends BaseTestCase
 	public function testProcess()
 	{
         /* declare where the fake domain will be found */
-        $map = array('user' => '\Example\Domain\User');
-        $domainKeys = array('domain-keys' => $map);
-		$this->initializeRegistry($domainKeys);
-
-        $userClass = $map['user'] . '\UserModel';
+        $map = array('user' => '\Example\Domain\User\UserModel');
+		$this->initializeRegistry(null, $map);
+        $userClass = $map['user'];
 
 		$criteria = new Criteria();
 		$criteria->add('domain-key', 'user')
