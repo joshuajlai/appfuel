@@ -45,8 +45,17 @@ abstract class DomainModel implements DomainModelInterface
 	 */
 	private $isStrictMarshal = true;
 
-	public function __construct()
+	/**
+	 * Assign the domain state and id if it exists
+	 *
+	 * @param	scalar	$id	
+	 * @return	DomainModel
+	 */
+	public function __construct($id = null)
 	{
+		if ($id !== null) {
+			$this->setId($id);
+		}
 		$this->_setDomainState(new DomainState());
 	}
 
@@ -181,7 +190,8 @@ abstract class DomainModel implements DomainModelInterface
 				$this->$setter($value);
 			} catch (Exception $e) {
 				if ($isStrict) {
-					throw new Exception("$err $setter", null, $e);
+					$msg = $e->getMessage();
+					throw new Exception("$err $setter: $msg", null, $e);
 				}
 			}
 		}

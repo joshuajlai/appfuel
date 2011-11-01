@@ -48,7 +48,6 @@ class RouteDomain extends DomainModel
 	 */
 	protected $filters = null;
 
-	
 	/**
 	 * @param	string
 	 */

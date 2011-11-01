@@ -148,6 +148,4 @@ class ActionDomainTest extends BaseTestCase
 	{
 		$this->action->setNamespace(new StdClass());
 	}
-
-
 }
