@@ -45,6 +45,11 @@ abstract class DomainModel implements DomainModelInterface
 	 */
 	private $isStrictMarshal = true;
 
+	public function __construct()
+	{
+		$this->_setDomainState(new DomainState());
+	}
+
 	/**
 	 * Basic automation for getter and setter support 
 	 * The naming convention follows camelCase so to determine which member
@@ -139,9 +144,6 @@ abstract class DomainModel implements DomainModelInterface
 	 */
 	public function _marshal(array $data = null)
 	{
-		if (! $this->_isDomainState()) {
-			$this->_loadNewDomainState();
-		}
 		$state = $this->_getDomainState();
 		$state->markMarshal($data);
 
@@ -172,10 +174,6 @@ abstract class DomainModel implements DomainModelInterface
 	 */
 	public function _markNew()
 	{
-		if (! $this->_isDomainState()) {
-			$this->_loadNewDomainState();
-		}
-
 		$this->_getDomainState()
 	         ->markNew();
 		
@@ -192,10 +190,6 @@ abstract class DomainModel implements DomainModelInterface
 			throw new Exception("invalid markDirty ($member) does not exist");
 		}
 
-		if (! $this->_isDomainState()) {
-			$this->_loadNewDomainState();
-		}
-
 		$this->_getDomainState()
 			 ->markDirty($member);
 
@@ -207,10 +201,6 @@ abstract class DomainModel implements DomainModelInterface
 	 */
 	public function _markDelete()
 	{
-		if (! $this->_isDomainState()) {
-			$this->_loadNewDomainState();
-		}
-
 		$this->_getDomainState()
 			 ->markDelete();
 		
@@ -223,11 +213,6 @@ abstract class DomainModel implements DomainModelInterface
 	 */
 	public function _markClean($member = null)
 	{
-		/* no need to clear when there is no state */
-		if (! $this->_isDomainState()) {
-			return $this;
-		}
-
 		$this->_getDomainState()
 			 ->markClean($member);
 
@@ -241,21 +226,5 @@ abstract class DomainModel implements DomainModelInterface
 	protected function isNonEmptyString($param)
 	{
 		return ! empty($param) && is_string($param);
-	}
-
-	/**
-	 * @return bool
-	 */
-	private function _isDomainState()
-	{
-		return $this->state instanceof DomainStateInterface;
-	}
-
-	/**
-	 * @return null
-	 */
-	private function _loadNewDomainState()
-	{
-		$this->_setDomainState(new DomainState());
 	}
 }

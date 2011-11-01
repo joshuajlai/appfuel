@@ -16,4 +16,6 @@ use Appfuel\Orm\Domain\DomainModel;
  * See comments in the UserModel class
  */
 class EmailDomain extends DomainModel
-{}
+{
+	protected $email = null;
+}

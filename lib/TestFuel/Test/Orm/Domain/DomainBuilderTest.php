@@ -67,4 +67,53 @@ class DomainBuilderTest extends BaseTestCase
 			$this->builder
 		);
 	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function xtestCreateDomainObject()
+	{
+		$domain = $this->builder->createDomainObject('user');
+		$this->assertInstanceOf($this->map['user'], $domain);
+		
+		$domain = $this->builder->createDomainObject('user-email');
+		$this->assertInstanceOf($this->map['user-email'], $domain);
+	
+		$domain = $this->builder->createDomainObject('role');
+		$this->assertInstanceOf($this->map['role'], $domain);
+		
+		/* not found, empty or not a string will return false */	
+		$this->assertFalse($this->builder->createDomainObject(''));
+		$this->assertFalse($this->builder->createDomainObject('not-found'));
+		$this->assertFalse($this->builder->createDomainObject(12345));
+		$this->assertFalse($this->builder->createDomainObject(array(1,2,3)));
+		$this->assertFalse($this->builder->createDomainObject(new StdClass()));
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @expectedException Exception
+	 * @return	null
+	 */
+	public function testCreateDomainObjectObjectNotFound_Failure()
+	{
+		$this->initializeRegistry(null,array('user' => 'Does/NotExistDomain'));
+		$domain = $this->builder->createDomainObject('user');
+	}
+
+	public function testBuildDomain()
+	{
+		$data = array(
+			'firstName' => 'robert',
+			'lastName'  => 'scott',
+			'email'     => array(
+				'email' => 'rsb@blah.com',
+				'id'    => 66
+			)
+		);
+
+		$domain = $this->builder->buildDomain('user', $data);
+		
+	}
 }

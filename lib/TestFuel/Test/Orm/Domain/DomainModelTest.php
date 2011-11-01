@@ -96,7 +96,7 @@ class DomainModelTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		unset($this->domain);
+		$this->domain = null;
 	}
 
 	public function testDomainInterface()
@@ -112,8 +112,6 @@ class DomainModelTest extends BaseTestCase
 	 */
 	public function testGetSet()
 	{
-		$this->assertNull($this->domain->_getDomainState());
-	
 		$stateInterface = 'Appfuel\Framework\Orm\Domain\DomainStateInterface';
 		$state = $this->getMock($stateInterface);
 		$this->assertSame(
@@ -153,7 +151,6 @@ class DomainModelTest extends BaseTestCase
 	 */
 	public function testMarkMarshalDefaultNoMembers()
 	{
-		$this->assertNull($this->domain->_getDomainState());
 		$this->assertSame($this->domain, $this->domain->_marshal());
 
 		$state = $this->domain->_getDomainState();
@@ -175,7 +172,6 @@ class DomainModelTest extends BaseTestCase
 			'memberB' => 12345,
 			'memberC' => array(1,2,3,4)
 		);
-		$this->assertNull($this->domain->_getDomainState());
 		$this->assertTrue($this->domain->_isStrictMarshalling());
 		$this->domain->_disableStrictMarshalling();
 
@@ -201,7 +197,6 @@ class DomainModelTest extends BaseTestCase
 			'memberA' => 'value_a',
 			'memberC' => array(1,2,3,4)
 		);
-		$this->assertNull($this->domain->_getDomainState());
 		$this->assertTrue($this->domain->_isStrictMarshalling());
 		$this->domain->_disableStrictMarshalling();
 		
@@ -231,7 +226,6 @@ class DomainModelTest extends BaseTestCase
 		);
 		$this->domain->_enableStrictMarshalling();
 
-		$this->assertNull($this->domain->_getDomainState());
 		$this->assertTrue($this->domain->_isStrictMarshalling());
 		$this->assertSame(
 			$this->domain,
@@ -305,7 +299,6 @@ class DomainModelTest extends BaseTestCase
 	public function testMarkDirtyValidMembers()
 	{
 		/* prove no state */
-		$this->assertNull($this->domain->_getDomainState());
 		$state = new DomainState();
 
 		/* inject the domain state */
@@ -380,7 +373,6 @@ class DomainModelTest extends BaseTestCase
 	 */
 	public function testMarkDirtyNoStateInjected()
 	{
-		$this->assertNull($this->domain->_getDomainState());
 		$this->assertSame(
 			$this->domain,	
 			$this->domain->_markDirty('memberB')

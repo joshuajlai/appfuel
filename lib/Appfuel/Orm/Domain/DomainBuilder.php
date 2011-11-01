@@ -12,6 +12,7 @@ namespace Appfuel\Orm\Domain;
 
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\Registry,
+	Appfuel\Framework\Orm\Domain\DomainModelInterface,
 	Appfuel\Framework\Orm\Domain\DomainBuilderInterface,
 	Appfuel\Framework\Orm\Domain\MappedObjectNotFoundException;
 
@@ -36,7 +37,7 @@ class DomainBuilder implements DomainBuilderInterface
         }
 
 		$domain = $this->createDomainObject($key);
-		if (! ($domain instanceof DomainModelIterface)) {
+		if (! ($domain instanceof DomainModelInterface)) {
 			return false;
 		}
 
