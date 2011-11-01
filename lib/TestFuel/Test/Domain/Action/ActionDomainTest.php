@@ -10,7 +10,8 @@
  */
 namespace TestFuel\Test\Domain\Action;
 
-use TestFuel\TestCase\BaseTestCase,
+use StdClass,
+	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Domain\Action\ActionDomain;
 
 /**
@@ -56,7 +57,7 @@ class ActionDomainTest extends BaseTestCase
 	/**
 	 * @return null
 	 */
-	public function testHasInterface()
+	public function testInterface()
 	{
 		$this->assertInstanceOf(
 			'Appfuel\Framework\Orm\Domain\DomainModelInterface',
@@ -83,4 +84,70 @@ class ActionDomainTest extends BaseTestCase
 		$this->assertEquals('marshal', $state->getState());
 		$this->assertTrue($state->isMarshal());
 	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testSetNamespace()
+	{
+		$ns = 'Appfuel\Action\MyAction';
+		$this->assertSame(
+			$this->action,
+			$this->action->setNamespace($ns),
+			'uses a fluent interface'
+		);
+		$this->assertEquals($ns, $this->action->getNamespace());
+
+		/* empty namespaces are allowed */
+		$ns = '';
+		$this->assertSame(
+			$this->action,
+			$this->action->setNamespace($ns),
+			'uses a fluent interface'
+		);
+		$this->assertEquals($ns, $this->action->getNamespace());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testSetNamespace_IntFailure()
+	{
+		$this->action->setNamespace(12345);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testSetNamespace_FloatFailure()
+	{
+		$this->action->setNamespace(12.345);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testSetNamespace_ArrayFailure()
+	{
+		$this->action->setNamespace(array(1,2,3));
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testSetNamespace_ObjectFailure()
+	{
+		$this->action->setNamespace(new StdClass());
+	}
+
+
 }
