@@ -10,9 +10,22 @@
  */
 namespace Appfuel\Framework\Domain\Action;
 
+use Appfuel\Framework\Orm\Domain\DomainModelInterface;
 
 /**
+ * Used by the front controller, the action domain holds the namespace of the
+ * action controller.
  */
-interface ActionDomainInterface
+interface ActionDomainInterface extends DomainModelInterface
 {
+	/**
+	 * @return	string
+	 */
+	public function getNamespace();
+	
+	/**
+	 * @param	string	$path
+	 * @return	ActionDomainInterface
+	 */
+	public function setNamespace($path);
 }

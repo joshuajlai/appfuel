@@ -146,8 +146,6 @@ class ViewBuilder implements ViewBuilderInterface
         }
 
         /*
-         * I know I don't need to add console because its the default type
-         * however its listed to show all the possible types
          */
         switch($type) {
             case 'app-page':

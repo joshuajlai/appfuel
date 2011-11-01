@@ -15,6 +15,16 @@ namespace Appfuel\Framework\Orm\Domain;
  */
 interface DomainModelInterface
 {
+	/**
+	 * @return	scalar
+	 */
+	public function getId();
+
+	/**
+	 * @param	scalar	$id
+	 * @return	DomainModelInterface
+	 */
+	public function setId($id);
 
     /**
      * Marshalling is acting of building a domain from the datasource. Every

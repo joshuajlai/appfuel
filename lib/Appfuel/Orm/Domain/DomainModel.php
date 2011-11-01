@@ -51,6 +51,27 @@ abstract class DomainModel implements DomainModelInterface
 	}
 
 	/**
+	 * return	scalar
+	 */
+	public function getId()
+	{
+		return $this->id;
+	}
+
+	/**
+	 * @param	scalar	$id
+	 * @return	DomainModel
+	 */
+	public function setId($id)
+	{
+		if (! is_scalar($id)) {
+			throw new Exception("Domain id must be a scalar value");
+		}
+		$this->id = $id;
+		return $this;
+	}
+
+	/**
 	 * Basic automation for getter and setter support 
 	 * The naming convention follows camelCase so to determine which member
 	 * this call is for we split the string into two parts and lower case the
