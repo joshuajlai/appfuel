@@ -11,7 +11,10 @@
 namespace Appfuel\Domain\Route;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Orm\Domain\DomainModel;
+	Appfuel\Orm\Domain\DomainModel,
+	Appfuel\Framework\Domain\Route\RouteDomainInterface,
+	Appfuel\Framework\Domain\Action\ActionDomainInterface,
+	Appfuel\Domain\InterceptFilter\InterceptFilterCollection;
 
 /**
  * A route binds an action to the route key which is the first parameter
@@ -20,7 +23,7 @@ use Appfuel\Framework\Exception,
  * filters which get applied by the front controller either before the or 
  * after the action is executed.
  */
-class RouteDomain extends DomainModel
+class RouteDomain extends DomainModel implements RouteDomainInterface
 {
 	/**
 	 * This is the first parameter in the uri path. 
@@ -85,35 +88,32 @@ class RouteDomain extends DomainModel
 	 */
 	public function setAction(ActionDomainInterface $action)
 	{
-		$this->action = $class;
+		$this->action = $action;
 		$this->_markDirty('action');
 		return $this;
 	}
 
 	/**
-	 * @return	InterceptingFilterInterface | null when not set
+	 * @return	bool
 	 */
-	public function getPreFilters()
+	public function isPublic()
 	{
-		$filters = $this->getFilters();
-		if (! $filters) {
-			return null;
-		}
-
-		return $filters->getPreFilters();
+		return $this->isPublic;
 	}
 
 	/**
-	 * @return	InterceptingFilterCollectionInterface | null when not set
+	 * @param	bool	$flag
+	 * @return	RouteDomain
 	 */
-	public function getPostFilters()
+	public function setIsPublic($flag)
 	{
-		$filters = $this->getFilters();
-		if (! $filters) {
-			return null;
+		if (! is_bool($flag)) {
+			throw new Exception("isPublic flag must be a bool value");
 		}
 
-		return $filters->getPostFilters();
+		$this->isPublic = $flag;
+		$this->_markDirty('isPublic');
+		return $this;
 	}
 
 	/**
@@ -125,10 +125,10 @@ class RouteDomain extends DomainModel
 	}
 
 	/**
-	 * @param	InterceptingFilterCollectionInterface $filters
+	 * @param	InterceptFilterCollection$filters
 	 * @return	RouteDomain
 	 */
-	public function setFilters(InterceptingFilterCollectionInterface $filters)
+	public function setFilters(InterceptFilterCollection $filters)
 	{
 		$this->filters = $filters;
 		$this->_markDirty('filters');

@@ -15,7 +15,7 @@ use Countable,
 /**
  * Domain collections can hold one or more domains of a single type
  */
-interface DomainCollectionInterface implements Countable, Iterator
+interface DomainCollectionInterface
 {
 	/**
 	 * Used to enforce that only domains of this type will be allowed in

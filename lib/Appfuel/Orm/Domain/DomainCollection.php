@@ -10,14 +10,18 @@
  */
 namespace Appfuel\Orm\Domain;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Orm\Domain\OrmObjectFactoryInterface,
+use Countable,
+	Iterator,
+	Appfuel\Framework\Exception,
+	Appfuel\Framework\Orm\Domain\DomainModelInterface,
+	Appfuel\Framework\Orm\Domain\DomainBuilderInterface,
 	Appfuel\Framework\Orm\Domain\DomainCollectionInterface;
 
 /**
  * Common functionality for every orm domain model
  */
-class DomainCollection implements DomainCollectionInterface
+class DomainCollection 
+	implements DomainCollectionInterface, Countable, Iterator
 {
 	/**
 	 * Domain key is used to identify the domain class which is mapped in
@@ -30,7 +34,7 @@ class DomainCollection implements DomainCollectionInterface
 	 * Used to create and marshel domain objects
 	 * @var string
 	 */	
-	private $dataBuilder = null;
+	private $domainBuilder = null;
 
 	/**
 	 * Raw data used to lazy load the the domain objects. Domains are
@@ -51,13 +55,6 @@ class DomainCollection implements DomainCollectionInterface
 	 * @var int
 	 */
 	private $index = 0;
-
-	/**
-	 * total number of elements
-	 * @var int
-	 */
-	private $count = 0;
-
 
 	/**
 	 * The type of domain is immutable and can not be change during the 
@@ -142,7 +139,7 @@ class DomainCollection implements DomainCollectionInterface
 	 */
 	public function next()
 	{
-		if ($this->isValid()) {
+		if ($this->valid()) {
 			$this->index++;
 		}
 	}
@@ -152,8 +149,15 @@ class DomainCollection implements DomainCollectionInterface
 	 * @return	null
 	 */
 	public function add(DomainModelInterface $domain)
-	{
-		$max = $this->count() + 1;
+	{	
+		$count = $this->count();
+		if (0 === $count) {
+			$max = $count;
+		}
+		else {
+			$max = $count++;
+		}
+
 		$this->raw[$max]      = '__NEW__';
 		$this->objCache[$max] = $domain;
 		return $this;
@@ -165,10 +169,40 @@ class DomainCollection implements DomainCollectionInterface
 	 */
 	public function loadRawData(array $data)
 	{
-		$this->_raw = $data;
+		$this->raw = $data;
 		$this->rewind();
 		$this->objCache = array();
 		return $this;
+	}
+
+	/**
+	 * @param	string	$method	
+	 * @param	mixed	$value
+	 * @return	DomainCollection | false
+	 */
+	public function searchByMethod($expected, $method, array $params = array())
+	{
+		if (empty($method) || ! is_string($method)) {
+			return false;
+		}
+
+		$collection = $this->createEmptyCollection();
+		foreach ($this as $domain) {
+			$value = call_user_func_array(array($domain, $method),$params);
+			if ($expected === $value) {
+				$collection->add($domain);
+			}
+		}
+
+		return $collection;
+	}
+
+	/**
+	 * @return	DomainCollection
+	 */
+	protected function createEmptyCollection()
+	{
+		return new self($this->getDomainKey(), $this->getDomainBuilder());
 	}
 
 	/**
@@ -181,7 +215,8 @@ class DomainCollection implements DomainCollectionInterface
 	 */
 	private function getRow($index)
 	{
-		if (! is_int($index) || $index >= $this->count || $index < 0) {
+		$count = $this->count();
+		if (! is_int($index) || $index >= $count || $index < 0) {
 			return false;
 		}
 
