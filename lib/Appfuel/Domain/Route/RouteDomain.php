@@ -63,7 +63,7 @@ class RouteDomain extends DomainModel implements RouteDomainInterface
 	 * @param	string	$name
 	 * @return	OperationModel
 	 */
-	public function setSetRouteKey($name)
+	public function setRouteKey($name)
 	{
 		if (! $this->isNonEmptyString($name)) {
 			throw new Exception("Route key must be a non empty string");
