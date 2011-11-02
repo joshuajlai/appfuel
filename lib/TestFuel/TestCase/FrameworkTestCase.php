@@ -43,6 +43,17 @@ class FrameworkTestCase extends BaseTestCase
 	}
 
 	/**
+	 * Did not have to trouble shoot why phpunit expectes me to have a test
+	 * here!
+	 * 
+	 * @return null
+	 */
+	public function testTrue()
+	{
+		$this->assertTrue(true);
+	}
+
+	/**
 	 * Will restore the include path to the same state it was in when 
 	 * testing was initialized
 	 *

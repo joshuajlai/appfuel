@@ -21,6 +21,28 @@ use StdClass,
 class NamespaceParserTest extends BaseTestCase
 {
 	/**
+	 * System under test
+	 * @var NamespaceParser
+	 */
+	protected $parser = null;
+
+	/**	
+	 * @return	null
+	 */
+	public function setUp()
+	{
+		$this->parser = new NamespaceParser();
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function tearDown()
+	{
+		$this->parser = null;
+	}
+
+	/**
 	 * @return	array
 	 */
 	public function provideNamespaces()
@@ -122,6 +144,69 @@ class NamespaceParserTest extends BaseTestCase
 		);
 	}
 
+	public function testInterface()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\ClassLoader\NamespaceParserInterface',
+			$this->parser
+		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testExtension()
+	{
+		$this->assertEquals('.php', $this->parser->getExtension());
+
+		$ext = '.inc';
+		$this->assertSame(
+			$this->parser,
+			$this->parser->setExtension($ext),
+			'uses fluent interface'
+		);
+		$this->assertEquals($ext, $this->parser->getExtension());
+		
+		/* empty string is valid */
+		$ext = '';
+		$this->assertSame(
+			$this->parser,
+			$this->parser->setExtension($ext),
+			'uses fluent interface'
+		);
+		$this->assertEquals($ext, $this->parser->getExtension());
+	}
+
+	/**
+	 * @depends				testInterface
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return				null
+	 */
+	public function testSetExtension_IntFailure()
+	{
+		$this->parser->setExtension(1234);
+	}
+
+	/**
+	 * @depends				testInterface
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return				null
+	 */
+	public function testSetExtension_ArrayFailure()
+	{
+		$this->parser->setExtension(array(1,2,3));
+	}
+
+	/**
+	 * @depends				testInterface
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @return				null
+	 */
+	public function testSetExtension_ObjectFailure()
+	{
+		$this->parser->setExtension(new StdClass());
+	}
 
 	/**
 	 * @dataProvider	provideNamespaces
@@ -129,7 +214,7 @@ class NamespaceParserTest extends BaseTestCase
 	 */
 	public function testParseNs($input, $expected)
 	{
-		$result = NamespaceParser::parseNs($input);
+		$result = $this->parser->parseNs($input);
 		$this->assertEquals($expected, $result);
 	}
 
@@ -139,7 +224,7 @@ class NamespaceParserTest extends BaseTestCase
 	 */
 	public function testParsePear($input, $expected)
 	{
-		$result = NamespaceParser::parsePear($input);
+		$result = $this->parser->parsePear($input);
 		$this->assertEquals($expected, $result);
 	}
 
@@ -149,7 +234,7 @@ class NamespaceParserTest extends BaseTestCase
 	 */
 	public function testParseNoExtension($input, $expected)
 	{
-		$result = NamespaceParser::parse($input, false);
+		$result = $this->parser->parse($input, false);
 		$this->assertEquals($expected, $result);
 	}
 
@@ -159,9 +244,7 @@ class NamespaceParserTest extends BaseTestCase
 	 */
 	public function testParseWithExtension($input, $expected)
 	{
-		$result = NamespaceParser::parse($input);
+		$result = $this->parser->parse($input);
 		$this->assertEquals($expected, $result);
 	}
-
-
 }

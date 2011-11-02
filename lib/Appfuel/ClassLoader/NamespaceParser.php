@@ -10,24 +10,54 @@
  */
 namespace Appfuel\ClassLoader;
 
+use Appfuel\Framework\Exception;
+
 /**
  * The Dependency loader will iterate through the namespace and file list. 
  * Each namespace is resolved and loaded with a require call. Each file is
  * is resolved and loaded with a require_once call.
  */
-class NamespaceParser
+class NamespaceParser implements NamespaceParserInterface
 {
+	/**
+	 * File extension used in final parsed string
+	 * @var string
+	 */
+	protected $ext = '.php';
+
+	/**
+	 * @return	string
+	 */
+	public function getExtension()
+	{
+		return $this->ext;
+	}
+
+	/**
+	 * @param	string	$ext
+	 * @return	NamespaceParser
+	 */
+	public function setExtension($ext)
+	{
+		if (! is_string($ext)) {
+			throw new Exception("extension must be a string");
+		}
+
+		$this->ext = $ext;
+		return	$this;
+	}
+
 	/**
 	 * Resolve php namespace first otherwise resolve as pear name 
 	 *
 	 * @param	string	$string	
 	 * @return	string
 	 */	
-	static public function parse($class, $isExtension = true)
+	public function parse($class, $isExtension = true)
 	{
-		$ext  = '.php';
-		$path = self::parseNs($class);
-		if (false === $path && false === ($path = self::parsePear($class))) {
+		$ext  = $this->getExtension();
+		$path = $this->parseNs($class);
+		if (false === $path && false === ($path = $this->parsePear($class))) {
 			return false;
 		}
 
@@ -44,7 +74,7 @@ class NamespaceParser
 	 * @param	string	$class
 	 * @return	string | false on failure
 	 */
-	static public function parseNs($class)
+	public function parseNs($class)
 	{
 		if (empty($class) || ! is_string($class) || !($class = trim($class))) {
 			return false;
@@ -76,7 +106,7 @@ class NamespaceParser
 	 * @param	string	$class
 	 * @return	string | false on failure
 	 */
-	static public function parsePear($class)
+	public function parsePear($class)
 	{
 		if (empty($class) || ! is_string($class) || !($class = trim($class))) {
 			return false;
