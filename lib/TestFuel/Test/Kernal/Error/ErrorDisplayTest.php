@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TesFuel\Test\Framework\Env;
+namespace TesFuel\Test\Kernal\Error;
 
-use TestFuel\TestCase\FrameworkTestCase,
-	Appfuel\Framework\Env\ErrorDisplay;
+use Appfuel\Kernal\Error\ErrorDisplay,
+	TestFuel\TestCase\FrameworkTestCase;
 
 /**
  * ErrorDisplay provides a uniform interface for setting the configuration 
@@ -49,6 +49,17 @@ class DisplayErrorTest extends FrameworkTestCase
 	{
 		parent::tearDown();
 		unset($this->error);
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testInterface()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\Kernal\Error\ErrorDisplayInterface',
+			$this->error
+		);
 	}
 
 	/**

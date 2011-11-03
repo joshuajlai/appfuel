@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Framework\Env;
+namespace TestFuel\Test\Kernal;
 
 use Appfuel\Registry,
-	TestFuel\TestCase\FrameworkTestCase,
-	Appfuel\Framework\Env\IncludePath,
-	Appfuel\Framework\File\FileManager;
+	Appfuel\Kernal\IncludePath,
+	Appfuel\Framework\File\FileManager,
+	TestFuel\TestCase\FrameworkTestCase;
 
 /**
  * Test the ability to change the php include path. These changes include 
@@ -44,7 +44,18 @@ class IncludePathTest extends FrameworkTestCase
 	public function tearDown()
 	{
 		parent::tearDown();
-		unset($this->includePath);
+		$this->includePath = null;
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testInterface()
+	{	
+		$this->assertInstanceOf(
+			'Appfuel\Kernal\IncludePathInterface',
+			$this->includePath
+		);	
 	}
 
 	/**
@@ -55,7 +66,7 @@ class IncludePathTest extends FrameworkTestCase
      *
 	 * @return null
 	 */
-	public function testUsePathsDefault()
+	public function testSetPathsDefault()
 	{
 		$paths = array(
 			'path_1',
@@ -64,7 +75,7 @@ class IncludePathTest extends FrameworkTestCase
 
 		$oldPath	 = get_include_path();
 		$expected    = 'path_1' . PATH_SEPARATOR . 'path_2';
-		$result      = $this->includePath->usePaths($paths);
+		$result      = $this->includePath->setPath($paths);
 		$includePath = get_include_path();
 		$this->restoreIncludePath();
 
@@ -75,7 +86,7 @@ class IncludePathTest extends FrameworkTestCase
 	/**
 	 * @return null
 	 */
-	public function testUsePathsAppend()
+	public function testSetPathAppend()
 	{
 		$paths = array(
 			'path_1',
@@ -85,7 +96,7 @@ class IncludePathTest extends FrameworkTestCase
 		$oldPath	 = get_include_path();
 		$expected    = $oldPath . PATH_SEPARATOR . 
 					   'path_1' . PATH_SEPARATOR . 'path_2';
-		$result      = $this->includePath->usePaths($paths, 'append');
+		$result      = $this->includePath->setPath($paths, 'append');
 		$includePath = get_include_path();
 		$this->restoreIncludePath();
 
@@ -96,7 +107,7 @@ class IncludePathTest extends FrameworkTestCase
 	/**
 	 * @return null
 	 */
-	public function testUsePathsPrepend()
+	public function testSetPathPrepend()
 	{
 		$paths = array(
 			'path_1',
@@ -108,7 +119,7 @@ class IncludePathTest extends FrameworkTestCase
 					   'path_2' . PATH_SEPARATOR .
 					   $oldPath;
 
-		$result      = $this->includePath->usePaths($paths, 'prepend');
+		$result      = $this->includePath->setPath($paths, 'prepend');
 		$includePath = get_include_path();
 		$this->restoreIncludePath();
 		
@@ -120,17 +131,13 @@ class IncludePathTest extends FrameworkTestCase
 	 * Same as default
 	 * @return null
 	 */
-	public function testUsePathsReplace()
+	public function testSetPathReplace()
 	{
-		$paths = array(
-			'path_1',
-			'path_2'
-		);
-		$oldPath	 = get_include_path();
-		$expected    = 'path_1' . PATH_SEPARATOR . 
-					   'path_2';
+		$paths	  = array('path_1','path_2');
+		$oldPath  = get_include_path();
+		$expected = 'path_1' . PATH_SEPARATOR . 'path_2';
 
-		$result      = $this->includePath->usePaths($paths, 'replace');
+		$result      = $this->includePath->setPath($paths, 'replace');
 		$includePath = get_include_path();
 		
 		$this->restoreIncludePath();
