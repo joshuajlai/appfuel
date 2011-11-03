@@ -10,8 +10,6 @@
  */
 namespace Appfuel\Framework\Orm\Domain;
 
-use Countable,
-	Iterator;
 /**
  * Domain collections can hold one or more domains of a single type
  */

@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Framework\DataStructure;
+namespace TestFuel\DataStructure;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\DataStructure\Dictionary;
+	Appfuel\DataStructure\Dictionary;
 
 /**
  * A data dictionary is a general data structure used to manage an associative 
@@ -41,7 +41,18 @@ class DictionaryTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		unset($this->dictionary);
+		$this->dictionary = null;
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testInterface()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\DataStructure\DictionaryInterface',
+			$this->dictionary
+		);
 	}
 
 	/**
@@ -198,8 +209,8 @@ class DictionaryTest extends BaseTestCase
 		$this->assertTrue($list->existsAs('my-list', new Dictionary()));
 		
 	
-		$class = '\Appfuel\Framework\DataStructure\Dictionary';
-		$interface = '\Appfuel\Framework\DataStructure\DictionaryInterface';
+		$class = '\Appfuel\DataStructure\Dictionary';
+		$interface = '\Appfuel\DataStructure\DictionaryInterface';
 
 		$this->assertTrue($list->existsAs('my-list', $class));
 		$this->assertTrue($list->existsAs('my-list', $interface));
