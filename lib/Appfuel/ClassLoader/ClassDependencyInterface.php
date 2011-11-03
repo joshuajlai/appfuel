@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernal\Dependency;
+namespace Appfuel\ClassLoader;
 
 /**
  * A dependency groups a collection of namespaces or files to be loaded in

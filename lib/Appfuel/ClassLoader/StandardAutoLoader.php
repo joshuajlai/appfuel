@@ -17,12 +17,11 @@ use Appfuel\Framework\Exception;
  * interoperability standards for PHP 5.3 namespaces and class names.
  *
  *  Example which loads classes for anything in the lib dir
- *  $classLoader = new StandardAutoloader();
- *  $classLoader->addPath('path/to/lib')
+ *  $classLoader = new StandardAutoloader('/path/to/lib');
  *  $classLoader->register();
  * 
  */
-class StandardAutoLoader implements AutoloaderInterface
+class StandardAutoLoader implements AutoLoaderInterface
 {
 	/**
 	 * Used to parse the namespace into paths
@@ -43,11 +42,25 @@ class StandardAutoLoader implements AutoloaderInterface
 	protected $isIncludePath = false;
 
 	/**
+	 * @param	string	$path
 	 * @param	NamespaceParserInterface $parser
 	 * @return	StandardAutoLoader
 	 */
-	public function __construct(NamespaceParserInterface $parser = null)
+	public function __construct($path = null, 
+								NamespaceParserInterface $parser = null)
 	{
+		if (null !== $path && ! empty($path)) {
+			if (is_string($path)) {
+				$this->addPath($path);
+			}
+			else if (is_array($path)) {
+				$this->addPaths($path);
+			}
+			else {
+				throw new Exception("path must be a string or an array");
+			}
+		}
+
 		if (null === $parser) {
 			$parser = new NamespaceParser();
 		}
@@ -116,11 +129,33 @@ class StandardAutoLoader implements AutoloaderInterface
 	}
 
 	/**
+	 * @param	array	$path
+	 * @return	StandardAutoLoader
+	 */
+	public function addPaths(array $paths)
+	{
+		foreach ($paths as $path) {
+			$this->addPath($path);
+		}
+
+		return $this;
+	}
+
+	/**
 	 * @return	array
 	 */
 	public function getPaths()
 	{
 		return $this->pathList;
+	}
+
+	/**
+	 * @return	StandardAutoLoader
+	 */
+	public function clearPaths()
+	{
+		$this->pathList = array();
+		return $this;
 	}
 
 	/**
@@ -147,10 +182,16 @@ class StandardAutoLoader implements AutoloaderInterface
 
 	/**
 	 * @param	string
-	 * @return	null
+	 * @return	null	when file is not found 
+	 *			false	when class or interface exists
+	 *			true	when class file is found and loaded
 	 */
 	public function loadClass($class)
 	{
+		if (class_exists($class,false) || interface_exists($class,false)) {
+			return false;
+        }
+
 		$parser = $this->getParser();
 		$path   = $parser->parse($class);
 		if (false === $path) {
@@ -170,5 +211,7 @@ class StandardAutoLoader implements AutoloaderInterface
 			require $file;
 			return true;
 		}
+
+		return null;
 	}
 }

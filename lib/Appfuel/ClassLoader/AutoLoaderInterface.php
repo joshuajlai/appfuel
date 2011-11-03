@@ -15,7 +15,7 @@ namespace Appfuel\ClassLoader;
  * Its only responsibilities are checking if the file exists against a list
  * of paths.
  */
-interface AutoloaderInterface
+interface AutoLoaderInterface
 {
 	/**
 	 * @return	NamespaceParserInterface

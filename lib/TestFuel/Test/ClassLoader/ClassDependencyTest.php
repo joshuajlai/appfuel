@@ -12,7 +12,7 @@ namespace TestFuel\Test\Kernal\Dependency;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Kernal\Dependency\ClassDependency;
+	Appfuel\ClassLoader\ClassDependency;
 
 /**
  * The class dependency is used to declare a group of files or namespaces that
@@ -75,7 +75,7 @@ class ClassDependencyTest extends BaseTestCase
     public function testInterface()
     {
         $this->assertInstanceOf(
-            'Appfuel\Kernal\Dependency\ClassDependencyInterface',
+            'Appfuel\ClassLoader\ClassDependencyInterface',
             $this->dependency
         );
     }

@@ -76,7 +76,7 @@ class StandardAutoLoaderTest extends FrameworkTestCase
 		
 		$this->assertSame($new, $this->loader->getParser());
 
-		$loader = new StandardAutoLoader($new);
+		$loader = new StandardAutoLoader(null, $new);
 		$this->assertSame($new, $loader->getParser());
 	}
 
@@ -141,6 +141,64 @@ class StandardAutoLoaderTest extends FrameworkTestCase
 					 ->addPath($path3);
 
 		$this->assertEquals($expected, $this->loader->getPaths());
+	}
+
+	/**
+	 * The first parameter can be a single path or an array of paths
+	 * 
+	 * @depends		testPath
+	 * @return		null
+	 */
+	public function testPathConstructorSinglePath()
+	{
+		$path     = '/my/path';
+		$loader   = new StandardAutoLoader($path);
+		$expected = array($path);
+		$this->assertEquals($expected, $loader->getPaths());
+	}
+
+	/**
+	 * @depends		testPath
+	 * @return		null
+	 */
+	public function testPathConstructorManyPaths()
+	{
+		$path     = array('/my/path', 'my/other/path');
+		$loader   = new StandardAutoLoader($path);
+		$this->assertEquals($path, $loader->getPaths());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @depends				testPath
+	 * @return				null
+	 */
+	public function testPathConstructor_IntFailure()
+	{
+		$path     = 12345;
+		$loader   = new StandardAutoLoader($path);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @depends				testPath
+	 * @return				null
+	 */
+	public function testPathConstructor_ArrayFailure()
+	{
+		$path     = array(2,23,4);
+		$loader   = new StandardAutoLoader($path);
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @depends				testPath
+	 * @return				null
+	 */
+	public function testPathConstructor_ObjectFailure()
+	{
+		$path     = new StdClass();
+		$loader   = new StandardAutoLoader($path);
 	}
 
 	/**
@@ -230,6 +288,66 @@ class StandardAutoLoaderTest extends FrameworkTestCase
 	}
 
 	/**
+	 * LoadClass will return true on files that have been resolved to a path,
+	 * located on disk and loaded into memory..
+	 * 
+	 * Note: whenever we clear the autoloader when can not run any phpunit
+	 * classes because its autoloader is cleared. So we save the results,
+	 * restore the autoloaders and then test the results.
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testLoadClass()
+	{
+		$class = 'TestFuel\Fake\ClassLoader\LoadMe';
+		$this->loader->addPath(AF_LIB_PATH);
+		$this->assertNotContains($class, get_declared_classes());
+		
+		$this->clearAutoloaders();
+		$result = $this->loader->loadClass($class);
+
+		$this->restoreAutoloaders();
+		$this->assertTrue($result);
+		$this->assertContains($class, get_declared_classes());
+	}
+
+	/**
+	 * LoadClass will return false on classes or interfaces already loaded
+	 * 
+	 * Note: whenever we clear the autoloader when can not run any phpunit
+	 * classes because its autoloader is cleared. So we save the results,
+	 * restore the autoloaders and then test the results.
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testLoadClassesAlreadyLoaded()
+	{
+		$class     = 'Appfuel\ClassLoader\StandardAutoLoader';
+		$interface = 'Appfuel\ClassLoader\AutoLoaderInterface';
+		$this->loader->addPath(AF_LIB_PATH);
+		$this->assertContains($class, get_declared_classes());
+		$this->assertContains($interface, get_declared_interfaces());
+		
+		$this->clearAutoloaders();
+		$cresult = $this->loader->loadClass($class);
+		$iresult = $this->loader->loadClass($interface);
+
+		$this->restoreAutoloaders();
+		$this->assertFalse($cresult);
+		$this->assertFalse($iresult);
+	}
+
+
+	/**
+	 * LoadClass will return null when the resolved file for that class can
+	 * not be found
+	 *
+	 * Note: whenever we clear the autoloader when can not run any phpunit
+	 * classes because its autoloader is cleared. So we save the results,
+	 * restore the autoloaders and then test the results.
+	 *
 	 * @depends	testInterface
 	 * @return	null
 	 */

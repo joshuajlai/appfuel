@@ -8,13 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernal\Dependency;
+namespace Appfuel\ClassLoader;
 
 use Appfuel\Framework\Exception;
 
 /**
  * Used to declare a group of files or namespaces that should be loaded by a 
- * dependency loader which does not use the autoloader.
+ * dependency loader which is not a registered autoloader. 
  */
 class ClassDependency implements ClassDependencyInterface
 {
