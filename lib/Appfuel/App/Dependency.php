@@ -47,7 +47,6 @@ class Dependency
 			"{$fw}/Env/ErrorReporting.php",
 			"{$fw}/Env/AutoloadInterface.php",
 			"{$fw}/Env/Autoloader.php",
-			"{$fw}/Env/Timezone.php",
 			"{$fw}/Env/IncludePath.php",
 			"{$fw}/App/Init/InitializerInterface.php",
 			"{$fw}/App/Init/TaskInterface.php",

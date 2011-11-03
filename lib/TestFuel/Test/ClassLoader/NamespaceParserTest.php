@@ -16,7 +16,10 @@ use StdClass,
 
 /**
  * The core responsibility is to turn either a php namespace or pear naming
- * scheme into a path to php
+ * scheme into a path to php. We test that we can change the file extension
+ * to be included. We test that we can parse a php namespace. We test that
+ * we can parse a pear namespace. Finally we test that the parse method will
+ * first parse a php namespace then fallback and test a pear namespace
  */
 class NamespaceParserTest extends BaseTestCase
 {

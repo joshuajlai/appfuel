@@ -12,10 +12,16 @@ namespace TestFuel\Test\ClassLoader;
 
 use StdClass,
 	TestFuel\TestCase\FrameworkTestCase,
+	Appfuel\ClassLoader\ClassDependency,
 	Appfuel\ClassLoader\DependencyLoader;
 
 /**
- *
+ * The dependency loader works on one or more ClassDependency objects. It
+ * will do a php require on all the namespaces and files in that dependency
+ * object. We test adding and getting dependency objects. The Dependency 
+ * Loader uses a loader object that implements the AutoLoaderInterface to
+ * do that actual loading of a namespace. This AutoLoader is immutable so we
+ * test that. We test loading a single dependency and multiple dependencies.
  */
 class DependencyLoaderTest extends FrameworkTestCase
 {
@@ -112,5 +118,64 @@ class DependencyLoaderTest extends FrameworkTestCase
 
 		$expected = array($depend1, $depend2, $depend3);
 		$this->assertEquals($expected, $this->loader->getDependencies());
+	}
+
+	/**
+	 * @depends	testDependencies
+	 * @return	null
+	 */
+	public function testLoadDependency()
+	{
+		$dependency = new ClassDependency(AF_LIB_PATH);
+		$list = array(
+			'TestFuel\Fake\ClassLoader\DependA',
+			'TestFuel\Fake\ClassLoader\DependB',
+			'TestFuel\Fake\ClassLoader\DependC'
+		);
+		$dependency->loadNamespaces($list);
+
+		$declared = get_declared_classes();
+		foreach ($list as $ns) {
+			$this->assertNotContains($ns, $declared);
+		}
+		$this->clearAutoLoaders();
+		$result = $this->loader->loadDependency($dependency);
+		$this->restoreAutoLoaders();
+		
+		$this->assertNull($result);
+		$declared = get_declared_classes();
+		foreach ($list as $ns) {
+			$this->assertContains($ns, $declared);
+		}	
+	}
+
+	/**
+	 * Dependency Loader will throw an exception for any file it can not find
+	 *
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @depends				testDependencies
+	 * @return				null
+	 */
+	public function testLoadDependencyClassNotFound()
+	{
+		$dependency = new ClassDependency(AF_LIB_PATH);
+		$list = array(
+			'TestFuel\Fake\ClassLoader\IsNotHere',
+		);
+		$dependency->loadNamespaces($list);
+
+		$declared = get_declared_classes();
+		foreach ($list as $ns) {
+			$this->assertNotContains($ns, $declared);
+		}
+		$this->clearAutoLoaders();
+		$result = $this->loader->loadDependency($dependency);
+		$this->restoreAutoLoaders();
+		
+		$this->assertNull($result);
+		$declared = get_declared_classes();
+		foreach ($list as $ns) {
+			$this->assertContains($ns, $declared);
+		}	
 	}
 }

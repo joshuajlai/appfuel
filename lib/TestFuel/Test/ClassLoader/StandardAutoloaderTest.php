@@ -15,7 +15,11 @@ use StdClass,
 	Appfuel\ClassLoader\StandardAutoLoader;
 
 /**
- *
+ * The standard autoloader can both manual parser and load a php namespace
+ * into memory or be registered as an autoloader to do the samething. The
+ * auto loader has a namespace parse so test its usage. We test the ability
+ * register and unregister the autoloader. We test the ability to add search
+ * paths and we test that we can load a class
  */
 class StandardAutoLoaderTest extends FrameworkTestCase
 {

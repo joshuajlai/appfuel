@@ -11,7 +11,7 @@
 namespace TestFuel\Fake\ClassLoader;
 
 /**
- * Class used to test the Classes in the Appfuel\ClassLoader module
+ * Class used to test the ClassDependency and DependencyLoader
  */
-class LoadMe
+class DependC
 {}

@@ -16,7 +16,9 @@ use StdClass,
 
 /**
  * The class dependency is used to declare a group of files or namespaces that
- * should be loaded by a dependency loader that does not use the autoloader.
+ * should be loaded by a dependency loader which will manually load those 
+ * classes and files into memory. We test the immutable root path used for
+ * all of the namespaces. We test adding namespaces and files.
  */
 class ClassDependencyTest extends BaseTestCase
 {

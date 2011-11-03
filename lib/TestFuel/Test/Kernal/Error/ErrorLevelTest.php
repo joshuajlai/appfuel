@@ -8,21 +8,21 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Framework\Env;
+namespace TestFuel\Test\Kernal\Error;
 
-use TestFuel\TestCase\FrameworkTestCase,
-	Appfuel\Framework\Env\ErrorReporting;
+use Appfuel\Kernal\Error\ErrorLevel,
+	TestFuel\TestCase\FrameworkTestCase;
 
 /**
- * The ErrorReporting class encapsulates the logic arround a single 
+ * The ErrorLevel class encapsulates the logic arround a single 
  * php method error_reporting. The intent is to create a uniform set of
  * of error levels that can be used in a config file.
  */
-class ErrorReportingTest extends FrameworkTestCase
+class ErrorLevelTest extends FrameworkTestCase
 {
 	/**
 	 * System Under Test
-	 * @var PHPError
+	 * @var ErrorLevel
 	 */
 	protected $error = NULL;
 
@@ -61,7 +61,7 @@ class ErrorReportingTest extends FrameworkTestCase
 	public function setUp()
 	{
 		parent::setUp();
-		$this->error = new ErrorReporting();
+		$this->error = new ErrorLevel();
 	}
 
 	/**
@@ -72,7 +72,18 @@ class ErrorReportingTest extends FrameworkTestCase
 	public function tearDown()
 	{
 		parent::tearDown();
-		unset($this->error);
+		$this->error = null;
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testInterface()
+	{
+		$this->assertInstanceOf(
+			'Appfuel\Kernal\Error\ErrorLevelInterface',
+			$this->error
+		);
 	}
 
 	/**
@@ -144,7 +155,6 @@ class ErrorReportingTest extends FrameworkTestCase
 			$code = $this->error->mapLevel($level);
 			$this->assertEquals($map[$code], $level);	
 		}
-
 
 		$level = 999999999;
 		$this->assertFalse($this->error->mapLevel($level));

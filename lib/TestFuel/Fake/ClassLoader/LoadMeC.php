@@ -13,5 +13,5 @@ namespace TestFuel\Fake\ClassLoader;
 /**
  * Class used to test the Classes in the Appfuel\ClassLoader module
  */
-class LoadMe
+class LoadMeC
 {}
