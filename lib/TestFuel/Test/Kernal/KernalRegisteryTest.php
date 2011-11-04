@@ -267,6 +267,75 @@ class KernalRegistryTest extends BaseTestCase
 	}
 
 	/**
+	 * We will ignore the key and use the same valid classes names tested for
+	 * the domain map
+	 *
+	 * @dataProvider	provideValidDomainKeyValues
+	 * @return	null
+	 */
+	public function testStartupTasks($key, $class)
+	{
+		$this->assertEquals(array(), KernalRegistry::getStartupTasks());
+		$this->assertNull(KernalRegistry::addStartupTask($class));
+		$this->assertEquals(array($class), KernalRegistry::getStartupTasks());
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @dataProvider		provideBadKey
+	 * @return	null
+	 */
+	public function testAddBadStartupTask($class)
+	{
+		KernalRegistry::addStartupTask($class);
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testSetStartupTasks()
+	{
+		$list = array(
+			'MyClass',
+			'YourClass',
+			'My\Class',
+			'Your\Class'
+		);
+		$this->assertNull(KernalRegistry::setStartupTasks($list));
+		$this->assertEquals($list, KernalRegistry::getStartupTasks());
+
+		/* 
+		 * prove setting an empty array is ignored you must explicitly clear 
+		 */
+		$this->assertNull(KernalRegistry::setStartupTasks(array()));
+		$this->assertEquals($list, KernalRegistry::getStartupTasks());
+		
+		
+		/* make sure clear is working */
+		$this->assertNull(KernalRegistry::clearStartupTasks());
+		$this->assertEquals(array(), KernalRegistry::getStartupTasks());
+
+	}
+
+	/**
+	 * @expectedException	Appfuel\Framework\Exception
+	 * @dataProvider		provideBadKey
+	 * @return	null
+	 */
+	public function testSetStartupTasksBadTask($class)
+	{
+		$list = array(
+			'MyClass',
+			'YourClass',
+			$class,
+			'My\Class',
+			'Your\Class'
+		);
+
+		KernalRegistry::setStartupTasks($list);
+	}
+
+	/**
 	 * @return	null
 	 */
 	public function testClear()
@@ -278,6 +347,7 @@ class KernalRegistryTest extends BaseTestCase
 			'key-d' => 'My\Class\Domain\Class'
 		);
 		KernalRegistry::setDomainMap($list);
+
 		$list2 = array(
 			'param-a' => 'value-1',
 			'param-b' => 'value-2',
@@ -286,10 +356,18 @@ class KernalRegistryTest extends BaseTestCase
 		);
 		KernalRegistry::setParams($list2);
 
+		$list3 = array(
+			'MyClass',
+			'YourClass',
+			'My\Class',
+			'Your\Class'
+		);
+		KernalRegistry::setStartupTasks($list3);
+
 		$this->assertNull(KernalRegistry::clear());
 		$this->assertEquals(array(), KernalRegistry::getParams());
 		$this->assertEquals(array(), KernalRegistry::getDomainMap());
-		
+		$this->assertEquals(array(), KernalRegistry::getStartupTasks());
 	}
 }
 

@@ -30,6 +30,57 @@ class KernalRegistry
 	static protected $domains = array();
 
 	/**
+	 * List of tasks startup classes used to by the kernal intializer
+	 * @var array
+	 */
+	static protected $startup = array();
+
+	/**
+	 * @param	array	$classes
+	 * @return	null
+	 */
+	static public function setStartupTasks(array $classes) 
+	{
+		foreach ($classes as $class) {
+			self::addStartupTask($class);
+		}
+	}
+
+	/**
+	 * @return	array
+	 */
+	static public function getStartupTasks()
+	{
+		return self::$startup;
+	}
+
+	/**
+	 * A startup task is a fully qualified namespace for a startup strategy.
+	 * The kernal intitializer will run all the startup tasks in this list
+	 * 
+	 * @param	string	$class
+	 * @return	null
+	 */
+	static public function addStartupTask($class)
+	{
+		if (! self::isValidString($class)) {
+			throw new Exception("Key must be a non empty scalar");
+		}
+
+		if (! in_array($class, self::$startup, true)) {
+			self::$startup[] = trim($class);
+		}
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function clearStartupTasks()
+	{
+		self::$startup = array();
+	}
+
+	/**
 	 * @return	array
 	 */
 	static public function getParams()
@@ -70,11 +121,7 @@ class KernalRegistry
 	 */
 	static public function addParam($key, $value)
 	{
-		/* no empty strings or keys of just whitespaces 
-		 * this also means no numeric keys or string keys like '0'
-		 * this strictness helps enforce more meaningful text keys 
-		 */
-		if (empty($key) || !is_string($key) || !($tmp = trim($key))) {
+		if (! self::isValidString($key)) {
 			throw new Exception("Key must be a non empty scalar");
 		}
 
@@ -145,11 +192,11 @@ class KernalRegistry
 	 */
 	static public function addDomainClass($key, $class)
 	{
-		if (empty($key) || ! is_string($key) || !($key = trim($key))) {
+		if (! self::isValidString($key)) {
 			throw new Exception("key must be a non empty string");
 		}
 
-		if (empty($class) || ! is_string($class) || !($class = trim($class))) {
+		if (! self::isValidString($class)) {
 			throw new Exception("class must be a non empty string");
 		}
 
@@ -189,6 +236,20 @@ class KernalRegistry
 	{
 		self::clearParams();
 		self::clearDomainMap();
+		self::clearStartupTasks();
 	}
 
+	/** 
+	 * No empty strings or keys of just whitespaces 
+	 * this also means no numeric keys or string keys like '0'
+	 * this strictness helps enforce more meaningful text keys 
+	 */
+	static protected function isValidString($str)
+	{
+		if (empty($str) || !is_string($str) || !($tmp = trim($str))) {
+			return false;
+		}
+
+		return true;
+	}
 }
