@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel;
+namespace Appfuel\Kernal;
 
 use Exception;
 
@@ -18,7 +18,7 @@ use Exception;
  * just to have its namespace. Tags allow a list of space delimited keywords
  * which can be used by log aggregators limit searchs of errors
  */
-class AppfuelException extends Exception
+class AppfuelException extends Exception implements AppfuelExceptionInterface
 {
 	/**
 	 * Namespace of the class using the exception.
@@ -60,7 +60,7 @@ class AppfuelException extends Exception
 	/**
 	 * @return	string
 	 */
-	final public function getNamespace()
+	public function getNamespace()
 	{
 		return	$this->namespace;
 	}
@@ -68,7 +68,7 @@ class AppfuelException extends Exception
 	/**
 	 * @return	string
 	 */
-	final public function getTags()
+	public function getTags()
 	{
 		return $this->tags;
 	}
@@ -77,7 +77,7 @@ class AppfuelException extends Exception
 	 * @param	string	$ns
 	 * @return	null
 	 */
-	final private function setNamespace($ns)
+	private function setNamespace($ns)
 	{
 		$this->namespace = trim($ns);
 	}
@@ -86,7 +86,7 @@ class AppfuelException extends Exception
 	 * @param	string	$ns
 	 * @return	null
 	 */
-	final private function setTags($tags)
+	private function setTags($tags)
 	{
 		$this->tags = trim($tags);
 	}
@@ -100,17 +100,11 @@ class AppfuelException extends Exception
 	{
 		$ns   = $this->getNamespace();
 		$tags = $this->getTags();
-	
 		$msg  = $this->getMessage();
 		$file = $this->getFile();
 		$line = $this->getLine();
 		$code = $this->getCode();
 
-		$str = "exception [$ns] $msg in $file:$line:$tags";
-		if (defined("AF_DEBUG") && true === AF_DEBUG) {
-			$str = parent::__toString() . " $ns $tags";
-		}
-
-		return $str;
+		return "exception [$ns] $msg in $file:$line:$tags";
 	}
 }

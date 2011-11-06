@@ -12,8 +12,8 @@ namespace TestFuel\Test\Kernal;
 
 use StdClass,
 	Exception,
-	Appfuel\AppfuelException,
-	TestFuel\TestCase\BaseTestCase;
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Kernal\AppfuelException;
 
 /**
  * We extend the php exception and add namespaces and tags to be used to 
