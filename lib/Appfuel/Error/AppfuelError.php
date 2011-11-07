@@ -28,6 +28,19 @@ class AppfuelError implements ErrorInterface
 	protected $message = null;
 
 	/**
+	 * The error header is displayed when error is used in the context of
+	 * a string
+	 * @var string
+	 */
+	protected $header = 'Error';
+
+	/**
+	 * Flag used to determine if the header should be used in __toString
+	 * @var string
+	 */
+	protected $isHeader = true;
+
+	/**
 	 * @param	string	$msg 
 	 * @param	scalar	$code
 	 * @param	scalar	$level
@@ -58,13 +71,75 @@ class AppfuelError implements ErrorInterface
 	/**
 	 * @return	string
 	 */
+	public function getErrorString()
+	{
+		$header = '';
+		if ($this->isErrorHeader()) {
+			$header = $this->getErrorHeader();
+			$code = $this->getCode();
+			if (strlen($code) > 0) {
+				$code = "[$code]";
+			}
+			$header .= "$code: ";
+		}
+
+		return "{$header}{$this->getMessage()}";
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getErrorHeader()
+	{
+		return $this->header;
+	}
+
+	/**
+	 * @param	string	$text
+	 * @return	AppfuelError
+	 */
+	public function setErrorHeader($text)
+	{
+		if (! is_string($text)) {
+			return $this;
+		}
+
+		$this->header = $text;
+		return $this;
+	}
+
+	/**
+	 * @return	AppfuelError
+	 */
+	public function disableErrorHeader()
+	{
+		$this->isHeader = false;
+		return $this;
+	}
+
+	/**
+	 * @return	AppfuelError
+	 */
+	public function enableErrorHeader()
+	{
+		$this->isHeader = true;
+		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isErrorHeader()
+	{
+		return $this->isHeader;
+	}
+
+	/**
+	 * @return	string
+	 */
 	public function __toString()
 	{
-		$code = $this->getCode();
-		if (strlen($code) > 0) {
-			$code = "[$code]";
-		}
-		return "Error{$code}: {$this->getMessage()}";
+		return $this->getErrorString();
 	}
 
 	/**

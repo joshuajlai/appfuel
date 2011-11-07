@@ -153,5 +153,29 @@ class AppfuelErrorTest extends BaseTestCase
 		$this->assertEquals($string, $error->__toString());
 	}
 
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testGetSetIsHeader()
+	{
+		$this->assertTrue($this->error->isErrorHeader());
+		$this->assertEquals('Error', $this->error->getErrorHeader());
 
+		$this->assertSame(
+			$this->error,
+			$this->error->setErrorHeader('My Error'),
+			'uses a fluent interface'
+		);
+		$this->assertEquals('My Error', $this->error->getErrorHeader());
+
+		$result = $this->error->getErrorString();
+		$expected = "My Error: {$this->error->getMessage()}"; 
+		$this->assertEquals($expected, $result);
+
+		$error = new AppfuelError('error has occured', 'A100');
+		$error->setErrorHeader('My Error');
+		$expected = 'My Error[A100]: error has occured';
+		$this->assertEquals($expected, $error->getErrorString());
+	}
 }
