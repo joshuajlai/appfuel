@@ -11,6 +11,7 @@
 namespace TestFuel\Test\Error;
 
 use StdClass,
+	SplFileInfo,
 	Appfuel\Error\AppfuelError,
 	TestFuel\TestCase\BaseTestCase;
 
@@ -60,4 +61,97 @@ class AppfuelErrorTest extends BaseTestCase
 			$this->error
 		);	
 	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testConstructor()
+	{
+		$this->assertEquals($this->text, $this->error->getMessage());
+		$this->assertNull($this->error->getCode());
+
+		$expected = "Error: {$this->text}";
+		$this->assertEquals($expected, $this->error->__toString());
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function provideMessages()
+	{
+		$text  = "<error setting this message unsupported type";
+		$array = "$text -(array)>";
+		$obj   = "$text -(object)>";
+		$int   = "$text -(integer)>";
+		$float = "$text -(double)>";
+		return array(
+			array('', ''),
+			array('regular string', 'regular string'),
+			array(new SplFileInfo('my/path'), 'my/path'),
+			array(" \n\t", ''),
+			array(new StdClass(), $obj),
+			array(array(), $array),
+			array(array(1,2,3), $array),
+			array(12345, $int),
+			array(12.345, $float),
+		);
+	}
+
+	/**
+	 * A error code can be any scalar value. This represents the set of 
+	 * valid and invalid types.
+	 *
+	 * @return	array
+	 */
+	public function provideCodes()
+	{
+		return array(
+			array('',		'',		''),
+			array("\t\n ",	'',		''),
+			array(0,		0,		'[0]'),
+			array(1,		1,		'[1]'),
+			array(-1,		-1,		'[-1]'),
+			array(12345,	12345,	'[12345]'),
+			array(1.2345,	1.2345,	'[1.2345]'),
+			array('A100',	'A100',	'[A100]'),
+			array('more text',	'more text',	'[more text]'),
+			array(new StdClass(),	null,		''),
+			array(array(1,2,3),		null,		''),
+		);
+	}
+
+	/**
+	 * @dataProvider	provideMessages
+	 * @depends			testInterface
+	 * @param	string	$input
+	 * @param	string	$expected
+	 * @return	null
+	 */
+	public function testConstructorParamMessage($input, $expected)
+	{
+		$error = new AppfuelError($input);
+		$this->assertEquals($expected, $error->getMessage());
+		$strText = "Error: $expected";
+		$this->assertEquals($strText, $error->__toString());
+	}
+
+	/**
+	 * @dataProvider	provideCodes
+	 * @depends			testInterface
+	 * @param	string	$code
+	 * @param	string	$expected
+	 * @return	null
+	 */
+	public function testConstructorParamCode($code,$expected, $output)
+	{
+		$msg   = 'my message';
+		$error = new AppfuelError($msg, $code);
+		$this->assertEquals($expected, $error->getCode());
+
+		$string = "Error{$output}: $msg";
+		$this->assertEquals($string, $error->__toString());
+	}
+
+
 }

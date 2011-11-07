@@ -78,9 +78,9 @@ class AppfuelError implements ErrorInterface
 		}
 		else if (! is_string($msg)) {
 			$type = gettype($msg);
-			$msg  = "<error setting this message unkown format -($type)>";
+			$msg  = "<error setting this message unsupported type -($type)>";
 		}
-		$this->msg = $msg;
+		$this->message = trim($msg);
 	}
 
 	/**
@@ -93,7 +93,7 @@ class AppfuelError implements ErrorInterface
 			return;
 		}
 
-		$this->code = $code;
+		$this->code = trim($code);
 	}
 
 }
