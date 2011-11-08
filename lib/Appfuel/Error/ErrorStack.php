@@ -26,6 +26,172 @@ class ErrorStack implements ErrorStackInterface, Countable, Iterator
 	protected $errors = array();
 
 	/**
+	 * Header to display with the errors
+	 * @var string
+	 */
+	protected $errorHeader = 'Error';
+
+	/**
+	 * Flag used to determine if an error header is used with the error
+	 * error string
+	 * @var bool
+	 */
+	protected $isHeader = true;
+
+	/**
+	 * Text used to separate each error in the error string
+	 * @var string
+	 */
+	protected $errorSep = ' ';
+
+	/**
+	 * @param	string	$header
+	 * @param	string	$sep
+	 * @return	ErrorStack
+	 */
+	public function __construct($header = null, $sep = null)
+	{
+		if (null !== $header) {
+			$this->setErrorHeader($header);
+		}
+
+		if (null !== $sep) {
+			$this->setErrorSeparator($sep);
+		}
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getErrorSeparator()
+	{
+		return $this->errorSep;
+	}
+
+	/**
+	 * @param	string	$text
+	 * @return	ErrorStack
+	 */
+	public function setErrorSeparator($text)
+	{
+		if (! is_string($text)) {
+			return $this;
+		}
+
+		$this->errorSep = $text;
+		return $this;
+	}
+
+	/**
+	 * Return the message of the current error
+	 * @return	string
+	 */
+	public function getMessage()
+	{
+		$error = $this->getError();
+		if (! ($error instanceof ErrorInterface)) {
+			return null;
+		}
+
+		return $error->getMessage();
+	}
+
+	/**
+	 * Return the code of the current error
+	 * @return	string
+	 */
+	public function getCode()
+	{
+		$error = $this->getError();
+		if (! ($error instanceof ErrorInterface)) {
+			return null;
+		}
+
+		return $error->getCode();
+	}
+
+    /**
+     * @return  string
+     */
+    public function getErrorHeader()
+    {
+        return $this->errorHeader;
+    }
+
+    /**
+     * @param   string  $text
+     * @return  AppfuelError
+     */
+    public function setErrorHeader($text)
+    {
+        if (! is_string($text)) {
+            return $this;
+        }
+
+        $this->errorHeader = $text;
+        return $this;
+    }
+
+    /**
+     * @return  AppfuelError
+     */
+    public function disableErrorHeader()
+    {
+        $this->isHeader = false;
+        return $this;
+    }
+
+    /**
+     * @return  AppfuelError
+     */
+    public function enableErrorHeader()
+    {
+        $this->isHeader = true;
+        return $this;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isErrorHeader()
+    {
+        return $this->isHeader;
+    }
+
+    /**
+     * @return  string
+     */
+    public function getErrorString()
+    {
+		if (0 === $this->count()) {
+			return '';
+		}
+ 
+        $header = '';
+        if ($this->isErrorHeader()) {
+            $header = $this->getErrorHeader() . ': ';
+        }
+
+		$sep = $this->getErrorSeparator();
+		$string = $header;
+		foreach ($this as $error) {
+			$error->disableErrorHeader();
+			$string .= $error->getErrorString() . $sep;
+		}
+		$this->rewind();
+
+        return rtrim($string, $sep);
+    }
+
+    /**
+     * @return  string
+     */
+    public function __toString()
+    {
+        return $this->getErrorString();
+    }
+
+	/**
 	 * @param	ErrorInterface	$error
 	 * @return	ErrorStack	
 	 */
@@ -36,7 +202,7 @@ class ErrorStack implements ErrorStackInterface, Countable, Iterator
 	}
 
 	/**
-	 * @param	string	$text	
+	 * @paran	string	$text	
 	 * @param	scalar	$code
 	 * @return	ErrorStack
 	 */

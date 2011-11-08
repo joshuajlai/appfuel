@@ -3,7 +3,7 @@
 <phpunit backupGlobals="false" bootstrap="bootstrap.php" colors="true">
 <testsuites>
 	<testsuite name="Appfuel">
-		<directory suffix="Test.php">../lib/TestFuel/Test/ClassLoader</directory>
+		<directory suffix="Test.php">../lib/TestFuel/Test/Error</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Kernal</directory>
 	</testsuite>
 </testsuites>

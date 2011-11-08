@@ -26,6 +26,32 @@ interface ErrorInterface
 	public function getCode();
 
 	/**
+	 * @return	string
+	 */
+	public function getErrorString();
+
+    /**
+     * @return  string
+     */
+    public function getErrorHeader();
+
+    /**
+     * @param   string  $text
+     * @return  AppfuelErrorInterface
+     */
+    public function setErrorHeader($text);
+
+    /**
+     * @return  AppfuelErrorInterface
+     */
+    public function disableErrorHeader();
+
+    /**
+     * @return  AppfuelErrorInterface
+     */
+    public function enableErrorHeader();
+	
+	/**
 	 * Allow the error to be used in the context of a string
 	 * @return	string
 	 */

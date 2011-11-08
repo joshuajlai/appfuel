@@ -177,5 +177,11 @@ class AppfuelErrorTest extends BaseTestCase
 		$error->setErrorHeader('My Error');
 		$expected = 'My Error[A100]: error has occured';
 		$this->assertEquals($expected, $error->getErrorString());
+		
+		$this->assertSame($error,$error->disableErrorHeader());
+		$this->assertEquals('error has occured', $error->getErrorString());
+		
+		$this->assertSame($error,$error->enableErrorHeader());
+		$this->assertEquals($expected, $error->getErrorString());
 	}
 }
