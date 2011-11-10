@@ -12,8 +12,7 @@
 use Appfuel\AppManager;
 
 $base = realpath(dirname(__FILE__));
-$init = require $base . '/af-cli-init.php';
-echo "\n", print_r($init,1), "\n";exit;
 
-AppManager::initialize($base, 'config/app.ini');
-echo "\n", print_r($_SERVER,1), "\n";exit; 
+openlog("appfuel", LOG_CONS|LOG_PID|LOG_NDELAY, LOG_LOCAL7);
+syslog(LOG_ERR, array(1,2,3)); 
+closelog();
