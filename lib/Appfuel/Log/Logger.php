@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Log;
 
-use RunTimeException;
+use InvalidArgumentException;
 
 /**
  * Wraps the openlog, syslog, and closelog calls used when logging an appfuel
@@ -29,8 +29,15 @@ class Logger implements LoggerInterface
 	 * @param	int		$facility
 	 * @return	SysLogAdapter
 	 */
-	public function __construct(LogAdapterInterface $adapter)
+	public function __construct(LogAdapterInterface $adapter = null)
 	{
+		if (null === $adapter) {
+			$identity = 'appfuel';
+			if (defined('AF_APP_KEY')) {
+				$identity = AF_APP_KEY;
+			}
+			$adapter = new SysLogAdapter($identity);
+		}
 		$this->setAdapter($adapter);
 	}
 
@@ -46,7 +53,7 @@ class Logger implements LoggerInterface
 	 * @param	LogAdapterInterface $adapter
 	 * @return	null
 	 */
-	public function getSetAdapter(LogAdapterInterface $adapter)
+	public function setAdapter(LogAdapterInterface $adapter)
 	{
 		$this->adapter = $adapter;
 	}
@@ -57,7 +64,15 @@ class Logger implements LoggerInterface
 	 */
 	public function logEntry(LogEntryInterface $entry)
 	{
-		return $this->log($entry->getText(), $entry->getPriority());
+		$adapter = $this->getAdapter();
+		if (! $adapter->openLog()) {
+			return false;
+		}
+		
+		$result = $adapter->writeEntry($entry);
+		
+		$adapter->closeLog();
+		return $result;
 	}
 
 	/**
@@ -67,81 +82,19 @@ class Logger implements LoggerInterface
 	 */
 	public function log($text, $priority = LOG_INFO)
 	{
-		$adapter = $this->getAdapter();
-		if (! $adapter->open()) {
-			return false;
+
+		if (! empty($text) && is_string($text)) {
+			$entry = new LogEntry($text, new LogPriority($priority));
+		}
+		else if ($text instanceof LogEntryInterface) {
+			$entry = $text;
+		}
+		else {
+			$err  = "first param must be a string or an object that ";
+			$err .= "implments Appfuel\Log\LogEntryInterface";
+			throw new InvalidArgumentException($err);
 		}
 
-		if (! is_int($priority)) {
-			$priority = LOG_INFO;
-		}
-
-		$result = $adapter->write($priority, $text);
-		$adapter->close();
-		return $result;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function openLog()
-	{
-		return openlog(
-			$this->getIndentity(), 
-			$this->getOptions(),
-			$this->getFacility()
-		); 
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function closeLog()
-	{
-		return closelog();
-	}
-
-	/**	
-	 * @param	string	$code
-	 * @return	null
-	 */
-	protected function setIndentity($key)
-	{
-		if (empty($key) || !is_string($key) || ! ($key = trim($key))) {
-			throw new RuntimeException("identity must be a non empty string");
-		}
-
-		$this->identity = $key;
-	}
-
-	/**	
-	 * @param	int	$code
-	 * @return	null
-	 */
-	protected function setOptions($code)
-	{
-		if (! is_int($code)) {
-			throw new Exception("option must be an integer");
-		}
-
-		$this->options = $code;
-	}
-
-	/**
-	 * @throws	RuntimeException
-	 * @param	int	$code
-	 * @return	null
-	 */
-	protected function setFacility($code)
-	{
-		$valid = array(LOG_AUTH,LOG_AUTHPRIV,LOG_CRON,LOG_DAEMON,LOG_KERN,
-					   LOG_LOCAL0, LOG_LOCAL1, LOG_LOCAL2, LOG_LOCAL3,
-					   LOG_LOCAL4, LOG_LOCAL5, LOG_LOCAL6, LOG_LOCAL7);
-
-		if (! is_int($code) || ! in_array($code, $valid)) {
-			throw new RunTimeException("not a valid facility given");
-		}
-
-		$this->facility = $code;
+		return $this->logEntry($entry);
 	}
 }

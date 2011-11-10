@@ -111,6 +111,15 @@ class SysLogAdapter implements LogAdapterInterface
 	}
 
 	/**
+	 * @param	LogEntryInterface $entry
+	 * @return	bool
+	 */
+	public function writeEntry(LogEntryInterface $entry)
+	{
+		return $this->write($entry->getText(), $entry->getPriorityLevel());
+	}
+
+	/**
 	 * @param	string	$text
 	 * @param	int		$priority
 	 * @return	bool

@@ -194,7 +194,6 @@ class SysLogAdapterTest extends BaseTestCase
 		);
 	}
 
-
 	/**
 	 * @return	null
 	 */
@@ -317,7 +316,7 @@ class SysLogAdapterTest extends BaseTestCase
 	public function testWrite()
 	{
 		$this->adapter->openLog();
-		$this->assertTrue($this->adapter->write("php unittest log", LOG_ERR));
+		$this->assertTrue($this->adapter->write("php unittest log", LOG_INFO));
 		$this->adapter->closeLog();	
 	}
 

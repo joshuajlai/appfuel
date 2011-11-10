@@ -10,33 +10,24 @@
  */
 namespace Appfuel\Log;
 
-use RunTimeException;
-
 /**
  * The log adapter is used to by the logger to actually log the messages.
  */
-interface LogAdapterInterface
+interface LoggerInterface
 {
 	/**
-	 * @param	LogEntryInterface	$entry
-	 * @return	bool
+	 * @return	LogAdapterInterface
 	 */
-	public function writeEntry(LogEntryInterface $entry);
+	public function getAdapter();
+
+	public function setAdapter(LogAdapterInterface $adapter);
+
+	public function logEntry(LogEntryInterface $entry);
 
 	/**
 	 * @param	string	$text
 	 * @param	int		$priority
 	 * @return	bool
 	 */
-	public function write($text, $priority = LOG_INFO);
-
-	/**
-	 * @return	bool
-	 */
-	public function openLog();
-
-	/**
-	 * @return	bool
-	 */
-	public function closeLog();
+	public function log($text, $priority = LOG_INFO);
 }
