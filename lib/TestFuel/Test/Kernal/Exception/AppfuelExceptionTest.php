@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernal;
+namespace TestFuel\Test\Kernal\Exception;
 
 use StdClass,
 	Exception,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Kernal\AppfuelException;
+	Appfuel\Kernal\Exception\AppfuelException;
 
 /**
  * We extend the php exception and add namespaces and tags to be used to 
@@ -52,7 +52,12 @@ class AppfuelExceptionTest extends BaseTestCase
 		$this->assertInstanceOf(
 			'Exception',
 			$this->exception
-		);	
+		);
+
+		$this->assertInstanceOf(
+			'Appfuel\Kernal\Exception\AppfuelExceptionInterface',
+			$this->exception
+		);
 	}
 
 	/**
