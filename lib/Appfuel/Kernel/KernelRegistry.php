@@ -8,14 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernal;
+namespace Appfuel\Kernel;
 
 use Appfuel\Framework\Exception;
 
 /**
  * Decouples the kernal settings from the kernal
  */
-class KernalRegistry
+class KernelRegistry
 {
 	/**
 	 * List of kernal global kernal parameters used during intialization

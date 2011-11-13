@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernal;
+namespace Appfuel\Kernel;
 
 use Appfuel\Framework\Exception,
 
@@ -16,7 +16,7 @@ use Appfuel\Framework\Exception,
  * The kernal intializer uses the kernal registry to get a list of start up
  * tasks. It will run through each task calling its execute methos. 
  */
-class KernalInitializer implements KernalInitializerInterface
+class KernelInitializer implements KernelInitializerInterface
 {
 	/**
 	 * Absolute path to the config file
@@ -64,7 +64,7 @@ class KernalInitializer implements KernalInitializerInterface
 			$data = $file;
 		}
 
-		$this->initializeKernalRegistry($data);
+		$this->initializeKernelRegistry($data);
 		$this->runStartupTasks();
 	}
 
@@ -74,7 +74,7 @@ class KernalInitializer implements KernalInitializerInterface
      */
 	public function runStartupTasks()
 	{
-		$tasks  = KernalRegistry::getStartupTasks();
+		$tasks  = KernelRegistry::getStartupTasks();
 		foreach ($tasks as $taskClass) {
 			$task = new $taskClass();
 			if (! ($task instanceof StartupTaskInterface)) {
@@ -122,19 +122,19 @@ class KernalInitializer implements KernalInitializerInterface
 	/**
 	 * @return null
 	 */
-	public function initializeKernalRegistry(array $data)
+	public function initializeKernelRegistry(array $data)
 	{
 		$err = 'loading configuration failed';
-		if (isset($data['kernal-params']) && is_array($data['kernal-params'])) {
-			KernalRegistry::setParams($data['kernal-params']);
+		if (isset($data['kernel-params']) && is_array($data['kernel-params'])) {
+			KernelRegistry::setParams($data['kernel-params']);
 		}
 
 		if (isset($data['domain-map']) && is_array($data['domain-map'])) {
-			KernalRegistry::setDomainMap($data['domain-map']);
+			KernelRegistry::setDomainMap($data['domain-map']);
 		}
 
 		if (isset($data['startup-tasks']) && is_array($data['startup-tasks'])){
-			KernalRegistry::setStartupTasks($data['startup-tasks']);
+			KernelRegistry::setStartupTasks($data['startup-tasks']);
 		}
 	}
 

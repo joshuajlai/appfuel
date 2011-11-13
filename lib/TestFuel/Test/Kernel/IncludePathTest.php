@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernal;
+namespace TestFuel\Test\Kernel;
 
 use Appfuel\Registry,
-	Appfuel\Kernal\IncludePath,
+	Appfuel\Kernel\IncludePath,
 	Appfuel\Framework\File\FileManager,
 	TestFuel\TestCase\FrameworkTestCase;
 
@@ -53,7 +53,7 @@ class IncludePathTest extends FrameworkTestCase
 	public function testInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Kernal\IncludePathInterface',
+			'Appfuel\Kernel\IncludePathInterface',
 			$this->includePath
 		);	
 	}

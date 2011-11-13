@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernal\Error;
+namespace Appfuel\Kernel\Error;
 
 /**
  * Defined functionality aimed at easier usage of error_reporting function

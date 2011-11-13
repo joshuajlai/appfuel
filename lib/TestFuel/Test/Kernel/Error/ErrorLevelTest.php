@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernal\Error;
+namespace TestFuel\Test\Kernel\Error;
 
-use Appfuel\Kernal\Error\ErrorLevel,
+use Appfuel\Kernel\Error\ErrorLevel,
 	TestFuel\TestCase\FrameworkTestCase;
 
 /**
@@ -81,7 +81,7 @@ class ErrorLevelTest extends FrameworkTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Kernal\Error\ErrorLevelInterface',
+			'Appfuel\Kernel\Error\ErrorLevelInterface',
 			$this->error
 		);
 	}

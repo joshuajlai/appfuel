@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernal;
+namespace TestFuel\Test\Kernel;
 
 use StdClass,
 	Exception,
-	Appfuel\Kernal\FaultHandler,
+	Appfuel\Kernel\FaultHandler,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
@@ -49,7 +49,7 @@ class FaultHandlerTest extends BaseTestCase
 	public function testInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Kernal\FaultHandler',
+			'Appfuel\Kernel\FaultHandler',
 			$this->handler
 		);
 	}
@@ -84,7 +84,7 @@ class FaultHandlerTest extends BaseTestCase
 	{
 		$default = $this->handler->getOuputEngine();
 		$this->assertInstanceOf(
-			'Appfuel\Kernal\OutputEngine',
+			'Appfuel\Kernel\OutputEngine',
 			$default
 		);
 	}

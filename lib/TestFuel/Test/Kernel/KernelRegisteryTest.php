@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernal;
+namespace TestFuel\Test\Kernel;
 
 use StdClass,
-	Appfuel\Kernal\KernalRegistry,
+	Appfuel\Kernel\KernelRegistry,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
@@ -19,7 +19,7 @@ use StdClass,
  * and also maintain domain map of domain-key to domain class, so developers
  * can refer to this key when referring to domains
  */
-class KernalRegistryTest extends BaseTestCase
+class KernelRegistryTest extends BaseTestCase
 {
 	/**
 	 * Back up the data in the registry
@@ -33,9 +33,9 @@ class KernalRegistryTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$this->backUpParams  = KernalRegistry::getParams();
-		$this->backUpDomains = KernalRegistry::getDomainMap();
-		KernalRegistry::clear();
+		$this->backUpParams  = KernelRegistry::getParams();
+		$this->backUpDomains = KernelRegistry::getDomainMap();
+		KernelRegistry::clear();
 	}
 
 	/**
@@ -44,8 +44,8 @@ class KernalRegistryTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		KernalRegistry::setParams($this->backUpParams);
-		KernalRegistry::setDomainMap($this->backUpDomains);
+		KernelRegistry::setParams($this->backUpParams);
+		KernelRegistry::setDomainMap($this->backUpDomains);
 	}
 
 	/**
@@ -108,11 +108,11 @@ class KernalRegistryTest extends BaseTestCase
 	 */
 	public function testAddGetIsParam($key, $value)
 	{
-		$this->assertEquals(array(), KernalRegistry::getParams());
-		$this->assertFalse(KernalRegistry::isParam($key));
-		$this->assertNull(KernalRegistry::addParam($key, $value));
-		$this->assertTrue(KernalRegistry::isParam($key));
-		$this->assertEquals($value, KernalRegistry::getParam($key));
+		$this->assertEquals(array(), KernelRegistry::getParams());
+		$this->assertFalse(KernelRegistry::isParam($key));
+		$this->assertNull(KernelRegistry::addParam($key, $value));
+		$this->assertTrue(KernelRegistry::isParam($key));
+		$this->assertEquals($value, KernelRegistry::getParam($key));
 	}
 
 	/**
@@ -122,7 +122,7 @@ class KernalRegistryTest extends BaseTestCase
 	 */
 	public function testAddBadKey($key)
 	{
-		$this->assertNull(KernalRegistry::addParam($key, 'sometext'));
+		$this->assertNull(KernelRegistry::addParam($key, 'sometext'));
 	}
 
 	/**
@@ -136,27 +136,27 @@ class KernalRegistryTest extends BaseTestCase
 			'param-c' => 'value-3',
 			'param-d' => 'value-4'
 		);
-		$this->assertNull(KernalRegistry::setParams($list));
-		$this->assertEquals($list, KernalRegistry::getParams());
+		$this->assertNull(KernelRegistry::setParams($list));
+		$this->assertEquals($list, KernelRegistry::getParams());
 
 		/* values get overwritten */
 		$new = $list;
 		$new['param-a'] = 'my-new-value';
-		$this->assertNull(KernalRegistry::setParams($new));
-		$this->assertEquals($new, KernalRegistry::getParams());
+		$this->assertNull(KernelRegistry::setParams($new));
+		$this->assertEquals($new, KernelRegistry::getParams());
 
-		$this->assertNull(KernalRegistry::clearParams());
-		$this->assertEquals(array(), KernalRegistry::getParams());
+		$this->assertNull(KernelRegistry::clearParams());
+		$this->assertEquals(array(), KernelRegistry::getParams());
 
 		/* empty list when already empty*/
-		$this->assertEquals(array(), KernalRegistry::getParams());
-		$this->assertNull(KernalRegistry::setParams(array()));
-		$this->assertEquals(array(), KernalRegistry::getParams());
+		$this->assertEquals(array(), KernelRegistry::getParams());
+		$this->assertNull(KernelRegistry::setParams(array()));
+		$this->assertEquals(array(), KernelRegistry::getParams());
 
 		/* empty list when populated */
-		KernalRegistry::setParams($list);
-		KernalRegistry::setParams(array());
-		$this->assertEquals($list, KernalRegistry::getParams());
+		KernelRegistry::setParams($list);
+		KernelRegistry::setParams(array());
+		$this->assertEquals($list, KernelRegistry::getParams());
 	}
 
 	/**
@@ -166,7 +166,7 @@ class KernalRegistryTest extends BaseTestCase
 	public function testSetParamsNotAssociativeArray()
 	{
 		$list = array('value-1','value-2','value-3','value-4');
-		KernalRegistry::setParams($list);
+		KernelRegistry::setParams($list);
 	}
 
 	/**
@@ -176,7 +176,7 @@ class KernalRegistryTest extends BaseTestCase
 	public function testSetParamsNotAssociativeMixedArray()
 	{
 		$list = array('value-1','value-2','value-3',1=>'value-4');
-		KernalRegistry::setParams($list);
+		KernelRegistry::setParams($list);
 	}
 
     /**
@@ -185,11 +185,11 @@ class KernalRegistryTest extends BaseTestCase
      */
     public function testAddDomainClass($key, $class)
     {
-        $this->assertEquals(array(), KernalRegistry::getDomainMap());
-        $this->assertFalse(KernalRegistry::isDomainClass($key));
-        $this->assertNull(KernalRegistry::addDomainClass($key, $class));
-        $this->assertTrue(KernalRegistry::isDomainClass($key));
-        $this->assertEquals($class, KernalRegistry::getDomainClass($key));
+        $this->assertEquals(array(), KernelRegistry::getDomainMap());
+        $this->assertFalse(KernelRegistry::isDomainClass($key));
+        $this->assertNull(KernelRegistry::addDomainClass($key, $class));
+        $this->assertTrue(KernelRegistry::isDomainClass($key));
+        $this->assertEquals($class, KernelRegistry::getDomainClass($key));
     }
 
 	/**
@@ -199,7 +199,7 @@ class KernalRegistryTest extends BaseTestCase
 	 */
 	public function testAddBadDomainKey($key)
 	{
-		KernalRegistry::addDomainClass($key, 'MyDomain');
+		KernelRegistry::addDomainClass($key, 'MyDomain');
 	}
 
 	/**
@@ -209,7 +209,7 @@ class KernalRegistryTest extends BaseTestCase
 	 */
 	public function testAddBadDomainClass($class)
 	{
-		KernalRegistry::addDomainClass('my-key', $class);
+		KernelRegistry::addDomainClass('my-key', $class);
 	}
 
 	/**
@@ -219,7 +219,7 @@ class KernalRegistryTest extends BaseTestCase
 	public function testSetDomainMapNotAssociativeArray()
 	{
 		$list = array('value-1','value-2','value-3','value-4');
-		KernalRegistry::setDomainMap($list);
+		KernelRegistry::setDomainMap($list);
 	}
 
 	/**
@@ -229,7 +229,7 @@ class KernalRegistryTest extends BaseTestCase
 	public function testSetDomainMapNotAssociativeMixedArray()
 	{
 		$list = array('value-1','value-2','value-3',1=>'value-4');
-		KernalRegistry::setDomainMap($list);
+		KernelRegistry::setDomainMap($list);
 	}
 
 	/**
@@ -243,27 +243,27 @@ class KernalRegistryTest extends BaseTestCase
 			'key-c' => 'My\Class\Name',
 			'key-d' => 'My\Class\Domain\Class'
 		);
-		$this->assertNull(KernalRegistry::setDomainMap($list));
-		$this->assertEquals($list, KernalRegistry::getDomainMap());
+		$this->assertNull(KernelRegistry::setDomainMap($list));
+		$this->assertEquals($list, KernelRegistry::getDomainMap());
 
 		/* values get overwritten */
 		$new = $list;
 		$new['key-a'] = 'NewDomain';
-		$this->assertNull(KernalRegistry::setDomainMap($new));
-		$this->assertEquals($new, KernalRegistry::getDomainMap());
+		$this->assertNull(KernelRegistry::setDomainMap($new));
+		$this->assertEquals($new, KernelRegistry::getDomainMap());
 
-		$this->assertNull(KernalRegistry::clearDomainMap());
-		$this->assertEquals(array(), KernalRegistry::getDomainMap());
+		$this->assertNull(KernelRegistry::clearDomainMap());
+		$this->assertEquals(array(), KernelRegistry::getDomainMap());
 
 		/* empty list when already empty*/
-		$this->assertEquals(array(), KernalRegistry::getDomainMap());
-		$this->assertNull(KernalRegistry::setDomainMap(array()));
-		$this->assertEquals(array(), KernalRegistry::getDomainMap());
+		$this->assertEquals(array(), KernelRegistry::getDomainMap());
+		$this->assertNull(KernelRegistry::setDomainMap(array()));
+		$this->assertEquals(array(), KernelRegistry::getDomainMap());
 
 		/* empty list when populated */
-		KernalRegistry::setDomainMap($list);
-		KernalRegistry::setDomainMap(array());
-		$this->assertEquals($list, KernalRegistry::getDomainMap());
+		KernelRegistry::setDomainMap($list);
+		KernelRegistry::setDomainMap(array());
+		$this->assertEquals($list, KernelRegistry::getDomainMap());
 	}
 
 	/**
@@ -275,9 +275,9 @@ class KernalRegistryTest extends BaseTestCase
 	 */
 	public function testStartupTasks($key, $class)
 	{
-		$this->assertEquals(array(), KernalRegistry::getStartupTasks());
-		$this->assertNull(KernalRegistry::addStartupTask($class));
-		$this->assertEquals(array($class), KernalRegistry::getStartupTasks());
+		$this->assertEquals(array(), KernelRegistry::getStartupTasks());
+		$this->assertNull(KernelRegistry::addStartupTask($class));
+		$this->assertEquals(array($class), KernelRegistry::getStartupTasks());
 	}
 
 	/**
@@ -287,7 +287,7 @@ class KernalRegistryTest extends BaseTestCase
 	 */
 	public function testAddBadStartupTask($class)
 	{
-		KernalRegistry::addStartupTask($class);
+		KernelRegistry::addStartupTask($class);
 	}
 
 	/**
@@ -301,19 +301,19 @@ class KernalRegistryTest extends BaseTestCase
 			'My\Class',
 			'Your\Class'
 		);
-		$this->assertNull(KernalRegistry::setStartupTasks($list));
-		$this->assertEquals($list, KernalRegistry::getStartupTasks());
+		$this->assertNull(KernelRegistry::setStartupTasks($list));
+		$this->assertEquals($list, KernelRegistry::getStartupTasks());
 
 		/* 
 		 * prove setting an empty array is ignored you must explicitly clear 
 		 */
-		$this->assertNull(KernalRegistry::setStartupTasks(array()));
-		$this->assertEquals($list, KernalRegistry::getStartupTasks());
+		$this->assertNull(KernelRegistry::setStartupTasks(array()));
+		$this->assertEquals($list, KernelRegistry::getStartupTasks());
 		
 		
 		/* make sure clear is working */
-		$this->assertNull(KernalRegistry::clearStartupTasks());
-		$this->assertEquals(array(), KernalRegistry::getStartupTasks());
+		$this->assertNull(KernelRegistry::clearStartupTasks());
+		$this->assertEquals(array(), KernelRegistry::getStartupTasks());
 
 	}
 
@@ -332,7 +332,7 @@ class KernalRegistryTest extends BaseTestCase
 			'Your\Class'
 		);
 
-		KernalRegistry::setStartupTasks($list);
+		KernelRegistry::setStartupTasks($list);
 	}
 
 	/**
@@ -346,7 +346,7 @@ class KernalRegistryTest extends BaseTestCase
 			'key-c' => 'My\Class\Name',
 			'key-d' => 'My\Class\Domain\Class'
 		);
-		KernalRegistry::setDomainMap($list);
+		KernelRegistry::setDomainMap($list);
 
 		$list2 = array(
 			'param-a' => 'value-1',
@@ -354,7 +354,7 @@ class KernalRegistryTest extends BaseTestCase
 			'param-c' => 'value-3',
 			'param-d' => 'value-4'
 		);
-		KernalRegistry::setParams($list2);
+		KernelRegistry::setParams($list2);
 
 		$list3 = array(
 			'MyClass',
@@ -362,12 +362,12 @@ class KernalRegistryTest extends BaseTestCase
 			'My\Class',
 			'Your\Class'
 		);
-		KernalRegistry::setStartupTasks($list3);
+		KernelRegistry::setStartupTasks($list3);
 
-		$this->assertNull(KernalRegistry::clear());
-		$this->assertEquals(array(), KernalRegistry::getParams());
-		$this->assertEquals(array(), KernalRegistry::getDomainMap());
-		$this->assertEquals(array(), KernalRegistry::getStartupTasks());
+		$this->assertNull(KernelRegistry::clear());
+		$this->assertEquals(array(), KernelRegistry::getParams());
+		$this->assertEquals(array(), KernelRegistry::getDomainMap());
+		$this->assertEquals(array(), KernelRegistry::getStartupTasks());
 	}
 }
 

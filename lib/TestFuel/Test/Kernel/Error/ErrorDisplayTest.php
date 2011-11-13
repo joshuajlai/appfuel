@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TesFuel\Test\Kernal\Error;
+namespace TesFuel\Test\Kernel\Error;
 
-use Appfuel\Kernal\Error\ErrorDisplay,
+use Appfuel\Kernel\Error\ErrorDisplay,
 	TestFuel\TestCase\FrameworkTestCase;
 
 /**
@@ -57,7 +57,7 @@ class DisplayErrorTest extends FrameworkTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Kernal\Error\ErrorDisplayInterface',
+			'Appfuel\Kernel\Error\ErrorDisplayInterface',
 			$this->error
 		);
 	}
