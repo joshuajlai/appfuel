@@ -58,7 +58,7 @@ class FaultHandlerTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testConstructor()
+	public function testLogger()
 	{
 		$defaultLogger = $this->handler->getLogger();
 		$this->assertInstanceOf(
@@ -74,5 +74,18 @@ class FaultHandlerTest extends BaseTestCase
 		$logger  = $this->getMock("Appfuel\Log\LoggerInterface");
 		$handler = new FaultHandler($logger);
 		$this->assertSame($logger, $handler->getLogger());
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testOuputEngine()
+	{
+		$default = $this->handler->getOuputEngine();
+		$this->assertInstanceOf(
+			'Appfuel\Kernal\OutputEngine',
+			$default
+		);
 	}
 }

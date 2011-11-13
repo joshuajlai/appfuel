@@ -41,11 +41,12 @@ class LogEntry implements LogEntryInterface
 	 * @param	scalar	$level
 	 * @return	AppfuelError
 	 */
-	public function __construct($text, LogPriorityInterface $priority = null)
+	public function __construct($text, $priority = null)
 	{
-		if (null === $priority) {
-			$priority = new LogPriority();
+		if (null === $priority || is_int($priority)) {
+			$priority = new LogPriority($priority);
 		}
+	
 		$this->setPriority($priority);
 		$this->setTimestamp();
 		$this->setText($text);

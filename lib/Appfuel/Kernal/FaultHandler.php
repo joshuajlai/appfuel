@@ -10,7 +10,9 @@
  */
 namespace Appfuel\Kernal;
 
-use Appfuel\Log\Logger,
+use Exception,
+	RunTimeException,
+	Appfuel\Log\Logger,
 	Appfuel\Log\LoggerInterface;
 
 /**
@@ -26,15 +28,29 @@ class FaultHandler implements FaultHandlerInterface
 	protected $logger = null;
 
 	/**
-	 * @param	LoggerInterface $logger
+	 * Used to ouput the error message 
+	 * @var	 OutputEngineInterface
 	 */
-	public function __construct(LoggerInterface $logger = null)
+	protected $ouputEngine = null;
+
+	/**
+	 * @param	LoggerInterface			$logger
+	 * @param	OutputEngineInterface	$engine
+	 * @return	FaultHandler
+	 */
+	public function __construct(LoggerInterface $logger = null,
+								OutputEngineInterface $engine = null)
 	{
 		if (null === $logger) {
 			$logger = new Logger();
 		}
-
 		$this->logger = $logger;
+
+		if (null === $engine) {
+			$engine = new OutputEngine();
+		}
+
+		$this->outputEngine = $engine;
 	}
 
 	/**
@@ -43,5 +59,57 @@ class FaultHandler implements FaultHandlerInterface
 	public function getLogger()
 	{
 		return $this->logger;
+	}
+
+	/**	
+	 * @return	OutputEngineInterface
+	 */
+	public function getOuputEngine()
+	{
+		return $this->outputEngine;
+	}
+
+	public function handleException(Exception $e)
+	{
+		$logger  = $this->getLogger();
+		$display = $this->getOutputEngine();
+		if ($e instanceof AppfuelException) {
+			$code = $e->getCode();
+			$text =(string) $e;
+		}
+		else {
+			$msg  = $e->getMessage();
+			$file = $e->getFile();
+			$line = $e->getLine();
+			$code = $e->getCode();
+			$tags = 'untagged';
+
+			$text = "exception $msg in $file:$line:$tags";
+		}
+		$logger->log($text, LOG_ERR);
+			
+		if (strlen($code) < 1 || ! is_int($code)) {
+			$code = 1;
+		}
+
+		$display->outputGeneralError($text, $code);
+		exit($code);
+	}
+
+	public function handleError($level, $msg, $file, $line, $context)
+	{
+		if (0 === $level) {
+			return false;
+		}
+
+		$code    = 1;
+		$logger  = $this->getLogger();
+		$display = $this->getOutputEngine();
+
+		$text = "$level: $msg in $file:$line";
+		$logger->log($text, LOG_ERR);
+		
+		$display->outputGeneralError($text, $code);
+		exit($code);
 	}
 }

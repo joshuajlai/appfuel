@@ -1,0 +1,25 @@
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @license		http://www.apache.org/licenses/LICENSE-2.0
+ */
+namespace Appfuel\Output;
+
+/**
+ * A generalization of outputting that uses strategies in the form of 
+ * output adapters to handle the act of ouputing content
+ */
+interface OutputEngineInterface
+{
+	public function getAdapter();
+	public function setAdapter(OutputAdapterInterface $adapter);
+	public function addConfiguration($item);
+	public function getConfiguration();
+	public function render($data);
+	public function renderError($msg);
+}
