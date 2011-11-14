@@ -13,16 +13,12 @@ namespace Appfuel\Http;
 
 use Appfuel\Http\HttpResponse,
 	Appfuel\Framework\Exception,
-	Appfuel\Framework\Output\AdapterHeaderInterface,
-	Appfuel\Framework\Output\EngineAdapterInterface,
-	Appfuel\Framework\Http\HttpResponseInterface,
-	Appfuel\Framework\Http\HttpHeaderFieldInterface;
+	Appfuel\Output\OutputAdapterInterface;
 
 /**
  * Handle specific details for outputting http data
  */
-class HttpOutputAdapter 
-	implements EngineAdapterInterface, AdapterHeaderInterface
+class HttpOutputAdapter implements OutputAdapterInterface
 {
 	/**
 	 * Any php related functionality like sending headers is done here
@@ -80,7 +76,7 @@ class HttpOutputAdapter
      * @param   string  $strategy
      * @return  mixed
      */
-    public function output($data)
+    public function render($data)
     {  
 		$result   = null;
 		$response = $this->getResponse();
@@ -94,7 +90,7 @@ class HttpOutputAdapter
 	 * @param	int		$code
 	 * @return	null
 	 */
-	public function outputError($msg, $code = 500)
+	public function renderError($msg, $code = 500)
 	{
 		// load error profile
 	}

@@ -11,10 +11,7 @@
 namespace Appfuel\Http;
 
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Http\HttpStatusInterface,
-	Appfuel\Framework\Http\HttpResponseInterface,
-	Appfuel\Framework\Http\HttpHeaderFieldInterface;
+use InvalidArgumentException;
 
 /**
  * Value object used to wrap parameters php uses to send a header
@@ -73,7 +70,7 @@ class HttpResponse implements HttpResponseInterface
 			$err   = "Failed to instantiate HttpResponse: ";
 			$err  .= "Can not set http protocol version must be one of the ";
 			$err  .= "following strings '1.0' or '1.1' type given -($type) ";
-			throw new Exception($err);
+			throw new InvalidArgumentException($err);
 		}
 		$this->version = $version;
 
@@ -100,7 +97,7 @@ class HttpResponse implements HttpResponseInterface
 			$type = gettype($data);
 			$err  = "Http response content must be a string or an object ";
 			$err .= "implementing __toString(). parameter type -($type)";
-			throw new Exception($err);
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->content = (string) $data;
@@ -149,7 +146,7 @@ class HttpResponse implements HttpResponseInterface
 	 * @param	HttpResponseStatus
 	 * @return	HttpResponse
 	 */
-	public function setStatus(HttpStatus $status)
+	public function setStatus(HttpStatusInterface $status)
 	{
 		$this->status = $status;
 		$this->updateStatusLineHeader();
@@ -186,7 +183,7 @@ class HttpResponse implements HttpResponseInterface
 				$err  = "Can not load headers: header must be an object ";
 				$err .= "that implments Appfuel\Framework\Http\HttpHeader";
 				$err .= "FieldInterface. type given -($type) at index $idx";
-				throw new Exception($err);
+				throw new InvalidArgumentException($err);
 			}
 
 			$this->addHeader($header);

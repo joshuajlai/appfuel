@@ -50,7 +50,7 @@ class HttpResponseTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Http\HttpResponseInterface',
+			'Appfuel\Http\HttpResponseInterface',
 			$this->response
 		);
 	}

@@ -11,8 +11,7 @@
 namespace Appfuel\Http;
 
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Http\HttpStatusInterface;
+use InvalidArgumentException;
 
 /**
  * Value object used to wrap parameters php uses to send a header
@@ -86,7 +85,7 @@ class HttpStatus implements HttpStatusInterface
 	public function __construct($code = 200, $text = null)
 	{
 		if (! is_int($code) || $code < 100 || $code >= 600) {
-			throw new Exception("invalid http response code");
+			throw new InvalidArgumentException("invalid http response code");
 		}
 		
 		$this->code = $code;

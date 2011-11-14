@@ -47,12 +47,7 @@ class HttpOutputAdapterTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Output\EngineAdapterInterface',
-			$this->adapter
-		);
-
-		$this->assertInstanceOf(
-			'Appfuel\Framework\Output\AdapterHeaderInterface',
+			'Appfuel\Output\OutputAdapterInterface',
 			$this->adapter
 		);
 	}
@@ -70,7 +65,7 @@ class HttpOutputAdapterTest extends BaseTestCase
 		);
 
 		$response = $this->getMock(
-			'Appfuel\Framework\Http\HttpResponseInterface'
+			'Appfuel\Http\HttpResponseInterface'
 		);
 		$adapter = new HttpOutputAdapter($response);
 		$this->assertSame($response, $adapter->getResponse());
@@ -105,7 +100,7 @@ class HttpOutputAdapterTest extends BaseTestCase
 	public function testOutput()
 	{
 		$response = $this->getMockBuilder(
-			'Appfuel\Framework\Http\HttpResponseInterface'
+			'Appfuel\Http\HttpResponseInterface'
 		)->setMethods(array('send', 'setContent'))
 		 ->getMock();
 		
@@ -120,7 +115,7 @@ class HttpOutputAdapterTest extends BaseTestCase
 		$adapter = new HttpOutputAdapter($response);
 		
 		$this->expectOutputString('I am a response');
-		$adapter->output('content does not matter for this test');
+		$adapter->render('content does not matter for this test');
 
 	}
 

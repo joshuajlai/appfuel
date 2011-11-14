@@ -31,7 +31,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 		$text  = 'Location: http://www.example.com/';
 		$field = new HttpHeaderField($text);
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Http\HttpHeaderFieldInterface',
+			'Appfuel\Http\HttpHeaderFieldInterface',
 			$field
 		);
 
@@ -93,7 +93,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testTextNull_Failure()
@@ -102,7 +102,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testTextEmptyString_Failure()
@@ -111,7 +111,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testTextArray_Failure()
@@ -120,7 +120,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testTextInt_Failure()
@@ -129,7 +129,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testTextObject_Failure()
@@ -138,7 +138,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeLessThan0_Failure()
@@ -147,7 +147,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeArray_Failure()
@@ -156,7 +156,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeObject_Failure()
@@ -165,7 +165,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeEmptyString_Failure()
@@ -174,7 +174,7 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeString_Failure()
@@ -183,17 +183,11 @@ class HttpHeaderFieldTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeStringIsNumber_Failure()
 	{
 		$field = new HttpHeaderField('field', null, '22');
 	}
-
-
-
-
-
-
 }

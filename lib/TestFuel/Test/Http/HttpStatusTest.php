@@ -47,7 +47,7 @@ class HttpStatusTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Http\HttpStatusInterface',
+			'Appfuel\Http\HttpStatusInterface',
 			$this->status
 		);
 	}
@@ -121,7 +121,7 @@ class HttpStatusTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException InvalidArgumentException	
 	 * @return	null
 	 */
 	public function testCodeIsNotAnInt_EmptyStringFailure()
@@ -130,7 +130,7 @@ class HttpStatusTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeIsNotAnInt_NonEmptyStringFailure()
@@ -139,7 +139,7 @@ class HttpStatusTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeIsNotAnInt_ArrayFailure()
@@ -148,7 +148,7 @@ class HttpStatusTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeIsNotAnInt_ObjectFailure()
@@ -157,16 +157,16 @@ class HttpStatusTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
-	public function testCodeIsNotAnInt_FloadFailure()
+	public function testCodeIsNotAnInt_FloatFailure()
 	{
 		$status = new HttpStatus(103.233);
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeIntLessThan100_ZeroFailure()
@@ -175,7 +175,7 @@ class HttpStatusTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeIntLessThan100_Failure()
@@ -184,7 +184,7 @@ class HttpStatusTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeIntGreaterThan600_Failure()
@@ -193,7 +193,7 @@ class HttpStatusTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testCodeIntEqual600_Failure()

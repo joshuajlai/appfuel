@@ -11,8 +11,7 @@
 namespace Appfuel\Http;
 
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Http\HttpHeaderFieldInterface;
+use InvalidArgumentException;
 
 /**
  * Value object used to wrap parameters php uses to send a header
@@ -46,7 +45,7 @@ class HttpHeaderField implements HttpHeaderFieldInterface
 	public function __construct($text, $replace = true, $code = null)
 	{
 		if (empty($text) || ! is_string($text)) {
-			throw new Exception("header text can not be empty");
+			throw new InvalidArgumentException("header text can not be empty");
 		}
 		$this->field = $text;
 
@@ -58,7 +57,8 @@ class HttpHeaderField implements HttpHeaderFieldInterface
 		}
 
 		if (null !== $code && (! is_int($code) || $code < 0)) {
-			throw new Exception("header status code must be an int > 0");
+			$err = "header status code must be an int > 0";
+			throw new InvalidArgumentException($err);
 		}
 		$this->code = $code;
 	}

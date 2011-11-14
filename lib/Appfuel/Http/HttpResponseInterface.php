@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Http;
+namespace Appfuel\Http;
 
 /**
- * Defines functionality needed to use php header function
+ * Handles the details of the http response
  */
 interface HttpResponseInterface
 {

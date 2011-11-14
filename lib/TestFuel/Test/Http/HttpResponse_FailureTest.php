@@ -26,7 +26,7 @@ class HttpResponse_FailureTest extends BaseTestCase
 	 * The protocol version can only be two values 1.0 and 1.1. These values
 	 * are strings
 	 * 
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorVersionNotCorrect()
@@ -35,7 +35,7 @@ class HttpResponse_FailureTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorVersionNotCorrectIsAFloat()
@@ -44,7 +44,7 @@ class HttpResponse_FailureTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorVersionIsObject()
@@ -54,7 +54,7 @@ class HttpResponse_FailureTest extends BaseTestCase
 
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorVersionIsArray()
@@ -63,7 +63,7 @@ class HttpResponse_FailureTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorVersionIsEmptyString()
@@ -72,7 +72,7 @@ class HttpResponse_FailureTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testSetContentObjectDoesNotSupportToString()
@@ -82,7 +82,7 @@ class HttpResponse_FailureTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */ 
 	public function testSetHeaderConstructorNotHeaderFieldInterface()
@@ -92,7 +92,7 @@ class HttpResponse_FailureTest extends BaseTestCase
 	}
 	
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */ 
 	public function testLoadHeaderNotHeaderInterface()
@@ -103,7 +103,7 @@ class HttpResponse_FailureTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */ 
 	public function testLoadHeaderNotHeaderInterfaceFirstOneValid()
