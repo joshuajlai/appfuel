@@ -6,6 +6,8 @@
 		<directory suffix="Test.php">../lib/TestFuel/Test/Kernal</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Error</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Log</directory>
+		<directory suffix="Test.php">../lib/TestFuel/Test/Http</directory>
+		<directory suffix="Test.php">../lib/TestFuel/Test/Console</directory>
 	</testsuite>
 </testsuites>
 </phpunit>
