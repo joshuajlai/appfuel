@@ -11,14 +11,6 @@
 namespace Appfuel\Output;
 
 
-use Exception,
-	Appfuel\Http\HttpOutputAdapter,
-	Appfuel\Console\ConsoleOutputAdapter,
-	Appfuel\Framework\App\Context\ContextInterface,
-	Appfuel\Framework\Output\OutputEngineInterface,
-	Appfuel\Framework\Output\AdapterHeaderInterface,
-	Appfuel\Framework\Output\EngineAdapterInterface;
-
 /**
  * The ouput engine is responsible for rendering content to a given output
  * strategy. There are two output strategies console and http which handle
@@ -66,37 +58,12 @@ class OutputEngine implements OutputEngineInterface
 	}
 
 	/**
-	 * @param	string	$item
-	 * @return	null
-	 */
-	public function addConfiguration($item)
-	{
-		if (empty($item) || !is_string($item)) {
-			$err = 'configuration item must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-		$this->configuration[] = $item;
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getConfiguration()
-	{
-		return $this->configuration;
-	}
-
-	/**
 	 * @param	mixed	$data
 	 * @return	null
 	 */
 	public function render($data)
 	{
 		$adapter = $this->getAdapter();
-		if ($this->isConfiguration()) {
-			$adapter->loadConfiguration($this->getConfiguration());
-		}
-
 		return $adapter->output($data);
 	}
 
@@ -107,10 +74,6 @@ class OutputEngine implements OutputEngineInterface
 	public function renderError($msg)
 	{
 		$adapter = $this->getAdapter();
-		if ($this->isConfiguration()) {
-			$adapter->loadConfiguration($this->getConfiguration());
-		}
-
 		return $adapter->renderError($msg);
 	}
 }

@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Output;
+namespace Appfuel\Output;
 
 /**
  * Strategy used to handle the details of rendering content. The two most 
@@ -16,4 +16,6 @@ namespace Appfuel\Framework\Output;
  */
 interface OutputAdapterInterface
 {
+	public function render($data);
+	public function renderError($msg, $code);
 }

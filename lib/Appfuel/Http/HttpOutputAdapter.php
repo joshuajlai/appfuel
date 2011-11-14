@@ -88,4 +88,14 @@ class HttpOutputAdapter
 		$response->send();
         return;
     }
+
+	/**
+	 * @param	string	$msg
+	 * @param	int		$code
+	 * @return	null
+	 */
+	public function outputError($msg, $code = 500)
+	{
+		// load error profile
+	}
 }

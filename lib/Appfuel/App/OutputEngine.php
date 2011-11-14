@@ -34,34 +34,26 @@ class OutputEngine implements OutputEngineInterface
 	protected $adapter = null;
 
 	/**
+	 * List of headers to add to the adapter
+	 * @var array
+	 */
+	protected $headers = array();
+
+	/**
 	 * @param	string	$type
 	 * @return	OutputEngine
 	 */
-	public function __construct($type = null)
+	public function __construct(OutputAdapterInterface $adapter = null)
 	{
-		if (null == $type) {
-			if (! defined('AF_APP_TYPE')) {
-				throw new Exception("constant AF_APP_TYPE must be defined");
+		if (null == $adapter) {
+			if (defined('AF_APP_TYPE') && 'app-console' !== AF_APP_TYPE) {
+				$adapter = new HttpOutputAdapter();
 			}
-			$adapter = $this->createAdapter(AF_APP_TYPE);
-		}
-		else if (! empty($type) && is_string($type)) {
-			$adapter = $this->createAdapter($type);
-		}
-		else if ($type instanceof EngineAdapterInterface) {
-			$adapter = $type;
-		}
-
+			else {
+				$adapter = new ConsoleOutputAdapter();
+			}
+		}		
 		$this->setAdapter($adapter);
-	}
-
-	/**
-	 * @param	EngineAdapterInterface	$adapter
-	 * @return	null
-	 */
-	public function setAdapter(EngineAdapterInterface $adapter)
-	{
-		$this->adapter = $adapter;
 	}
 
 	/**
@@ -70,6 +62,16 @@ class OutputEngine implements OutputEngineInterface
 	public function getAdapter()
 	{
 		return $this->adapter;
+	}
+
+	public function addHeader($header)
+	{
+
+	}
+
+	public function getHeaders()
+	{
+
 	}
 
 	/**
@@ -106,10 +108,6 @@ class OutputEngine implements OutputEngineInterface
 		
 	}
 
-	/**
-	 * @param	string	$type
-	 * @return	OutputEngineAdapterInterface
-	 */
 	protected function createAdapter($type)
 	{
 		$err = 'Could not create output adapter:';

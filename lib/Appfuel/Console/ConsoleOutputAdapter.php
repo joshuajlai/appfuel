@@ -11,68 +11,15 @@
 namespace Appfuel\Console;
 
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Output\EngineAdapterInterface;
+use Appfuel\Output\OutputAdapterInterface;
 
 /**
- * Handle specific details for outputting data to the commandline
+ * Provides validation to ensure scalar data or objects that implement
+ * __toString. Will render to the standard output stream and will render
+ * errors to the standard error stream
  */
-class ConsoleOutputAdapter implements EngineAdapterInterface
+class ConsoleOutputAdapter implements OutputAdapterInterface
 {
-	/**
-	 * @param	string	$format	
-	 * @return	bool
-	 */
-	public function isFormatSupported($format)
-	{
-		if (empty($format) || ! is_string($format)) {
-			return false;
-		}
-
-		$format = strtolower($format);
-		$supported = array('text', 'json', 'csv');
-		if (in_array($format, $supported)) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Render to the command line or build into a string
-	 * 
-	 * @param	mixed	$data
-	 * @param	string	$strategy
-	 * @return	mixed
-	 */
-	public function output($data, $strategy = 'render')
-	{
-		if ('render' === $strategy) {
-			$result = $this->render($data);
-		} else {
-			$result = $this->build($data);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * @param	mixed	$data
-	 * @return	string
-	 */
-	public function build($data)
-	{
-		if (! $this->isValidOutput($data)) {
-			return '';
-		}
-
-		if (is_scalar($data)) {
-			return $data;
-		}
-
-		return $data->__toString();
-	}
-
 	/**
 	 * @param	mixed	$data
 	 * @return	bool
@@ -80,7 +27,7 @@ class ConsoleOutputAdapter implements EngineAdapterInterface
 	public function isValidOutput($data)
 	{
 		if (is_scalar($data) || 
-			is_object($data) && method_exists($data, '__toString')) {
+			is_object($data) && is_callable(array($data, '__toString'))) {
 			return true;
 		}
 
@@ -88,35 +35,24 @@ class ConsoleOutputAdapter implements EngineAdapterInterface
 	}
 
 	/**
-	 * Render output to the stdout.
+	 * Its the Output engines responsiblity to validate the output is 
+	 * is safe to use.
 	 * 
 	 * @param	mixed	$data
 	 * @return	null
 	 */
 	public function render($data)
 	{
-		if (! $this->isValidOutput($data)) {
-			$err  = 'Error: object to render is not a string or does ';
-			$err .= 'not support __toString';
-			$this->renderError($err);
-			return;
-		}
-
-		if (is_object($data)) {
-			$data = $data->__toString();
-		}
-
-		$data .= PHP_EOL;
-		fwrite(STDOUT, $data);
+		fwrite(STDOUT, (string)$data . PHP_EOL);
 	}
 
 	/**
 	 * @param	string	$msg	error message
+	 * @paraj	int		$code	ignored by commandline
 	 * @return	null
 	 */
-	public function renderError($msg)
+	public function renderError($msg, $code = 1)
 	{
-		$msg =(string) $msg;
-		fwrite(STDERR, "$msg\n");
+		fwrite(STDERR, (string)$msg . PHP_EOL);
 	}
 }
