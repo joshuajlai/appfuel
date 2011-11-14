@@ -55,37 +55,80 @@ class ConsoleOutputAdapterTest extends BaseTestCase
 	}
 
 	/**
-	 * Provides both valid and invalid data
-	 *
 	 * @return	array
 	 */
-	public function provideContentData()
+	public function provideValidData()
 	{
 		return array(
-			array('',			true),
-			array("\t",			true),
-			array(PHP_EOL,		true),
-			array("\n",			true),
-			array(" \t\n",		true),
-			array("my string",	true),
-			array(12345,		true),
-			array(1.233,		true),
-			array(new SplFileInfo('path'), true),
-			array(null,			false),
-			array(array(),		false),
-			array(array(1,2,3), false),
-			array(new StdClass(), false),
+			array(''),
+			array("\t"),
+			array(PHP_EOL),
+			array("\n"),
+			array(" \t\n"),
+			array("my string"),
+			array(12345),
+			array(1.233),
+			array(true),
+			array(false),
+			array(new SplFileInfo('path')),
 		);
 	}
 
 	/**
-	 * @dataProvider	provideContentData
+	 * @return	array
+	 */
+	public function provideInvalidData()
+	{
+		return array(
+			array(null),
+			array(array(1,2,3)),
+			array(array()),
+			array(new StdClass()),
+		);
+	}
+
+
+	/**
+	 * @dataProvider	provideValidData
 	 * @depends			testInterface
 	 * @return			null
 	 */
-	public function testIsValidOutput($output, $expected)
+	public function testIsValidOutput($output)
 	{
-		$result = $this->adapter->isValidOutput($output);
-		$this->assertEquals($expected, $result);
+		$this->assertTrue($this->adapter->isValidOutput($output));
 	}
+
+	/**
+	 * @dataProvider	provideInvalidData
+	 * @depends			testInterface
+	 * @return			null
+	 */
+	public function testIsValidOutput_Failures($output)
+	{
+		$this->assertFalse($this->adapter->isValidOutput($output));
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidData
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testRenderInvalidData($output)
+	{
+		$this->adapter->render($output);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidData
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testRenderErrorInvalidData($output)
+	{
+		$this->adapter->renderError($output);
+	}
+
+
 }

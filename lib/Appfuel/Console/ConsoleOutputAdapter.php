@@ -11,7 +11,8 @@
 namespace Appfuel\Console;
 
 
-use Appfuel\Output\OutputAdapterInterface;
+use InvalidArgumentException,
+	Appfuel\Output\OutputAdapterInterface;
 
 /**
  * Provides validation to ensure scalar data or objects that implement
@@ -43,7 +44,12 @@ class ConsoleOutputAdapter implements OutputAdapterInterface
 	 */
 	public function render($data)
 	{
-		fwrite(STDOUT, (string)$data . PHP_EOL);
+		if (! $this->isValidOutput($data)) {
+			$err = 'data must be able to cast to a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		fwrite(STDOUT, (string)$data);
 	}
 
 	/**
@@ -53,6 +59,11 @@ class ConsoleOutputAdapter implements OutputAdapterInterface
 	 */
 	public function renderError($msg, $code = 1)
 	{
+		if (! $this->isValidOutput($msg)) {
+			$err = 'data must be able to cast to a string';
+			throw new InvalidArgumentException($err);
+		}
+
 		fwrite(STDERR, (string)$msg . PHP_EOL);
 	}
 }
