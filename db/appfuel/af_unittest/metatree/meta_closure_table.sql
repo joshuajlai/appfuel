@@ -1,3 +1,6 @@
+drop table if exists asset_tag_assign;
+drop table if exists assets;
+
 drop table if exists metadata_closure;
 drop table if exists metadata;
 
@@ -15,14 +18,35 @@ create table  metadata (
 ) ENGINE=InnoDB default charset=utf8;
 
 create table metadata_closure(
-    ancestor	smallint unsigned not null,
-    descendant	smallint unsigned not null,
-    depth		smallint unsigned not null,
+    ancestor		smallint unsigned not null,
+    descendant		smallint unsigned not null,
+    depth			smallint unsigned not null,
+	asset_count		mediumint unsigned not null default 0,
 
     primary key (ancestor, descendant),
     foreign key (ancestor)   references metadata (meta_id),
     foreign key (descendant) references metadata (meta_id)
 ) ENGINE=InnoDB default charset=utf8;
+
+create table assets (
+	node_id	smallint unsigned not null,
+	asset_label varchar(128) not null,
+
+	primary key (node_id)
+) engine=innodb default charset=utf8;
+
+create table asset_tag_assign (
+    node_id		smallint    unsigned not null,
+	cat_id		smallint	unsigned not null,	
+    tag_id		smallint    unsigned not null,
+	group_id	smallint	unsigned not null,
+    rank        tinyint     unsigned not null,
+
+    PRIMARY KEY (node_id, tag_id),
+    foreign key (node_id)	references assets   (node_id),
+    foreign key (tag_id)	references metadata (meta_id),
+	foreign key (cat_id)	references metadata (meta_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 INSERT INTO metadata (
 	meta_id
@@ -82,3 +106,13 @@ INSERT INTO metadata_closure (ancestor, descendant, depth) VALUES
 (7, 7, 0),
 (8, 8, 0),
 (9, 9, 0);
+
+
+insert into assets(node_id, asset_label) values
+(1, 'asset 1'), (2, 'asset 2'), (3, 'asset 3'), (4, 'asset 4'), 
+(5, 'asset 5');
+
+insert into asset_tag_assign(node_id, cat_id, tag_id, rank) values
+(1, 2,  5,	1),
+(2, 2,  5,	1),
+(2, 2,  14, 2);
