@@ -85,13 +85,7 @@ class HttpResponseTest extends BaseTestCase
 		 * the protocol version and status
 		 */
 		$expected = 'HTTP/1.0 200 OK';
-		$statusLine = $this->response->getStatusLineHeader();
-		$this->assertInstanceOf(
-			'Appfuel\Http\HttpHeaderField',
-			$statusLine
-		);
-
-		$this->assertEquals($expected, $statusLine->getField());
+		$this->assertEquals($expected, $this->response->getStatusLine());
 	}
 
 	/**
@@ -108,14 +102,8 @@ class HttpResponseTest extends BaseTestCase
 		$this->assertEquals('1.1', $response->getProtocolVersion());
 
 		$expected = 'HTTP/1.1 200 OK';
-		$statusLine = $response->getStatusLineHeader();
-		$this->assertInstanceOf(
-			'Appfuel\Http\HttpHeaderField',
-			$statusLine
-		);
-		$this->assertEquals($expected, $statusLine->getField());
-		$this->assertEquals(array(), $this->response->getAllHeaders());
-
+		$this->assertEquals($expected, $response->getStatusLine());
+		$this->assertEquals(array(), $response->getAllHeaders());
 	}
 
 	/**
@@ -131,20 +119,15 @@ class HttpResponseTest extends BaseTestCase
 		$this->assertSame($status, $response->getStatus());
 
 		$expected = "HTTP/1.1 $status";
-		$statusLine = $response->getStatusLineHeader();
-		$this->assertInstanceOf(
-			'Appfuel\Http\HttpHeaderField',
-			$statusLine
-		);
-		$this->assertEquals($expected, $statusLine->getField());
-		$this->assertEquals(array(), $this->response->getAllHeaders());
+		$this->assertEquals($expected, $response->getStatusLine());
+		$this->assertEquals(array(), $response->getAllHeaders());
 	}
 
 	/**
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testContructorWithProtocolStatusHeaders()
+	public function testContructorWithProtocolStatus()
 	{
 		$content = 'this is my content';
 		$version = '1.1';
@@ -161,12 +144,7 @@ class HttpResponseTest extends BaseTestCase
 		$this->assertSame($status, $response->getStatus());
 
 		$expected = "HTTP/1.1 $status";
-		$statusLine = $response->getStatusLineHeader();
-		$this->assertInstanceOf(
-			'Appfuel\Http\HttpHeaderField',
-			$statusLine
-		);
-		$this->assertEquals($expected, $statusLine->getField());
+		$this->assertEquals($expected, $response->getStatusLine());
 		$this->assertEquals($headers, $response->getAllHeaders());
 	}
 
@@ -256,20 +234,17 @@ class HttpResponseTest extends BaseTestCase
 	 */
 	public function testGetSetStatus()
 	{
-		$status = new HttpStatus(400);
-		/* this is the default and we assert this to prove what we are
-		 * about to set is not already set
-		 */
-		$this->assertNotEquals($status, $this->response->getStatus());
+		/* default status is 200 */
+		$result = $this->response->getStatus();
+		$this->assertInstanceOf('Appfuel\Http\HttpStatus',$result);
+		$this->assertEquals(200, $result->getCode());
+
 
 		$expected = 'HTTP/1.0 200 OK';
-		$statusLine = $this->response->getStatusLineHeader();
-		$this->assertInstanceOf(
-			'Appfuel\Http\HttpHeaderField',
-			$statusLine
-		);
-		$this->assertEquals($expected, $statusLine->getField());
+		$statusLine = $this->response->getStatusLine();
+		$this->assertEquals($expected, $statusLine);
 
+		$status = new HttpStatus(400);
 		$this->assertSame(
 			$this->response,
 			$this->response->setStatus($status),
@@ -278,12 +253,8 @@ class HttpResponseTest extends BaseTestCase
 		$this->assertEquals($status, $this->response->getStatus());
 
 		$expected = 'HTTP/1.0 400 Bad Request';
-		$statusLine = $this->response->getStatusLineHeader();
-		$this->assertInstanceOf(
-			'Appfuel\Http\HttpHeaderField',
-			$statusLine
-		);
-		$this->assertEquals($expected, $statusLine->getField());
+		$statusLine = $this->response->getStatusLine();
+		$this->assertEquals($expected, $statusLine);
 	}
 
 	/**

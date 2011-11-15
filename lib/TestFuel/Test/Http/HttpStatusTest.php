@@ -160,15 +160,6 @@ class HttpStatusTest extends BaseTestCase
 	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
-	public function testCodeIsNotAnInt_FloatFailure()
-	{
-		$status = new HttpStatus(103.233);
-	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @return	null
-	 */
 	public function testCodeIntLessThan100_ZeroFailure()
 	{
 		$status = new HttpStatus(0);

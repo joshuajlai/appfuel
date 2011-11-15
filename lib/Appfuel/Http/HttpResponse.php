@@ -26,12 +26,6 @@ class HttpResponse implements HttpResponseInterface
 	protected $headerList = null;
 
 	/**
-	 * This is the text of the first header to be send
-	 * @var	HttpHeaderField
-	 */
-	protected $statusLine = null;
-
-	/**
 	 * Data to be sent in this response
 	 * @var	string
 	 */
@@ -44,6 +38,73 @@ class HttpResponse implements HttpResponseInterface
 	protected $version = null;
 
 	/**
+	 * This is the text of the first header to be send
+	 * @var	HttpHeaderField
+	 */
+	protected $statusLine = null;
+
+	/**
+	 * Mapped text for the given status code
+	 * @var string
+	 */
+	protected $statusText = null;
+	
+	/**
+	 * Http status code
+	 * @var int
+	 */
+	protected $statusCode = null;
+
+	/**
+	 * Map http status codes to human readable text
+	 * 
+	 * @var array
+	 */
+    static protected $statusMap = array(
+        100 => 'Continue',
+        101 => 'Switching Protocols',
+        200 => 'OK',
+        201 => 'Created',
+        202 => 'Accepted',
+        203 => 'Non-Authoritative Information',
+        204 => 'No Content',
+        205 => 'Reset Content',
+        206 => 'Partial Content',
+        300 => 'Multiple Choices',
+        301 => 'Moved Permanently',
+        302 => 'Found',
+        303 => 'See Other',
+        304 => 'Not Modified',
+        305 => 'Use Proxy',
+        307 => 'Temporary Redirect',
+        400 => 'Bad Request',
+        401 => 'Unauthorized',
+        402 => 'Payment Required',
+        403 => 'Forbidden',
+        404 => 'Not Found',
+        405 => 'Method Not Allowed',
+        406 => 'Not Acceptable',
+        407 => 'Proxy Authentication Required',
+        408 => 'Request Timeout',
+        409 => 'Conflict',
+        410 => 'Gone',
+        411 => 'Length Required',
+        412 => 'Precondition Failed',
+        413 => 'Request Entity Too Large',
+        414 => 'Request-URI Too Long',
+        415 => 'Unsupported Media Type',
+        416 => 'Requested Range Not Satisfiable',
+        417 => 'Expectation Failed',
+        418 => 'I\'m a teapot',
+        500 => 'Internal Server Error',
+        501 => 'Not Implemented',
+        502 => 'Bad Gateway',
+        503 => 'Service Unavailable',
+        504 => 'Gateway Timeout',
+        505 => 'HTTP Version Not Supported',
+    );
+
+	/**
 	 * @param	mixed	$data		content to be sent out
 	 * @param	int		$status		status code of the response
 	 * @param	array	$headers	list of header objects to be used
@@ -51,41 +112,24 @@ class HttpResponse implements HttpResponseInterface
 	 */
 	public function __construct($data = '',
 								$version = '1.0',
-								HttpStatusInterface $status = null,
+								$status = 200,
 								array $headers = null)
 	{
+		$this->setContent($data);
+		
 		$headerList = new HttpHeaderList();
 		if (null !== $headers) {
 			$headerList->loadHeaders($headers);
 		}
 		$this->setHeaderList($headerList);
 
-		$this->setContent($data);
-
-		$valid = array('1.0', '1.1');
 		if (null === $version) {
 			$version = '1.0';
 		}
-		elseif (is_numeric($version)) {
-			$version =(string) $version;
-			if ('1' === $version) {
-				$version = '1.0';
-			}
-		}
-		
-		if (empty($version) || 
-			!is_string($version) || !in_array($version, $valid, true)) {
-			$type = gettype($version);
-			$err   = "Failed to instantiate HttpResponse: ";
-			$err  .= "Can not set http protocol version must be one of the ";
-			$err  .= "following strings '1.0' or '1.1' type given -($type) ";
-			throw new InvalidArgumentException($err);
-		}
-		$this->version = $version;
-
+		$this->setProtocolVersion($version);
 	
 		if (null === $status) {
-			$status = new HttpStatus();
+			$status = 200;
 		}
 		$this->setStatus($status);
 	}
@@ -106,7 +150,7 @@ class HttpResponse implements HttpResponseInterface
 	{
 		$this->headerList = $list;
 	}
-	
+
 	/**
 	 * Assign the content to be used and convert it to a string in necessary
 	 * 
@@ -157,6 +201,32 @@ class HttpResponse implements HttpResponseInterface
 	}
 
 	/**
+	 * @return	HttpHeaderStatus
+	 */
+	public function getStatusLine()
+	{
+		return "HTTP/{$this->getProtocolVersion()} {$this->getStatus()}";
+	}
+
+	/**
+	 * @return	int
+	 */
+	public function getStatusCode()
+	{
+		return $this->getStatus()
+					->getCode();
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getStatusText()
+	{
+		return $this->getStatus()
+					->getText();
+	}
+
+	/**
 	 * @return	int
 	 */
 	public function getStatus()
@@ -168,21 +238,19 @@ class HttpResponse implements HttpResponseInterface
 	 * @param	HttpResponseStatus
 	 * @return	HttpResponse
 	 */
-	public function setStatus(HttpStatusInterface $status)
+	public function setStatus($status)
 	{
-		$this->status = $status;
-		$this->updateStatusLineHeader();
+		if (! ($status instanceof HttpStatusInterface)) {
+			$status = new HttpStatus($status);
+		}	
+        $this->status = $status;
+
 		return $this;
 	}
 
 	/**
-	 * @return	HttpHeaderStatus
+	 * @return	array
 	 */
-	public function getStatusLineHeader()
-	{
-		return $this->statusLine;
-	}
-
 	public function getAllHeaders()
 	{
 		return $this->getHeaderList()
@@ -248,12 +316,37 @@ class HttpResponse implements HttpResponseInterface
 	}
 
 	/**
+	 * @param	string	$version
+	 * @return	null
+	 */
+	protected function setProtocolVersion($version)
+	{
+		$valid = array('1.0', '1.1');
+
+		if (is_int($version) || is_float($version)) {
+			$version =(string) $version;
+			if ('1' === $version) {
+				$version = '1.0';
+			}
+		}
+		
+		if (empty($version) || 
+			!is_string($version) || !in_array($version, $valid, true)) {
+			$type = gettype($version);
+			$err   = "Failed to instantiate HttpResponse: ";
+			$err  .= "Can not set http protocol version must be one of the ";
+			$err  .= "following strings '1.0' or '1.1' type given -($type) ";
+			throw new InvalidArgumentException($err);
+		}
+		$this->version = $version;
+	}
+
+	/**
 	 * @param	HttpStatus	$status
 	 * @return	HttpResponse
 	 */
 	protected function updateStatusLineHeader()
 	{
-		$statusLine = "HTTP/{$this->getProtocolVersion()} {$this->getStatus()}";
 		$this->statusLine = new HttpHeaderField($statusLine);
 		return $this;
 	}

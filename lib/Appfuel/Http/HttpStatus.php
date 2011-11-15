@@ -84,8 +84,15 @@ class HttpStatus implements HttpStatusInterface
 	 */
 	public function __construct($code = 200, $text = null)
 	{
+		if (! is_numeric($code)) {
+			$err  = "invalid http status code, must be a number or string ";
+			$err .- "that is a number";
+			throw new InvalidArgumentException($err);
+		}
+
+		$code = (int)$code;
 		if (! is_int($code) || $code < 100 || $code >= 600) {
-			throw new InvalidArgumentException("invalid http response code");
+			throw new InvalidArgumentException("invalid http status code");
 		}
 		
 		$this->code = $code;
