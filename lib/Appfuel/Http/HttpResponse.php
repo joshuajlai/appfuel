@@ -21,9 +21,9 @@ class HttpResponse implements HttpResponseInterface
 {
 	/**
 	 * List of headers to be sent 
-	 * @var array
+	 * @var headerListInterface
 	 */
-	protected $headers = array();
+	protected $headerList = null;
 
 	/**
 	 * This is the text of the first header to be send
@@ -54,18 +54,27 @@ class HttpResponse implements HttpResponseInterface
 								HttpStatusInterface $status = null,
 								array $headers = null)
 	{
+		$headerList = new HttpHeaderList();
+		if (null !== $headers) {
+			$headerList->loadHeaders($headers);
+		}
+		$this->setHeaderList($headerList);
+
 		$this->setContent($data);
 
 		$valid = array('1.0', '1.1');
 		if (null === $version) {
 			$version = '1.0';
 		}
-		elseif (is_float($version)) {
+		elseif (is_numeric($version)) {
 			$version =(string) $version;
+			if ('1' === $version) {
+				$version = '1.0';
+			}
 		}
 		
-		if (empty($version) 
-			|| ! is_string($version) || ! in_array($version, $valid)) {
+		if (empty($version) || 
+			!is_string($version) || !in_array($version, $valid, true)) {
 			$type = gettype($version);
 			$err   = "Failed to instantiate HttpResponse: ";
 			$err  .= "Can not set http protocol version must be one of the ";
@@ -79,10 +88,23 @@ class HttpResponse implements HttpResponseInterface
 			$status = new HttpStatus();
 		}
 		$this->setStatus($status);
+	}
 
-		if (null !== $headers) {
-			$this->loadHeaders($headers);
-		}
+	/**
+	 * @return	HttpHeaderListInterface
+	 */
+	public function getHeaderList()
+	{
+		return $this->headerList;
+	}
+
+	/**
+	 * @param	HttpHeaderListInterface $list
+	 * @return	null
+	 */
+	public function setHeaderList(HttpHeaderListInterface $list)
+	{
+		$this->headerList = $list;
 	}
 	
 	/**
@@ -161,13 +183,21 @@ class HttpResponse implements HttpResponseInterface
 		return $this->statusLine;
 	}
 
+	public function getAllHeaders()
+	{
+		return $this->getHeaderList()
+					->getAllHeaders();
+	}
+
 	/**
-	 * @param	HttpHeaderFieldInterface	$header
+	 * @param	string $header
 	 * @return	HttpResponse
 	 */
-	public function addHeader(HttpHeaderFieldInterface $header)
+	public function addHeader($header)
 	{
-		$this->headers[] = $header;
+		$this->getHeaderList()
+			 ->addHeader($header);
+
 		return $this;
 	}
 
@@ -177,28 +207,10 @@ class HttpResponse implements HttpResponseInterface
 	 */
 	public function loadHeaders(array $headers) 
 	{
-		foreach ($headers as $idx => $header) {
-			if (! $header instanceof HttpHeaderFieldInterface) {
-				$type = gettype($header);
-				$err  = "Can not load headers: header must be an object ";
-				$err .= "that implments Appfuel\Framework\Http\HttpHeader";
-				$err .= "FieldInterface. type given -($type) at index $idx";
-				throw new InvalidArgumentException($err);
-			}
-
-			$this->addHeader($header);
-		}
+		$this->getHeaderList()
+			 ->loadHeaders($headers);
 
 		return $this;
-	}
-
-	/**
-	 * These headers are the headers to be sent
-	 * @return	array
-	 */
-	public function getHeaders()
-	{
-		return $this->headers;
 	}
 
 	/**
@@ -220,9 +232,9 @@ class HttpResponse implements HttpResponseInterface
 
 		header($this->getStatusLine()->getField());
 		
-		$headers = $this->getHeaders();
-		foreach ($headers as $header) {
-			header($header->getField());
+		$list = $this->getHeaderList();
+		foreach ($list as $header) {
+			header($header);
 		}
 	}
 

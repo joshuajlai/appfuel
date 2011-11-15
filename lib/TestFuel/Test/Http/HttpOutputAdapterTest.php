@@ -78,11 +78,11 @@ class HttpOutputAdapterTest extends BaseTestCase
 	public function testAddResponseHeaders()
 	{
 		$response = $this->adapter->getResponse();
-		$this->assertEquals(array(), $response->getHeaders());
+		$this->assertEquals(array(), $response->getAllHeaders());
 
 		$headers = array(
-			new HttpHeaderField('WWW-Authenticate: Negotiate'),
-			new HttpHeaderField('Content-type: application/pdf')
+			'WWW-Authenticate: Negotiate',
+			'Content-type: application/pdf'
 		);
 		$this->assertSame(
 			$this->adapter,
@@ -90,7 +90,7 @@ class HttpOutputAdapterTest extends BaseTestCase
 			'uses fluent interface'
 		);
 
-		$this->assertEquals($headers, $response->getHeaders());
+		$this->assertEquals($headers, $response->getAllHeaders());
 	}
 
 	/**

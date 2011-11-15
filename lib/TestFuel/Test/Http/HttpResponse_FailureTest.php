@@ -85,32 +85,11 @@ class HttpResponse_FailureTest extends BaseTestCase
 	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */ 
-	public function testSetHeaderConstructorNotHeaderFieldInterface()
-	{
-		$headers = array('a', 'b', 'c');
-		$response = new HttpResponse('data', '1.1', null, $headers);
-	}
-	
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @return	null
-	 */ 
-	public function testLoadHeaderNotHeaderInterface()
-	{
-		$response = new HttpResponse();
-		$headers = array('a', 'b', 'c');
-		$response->loadHeaders($headers);
-	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @return	null
-	 */ 
 	public function testLoadHeaderNotHeaderInterfaceFirstOneValid()
 	{
-		$header = new HttpHeaderField('Location: http://www.example.com/');
+		$header = 'Location: http://www.example.com/';
 		$response = new HttpResponse();
-		$headers = array($header, 'b', 'c');
+		$headers = array($header, new StdClass());
 		$response->loadHeaders($headers);
 	}
 }

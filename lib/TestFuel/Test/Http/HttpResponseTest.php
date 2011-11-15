@@ -79,7 +79,7 @@ class HttpResponseTest extends BaseTestCase
 		$this->assertEquals(200, $status->getCode());
 		$this->assertEquals('OK', $status->getText());
 
-		$this->assertEquals(array(), $this->response->getHeaders());
+		$this->assertEquals(array(), $this->response->getAllHeaders());
 
 		/* the status line is calculated in the constructor based on
 		 * the protocol version and status
@@ -114,7 +114,7 @@ class HttpResponseTest extends BaseTestCase
 			$statusLine
 		);
 		$this->assertEquals($expected, $statusLine->getField());
-		$this->assertEquals(array(), $this->response->getHeaders());
+		$this->assertEquals(array(), $this->response->getAllHeaders());
 
 	}
 
@@ -137,7 +137,7 @@ class HttpResponseTest extends BaseTestCase
 			$statusLine
 		);
 		$this->assertEquals($expected, $statusLine->getField());
-		$this->assertEquals(array(), $this->response->getHeaders());
+		$this->assertEquals(array(), $this->response->getAllHeaders());
 	}
 
 	/**
@@ -150,9 +150,9 @@ class HttpResponseTest extends BaseTestCase
 		$version = '1.1';
 		$status = new HttpStatus(202);
 		$headers = array(
-			new HttpHeaderField('Status: 404 Not Found'),
-			new HttpHeaderField('WWW-Authenticate: Negotiate'),
-			new HttpHeaderField('Content-type: application/pdf'),
+			'Status: 404 Not Found',
+			'WWW-Authenticate: Negotiate',
+			'Content-type: application/pdf',
 		);
 			
 		$response = new HttpResponse($content, $version, $status, $headers);
@@ -167,7 +167,7 @@ class HttpResponseTest extends BaseTestCase
 			$statusLine
 		);
 		$this->assertEquals($expected, $statusLine->getField());
-		$this->assertEquals($headers, $response->getHeaders());
+		$this->assertEquals($headers, $response->getAllHeaders());
 	}
 
 	/**
@@ -176,9 +176,9 @@ class HttpResponseTest extends BaseTestCase
 	 */
 	public function testGetAddHeader()
 	{
-		$this->assertEquals(array(), $this->response->getHeaders());
+		$this->assertEquals(array(), $this->response->getAllHeaders());
 	
-		$header1 = new HttpHeaderField('Status: 404 Not Found');
+		$header1 = 'Status: 404 Not Found';
 		$this->assertSame(
 			$this->response,
 			$this->response->addHeader($header1),
@@ -186,27 +186,27 @@ class HttpResponseTest extends BaseTestCase
 		);
 
 		$expected = array($header1);
-		$this->assertEquals($expected, $this->response->getHeaders());
+		$this->assertEquals($expected, $this->response->getAllHeaders());
 
 
-		$header2 = new HttpHeaderField('WWW-Authenticate: Negotiate');
+		$header2 = 'WWW-Authenticate: Negotiate';
 		$this->assertSame(
 			$this->response,
 			$this->response->addHeader($header2),
 			'uses fluent interface'
 		);
 		$expected = array($header1, $header2);
-		$this->assertEquals($expected, $this->response->getHeaders());
+		$this->assertEquals($expected, $this->response->getAllHeaders());
 
 
-		$header3 = new HttpHeaderField('Content-type: application/pdf');
+		$header3 = 'Content-type: application/pdf';
 		$this->assertSame(
 			$this->response,
 			$this->response->addHeader($header3),
 			'uses fluent interface'
 		);
 		$expected = array($header1, $header2, $header3);
-		$this->assertEquals($expected, $this->response->getHeaders());
+		$this->assertEquals($expected, $this->response->getAllHeaders());
 	}
 
 	/**
@@ -217,14 +217,14 @@ class HttpResponseTest extends BaseTestCase
 	 */
 	public function testAddHeaderDuplicates()
 	{
-		$this->assertEquals(array(), $this->response->getHeaders());
+		$this->assertEquals(array(), $this->response->getAllHeaders());
 	
-		$header1 = new HttpHeaderField('Status: 404 Not Found');
+		$header1 = 'Status: 404 Not Found';
 		$this->response->addHeader($header1);
 		$this->response->addHeader($header1);
 		$this->response->addHeader($header1);
-		$expected = array($header1, $header1, $header1);
-		$this->assertEquals($expected, $this->response->getHeaders());
+		$expected = array($header1);
+		$this->assertEquals($expected, $this->response->getAllHeaders());
 	}
 
 	/**
@@ -234,18 +234,18 @@ class HttpResponseTest extends BaseTestCase
 	public function testLoadHeaders()
 	{
 		$headers = array(
-			new HttpHeaderField('Status: 404 Not Found'),
-			new HttpHeaderField('WWW-Authenticate: Negotiate'),
-			new HttpHeaderField('Content-type: application/pdf'),
+			'Status: 404 Not Found',
+			'WWW-Authenticate: Negotiate',
+			'Content-type: application/pdf',
 		);
 		
-		$this->assertEquals(array(), $this->response->getHeaders());
+		$this->assertEquals(array(), $this->response->getAllHeaders());
 		$this->assertSame(
 			$this->response,
 			$this->response->loadHeaders($headers),
 			'uses fluent interface'
 		);
-		$this->assertEquals($headers, $this->response->getHeaders());
+		$this->assertEquals($headers, $this->response->getAllHeaders());
 	}
 
 	/**

@@ -41,4 +41,12 @@ interface HttpHeaderListInterface
 	 * @return	bool
 	 */
 	public function isHeader($header);
+
+	/**
+	 * Load a list of headers into the header list
+	 * 
+	 * @param	array	 $headers
+	 * @return	null
+	 */
+	public function loadHeaders(array $headers);
 }
