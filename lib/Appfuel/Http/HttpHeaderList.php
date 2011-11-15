@@ -99,8 +99,10 @@ class HttpHeaderList implements HttpHeaderListInterface, Countable, Iterator
 	 */
 	public function addHeader($header)
 	{
-		if (empty($header) || ! is_string($header)) {
-			throw new InvalidArgumentException("header must be a string");
+		if (empty($header) || 
+			!is_string($header) || !($header = trim($header))) {
+			$err = "header must be a non empty string";
+			throw new InvalidArgumentException($err);
 		}
 
 		if ($this->isHeader($header)) {
@@ -109,6 +111,19 @@ class HttpHeaderList implements HttpHeaderListInterface, Countable, Iterator
 
 		$this->headers[] = $header;
 		return true;
+	}
+
+	/**
+	 * @param	array	$headers
+	 * @return	null
+	 */
+	public function loadHeaders(array $headers)
+	{
+		foreach ($headers as $header) {
+			$this->addHeader($header);
+		}
+
+		$this->rewind();
 	}
 
 	/**
@@ -128,7 +143,8 @@ class HttpHeaderList implements HttpHeaderListInterface, Countable, Iterator
 	public function isHeader($header)
 	{
 		if (empty($header) || ! is_string($header)) {
-			throw new InvalidArgumentException("header must be a string");
+			$err = "header must be a non empty string";
+			throw new InvalidArgumentException($err);
 		}
 
 		$header = strtolower($header);
