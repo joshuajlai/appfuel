@@ -18,8 +18,6 @@ interface OutputEngineInterface
 {
 	public function getAdapter();
 	public function setAdapter(OutputAdapterInterface $adapter);
-	public function addConfiguration($item);
-	public function getConfiguration();
 	public function render($data);
 	public function renderError($msg);
 }

@@ -11,79 +11,48 @@
 namespace Appfuel\Http;
 
 
-use Appfuel\Http\HttpResponse,
-	Appfuel\Framework\Exception,
-	Appfuel\Output\OutputAdapterInterface;
+use Appfuel\Output\OutputAdapterInterface;
 
 /**
  * Handle specific details for outputting http data
  */
 class HttpOutputAdapter implements OutputAdapterInterface
 {
-	/**
-	 * Any php related functionality like sending headers is done here
-	 * @var	HttpResponse
-	 */
-	protected $response = null;
-
-	/**
-	 * @param	HttpResponseInterface	$response
-	 * @return	HttpOutputAdapter
-	 */
-	public function __construct(HttpResponseInterface $response = null)
-	{
-		if (null === $response) {
-			$response = new HttpResponse();
-		}
-	
-		$this->response = $response;
-	}
-
-	/**
-	 * @param	array	$headers
-	 * @return	HttpOutputAdapter
-	 */
-	public function addResponseHeaders(array $headers)
-	{
-		if (empty($headers)) {
-			return;
-		}
-
-		$response = $this->getResponse();
-		$response->loadHeaders($headers);
-		return $this;
-	}
-
-	/**
-	 * @param	string	$profile	name of the profile to load
-	 * @return	HttpOutputAdapter
-	 */
-	public function loadHeaderProfile($profile)
-	{
-		return $this;
-	}	
-
-	/**
-	 * @return	HttpResponseInterface
-	 */
-	public function getResponse()
-	{
-		return $this->response;	
-	}
-
     /**
-     * @param   mixed   $data
-     * @param   string  $strategy
+     * @param   HttpResponseInterface|string   $data
      * @return  mixed
      */
     public function render($data)
-    {  
-		$result   = null;
-		$response = $this->getResponse();
-		$response->setContent($data);
-		$response->send();
-        return;
+    {
+		if ($data instanceof HttpResponseInterface) {
+			$response = $data;
+		}
+		else {
+			$response = $this->createHttpResponse($data);
+		}
+
+		return $this->renderResponse($response);
     }
+
+	/**
+	 * @param	HttpResponseInterface $response
+	 * @return	null
+	 */
+	public function renderResponse(HttpResponseInterface $response)
+	{
+		if (headers_sent()) {
+			return;
+		}
+
+		header($response->getStatusLine());
+		
+		$headerList = $reponse->getHeaderList();
+
+		$replaceSimilar = false;
+		foreach($headerList as $header) {
+			header($header, $replaceSimilar);
+		}
+	}
 
 	/**
 	 * @param	string	$msg
@@ -92,6 +61,16 @@ class HttpOutputAdapter implements OutputAdapterInterface
 	 */
 	public function renderError($msg, $code = 500)
 	{
-		// load error profile
+		$this->renderResponse($this->createHttpResponse($msg, $code));
+	}
+
+	/**
+	 * @param	string	$content
+	 * @param	int		$code
+	 * @return	HttpResponse
+	 */
+	protected function createHttpResponse($content, $code = null)
+	{
+		return new HttpResponse($content, $code);
 	}
 }

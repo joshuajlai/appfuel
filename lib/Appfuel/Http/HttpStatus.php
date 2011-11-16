@@ -14,8 +14,9 @@ namespace Appfuel\Http;
 use InvalidArgumentException;
 
 /**
- * Value object used to wrap parameters php uses to send a header
- * with its header function
+ * Maps the http status code to status text. Used in the http response mainly
+ * to build the status line text of the first header that is sent back for
+ * the http response.
  */
 class HttpStatus implements HttpStatusInterface
 {

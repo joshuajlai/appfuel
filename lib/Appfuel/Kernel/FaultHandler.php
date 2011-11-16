@@ -47,7 +47,7 @@ class FaultHandler implements FaultHandlerInterface
 		$this->logger = $logger;
 
 		if (null === $engine) {
-			$engine = new OutputEngine();
+			$engine = new KernelOutput();
 		}
 
 		$this->outputEngine = $engine;
@@ -69,6 +69,10 @@ class FaultHandler implements FaultHandlerInterface
 		return $this->outputEngine;
 	}
 
+	/**
+	 * @param	Exception	$e
+	 * @return	null
+	 */
 	public function handleException(Exception $e)
 	{
 		$logger  = $this->getLogger();
@@ -82,34 +86,41 @@ class FaultHandler implements FaultHandlerInterface
 			$file = $e->getFile();
 			$line = $e->getLine();
 			$code = $e->getCode();
-			$tags = 'untagged';
 
-			$text = "exception $msg in $file:$line:$tags";
+			$text = "uncaught exception $msg in $file:$line";
 		}
 		$logger->log($text, LOG_ERR);
 			
 		if (strlen($code) < 1 || ! is_int($code)) {
-			$code = 1;
+			$code = 500;
 		}
 
-		$display->outputGeneralError($text, $code);
+		$display->renderError($text, $code);
 		exit($code);
 	}
 
+	/**
+	 * @param	int	$level	
+	 * @param	string	$msg
+	 * @param	int	$file
+	 * @param	int	$line
+	 * @param	mixed	$context
+	 * @return	null
+	 */
 	public function handleError($level, $msg, $file, $line, $context)
 	{
-		if (0 === $level) {
-			return false;
-		}
-
-		$code    = 1;
+		$code    = 500;
 		$logger  = $this->getLogger();
 		$display = $this->getOutputEngine();
 
 		$text = "$level: $msg in $file:$line";
 		$logger->log($text, LOG_ERR);
 		
-		$display->outputGeneralError($text, $code);
+		if (! (error_reporting() & $level)) {
+			return false;
+		}
+
+		$display->renderError($text, $code);
 		exit($code);
 	}
 }

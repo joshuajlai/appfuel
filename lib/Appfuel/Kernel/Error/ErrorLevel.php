@@ -197,7 +197,7 @@ class ErrorLevel implements ErrorLevelInterface
     public function mapCode($code)
     {
         if (! $this->isCode($code)) {
-            return FALSE;
+            return false;
         }
 
         return self::$map[$code];
@@ -212,10 +212,10 @@ class ErrorLevel implements ErrorLevelInterface
     public function isCode($code)
     {
         if (! array_key_exists($code, self::$map)) {
-            return FALSE;
+            return false;
         }
 
-        return TRUE;
+        return true;
     }
 
 	/**
@@ -234,7 +234,7 @@ class ErrorLevel implements ErrorLevelInterface
 	 */
 	protected function getBitValue(array $codes)
 	{
-		$bitValue = NULL;
+		$bitValue = null;
 		foreach ($codes as $code) {
 			$level = $this->mapCode($code);
 			if (false === $level) {

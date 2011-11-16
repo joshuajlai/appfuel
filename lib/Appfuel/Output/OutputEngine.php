@@ -26,12 +26,6 @@ class OutputEngine implements OutputEngineInterface
 	protected $adapter = null;
 
 	/**
-	 * List of adapter configuration, like http headers
-	 * @var array
-	 */
-	protected $configuration = array();
-
-	/**
 	 * @param	OutputAdapterInterface $adapter
 	 * @return	OutputEngine
 	 */
@@ -63,17 +57,17 @@ class OutputEngine implements OutputEngineInterface
 	 */
 	public function render($data)
 	{
-		$adapter = $this->getAdapter();
-		return $adapter->output($data);
+		return $this->getAdapter()
+					->output($data);
 	}
 
 	/**
 	 * @param	string	$msg
 	 * @return	null
 	 */
-	public function renderError($msg)
+	public function renderError($msg, $code = null)
 	{
-		$adapter = $this->getAdapter();
-		return $adapter->renderError($msg);
+		return $this->getAdapter()
+					->renderError($msg, $code);
 	}
 }

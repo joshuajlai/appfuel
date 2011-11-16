@@ -11,7 +11,7 @@
 namespace TestFuel\Test\Http;
 
 use StdClass,
-	Appfuel\Http\HttpHeaderField,
+	Appfuel\Http\HttpResponse,
 	Appfuel\Http\HttpOutputAdapter,
 	TestFuel\TestCase\BaseTestCase;
 
@@ -50,77 +50,5 @@ class HttpOutputAdapterTest extends BaseTestCase
 			'Appfuel\Output\OutputAdapterInterface',
 			$this->adapter
 		);
-	}
-	
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testConstructor()
-	{
-		$response = $this->adapter->getResponse();
-		$this->assertInstanceOf(
-			'Appfuel\Http\HttpResponse',
-			$response
-		);
-
-		$response = $this->getMock(
-			'Appfuel\Http\HttpResponseInterface'
-		);
-		$adapter = new HttpOutputAdapter($response);
-		$this->assertSame($response, $adapter->getResponse());
-	}
-
-	/**
-	 * @depends	testConstructor
-	 * @return	null
-	 */
-	public function testAddResponseHeaders()
-	{
-		$response = $this->adapter->getResponse();
-		$this->assertEquals(array(), $response->getAllHeaders());
-
-		$headers = array(
-			'WWW-Authenticate: Negotiate',
-			'Content-type: application/pdf'
-		);
-		$this->assertSame(
-			$this->adapter,
-			$this->adapter->addResponseHeaders($headers),
-			'uses fluent interface'
-		);
-
-		$this->assertEquals($headers, $response->getAllHeaders());
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testOutput()
-	{
-		$response = $this->getMockBuilder(
-			'Appfuel\Http\HttpResponseInterface'
-		)->setMethods(array('send', 'setContent'))
-		 ->getMock();
-		
-		$response->expects($this->once())
-				 ->method('setContent')
-				 ->will($this->returnValue(null));
-
-		$response->expects($this->once())
-				 ->method('send')
-			 ->will($this->returnCallback(array($this, 'outputCallBack')));
-
-		$adapter = new HttpOutputAdapter($response);
-		
-		$this->expectOutputString('I am a response');
-		$adapter->render('content does not matter for this test');
-
-	}
-
-	public function outputCallBack()
-	{
-		echo "I am a response";
 	}
 }

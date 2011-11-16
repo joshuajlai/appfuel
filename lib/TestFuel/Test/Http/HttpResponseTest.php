@@ -97,7 +97,7 @@ class HttpResponseTest extends BaseTestCase
 	 */
 	public function testConstructorWithVersion1dot1()
 	{
-		$response = new HttpResponse('my content', '1.1');
+		$response = new HttpResponse('my content', null, '1.1');
 		$this->assertEquals('my content', $response->getContent());
 		$this->assertEquals('1.1', $response->getProtocolVersion());
 
@@ -113,7 +113,7 @@ class HttpResponseTest extends BaseTestCase
 	public function testContructorWithStatus()
 	{
 		$status = new HttpStatus(201);
-		$response = new HttpResponse('my content', '1.1', $status);
+		$response = new HttpResponse('my content', $status, '1.1');
 		$this->assertEquals('my content', $response->getContent());
 		$this->assertEquals('1.1', $response->getProtocolVersion());
 		$this->assertSame($status, $response->getStatus());
@@ -138,7 +138,7 @@ class HttpResponseTest extends BaseTestCase
 			'Content-type: application/pdf',
 		);
 			
-		$response = new HttpResponse($content, $version, $status, $headers);
+		$response = new HttpResponse($content, $status, $version, $headers);
 		$this->assertEquals($content, $response->getContent());
 		$this->assertEquals($version, $response->getProtocolVersion());
 		$this->assertSame($status, $response->getStatus());
