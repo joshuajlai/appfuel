@@ -33,7 +33,7 @@ interface StartupTaskInterface
 	 * @param	array	$params
 	 * @return	null
 	 */
-	public function execute(array $params);
+	public function execute(array $params = null);
 
 	/**
 	 * Reports the result of the initialization

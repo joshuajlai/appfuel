@@ -96,6 +96,10 @@ class ErrorLevel implements ErrorLevelInterface
 		$disabledCodes = array();	
 		foreach ($codes as $code) {
 			$code = trim($code);
+			if (!isset($code[0])) {
+				continue;
+			}
+
 			if ('-' === $code[0]) {
 				$code = substr($code, 1);
 				/* trim to remove spaces between dash if they exist */

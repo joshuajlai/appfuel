@@ -27,8 +27,12 @@ class Dictionary implements DictionaryInterface
 	 * @param	array	$data
 	 * @return	Bag
 	 */
-	public function __construct(array $data = array())
+	public function __construct(array $data = null)
 	{
+		if (null === $data) {
+			$data = array();
+		}
+
 		$this->load($data);
 	}
 
