@@ -26,7 +26,7 @@ abstract class StartupTaskAbstract implements StartupTaskInterface
 	 * as label => default value.
 	 * @var	 array
 	 */
-	protected $keys = null;
+	protected $keys = array();
 
 	/**
 	 * Status text used to indicate the result of task initialization
@@ -54,7 +54,7 @@ abstract class StartupTaskAbstract implements StartupTaskInterface
 			throw new InvalidArgumentException("status must be a string");
 		}
 
-		$this->status = $text;
+		$this->status = trim($text);
 	}
 
 	/**
@@ -93,7 +93,7 @@ abstract class StartupTaskAbstract implements StartupTaskInterface
 	 */
 	public function addRegistryKey($label, $default = null)
 	{
-		if (empty($label) || ! is_string($label)) {
+		if (empty($label) || !is_string($label) || !($label = trim($label))) {
 			$err = 'label must be a non empty string';
 			throw new InvalidArgumentException($err);
 		}
