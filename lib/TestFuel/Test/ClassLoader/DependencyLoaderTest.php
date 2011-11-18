@@ -152,7 +152,7 @@ class DependencyLoaderTest extends FrameworkTestCase
 	/**
 	 * Dependency Loader will throw an exception for any file it can not find
 	 *
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	RunTimeException
 	 * @depends				testDependencies
 	 * @return				null
 	 */

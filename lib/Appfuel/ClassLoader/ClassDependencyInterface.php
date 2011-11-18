@@ -17,6 +17,16 @@ namespace Appfuel\ClassLoader;
 interface ClassDependencyInterface
 {
 	/**
+	 * This provides a consistent interface for the kernel intializer that
+	 * creates class dependency objects. when no root path is given the
+	 * contant AF_LIB_PATH is used as the root path
+	 *
+	 * @param	string	$rootPath
+	 * @return	ClassDependencyInterface
+	 */
+	public function __construct($rootPath = null);
+
+	/**
 	 * Prefix path used to pre fix to namespace resolution
 	 * @return	string
 	 */

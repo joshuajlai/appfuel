@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Kernel;
 
-use Appfuel\Framework\Exception;
+use InvalidArgumentException;
 
 /**
  * Decouples the kernal settings from the kernal
@@ -30,55 +30,10 @@ class KernelRegistry
 	static protected $domains = array();
 
 	/**
-	 * List of tasks startup classes used to by the kernal intializer
+	 * Holds a list of route key to action namespace mappings
 	 * @var array
 	 */
-	static protected $startup = array();
-
-	/**
-	 * @param	array	$classes
-	 * @return	null
-	 */
-	static public function setStartupTasks(array $classes) 
-	{
-		foreach ($classes as $class) {
-			self::addStartupTask($class);
-		}
-	}
-
-	/**
-	 * @return	array
-	 */
-	static public function getStartupTasks()
-	{
-		return self::$startup;
-	}
-
-	/**
-	 * A startup task is a fully qualified namespace for a startup strategy.
-	 * The kernal intitializer will run all the startup tasks in this list
-	 * 
-	 * @param	string	$class
-	 * @return	null
-	 */
-	static public function addStartupTask($class)
-	{
-		if (! self::isValidString($class)) {
-			throw new Exception("Key must be a non empty scalar");
-		}
-
-		if (! in_array($class, self::$startup, true)) {
-			self::$startup[] = trim($class);
-		}
-	}
-
-	/**
-	 * @return	null
-	 */
-	static public function clearStartupTasks()
-	{
-		self::$startup = array();
-	}
+	static protected $routes = array();
 
 	/**
 	 * @return	array
@@ -95,7 +50,9 @@ class KernelRegistry
 	static public function setParams(array $params)
 	{
 		if (! empty($params) && $params === array_values($params)) {
-			throw new Exception("params must be an associative arrays");
+			throw new InvalidArgumentException(
+				"params must be an associative arrays"
+			);
 		}
 
 		foreach ($params as $key => $value) {
@@ -122,7 +79,9 @@ class KernelRegistry
 	static public function addParam($key, $value)
 	{
 		if (! self::isValidString($key)) {
-			throw new Exception("Key must be a non empty scalar");
+			throw new InvalidArgumentException(
+				"Key must be a non empty scalar"
+			);
 		}
 
 		self::$params[$key] = $value;
@@ -161,7 +120,9 @@ class KernelRegistry
 	static public function setDomainMap(array $map)
 	{
 		if (! empty($map) && $map === array_values($map)) {
-			throw new Exception("domain map must be an associative arrays");
+			throw new InvalidArgumentException(
+				"domain map must be an associative arrays"
+			);
 		}
 
 		foreach ($map as $key => $class) {
@@ -193,11 +154,15 @@ class KernelRegistry
 	static public function addDomainClass($key, $class)
 	{
 		if (! self::isValidString($key)) {
-			throw new Exception("key must be a non empty string");
+			throw new InvalidArgumentException(
+				"key must be a non empty string"
+			);
 		}
 
 		if (! self::isValidString($class)) {
-			throw new Exception("class must be a non empty string");
+			throw new InvalidArgumentException(
+				"class must be a non empty string"
+			);
 		}
 
 		self::$domains[$key] = $class;
@@ -230,13 +195,81 @@ class KernelRegistry
 	}
 
 	/**
+	 * @param	array	$map
+	 * @return	null
+	 */
+	static public function setRouteMap(array $map)
+	{
+		if (! empty($map) && $map === array_values($map)) {
+			throw new InvalidArgumentException(
+				"route map must be an associative arrays"
+			);
+		}
+
+		foreach ($map as $key => $class) {
+			self::addRoute($key, $class);
+		}
+	}
+	
+	/**
+	 * @return	array
+	 */
+	static public function getRouteMap()
+	{
+		return	self::$routes;
+	}
+
+	/**
+	 * @return null
+	 */
+	static public function clearRouteMap()
+	{
+		self::$routes = array();
+	}
+
+	/**
+	 * @param	string	$key
+	 * @param	string	$class
+	 * @return	null
+	 */
+	static public function addRoute($key, $actionNamespace)
+	{
+		if (! is_string($key)) {
+			throw new InvalidArgumentException(
+				"key must be a non empty string"
+			);
+		}
+
+		if (! self::isValidString($actionNamespace)) {
+			throw new InvalidArgumentException(
+				"action namespace must be a non empty string"
+			);
+		}
+
+		self::$routes[$key] = $actionNamespace;
+	}
+
+	/**
+	 * @param	string	$key	domain key
+	 * @return	string
+	 */
+	static public function getActionNamespace($key)
+	{
+		if (! is_string($key) || !isset(self::$routes[$key])) {
+			return false;
+		}
+
+		return self::$routes[$key];
+	}
+
+	/**
 	 * @return	null
 	 */
 	static public function clear()
 	{
 		self::clearParams();
 		self::clearDomainMap();
-		self::clearStartupTasks();
+		self::clearRouteMap();
 	}
 
 	/** 

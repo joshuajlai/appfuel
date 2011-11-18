@@ -39,7 +39,6 @@ class KernelInitTask extends StartupTaskAbstract
 		$keys = array(
 			'include-path-action',
 			'include-path',
-			'enable-autoloader',
 			'display-errors',
 			'error-reporting',
 			'default-timezone',
@@ -53,53 +52,7 @@ class KernelInitTask extends StartupTaskAbstract
 	 */
 	public function execute(array $params = null)
 	{
-		$status  = '';
-		$config  = new Dictionary($params);
-        $display = $config->get('display-errors', 'on');
-        if (null !== $display) {
-            $errorDisplay = $this->createErrorDisplay();
-            $errorDisplay->set($display);
-			$status = 'display-errors,';
-        }
-
-		$defaultLevel = 'all,strict,';
-        $level = $config->get('error-reporting', $defaultLevel);
-        if (null !== $level) {
-            $errorReporting = $this->createErrorLevel();
-            $errorReporting->setLevel($level);
-			$status .= 'error-reporting,';
-        }
-
-        $ipath   = $config->get('include-path', array(AF_BASE_PATH . "/lib"));
-        $iaction = $config->get('include-path-action', 'replace');
-        if (! empty($ipath)) {
-            $includePath = $this->createIncludePath();
-            $includePath->setPath($ipath, $iaction);
-			$status .= 'include-path,';
-        }
-
-        $defaultTz = $config->get('default-timezone', 'America/Los_Angeles');
-        if (null !== $defaultTz) {
-            date_default_timezone_set($defaultTz);
-			$status .= 'timezone,';
-        }
-
-        $enableAutoloader =(bool) $config->get('enable-autoloader', true);
-        if (true === $enableAutoloader) {
-            $autoloader = $this->createAutoloader();
-            $autoloader->register();
-			$status .= 'autoloader';
-        }
-
-		if (empty($status)) {
-			$status = 'not initialized';
-		}
-		else {
-			$status = "initialize: $status";
-			$status = trim($status, ",");
-		}
-
-		$this->setStatus($status);
+		$this->setStatus('my message');
 	}
 
     /**

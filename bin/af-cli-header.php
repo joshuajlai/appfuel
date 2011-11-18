@@ -8,12 +8,12 @@
  * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\App\AppManager;
+use Appfuel\Kernel\KernelInitializer;
 
 /* we kmow we are in the bin directory and one level up is the base path */
 $base = realpath(dirname(__FILE__) . '/..');
 
-$file = "$base/lib/Appfuel/App/AppManager.php";
+$file = "$base/lib/Appfuel/Kernel/KernelInitializer.php";
 if (! file_exists($file)) {
     $err = "Could not locate Manager file at ($file)\n";
     fwrite(STDERR, $err);
@@ -21,6 +21,6 @@ if (! file_exists($file)) {
 }
 require_once $file;
 
-$manager = new AppManager($base, 'app-console');
-$manager->initialize();
+$init = new KernelInitializer($base, 'app-console');
+$init->initialize();
 return $manager;

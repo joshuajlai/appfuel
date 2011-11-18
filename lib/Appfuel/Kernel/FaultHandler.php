@@ -13,7 +13,8 @@ namespace Appfuel\Kernel;
 use Exception,
 	RunTimeException,
 	Appfuel\Log\Logger,
-	Appfuel\Log\LoggerInterface;
+	Appfuel\Log\LoggerInterface,
+	Appfuel\Output\OutputEngineInterface;
 
 /**
  * The fault handler uses the Appfuel Logger with a SysLogAdapter to 
@@ -64,11 +65,11 @@ class FaultHandler implements FaultHandlerInterface
 	/**	
 	 * @return	OutputEngineInterface
 	 */
-	public function getOuputEngine()
+	public function getOutputEngine()
 	{
 		return $this->outputEngine;
 	}
-
+	
 	/**
 	 * @param	Exception	$e
 	 * @return	null

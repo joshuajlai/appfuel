@@ -116,7 +116,7 @@ class KernelRegistryTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideBadKey
 	 * @return	null
 	 */
@@ -160,7 +160,7 @@ class KernelRegistryTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testSetParamsNotAssociativeArray()
@@ -170,7 +170,7 @@ class KernelRegistryTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testSetParamsNotAssociativeMixedArray()
@@ -193,7 +193,7 @@ class KernelRegistryTest extends BaseTestCase
     }
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideBadKey
 	 * @return	null
 	 */
@@ -203,7 +203,7 @@ class KernelRegistryTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideBadKey
 	 * @return	null
 	 */
@@ -213,7 +213,7 @@ class KernelRegistryTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testSetDomainMapNotAssociativeArray()
@@ -223,7 +223,7 @@ class KernelRegistryTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testSetDomainMapNotAssociativeMixedArray()
@@ -267,75 +267,6 @@ class KernelRegistryTest extends BaseTestCase
 	}
 
 	/**
-	 * We will ignore the key and use the same valid classes names tested for
-	 * the domain map
-	 *
-	 * @dataProvider	provideValidDomainKeyValues
-	 * @return	null
-	 */
-	public function testStartupTasks($key, $class)
-	{
-		$this->assertEquals(array(), KernelRegistry::getStartupTasks());
-		$this->assertNull(KernelRegistry::addStartupTask($class));
-		$this->assertEquals(array($class), KernelRegistry::getStartupTasks());
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @dataProvider		provideBadKey
-	 * @return	null
-	 */
-	public function testAddBadStartupTask($class)
-	{
-		KernelRegistry::addStartupTask($class);
-	}
-
-	/**
-	 * @return	null
-	 */
-	public function testSetStartupTasks()
-	{
-		$list = array(
-			'MyClass',
-			'YourClass',
-			'My\Class',
-			'Your\Class'
-		);
-		$this->assertNull(KernelRegistry::setStartupTasks($list));
-		$this->assertEquals($list, KernelRegistry::getStartupTasks());
-
-		/* 
-		 * prove setting an empty array is ignored you must explicitly clear 
-		 */
-		$this->assertNull(KernelRegistry::setStartupTasks(array()));
-		$this->assertEquals($list, KernelRegistry::getStartupTasks());
-		
-		
-		/* make sure clear is working */
-		$this->assertNull(KernelRegistry::clearStartupTasks());
-		$this->assertEquals(array(), KernelRegistry::getStartupTasks());
-
-	}
-
-	/**
-	 * @expectedException	Appfuel\Framework\Exception
-	 * @dataProvider		provideBadKey
-	 * @return	null
-	 */
-	public function testSetStartupTasksBadTask($class)
-	{
-		$list = array(
-			'MyClass',
-			'YourClass',
-			$class,
-			'My\Class',
-			'Your\Class'
-		);
-
-		KernelRegistry::setStartupTasks($list);
-	}
-
-	/**
 	 * @return	null
 	 */
 	public function testClear()
@@ -362,12 +293,10 @@ class KernelRegistryTest extends BaseTestCase
 			'My\Class',
 			'Your\Class'
 		);
-		KernelRegistry::setStartupTasks($list3);
 
 		$this->assertNull(KernelRegistry::clear());
 		$this->assertEquals(array(), KernelRegistry::getParams());
 		$this->assertEquals(array(), KernelRegistry::getDomainMap());
-		$this->assertEquals(array(), KernelRegistry::getStartupTasks());
 	}
 }
 

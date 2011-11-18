@@ -10,13 +10,17 @@
  */
 namespace Appfuel\Kernel;
 
-use Appfuel\Framework\Exception,
+use RunTimeException,
+	InvalidArgumentException,
+	Appfuel\ClassLoader\DependencyLoader,
+	Appfuel\Kernel\Startup\StartupTaskInterface,
+	Appfuel\ClassLoader\DependencyLoaderInterface;
 
 /**
  * The kernal intializer uses the kernal registry to get a list of start up
  * tasks. It will run through each task calling its execute methos. 
  */
-class KernelInitializer implements KernelInitializerInterface
+class KernelInitializer
 {
 	/**
 	 * Absolute path to the config file
@@ -25,62 +29,377 @@ class KernelInitializer implements KernelInitializerInterface
 	protected $configPath = null;
 
 	/**
+	 * Flag used during init to determine if a domain map will be used
+	 * @var	bool
+	 */
+	protected $isDomainMap = true;
+
+	/**
+	 * Used to load any ClassDependecy objects
+	 * @var DependecyLoaderInterface
+	 */
+	protected $loader = null;
+
+	/**
 	 * Each task has a status string which we save
 	 * @var array
 	 */
 	static protected $status = array();
 
 	/**
-	 * Assign the config path
+	 * When used over and over again the constant will be taken before
+	 * the value passed in. There should only be one base path and app
+	 * type.
 	 *
 	 * @return	KernalInitializer
 	 */
-	public function __construct()
+	public function __construct($base, $type)
 	{
-		if (! defined('AF_BASE_PATH')) {
-			$err = "base path constant -(AF_BASE_PATH) must be defined";
-			throw new Exception($err);
+		$err = 'Initialization error: ';
+		if (defined('AF_BASE_PATH')) {
+			$base = AF_BASE_PATH;
+		}
+		else {
+			define('AF_BASE_PATH', $base);
+		}
+			
+		if (empty($base) || ! is_string($base)) {
+			$err .= 'base path must be a non empty string';
+			throw new InvalidArgumentException($err);
 		}
 
-		$this->setConfigPath(AF_BASE_PATH . '/app/config/config.php');
+		if (! defined('AF_LIB_PATH')) {
+			define('AF_LIB_PATH', AF_BASE_PATH . '/lib');
+		}
+
+		$this->setConfigPath("$base/app");
+
+		if (defined('AF_APP_TYPE')) {
+			$type = AF_APP_TYPE;
+		}
+		else {
+			define('AF_APP_TYPE', strtolower($type));
+		}
+
+		$valid = array('app-console', 'app-page', 'app-api', 'app-ajax');
+		if (! in_array(AF_APP_TYPE, $valid, true)) {
+			$list = implode('|', $valid);
+			$err .= "app type must be one of the following -($list)";
+			throw new InvalidArgumentException($err);
+		}
+		$this->initDependencyLoader();
+		$this->initKernelDependencies();
 	}
 
 	/**
-	 * Initialize will initialize the kernal registry and run the startup 
-	 * tasks. when the $file parameter is empty it will use the appfuel 
-	 * config path, when a string is given initialize will assume its the
-	 * config it should use. When an array is given initialize will assume
-	 * its the actual config data and use that.
+	 * A wrapper to perform for main intialization tasks.
+	 * 1) users config settings into the KernelRegistry
+	 * 2) default timezone 
+	 * 3) php include path
+	 * 4) load any application dependency objects
+	 * 5) errors and fault handler
+	 * 6) appfuel autoloader
+	 * 7) load domain map is enabled
+	 * 8) load route mapping
+	 * 9) run any registered startup tasks. (tasks are held in the config)
 	 *
-	 * @param	string	$file
+	 * @param	null|string|array	$file
+	 * @param	string				$configSection
+	 * @param	null|string|array	$domain
+	 * @param	null|string|array	$route
 	 * @return	null
 	 */
-	public function initialize($file = null)
+	public function initialize($config = null, 
+							   $section = null, 
+							   $domain = null,
+							   $route = null)
+	{
+		$this->initConfig($config, $section)
+			 ->initTimezone()
+			 ->initIncludePath()
+			 ->initAppDependencies()
+			 ->initFaultHandling()
+			 ->initAppfuelAutoLoader();
+
+		if ($this->isDomainMapEnabled()) {
+			$this->initDomainMap($domain);
+		}
+
+		$this->initRouteMap($route)
+			 ->runStartupTasks();
+	}
+
+	/**
+	 * Initialize the kernel registry with configuration parameters. You can
+	 * specify a path to the config file or a array of config parameters. The
+	 * config is keyed by section when no section is given the section key
+	 * taken is 'main'. The section is then assigned into the KernelRegistry.
+	 *
+	 * @param	mixed	null|string|array	$file
+	 * @param	string	section
+	 * @return	null
+	 */
+	public function initConfig($file = null, $section = null)
 	{
 		if (null === $file || is_string($file)) {
-			$data = $this->getConfigData($file);
+			$data = $this->getData('config', $file);
 		}
 		else if (! empty($file) && is_array($file)) {
 			$data = $file;
 		}
 
-		$this->initializeKernelRegistry($data);
-		$this->runStartupTasks();
+		if (null === $section) {
+			$section = 'main';
+		}
+		else if (empty($section) || ! is_string($section)) {
+			$err = "configuration key must be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		if (! isset($data[$section]) || !is_array($data[$section])) {
+			$err = "Could not find config with key -($key)";
+			throw new InvalidArgumentException($err);
+		}
+
+		$data = $data[$section];
+		$max  = count($data);
+		KernelRegistry::setParams($data);
+		self::$status['kernal:config'] = "config intialized with $max items";
+		return $this;
 	}
 
-    /**  
-     * @param   string		$file	file path to config ini
-	 * @return	Env\State 
+	/**
+	 * Set the php include path based on paths in the config. A path can
+	 * be an actual string of include paths with the path seperator already
+	 * taken care of or an array of paths for which we will concatenate and
+	 * add the path
+	 *
+	 * @return	KernelIntializer
+	 */
+	public function initIncludePath()
+	{
+		$path   = KernelRegistry::getParam('include-path', array());
+		$action = KernelRegistry::getParam('include-action', 'replace');
+	
+		if (empty($path)) {
+			$msg = 'include path not initialized';
+			self::$status['kernal:include-path'] = $msg;
+			return $this;
+		}
+		
+		$include = new IncludePath();
+		$include->setPath($path, $action);
+		$msg = 'include path initialized';
+		self::$status['kernel:include-path'] = $msg;
+		return $this;
+	}
+
+	/**
+	 * The dependecy loader will load any ClassDependecyInterface added
+	 * under the label 'app-dependency'. This allows for loading php files
+	 * that would not work with the autoloader or files you want to preload
+	 * for performence reasons
+	 * 
+	 * @return	null
+	 */
+	public function initAppDependencies()
+	{
+		$list = KernelRegistry::getParam('app-dependency', array());
+		if (empty($list)) {
+			$msg = 'no app dependencies loaded';
+			self::$status['kernel:app-dependency'] = $msg;
+			return $this;
+		}
+
+		if (is_string($list)) {
+			$list = array($list); 
+		}
+		else if (! is_array($list)) {
+			$msg = 'invalid config, no app dependencies loaded';
+			self::$status['kernel:app-dependency'] = $msg;
+			return $this;
+		}
+		
+		$maxloaded = 0;
+		$loader = $this->getDependencyLoader();
+		foreach ($list as $item) {
+			if (is_array($item)) {
+				$class = array_shift($item);
+				$rootpath = array_shift($item);
+			}
+			else if (is_string($item)) {
+				$class = $item;
+				$rootpath = null;
+			}
+			else {
+				continue;
+			}
+			$loader->load(new $class($rootpath));
+			$maxloaded++;
+		}
+		
+		$msg = "loaded $maxloaded dependency objects";
+		self::$status['kernel:app-dependency'] = $msg;
+		return $this;
+	}
+
+	/**
+	 * Initializing the fault handler will set the error_reporting level 
+	 * enable or disable displaying errors and register error and exception
+	 * handlers
+	 *
+	 * @return	KernelInitializer
+	 */
+	public function initFaultHandling()
+	{
+		$display = KernelRegistry::getParam('display-error', 'on');
+		$level	 = KernelRegistry::getParam('error-level', 'all,strict');
+		$class	 = KernelRegistry::getParam('fault-handler', null);
+		if (null === $class) {
+			$class = 'Appfuel\Kernel\FaultHandler';
+		}
+
+        if (null !== $display) {
+            $errorDisplay = new Error\ErrorDisplay();
+            $errorDisplay->set($display);
+        }
+
+        if (null !== $level) {
+            $errorReporting = new Error\ErrorLevel();
+            $errorReporting->setLevel($level);
+        }
+
+		$handler = new $class();
+		if (! ($handler instanceof FaultHandlerInterface)) {
+			$msg = 'fault handler not initialized';
+			self::$status['kernel:app-dependency'] = $msg;
+			return $this;
+		}
+
+		set_error_handler(array($handler, 'handleError'));
+		set_exception_handler(array($handler, 'handleException'));
+
+			
+		$msg = 'fault handler initialized';
+		self::$status['kernel:app-dependency'] = $msg;
+		return $this;
+	}
+
+	/**
+	 * @return	KernelInitializer
+	 */
+	public function initTimezone()
+	{
+		$defaultTz = 'America/Los_Angeles';
+		$tz = KernelRegistry::getParam('default-timezone', $defaultTz);
+		if ('disabled' === $tz) {
+			return $this;
+		}
+
+		date_default_timezone_set($tz);
+		$msg = "timezone initialized to $tz";
+		self::$status['kernel:timezone'] = $msg;
+		return $this;	
+	}
+
+	/**
+	 * This will only register the appfuel standard autoloader. If you 
+	 * what your own autoloader without appfuels then in the config
+	 * use enable-af-autoloader = false
+	 *
+	 * @return	KernelInitializer
+	 */
+	public function initAppfuelAutoloader()
+	{
+		$isAutoloader = KernelRegistry::getParam('enable-af-autoloader', true);
+		if (false == $isAutoloader) {
+			return $this;
+		}
+
+		$dependency = $this->getDependencyLoader();
+		$dependency->getLoader()
+				   ->register();
+		
+		$msg = "appfuel autoloader initialized";
+		self::$status['kernel:autolaoder'] = $msg;
+		return $this;	
+	}
+
+	/**
+	 * The domain map is a decoupling of domain objects and their class names.
+	 * Keeping a map of domains keys => classname prevents developers to refer
+	 * to the domains by its key rather than its fully qualified domain 
+	 * classname. This feature is options and can be disabled with the call
+	 * KernelInitializer::disableDomainMap
+	 *
+	 * @param	null|string|array	$domains
+	 * @return	null
+	 */
+	public function initDomainMap($domains = null)
+	{
+		if (null === $domains || is_string($domains)) {
+			$map = $this->getData('domain', $domains);
+		}
+		else if (! empty($domains) && is_array($domains)) {
+			$map = $domains;
+		}
+
+		$max = count($map);
+		KernelRegistry::setDomainMap($map);
+
+		$result = "domain map intiailized with $max classes";
+		self::$status['kernal:domains'] = $result;
+	}
+
+	/**
+	 * A mapping of route keys to action controller namespaces is kept to 
+	 * simplify the uri's generated and used by the framework. This is not
+	 * optional and must used as part of the framework. In the uri the first
+	 * component in the path or the name 'routekey' in the query string is
+	 * the key for the route. When no key is found the route key '' is used.
+	 * Here we will initialize the route list into the KernelRegistry
+	 *
+	 * @param	null|string|array	$routes
+	 * @return	null
+	 */
+	public function initRouteMap($routes = null)
+	{
+		if (null === $routes || is_string($routes)) {
+			$map = $this->getData('routes', $routes);
+		}
+		else if (! empty($routes) && is_array($routes)) {
+			$map = $routes;
+		}
+
+		$max = count($map);
+		KernelRegistry::setRouteMap($map);
+		$result = "route map intiailized with $max routes";
+		self::$status['kernal:routes'] = $result;
+		return $this;
+	}
+
+    /**
+	 * Startup tasks allow developers to write intialization strategies and
+	 * register them in the config. We collection all the strategies and 
+	 * execute them one at a time, storing the resulting status string in 
+	 * out static collection of status results.
+	 *  
+	 * @return	null
      */
 	public function runStartupTasks()
 	{
-		$tasks  = KernelRegistry::getStartupTasks();
+		$err   = 'startup task init failure: '; 
+		$tasks = KernelRegistry::getParam('startup-tasks', array());
+		if (empty($tasks) || ! is_array($tasks)) {
+			return $this;
+		}
+
 		foreach ($tasks as $taskClass) {
 			$task = new $taskClass();
 			if (! ($task instanceof StartupTaskInterface)) {
-				$err  = "task -($taskClass) does not implement Appfuel\Kernal";
+				$err .= "task -($taskClass) does not implement Appfuel\Kernal";
 				$err .= "\StartupTaskInterface";
-				throw new Exception($err);
+				throw new RunTimeException($err);
 			}
 	
 			$task->execute();
@@ -91,6 +410,8 @@ class KernelInitializer implements KernelInitializerInterface
 
 			self::$status[$taskClass] = $statusResult;
 		}
+	
+		return $this;
 	}
 
 	/**
@@ -99,43 +420,26 @@ class KernelInitializer implements KernelInitializerInterface
 	 *
 	 * @return	array
 	 */
-	public function getConfigData($file = null)
+	public function getData($type, $file = null)
 	{
-		$err  = 'loading configuration failed';
+		$path = $this->getConfigPath();
+		$err  = "loading $type data failure: ";
+
 		if (null === $file) {
-			$file = $this->getConfigPath();
+			$file = "$path/$type.php";
 		}
 
 		if (! file_exists($file)) {
-			throw new Exception("config file not found at -($file)");
+			throw new RunTimeException("$type file not found at -($file)");
 		}
 
 		$data = require $file;
 		if (! is_array($data) &&  $data === array_values($data)) {
-			$err .= ' config file must return an associative array';
-			throw new Exception($err);
+			$err .= " $type file must return an associative array";
+			throw new RunTimeException($err);
 		}
 	
 		return $data;	
-	}
-
-	/**
-	 * @return null
-	 */
-	public function initializeKernelRegistry(array $data)
-	{
-		$err = 'loading configuration failed';
-		if (isset($data['kernel-params']) && is_array($data['kernel-params'])) {
-			KernelRegistry::setParams($data['kernel-params']);
-		}
-
-		if (isset($data['domain-map']) && is_array($data['domain-map'])) {
-			KernelRegistry::setDomainMap($data['domain-map']);
-		}
-
-		if (isset($data['startup-tasks']) && is_array($data['startup-tasks'])){
-			KernelRegistry::setStartupTasks($data['startup-tasks']);
-		}
 	}
 
 	/**
@@ -144,6 +448,57 @@ class KernelInitializer implements KernelInitializerInterface
 	public function getConfigPath()
 	{
 		return $this->configPath;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getStatus()
+	{
+		return self::$status;
+	}
+
+	/**
+	 * @return	DependencyLoaderInterface
+	 */
+	public function getDependencyLoader()
+	{
+		return $this->loader;
+	}
+
+	/**
+	 * @param	DependencyLoaderInterface	$loader
+	 * @return	KernelIntializer
+	 */
+	public function setDependencyLoader(DependencyLoaderInterface $loader)
+	{
+		$this->loader = $loader;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isDomainMapEnabled()
+	{
+		return $this->isDomainMap;
+	}
+
+	/**
+	 * @return	KernelInitializer
+	 */
+	public function enableDomainMap()
+	{
+		$this->isDomainMap = true;
+		return $this;
+	}
+
+	/**
+	 * @return	KernelInitializer
+	 */
+	public function disableDomainMap()
+	{
+		$this->isDomainMap = false;
+		return $this;
 	}
 
 	/**
@@ -158,4 +513,62 @@ class KernelInitializer implements KernelInitializerInterface
 
 		$this->configPath = $path;
 	}
-}	
+
+	/**
+	 * Load all interfaces and classes used in autoloading or dependency
+	 * loading. Because the autoloader or dependency loaders are not 
+	 * available we have to manually require each class
+	 *
+	 * @return	 null
+	 */
+	protected function initDependencyLoader()
+	{
+		/*
+		 * obtuse name is allow the strings to be less than 80 chars
+		 * p - path
+		 * c - class name
+		 */
+		$p = AF_BASE_PATH . '/lib/Appfuel/ClassLoader';
+		$c = "\Appfuel\ClassLoader";
+		$kpath  = AF_BASE_PATH . '/lib/Appfuel/Kernel/KernelDependency.php';
+		$kclass = "\Appfuel\Kernel\KernelDependency";
+		$files  = array(
+			"$c\AutoLoaderInterface"	   => "$p/AutoLoaderInterface.php",
+			"$c\DependencyLoaderInterface" =>"$p/DependencyLoaderInterface.php",
+			"$c\ClassDependencyInterface"  => "$p/ClassDependencyInterface.php",
+			"$c\\NamespaceParserInterface" => "$p/NamespaceParserInterface.php",
+			"$c\\NamespaceParser"		   => "$p/NamespaceParser.php",
+			"$c\StandardAutoLoader"		   => "$p/StandardAutoLoader.php",
+			"$c\ClassDependency"		   => "$p/ClassDependency.php",
+			"$c\DependencyLoader"		   => "$p/DependencyLoader.php",
+			$kclass						   => $kpath
+		);
+
+		$err = "dependent file not found";
+		foreach ($files as $namespace => $file) {
+			if (class_exists($namespace, false) || 
+				interface_exists($namespace, false)) {
+				continue;
+			}
+			if (! file_exists($file)) {
+				throw new RunTimeException("$err -($file)");
+			}
+			require $file;
+		}
+	
+		$this->setDependencyLoader(new DependencyLoader());
+	}
+
+	/**
+	 * Load all dependent kernel php files so they do not have to be discoverd
+	 * by the autoloader which is slower
+	 *
+	 * @return	null
+	 */
+	protected function initKernelDependencies()
+	{
+		$this->getDependencyLoader()
+			 ->loadDependency(new KernelDependency());
+		self::$status['kernel:dependency'] = "kernel files loaded";
+	}
+}

@@ -10,7 +10,7 @@
  */
 namespace Appfuel\ClassLoader;
 
-use Appfuel\Framework\Exception,
+use RunTimeException,
 	Appfuel\ClassLoader\StandardAutoLoader,
 	Appfuel\ClassLoader\AutoLoaderInterface;
 
@@ -93,14 +93,14 @@ class DependencyLoader implements DependencyLoaderInterface
 			}
 
 			if (! $loader->loadClass($class)) {
-				throw new Exception("coun not locate class -($class)");
+				throw new RunTimeException("coun not locate class -($class)");
 			}
 		}
 
 		$files = $dependency->getFiles();
 		foreach($files as $file) {
 			if (! file_exists($file)) {
-				throw new Exception("could not locate file -($file)");
+				throw new RunTimeException("could not locate file -($file)");
 			}
 			require $file;
 		}

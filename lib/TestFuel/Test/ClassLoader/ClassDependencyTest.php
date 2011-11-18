@@ -308,7 +308,7 @@ class ClassDependencyTest extends BaseTestCase
 
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return				null
 	 */
 	public function testConstructInvalidRootPath_ArrayFailure()
@@ -317,7 +317,7 @@ class ClassDependencyTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return				null
 	 */
 	public function testConstructInvalidRootPath_IntFailure()
@@ -326,7 +326,7 @@ class ClassDependencyTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return				null
 	 */
 	public function testConstructInvalidRootPath_ObjectFailure()

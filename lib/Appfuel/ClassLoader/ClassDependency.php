@@ -10,7 +10,8 @@
  */
 namespace Appfuel\ClassLoader;
 
-use Appfuel\Framework\Exception;
+use RunTimeException,
+	InvalidArgumentException;
 
 /**
  * Used to declare a group of files or namespaces that should be loaded by a 
@@ -42,10 +43,16 @@ class ClassDependency implements ClassDependencyInterface
 	 * @param	string	$rootPath
 	 * @return	ClassDependency
 	 */
-	public function __construct($rootPath)
+	public function __construct($rootPath = null)
 	{
-		if (! is_string($rootPath)) {
-			throw new Exception("root path must be a string");
+		if (null === $rootPath) {
+			if (! defined('AF_LIB_PATH')) {
+				throw new RunTimeException("appfuel has not be initialized");
+			}
+			$rootPath = AF_LIB_PATH;
+		}
+		else if (! is_string($rootPath)) {
+			throw new InvalidArgumentException("path must be a string");
 		}
 		$this->rootPath = trim($rootPath);
 	}
