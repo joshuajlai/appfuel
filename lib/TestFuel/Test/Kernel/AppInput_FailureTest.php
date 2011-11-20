@@ -8,16 +8,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\App\Context;
+namespace TestFuel\Test\Kernel;
 
 use StdClass,
-	Appfuel\App\Context\ContextInput,
+	Appfuel\Kernel\AppInput,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
  * The request object was designed to service web,api and cli request
  */
-class ContextInput_FailureTest extends BaseTestCase
+class AppInput_FailureTest extends BaseTestCase
 {
 	/**
 	 * System under test
@@ -48,7 +48,7 @@ class ContextInput_FailureTest extends BaseTestCase
 			'argv'   => array('param6' => 'value6')
 		);
 
-		$this->input = new ContextInput('get', $this->params);
+		$this->input = new AppInput('get', $this->params);
 	}
 
 	/**
@@ -89,74 +89,70 @@ class ContextInput_FailureTest extends BaseTestCase
 		);
 	}
 
-
-
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorMethodEmptyString()
 	{
-		$input = new ContextInput('');
+		$input = new AppInput('');
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorMethodInt()
 	{
-		$input = new ContextInput(12345);
+		$input = new AppInput(12345);
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorMethodArray()
 	{
-		$input = new ContextInput(array(1,2,3));
+		$input = new AppInput(array(1,2,3));
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorMethodObject()
 	{
-		$input = new ContextInput(new StdClass());
+		$input = new AppInput(new StdClass());
 	}
 
 	/**
 	 * Any string thats not cli, get, or post
 	 *
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorMethodNotCliGetPost()
 	{
-		$input = new ContextInput('getter');
+		$input = new AppInput('getter');
 	}
 
 	/**
 	 * @dataProvider		provideInvalidParams
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorParams(array $params)
 	{
-		$input = new ContextInput('get', $params);
+		$input = new AppInput('get', $params);
 	}
 
 	/**
 	 * @dataProvider		 provideInvalidParamsKeys
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testConstructorParamsKeys(array $params)
 	{
-		$input = new ContextInput('get', $params);
+		$input = new AppInput('get', $params);
 	}
-
-
 }

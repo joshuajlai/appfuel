@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\App\Context;
+namespace TestFuel\Test\Kernel;
 
 use StdClass,
-	Appfuel\App\Context\ContextInput,
+	Appfuel\Kernel\AppInput,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\DataStructure\Dictionary;
+	Appfuel\DataStructure\Dictionary;
 
 /**
  * The request object was designed to service web,api and cli request
  */
-class ContextInputTest extends BaseTestCase
+class AppInputTest extends BaseTestCase
 {
 	/**
 	 * System under test
@@ -57,7 +57,7 @@ class ContextInputTest extends BaseTestCase
 			'argv'   => array('param7' => 'value7')
 		);
 
-		$this->input = new ContextInput($this->method, $this->params);
+		$this->input = new AppInput($this->method, $this->params);
 	}
 
 	/**
@@ -73,7 +73,7 @@ class ContextInputTest extends BaseTestCase
 	public function testInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\App\Context\ContextInputInterface',
+			'Appfuel\Kernel\AppInputInterface',
 			$this->input
 		);
 	}
@@ -87,7 +87,7 @@ class ContextInputTest extends BaseTestCase
 	 */
 	public function testConstructorNoParams()
 	{
-		$input = new ContextInput('get');
+		$input = new AppInput('get');
 		
 		$expected = array(
 			'get'	 => array(), 
@@ -112,32 +112,32 @@ class ContextInputTest extends BaseTestCase
 		$this->assertFalse($this->input->isCli());
 		$this->assertEquals('get', $this->input->getMethod());
 
-		$input = new ContextInput('post');
+		$input = new AppInput('post');
 		$this->assertTrue($input->isPost());
 		$this->assertFalse($input->isGet());
 		$this->assertFalse($input->isCli());
 		$this->assertEquals('post', $input->getMethod());
 		
-		$input = new ContextInput('cli');
+		$input = new AppInput('cli');
 		$this->assertTrue($input->isCli());
 		$this->assertFalse($input->isGet());
 		$this->assertFalse($input->isPost());
 		$this->assertEquals('cli', $input->getMethod());
 
 		/* prove not case sensitive */
-		$input = new ContextInput('GET');
+		$input = new AppInput('GET');
 		$this->assertTrue($input->isGet());
 		$this->assertFalse($input->isPost());
 		$this->assertFalse($input->isCli());
 		$this->assertEquals('get', $input->getMethod());
 	
-		$input = new ContextInput('POST');
+		$input = new AppInput('POST');
 		$this->assertTrue($input->isPost());
 		$this->assertFalse($input->isGet());
 		$this->assertFalse($input->isCli());
 		$this->assertEquals('post', $input->getMethod());
 	
-		$input = new ContextInput('CLI');
+		$input = new AppInput('CLI');
 		$this->assertTrue($input->isCli());
 		$this->assertFalse($input->isGet());
 		$this->assertFalse($input->isPost());
@@ -148,7 +148,7 @@ class ContextInputTest extends BaseTestCase
 	 * The parameter type is the name of the array that holds all the input
 	 * parameters for that type. By default get, post, files, cookie and argv
 	 * exist, and you can define custom types by adding it to params in the
-	 * ContextInput constructor.
+	 * AppInput constructor.
 	 *
 	 * @return	null
 	 */
@@ -163,7 +163,7 @@ class ContextInputTest extends BaseTestCase
 		$this->assertFalse($this->input->isValidParamType('does-not-exist'));
 
 		$params = array('custom-type' => array('param1' => 'value1'));
-		$input = new ContextInput('get', $params);
+		$input = new AppInput('get', $params);
 
 		/* added even though we did not supply them. They always exist */
 		$this->assertTrue($input->isValidParamType('get'));
@@ -181,7 +181,7 @@ class ContextInputTest extends BaseTestCase
 	}
 
 	/**
-	 * This is how you get input parameters from the ContextInput. This test
+	 * This is how you get input parameters from the AppInput. This test
 	 * will retrieve all the known values added to the input during setup.
 	 *
 	 * @return	null
@@ -323,7 +323,7 @@ class ContextInputTest extends BaseTestCase
 			)
 		);
 
-		$input  = new ContextInput('get', $params);
+		$input  = new AppInput('get', $params);
 		$result = $input->collect('get', array('param1', 'param4'));
 		
 		$expected = array(
@@ -363,7 +363,7 @@ class ContextInputTest extends BaseTestCase
 	 */
 	public function testCollectReturnsArray(array $params)
 	{
-		$input  = new ContextInput('get', $params);
+		$input  = new AppInput('get', $params);
 		$result = $input->collect('get', array('param1', 'param4'), true);
 		
 		$expected = array(
@@ -426,7 +426,7 @@ class ContextInputTest extends BaseTestCase
 			$this->input->getAll('argv')
 		);
 
-		$input  = new ContextInput('get');
+		$input  = new AppInput('get');
 		$result = $input->getAll();
 		$expected = array(
 			'get'	 => array(),

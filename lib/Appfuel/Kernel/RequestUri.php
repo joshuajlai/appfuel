@@ -26,13 +26,13 @@ class RequestUri implements RequestUriInterface
      * The original request uri string
      * @var string
      */
-	protected $uri = NULL;
+	protected $uri = null;
 
 	/**
 	 * The uri path is what Appfuel uses as its route string
 	 * @var string
 	 */
-	protected $route = NULL;
+	protected $route = null;
 	
 	/**
 	 * These could be http get parameters or cli parameters, both are 
@@ -44,10 +44,12 @@ class RequestUri implements RequestUriInterface
 	/**
 	 * String consisting of only the parameters in pretty params. Note that
 	 * even the query string '?param=value&param2=value2' will be converted 
-	 * to the pretty format of param/value/param2/value2
+	 * to the pretty format of param/value/param2/value2 and the route key
+	 * will always be removed so you can attact it to another route easily
+	 *
 	 * @var string
 	 */
-	protected $paramString = NULL;
+	protected $paramString = null;
 
     /**
      * Parse the orignal uri string into the client code, mvc string 
@@ -116,29 +118,26 @@ class RequestUri implements RequestUriInterface
     protected function parseUri($uri)
     {
         $uri = ltrim($uri, "'/'");
-
-		$route  = '';
-		$params	= array();
-		$paramString = '';
-	
-		/* empty uri string needs no processing */
 		if (empty($uri)) {
 			return array(
 				'route'			=> '',
 				'params'		=> array(),
-				'paramString'	=> $paramString
+				'paramString'	=> ''
 			);
 		}
 		
+		$isRoute     = false;
+		$route		 = '';
+        $queryPos	 = strpos($uri, '?');
+		$queryParams = array();
+		$prettyQuery = '';
 		/* process query string if it exists */
-        $queryPos = strpos($uri, '?');
 		if (false !== $queryPos) {
 			$query   = substr($uri, $queryPos + 1, strlen($uri) - 1);
 			$uri     = substr($uri, 0, $queryPos);
 			$qparams = explode('&', $query);
 			
 			$prettyList = array();
-			$isRoute = false;
 			foreach ($qparams as $param) {
 				$parts = explode('=', $param);
 
@@ -149,7 +148,10 @@ class RequestUri implements RequestUriInterface
 
 				$key   = $parts[0];
 				$value = $parts[1];
-				
+				$key   = trim(urldecode($key));
+				if (empty($key)) {
+					continue;
+				}
 				/* reserved work by framework to indicated the route key
 				 * in the query string
 				 */
@@ -159,28 +161,24 @@ class RequestUri implements RequestUriInterface
 					continue;
 				}
 
-				$params[$key] = $value;
-				$prettyList[] = $key;
-				$prettyList[] = $value;
+				$queryParams[$key] = $value;
+				$prettyQuery .= "$key/$value/";
 			}
-			$paramString .= implode('/', $prettyList);
+			$prettyQuery = trim($prettyQuery, "'/'");
 		}
 
-		$parts		= explode('/', trim($uri, "' ', '/' "));
-		$key        = null;
-		$lookAhead  = null;
-		$value      = null;
-		$max        = count($parts);
-		
-		/* no route found an no path to look for route */
-		if (false === $isRoute && empty($parts)) {
-			return array(
-				'route'			=> '',
-				'params'		=> $params,
-				'paramString'	=> $paramString
+		$parts = explode('/', trim($uri, "' ', '/' "));
 
+		/* no route found an no path to look for route */
+		if (empty($parts)) {
+			$route = trim(urldecode($route));
+			return array(
+				'route'			=> $route,
+				'params'		=> $params,
+				'paramString'	=> $prettyQuery
 			);	
 		}
+
 		/*
 		 * if the route key was not found in the query string then it must
 		 * be the first parameter of the uri path so remove it and process
@@ -190,28 +188,45 @@ class RequestUri implements RequestUriInterface
 			$route = array_shift($parts);
 		}
 
-
+		$max = count($parts);
+		$pathParams = array();
+		$pathString = '';
+		$key        = null;
+		$lookAhead  = null;
+		$value      = null;
 		for($i = 0; $i < $max; $i += 2) {
+			if (! isset($parts[$i])) {
+				continue;
+			}
+
 			$key = $parts[$i];
+			$key = trim(urldecode($key));
 			if (empty($key) || ! is_string($key)) {
 				continue;
 			}
 			$lookAhead = $i + 1;
 			if (array_key_exists($lookAhead, $parts)) {
 				$value  = $parts[$lookAhead];
-				$params[$key] = $value;
+				$pathParams[$key] = $value;
+				$pathString .= "$key/$value/";
 			}
 			/* catch on the case when param exists but has no lookAhead 
 			 * because the forward slash was trimmed off. 
 			 * ex) my-route/qt/param1
 			 */
 			else {
-				$params[$key] = null;
+				$pathParams[$key] = null;
+				$pathString .= "$key//";
 			}
 		}
-		
+		$pathString = trim($pathString, "'/'");
+	
 		/* append existing param string from query string */
-        $paramString = trim("$pstring/$paramString", "' ', '/'");
+        $paramString = trim("$pathString/$prettyQuery", "' ', '/'");
+
+		
+		$params = array_merge($pathParams, $queryParams);	
+		$route  = trim(urldecode($route));
         return array(
             'route'         => $route,
             'params'        => $params,
