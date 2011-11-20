@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernel;
+namespace TestFuel\Test\Kernel\Mvc;
 
 use StdClass,
-	Appfuel\Kernel\AppInput,
+	Appfuel\Kernel\Mvc\AppInput,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\DataStructure\Dictionary;
 
@@ -73,7 +73,7 @@ class AppInputTest extends BaseTestCase
 	public function testInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInputInterface',
+			'Appfuel\Kernel\Mvc\AppInputInterface',
 			$this->input
 		);
 	}

@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernel;
+namespace TestFuel\Test\Kernel\Kernel;
 
-use Appfuel\Kernel\RequestUri,
-	Appfuel\Kernel\AppContext,
-	Appfuel\Kernel\AppInput,
-	Appfuel\Kernel\ContextBuilder,
+use Appfuel\Kernel\Mvc\AppInput,
+	Appfuel\Kernel\Mvc\AppContext,
+	Appfuel\Kernel\Mvc\RequestUri,
+	Appfuel\Kernel\Mvc\ContextBuilder,
 	TestFuel\TestCase\ControllerTestCase;
 
 /**
@@ -55,7 +55,7 @@ class ContextBuilderTest extends ControllerTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\ContextBuilderInterface',
+			'Appfuel\Kernel\Mvc\ContextBuilderInterface',
 			$this->builder
 		);
 	}
@@ -94,7 +94,7 @@ class ContextBuilderTest extends ControllerTestCase
 		
 		$uri = $this->builder->getUri();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\RequestUriInterface',
+			'Appfuel\Kernel\Mvc\RequestUriInterface',
 			$uri,
 			'Uri object built from the SERVER[REQUEST_URI]'
 		);
@@ -111,7 +111,7 @@ class ContextBuilderTest extends ControllerTestCase
 		$uriString = 'my-route/param1/value1';
 		$uri = $this->builder->createRequestUri($uriString);
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\RequestUri',
+			'Appfuel\Kernel\Mvc\RequestUri',
 			$uri
 		);
 	}
@@ -162,7 +162,7 @@ class ContextBuilderTest extends ControllerTestCase
 	 */
 	public function testCreateInput()
 	{
-		$inputClass = 'Appfuel\Kernel\AppInput';
+		$inputClass = 'Appfuel\Kernel\Mvc\AppInput';
 		$input = $this->builder->createInput('get');
 		$expected = array(
 			'get'	=> array(),
@@ -226,7 +226,7 @@ class ContextBuilderTest extends ControllerTestCase
 	
 		$input = $this->builder->getInput();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInput',
+			'Appfuel\Kernel\Mvc\AppInput',
 			$input
 		);
 
@@ -267,7 +267,7 @@ class ContextBuilderTest extends ControllerTestCase
 	
 		$input = $this->builder->getInput();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInput',
+			'Appfuel\Kernel\Mvc\AppInput',
 			$input
 		);
 
@@ -283,7 +283,7 @@ class ContextBuilderTest extends ControllerTestCase
 	
 		$input = $this->builder->getInput();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInput',
+			'Appfuel\Kernel\Mvc\AppInput',
 			$input
 		);
 
@@ -299,7 +299,7 @@ class ContextBuilderTest extends ControllerTestCase
 	
 		$input = $this->builder->getInput();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInput',
+			'Appfuel\Kernel\Mvc\AppInput',
 			$input
 		);
 
@@ -327,7 +327,7 @@ class ContextBuilderTest extends ControllerTestCase
 	
 		$input = $this->builder->getInput();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInput',
+			'Appfuel\Kernel\Mvc\AppInput',
 			$input
 		);
 
@@ -362,7 +362,7 @@ class ContextBuilderTest extends ControllerTestCase
 	
 		$input = $this->builder->getInput();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInput',
+			'Appfuel\Kernel\Mvc\AppInput',
 			$input
 		);
 
@@ -397,7 +397,7 @@ class ContextBuilderTest extends ControllerTestCase
 	
 		$input = $this->builder->getInput();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInput',
+			'Appfuel\Kernel\Mvc\AppInput',
 			$input
 		);
 
@@ -432,7 +432,7 @@ class ContextBuilderTest extends ControllerTestCase
 	
 		$input = $this->builder->getInput();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInput',
+			'Appfuel\Kernel\Mvc\AppInput',
 			$input
 		);
 
@@ -467,7 +467,7 @@ class ContextBuilderTest extends ControllerTestCase
 	
 		$input = $this->builder->getInput();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInput',
+			'Appfuel\Kernel\Mvc\AppInput',
 			$input
 		);
 
@@ -506,7 +506,7 @@ class ContextBuilderTest extends ControllerTestCase
 	
 		$input = $this->builder->getInput();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\AppInput',
+			'Appfuel\Kernel\Mvc\AppInput',
 			$input
 		);
 

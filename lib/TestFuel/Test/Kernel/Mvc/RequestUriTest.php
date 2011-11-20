@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernel;
+namespace TestFuel\Test\Kernel\Mvc;
 
 use StdClass,
-	Appfuel\Kernel\RequestUri,
+	Appfuel\Kernel\Mvc\RequestUri,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
@@ -97,7 +97,7 @@ class RequestUriTest extends BaseTestCase
 	public function testInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\RequestUriInterface',
+			'Appfuel\Kernel\Mvc\RequestUriInterface',
 			$this->uri
 		);
 	}
