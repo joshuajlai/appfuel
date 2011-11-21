@@ -10,7 +10,8 @@
  */
 namespace TestFuel\TestCase;
 
-use Appfuel\App\AppManager,
+use StdClass,
+	Appfuel\App\AppManager,
 	Appfuel\Framework\Registry,
 	Appfuel\Framework\Env\State as EnvState,
 	Appfuel\Framework\File\FileManager,
@@ -156,6 +157,37 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	{
 		return	self::$envState;
 	}
+
+	/**
+	 * @return	array
+	 */
+	public function provideInvalidStringsIncludeNull()
+	{
+		$data = $this->provideInvalidStrings();
+		array_push($data, array(null));
+		return $data;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function provideInvalidStrings()
+	{
+		return array(
+			array(0), 
+			array(-1), 
+			array(1), 
+			array(12345), 
+			array(1.23454), 
+			array(true), 
+			array(false), 
+			array(new StdClass()),
+			array(array()), 
+			array(array(1)),
+			array(array(1,2,3)),
+		);
+	}
+
 
 	/**
 	 * Restore the registry to a state it was when we initialized
