@@ -65,7 +65,7 @@ class AppContext extends Dictionary implements AppContextInterface
 	 */
 	public function getAclRoleCodes()
 	{
-		return $this->roleCodes;
+		return $this->roles;
 	}
 
 	/**
@@ -94,7 +94,8 @@ class AppContext extends Dictionary implements AppContextInterface
 	 */
 	public function isAclRoleCode($code)
 	{
-		if (empty($code) || !is_string($code) || !isset($this->roles[$code])) {
+		if (empty($code) || 
+			! is_string($code) || ! in_array($code, $this->roles, true)) {
 			return false;
 		}
 

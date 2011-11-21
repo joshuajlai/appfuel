@@ -53,7 +53,10 @@ class AppContextTest extends BaseTestCase
 		$this->context = null;
 	}
 
-	public function testInterfaces()
+	/**
+	 * @return	null
+	 */
+	public function testInterface()
 	{
 		$this->assertInstanceOf(
 			'Appfuel\Kernel\Mvc\AppContextInterface',
@@ -61,4 +64,124 @@ class AppContextTest extends BaseTestCase
 		);
 	}
 
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testGetInput()
+	{
+		$this->assertSame($this->input, $this->context->getInput());
+	}
+
+	/**
+	 * @depends	testInterface
+	 */
+	public function testErrorStack()
+	{
+		/* default error stack */
+		$stack = $this->context->getErrorStack();
+		$this->assertInstanceOf(
+			'Appfuel\Error\ErrorStack',
+			$stack
+		);
+		$this->assertFalse($this->context->isError());
+
+		$stack = $this->getMock('Appfuel\Error\ErrorStackInterface');
+		$context = new AppContext($this->input, $stack);
+		$this->assertSame($stack, $context->getErrorStack());
+
+		/* the setter is public so you can swap it out */
+		$this->assertSame(
+			$this->context,
+			$this->context->setErrorStack($stack)
+		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testIsErrorAddErrorAndGetErrorString()
+	{
+		/* default error stack */
+		$stack = $this->context->getErrorStack();
+		$this->assertInstanceOf(
+			'Appfuel\Error\ErrorStack',
+			$stack
+		);
+		$this->assertFalse($this->context->isError());
+
+
+		$msg1  = 'my message';
+		$code1 = 500;
+		$this->assertSame(
+			$this->context,
+			$this->context->addError($msg1, $code1)
+		);
+		$this->assertTrue($this->context->isError());
+		
+		$result   = $this->context->getErrorString();
+		$expected = 'Error: my message';
+		$this->assertEquals($expected, $result);
+
+		$msg2  = 'my other message';
+		$this->assertSame(
+			$this->context,
+			$this->context->addError($msg2)
+		);
+		$this->assertTrue($this->context->isError());
+	
+		$result   = $this->context->getErrorString();
+		$expected = 'Error: my message my other message';
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testAclRoleCodes()
+	{
+		$this->assertEquals(array(), $this->context->getAclRoleCodes());
+
+		$code1 = 'admin';
+		$this->assertFalse($this->context->isAclRoleCode($code1));
+		$this->assertSame(
+			$this->context,
+			$this->context->addAclRoleCode($code1)
+		);
+		$expected = array($code1);
+		$this->assertEquals($expected, $this->context->getAclRoleCodes());
+		$this->assertTrue($this->context->isAclRoleCode($code1));
+	
+		$code2 = 'editor';
+		$this->assertFalse($this->context->isAclRoleCode($code2));
+		$this->assertSame(
+			$this->context,
+			$this->context->addAclRoleCode($code2)
+		);
+		$expected = array($code1, $code2);
+		$this->assertEquals($expected, $this->context->getAclRoleCodes());
+		$this->assertTrue($this->context->isAclRoleCode($code2));
+
+		/* does no produce duplicates */
+		$this->assertSame(
+			$this->context,
+			$this->context->addAclRoleCode($code1)
+		);	
+		$this->assertEquals($expected, $this->context->getAclRoleCodes());
+		$this->assertTrue($this->context->isAclRoleCode($code2));
+		$this->assertTrue($this->context->isAclRoleCode($code1));
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidStringsIncludeNull
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testAddAclRoleCodeInvalidString($code)
+	{
+		$this->context->addAclRoleCode($code);
+	}
 }
