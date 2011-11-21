@@ -22,7 +22,7 @@ use Appfuel\Error\ErrorStackInterface,
  * more error messages and the front controller can process and react to 
  * them according.
  */
-interface ContextInterface extends DictionaryInterface
+interface AppContextInterface extends DictionaryInterface
 {
 	/**
 	 * List of codes used for role based access control

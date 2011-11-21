@@ -23,7 +23,7 @@ use InvalidArgumentException,
  * context. The context is passed into each intercepting filter and then into
  * the action controllers process method.
  */
-class AppContext extends Dictionary implements ContextInterface
+class AppContext extends Dictionary implements AppContextInterface
 {
 	/**
 	 * Holds most of the user input given to the application. Used by the

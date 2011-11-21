@@ -56,7 +56,7 @@ class AppContextTest extends BaseTestCase
 	public function testInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\ContextInterface',
+			'Appfuel\Kernel\Mvc\AppContextInterface',
 			$this->context
 		);
 	}
