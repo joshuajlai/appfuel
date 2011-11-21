@@ -17,6 +17,11 @@ use Appfuel\Kernel\Mvc\AppInput,
 	TestFuel\TestCase\ControllerTestCase;
 
 /**
+ * Test the ability for the builder to create request uri with its different
+ * configurations (createRequestUri, setUri, useServerRequestUri, useUriString)
+ * Also test the ability to create AppInput with its different configurations
+ * (setInput, buildInputFromDefault, defineInputAs, createInput) Also test
+ * the ability to set the error stack.
  */
 class ContextBuilderTest extends ControllerTestCase
 {
@@ -109,7 +114,7 @@ class ContextBuilderTest extends ControllerTestCase
 	public function testCreateRequestUri()
 	{
 		$uriString = 'my-route/param1/value1';
-		$uri = $this->builder->createRequestUri($uriString);
+		$uri = $this->builder->createUri($uriString);
 		$this->assertInstanceOf(
 			'Appfuel\Kernel\Mvc\RequestUri',
 			$uri
@@ -120,9 +125,9 @@ class ContextBuilderTest extends ControllerTestCase
 	 * @depends	testGetSetUri
 	 * @return	null
 	 */
-	public function xtestUseUriString()
+	public function testUseUriString()
 	{
-		$uriString = 'my-route/qx/param1/value1';
+		$uriString = 'path/to/some/where?routekey=my-key';
 		$this->assertSame(
 			$this->builder,
 			$this->builder->useUriString($uriString),
@@ -131,7 +136,7 @@ class ContextBuilderTest extends ControllerTestCase
 		
 		$uri = $this->builder->getUri();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\App\Context\ContextUriInterface',
+			'Appfuel\Kernel\Mvc\RequestUri',
 			$uri,
 			'Uri object built from the uri string'
 		);
@@ -512,5 +517,264 @@ class ContextBuilderTest extends ControllerTestCase
 
 		$this->assertEquals($method, $input->getMethod());
 		$this->assertEquals($params, $input->getAll());	
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testGetSetErrorStack()
+	{
+		$stack = $this->getMock('Appfuel\Error\ErrorStackInterface');
+		$this->assertNull($this->builder->getErrorStack());
+		
+		$this->assertSame(
+			$this->builder, 
+			$this->builder->setErrorStack($stack)
+		);
+		$this->assertSame($stack, $this->builder->getErrorStack());
+	}
+
+	public function setupSuperGlobals($method, $uri)
+	{
+		$_SERVER['REQUEST_METHOD'] = $method;
+		$_SERVER['REQUEST_URI'] = 'my-route/param1/value1';
+		$_POST   = array('param2' => 'value 2');
+		$_FILES  = array('param3' => 'value 3');
+		$_COOKIE = array('param4' => 'value 4');
+	
+	}
+
+	/**
+	 * When no configuration has been defined though the builders fluent 
+	 * interface then it will look for a uri string in the sever super global
+	 * $_SERVER['REQUEST_URI']
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testBuildWithNoConfiguration()
+	{
+		$this->setupSuperGlobals('get', 'my-route/param1/value1');
+		$context = $this->builder->build();
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppContext',
+			$context
+		);
+		
+		$input = $context->getInput();
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppInput',
+			$input
+		);
+		$this->assertEquals('get', $input->getMethod());
+		$expected = array('param1' => 'value1');
+		$this->assertEquals($expected, $input->getAll('get'));
+		$this->assertEquals($_POST, $input->getAll('post'));
+		$this->assertEquals($_FILES, $input->getAll('files'));
+		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
+
+		$this->assertInstanceOf(
+			'Appfuel\Error\ErrorStack', 
+			$context->getErrorStack()
+		);
+	}
+
+	/**
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testBuildWithUseUriString()
+	{
+		$this->setupSuperGlobals('get', 'my-route/param1/value1');
+		$context = $this->builder->useUriString('other-route/paramZ/valueY')
+								 ->build();
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppContext',
+			$context
+		);
+		
+		$input = $context->getInput();
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppInput',
+			$input
+		);
+		$this->assertEquals('get', $input->getMethod());
+		
+		/* notice the params set to REQUEST_URI is ignored */
+		$expected = array('paramZ' => 'valueY');
+		$this->assertEquals($expected, $input->getAll('get'));
+		$this->assertEquals($_POST, $input->getAll('post'));
+		$this->assertEquals($_FILES, $input->getAll('files'));
+		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
+
+		$this->assertInstanceOf(
+			'Appfuel\Error\ErrorStack', 
+			$context->getErrorStack()
+		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testBuildWithUseSetUri()
+	{
+		$this->setupSuperGlobals('post', 'my-route/param1/value1');
+		
+		$uri = $this->getMock('Appfuel\Kernel\Mvc\RequestUriInterface');
+		$params = array('paramXX' => 'valueYY');
+		$uri->expects($this->once())
+			->method('getParams')
+			->will($this->returnValue($params));
+
+		$context = $this->builder->setUri($uri)
+								 ->build();
+
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppContext',
+			$context
+		);
+		
+		$input = $context->getInput();
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppInput',
+			$input
+		);
+		$this->assertEquals('post', $input->getMethod());
+		$this->assertEquals($params, $input->getAll('get'));
+		$this->assertEquals($_POST, $input->getAll('post'));
+		$this->assertEquals($_FILES, $input->getAll('files'));
+		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
+
+		$this->assertInstanceOf(
+			'Appfuel\Error\ErrorStack', 
+			$context->getErrorStack()
+		);
+
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testBuildWithSetInput()
+	{
+		$input = $this->getMock('Appfuel\Kernel\Mvc\AppInputInterface');
+		$context = $this->builder->setInput($input)
+								 ->build();
+
+		$this->assertSame($input, $context->getInput());
+		$this->assertInstanceOf(
+			'Appfuel\Error\ErrorStack', 
+			$context->getErrorStack()
+		);
+	}
+
+
+	/**
+	 * This is the same as using build with no configurations
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testBuildWithBuildInputFromDefaults()
+	{
+		$this->setupSuperGlobals('get', 'my-route/param1/value1');
+		$context = $this->builder->buildInputFromDefaults()
+								 ->build();
+
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppContext',
+			$context
+		);
+		
+		$input = $context->getInput();
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppInput',
+			$input
+		);
+		$this->assertEquals('get', $input->getMethod());
+		$expected = array('param1' => 'value1');
+		$this->assertEquals($expected, $input->getAll('get'));
+		$this->assertEquals($_POST, $input->getAll('post'));
+		$this->assertEquals($_FILES, $input->getAll('files'));
+		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
+
+		$this->assertInstanceOf(
+			'Appfuel\Error\ErrorStack', 
+			$context->getErrorStack()
+		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testBuildWithDefineInputAs()
+	{
+		$params  = array(
+			'get'		=> array('my-get'	 => 'value1'),
+			'post'		=> array('my-post'	 => 'value2'),
+			'files'		=> array('my-file'	 => 'value3'),
+			'cookie'	=> array('my-cookie' => 'value4'),
+			'argv'		=> array('my-argv'   => 'value5')
+		);
+		$context = $this->builder->defineInputAs('cli', $params)
+								 ->build();
+		
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppContext',
+			$context
+		);
+		
+		$input = $context->getInput();
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppInput',
+			$input
+		);
+		$this->assertEquals('cli', $input->getMethod());
+		$this->assertEquals($params['get'],		$input->getAll('get'));
+		$this->assertEquals($params['post'],	$input->getAll('post'));
+		$this->assertEquals($params['files'],	$input->getAll('files'));
+		$this->assertEquals($params['cookie'],	$input->getAll('cookie'));
+		$this->assertEquals($params['argv'],	$input->getAll('argv'));
+
+		$this->assertInstanceOf(
+			'Appfuel\Error\ErrorStack', 
+			$context->getErrorStack()
+		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testBuildWithSetErrorStack()
+	{
+		$this->setupSuperGlobals('get', 'my-route/param1/value1');
+
+		$error = $this->getMock('Appfuel\Error\ErrorStackInterface');
+		$context = $this->builder->setErrorStack($error)
+								 ->build();
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppContext',
+			$context
+		);
+		
+		$input = $context->getInput();
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppInput',
+			$input
+		);
+		$this->assertEquals('get', $input->getMethod());
+		$expected = array('param1' => 'value1');
+		$this->assertEquals($expected, $input->getAll('get'));
+		$this->assertEquals($_POST, $input->getAll('post'));
+		$this->assertEquals($_FILES, $input->getAll('files'));
+		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
+
+		$this->assertSame($error, $context->getErrorStack());
 	}
 }

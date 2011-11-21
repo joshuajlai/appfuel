@@ -11,7 +11,8 @@
 namespace Appfuel\Kernel\Mvc;
 
 use RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+	Appfuel\Error\ErrorStackInterface;
 
 /**
  * The context build holds all the logic for create uri strings, requests,
@@ -35,7 +36,14 @@ class ContextBuilder implements ContextBuilderInterface
     protected $input = null;
 
 	/**
-	 * @return	ContextUriInterface
+	 * App context can set an error stack to override the default one
+	 * that would be built
+	 * @var ErrorStackInterface
+	 */
+	protected $error = null;
+
+	/**
+	 * @return	RequestUriInterface
 	 */
 	public function getUri()
 	{
@@ -43,7 +51,7 @@ class ContextBuilder implements ContextBuilderInterface
 	}
 
 	/**
-	 * @param	ContextUriInterface	$uri
+	 * @param	RequestUriInterface	$uri
 	 * @return	ContextBuilder
 	 */
 	public function setUri(RequestUriInterface $uri)
@@ -56,7 +64,7 @@ class ContextBuilder implements ContextBuilderInterface
 	 * @param	string	$uriString
 	 * @return	RequestUri
 	 */
-	public function createRequestUri($uriString)
+	public function createUri($uriString)
 	{
 		return new RequestUri($uriString);	
 	}
@@ -80,7 +88,7 @@ class ContextBuilder implements ContextBuilderInterface
 			throw new RunTimeException("$err must be a valid string");
 		}
 
-		return $this->setUri($this->createRequestUri($uri));
+		return $this->setUri($this->createUri($uri));
 	}
 
 	/**
@@ -89,17 +97,17 @@ class ContextBuilder implements ContextBuilderInterface
 	 */
 	public function useUriString($uri)
 	{
-		$err  = 'ConextBuilder failed: uri string given ';
 		if (! is_string($uri)) {
-			throw new RunTimeException("$err must be a valid string");
+			$err  = 'ConextBuilder failed: uri string given must be ';
+			$err .= 'a valid string';
+			throw new InvalidArgumentException($err);
 		}
 
-		$token = $this->getUriParseToken();
-		return $this->setUri(new ContextUri($uri, $token));
+		return $this->setUri($this->createUri($uri));
 	}
 
 	/**
-	 * @return	ContextInputInterface
+	 * @return	AppInputInterface
 	 */
 	public function getInput()
 	{
@@ -107,7 +115,7 @@ class ContextBuilder implements ContextBuilderInterface
 	}
 
 	/**
-	 * @param	ContextInputInterface	$input
+	 * @param	AppInputInterface	$input
 	 * @return	ContextBuilder
 	 */
 	public function setInput(AppInputInterface $input)
@@ -117,14 +125,17 @@ class ContextBuilder implements ContextBuilderInterface
 	}
 
 	/**
-	 * Build a context input object from data in the php super globals.
+	 * By default we will use the parameters from the uri object, 
+	 * super global $_POST for post, super global $_FILES for any files
+	 * super global $_COOKIE for any cookies and super global $_SERVER['argv']
+	 * for any commandline parameters.
 	 *
 	 * @return	ContextBuilder
 	 */
 	public function buildInputFromDefaults()
 	{
 		$method = 'cli';
-		$err    = 'ConextBuilder failed:';
+		$err    = 'ContextBuilder failed:';
 		if (isset($_SERVER['REQUEST_METHOD'])) {
 			$method = $_SERVER['REQUEST_METHOD'];
 		}
@@ -136,9 +147,20 @@ class ContextBuilder implements ContextBuilderInterface
 
 		$uri = $this->getUri();
 		if (! $uri instanceof RequestUriInterface) {
-			$err .= 'default get params come from the context uri but the ';
-			$err .= 'context uri has not been set';
-			throw new RunTimeException($err);
+			if (isset($_SERVER['REQUEST_URI'])) {
+				$uri = $this->useServerRequestUri()
+							->getUri();
+			}
+			else {
+				$err .= 'Default get params come from the request uri.';
+				$err .= 'we can not build the request uri without a uri ';
+				$err .= 'string. Since no uri was given we look for the uri ';
+				$err .= 'string in $_SERVER[REQUEST_URI] and found  ';
+				$err .= 'it was not set. Please manually set super global or ';
+				$err .= 'use builder to manually configure uri with method ';
+				$err .= 'useUriString';
+				throw new RunTimeException($err);
+			}
 		}
 
 		$params = array();
@@ -175,24 +197,39 @@ class ContextBuilder implements ContextBuilderInterface
 	}
 
 	/**
+	 * @return	ErrorStackInterface
+	 */
+	public function getErrorStack()
+	{
+		return $this->error;
+	}
+
+	/**
+	 * @param	ErrorStackInterface $stack
+	 * @return	ContextBuilder
+	 */
+	public function setErrorStack(ErrorStackInterface $stack)
+	{
+		$this->error = $stack;
+		return $this;
+	}
+
+	/**
 	 * @return	AppContext
 	 */
-	public function build(array $list = null)
+	public function build()
 	{
-		$err = 'Build failed: ';
-		$uri = $this->getUri();
-		if (! $uri instanceof UriInterface) {
-			$err .= 'uri has not been set';
-			throw new RunTimeException($err);
-		}
-
 		$input = $this->getInput();
-		if (! $input instanceof RequestInputInterface) {
-			$err .= 'context input has not been set';
-			throw new RunTimeException($err);
+		if (! $input instanceof AppInputInterface) {
+			$uri = $this->getUri();
+			if (! $uri instanceof RequestUriInterface) {
+				$uri = $this->useServerRequestUri();
+			}
+
+			$input = $this->buildInputFromDefaults()
+						  ->getInput();
 		}
 
-		$context = new AppContext($input);
-		
+		return new AppContext($input, $this->getErrorStack());
 	}
 }

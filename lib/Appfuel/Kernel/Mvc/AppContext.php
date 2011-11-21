@@ -35,7 +35,7 @@ class AppContext extends Dictionary implements ContextInterface
 	 * Hold all errors for the application controller
 	 * @var Appfuel\Error\ErrorStack
 	 */
-	protected $error = null;
+	protected $errorStack = null;
 
 	/**
 	 * @param	AppInputInterface		$input
@@ -50,7 +50,7 @@ class AppContext extends Dictionary implements ContextInterface
 		if (null === $error) {
 			$error = new ErrorStack();
 		}
-		$this->setErrorStack();
+		$this->setErrorStack($error);
 	}
 
 	/**
@@ -73,7 +73,7 @@ class AppContext extends Dictionary implements ContextInterface
 	 * @param	ErrorStackInterface		$error
 	 * @return	AppContext
 	 */
-	public function setErrorStackInterface(ErrorStackInterface $error)
+	public function setErrorStack(ErrorStackInterface $error)
 	{
 		$this->errorStack = $error;
 		return $this;
@@ -105,6 +105,15 @@ class AppContext extends Dictionary implements ContextInterface
 	public function getErrorString()
 	{
 		return (string)$this->getErrorStack();
+	}
+
+	/**
+	 * @param	AppInputInterface	$input
+	 * @return	null
+	 */
+	protected function setInput(AppInputInterface $input)
+	{
+		$this->input = $input;
 	}
 
 	/**

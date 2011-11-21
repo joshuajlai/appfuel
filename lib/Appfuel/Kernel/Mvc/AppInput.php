@@ -30,13 +30,6 @@ class AppInput implements AppInputInterface
      */
     protected $method = null;
 
-	/**
-	 * Input method represents how the request was made
-	 *
-	 * @var	array
-	 */
-	protected $validMethods = array('get', 'post', 'cli');
-
     /**
      * Assign the uri, parameters and request method. Because the uri contains
 	 * all the get parameters we pull them out and add them to the
