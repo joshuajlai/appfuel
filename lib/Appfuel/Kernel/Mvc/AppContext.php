@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\Error\ErrorStack,
+use InvalidArgumentException,
+	Appfuel\Error\ErrorStack,
 	Appfuel\Error\ErrorStackInterface,
 	Appfuel\DataStructure\Dictionary,
 	Appfuel\DomainStructure\DictionaryInterface;
@@ -38,11 +39,17 @@ class AppContext extends Dictionary implements ContextInterface
 	protected $errorStack = null;
 
 	/**
+	 * List of acl roles for this context. 
+	 * @var	array
+	 */
+	protected $roles = array();
+
+	/**
 	 * @param	AppInputInterface		$input
 	 * @param	ErrorStackInterface		$error
 	 * @return	AppContext
 	 */
-	public function __construct(AppInputInterface $input,
+	public function __construct(AppInputInterface   $input,
 								ErrorStackInterface $error = null)
 	{
 		$this->setInput($input);
@@ -51,6 +58,47 @@ class AppContext extends Dictionary implements ContextInterface
 			$error = new ErrorStack();
 		}
 		$this->setErrorStack($error);
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getAclRoleCodes()
+	{
+		return $this->roleCodes;
+	}
+
+	/**
+	 * @param	string	$code
+	 * @return	AppContext
+	 */
+	public function addAclRoleCode($code)
+	{
+		if (empty($code) || ! is_string($code)) {
+			throw new InvalidArgumentException(
+				'role code must be a non empty string'
+			);
+		}
+	
+		if ($this->isAclRoleCode($code)) {
+			return $this;	
+		}
+
+		$this->roles[] = $code;
+		return $this;
+	}
+
+	/**
+	 * @param	string	$code
+	 * @return	bool
+	 */
+	public function isAclRoleCode($code)
+	{
+		if (empty($code) || !is_string($code) || !isset($this->roles[$code])) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**

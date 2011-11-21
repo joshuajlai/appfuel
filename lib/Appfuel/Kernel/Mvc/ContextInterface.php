@@ -25,6 +25,24 @@ use Appfuel\Error\ErrorStackInterface,
 interface ContextInterface extends DictionaryInterface
 {
 	/**
+	 * List of codes used for role based access control
+	 * @return	array
+	 */
+	public function getAclRoleCodes();
+
+	/**
+	 * @param	string	$code
+	 * @return	ContextInterface
+	 */
+	public function addAclRoleCode($code);
+
+	/**
+	 * @param	string	$code
+	 * @return	bool
+	 */
+	public function isAclRoleCode($code);
+
+	/**
 	 * @return	AppInputInterface
 	 */
 	public function getInput();
