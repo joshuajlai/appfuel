@@ -238,4 +238,57 @@ class ActionFactoryTest extends BaseTestCase
 		$ns   = 'TestFuel\Fake\Action\User\BadViews';
 		$view = $this->factory->createAjaxView($ns);
 	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testCreateHtmlViewNoNamespace()
+	{
+		$view = $this->factory->createHtmlView();
+		$this->assertInstanceOf(
+			'Appfuel\View\ViewTemplate',
+			$view
+		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testCreateHtmlViewNamespace()
+	{
+		$ns   = 'TestFuel\Fake\Action\User\Create';
+		$view = $this->factory->createHtmlView($ns);
+		$this->assertInstanceOf("$ns\HtmlView",$view);
+		$this->assertInstanceOf(
+			'Appfuel\Framework\View\ViewTemplateInterface',
+			$view
+		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testCreateHtmlViewNamespaceDoesNotExist()
+	{
+		$ns   = 'TestFuel\Fake\Action\User\Create\DoesNotExist';
+		$view = $this->factory->createHtmlView($ns);
+		$this->assertInstanceOf(
+			'Appfuel\View\ViewTemplate',
+			$view
+		);
+	}
+
+	/**
+	 * @expectedException	RunTimeException
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testCreateHtmlViewNamespaceInvalidInterface()
+	{
+		$ns   = 'TestFuel\Fake\Action\User\BadViews';
+		$view = $this->factory->createHtmlView($ns);
+	}	
 }

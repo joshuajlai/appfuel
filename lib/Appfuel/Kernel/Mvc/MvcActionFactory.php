@@ -14,8 +14,10 @@ use Exception,
 	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\View\JsonTemplate,
+	Appfuel\View\ViewTemplate,
 	Appfuel\Console\ConsoleViewTemplate,
 	Appfuel\Framework\View\JsonTemplateInterface,
+	Appfuel\Framework\View\ViewTemplateInterface,
 	Appfuel\Framework\Console\ConsoleViewTemplateInterface;
 
 /**
@@ -80,30 +82,43 @@ class MvcActionFactory implements MvcActionFactoryInterface
 		return new $class();
 	}
 
+	/**
+	 * The correct view strategy is detemined by constant AF_APP_TYPE which
+	 * is decided by the framework during initialization
+	 * 
+	 * @return	string
+	 */
+	public function getViewStrategy()
+	{
+		if (! defined('AF_APP_TYPE')) {
+			throw new RunTimeException("constant AF_APP_TYPE not declared");
+		}
+		
+		return AF_APP_TYPE;
+	}
+
     /**
+	 * Creates a template view based on a view strategy. 
+	 * app-htmlpage		ViewFileTemplates when the application loads the page
+	 * app-ajax			JsonTemplate for ajax requests
+	 * app-console		ConsoleViewtemplate for cli apps
+	 *
      * @return  ViewTemplateInterface
      */
-    public function createView($namespace, $type = null)
+    public function createView($namespace, $type)
     {  
-        if (null === $type) {
-            if (! defined('AF_APP_TYPE')) {
-                throw new RunTimeException("constant AF_APP_TYPE not declared");
-            }
-            $type = AF_APP_TYPE;
-        }
-
         if (! is_string($type)) {
-            throw new Exception("type paramter must be a string");
+            throw new InvalidArgumentException(
+				"type paramter must be a string"
+			);
         }
 
-        /*
-         */
         switch($type) {
             case 'app-htmlpage':
                 $view = $this->createHtmlView($namespace);
                 break;
             case 'app-ajax':
-                $view = $this->createJsonView($namespace);
+                $view = $this->createAjaxView($namespace);
                 break;
             case 'app-console':
                 $view = $this->createConsoleView($namespace);
@@ -132,7 +147,9 @@ class MvcActionFactory implements MvcActionFactoryInterface
         }
 
         if (! $view instanceof ViewTemplateInterface) {
-            throw new Exception("console view does not use correct interface");
+            throw new RunTimeException(
+				"console view does not use correct interface"
+			);
         }
 
         return $view;
