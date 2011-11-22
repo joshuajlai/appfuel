@@ -10,10 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-
-
 /**
  */
-class ActionController implements ActionControllerInterface
+interface MvcActionInterface
 {
 }

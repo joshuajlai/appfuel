@@ -81,7 +81,7 @@ class KernelInitializer
 			define('AF_APP_TYPE', strtolower($type));
 		}
 
-		$valid = array('app-console', 'app-page', 'app-api', 'app-ajax');
+		$valid = array('app-console', 'app-htmlpage', 'app-api', 'app-ajax');
 		if (! in_array(AF_APP_TYPE, $valid, true)) {
 			$list = implode('|', $valid);
 			$err .= "app type must be one of the following -($list)";
