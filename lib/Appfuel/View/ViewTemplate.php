@@ -10,11 +10,10 @@
  */
 namespace Appfuel\View;
 
-use Appfuel\Framework\View\Formatter\ViewFormatterInterface,
-	Appfuel\Framework\View\ViewTemplateInterface,
-	Appfuel\Framework\Exception,
+use Countable,
+	InvalidArgumentException,
 	Appfuel\View\Formatter\TextFormatter,
-	Countable;
+	Appfuel\View\Formatter\ViewFormatterInterface;
 
 /**
  * The view template is the most basic of the templates. Holding all its data
@@ -104,7 +103,9 @@ class ViewTemplate implements ViewTemplateInterface, Countable
 	public function assign($key, $value)
 	{
         if (! is_scalar($key)) {
-			throw new Exception("Template assignment keys must be scalar ");
+			throw new InvalidArgumentException(
+				"Template assignment keys must be scalar "
+			);
         }
 
         $this->assign[$key] = $value;

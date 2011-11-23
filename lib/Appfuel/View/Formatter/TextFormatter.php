@@ -10,8 +10,7 @@
  */
 namespace Appfuel\View\Formatter;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\View\Formatter\ViewFormatterInterface;
+use InvalidArgumentException;
 
 /**
  * Converts each key value pair in an associative array as a new line 
@@ -52,7 +51,7 @@ class TextFormatter implements ViewFormatterInterface
 		}
 	
 		if (! is_string($kdel) || ! is_string($idel)) {
-			throw new Exception("delimiters must be a string");
+			throw new InvalidArgumentException("delimiters must be a string");
 		}
 
 		$this->keyDelimiter  = $kdel;
@@ -64,13 +63,13 @@ class TextFormatter implements ViewFormatterInterface
 		}
 
 		if (! is_string($strategy)) {
-			throw new Exception($err);
+			throw new InvalidArgumentException($err);
 		}
 
 		$strategy = strtolower($strategy);
 		$valid = array('assoc', 'values', 'keys');
 		if (! in_array($strategy, $valid)) {
-			throw new Exception($err);
+			throw new InvalidArgumentException($err);
 		}
 		$this->arrayStrategy = $strategy;
 	}

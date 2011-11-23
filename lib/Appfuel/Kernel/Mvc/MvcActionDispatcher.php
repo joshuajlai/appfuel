@@ -12,7 +12,8 @@ namespace Appfuel\Kernel\Mvc;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Kernel\KernelRegistry;
+	Appfuel\Kernel\KernelRegistry,
+	Appfuel\View\ViewTemplateInterface;
 
 /**
  */
@@ -47,10 +48,11 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 
 	/**
 	 * @param	string	$route
+	 * @param	string	$strategy	
 	 * @param	AppContextInterface $context
 	 * @return	AppContextInterface
 	 */
-	public function dispatch($route, AppContextInterface $context)
+	public function dispatch($route, $strategy, AppContextInterface $context)
 	{
 		$err = 'Failed to dispatch: ';
 		if (! is_string($route)) {
@@ -58,17 +60,9 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		/* used to determine which action method will process the context */
-        if (! defined('AF_APP_TYPE')) {
-			$err .= "constant AF_APP_TYPE not declared and is required";
-            throw new RunTimeException($err);
-        }
-
-		$strategy  = AF_APP_TYPE;
 		$namespace = KernelRegistry::getActionNamespace($route);
 		if (false === $namespace) {
-			$input = $context->getInput();
-			$uri   = $input->getUriString(); 
+			$uri = $context->get('original-uri', '');
 			throw new RouteNotFoundException($route, $uri);
 		}
 
@@ -77,11 +71,10 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		 * other mvc actions
 		 */
 		$factory = $this->getActionFactory();
-		$action  = $factory->createMvcAction($ns);
+		$action  = $factory->createMvcAction($namespace);
 		$action->setDispatcher(new self($factory));
 		if (false === $action->isContextAllowed($context->getAclRoleCodes())) {
-			$input = $context->getInput();
-			$uri   = $input->getUriString(); 
+			$uri = $context->get('original-uri', '');
 			throw new RouteDeniedException($route, $uri);		
 		}
 
@@ -104,8 +97,8 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 				throw new RunTimeException($err);
 		}
 
-		if (! ($result instanceof AppContextInterface)) {
-			$result = $context;
+		if (! ($result instanceof ViewTemplateInterface)) {
+			$result = $view;
 		}
 		
 		return $result;

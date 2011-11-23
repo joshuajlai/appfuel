@@ -21,18 +21,18 @@ class RouteDeniedException extends RunTimeException
      * @param   string  $requestString
      * @return  Uri
      */
-    public function __construct($routeKey, $uriString)
+    public function __construct($route, $uri)
 	{
 		if (! is_string($route)) {
 			$route = '<undefined route key>';
 		}
 
-		if (! is_string($uriString)) {
-			$uriString = '<undefined uri string>';
+		if (! is_string($uri)) {
+			$uri = '<undefined uri string>';
 		}
 
 		$msg = "access denied: insufficient permissions for this route ";
-		$msg = "-($route) uri: -($uriString)";
+		$msg = "-($route) uri: -($uri)";
 		parent::__construct($msg, 403);
 	}
 }

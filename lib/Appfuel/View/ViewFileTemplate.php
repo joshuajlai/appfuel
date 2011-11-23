@@ -10,10 +10,11 @@
  */
 namespace Appfuel\View;
 
-use Appfuel\Framework\View\Formatter\ViewFormatterInterface,
-	Appfuel\Framework\View\ViewFileTemplateInterface,
-	Appfuel\Framework\File\PathFinderInterface,
-	Appfuel\Framework\Exception,
+use RunTimeException,
+	InvalidArgumentException,
+	Appfuel\View\Formatter\ViewFormatterInterface,
+	Appfuel\Kernel\PathFinder,
+	Appfuel\Kernel\PathFinderInterface,
 	Appfuel\View\Formatter\TemplateFormatter,
 	Countable;
 
@@ -31,26 +32,36 @@ class ViewFileTemplate extends ViewTemplate implements ViewFileTemplateInterface
 	protected $pathFinder = null;
 
 	/**
-	 * @param	mixed	$file 
+	 * @param	mixed	$filePath
 	 * @param	array	$data
-	 * @return	FileTemplate
+	 * @param	mixed null|string|PathFinderInterface $finder
+	 * @return	ViewFileTemplate
 	 */
 	public function __construct($filePath, 
 								array $data = null,
-								PathFinderInterface $finder = null)
+								$finder = null)
 	{
 		if (empty($filePath) || ! is_string($filePath)) {
 			throw new Exception("File path must be a non empty string");
 		}
 
 		if (null === $finder) {
-			$finder = new ViewPathFinder();
+			$finder = new PathFinder('ui/appfuel');
+		}
+		else if (is_string($finder) && ! empty($finder)) {
+			$finder = new PathFinder($finder);
+		}
+		else if (! ($finder instanceof PathFinderInterface)) {
+			$err  = 'Finder must be null, a string or implement ';
+			$err .= 'Appfuel\Kernel\PathFinderInterface';
+			throw new InvalidArgumentException($err);
 		}
 		$this->setPathFinder($finder);
 
 		$filePath = $finder->getPath($filePath);
 		if (! file_exists($filePath)) {
-			throw new Exception("could not find template at -($filePath)");
+			$err = "could not find template at -($filePath)";
+			throw new RunTimeException($err);
 		}
 
 		$formatter = new Formatter\TemplateFormatter($filePath);

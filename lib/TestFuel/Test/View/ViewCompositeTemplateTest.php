@@ -64,7 +64,7 @@ class ViewCompositeTemplateTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\ViewCompositeTemplateInterface',
+			'Appfuel\View\ViewCompositeTemplateInterface',
 			$this->template
 		);
 	}
@@ -87,10 +87,12 @@ class ViewCompositeTemplateTest extends BaseTestCase
 			$template->getViewFormatter()
 		);
 
+		$finder = $template->getPathFinder();
 		$this->assertInstanceOf(
-			'Appfuel\View\ViewPathFinder',
-			$template->getPathFinder()
+			'Appfuel\Kernel\PathFinder',
+			$finder
 		);
+		$this->assertEquals('ui/appfuel', $finder->getRelativeRootPath());	
 	}
 
 	/**
@@ -103,7 +105,7 @@ class ViewCompositeTemplateTest extends BaseTestCase
 		/* we need a template that exists */
 		$path = "{$this->getTestFilesPath()}/ui/appfuel/template.phtml";
 		
-		$finder = $this->getMock('Appfuel\Framework\File\PathFinderInterface');
+		$finder = $this->getMock('Appfuel\Kernel\PathFinderInterface');
 		$finder->expects($this->once())
 			   ->method('getPath')
 			   ->will($this->returnValue($path));
@@ -129,13 +131,13 @@ class ViewCompositeTemplateTest extends BaseTestCase
 		/* we need a template that exists */
 		$path = "{$this->getTestFilesPath()}/ui/appfuel/template.phtml";
 		
-		$finder = $this->getMock('Appfuel\Framework\File\PathFinderInterface');
+		$finder = $this->getMock('Appfuel\Kernel\PathFinderInterface');
 		$finder->expects($this->once())
 			   ->method('getPath')
 			   ->will($this->returnValue($path));
 
 		$formatter = $this->getMock(
-			'Appfuel\Framework\View\Formatter\ViewFormatterInterface'
+			'Appfuel\View\Formatter\ViewFormatterInterface'
 		);
 
 		$template = new ViewCompositeTemplate('a', $finder, null, $formatter);
@@ -158,13 +160,13 @@ class ViewCompositeTemplateTest extends BaseTestCase
 		/* we need a template that exists */
 		$path = "{$this->getTestFilesPath()}/ui/appfuel/template.phtml";
 		
-		$finder = $this->getMock('Appfuel\Framework\File\PathFinderInterface');
+		$finder = $this->getMock('Appfuel\Kernel\PathFinderInterface');
 		$finder->expects($this->once())
 			   ->method('getPath')
 			   ->will($this->returnValue($path));
 
 		$formatter = $this->getMock(
-			'Appfuel\Framework\View\Formatter\ViewFormatterInterface'
+			'Appfuel\View\Formatter\ViewFormatterInterface'
 		);
 
 		$data = array('foo' => 'bar', 'baz' => 'biz');
@@ -185,7 +187,7 @@ class ViewCompositeTemplateTest extends BaseTestCase
 	public function testConstructorNoFileWithCustomFormatter()
 	{
 		$formatter = $this->getMock(
-			'Appfuel\Framework\View\Formatter\ViewFormatterInterface'
+			'Appfuel\View\Formatter\ViewFormatterInterface'
 		);
 
 		$template = new ViewCompositeTemplate(null, null, null, $formatter);
@@ -204,7 +206,7 @@ class ViewCompositeTemplateTest extends BaseTestCase
         $this->assertFalse($this->template->templateExists($key_1));
         $this->assertFalse($this->template->getTemplate($key_1));
 
-        $interface  = 'Appfuel\Framework\View\ViewTemplateInterface';
+        $interface  = 'Appfuel\View\ViewTemplateInterface';
         $template_1 = $this->getMockBuilder($interface)
                            ->disableOriginalConstructor()
                            ->getMock();
@@ -331,7 +333,7 @@ class ViewCompositeTemplateTest extends BaseTestCase
     public function testAssignBuild()
     {
 
-        $interface    = 'Appfuel\Framework\View\TemplateInterface';
+        $interface    = 'Appfuel\View\TemplateInterface';
         $sourceKey    = 'source-key';
         $targetKey    = 'target-key';
         $assignLabel  = 'source-label';
@@ -349,7 +351,7 @@ class ViewCompositeTemplateTest extends BaseTestCase
 
         $buildItem = $result[0];
         $this->assertInstanceOf(
-            'Appfuel\Framework\View\BuildItemInterface',
+            'Appfuel\View\BuildItemInterface',
             $buildItem
         );
         $this->assertEquals($sourceKey, $buildItem->getSource());
@@ -372,7 +374,7 @@ class ViewCompositeTemplateTest extends BaseTestCase
         /* make sure we can still get the other build item */
         $buildItem = $result[0];
         $this->assertInstanceOf(
-            'Appfuel\Framework\View\BuildItemInterface',
+            'Appfuel\View\BuildItemInterface',
             $buildItem
         );
         $this->assertEquals($sourceKey, $buildItem->getSource());
@@ -382,7 +384,7 @@ class ViewCompositeTemplateTest extends BaseTestCase
         /* test the most recently added build item */
         $buildItem = $result[1];
         $this->assertInstanceOf(
-            'Appfuel\Framework\View\BuildItemInterface',
+            'Appfuel\View\BuildItemInterface',
             $buildItem
         );
         $this->assertEquals($sourceKey2, $buildItem->getSource());

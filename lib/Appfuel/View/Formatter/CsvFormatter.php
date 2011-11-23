@@ -10,8 +10,6 @@
  */
 namespace Appfuel\View\Formatter;
 
-use Appfuel\Framework\View\Formatter\ViewFormatterInterface;
-
 /**
  * Format an array of arrays into csv 
  */

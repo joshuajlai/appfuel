@@ -21,17 +21,17 @@ class RouteNotFoundException extends RunTimeException
      * @param   string  $requestString
      * @return  Uri
      */
-    public function __construct($routeKey, $uriString)
+    public function __construct($route, $uri)
 	{
 		if (! is_string($route)) {
 			$route = '<undefined route key>';
 		}
 
-		if (! is_string($uriString)) {
-			$uriString = '<undefined uri string>';
+		if (! is_string($uri)) {
+			$uri = '<undefined uri string>';
 		}
 
-		$msg = "The route -($route) has not been mapped. uri: -($uriString)";
+		$msg = "The route -($route) has not been mapped. uri: -($uri)";
 		parent::__construct($msg, 400);
 	}
 }

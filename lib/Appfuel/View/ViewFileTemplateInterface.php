@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\View;
+namespace Appfuel\View;
 
-use Appfuel\Framework\File\PathFinderInterface;
+use Appfuel\Kernel\PathFinderInterface;
 
 /**
  * This is a view template with path support for the template formatter.

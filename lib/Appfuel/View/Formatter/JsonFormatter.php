@@ -10,9 +10,6 @@
  */
 namespace Appfuel\View\Formatter;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\View\Formatter\ViewFormatterInterface;
-
 /**
  * Seems silly but it allows other more complex formatter to work the 
  * with the same interface. This one happens to be simple

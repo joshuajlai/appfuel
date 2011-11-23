@@ -16,9 +16,8 @@ use Exception,
 	Appfuel\View\JsonTemplate,
 	Appfuel\View\ViewTemplate,
 	Appfuel\Console\ConsoleViewTemplate,
-	Appfuel\Framework\View\JsonTemplateInterface,
-	Appfuel\Framework\View\ViewTemplateInterface,
-	Appfuel\Framework\Console\ConsoleViewTemplateInterface;
+	Appfuel\View\JsonTemplateInterface,
+	Appfuel\View\ViewTemplateInterface;
 
 /**
  * Used to build action controllers
@@ -171,7 +170,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
             $view = new ConsoleViewTemplate();
         }
 
-        if (! $view instanceof ConsoleViewTemplateInterface) {
+        if (! $view instanceof ViewTemplateInterface) {
             throw new RunTimeException(
 				"console view does not use correct interface"
 			);

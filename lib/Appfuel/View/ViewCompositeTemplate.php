@@ -11,12 +11,9 @@
 namespace Appfuel\View;
 
 use Appfuel\Framework\Exception,
-	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Framework\File\PathFinderInterface,
-	Appfuel\Framework\View\ViewTemplateInterface,
-	Appfuel\Framework\View\BuildItemInterface,
-	Appfuel\Framework\View\ViewCompositeTemplateInterface,
-	Appfuel\Framework\View\Formatter\ViewFormatterInterface;
+	Appfuel\DataStructure\Dictionary,
+	Appfuel\Kernel\PathFinderInterface,
+	Appfuel\View\Formatter\ViewFormatterInterface;
 
 /**
  * The composite 

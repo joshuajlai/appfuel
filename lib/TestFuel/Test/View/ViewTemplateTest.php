@@ -91,7 +91,7 @@ class ViewTemplateTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\ViewTemplateInterface',
+			'Appfuel\View\ViewTemplateInterface',
 			$this->template
 		);
 	}
@@ -130,7 +130,7 @@ class ViewTemplateTest extends BaseTestCase
 	 */
 	public function testConstructorViewFormatter()
 	{
-		$interface = 'Appfuel\Framework\View\Formatter\ViewFormatterInterface';
+		$interface = 'Appfuel\View\Formatter\ViewFormatterInterface';
 		$formatter = $this->getMock($interface);
 		$template = new ViewTemplate(null, $formatter);
 
@@ -145,7 +145,7 @@ class ViewTemplateTest extends BaseTestCase
 	 */
 	public function testConstructorDataAndViewFormatter()
 	{
-		$interface = 'Appfuel\Framework\View\Formatter\ViewFormatterInterface';
+		$interface = 'Appfuel\View\Formatter\ViewFormatterInterface';
 		$formatter = $this->getMock($interface);
 		$data = array('foo' => 'bar', 'baz' => 'biz');
 		
@@ -156,15 +156,13 @@ class ViewTemplateTest extends BaseTestCase
 		$this->assertSame($formatter, $template->getViewFormatter());
 	}
 
-
-
 	/**
 	 * @depends	testInterface
 	 * @return	null
 	 */
 	public function testGetSetFormatter()
 	{
-		$interface = 'Appfuel\Framework\View\Formatter\ViewFormatterInterface';
+		$interface = 'Appfuel\View\Formatter\ViewFormatterInterface';
 		$formatter = $this->getMock($interface);
 		
 		$result = $this->template->getViewFormatter();
@@ -270,7 +268,6 @@ class ViewTemplateTest extends BaseTestCase
 		$this->assertEquals($expected, $this->template->build($data, true));
 	}
 
-
 	/**
 	 * @depends	testInterface
 	 * @return	null
@@ -294,6 +291,4 @@ class ViewTemplateTest extends BaseTestCase
 		$formatter->setFormatArrayValues();
 		$this->assertEquals($expected, $this->template->build($data));
 	}
-
-
 }

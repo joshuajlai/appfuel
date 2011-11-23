@@ -50,17 +50,17 @@ class HtmlDocTemplateTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\Html\HtmlDocTemplateInterface',
+			'Appfuel\View\Html\HtmlDocTemplateInterface',
 			$this->template
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\ViewCompositeTemplateInterface',
+			'Appfuel\View\ViewCompositeTemplateInterface',
 			$this->template
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\ViewTemplateInterface',
+			'Appfuel\View\ViewTemplateInterface',
 			$this->template
 		);
 	}

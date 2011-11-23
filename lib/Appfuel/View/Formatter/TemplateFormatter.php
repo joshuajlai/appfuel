@@ -12,8 +12,8 @@ namespace Appfuel\View\Formatter;
 
 use Countable,
 	SplFileInfo,
-	Appfuel\Framework\Exception,
-	Appfuel\Framework\View\Formatter\ViewFormatterInterface;
+	RunTimeException,
+	InvalidArgumentException;
 
 /**
  * The template formatter binds a template file with the formatter object. This
@@ -52,7 +52,7 @@ class TemplateFormatter implements ViewFormatterInterface, Countable
 		}
 		else { 
 			$err = "Invalid template formatter: file not found -($file) ";
-			throw new Exception($err);
+			throw new RunTimeException($err);
 		}
     }
 
@@ -79,7 +79,8 @@ class TemplateFormatter implements ViewFormatterInterface, Countable
 	public function assign($key, $value)
 	{
 		if (! is_scalar($key)) {
-			throw new Exception("assign failed: key must be a scalar value");
+			throw new InvalidArgumentException(
+				"assign failed: key must be a scalar value");
 		}
 
 		$this->data[$key] = $value;
@@ -205,9 +206,6 @@ class TemplateFormatter implements ViewFormatterInterface, Countable
      */
     public function format($data)
     {
-		/* we unset the file path so it is not visible to the template file */
-		$filePath = $this->filePath;
-
 
 		if (is_string($data)) {
 			$this->assign('default-item', $data);
@@ -218,7 +216,7 @@ class TemplateFormatter implements ViewFormatterInterface, Countable
 			$this->load($data);
 		}
 
-		return $this->includeTemplate($filePath);
+		return $this->includeTemplate($this->filePath);
     }
 
 	/**

@@ -188,7 +188,7 @@ class TemplateFormatterTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\Formatter\ViewFormatterInterface',
+			'Appfuel\View\Formatter\ViewFormatterInterface',
 			$this->formatter
 		);
 	}
@@ -380,7 +380,6 @@ class TemplateFormatterTest extends BaseTestCase
 
 	}
 
-
     /**
      * Using a simple template file that uses a single variable
      * in a line of text we will build it into a string giving
@@ -398,7 +397,6 @@ class TemplateFormatterTest extends BaseTestCase
         $expected = 'This is a test template. Foo=bar. EOF.';
         $this->assertEquals($expected, $result);
     }
-
 
     /**
      * Same test as above accept with an SplFileInfo object data is loaded

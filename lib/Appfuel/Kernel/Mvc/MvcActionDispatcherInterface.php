@@ -24,5 +24,5 @@ interface MvcActionDispatcherInterface
      * @param   AppContextInterface $context
      * @return  AppContextInterface
      */
-    public function dispatch($route, AppContextInterface $context);
+    public function dispatch($route, $strategy, AppContextInterface $context);
 }

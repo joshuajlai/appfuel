@@ -50,12 +50,12 @@ class JsonTemplateTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\JsonTemplateInterface',
+			'Appfuel\View\JsonTemplateInterface',
 			$this->template
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\ViewTemplateInterface',
+			'Appfuel\View\ViewTemplateInterface',
 			$this->template
 		);
 	}
@@ -192,7 +192,7 @@ class JsonTemplateTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return				null
 	 */
 	public function testSetStatusCodeNotScalarArray_Failure()
@@ -201,7 +201,7 @@ class JsonTemplateTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return				null
 	 */
 	public function testSetStatusCodeNotScalarObj_Failure()
@@ -210,7 +210,7 @@ class JsonTemplateTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return				null
 	 */
 	public function testSetStatusTextNotStringArray_Failure()
@@ -219,7 +219,7 @@ class JsonTemplateTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return				null
 	 */
 	public function testSetStatusTextNotStringObj_Failure()
@@ -228,15 +228,11 @@ class JsonTemplateTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return				null
 	 */
 	public function testSetStatusTextNotStringInt_Failure()
 	{
 		$this->template->setStatusText(12345);
 	}
-
-
-
-
 }

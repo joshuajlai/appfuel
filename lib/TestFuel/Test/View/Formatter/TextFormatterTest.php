@@ -48,7 +48,7 @@ class TextFormatterTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\Formatter\ViewFormatterInterface',
+			'Appfuel\View\Formatter\ViewFormatterInterface',
 			$this->formatter
 		);
 	}
@@ -102,10 +102,7 @@ class TextFormatterTest extends BaseTestCase
 		$this->assertEquals('assoc', $this->formatter->getArrayStrategy());
 		$this->assertTrue($this->formatter->isFormatArrayAssoc());
 		$this->assertFalse($this->formatter->isFormatArrayKeys());
-		$this->assertFalse($this->formatter->isFormatArrayValues());
-
-		
-		
+		$this->assertFalse($this->formatter->isFormatArrayValues());	
 	}
 
 	/**
@@ -391,7 +388,7 @@ class TextFormatterTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadDelimiterKeyDelimiterInt_Failure()
@@ -400,7 +397,7 @@ class TextFormatterTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadDelimiterKeyDelimiterArray_Failure()
@@ -409,7 +406,7 @@ class TextFormatterTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadDelimiterKeyDelimiterObject_Failure()
@@ -418,7 +415,7 @@ class TextFormatterTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadDelimiterItemDelimiterInt_Failure()
@@ -427,7 +424,7 @@ class TextFormatterTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadDelimiterItemDelimiterArray_Failure()
@@ -436,7 +433,7 @@ class TextFormatterTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadDelimiterItemDelimiterObject_Failure()
@@ -445,7 +442,7 @@ class TextFormatterTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadArrayStrategyInt_Failure()
@@ -454,7 +451,7 @@ class TextFormatterTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadArrayStrategyArray_Failure()
@@ -463,14 +460,11 @@ class TextFormatterTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadArrayStrategyObject_Failure()
 	{
 		$formatter = new TextFormatter(':', new StdClass());
 	}
-
-
-
 }

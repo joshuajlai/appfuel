@@ -11,7 +11,7 @@
 namespace TestFuel\Test\View;
 
 use StdClass,
-	TestFuel\TestPathFinder,
+	Appfuel\Kernel\PathFinder,
 	Appfuel\View\ViewFileTemplate,
 	TestFuel\TestCase\BaseTestCase;
 
@@ -40,7 +40,7 @@ class ViewFileTemplateTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$this->pathFinder = new TestPathFinder();
+		$this->pathFinder = new PathFinder('test/files');
 		$this->filePath = 'ui/appfuel/template.phtml';
 		$this->template = new ViewFileTemplate(
 			$this->filePath,
@@ -62,7 +62,7 @@ class ViewFileTemplateTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\ViewFileTemplateInterface',
+			'Appfuel\View\ViewFileTemplateInterface',
 			$this->template
 		);
 	}

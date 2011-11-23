@@ -10,14 +10,24 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\Framework\View\ViewTemplateInterface,
-	Appfuel\Framework\View\JsonTemplateInterface,
-	Appfuel\Framework\Console\ConsoleViewTemplateInterface;
+use Appfuel\View\ViewTemplateInterface,
+	Appfuel\View\JsonTemplateInterface;
 
 /**
  */
 interface MvcActionInterface
 {
+	/**
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function getDispatcher();
+
+	/**
+	 * @param	MvcActionDispatcherInterface
+	 * @return	null
+	 */
+	public function setDispatcher(MvcActionDispatcherInterface $dispatcher);
+
 	/**
 	 * Used to determine acl controll
 	 * 
@@ -47,5 +57,5 @@ interface MvcActionInterface
 	 * @return	mixed	null | AppContextInterface 
 	 */
 	public function processConsole(AppContextInterface $context,
-									ConsoleViewTemplateInterface $view);
+								   ViewTemplateInterface $view);
 }

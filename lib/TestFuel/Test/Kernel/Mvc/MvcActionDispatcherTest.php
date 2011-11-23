@@ -11,7 +11,11 @@
 namespace TestFuel\Test\Kernel\Mvc;
 
 use StdClass,
+	Appfuel\Kernel\Mvc\AppInput,
+	Appfuel\Kernel\Mvc\AppContext,
+	Appfuel\Kernel\KernelRegistry,
 	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Console\ConsoleViewTemplate,
 	Appfuel\Kernel\Mvc\MvcActionDispatcher;
 
 /**
@@ -24,12 +28,16 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 */
 	protected $dispatcher = null;
 
+	protected $backup = null;
+
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
+		$this->backup = KernelRegistry::getRouteMap();
 		$this->dispatcher = new MvcActionDispatcher();
+		KernelRegistry::clearRouteMap();
 	}
 
 	/**
@@ -37,6 +45,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
+		KernelRegistry::setRouteMap($this->backup);
 		$this->dispatcher = null;
 	}
 
@@ -72,5 +81,24 @@ class MvcActionDispatcherTest extends BaseTestCase
 		
 		$dispatcher = new MvcActionDispatcher($factory);
 		$this->assertSame($factory, $dispatcher->getActionFactory());
+	}
+
+	/**
+	 * @depends	testInterface
+	 */
+	public function testProcessConsole()
+	{
+		$input = new AppInput('get');
+		$context = new AppContext($input);
+
+		$routeMap = array('my-key' => 'TestFuel\Fake\Action\User\Create');
+		KernelRegistry::setRouteMap($routeMap);
+		
+		$view = $this->dispatcher->dispatch('my-key', 'app-console', $context);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\User\Create\ConsoleView',
+			$view
+		);
+		$this->assertEquals('bar', $view->getAssigned('foo'));
 	}
 }

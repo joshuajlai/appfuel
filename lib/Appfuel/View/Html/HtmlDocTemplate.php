@@ -10,10 +10,7 @@
  */
 namespace Appfuel\View\Html;
 
-use Appfuel\Framework\Exception,
-	Appfuel\View\ViewCompositeTemplate,
-	Appfuel\Framework\View\ViewTemplateInterface,
-	Appfuel\Framework\View\Html\HtmlDocTemplateInterface;
+use Appfuel\View\ViewCompositeTemplate;
 
 /**
  * Template used to generate generic html documents

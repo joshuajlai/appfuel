@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\View\Formatter;
+namespace Appfuel\View\Formatter;
 
 /**
  * The view formatter converts a data structure, usually an array into a string

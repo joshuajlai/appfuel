@@ -10,14 +10,37 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\Framework\View\JsonTemplateInterface,
-	Appfuel\Framework\View\ViewTemplateInterface,
-	Appfuel\Framework\Console\ConsoleViewTemplateInterface;
+use Appfuel\View\JsonTemplateInterface,
+	Appfuel\View\ViewTemplateInterface;
 
 /**
  */
 class MvcAction implements MvcActionInterface
 {
+	/**
+	 * Used to make a call to other mvc actions
+	 * @var MvcActionDispatcherInterface
+	 */
+	protected $dispatcher = null;
+
+	/**
+	 * @param	MvcActionDispatcherInterface $dispatcher
+	 * @return	null
+	 */
+	public function setDispatcher(MvcActionDispatcherInterface $dispatcher)
+	{
+		$this->dispatcher = $dispatcher;
+	}
+	
+	/**
+	 * @param	MvcActionDispatcher
+	 * @return	null
+	 */
+	public function getDispatcher()
+	{
+		return $this->dispatcher;
+	}
+
 	/**
 	 * @param	array	$codes
 	 * @return	bool
@@ -55,7 +78,7 @@ class MvcAction implements MvcActionInterface
 	 * @return	AppContextInterface
 	 */
 	public function processConsole(AppContextInterface $context,
-								   ConsoleViewTemplateInterface $view)
+								   ViewTemplateInterface $view)
 	{
 		return $context;
 	}

@@ -10,8 +10,7 @@
  */
 namespace Appfuel\View;
 
-use Appfuel\Framework\View\JsonTemplateInterface,
-	Appfuel\Framework\Exception,
+use InvalidArgumentException,
 	Appfuel\View\Formatter\JsonFormatter;
 
 /**
@@ -58,7 +57,9 @@ class JsonTemplate extends ViewTemplate implements JsonTemplateInterface
 	public function setStatusCode($code)
 	{
 		if (! is_scalar($code)) {
-			throw new Exception("Json status code must be a scalar value");
+			throw new InvalidArgumentException(
+				"Json status code must be a scalar value"
+			);
 		}
 		$this->status = $code;
 		return $this;
@@ -79,7 +80,7 @@ class JsonTemplate extends ViewTemplate implements JsonTemplateInterface
 	public function setStatusText($text)
 	{
 		if (! is_string($text)) {
-			throw new Exception("status text must be text");
+			throw new InvalidArgumentException("status text must be text");
 		}
 
 		$this->statusText = $text;
@@ -122,5 +123,4 @@ class JsonTemplate extends ViewTemplate implements JsonTemplateInterface
 
 		return parent::build($data, $isPrivate);
 	}
-
 }

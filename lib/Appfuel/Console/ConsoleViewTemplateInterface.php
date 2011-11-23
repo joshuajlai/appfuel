@@ -8,20 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\View;
+namespace Appfuel\Framework\Console;
+
+use Appfuel\View\ViewTemplateInterface;
 
 /**
- * Functionality required to build views
  */
-interface ViewBuilderInterface
-{
-	/**
-	 * @return	HtmlDocTemplateInterface
-	 */
-	public function createHtmlTemplate();
-
-	/**
-	 * @return	ConsoleViewTemplateInterface
-	 */
-	public function buildConsoleView($namespace = null);
-}
+interface ConsoleViewTemplateInterface extends ViewTemplateInterface
+{}

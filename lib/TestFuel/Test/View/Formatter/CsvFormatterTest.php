@@ -48,7 +48,7 @@ class CsvFormatterTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\View\Formatter\ViewFormatterInterface',
+			'Appfuel\View\Formatter\ViewFormatterInterface',
 			$this->formatter
 		);
 	}

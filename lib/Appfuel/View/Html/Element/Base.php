@@ -10,8 +10,6 @@
  */
 namespace Appfuel\View\Html\Element;
 
-use Appfuel\Framework\Exception;
-
 /**
  * The base tag specifies a default url and/or a default target for all 
  * elements with a url(hyperlinks, images, forms, etc..). This tag must

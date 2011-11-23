@@ -10,8 +10,7 @@
  */
 namespace Appfuel\View;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\View\BuildItemInterface;
+use InvalidArgumentException;
 
 /**
  * Encapsulates the data needed to build one template into another
@@ -56,19 +55,22 @@ class BuildItem implements BuildItemInterface
 	 */
 	public function __construct($source, $target, $assignLabel)
 	{
-		$err = 'BuildItem constructor failed:';
+		$err = 'BuildItem constructor failed: ';
 		if (! $this->isValid($source)) {
-			throw new Exception("$err source must be non empty scalar");
+				$err .= 'source must be non empty scalar';
+			throw new InvalidArgumentException($err);
 		}
 		$this->source = $source;
 
 		if (! $this->isValid($target)) {
-			throw new Exception("$err target must be non empty scalar");
+			$err .= 'target must be non empty scalar';
+			throw new InvalidArgumentException($err);
 		}
 		$this->target = $target;
 
 		if (! $this->isValid($assignLabel)) {
-			throw new Exception("$err assignLabel must be non empty scalar");
+			$err .= 'assignLabel must be non empty scalar';
+			throw new InvalidArgumentException($err);
 		}
 		$this->assignLabel = $assignLabel;
 	}
