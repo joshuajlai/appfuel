@@ -12,7 +12,7 @@ namespace TestFuel\Test\View;
 
 use StdClass,
 	SplFileInfo,
-	Appfuel\View\JsonTemplate,
+	Appfuel\View\AjaxTemplate,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
@@ -20,7 +20,7 @@ use StdClass,
  * responibility is to manage all the elements of the document itself like the
  * head, body and scripts that get added to the bottom of the body.
  */
-class JsonTemplateTest extends BaseTestCase
+class AjaxTemplateTest extends BaseTestCase
 {
 	/**
 	 * System under test
@@ -33,7 +33,7 @@ class JsonTemplateTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$this->template	= new JsonTemplate();
+		$this->template	= new AjaxTemplate();
 	}
 
 	/**
@@ -50,7 +50,7 @@ class JsonTemplateTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\View\JsonTemplateInterface',
+			'Appfuel\View\AjaxTemplateInterface',
 			$this->template
 		);
 

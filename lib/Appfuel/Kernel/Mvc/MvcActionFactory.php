@@ -13,10 +13,10 @@ namespace Appfuel\Kernel\Mvc;
 use Exception,
 	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\View\JsonTemplate,
+	Appfuel\View\AjaxTemplate,
 	Appfuel\View\ViewTemplate,
 	Appfuel\Console\ConsoleViewTemplate,
-	Appfuel\View\JsonTemplateInterface,
+	Appfuel\View\AjaxTemplateInterface,
 	Appfuel\View\ViewTemplateInterface;
 
 /**
@@ -185,17 +185,17 @@ class MvcActionFactory implements MvcActionFactoryInterface
     public function createAjaxView($namespace = null)
     {
 		if (null === $namespace) {
-			return new JsonTemplate();
+			return new AjaxTemplate();
 		}
 			
 		$class = "$namespace\AjaxView";
 		try {
             $view = new $class();
         } catch (Exception $e) {
-            $view = new JsonTemplate();
+            $view = new AjaxTemplate();
         }
 
-        if (! $view instanceof JsonTemplateInterface) {
+        if (! $view instanceof AjaxTemplateInterface) {
             throw new RunTimeException(
 				"json view does not use correct interface"
 			);

@@ -99,6 +99,51 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'TestFuel\Fake\Action\User\Create\ConsoleView',
 			$view
 		);
-		$this->assertEquals('bar', $view->getAssigned('foo'));
+		$this->assertEquals('bar', $view->getAssigned('console-foo'));
+		$this->assertEquals('value-a', $view->getAssigned('common-a'));
+		$this->assertEquals('value-b', $view->getAssigned('common-b'));
+	}
+
+	/**
+	 * @depends	testInterface
+	 */
+	public function testProcessAjax()
+	{
+		$input = new AppInput('get');
+		$context = new AppContext($input);
+
+		$routeMap = array('my-key' => 'TestFuel\Fake\Action\User\Create');
+		KernelRegistry::setRouteMap($routeMap);
+		
+		$view = $this->dispatcher->dispatch('my-key', 'app-ajax', $context);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\User\Create\AjaxView',
+			$view
+		);
+		$this->assertEquals('bar', $view->getAssigned('ajax-foo'));
+		$this->assertEquals('value-a', $view->getAssigned('common-a'));
+		$this->assertEquals('value-b', $view->getAssigned('common-b'));
+	}
+
+	/**
+	 * @depends	testInterface
+	 */
+	public function testProcessHtml()
+	{
+		$input = new AppInput('get');
+		$context = new AppContext($input);
+
+		$routeMap = array('my-key' => 'TestFuel\Fake\Action\User\Create');
+		KernelRegistry::setRouteMap($routeMap);
+		
+		$view = $this->dispatcher->dispatch('my-key', 'app-htmlpage', $context);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\User\Create\HtmlView',
+			$view
+		);
+		$this->assertEquals('bar', $view->getAssigned('html-foo'));
+		$this->assertEquals('value-a', $view->getAssigned('common-a'));
+		$this->assertEquals('value-b', $view->getAssigned('common-b'));
+
 	}
 }

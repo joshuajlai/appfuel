@@ -11,7 +11,7 @@
 namespace Appfuel\Kernel\Mvc;
 
 use Appfuel\View\ViewTemplateInterface,
-	Appfuel\View\JsonTemplateInterface;
+	Appfuel\View\AjaxTemplateInterface;
 
 /**
  */
@@ -48,8 +48,8 @@ interface MvcActionInterface
 	 * @param	ViewTemplateInterface	$view
 	 * @return	mixed	null | AppContextInterface 
 	 */
-	public function processJson(AppContextInterface $context,
-								JsonTemplateInterface $view);
+	public function processAjax(AppContextInterface $context,
+								AjaxTemplateInterface $view);
 
 	/**
 	 * @param	AppContextInterface			  $context

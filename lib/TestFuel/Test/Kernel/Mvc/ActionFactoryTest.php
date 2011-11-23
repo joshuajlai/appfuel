@@ -195,7 +195,7 @@ class ActionFactoryTest extends BaseTestCase
 	{
 		$view = $this->factory->createAjaxView();
 		$this->assertInstanceOf(
-			'Appfuel\View\JsonTemplate',
+			'Appfuel\View\AjaxTemplate',
 			$view
 		);
 	}
@@ -223,7 +223,7 @@ class ActionFactoryTest extends BaseTestCase
 		$ns   = 'TestFuel\Fake\Action\User\Create\DoesNotExist';
 		$view = $this->factory->createAjaxView($ns);
 		$this->assertInstanceOf(
-			'Appfuel\View\JsonTemplate',
+			'Appfuel\View\AjaxTemplate',
 			$view
 		);
 	}

@@ -17,7 +17,7 @@ use InvalidArgumentException,
  * The view template is the most basic of the templates. Holding all its data
  * in key/value pair it uses a formatter to convert it a string.
  */
-class JsonTemplate extends ViewTemplate implements JsonTemplateInterface
+class AjaxTemplate extends ViewTemplate implements AjaxTemplateInterface
 {
 	/**
 	 * Code sent back to clientside to determine the status of the request
@@ -47,7 +47,7 @@ class JsonTemplate extends ViewTemplate implements JsonTemplateInterface
 	 */
 	public function getStatusCode()
 	{
-		return $this->status;
+		return $this->statusCode;
 	}
 
 	/**
@@ -61,7 +61,7 @@ class JsonTemplate extends ViewTemplate implements JsonTemplateInterface
 				"Json status code must be a scalar value"
 			);
 		}
-		$this->status = $code;
+		$this->statusCode = $code;
 		return $this;
 	}
 

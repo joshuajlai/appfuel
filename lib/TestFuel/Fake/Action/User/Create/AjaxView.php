@@ -10,11 +10,10 @@
  */
 namespace TestFuel\Fake\Action\User\Create;
 
-use Appfuel\View\JsonTemplate;
+use Appfuel\View\AjaxTemplate;
 
 /**
  * Used to test the action factories ability to create custom ajax views
  */
-class AjaxView extends JsonTemplate 
-{
-}
+class AjaxView extends AjaxTemplate
+{}

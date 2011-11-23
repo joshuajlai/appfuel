@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\View\JsonTemplateInterface,
+use Appfuel\View\AjaxTemplateInterface,
 	Appfuel\View\ViewTemplateInterface;
 
 /**
@@ -66,8 +66,8 @@ class MvcAction implements MvcActionInterface
 	 * @param	JsonTemplateInterface $view
 	 * @return	AppContextInterface
 	 */
-	public function processJson(AppContextInterface $context,
-								JsonTemplateInterface $view)
+	public function processAjax(AppContextInterface $context,
+								AjaxTemplateInterface $view)
 	{
 		return $context;
 	}
