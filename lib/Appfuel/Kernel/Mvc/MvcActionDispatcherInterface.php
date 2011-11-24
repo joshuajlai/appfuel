@@ -24,7 +24,7 @@ interface MvcActionDispatcherInterface
 	 * @param	string	$strategy
 	 * @return	MvcActionDispatcherInterface
 	 */
-	public function useStrategy($strategy);
+	public function setStrategy($strategy);
 	
 	/**
 	 * Manual set the RequestUri by passing in a string (context builder will 

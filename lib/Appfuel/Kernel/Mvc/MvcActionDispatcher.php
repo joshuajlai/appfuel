@@ -94,7 +94,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 * @param	string	$strategy 
 	 * @return	MvcActionDispatcher
 	 */
-	public function useStrategy($strategy)
+	public function setStrategy($strategy)
 	{
 		if (empty($strategy) || ! is_string($strategy)) {
 			$err = 'failed dispatch: strategy must be a non empty string';
@@ -224,7 +224,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 			}
 			$getParams = $uri->getParams();
 			if (array_key_exists('get', $params)) {
-				$getParams = array_merge($params['get'], $uriParams);
+				$getParams = array_merge($params['get'], $getParams);
 			}
 			$params['get'] = $getParams;
 		}
@@ -249,7 +249,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		if (true === $useUri) {
 			$uri = $this->getUri();
 			if (! ($uri instanceof RequestUriInterface)) {
-                $uri = $this->dispatchWithServerRequestUri()
+                $uri = $this->useServerRequestUri()
                             ->getUri();	
 			}
 			$builder->setUri($uri);	
@@ -269,7 +269,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 */
 	public function useUriForInputSource()
 	{
-		$uri = $this->getUri();
 		return $this->defineInput('get', array(), true);
 	}
 
@@ -337,11 +336,18 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 */
 	public function dispatch()
 	{
-		return $this->runDispatch(
-			$this->getRoute(), 
-			$this->getStrategy(), 
-			$this->buildContext()
-		);
+		$route = $this->getRoute();
+		if (! is_string($route)) {
+			$err = 'dispatch could not be started: route not set';
+			throw new RunTimeException($err);
+		}
+
+		$strategy = $this->getStrategy();
+		if (! is_string($strategy)) {
+			$err = 'dispatch could not be started strategy not set';
+			throw new RunTimeException($err);
+		}
+		return $this->runDispatch($route, $strategy, $this->buildContext());
 	}
 
 	/**
@@ -362,22 +368,35 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 
 		$namespace = KernelRegistry::getActionNamespace($route);
 		if (false === $namespace) {
-			$uri = $context->get('original-uri', '');
-			throw new RouteNotFoundException($route, $uri);
+			throw new RouteNotFoundException($route, '');
 		}
 
-		/* 
-		 * create the mvc action and assign it a dispatcher so it can call
-		 * other mvc actions
-		 */
 		$factory = $this->getActionFactory();
 		$action  = $factory->createMvcAction($namespace);
+		
+		/* Create a new dipatcher for the mvc action giving it the ability 
+		 * to call other action controllers based on the route key 
+		 */		
 		$action->setDispatcher(new self($factory, $this->getContextBuilder()));
+
+		/*
+		 * Acl codes are simple way of giving the action controllers an easy
+		 * way to restrict access. The role codes are completely controlled by
+		 * the developer the dispatcher simply asks the question is this 
+		 * context allowed to be processed based on these codes
+		 */
 		if (false === $action->isContextAllowed($context->getAclRoleCodes())) {
-			$uri = $context->get('original-uri', '');
-			throw new RouteDeniedException($route, $uri);		
+			throw new RouteDeniedException($route, '');		
 		}
 
+		/*
+		 * Appfuel decided to seperate context type into 3 but, soon to be
+		 * 4 interfaces. The htmlpage are strictly for page load in the web
+		 * app. The ajax is for async calls by the web app. The console are
+		 * for cli calls. Soon an api interface will added for the apps api
+		 * calls. This helps create a seperation of concerns while allowing
+		 * the mvc action to reuse business domains to achieve its goals.
+		 */
 		switch ($strategy) {
 			case 'app-htmlpage':
 				$view   = $factory->createHtmlView($namespace);

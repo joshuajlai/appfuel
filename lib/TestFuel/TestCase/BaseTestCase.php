@@ -188,7 +188,6 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		);
 	}
 
-
 	/**
 	 * Restore the registry to a state it was when we initialized
 	 *
