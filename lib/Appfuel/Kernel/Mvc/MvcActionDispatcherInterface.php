@@ -10,19 +10,116 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
+use Appfuel\Error\ErrorStackInterface,
+	Appfuel\View\ViewTemplateInterface;
+
 /**
  */
 interface MvcActionDispatcherInterface
-{	
+{
 	/**
-	 * @return	array
+	 * Used to determine which method in the mvc action will be used to 
+	 * process the context
+	 *
+	 * @param	string	$strategy
+	 * @return	MvcActionDispatcherInterface
 	 */
-	public function getActionFactory();
+	public function useStrategy($strategy);
+	
+	/**
+	 * Manual set the RequestUri by passing in a string (context builder will 
+	 * create it) or an object using the correct interface
+	 *
+	 * @param	RequestUriInterface $uri
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function setUri($uri);
 
-    /**
-     * @param   string  $route
-     * @param   AppContextInterface $context
-     * @return  AppContextInterface
-     */
-    public function dispatch($route, $strategy, AppContextInterface $context);
+	/**
+	 * Manually determine the route key to use in dispatching
+	 *
+	 * @param	string $route
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function setRoute($route);
+
+	/**
+	 * Generates an RequestUri using the super global $_SERVER['REQUEST_URI']
+	 * as the uri string
+	 *
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function useServerRequestUri();
+
+	/**
+	 * @param	string	$code
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function addAclCode($code);
+
+	/**
+	 * @param	array $codes
+	 * @return	MvcActionDispatcherInterface
+	 */	
+	public function addAclCodes(array $codes);
+
+	/**
+	 * This will allow you to manual define the input used in the context 
+	 * that will be dispatched. If a uri has also been defined then its 
+	 * parameters will be used as the inputs get parameters by default. If
+	 * you already have get parameters then the uri params will be merged
+	 *
+	 * @param	string	$method	 get|post or cli
+	 * @param	array	$params	 input parameters
+	 * @param	bool	$useUri  flag used to determine if the get parameters
+	 *							 will be obtained from the uri
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function defineInput($method, array $params, $useUri = true);
+
+	/**
+	 * This will create inputs from the php super globals $_POST, $_FILES,
+	 * $_COOKIE and $_SERVER['argv']. If useUri is true the get params will
+	 * be used from the uri otherwise if you $_GET you will have to manual
+	 * define it your self
+	 * 
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function defineInputFromSuperGlobals($useUri = true);
+
+	/**
+	 * This will use all the parameters in the uri object for the get params
+	 * in the input object and set the input method to 'get'
+	 *
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function useUriForInputSource();
+	
+	/**
+	 * @param	ErrorStackInterface $error
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function overrideContextErrorStack(ErrorStackInterface $error);
+
+	/**
+	 * @return	AppContextInterface
+	 */
+	public function buildContext();
+
+	/**
+	 * Dispatch a request a context using the fluent interface
+	 *
+	 * @return	AppContextInterface
+	 */
+	public function dispatch();
+
+	/**
+	 * Run the dispatch without any use of the fluent interface
+	 *
+	 * @param	string	$route
+	 * @param	string	$strategy	
+	 * @param	AppContextInterface $context
+	 * @return	AppContextInterface
+	 */
+	public function runDispatch($route,$strategy,AppContextInterface $context);
 }

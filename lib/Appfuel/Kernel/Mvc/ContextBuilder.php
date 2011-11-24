@@ -132,7 +132,7 @@ class ContextBuilder implements ContextBuilderInterface
 	 *
 	 * @return	ContextBuilder
 	 */
-	public function buildInputFromDefaults()
+	public function buildInputFromDefaults($useUri = true)
 	{
 		$method = 'cli';
 		$err    = 'ContextBuilder failed:';
@@ -145,26 +145,31 @@ class ContextBuilder implements ContextBuilderInterface
 			throw new RunTimeException($err);
 		}
 
-		$uri = $this->getUri();
-		if (! $uri instanceof RequestUriInterface) {
-			if (isset($_SERVER['REQUEST_URI'])) {
-				$uri = $this->useServerRequestUri()
-							->getUri();
+		if ($useUri) {
+			$uri = $this->getUri();
+			if (! $uri instanceof RequestUriInterface) {
+				if (isset($_SERVER['REQUEST_URI'])) {
+					$uri = $this->useServerRequestUri()
+								->getUri();
+				}
+				else {
+					$err .= 'Default get params come from the request uri.';
+					$err .= 'we can not build the request uri without a uri ';
+					$err .= 'string.Since no uri was given we looked for ';
+				    $err .= 'the uri string in $_SERVER[REQUEST_URI] and ';
+					$err .= 'found it was not set.Please manually set super ';
+					$err .= 'global or use builder to manually configure uri ';
+					$err .= 'with method useUriString';
+					throw new RunTimeException($err);
+				}
 			}
-			else {
-				$err .= 'Default get params come from the request uri.';
-				$err .= 'we can not build the request uri without a uri ';
-				$err .= 'string. Since no uri was given we look for the uri ';
-				$err .= 'string in $_SERVER[REQUEST_URI] and found  ';
-				$err .= 'it was not set. Please manually set super global or ';
-				$err .= 'use builder to manually configure uri with method ';
-				$err .= 'useUriString';
-				throw new RunTimeException($err);
-			}
+			$getParams = $uri->getParams();
+		} else {
+			$getParams = $_GET;
 		}
 
 		$params = array();
-		$params['get']    = $uri->getParams();
+		$params['get']    = $getParams;
 		$params['post']   = $_POST;
 		$params['files']  = $_FILES;
 		$params['cookie'] = $_COOKIE;
