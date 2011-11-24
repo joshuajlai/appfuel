@@ -10,10 +10,16 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\Error\ErrorStackInterface,
-	Appfuel\View\ViewTemplateInterface;
+use Appfuel\Error\ErrorStackInterface;
 
 /**
+ * The primary reposiblity is to provide a fluent interface that can build
+ * a context in any configuration. It does the by using a context builder, 
+ * which in my own implementation I inject in the constructor and provide no
+ * public getter or setter.The dispatcher provides two interface for 
+ * dispatching: dispatch uses the context builder and fluent interface and
+ *              runDispatch which is completely manual way to dispatch the
+ *				context.
  */
 interface MvcActionDispatcherInterface
 {

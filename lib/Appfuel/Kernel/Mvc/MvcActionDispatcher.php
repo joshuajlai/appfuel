@@ -17,6 +17,10 @@ use RunTimeException,
 	Appfuel\View\ViewTemplateInterface;
 
 /**
+ * Provide a fluent interface used to build the context required for 
+ * for dispatching. Also resolves the route key to an action namespace 
+ * with the KernelRegistry. This is used by the front controller to dispatch
+ * the intial request and also used by mvc actions to call other actions.
  */
 class MvcActionDispatcher implements MvcActionDispatcherInterface
 {	
