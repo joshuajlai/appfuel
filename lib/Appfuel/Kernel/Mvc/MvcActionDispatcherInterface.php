@@ -33,6 +33,11 @@ interface MvcActionDispatcherInterface
 	public function setStrategy($strategy);
 	
 	/**
+	 * @return	string
+	 */
+	public function getStrategy();
+	
+	/**
 	 * Manual set the RequestUri by passing in a string (context builder will 
 	 * create it) or an object using the correct interface
 	 *
@@ -48,6 +53,11 @@ interface MvcActionDispatcherInterface
 	 * @return	MvcActionDispatcherInterface
 	 */
 	public function setRoute($route);
+
+	/**
+	 * @return	string
+	 */
+	public function getRoute();
 
 	/**
 	 * Generates an RequestUri using the super global $_SERVER['REQUEST_URI']

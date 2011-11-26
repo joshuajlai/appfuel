@@ -83,9 +83,6 @@ class FaultHandlerTest extends BaseTestCase
 	public function testOuputEngine()
 	{
 		$default = $this->handler->getOutputEngine();
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\KernelOutput',
-			$default
-		);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcOutput',$default);
 	}
 }

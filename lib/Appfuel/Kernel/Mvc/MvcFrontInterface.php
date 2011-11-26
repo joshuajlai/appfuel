@@ -16,5 +16,10 @@ namespace Appfuel\Kernel\Mvc;
  * run post filters and output the results.
  */
 interface MvcFrontInterface
-{	
+{
+	/**
+	 * @param	string	$strategy
+	 * @return	int
+	 */
+	public function run($strategy);	
 }

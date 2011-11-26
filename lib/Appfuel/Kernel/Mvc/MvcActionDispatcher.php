@@ -118,6 +118,22 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	}
 
 	/**
+	 * @return	string
+	 */
+	public function getRoute()
+	{
+		return $this->route;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getStrategy()
+	{
+		return $this->strategy;
+	}
+
+	/**
 	 * @param	string	$code
 	 * @return	MvcActionDispatcher
 	 */
@@ -441,22 +457,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	protected function getContextBuilder()
 	{
 		return $this->builder;
-	}
-
-	/**
-	 * @return	string
-	 */
-	protected function getRoute()
-	{
-		return $this->route;
-	}
-
-	/**
-	 * @return	string
-	 */
-	protected function getStrategy()
-	{
-		return $this->strategy;
 	}
 
 	/**

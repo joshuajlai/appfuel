@@ -13,6 +13,7 @@ namespace Appfuel\Kernel\Mvc;
 use InvalidArgumentException,
 	Appfuel\Error\ErrorStack,
 	Appfuel\Error\ErrorStackInterface,
+	Appfuel\View\ViewTemplateInterface,
 	Appfuel\DataStructure\Dictionary,
 	Appfuel\DomainStructure\DictionaryInterface;
 
@@ -39,10 +40,18 @@ class AppContext extends Dictionary implements AppContextInterface
 	protected $errorStack = null;
 
 	/**
-	 * List of acl roles for this context. 
+	 * List of acl roles for this context. The dispatcher asks the mvc action
+	 * if this context will be allowed for processing based on these codes.
 	 * @var	array
 	 */
 	protected $roles = array();
+
+	/**
+	 * The mvc actions make assignments into the the view template which
+	 * will be converted into a string for the output engine.
+	 * @ViewTemplateInterface
+	 */
+	protected $view = null;
 
 	/**
 	 * @param	AppInputInterface		$input
@@ -100,6 +109,24 @@ class AppContext extends Dictionary implements AppContextInterface
 		}
 
 		return true;
+	}
+	
+	/**
+	 * @return	ViewTemplateInterface
+	 */
+	public function getView()
+	{
+		return $this->view;
+	}
+
+	/**
+	 * @param	ViewTemplateInterface
+	 * @return	AppContext
+	 */
+	public function setView(ViewTemplateInterface $template)
+	{
+		$this->view = $template;
+		return $this;
 	}
 
 	/**

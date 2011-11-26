@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernel;
+namespace Appfuel\Kernel\Mvc;
 
 
 use Appfuel\Output\OutputEngine,
@@ -25,14 +25,19 @@ use Appfuel\Output\OutputEngine,
  * app-page	   => http
  * 
  */
-class KernelOutput extends OutputEngine
+class MvcOutput extends OutputEngine
 {
 	/**
 	 * @return	KernalOutput
 	 */
-	public function __construct()
+	public function __construct($strategy)
 	{
-		if (defined('AF_APP_TYPE') && 'app-console' !== AF_APP_TYPE) {
+		if (empty($strategy) || ! is_string($strategy)) {
+			$err = 'strategy must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		if ('app-console' !== $strategy) {
 			$adapter = new HttpOutputAdapter();
 		}
 		else {

@@ -39,8 +39,9 @@ class FaultHandler implements FaultHandlerInterface
 	 * @param	OutputEngineInterface	$engine
 	 * @return	FaultHandler
 	 */
-	public function __construct(LoggerInterface $logger = null,
-								OutputEngineInterface $engine = null)
+	public function __construct(LoggerInterface       $logger = null,
+								OutputEngineInterface $engine = null,
+													  $strategy = null)
 	{
 		if (null === $logger) {
 			$logger = new Logger();
@@ -48,7 +49,10 @@ class FaultHandler implements FaultHandlerInterface
 		$this->logger = $logger;
 
 		if (null === $engine) {
-			$engine = new KernelOutput();
+			if (null === $strategy) {
+				$strategy = 'app-console';
+			}
+			$engine = new Mvc\MvcOutput($strategy);
 		}
 
 		$this->outputEngine = $engine;
