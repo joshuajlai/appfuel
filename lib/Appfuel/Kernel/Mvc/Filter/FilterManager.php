@@ -190,7 +190,7 @@ class FilterManager implements FilterManagerInterface
 		
 		$result = $chain->apply($context);
 		if ($result instanceof ContextInterface) {
-			return $result;
+			$contexrt = $result;
 		}
 	
 		return $context;

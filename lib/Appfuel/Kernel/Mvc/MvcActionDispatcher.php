@@ -37,10 +37,11 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	protected $builder = null;
 
 	/**
-	 * Uri object which holds the route and get params
-	 * @var RequestUriInterface
+	 * Strategy used to process the context. This will be translated into
+	 * the method the dispatcher will call on the mvc action
+	 * @var string
 	 */
-	protected $uri = null;
+	protected $strategy = null;
 
 	/**
 	 * Route key used to determine the action namespace
@@ -49,11 +50,17 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	protected $route = null;
 
 	/**
-	 * Strategy used to process the context. This will be translated into
-	 * the method the dispatcher will call on the mvc action
+	 * The namespace of the mvc action. This is determined by the route, using
+	 * the KernelRegistry. This is automatically set when the route is set.
 	 * @var string
 	 */
-	protected $strategy = null;
+	protected $actionNamespace = null;
+
+	/**
+	 * Uri object which holds the route and get params
+	 * @var RequestUriInterface
+	 */
+	protected $uri = null;
 
 	/**
 	 * Application input used in the context that will be processed
@@ -66,12 +73,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 * @var array
 	 */
 	protected $aclCodes = array();
-	
-	/**
-	 * This will override the error stack used in the application context
-	 * @var ErrorStack
-	 */
-	protected $errorStack = null;
 
 	/**
 	 * @param	MvcActionFactoryInterface	$factory
@@ -106,7 +107,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		}
 		$strategy = strtolower($strategy);
 
-		$valid = array('app-htmlpage', 'app-console', 'app-ajax');
+		$valid = array('html', 'console', 'ajax');
 		if (! in_array($strategy, $valid, true)) {
 			$err  = 'failed dispatch: strategy must be on of the following ';
 			$err .= '-(' . implode('|', $valid) . ')';
@@ -118,19 +119,25 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	}
 
 	/**
-	 * @return	string
+	 * Manually determine the route key to use in dispatching
+	 *
+	 * @param	string $route
+	 * @return	MvcActionDispatcher
 	 */
-	public function getRoute()
+	public function setRoute($route)
 	{
-		return $this->route;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getStrategy()
-	{
-		return $this->strategy;
+		if (! is_string($route)) {
+			$err = 'dispatch failed: route key must be a string';
+			throw new InvalidArgumentException($err);
+		}
+		
+		$this->route = $route;
+		$namespace = KernelRegistry::getActionNamespace($route);
+		if (false === $namespace) {
+			throw new RouteNotFoundException($route, '');
+		}
+		$this->actionNamespace = $namespace;
+		return $this;
 	}
 
 	/**
@@ -155,7 +162,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 
 	/**
 	 * @param	array	$list
-	 * @return	MvcAtionDispatcher
+	 * @return	MvcActionDispatcher
 	 */
 	public function addAclCodes(array $list)
 	{
@@ -187,23 +194,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 
 		$this->uri = $uri;
 		return $this->setRoute($uri->getRouteKey());
-	}
-
-	/**
-	 * Manually determine the route key to use in dispatching
-	 *
-	 * @param	string $route
-	 * @return	MvcActionDispatcher
-	 */
-	public function setRoute($route)
-	{
-		if (! is_string($route)) {
-			$err = 'dispatch failed: route key must be a string';
-			throw new InvalidArgumentException($err);
-		}
-		
-		$this->route = $route;
-		return $this;
 	}
 
 	/**
@@ -301,16 +291,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	}
 	
 	/**
-	 * @param	ErrorStackInterface $error
-	 * @return	MvcActionDispatcher
-	 */
-	public function overrideContextErrorStack(ErrorStackInterface $error)
-	{
-		$this->errorStack = $error;
-		return $this;
-	}
-
-	/**
 	 * In order to dispatch we need the route, strategy and context. 
 	 * The route and strategy are set using the interface. We need to 
 	 * build the context using uri, and app input. Once we have a context
@@ -335,17 +315,20 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		}
 		$builder->setInput($input);
 
-		$error = $this->getErrorStack();
-		if ($error instanceof ErrorStackInterface) {
-			$builder->setErrorStack($error);
-		}
+		$context   = $builder->build();
+		$namespace = $this->getActionNamespace();
+		$strategy  = $this->getStrategy();
+		$context->setView($this->createView($namespace, $strategy));
 
-		$context = $builder->build();
+		$context->add('app-strategy', $strategy);
+		$context->add('app-route', $this->getRoute());
+		
 		$codes = $this->getRoleCodes();
 		foreach ($codes as $code) {
 			$context->addAclRoleCode($code);
 		}
 
+		$this->clear();
 		return $context;
 	}
 
@@ -356,39 +339,22 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 */
 	public function dispatch()
 	{
-		$route = $this->getRoute();
-		if (! is_string($route)) {
-			$err = 'dispatch could not be started: route not set';
-			throw new RunTimeException($err);
-		}
-
-		$strategy = $this->getStrategy();
-		if (! is_string($strategy)) {
-			$err = 'dispatch could not be started strategy not set';
-			throw new RunTimeException($err);
-		}
-		return $this->runDispatch($route, $strategy, $this->buildContext());
+		return $this->runDispatch($this->buildContext());
 	}
 
 	/**
 	 * Run the dispatch without any use of the fluent interface
 	 *
-	 * @param	string	$route
-	 * @param	string	$strategy	
 	 * @param	AppContextInterface $context
 	 * @return	AppContextInterface
 	 */
-	public function runDispatch($route, $strategy, AppContextInterface $context)
+	public function runDispatch(AppContextInterface $context)
 	{
-		$err = 'Failed to dispatch: ';
-		if (! is_string($route)) {
-			$err .= 'route key must be a string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$namespace = KernelRegistry::getActionNamespace($route);
-		if (false === $namespace) {
-			throw new RouteNotFoundException($route, '');
+		$namespace = $this->getActionNamespace();
+		if (null === $namespace) {
+			$err  = 'failed to dispatch: route not set, can not get mvc ';
+			$err .= 'action namespace';
+			throw new RunTimeException($err);
 		}
 
 		$factory = $this->getActionFactory();
@@ -409,38 +375,21 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 			throw new RouteDeniedException($route, '');		
 		}
 
-		/*
-		 * Appfuel decided to seperate context type into 3 but, soon to be
-		 * 4 interfaces. The htmlpage are strictly for page load in the web
-		 * app. The ajax is for async calls by the web app. The console are
-		 * for cli calls. Soon an api interface will added for the apps api
-		 * calls. This helps create a seperation of concerns while allowing
-		 * the mvc action to reuse business domains to achieve its goals.
-		 */
-		switch ($strategy) {
-			case 'app-htmlpage':
-				$view   = $factory->createHtmlView($namespace);
-				$result = $action->processHtml($context, $view);	
-				break;
-			case 'app-ajax':
-				$view   = $factory->createAjaxView($namespace);
-				$result = $action->processAjax($context, $view);	
-				break;
-			case 'app-console':
-				$view   = $factory->createConsoleView($namespace);
-				$result = $action->processConsole($context, $view);
-				break;
-			default:
-				$err  = "failed to dispatch: application type is not ";
-				$err .= "recognized no interface exists for -($strategy)";
-				throw new RunTimeException($err);
-		}
+		return $action->process($context);
+	}
 
-		if (! ($result instanceof ViewTemplateInterface)) {
-			$result = $view;
-		}
-		
-		return $result;
+	/**
+	 * @return null
+	 */
+	protected function clear()
+	{	
+		$this->strategy = null;
+		$this->route = null;
+		$this->actionNamespace = null;
+		$this->uri = null;
+		$this->input = null;
+		$this->aclCodes = null;
+		$this->view = null;
 	}
 
 	/**
@@ -457,6 +406,56 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	protected function getContextBuilder()
 	{
 		return $this->builder;
+	}
+
+	/**
+	 * @return	string
+	 */
+	protected function getStrategy()
+	{
+		return $this->strategy;
+	}
+
+	/**
+	 * @return	string
+	 */
+	protected function getRoute()
+	{
+		return $this->route;
+	}
+
+	/**
+	 * @return	MvcActionDispatcher
+	 */	
+	protected function createView($namespace, $strategy)
+	{
+		$err = 'failed to dispatch: ';
+		if (null === $namespace) {
+			$err  .= "route must be set before view can be loaded";
+			throw new RunTimeException($err);
+		}
+		
+		if (null === $strategy) {
+			$err .= "strategy must be set before view can be loaded";
+			throw new RunTimeException($err);
+		}
+		$factory = $this->getActionFactory();	
+		switch ($strategy) {
+			case 'html':
+				$view   = $factory->createHtmlView($namespace);
+				break;
+			case 'ajax':
+				$view   = $factory->createAjaxView($namespace);
+				break;
+			case 'console':
+				$view   = $factory->createConsoleView($namespace);
+				break;
+			default:
+				$err .= "view strategy is not recognized must be on of the ";
+				$err .= "following -(html|ajax|console)";
+				throw new RunTimeException($err);
+		}
+		return $view;
 	}
 
 	/**
@@ -484,10 +483,10 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	}
 
 	/**
-	 * @return	ErrorStackInterface
+	 * @return	string
 	 */
-	protected function getErrorStack()
+	protected function getActionNamespace()
 	{
-		return $this->errorStack;
+		return $this->actionNamespace;
 	}
 }

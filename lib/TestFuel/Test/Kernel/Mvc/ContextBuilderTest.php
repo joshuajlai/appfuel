@@ -519,22 +519,6 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($params, $input->getAll());	
 	}
 
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testGetSetErrorStack()
-	{
-		$stack = $this->getMock('Appfuel\Error\ErrorStackInterface');
-		$this->assertNull($this->builder->getErrorStack());
-		
-		$this->assertSame(
-			$this->builder, 
-			$this->builder->setErrorStack($stack)
-		);
-		$this->assertSame($stack, $this->builder->getErrorStack());
-	}
-
 	public function setupSuperGlobals($method, $uri)
 	{
 		$_SERVER['REQUEST_METHOD'] = $method;
@@ -574,10 +558,6 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($_FILES, $input->getAll('files'));
 		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
 
-		$this->assertInstanceOf(
-			'Appfuel\Error\ErrorStack', 
-			$context->getErrorStack()
-		);
 	}
 
 	/**
@@ -609,10 +589,6 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($_FILES, $input->getAll('files'));
 		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
 
-		$this->assertInstanceOf(
-			'Appfuel\Error\ErrorStack', 
-			$context->getErrorStack()
-		);
 	}
 
 	/**
@@ -647,12 +623,6 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($_POST, $input->getAll('post'));
 		$this->assertEquals($_FILES, $input->getAll('files'));
 		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
-
-		$this->assertInstanceOf(
-			'Appfuel\Error\ErrorStack', 
-			$context->getErrorStack()
-		);
-
 	}
 
 	/**
@@ -666,10 +636,6 @@ class ContextBuilderTest extends ControllerTestCase
 								 ->build();
 
 		$this->assertSame($input, $context->getInput());
-		$this->assertInstanceOf(
-			'Appfuel\Error\ErrorStack', 
-			$context->getErrorStack()
-		);
 	}
 
 
@@ -702,10 +668,6 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($_FILES, $input->getAll('files'));
 		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
 
-		$this->assertInstanceOf(
-			'Appfuel\Error\ErrorStack', 
-			$context->getErrorStack()
-		);
 	}
 
 	/**
@@ -741,40 +703,5 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($params['cookie'],	$input->getAll('cookie'));
 		$this->assertEquals($params['argv'],	$input->getAll('argv'));
 
-		$this->assertInstanceOf(
-			'Appfuel\Error\ErrorStack', 
-			$context->getErrorStack()
-		);
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testBuildWithSetErrorStack()
-	{
-		$this->setupSuperGlobals('get', 'my-route/param1/value1');
-
-		$error = $this->getMock('Appfuel\Error\ErrorStackInterface');
-		$context = $this->builder->setErrorStack($error)
-								 ->build();
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContext',
-			$context
-		);
-		
-		$input = $context->getInput();
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppInput',
-			$input
-		);
-		$this->assertEquals('get', $input->getMethod());
-		$expected = array('param1' => 'value1');
-		$this->assertEquals($expected, $input->getAll('get'));
-		$this->assertEquals($_POST, $input->getAll('post'));
-		$this->assertEquals($_FILES, $input->getAll('files'));
-		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
-
-		$this->assertSame($error, $context->getErrorStack());
 	}
 }

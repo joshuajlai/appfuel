@@ -11,7 +11,6 @@
 namespace TestFuel\Test\Kernel\Mvc;
 
 use StdClass,
-	Appfuel\Error\ErrorStack,
 	Appfuel\Kernel\Mvc\AppInput,
 	Appfuel\Kernel\Mvc\AppContext,
 	TestFuel\TestCase\BaseTestCase,
@@ -71,69 +70,6 @@ class AppContextTest extends BaseTestCase
 	public function testGetInput()
 	{
 		$this->assertSame($this->input, $this->context->getInput());
-	}
-
-	/**
-	 * @depends	testInterface
-	 */
-	public function testErrorStack()
-	{
-		/* default error stack */
-		$stack = $this->context->getErrorStack();
-		$this->assertInstanceOf(
-			'Appfuel\Error\ErrorStack',
-			$stack
-		);
-		$this->assertFalse($this->context->isError());
-
-		$stack = $this->getMock('Appfuel\Error\ErrorStackInterface');
-		$context = new AppContext($this->input, $stack);
-		$this->assertSame($stack, $context->getErrorStack());
-
-		/* the setter is public so you can swap it out */
-		$this->assertSame(
-			$this->context,
-			$this->context->setErrorStack($stack)
-		);
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testIsErrorAddErrorAndGetErrorString()
-	{
-		/* default error stack */
-		$stack = $this->context->getErrorStack();
-		$this->assertInstanceOf(
-			'Appfuel\Error\ErrorStack',
-			$stack
-		);
-		$this->assertFalse($this->context->isError());
-
-
-		$msg1  = 'my message';
-		$code1 = 500;
-		$this->assertSame(
-			$this->context,
-			$this->context->addError($msg1, $code1)
-		);
-		$this->assertTrue($this->context->isError());
-		
-		$result   = $this->context->getErrorString();
-		$expected = 'Error: my message';
-		$this->assertEquals($expected, $result);
-
-		$msg2  = 'my other message';
-		$this->assertSame(
-			$this->context,
-			$this->context->addError($msg2)
-		);
-		$this->assertTrue($this->context->isError());
-	
-		$result   = $this->context->getErrorString();
-		$expected = 'Error: my message my other message';
-		$this->assertEquals($expected, $result);
 	}
 
 	/**

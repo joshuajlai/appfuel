@@ -73,38 +73,42 @@ class MvcFront implements MvcFrontInterface
 	public function run($strategy)
 	{
 		$dipatcher = $this->getDispatcher();
-		$context   = $dispatcher->setStrategy($strategy)
-							    ->useServerRequestUri()
-							    ->defineInputFromSuperGlobals()
-							    ->buildContext();
+		
+		/*
+		 * use the dispatch fluent interface to build the context for 
+		 * dispatching
+		 */
+		$context = $dispatcher->setStrategy($strategy)
+							  ->useServerRequestUri()
+							  ->defineInputFromSuperGlobals()
+							  ->buildContext();
 
+		/* 
+		 * intercepting filters allow business logic access to the context
+		 * before the mvc actions proccessing occurs
+		 */
 		$filters = KernelRegistry::getParam('intercepting-filters', array());
 		$filterManager = $this->getFilterManager();
 		$filterManager->loadFilters($filters);
 		$filterManager->applyPreFilters($context);
 
-		$route  = $dispatcher->getRoute();
-		$view   = $dipatcher->runDispatch($route, $strategy, $context);
 		/* 
-		 * the context does not have the view added to allow post filters
-		 * access to the view that was manipulated by the mvc action controller
+		 * the mvc action can completely replace the context by returning a new
+		 * one otherwise the reference to the context that was passed in 
+		 * is used for the post intercepting filters
 		 */
-		$context->add('app-view', $view);
+		$result = $dipatcher->runDispatch($context);
+		if ($result instanceof ContextInterface) {
+			$context = $result;
+		}
+
+		/*
+		 * post intercepting filters allow business logic access to the context
+		 * after the mvc action has processed it
+		 */
 		$filterManager->applyPostFilters($context);
 		$view = $context->get('app-view', $view);
 		
-		/*
-		 * The view returned by the mvc action controller can be any string
-		 * or object that implements a __toString interface
-		 */
-		if (is_string($view) || is_callable(array($view, '__toString'))) {
-			$content =(string) $view;
-		}
-		else {
-			$content = '';
-		}
-		$exitCode = $context->getExitCode();
-
 		/*
 		 * The only strategy that does not use http is the console. Mvc actions
 		 * can add http headers in an array with the key 'http-headers'. These
@@ -113,17 +117,17 @@ class MvcFront implements MvcFrontInterface
 		$output = $this->createOutputEngine($strategy);
 		if ('app-console' !== $strategy) {
 			$headers = $context->get('http-headers', array());
-			$httpResponse = new HttpResponse($context, $headers);
+			$httpResponse = new HttpResponse($view, $headers);
 			if (! empty($headers) && is_array($headers)) {
 				$httpReponse->loadHeaders($headers);	 
 			}
 			$output->renderResponse($httpResponse);
 		}
 		else {
-			$output->render($content);
+			$output->render($view);
 		}
 
-		return $exitCode;
+		return $context->getExitCode();
 	}
 
 	/**

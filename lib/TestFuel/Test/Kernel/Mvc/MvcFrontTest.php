@@ -34,7 +34,13 @@ class MvcFrontTest extends BaseTestCase
 	 * Keep a backup copy of the route map
 	 * @var array
 	 */
-	protected $backup = null;
+	protected $bkRoutes = null;
+
+	/**
+	 * Keep a backup copy of the kernel registry settings
+	 * @var array
+	 */
+	protected $bkParams = null;
 
 	/**
 	 * Keep a backup copy of $_GET, $_POST, $_FILES, $_COOKIE, 
@@ -48,9 +54,11 @@ class MvcFrontTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$this->backup = KernelRegistry::getRouteMap();
+		$this->bkRoutes = KernelRegistry::getRouteMap();
+		$this->bkParams = KernelRegistry::getParams();
 		$this->front = new MvcFront();
 		KernelRegistry::clearRouteMap();
+		KernelRegistry::clearParams();
 
 		$cli = null;
 		if (isset($_SERVER['argv'])) {
@@ -70,7 +78,8 @@ class MvcFrontTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		KernelRegistry::setRouteMap($this->backup);
+		KernelRegistry::setRouteMap($this->bkRoutes);
+		KernelRegistry::setParams($this->bkParams);
 		$this->front = null;
 
 		$_GET    = $this->bkSuperGlobals['get'];

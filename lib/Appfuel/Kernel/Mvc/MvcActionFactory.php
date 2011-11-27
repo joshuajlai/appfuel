@@ -113,13 +113,13 @@ class MvcActionFactory implements MvcActionFactoryInterface
         }
 
         switch($type) {
-            case 'app-htmlpage':
+            case 'html':
                 $view = $this->createHtmlView($namespace);
                 break;
-            case 'app-ajax':
+            case 'ajax':
                 $view = $this->createAjaxView($namespace);
                 break;
-            case 'app-console':
+            case 'console':
                 $view = $this->createConsoleView($namespace);
                 break;
             default:

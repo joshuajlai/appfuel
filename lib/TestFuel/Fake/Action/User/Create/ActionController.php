@@ -34,49 +34,20 @@ class ActionController extends MvcAction
      * @param   ConsoleViewTemplateInterface  $view
      * @return  mixed   null | AppContextInterface 
      */
-    public function processConsole(AppContextInterface $context,
-                                    ViewTemplateInterface $view)
+    public function process(AppContextInterface $context)
 	{
-		$this->commonAssignments($view);
-		$view->assign('console-foo', 'bar');
-		return $view;
-	}
-
-    /**
-     * @param   AppContextInterface           $context
-     * @param   ConsoleViewTemplateInterface  $view
-     * @return  mixed   null | AppContextInterface 
-     */
-    public function processAjax(AppContextInterface $context,
-                                AjaxTemplateInterface $view)
-	{
-		$this->commonAssignments($view);
-		$view->assign('ajax-foo', 'bar');
-		return $view;
-	}
-
-    /**
-     * @param   AppContextInterface           $context
-     * @param   ConsoleViewTemplateInterface  $view
-     * @return  mixed   null | AppContextInterface 
-     */
-    public function processHtml(AppContextInterface $context,
-                                ViewTemplateInterface $view)
-	{
-		$this->commonAssignments($view);
-		$view->assign('html-foo', 'bar');
-		return $view;
-	}
-
-	/**
-	 * Shows how you might resuse content assignments across all process types
-	 *
-	 * @param	ViewTemplateInterface $view
-	 * @return	null
-	 */
-	protected function commonAssignments(ViewTemplateInterface $view)
-	{
+		$strategy = $context->get('app-strategy', 'app-htmlpage');
+		$view = $context->getView();
 		$view->assign('common-a', 'value-a')
 			 ->assign('common-b', 'value-b');
+			 
+
+		switch($strategy) {
+			case 'app-console':  $label = 'console-for'; break;
+			case 'app-ajax':     $label = 'ajax-foo';break;
+			case 'app-htmlpage': $label = 'html-foo';break;
+		}
+
+		$view->assign($label, 'bar');
 	}
 }

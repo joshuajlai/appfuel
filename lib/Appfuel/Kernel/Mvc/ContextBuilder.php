@@ -11,8 +11,7 @@
 namespace Appfuel\Kernel\Mvc;
 
 use RunTimeException,
-	InvalidArgumentException,
-	Appfuel\Error\ErrorStackInterface;
+	InvalidArgumentException;
 
 /**
  * The context build holds all the logic for create uri strings, requests,
@@ -34,13 +33,6 @@ class ContextBuilder implements ContextBuilderInterface
      * @var string
      */
     protected $input = null;
-
-	/**
-	 * App context can set an error stack to override the default one
-	 * that would be built
-	 * @var ErrorStackInterface
-	 */
-	protected $error = null;
 
 	/**
 	 * @return	RequestUriInterface
@@ -202,24 +194,6 @@ class ContextBuilder implements ContextBuilderInterface
 	}
 
 	/**
-	 * @return	ErrorStackInterface
-	 */
-	public function getErrorStack()
-	{
-		return $this->error;
-	}
-
-	/**
-	 * @param	ErrorStackInterface $stack
-	 * @return	ContextBuilder
-	 */
-	public function setErrorStack(ErrorStackInterface $stack)
-	{
-		$this->error = $stack;
-		return $this;
-	}
-
-	/**
 	 * @return	AppContext
 	 */
 	public function build()
@@ -235,6 +209,6 @@ class ContextBuilder implements ContextBuilderInterface
 						  ->getInput();
 		}
 
-		return new AppContext($input, $this->getErrorStack());
+		return new AppContext($input);
 	}
 }

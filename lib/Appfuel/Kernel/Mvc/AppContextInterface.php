@@ -10,17 +10,14 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\Error\ErrorStackInterface,
+use Appfuel\View\ViewTemplateInterface,
 	Appfuel\DataStructure\DictionaryInterface;
 
 /**
  * This interface is a dictionary used to hold any application specific info
  * that might be assigned before the action controller processing has occured.
  * It is also required to hold the AppInputInterface to the action controllers
- * can retrieve any user input. It is also required to expose functionality of
- * an ErrorStackInterface which allows the action controllers to add one or
- * more error messages and the front controller can process and react to 
- * them according.
+ * can retrieve any user input.
  */
 interface AppContextInterface extends DictionaryInterface
 {
@@ -48,31 +45,24 @@ interface AppContextInterface extends DictionaryInterface
 	public function getInput();
 
 	/**
-	 * @return	ErrorStackInterface
+	 * @return	ViewTemplateInterface
 	 */
-	public function getErrorStack();
+	public function getView();
+	
+	/**
+	 * @param	ViewTemplateInterface
+	 * @return	AppContextInterface
+	 */
+	public function setView(ViewTemplateInterface $view);
 
 	/**
-	 * @param	ErrorStackInterface		$error
-	 * @return	AppContext
+	 * @return	int
 	 */
-	public function setErrorStack(ErrorStackInterface $error);
-
+	public function getExitCode();
+	
 	/**
-	 * @return	bool
+	 * @param	int $code
+	 * @return	AppContextInterface
 	 */
-	public function isError();
-
-	/**
-	 * @param	string	$msg
-	 * @param	int		$code
-	 * @return	AppContext
-	 */
-	public function addError($msg, $code = 400);
-
-	/**
-	 * Use the error stack to produce a string of one or more error messages
-	 * @return	string
-	 */
-	public function getErrorString();
+	public function setExitCode($code);
 }

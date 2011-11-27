@@ -52,33 +52,9 @@ class MvcAction implements MvcActionInterface
 
 	/**
 	 * @param	AppContextInterface $context
-	 * @param	ViewTemplateInterface $view
 	 * @return	AppContextInterface
 	 */
-	public function processHtml(AppContextInterface $context,
-								ViewTemplateInterface $view)
-	{
-		return $context;
-	}
-
-	/**
-	 * @param	AppContextInterface $context
-	 * @param	JsonTemplateInterface $view
-	 * @return	AppContextInterface
-	 */
-	public function processAjax(AppContextInterface $context,
-								AjaxTemplateInterface $view)
-	{
-		return $context;
-	}
-
-	/**
-	 * @param	AppContextInterface $context
-	 * @param	ConsoleViewTemplateInterface $view
-	 * @return	AppContextInterface
-	 */
-	public function processConsole(AppContextInterface $context,
-								   ViewTemplateInterface $view)
+	public function process(AppContextInterface $context)
 	{
 		return $context;
 	}

@@ -11,8 +11,6 @@
 namespace Appfuel\Kernel\Mvc;
 
 use InvalidArgumentException,
-	Appfuel\Error\ErrorStack,
-	Appfuel\Error\ErrorStackInterface,
 	Appfuel\View\ViewTemplateInterface,
 	Appfuel\DataStructure\Dictionary,
 	Appfuel\DomainStructure\DictionaryInterface;
@@ -34,12 +32,6 @@ class AppContext extends Dictionary implements AppContextInterface
 	protected $input = null;
 
 	/**
-	 * Hold all errors for the application controller
-	 * @var Appfuel\Error\ErrorStack
-	 */
-	protected $errorStack = null;
-
-	/**
 	 * List of acl roles for this context. The dispatcher asks the mvc action
 	 * if this context will be allowed for processing based on these codes.
 	 * @var	array
@@ -54,19 +46,36 @@ class AppContext extends Dictionary implements AppContextInterface
 	protected $view = null;
 
 	/**
+	 * The exit code is used by the framework to provide an exit status code
+	 * @var int
+	 */
+	protected $exitCode = 200;
+
+	/**
 	 * @param	AppInputInterface		$input
-	 * @param	ErrorStackInterface		$error
 	 * @return	AppContext
 	 */
-	public function __construct(AppInputInterface   $input,
-								ErrorStackInterface $error = null)
+	public function __construct(AppInputInterface $input)
 	{
 		$this->setInput($input);
+	}
 
-		if (null === $error) {
-			$error = new ErrorStack();
-		}
-		$this->setErrorStack($error);
+	/**
+	 * @return	ViewTemplateInterface
+	 */
+	public function getView()
+	{
+		return $this->view;
+	}
+
+	/**
+	 * @param	ViewTemplateInterface $template
+	 * @return	AppContext
+	 */
+	public function setView(ViewTemplateInterface $template)
+	{
+		$this->view = $template;
+		return $this;
 	}
 
 	/**
@@ -110,22 +119,25 @@ class AppContext extends Dictionary implements AppContextInterface
 
 		return true;
 	}
-	
-	/**
-	 * @return	ViewTemplateInterface
-	 */
-	public function getView()
-	{
-		return $this->view;
-	}
 
 	/**
-	 * @param	ViewTemplateInterface
+	 * @return	int
+	 */
+	public function getExitCode()
+	{
+		return $this->exitCode;
+	}
+	
+	/**
+	 * @param	int	$code
 	 * @return	AppContext
 	 */
-	public function setView(ViewTemplateInterface $template)
+	public function setExitCode($code)
 	{
-		$this->view = $template;
+		if (! is_int($code)) {
+			throw new InvalidArgumentException('exit code must be an integer');
+		}
+		$this->exitCode = $code;
 		return $this;
 	}
 
@@ -138,73 +150,11 @@ class AppContext extends Dictionary implements AppContextInterface
 	}
 
 	/**
-	 * @return	ErrorStackInterface
-	 */
-	public function getErrorStack()
-	{
-		return $this->errorStack;
-	}
-
-	/**
-	 * @param	ErrorStackInterface		$error
-	 * @return	AppContext
-	 */
-	public function setErrorStack(ErrorStackInterface $error)
-	{
-		$this->errorStack = $error;
-		return $this;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isError()
-	{
-		return $this->errorStack->count() > 0;
-	}
-
-	/**
-	 * @param	string	$msg
-	 * @param	int		$code
-	 * @return	AppContext
-	 */
-	public function addError($msg, $code = 400)
-	{
-		$this->getErrorStack()
-			 ->addError($msg, $code);
-		return $this;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getErrorString()
-	{
-		return (string)$this->getErrorStack();
-	}
-
-	/**
 	 * @param	AppInputInterface	$input
 	 * @return	null
 	 */
 	protected function setInput(AppInputInterface $input)
 	{
 		$this->input = $input;
-	}
-
-	/**
-	 * Allows the deleveloper to define what interface is valid for their
-	 * user implementation
-	 *
-	 * @param	mixed	$user
-	 * @return	bool
-	 */
-	protected function isValidUser($user)
-	{
-		if ($user instanceof UserInterface) {
-			return true;
-		}
-
-		return false;
 	}
 }

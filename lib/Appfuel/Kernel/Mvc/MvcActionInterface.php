@@ -10,9 +10,6 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\View\ViewTemplateInterface,
-	Appfuel\View\AjaxTemplateInterface;
-
 /**
  */
 interface MvcActionInterface
@@ -40,22 +37,5 @@ interface MvcActionInterface
 	 * @param	ViewTemplateInterface	$view
 	 * @return	mixed	null | AppContextInterface 
 	 */
-	public function processHtml(AppContextInterface $context,
-								ViewTemplateInterface $view);
-	
-	/**
-	 * @param	AppContextInterface		$context
-	 * @param	ViewTemplateInterface	$view
-	 * @return	mixed	null | AppContextInterface 
-	 */
-	public function processAjax(AppContextInterface $context,
-								AjaxTemplateInterface $view);
-
-	/**
-	 * @param	AppContextInterface			  $context
-	 * @param	ConsoleViewTemplateInterface  $view
-	 * @return	mixed	null | AppContextInterface 
-	 */
-	public function processConsole(AppContextInterface $context,
-								   ViewTemplateInterface $view);
+	public function process(AppContextInterface $context);
 }
