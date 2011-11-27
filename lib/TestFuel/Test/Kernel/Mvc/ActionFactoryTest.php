@@ -100,7 +100,7 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateMvcAction()
 	{
-		$namespace = 'TestFuel\Fake\Action\User\Create';
+		$namespace = 'TestFuel\Fake\Action\TestDispatch\ActionA';
 		$action    = $this->factory->createMvcAction($namespace);
 		$this->assertInstanceOf(
 			"$namespace\\ActionController",
@@ -115,7 +115,7 @@ class ActionFactoryTest extends BaseTestCase
 			$action
 		);
 
-		$namespace = 'TestFuel\Fake\Action\User\Delete';
+		$namespace = 'TestFuel\Fake\Action\TestDispatch\ActionB';
 		$action    = $this->factory->createMvcAction($namespace);
 		$this->assertInstanceOf(
 			"$namespace\\ActionController",
@@ -151,7 +151,7 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateConsoleViewNamespace()
 	{
-		$ns   = 'TestFuel\Fake\Action\User\Create';
+		$ns   = 'TestFuel\Fake\Action\TestDispatch\ActionA';
 		$view = $this->factory->createConsoleView($ns);
 		$this->assertInstanceOf(
 			'Appfuel\Console\ConsoleViewTemplate',
@@ -168,7 +168,7 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateConsoleViewNamespaceDoesNotExist()
 	{
-		$ns   = 'TestFuel\Fake\Action\User\Create\DoesNotExist';
+		$ns   = 'TestFuel\Fake\Action\TestDispatch\DoesNotExist';
 		$view = $this->factory->createConsoleView($ns);
 		$this->assertInstanceOf(
 			'Appfuel\Console\ConsoleViewTemplate',
@@ -183,7 +183,7 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateConsoleViewInvalidInterface()
 	{
-		$ns   = 'TestFuel\Fake\Action\User\BadViews';
+		$ns   = 'TestFuel\Fake\Action\TestDispatch\BadViews';
 		$view = $this->factory->createConsoleView($ns);
 	}
 
@@ -206,7 +206,7 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateAjaxViewNamespace()
 	{
-		$ns   = 'TestFuel\Fake\Action\User\Create';
+		$ns   = 'TestFuel\Fake\Action\TestDispatch\ActionA';
 		$view = $this->factory->createAjaxView($ns);
 		$this->assertInstanceOf("$ns\AjaxView",$view);
 	}
@@ -220,7 +220,7 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateAjaxViewNamespaceDoesNotExist()
 	{
-		$ns   = 'TestFuel\Fake\Action\User\Create\DoesNotExist';
+		$ns   = 'TestFuel\Fake\Action\TestDispatch\DoesNotExist';
 		$view = $this->factory->createAjaxView($ns);
 		$this->assertInstanceOf(
 			'Appfuel\View\AjaxTemplate',
@@ -235,7 +235,7 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateAjaxViewInvalidInterface()
 	{
-		$ns   = 'TestFuel\Fake\Action\User\BadViews';
+		$ns   = 'TestFuel\Fake\Action\TestDispatch\BadViews';
 		$view = $this->factory->createAjaxView($ns);
 	}
 
@@ -258,7 +258,7 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateHtmlViewNamespace()
 	{
-		$ns   = 'TestFuel\Fake\Action\User\Create';
+		$ns   = 'TestFuel\Fake\Action\TestDispatch\ActionA';
 		$view = $this->factory->createHtmlView($ns);
 		$this->assertInstanceOf("$ns\HtmlView",$view);
 		$this->assertInstanceOf(
@@ -273,7 +273,7 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateHtmlViewNamespaceDoesNotExist()
 	{
-		$ns   = 'TestFuel\Fake\Action\User\Create\DoesNotExist';
+		$ns   = 'TestFuel\Fake\Action\TestDispatch\DoesNotExist';
 		$view = $this->factory->createHtmlView($ns);
 		$this->assertInstanceOf(
 			'Appfuel\View\ViewTemplate',
@@ -288,7 +288,7 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateHtmlViewNamespaceInvalidInterface()
 	{
-		$ns   = 'TestFuel\Fake\Action\User\BadViews';
+		$ns   = 'TestFuel\Fake\Action\TestDispatch\BadViews';
 		$view = $this->factory->createHtmlView($ns);
 	}	
 }

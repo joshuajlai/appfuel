@@ -51,6 +51,11 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$this->dispatcher = new MvcActionDispatcher();
 		KernelRegistry::clearRouteMap();
 
+		$routeMap = array(
+			'my-key' => 'TestFuel\Fake\Action\TestDispatch\ActionA'
+		);
+		KernelRegistry::setRouteMap($routeMap);
+	
 		$cli = null;
 		if (isset($_SERVER['argv'])) {
 			$cli = $_SERVER['argv'];
@@ -103,9 +108,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 */
 	public function testBuildContext_A()
 	{
-		$routeMap = array('my-key' => 'TestFuel\Fake\Action\User\Create');
-		KernelRegistry::setRouteMap($routeMap);
-	
+
 		$codes = array('my-code', 'your-code');
 		$context = $this->dispatcher->setStrategy('console')
 									->setRoute('my-key')
@@ -130,7 +133,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$this->assertEquals('my-key', $route);
 		$this->assertEquals('console', $strategy);
 		$this->assertInstanceOf(
-			'TestFuel\Fake\Action\User\Create\ConsoleView',
+			'TestFuel\Fake\Action\TestDispatch\ActionA\ConsoleView',
 			$view
 		);
 		$this->assertEquals($expected, $input->getAll());

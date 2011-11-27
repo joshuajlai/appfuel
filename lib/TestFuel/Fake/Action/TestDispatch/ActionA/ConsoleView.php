@@ -8,13 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Fake\Action\User\BadViews;
+namespace TestFuel\Fake\Action\TestDispatch\ActionA;
+
+use Appfuel\Console\ConsoleViewTemplate;
 
 /**
- * A console view must follow the ConsoleViewTemplateInterface but does not.
- * This is done to trigger the exception for
- * Appfuel\Kernel\Mvc\ActionFactory::createConsoleView
+ * Template used to generate generic html documents
  */
-class ConsoleView
+class ConsoleView extends ConsoleViewTemplate 
 {
 }

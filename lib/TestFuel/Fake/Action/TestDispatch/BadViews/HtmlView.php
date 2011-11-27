@@ -6,15 +6,14 @@
  * @package     Appfuel
  * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Fake\Action\User\Delete;
-
-use Appfuel\Kernel\Mvc\MvcAction;
+namespace TestFuel\Fake\Action\TestDispatch\BadViews;
 
 /**
- * This fake action controller is used test the MvcAction and ActionFactory
+ * Used to test the action factory's ability to create custom html views
+ * that adhere to the view template interface
  */
-class ActionController extends MvcAction
+class HtmlView
 {
 }
