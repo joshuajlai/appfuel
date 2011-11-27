@@ -52,7 +52,8 @@ class MvcActionDispatcherTest extends BaseTestCase
 		KernelRegistry::clearRouteMap();
 
 		$routeMap = array(
-			'my-key' => 'TestFuel\Fake\Action\TestDispatch\ActionA'
+			'my-key'   => 'TestFuel\Fake\Action\TestDispatch\ActionA',
+			'my-route' => 'TestFuel\Fake\Action\TestDispatch\ActionA'
 		);
 		KernelRegistry::setRouteMap($routeMap);
 	
@@ -146,22 +147,22 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estBuildContext_B()
+	public function testBuildContext_B()
 	{
 		$route = 'my-key';
 		$uri   = new RequestUri("$route/param1/value1/param2/value2");
 		$codes = array('my-code', 'your-code');
-		$context = $this->dispatcher->setUri($uri)
+		$context = $this->dispatcher->setStrategy('html')
+									->setUri($uri)
 									->useUriForInputSource()
 									->addAclCodes($codes)
 									->buildContext();
 
 		$input = $context->getInput();
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertEquals($codes, $context->getAclRoleCodes());
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
-		$this->assertEquals('my-key', $this->dispatcher->getRoute());
-
+		$input    = $context->getInput();
+		$view     = $context->getView();
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$expected = array(
 			'get'    => array('param1'=>'value1','param2'=>'value2'), 
 			'post'   => array(),
@@ -169,6 +170,16 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => array(),
 			'argv'   => array()
 		);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertEquals($codes, $context->getAclRoleCodes());
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('my-key', $route);
+		$this->assertEquals('html', $strategy);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\HtmlView',
+			$view
+		);
+
 		$this->assertEquals($expected, $input->getAll());
 	}
 
@@ -181,19 +192,18 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estBuildContext_C()
+	public function testBuildContext_C()
 	{
 		$uriString = 'param1/value1?routekey=my-key&param2=value2';
-		$context   = $this->dispatcher->setUri($uriString)
+		$context   = $this->dispatcher->setStrategy('ajax')
+									  ->setUri($uriString)
 									  ->useUriForInputSource()
 									  ->buildContext();
 	
 		$input = $context->getInput();
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertEquals(array(), $context->getAclRoleCodes());
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
-		$this->assertEquals('my-key', $this->dispatcher->getRoute());
-
+		$view     = $context->getView();
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$expected = array(
 			'get'    => array('param1'=>'value1','param2'=>'value2'), 
 			'post'   => array(),
@@ -201,6 +211,16 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => array(),
 			'argv'   => array()
 		);	
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertEquals(array(), $context->getAclRoleCodes());
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('my-key', $route);
+		$this->assertEquals('ajax', $strategy);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\AjaxView',
+			$view
+		);
+
 		$this->assertEquals($expected, $input->getAll());
 	}
 
@@ -211,19 +231,18 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estBuildContext_D()
+	public function testBuildContext_D()
 	{
 		$_SERVER['REQUEST_URI'] = 'my-key/param1/value1/param2/value2';
-		$context = $this->dispatcher->useServerRequestUri()
+		$context = $this->dispatcher->setStrategy('console')
+									->useServerRequestUri()
 									->useUriForInputSource()
 									->buildContext();
 	
 		$input = $context->getInput();
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertEquals(array(), $context->getAclRoleCodes());
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
-		$this->assertEquals('my-key', $this->dispatcher->getRoute());
-
+		$view     = $context->getView();
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$expected = array(
 			'get'    => array('param1'=>'value1','param2'=>'value2'), 
 			'post'   => array(),
@@ -231,6 +250,15 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => array(),
 			'argv'   => array()
 		);	
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertEquals(array(), $context->getAclRoleCodes());
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('my-key', $route);
+		$this->assertEquals('console', $strategy);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\ConsoleView',
+			$view
+		);
 		$this->assertEquals($expected, $input->getAll());
 	}
 
@@ -240,7 +268,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @dataProvider		provideInvalidStringsIncludeNull
 	 * @return				null
 	 */
-	public function estSetUri_Failure($uri)
+	public function testSetUri_Failure($uri)
 	{
 		$context = $this->dispatcher->setUri($uri);
 	}
@@ -251,7 +279,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @dataProvider		provideInvalidStringsIncludeNull
 	 * @return				null
 	 */
-	public function estSetRoute_Failure($route)
+	public function testSetRoute_Failure($route)
 	{
 		$context = $this->dispatcher->setRoute($route);
 	}
@@ -264,7 +292,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estBuildContext_E()
+	public function testBuildContext_E()
 	{
 		$uriString = 'my-key/param5/value5/param6/value6';
 		$inputParams = array(
@@ -275,23 +303,32 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'argv'   => array('param4' => 'value4'),
 		);
 
-		$context = $this->dispatcher->setUri($uriString)
+		$context = $this->dispatcher->setStrategy('ajax')
+									->setUri($uriString)
 									->defineInput('post', $inputParams, true)
 									->buildContext();
 		
 		$input = $context->getInput();
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertEquals(array(), $context->getAclRoleCodes());
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
-		$this->assertEquals('post', $input->getMethod());
-		$this->assertEquals('my-key', $this->dispatcher->getRoute());
-
+		$view     = $context->getView();
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$expected = $inputParams;
 		$expected['get'] = array(
 			'paramX' => 'valueX', 
 			'param5' => 'value5',
 			'param6' => 'value6'
 		);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertEquals(array(), $context->getAclRoleCodes());
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('post', $input->getMethod());
+		$this->assertEquals('my-key', $route);
+		$this->assertEquals('ajax', $strategy);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\AjaxView',
+			$view
+		);
+
 		$this->assertEquals($expected, $input->getAll());
 	}
 
@@ -304,7 +341,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estBuildContext_F()
+	public function testBuildContext_F()
 	{
 		$inputParams = array(
 			'get'    => array('paramX' => 'valueX'),
@@ -314,17 +351,25 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'argv'   => array('param4' => 'value4'),
 		);
 
-		$context = $this->dispatcher->setRoute('my-route')
+		$context = $this->dispatcher->setStrategy('console')
+									->setRoute('my-route')
 									->defineInput('cli', $inputParams, false)
 									->buildContext();
 		
 		$input = $context->getInput();
+		$view     = $context->getView();
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
 		$this->assertEquals(array(), $context->getAclRoleCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('cli', $input->getMethod());
-		$this->assertEquals('my-route', $this->dispatcher->getRoute());
-
+		$this->assertEquals('my-route', $route);
+		$this->assertEquals('console', $strategy);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\ConsoleView',
+			$view
+		);
 		$this->assertEquals($inputParams, $input->getAll());
 	}
 
@@ -337,7 +382,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends				testInterface
 	 * @return				null
 	 */
-	public function estDefineInput_Failure()
+	public function testDefineInput_Failure()
 	{
 		$inputParams = array(
 			'get'    => array('paramX' => 'valueX'),
@@ -361,7 +406,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estDefineInputFromSuperGlobalsNoUriSet()
+	public function testDefineInputFromSuperGlobalsNoUriSet()
 	{
 		$_POST   = array('param2' => 'value2','param3' => 'value3');
 		$_FILES  = array('param4' => 'value4');
@@ -370,15 +415,14 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$_SERVER['REQUEST_METHOD'] = 'post';
 		$_SERVER['REQUEST_URI'] = 'my-route/param1/value1';
 
-		$context = $this->dispatcher->defineInputFromSuperGlobals()
+		$context = $this->dispatcher->setStrategy('ajax')
+									->defineInputFromSuperGlobals()
 									->buildContext();
 
 		$input = $context->getInput();
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
-		$this->assertEquals('post', $input->getMethod());
-		$this->assertEquals('my-route', $this->dispatcher->getRoute());
-
+		$view     = $context->getView();
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$expected = array(
 			'get'    => array('param1' => 'value1'),
 			'post'   => $_POST,
@@ -386,6 +430,16 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => $_COOKIE,
 			'argv'   => $_SERVER['argv']
 		);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('post', $input->getMethod());
+		$this->assertEquals('my-route', $route);
+		$this->assertEquals('ajax', $strategy);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\AjaxView',
+			$view
+		);
+
 		$this->assertEquals($expected, $input->getAll());
 	}
 
@@ -398,7 +452,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estDefineInputFromSuperGlobalsNo_REQUEST_URI()
+	public function testDefineInputFromSuperGlobalsNo_REQUEST_URI()
 	{
 		$_POST   = array('param2' => 'value2','param3' => 'value3');
 		$_FILES  = array('param4' => 'value4');
@@ -422,7 +476,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estDefineInputFromSuperGlobalsBad_REQUEST_URI($uri)
+	public function testDefineInputFromSuperGlobalsBad_REQUEST_URI($uri)
 	{
 		$_POST   = array('param2' => 'value2','param3' => 'value3');
 		$_FILES  = array('param4' => 'value4');
@@ -444,7 +498,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estDefineInputFromSuperGlobalsUriSet()
+	public function testDefineInputFromSuperGlobalsUriSet()
 	{
 		$_POST   = array('param2' => 'value2','param3' => 'value3');
 		$_FILES  = array('param4' => 'value4');
@@ -453,16 +507,15 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$_SERVER['REQUEST_METHOD'] = 'post';
 		$uriString = 'my-route/param1/value1';
 
-		$context = $this->dispatcher->setUri($uriString)
+		$context = $this->dispatcher->setStrategy('html')
+									->setUri($uriString)
 									->defineInputFromSuperGlobals()
 									->buildContext();
 
 		$input = $context->getInput();
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
-		$this->assertEquals('post', $input->getMethod());
-		$this->assertEquals('my-route', $this->dispatcher->getRoute());
-
+		$view     = $context->getView();
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$expected = array(
 			'get'    => array('param1' => 'value1'),
 			'post'   => $_POST,
@@ -470,6 +523,16 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => $_COOKIE,
 			'argv'   => $_SERVER['argv']
 		);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('post', $input->getMethod());
+		$this->assertEquals('my-route', $route);
+		$this->assertEquals('html', $strategy);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\HtmlView',
+			$view
+		);
+
 		$this->assertEquals($expected, $input->getAll());
 	}
 
@@ -480,7 +543,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estDefineInputFromSuperGlobalsNoUriWanted()
+	public function testDefineInputFromSuperGlobalsNoUriWanted()
 	{
 		$_GET    = array('param1' => 'value1');
 		$_POST   = array('param2' => 'value2','param3' => 'value3');
@@ -489,20 +552,30 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$_SERVER['argv'] = array('param6' => 'value6');
 		$_SERVER['REQUEST_METHOD'] = 'get';
 
-		$context = $this->dispatcher->defineInputFromSuperGlobals(false)
+		$context = $this->dispatcher->setStrategy('html')
+									->setRoute('my-route')
+									->defineInputFromSuperGlobals(false)
 									->buildContext();
 
 		$input = $context->getInput();
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
-		$this->assertEquals('get', $input->getMethod());
-
+		$view     = $context->getView();
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$expected = array(
 			'get'    => $_GET,
 			'post'   => $_POST,
 			'files'  => $_FILES,
 			'cookie' => $_COOKIE,
 			'argv'   => $_SERVER['argv']
+		);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('get', $input->getMethod());
+		$this->assertEquals('my-route', $route);
+		$this->assertEquals('html', $strategy);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\HtmlView',
+			$view
 		);
 		$this->assertEquals($expected, $input->getAll());
 	}
@@ -515,7 +588,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function estUseUriForInput()
+	public function testUseUriForInput()
 	{
 		$uriString = 'my-route/param1/value1';
 		$_GET    = array();
@@ -525,16 +598,15 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$_SERVER['argv'] = array();
 		$_SERVER['REQUEST_METHOD'] = '';
 
-		$context = $this->dispatcher->setUri($uriString)
+		$context = $this->dispatcher->setStrategy('html')
+									->setUri($uriString)
 									->useUriForInputSource()
 									->buildContext();
 
 		$input = $context->getInput();
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
-		$this->assertEquals('get', $input->getMethod());
-		$this->assertEquals('my-route', $this->dispatcher->getRoute());
-
+		$view     = $context->getView();
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$expected = array(
 			'get'    => array('param1' => 'value1'),
 			'post'   => array(),
@@ -542,6 +614,16 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => array(),
 			'argv'   => array()
 		);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('get', $input->getMethod());
+		$this->assertEquals('my-route', $route);
+		$this->assertEquals('html', $strategy);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\HtmlView',
+			$view
+		);
+
 		$this->assertEquals($expected, $input->getAll());
 	}
 
@@ -552,7 +634,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 * @depends				testInterface
 	 * @return				null
 	 */
-	public function estUseUriForInputWhenUriIsNotSet()
+	public function testUseUriForInputWhenUriIsNotSet()
 	{
 		$context = $this->dispatcher->useUriForInputSource()
 									->buildContext();
@@ -566,16 +648,17 @@ class MvcActionDispatcherTest extends BaseTestCase
 	 *
 	 * @depends	testInterface
 	 */
-	public function estNoInputRequired()
+	public function testNoInputRequired()
 	{
-		$context = $this->dispatcher->noInputRequired()
+		$context = $this->dispatcher->setStrategy('html')
+									->setRoute('my-route')
+									->noInputRequired()
 									->buildContext();
 	
 		$input = $context->getInput();
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
-		$this->assertEquals('get', $input->getMethod());
-
+		$view     = $context->getView();
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$expected = array(
 			'get'    => array(),
 			'post'   => array(),
@@ -583,77 +666,104 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => array(),
 			'argv'   => array()
 		);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('get', $input->getMethod());
+		$this->assertEquals('my-route', $route);
+		$this->assertEquals('html', $strategy);
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\HtmlView',
+			$view
+		);
+
 		$this->assertEquals($expected, $input->getAll());
 	}
 
 	/**
 	 * @depends	testInterface
 	 */
-	public function estDispatchAjax()
+	public function testDispatchAjax()
 	{
-		$routeMap = array('my-key' => 'TestFuel\Fake\Action\User\Create');
-		KernelRegistry::setRouteMap($routeMap);
+		$context = $this->dispatcher->setRoute('my-key')
+									->setStrategy('ajax')
+									->noInputRequired()
+									->dispatch();
 
-		
-		$view = $this->dispatcher->setRoute('my-key')
-								 ->setStrategy('app-ajax')
-								 ->noInputRequired()
-								 ->dispatch();
-
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$this->assertInstanceOf(
-			'TestFuel\Fake\Action\User\Create\AjaxView',
+			'Appfuel\Kernel\Mvc\AppContextInterface',
+			$context
+		);
+
+		$view = $context->getView();
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\AjaxView',
 			$view
 		);
 		$this->assertEquals('bar',     $view->getAssigned('ajax-foo'));
 		$this->assertEquals('value-a', $view->getAssigned('common-a'));
 		$this->assertEquals('value-b', $view->getAssigned('common-b'));
-		$this->assertEquals('my-key', $this->dispatcher->getRoute());
+		$this->assertEquals('my-key', $route);
+		$this->assertEquals('ajax', $strategy);
 	}
 
 	/**
 	 * @depends	testInterface
 	 */
-	public function estDispatchHtml()
+	public function testDispatchHtml()
 	{
-		$routeMap = array('my-key' => 'TestFuel\Fake\Action\User\Create');
-		KernelRegistry::setRouteMap($routeMap);
-	
-		$view = $this->dispatcher->setRoute('my-key')
-								 ->setStrategy('app-htmlpage')
+		$context = $this->dispatcher->setRoute('my-key')
+								 ->setStrategy('html')
 								 ->noInputRequired()
 								 ->dispatch();
 	
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$this->assertInstanceOf(
-			'TestFuel\Fake\Action\User\Create\HtmlView',
+			'Appfuel\Kernel\Mvc\AppContextInterface',
+			$context
+		);
+
+		$view = $context->getView();
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\HtmlView',
 			$view
 		);
 		$this->assertEquals('bar', $view->getAssigned('html-foo'));
 		$this->assertEquals('value-a', $view->getAssigned('common-a'));
 		$this->assertEquals('value-b', $view->getAssigned('common-b'));
-		$this->assertEquals('my-key', $this->dispatcher->getRoute());
+		$this->assertEquals('my-key', $route);
+		$this->assertEquals('html', $strategy);
 	}
 
 	/**
 	 * @depends	testInterface
 	 */
-	public function estDispatchConsole()
+	public function testDispatchConsole()
 	{
-		$routeMap = array('my-key' => 'TestFuel\Fake\Action\User\Create');
-		KernelRegistry::setRouteMap($routeMap);
-	
-		$view = $this->dispatcher->setRoute('my-key')
+		$context = $this->dispatcher->setRoute('my-key')
 								 ->setStrategy('console')
 								 ->noInputRequired()
 								 ->dispatch();
 
+		$route    = $context->get('app-route');
+		$strategy = $context->get('app-strategy');
 		$this->assertInstanceOf(
-			'TestFuel\Fake\Action\User\Create\ConsoleView',
+			'Appfuel\Kernel\Mvc\AppContextInterface',
+			$context
+		);
+
+		$view = $context->getView();
+		$this->assertInstanceOf(
+			'TestFuel\Fake\Action\TestDispatch\ActionA\ConsoleView',
 			$view
 		);
 
 		$this->assertEquals('bar',     $view->getAssigned('console-foo'));
 		$this->assertEquals('value-a', $view->getAssigned('common-a'));
 		$this->assertEquals('value-b', $view->getAssigned('common-b'));
-		$this->assertEquals('my-key',  $this->dispatcher->getRoute());
+		$this->assertEquals('my-key',  $route);
+		$this->assertEquals('console', $strategy);
 	}
 }

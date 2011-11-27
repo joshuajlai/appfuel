@@ -328,7 +328,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 			$context->addAclRoleCode($code);
 		}
 
-		$this->clear();
 		return $context;
 	}
 
@@ -339,7 +338,9 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 */
 	public function dispatch()
 	{
-		return $this->runDispatch($this->buildContext());
+		$context = $this->runDispatch($this->buildContext());
+		$this->clear();
+		return $context;
 	}
 
 	/**
@@ -375,7 +376,12 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 			throw new RouteDeniedException($route, '');		
 		}
 
-		return $action->process($context);
+		$result = $action->process($context);
+		if ($result instanceof AppContextInterface) {
+			$context = $result;
+		}
+
+		return $context;
 	}
 
 	/**

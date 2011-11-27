@@ -36,16 +36,16 @@ class ActionController extends MvcAction
      */
     public function process(AppContextInterface $context)
 	{
-		$strategy = $context->get('app-strategy', 'app-htmlpage');
+		$strategy = $context->get('app-strategy', 'html');
 		$view = $context->getView();
 		$view->assign('common-a', 'value-a')
 			 ->assign('common-b', 'value-b');
 			 
 
 		switch($strategy) {
-			case 'app-console':  $label = 'console-for'; break;
-			case 'app-ajax':     $label = 'ajax-foo';break;
-			case 'app-htmlpage': $label = 'html-foo';break;
+			case 'console':  $label = 'console-foo';break;
+			case 'ajax':     $label = 'ajax-foo';	break;
+			case 'html':	 $label = 'html-foo';	break;
 		}
 
 		$view->assign($label, 'bar');
