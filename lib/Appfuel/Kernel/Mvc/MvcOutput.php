@@ -37,7 +37,7 @@ class MvcOutput extends OutputEngine
 			throw new InvalidArgumentException($err);
 		}
 
-		if ('app-console' !== $strategy) {
+		if ('console' !== $strategy) {
 			$adapter = new HttpOutputAdapter();
 		}
 		else {

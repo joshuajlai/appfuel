@@ -186,6 +186,6 @@ class ViewTemplate implements ViewTemplateInterface, Countable
 	 */
 	public function __toString()
 	{
-		$result = $this->build();
+		return $this->build();
 	}
 }

@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Kernel\Mvc\Filter;
 
-use Appfuel\Kernel\Mvc\ContextInterface;
+use Appfuel\Kernel\Mvc\AppContextInterface;
 
 /**
  * Filter chain is designed to hold filters of a particular type pre or post.
@@ -30,7 +30,7 @@ interface FilterChainInterface
 	 * @param	ContextInterface
 	 * @return	mixed	Exception | ContextInterface
 	 */
-	public function apply(ContextInterface $context);
+	public function apply(AppContextInterface $context);
 
 	/**
 	 * @return	InterceptingFilterInterface | null when not set

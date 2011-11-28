@@ -338,9 +338,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 */
 	public function dispatch()
 	{
-		$context = $this->runDispatch($this->buildContext());
-		$this->clear();
-		return $context;
+		return $this->runDispatch($this->buildContext());
 	}
 
 	/**
@@ -380,7 +378,8 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		if ($result instanceof AppContextInterface) {
 			$context = $result;
 		}
-
+		
+		$this->clear();
 		return $context;
 	}
 

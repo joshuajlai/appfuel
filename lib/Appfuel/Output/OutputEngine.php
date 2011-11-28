@@ -58,7 +58,7 @@ class OutputEngine implements OutputEngineInterface
 	public function render($data)
 	{
 		return $this->getAdapter()
-					->output($data);
+					->render($data);
 	}
 
 	/**

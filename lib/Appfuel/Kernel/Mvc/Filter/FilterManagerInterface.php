@@ -11,7 +11,7 @@
 namespace Appfuel\Kernel\Mvc\Filter;
 
 
-use Appfuel\Kernel\Mvc\ContextInterface;
+use Appfuel\Kernel\Mvc\AppContextInterface;
 
 /**
  */
@@ -21,7 +21,7 @@ interface FilterManagerInterface
 	public function getPreChain();
 	public function loadFilters($filters);
 	public function addFilter(InterceptingFilterInterface $filter);
-	public function applyPreFilters(ContextInterface $context);
-	public function applyPostFilters(ContextInterface $context);
-    public function applyChain(FilterChainInterface $fc, ContextInterface $ct);
+	public function applyPreFilters(AppContextInterface $context);
+	public function applyPostFilters(AppContextInterface $context);
+    public function applyChain(FilterChainInterface $f, AppContextInterface $c);
 }

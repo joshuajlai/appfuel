@@ -12,12 +12,11 @@ namespace Appfuel\Kernel\Mvc;
 
 use RunTimeException,
 	InvalidArgumentException,
+	Appfuel\Http\HttpResponse,
 	Appfuel\Output\OutputEngineInterface,
 	Appfuel\View\ViewTemplateInterface,
 	Appfuel\Kernel\KernelOutput,
 	Appfuel\Kernel\KernelRegistry,
-	Appfuel\Log\Logger,
-	Appfuel\Log\LoggerInterface,
 	Appfuel\Kernel\Mvc\Filter\FilterManager,
 	Appfuel\Kernel\Mvc\Filter\FilterManagerInterface;
 
@@ -40,12 +39,6 @@ class MvcFront implements MvcFrontInterface
 	 * @var FilterManagerInterface
 	 */
 	protected $filterManager = null;
-
-	/**
-	 * Used to handler errors that occur from the dispatcher and mvc action
-	 * @var LoggerInterface
-	 */	
-	protected $logger = null;
 
 	/**
 	 * @param	MvcActionFactoryInterface	$factory
@@ -72,7 +65,7 @@ class MvcFront implements MvcFrontInterface
 	 */
 	public function run($strategy)
 	{
-		$dipatcher = $this->getDispatcher();
+		$dispatcher = $this->getDispatcher();
 		
 		/*
 		 * use the dispatch fluent interface to build the context for 
@@ -97,7 +90,7 @@ class MvcFront implements MvcFrontInterface
 		 * one otherwise the reference to the context that was passed in 
 		 * is used for the post intercepting filters
 		 */
-		$result = $dipatcher->runDispatch($context);
+		$result = $dispatcher->runDispatch($context);
 		if ($result instanceof ContextInterface) {
 			$context = $result;
 		}
@@ -107,7 +100,7 @@ class MvcFront implements MvcFrontInterface
 		 * after the mvc action has processed it
 		 */
 		$filterManager->applyPostFilters($context);
-		$view = $context->get('app-view', $view);
+		$view = $context->getView();
 		
 		/*
 		 * The only strategy that does not use http is the console. Mvc actions
@@ -115,7 +108,7 @@ class MvcFront implements MvcFrontInterface
 		 * headers are an array of strings
 		 */
 		$output = $this->createOutputEngine($strategy);
-		if ('app-console' !== $strategy) {
+		if ('console' !== $strategy) {
 			$headers = $context->get('http-headers', array());
 			$httpResponse = new HttpResponse($view, $headers);
 			if (! empty($headers) && is_array($headers)) {
@@ -141,7 +134,7 @@ class MvcFront implements MvcFrontInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		return new MvcOuput($strategy);
+		return new MvcOutput($strategy);
 	}
 
 	/**

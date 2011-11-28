@@ -11,7 +11,7 @@
 namespace Appfuel\Kernel\Mvc\Filter;
 
 use InvalidArgumentException,
-	Appfuel\Kernel\Mvc\ContextInterface;
+	Appfuel\Kernel\Mvc\AppContextInterface;
 
 /**
  * This intercepting filter pattern has been modified. The knowledge of the
@@ -71,10 +71,10 @@ abstract class AbstractFilter
 	}
 
 	/**
-	 * @param	ContextInterface	$context
-	 * @return	ContextInterface | Appfuel\Framework\Exception on failure
+	 * @param	AppContextInterface	$context
+	 * @return	AppContextInterface
 	 */ 
-	public function next(ContextInterface $context)
+	public function next(AppContextInterface $context)
 	{
 		if (! $this->isNext()) {
 			return $context;

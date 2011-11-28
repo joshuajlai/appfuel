@@ -12,9 +12,6 @@ namespace TestFuel\Test\Kernel\Mvc;
 
 use StdClass,
 	Appfuel\Kernel\Mvc\MvcFront,
-	Appfuel\Kernel\Mvc\AppInput,
-	Appfuel\Kernel\Mvc\RequestUri,
-	Appfuel\Kernel\Mvc\AppContext,
 	Appfuel\Kernel\KernelRegistry,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Console\ConsoleViewTemplate,
@@ -56,10 +53,22 @@ class MvcFrontTest extends BaseTestCase
 	{
 		$this->bkRoutes = KernelRegistry::getRouteMap();
 		$this->bkParams = KernelRegistry::getParams();
-		$this->front = new MvcFront();
+
+		$myOut = function($data) {
+			echo $data;
+		};
+		$output = $this->getMock('Appfuel\Output\OutputEngineInterface');
+		$output->expects($this->any())
+			   ->method('render')
+			   ->will($this->returnCallback($myOut));
+		$this->front = new MvcFront(null, $output);
 		KernelRegistry::clearRouteMap();
 		KernelRegistry::clearParams();
 
+        $routeMap = array(
+            'my-route' => 'TestFuel\Fake\Action\TestFront\ActionA'
+        );
+        KernelRegistry::setRouteMap($routeMap);
 		$cli = null;
 		if (isset($_SERVER['argv'])) {
 			$cli = $_SERVER['argv'];
@@ -101,5 +110,19 @@ class MvcFrontTest extends BaseTestCase
 			'Appfuel\Kernel\Mvc\MvcFrontInterface',
 			$this->front
 		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testRun()
+	{
+		$_SERVER['REQUEST_METHOD'] = 'cli';
+		$_SERVER['REQUEST_URI'] = 'my-route/param1/value1';
+		
+		$this->expectOutputString('this action has been executed');
+		$result = $this->front->run('console');
+		$this->assertEquals(200, $result);
 	}
 }

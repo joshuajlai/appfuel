@@ -209,6 +209,10 @@ class ContextBuilder implements ContextBuilderInterface
 						  ->getInput();
 		}
 
+		/* clear out build state */
+		$this->input = null;
+		$this->uri   = null;
+
 		return new AppContext($input);
 	}
 }
