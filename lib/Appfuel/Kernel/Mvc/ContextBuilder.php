@@ -147,7 +147,7 @@ class ContextBuilder implements ContextBuilderInterface
 				else {
 					$err .= 'Default get params come from the request uri.';
 					$err .= 'we can not build the request uri without a uri ';
-					$err .= 'string.Since no uri was given we looked for ';
+					$err .= 'string. Since no uri was given we looked for ';
 				    $err .= 'the uri string in $_SERVER[REQUEST_URI] and ';
 					$err .= 'found it was not set.Please manually set super ';
 					$err .= 'global or use builder to manually configure uri ';

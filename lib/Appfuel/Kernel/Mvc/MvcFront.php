@@ -13,10 +13,11 @@ namespace Appfuel\Kernel\Mvc;
 use RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Http\HttpResponse,
-	Appfuel\Output\OutputEngineInterface,
+	Appfuel\Http\HttpOutputInterface,
+	Appfuel\Console\ConsoleOutputInterface,
 	Appfuel\View\ViewTemplateInterface,
-	Appfuel\Kernel\KernelOutput,
 	Appfuel\Kernel\KernelRegistry,
+	Appfuel\Kernel\OutputInterface,
 	Appfuel\Kernel\Mvc\Filter\FilterManager,
 	Appfuel\Kernel\Mvc\Filter\FilterManagerInterface;
 
@@ -41,6 +42,22 @@ class MvcFront implements MvcFrontInterface
 	protected $filterManager = null;
 
 	/**
+	 * Application strategy console|ajax|html
+	 * @var string
+	 */
+	protected $strategy = null;
+
+	/**
+	 * @var	 mixed string | RequestUriInterface
+	 */
+	protected $uri = null;
+
+	/**
+	 * @var AppInputInterface
+	 */
+	protected $input = null;
+
+	/**
 	 * @param	MvcActionFactoryInterface	$factory
 	 * @return	AppContext
 	 */
@@ -59,22 +76,232 @@ class MvcFront implements MvcFrontInterface
 	}
 
 	/**
-	 *  
-	 * @param	string	$strategy	app-console|app-ajax|app-htmlpage
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function getDispatcher()
+	{
+		return $this->dispatcher;
+	}
+
+	/**
+	 * @param	string	$strategy	ajax|html|console
+	 * @return	MvcFront
+	 */
+	public function setStrategy($strategy)
+	{
+		$this->getDispatcher()
+			 ->setStrategy($strategy);
+		return $this;
+	}
+
+	/**
+	 * @param	string	$route
+	 * @return	MvcFront
+	 */
+	public function setRoute($route)
+	{
+		$this->getDispatcher()
+			 ->setRoute($route);
+
+		return $this;
+	}
+
+	/**
+	 * @param	array	$codes
+	 * @return	MvcFront
+	 */
+	public function addAclCodes(array $codes)
+	{
+		$this->getDispatcher()
+			 ->addAclCodes($codes);
+
+		return $this;
+	}
+
+	/**
+	 * @param	string	$code
+	 * @return	MvcFront
+	 */
+	public function addAclCode($code)
+	{
+		$this->getDispatcher()
+			 ->addAclCode($code);
+
+		return $this;
+	}
+
+	/**
+	 * @param	OutputInterface $output
+	 * @return	MvcFront
+	 */
+	public function setOutputEngine(OutputInterface $output)
+	{
+		$this->output = $output;
+		return $this;
+	}
+
+	/**
+	 * @return	OutputInterface
+	 */
+	public function getOutputEngine()
+	{
+		return $this->output;
+	}
+
+	/**
+	 * @param	mixed	string|RequestUriInterface
+	 * @return	MvcFront
+	 */
+	public function setUri($uri)
+	{
+		$this->getDispatcher()
+			 ->setUri($uri);
+
+		return $this;
+	}
+
+	/**
+	 * @return	MvcFront
+	 */
+	public function useServerRequestUri()
+	{
+		$this->getDispatcher()
+			 ->useServerRequestUri();
+
+		return $this;
+	}
+
+    /**
+     * @param   string  $method  get|post|cli
+     * @param   array   $params
+     * @param   bool    $useUri  use the uri for get parameters 
+     * @return  MvcFront
+     */
+	public function defineInput($method, array $params, $useUri = true)
+	{
+		$this->getDispatcher()
+			 ->defineInput($method, $params, $useUri);
+
+		return $this;
+	}
+
+	/**
+	 * @param	bool	$useUri 
+	 * @return	MvcFront
+	 */
+	public function defineInputFromSuperGlobals($useUri = true)
+	{
+		$this->getDispatcher()
+			 ->defineInputFromSuperGlobals($useUri);
+
+		return $this;
+	}
+
+	/**
+	 * @return	MvcFront
+	 */
+	public function useUriForInputSource()
+	{
+		$this->getDispatcher()
+			 ->useUriForInputSource();
+
+		return $this;
+	}
+
+	/**
+	 * @return	MvcFront
+	 */
+	public function noInputRequired()
+	{
+		$this->getDispatcher()
+			 ->useUriForInputSource();
+
+		return $this;
+	}
+
+	/**
+	 * @param	string	$route
+	 * @param	string|RequestUriInterface
 	 * @return	int
 	 */
-	public function run($strategy)
+	public function runConsoleUri($uri)
 	{
-		$dispatcher = $this->getDispatcher();
+		$useUri = true;
+		$dispatcher = $this->getDispatcher()
+						   ->clear()
+						   ->setStrategy('console')
+						   ->setUri($uri)
+						   ->defineInputFromSuperGlobals($useUri);
+
+		return $this->run($dispatcher);
 		
+	}
+
+	/**
+	 * This will dispatch a route with the console strategy and define its
+	 * inputs from the super global which means $_SERVER['argv']
+	 *
+	 * @param	string	$route
+	 * @return	int	
+	 */
+	public function runConsoleRoute($route)
+	{
+		$useUri = false;
+		$dispatcher = $this->getDispatcher()
+						   ->clear()
+						   ->setStrategy('console')
+						   ->setRoute($route)
+						   ->defineInputFromSuperGlobals($useUri);
+
+		return $this->run($dispatcher);
+	}
+
+	/**
+	 * Configure the dispatcher to use ajax strategy then run
+	 * 
+	 * @return	int
+	 */
+	public function runAjax()
+	{
+		$useUri = true;
+		$dispatcher = $this->getDispatcher()
+						   ->clear()
+						   ->setStrategy('ajax')
+						   ->useServerRequestUri()
+						   ->defineInputFromSuperGlobals($useUri);
+
+		return $this->run($dispatcher);
+	}
+
+	/**
+	 * Configure the dispatcher to use html strategy then run
+	 * 
+	 * @return	int
+	 */
+	public function runHtml()
+	{
+		$useUri = true;
+		$dispatcher = $this->getDispatcher()
+						   ->clear()
+						   ->setStrategy('html')
+						   ->useServerRequestUri()
+						   ->defineInputFromSuperGlobals($useUri);
+
+		return $this->run($dispatcher);
+	}
+
+	/**
+	 *  
+	 * @param	string	$strategy	console|ajax|htmlpage
+	 * @return	int
+	 */
+	public function run(MvcActionDispatcherInterface $dispatcher)
+	{
 		/*
 		 * use the dispatch fluent interface to build the context for 
 		 * dispatching
 		 */
-		$context = $dispatcher->setStrategy($strategy)
-							  ->useServerRequestUri()
-							  ->defineInputFromSuperGlobals()
-							  ->buildContext();
+		$context = $dispatcher->buildContext();
 
 		/* 
 		 * intercepting filters allow business logic access to the context
@@ -84,65 +311,100 @@ class MvcFront implements MvcFrontInterface
 		$filterManager = $this->getFilterManager();
 		$filterManager->loadFilters($filters);
 		$filterManager->applyPreFilters($context);
-
-		/* 
-		 * the mvc action can completely replace the context by returning a new
-		 * one otherwise the reference to the context that was passed in 
-		 * is used for the post intercepting filters
-		 */
-		$result = $dispatcher->runDispatch($context);
-		if ($result instanceof ContextInterface) {
-			$context = $result;
-		}
-
-		/*
-		 * post intercepting filters allow business logic access to the context
-		 * after the mvc action has processed it
-		 */
-		$filterManager->applyPostFilters($context);
-		$view = $context->getView();
 		
 		/*
-		 * The only strategy that does not use http is the console. Mvc actions
-		 * can add http headers in an array with the key 'http-headers'. These
-		 * headers are an array of strings
+		 * Only dispatch a context if its exit code is within the range of 
+		 * success. Note console and html, ajax and api all follow http status
+		 * codes.
 		 */
-		$output = $this->createOutputEngine($strategy);
-		if ('console' !== $strategy) {
-			$headers = $context->get('http-headers', array());
-			$httpResponse = new HttpResponse($view, $headers);
-			if (! empty($headers) && is_array($headers)) {
-				$httpReponse->loadHeaders($headers);	 
+		$exitCode = $context->getExitCode();
+		if (200 >= $code && 300 < $code) {
+
+			/* 
+			 * the mvc action can completely replace the context by returning 
+			 * a ne one otherwise the reference to the context that was passed 
+			 * in is used for the post intercepting filters
+			 */
+			$result = $dispatcher->runDispatch($context);
+			if ($result instanceof AppContextInterface) {
+				$context = $result;
 			}
-			$output->renderResponse($httpResponse);
-		}
-		else {
-			$output->render($view);
+
+			/*
+			 * post intercepting filters allow business logic access to the 
+			 * context
+			 * after the mvc action has processed it
+			 */
+			$filterManager->applyPostFilters($context);	
 		}
 
+		/* render context based on the output engine that was set, not the
+		 * strategy used
+		 */
+		$this->render($context);
+
+		/*
+		 * we get the exit code again because if might have changed with the
+		 * mvc action or post filters
+		 */
 		return $context->getExitCode();
 	}
 
 	/**
-	 * @param	string	$strategy
-	 * @return	MvcOutput
+	 * Decides which render interface to run based on the implementation of
+	 * the output engine
+	 *
+	 * @param	AppContextInterface $context
+	 * @return	null
 	 */
-	protected function createOutputEngine($strategy)
+	public function render(AppContextInterface $context)
 	{
-		if (empty($strategy) || ! is_string($strategy)) {
-			$err = 'output strategy must be a non empty string';
-			throw new InvalidArgumentException($err);
+		$output = $this->getOutputEngine();
+		if ($output instanceof HttpOutputInterface) {
+			$this->renderHttp($output, $context);
 		}
-
-		return new MvcOutput($strategy);
+		else if ($output instanceof ConsoleOutputInterface) {
+			$this->renderConsole($output, $context);
+		}
+		else {
+			$err  = 'render failed: output engine was not set or did not ';
+			$err .= 'implement Appfuel\Http\HttpOutputInterface or ';
+			$err .= 'Appfuel\Console\ConsoleOutputInterface';
+			throw new RunTimeException($err);
+		}
 	}
 
 	/**
-	 * @return	MvcActionDispatcherInterface
+	 * @param	HttpOutputInterface $output
+	 * @param	AppContextInterface $context
+	 * @return	null
 	 */
-	protected function getDispatcher()
+	public function renderHttp(HttpOutputInterface $output,
+							  AppContextInterface $context)
 	{
-		return $this->dispatcher;
+		$httpResponse = $context->get('http-response', null);
+		if (! ($httpResponse instanceof HttpResponseInterface)) {
+			$headers = $context->get('http-headers', array());
+			$view    = $context->getView();
+			$code	 = $context->getExitCode();
+			$httpResponse = new HttpResponse($context->getView(), $code);
+			if (! empty($headers) && is_array($headers)) {
+				$httpReponse->loadHeaders($headers);	 
+			}
+		}
+
+		$output->renderResponse($httpResponse);
+	}
+
+	/**
+	 * @param	ConsoleOutputInterface $output
+	 * @param	AppContextInterface $context
+	 * @return	null
+	 */
+	public function renderConsole(ConsoleOutputInterface $output,
+								  AppContextInterface $context)
+	{
+		$output->render($context->getView());
 	}
 
 	/**

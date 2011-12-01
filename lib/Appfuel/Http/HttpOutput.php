@@ -11,12 +11,12 @@
 namespace Appfuel\Http;
 
 
-use Appfuel\Output\OutputAdapterInterface;
+use Appfuel\Kernel\OutputInterface;
 
 /**
  * Handle specific details for outputting http data
  */
-class HttpOutputAdapter implements OutputAdapterInterface
+class HttpOutput implements OutputInterface
 {
     /**
      * @param   HttpResponseInterface|string   $data

@@ -8,14 +8,19 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Output;
+namespace Appfuel\Http;
+
+
+use Appfuel\Kernel\OutputInterface;
 
 /**
- * Strategy used to handle the details of rendering content. The two most 
- * popular strategies are http and console
+ * Handle specific details for outputting http data
  */
-interface OutputAdapterInterface
+class HttpOutputInterface extends OutputInterface
 {
-	public function render($data);
-	public function renderError($msg, $code);
+	/**
+	 * @param	HttpResponseInterface $response
+	 * @return	null
+	 */
+	public function renderResponse(HttpResponseInterface $response);
 }

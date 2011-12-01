@@ -66,6 +66,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
 		return $this;
 	}
 
+	
 	/**
 	 * @param	string	$namespace
 	 * @return	ActionControllerInterface
@@ -79,21 +80,6 @@ class MvcActionFactory implements MvcActionFactoryInterface
 		}
 		$class = "$namespace\\{$this->getActionClass()}";
 		return new $class();
-	}
-
-	/**
-	 * The correct view strategy is detemined by constant AF_APP_TYPE which
-	 * is decided by the framework during initialization
-	 * 
-	 * @return	string
-	 */
-	public function getViewStrategy()
-	{
-		if (! defined('AF_APP_TYPE')) {
-			throw new RunTimeException("constant AF_APP_TYPE not declared");
-		}
-		
-		return AF_APP_TYPE;
 	}
 
     /**

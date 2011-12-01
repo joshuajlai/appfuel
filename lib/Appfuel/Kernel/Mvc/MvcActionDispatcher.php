@@ -386,7 +386,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	/**
 	 * @return null
 	 */
-	protected function clear()
+	public function clear()
 	{	
 		$this->strategy = null;
 		$this->route = null;
@@ -395,6 +395,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		$this->input = null;
 		$this->aclCodes = null;
 		$this->view = null;
+		return $this;
 	}
 
 	/**

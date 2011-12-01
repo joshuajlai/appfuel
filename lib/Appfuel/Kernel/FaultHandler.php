@@ -14,7 +14,7 @@ use Exception,
 	RunTimeException,
 	Appfuel\Log\Logger,
 	Appfuel\Log\LoggerInterface,
-	Appfuel\Output\OutputEngineInterface;
+	Appfuel\Kernel\OutputInterface;
 
 /**
  * The fault handler uses the Appfuel Logger with a SysLogAdapter to 
@@ -32,30 +32,21 @@ class FaultHandler implements FaultHandlerInterface
 	 * Used to ouput the error message 
 	 * @var	 OutputEngineInterface
 	 */
-	protected $ouputEngine = null;
+	protected $output = null;
 
 	/**
 	 * @param	LoggerInterface			$logger
 	 * @param	OutputEngineInterface	$engine
 	 * @return	FaultHandler
 	 */
-	public function __construct(LoggerInterface       $logger = null,
-								OutputEngineInterface $engine = null,
-													  $strategy = null)
+	public function __construct(OutputInterface  $output,
+								LoggerInterface  $logger = null)
 	{
+		$this->output = $output;
 		if (null === $logger) {
 			$logger = new Logger();
 		}
 		$this->logger = $logger;
-
-		if (null === $engine) {
-			if (null === $strategy) {
-				$strategy = 'app-console';
-			}
-			$engine = new Mvc\MvcOutput($strategy);
-		}
-
-		$this->outputEngine = $engine;
 	}
 
 	/**
@@ -67,11 +58,11 @@ class FaultHandler implements FaultHandlerInterface
 	}
 
 	/**	
-	 * @return	OutputEngineInterface
+	 * @return	OutputInterface
 	 */
 	public function getOutputEngine()
 	{
-		return $this->outputEngine;
+		return $this->output;
 	}
 	
 	/**

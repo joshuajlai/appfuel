@@ -11,26 +11,26 @@
 namespace TestFuel\Test\Http;
 
 use StdClass,
+	Appfuel\Http\HttpOutput,
 	Appfuel\Http\HttpResponse,
-	Appfuel\Http\HttpOutputAdapter,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
  */
-class HttpOutputAdapterTest extends BaseTestCase
+class HttpOutputTest extends BaseTestCase
 {
 	/**
 	 * System under test
-	 * @var HttpOutputAdapter
+	 * @var HttpOutput
 	 */
-	protected $adapter = null;
+	protected $output = null;
 
 	/**
 	 * @return	null
 	 */
 	public function setUp()
 	{
-		$this->adapter = new HttpOutputAdapter();
+		$this->output = new HttpOutput();
 	}
 
 	/**
@@ -38,7 +38,7 @@ class HttpOutputAdapterTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		$this->adapter = null;
+		$this->output = null;
 	}
 
 	/**
@@ -47,8 +47,8 @@ class HttpOutputAdapterTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Output\OutputAdapterInterface',
-			$this->adapter
+			'Appfuel\Kernel\OutputInterface',
+			$this->output
 		);
 	}
 }

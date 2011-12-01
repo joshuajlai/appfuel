@@ -28,11 +28,26 @@ class FaultHandlerTest extends BaseTestCase
 	protected $handler = NULL;
 
 	/**
+	 * @var ConsoleOutput
+	 */
+	protected $output = null;
+
+	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->handler = new FaultHandler();
+		$this->output  = $this->getMock('Appfuel\Kernel\OutputInterface');
+
+		$func = function ($data) {
+			echo $data;
+		};
+
+		$this->output->expects($this->any())
+					 ->method('renderError')
+					 ->will($this->returnCallback($func));
+
+		$this->handler = new FaultHandler($this->output);
 	}
 
 	/**
@@ -72,7 +87,7 @@ class FaultHandlerTest extends BaseTestCase
 		);
 
 		$logger  = $this->getMock("Appfuel\Log\LoggerInterface");
-		$handler = new FaultHandler($logger);
+		$handler = new FaultHandler($this->output, $logger);
 		$this->assertSame($logger, $handler->getLogger());
 	}
 
@@ -82,7 +97,7 @@ class FaultHandlerTest extends BaseTestCase
 	 */
 	public function testOuputEngine()
 	{
-		$default = $this->handler->getOutputEngine();
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcOutput',$default);
+		$output = $this->handler->getOutputEngine();
+		$this->assertInstanceOf('Appfuel\Kernel\OutputInterface',$output);
 	}
 }
