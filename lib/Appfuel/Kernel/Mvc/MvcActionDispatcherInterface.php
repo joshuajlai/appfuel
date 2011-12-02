@@ -31,7 +31,25 @@ interface MvcActionDispatcherInterface
 	 * @return	MvcActionDispatcherInterface
 	 */
 	public function setStrategy($strategy);
+
+	/**
+	 * @param	string
+	 */
+	public function getStrategy();
 	
+	/**
+	 * Manually determine the route key to use in dispatching
+	 *
+	 * @param	string $route
+	 * @return	MvcActionDispatcherInterface
+	 */
+	public function setRoute($route);
+
+	/**
+	 * @return	string
+	 */
+	public function getRoute();
+
 	/**
 	 * Manual set the RequestUri by passing in a string (context builder will 
 	 * create it) or an object using the correct interface
@@ -40,14 +58,6 @@ interface MvcActionDispatcherInterface
 	 * @return	MvcActionDispatcherInterface
 	 */
 	public function setUri($uri);
-
-	/**
-	 * Manually determine the route key to use in dispatching
-	 *
-	 * @param	string $route
-	 * @return	MvcActionDispatcherInterface
-	 */
-	public function setRoute($route);
 
 	/**
 	 * Generates an RequestUri using the super global $_SERVER['REQUEST_URI']

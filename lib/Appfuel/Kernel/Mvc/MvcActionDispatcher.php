@@ -119,6 +119,14 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	}
 
 	/**
+	 * @return	string
+	 */
+	public function getStrategy()
+	{
+		return $this->strategy;
+	}
+
+	/**
 	 * Manually determine the route key to use in dispatching
 	 *
 	 * @param	string $route
@@ -139,6 +147,15 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		$this->actionNamespace = $namespace;
 		return $this;
 	}
+
+	/**
+	 * @return	string
+	 */
+	public function getRoute()
+	{
+		return $this->route;
+	}
+
 
 	/**
 	 * @param	string	$code
@@ -393,7 +410,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		$this->actionNamespace = null;
 		$this->uri = null;
 		$this->input = null;
-		$this->aclCodes = null;
+		$this->aclCodes = array();
 		$this->view = null;
 		return $this;
 	}
@@ -412,22 +429,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	protected function getContextBuilder()
 	{
 		return $this->builder;
-	}
-
-	/**
-	 * @return	string
-	 */
-	protected function getStrategy()
-	{
-		return $this->strategy;
-	}
-
-	/**
-	 * @return	string
-	 */
-	protected function getRoute()
-	{
-		return $this->route;
 	}
 
 	/**

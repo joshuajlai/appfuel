@@ -36,8 +36,18 @@ class ActionController extends MvcAction
     public function process(AppContextInterface $context)
 	{
 		$view = $context->getView();
-		$view->assign('action', 'this action has been executed');
-		return $view;
+
+		$label   = 'my-assignment';
+		$default = 'this action has been executed';
+		$value   = $view->getAssigned($label, null);
+		if (! empty($value) && is_string($value)) {
+			$value .= " $default";
+		}
+		else {
+			$value = $default;
+		}
+
+		$view->assign($label, $value);
 	}
 
 }

@@ -10,13 +10,13 @@
  */
 namespace TestFuel\Fake\InterceptingFilter;
 
-use Appfuel\Kernel\Mvc\ContextInterface,
+use Appfuel\Kernel\Mvc\AppContextInterface,
 	Appfuel\Kernel\Mvc\Filter\AbstractFilter,
 	Appfuel\Kernel\Mvc\Filter\InterceptingFilterInterface;
 
 /**
- * This will add the label 'test-filter-label' to the context with the value
- * 'value-1'
+ * This will add the label 'my-assignment' to the view with the value
+ * 'value 1 2 3'
  */
 class AddLabelFilter 
 	extends AbstractFilter implements InterceptingFilterInterface
@@ -34,8 +34,9 @@ class AddLabelFilter
 	 * @param	ContextInterface $context
 	 * @return	null
 	 */
-	public function filter(ContextInterface $context)
+	public function filter(AppContextInterface $context)
 	{
-		$context->add('test-filter-label', 'value 1 2 3');
+		$view = $context->getView();
+		$view->assign('my-assignment', 'value 1 2 3');
 	}
 }

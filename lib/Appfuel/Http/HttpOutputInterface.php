@@ -16,7 +16,7 @@ use Appfuel\Kernel\OutputInterface;
 /**
  * Handle specific details for outputting http data
  */
-class HttpOutputInterface extends OutputInterface
+interface HttpOutputInterface extends OutputInterface
 {
 	/**
 	 * @param	HttpResponseInterface $response

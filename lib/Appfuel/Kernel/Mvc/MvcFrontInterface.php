@@ -24,6 +24,11 @@ interface MvcFrontInterface
      */
     public function getDispatcher();
 
+	/**
+	 * @return	Mvc\FilerManagerInterface
+	 */
+	public function getFilterManager();
+
     /**
      * @param   string  $strategy   ajax|html|console
      * @return  MvcFrontInterface

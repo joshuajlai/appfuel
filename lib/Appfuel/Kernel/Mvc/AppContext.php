@@ -36,7 +36,7 @@ class AppContext extends Dictionary implements AppContextInterface
 	 * if this context will be allowed for processing based on these codes.
 	 * @var	array
 	 */
-	protected $roles = array();
+	protected $aclCodes = array();
 
 	/**
 	 * The mvc actions make assignments into the the view template which
@@ -83,7 +83,7 @@ class AppContext extends Dictionary implements AppContextInterface
 	 */
 	public function getAclRoleCodes()
 	{
-		return $this->roles;
+		return $this->aclCodes;
 	}
 
 	/**
@@ -102,7 +102,7 @@ class AppContext extends Dictionary implements AppContextInterface
 			return $this;	
 		}
 
-		$this->roles[] = $code;
+		$this->aclCodes[] = $code;
 		return $this;
 	}
 
@@ -113,7 +113,7 @@ class AppContext extends Dictionary implements AppContextInterface
 	public function isAclRoleCode($code)
 	{
 		if (empty($code) || 
-			! is_string($code) || ! in_array($code, $this->roles, true)) {
+			! is_string($code) || ! in_array($code, $this->aclCodes, true)) {
 			return false;
 		}
 

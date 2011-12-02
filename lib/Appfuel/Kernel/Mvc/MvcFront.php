@@ -13,7 +13,9 @@ namespace Appfuel\Kernel\Mvc;
 use RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Http\HttpResponse,
+	Appfuel\Http\HttpOutput,
 	Appfuel\Http\HttpOutputInterface,
+	Appfuel\Console\ConsoleOutput,
 	Appfuel\Console\ConsoleOutputInterface,
 	Appfuel\View\ViewTemplateInterface,
 	Appfuel\Kernel\KernelRegistry,
@@ -58,6 +60,11 @@ class MvcFront implements MvcFrontInterface
 	protected $input = null;
 
 	/**
+	 * @var OutputInterface
+	 */
+	protected $output = null;
+
+	/**
 	 * @param	MvcActionFactoryInterface	$factory
 	 * @return	AppContext
 	 */
@@ -83,6 +90,13 @@ class MvcFront implements MvcFrontInterface
 		return $this->dispatcher;
 	}
 
+	/**
+	 * @return	FilterManagerInterface
+	 */
+	public function getFilterManager()
+	{
+		return $this->filterManager;
+	}
 	/**
 	 * @param	string	$strategy	ajax|html|console
 	 * @return	MvcFront
@@ -136,6 +150,32 @@ class MvcFront implements MvcFrontInterface
 	 */
 	public function setOutputEngine(OutputInterface $output)
 	{
+		$strategy = $this->getDispatcher()
+						 ->getStrategy();
+
+		if (null === $strategy) {
+			$err = 'strategy must be set before output engine is set';
+			throw new RunTimeException($err);
+		}
+
+		if ('console' === $strategy) {
+			if ($output instanceof ConsoleOutputInterface) {
+				$this->output = $output;
+				return $this;
+			}
+			else {
+				$err  = 'for console strategy output engine must implement ';
+				$err .= 'Appfuel\Console\ConsoleOutputInterface';
+				throw new RunTimeException($err);
+			} 
+		}
+
+		if (! ($output instanceof HttpOutputInterface)) {
+			$err  = 'for html or ajax strategies output engine must implement ';
+			$err .= 'Appfuel\Http\HttpOutputInterface';
+			throw new RunTimeException($err);
+		}
+
 		$this->output = $output;
 		return $this;
 	}
@@ -214,7 +254,7 @@ class MvcFront implements MvcFrontInterface
 	public function noInputRequired()
 	{
 		$this->getDispatcher()
-			 ->useUriForInputSource();
+			 ->noInputRequired();
 
 		return $this;
 	}
@@ -224,17 +264,24 @@ class MvcFront implements MvcFrontInterface
 	 * @param	string|RequestUriInterface
 	 * @return	int
 	 */
-	public function runConsoleUri($uri)
+	public function runConsoleUri($uri, ConsoleOutputInterface $out = null)
 	{
-		$useUri = true;
+		if (null === $out) {
+			$out = $this->createConsoleOutput();
+		}
+
+		/* clear any configuration and start fresh */			
 		$dispatcher = $this->getDispatcher()
-						   ->clear()
-						   ->setStrategy('console')
-						   ->setUri($uri)
-						   ->defineInputFromSuperGlobals($useUri);
+						   ->clear();
+
+		$this->setStrategy('console')
+			 ->setOutputEngine($out);
+
+		$useUri = true;
+		$dispatcher->setUri($uri)
+				   ->defineInputFromSuperGlobals($useUri);
 
 		return $this->run($dispatcher);
-		
 	}
 
 	/**
@@ -244,13 +291,19 @@ class MvcFront implements MvcFrontInterface
 	 * @param	string	$route
 	 * @return	int	
 	 */
-	public function runConsoleRoute($route)
+	public function runConsoleRoute($route, ConsoleOutputInterface $out = null)
 	{
+		if (null === $out) {
+			$out = $this->createConsoleOutput();
+		}
+
+
 		$useUri = false;
 		$dispatcher = $this->getDispatcher()
 						   ->clear()
 						   ->setStrategy('console')
 						   ->setRoute($route)
+						   ->setOutputEngine($out)
 						   ->defineInputFromSuperGlobals($useUri);
 
 		return $this->run($dispatcher);
@@ -318,8 +371,7 @@ class MvcFront implements MvcFrontInterface
 		 * codes.
 		 */
 		$exitCode = $context->getExitCode();
-		if (200 >= $code && 300 < $code) {
-
+		if ($exitCode >= 200 || $exitCode < 300) {
 			/* 
 			 * the mvc action can completely replace the context by returning 
 			 * a ne one otherwise the reference to the context that was passed 
@@ -408,10 +460,18 @@ class MvcFront implements MvcFrontInterface
 	}
 
 	/**
-	 * @return	FilterManagerInterface
+	 * @return	ConsoleOutput
 	 */
-	protected function getFilterManager()
+	public function createConsoleOutputEngine()
 	{
-		return $this->filterManager;
+		return new ConsoleOutput();
+	}
+
+	/**
+	 * @return	HttpOutput
+	 */
+	public function createHttpOutputEngine()
+	{
+		return new HttpOutput();
 	}
 }

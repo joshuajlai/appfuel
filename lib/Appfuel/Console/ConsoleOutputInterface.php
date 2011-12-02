@@ -8,21 +8,19 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Hare;
+namespace Appfuel\Console;
 
-use Appfuel\Framework\Exception,
-	Appfuel\MsgBroker\Amqp\Publisher;
+
+use Appfuel\Kernel\OutputInterface;
 
 /**
  */
-class AdminPublisher extends Publisher
+interface ConsoleOutputInterface extends OutputInterface
 {
 	/**
-	 * @return	AdminPublisher
+	 * @param	mixed	$data
+	 * @return	bool
 	 */
-	public function __construct()
-	{
-		parent::__construct(new AdminProfile);
-	}
+	public function isValidOutput($data);
 
 }

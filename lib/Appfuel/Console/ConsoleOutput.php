@@ -11,15 +11,14 @@
 namespace Appfuel\Console;
 
 
-use InvalidArgumentException,
-	Appfuel\Kernel\OutputInterface;
+use InvalidArgumentException;
 
 /**
  * Provides validation to ensure scalar data or objects that implement
  * __toString. Will render to the standard output stream and will render
  * errors to the standard error stream
  */
-class ConsoleOutput implements OutputInterface
+class ConsoleOutput implements ConsoleOutputInterface
 {
 	/**
 	 * @param	mixed	$data
