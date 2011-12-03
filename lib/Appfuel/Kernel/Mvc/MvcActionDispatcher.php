@@ -101,19 +101,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 */
 	public function setStrategy($strategy)
 	{
-		if (empty($strategy) || ! is_string($strategy)) {
-			$err = 'failed dispatch: strategy must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-		$strategy = strtolower($strategy);
-
-		$valid = array('html', 'console', 'ajax');
-		if (! in_array($strategy, $valid, true)) {
-			$err  = 'failed dispatch: strategy must be on of the following ';
-			$err .= '-(' . implode('|', $valid) . ')';
-			throw new InvalidArgumentException($err);
-		}
-
 		$this->strategy = $strategy;
 		return $this;
 	}
@@ -318,8 +305,14 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	public function buildContext()
 	{
 		$err = 'Failed to dispatch: ';
-		$builder  = $this->getContextBuilder();
 		$uri      = $this->getUri();
+		$route    = $this->getRoute();
+		$strategy = $this->getStrategy();
+		$builder  = $this->getContextBuilder();
+		
+		$builder->setStrategy($strategy)
+				->setRoute($route);
+
 		if (! ($uri instanceof RequestUriInterface)) {
 			$uri = $builder->createUri('');
 		}
@@ -334,15 +327,13 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 
 		$context   = $builder->build();
 		$namespace = $this->getActionNamespace();
-		$strategy  = $this->getStrategy();
 		$context->setView($this->createView($namespace, $strategy));
 
-		$context->add('app-strategy', $strategy);
 		$context->add('app-route', $this->getRoute());
 		
 		$codes = $this->getRoleCodes();
 		foreach ($codes as $code) {
-			$context->addAclRoleCode($code);
+			$context->addAclCode($code);
 		}
 
 		return $context;
@@ -366,6 +357,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 */
 	public function runDispatch(AppContextInterface $context)
 	{
+		$route     = $this->getRoute();
 		$namespace = $this->getActionNamespace();
 		if (null === $namespace) {
 			$err  = 'failed to dispatch: route not set, can not get mvc ';
@@ -387,7 +379,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		 * the developer the dispatcher simply asks the question is this 
 		 * context allowed to be processed based on these codes
 		 */
-		if (false === $action->isContextAllowed($context->getAclRoleCodes())) {
+		if (false === $action->isContextAllowed($context->getAclCodes())) {
 			throw new RouteDeniedException($route, '');		
 		}
 

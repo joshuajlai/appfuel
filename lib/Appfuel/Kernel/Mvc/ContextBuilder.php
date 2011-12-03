@@ -35,6 +35,68 @@ class ContextBuilder implements ContextBuilderInterface
     protected $input = null;
 
 	/**
+	 * @var string
+	 */
+	protected $strategy = null;
+
+	/**
+	 * @var string	
+	 */
+	protected $route = null;
+
+	/**
+	 * @return	string
+	 */
+	public function getStrategy()
+	{
+		return $this->strategy;
+	}
+
+	/**
+	 * @param	string	$strategy
+	 * @return	null
+	 */
+	public function setStrategy($strategy)
+	{
+		if (empty($strategy) || ! is_string($strategy)) {
+			$err = 'strategy must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+        $strategy = strtolower($strategy);
+
+        $valid = array('html', 'console', 'ajax');
+        if (! in_array($strategy, $valid, true)) {
+            $err  = 'strategy must be on of the following ';
+            $err .= '-(' . implode('|', $valid) . ')';
+            throw new InvalidArgumentException($err);
+        }
+		$this->strategy = $strategy;
+		return $this;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getRoute()
+	{
+		return $this->route;
+	}
+
+	/**
+	 * @param	string	
+	 * @return	ContextBuilder
+	 */
+	public function setRoute($route)
+	{
+		if (! is_string($route)) {
+			$err = 'the route for this context must be a string';
+			throw new InvalidArgumentException($err);
+		}
+		$this->route = $route;
+		return $this;
+	}
+
+	/**
 	 * @return	RequestUriInterface
 	 */
 	public function getUri()
@@ -198,6 +260,20 @@ class ContextBuilder implements ContextBuilderInterface
 	 */
 	public function build()
 	{
+		$err = 'context build failed: ';
+		$route  = $this->getRoute();
+		if (null === $route) {
+			$err .= 'route must be set before build';
+			throw new RunTimeException($err);
+		}
+
+		$strategy = $this->getStrategy();
+		if (null === $strategy) {
+			$err .= 'strategy must be set before build';
+			throw new RunTimeException($err);
+		}
+
+
 		$input = $this->getInput();
 		if (! $input instanceof AppInputInterface) {
 			$uri = $this->getUri();
@@ -209,10 +285,20 @@ class ContextBuilder implements ContextBuilderInterface
 						  ->getInput();
 		}
 
+		$this->clear();
+
 		/* clear out build state */
+		return new AppContext($route, $strategy, $input);
+	}
+
+	/**
+	 * @return	null
+	 */
+	protected function clear()
+	{
+		$this->route = null;
+		$this->strategy = null;
 		$this->input = null;
 		$this->uri   = null;
-
-		return new AppContext($input);
 	}
 }

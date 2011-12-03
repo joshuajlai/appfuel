@@ -3,12 +3,17 @@
 <phpunit backupGlobals="false" bootstrap="bootstrap.php" colors="true">
 <testsuites>
 	<testsuite name="Appfuel">
-		<directory suffix="Test.php">../lib/TestFuel/Test/Kernel</directory>
+<!--		
 		<directory suffix="Test.php">../lib/TestFuel/Test/View</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Error</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Log</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Http</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Console</directory>
+	<file>../lib/TestFuel/Test/Kernel/Mvc/AppContextTest.php</file>
+	<file>../lib/TestFuel/Test/Kernel/Mvc/ContextBuilderTest.php</file>
+	<file>../lib/TestFuel/Test/Kernel/Mvc/MvcActionDispatcherTest.php</file>
+-->
+		<directory suffix="Test.php">../lib/TestFuel/Test/Kernel</directory>
 	</testsuite>
 </testsuites>
 </phpunit>

@@ -22,22 +22,32 @@ use Appfuel\View\ViewTemplateInterface,
 interface AppContextInterface extends DictionaryInterface
 {
 	/**
+	 * @return	string
+	 */
+	public function getStrategy();
+
+	/**
+	 * @return	string
+	 */
+	public function getRoute();
+
+	/**
 	 * List of codes used for role based access control
 	 * @return	array
 	 */
-	public function getAclRoleCodes();
+	public function getAclCodes();
 
 	/**
 	 * @param	string	$code
 	 * @return	ContextInterface
 	 */
-	public function addAclRoleCode($code);
+	public function addAclCode($code);
 
 	/**
 	 * @param	string	$code
 	 * @return	bool
 	 */
-	public function isAclRoleCode($code);
+	public function isAclCode($code);
 
 	/**
 	 * @return	AppInputInterface

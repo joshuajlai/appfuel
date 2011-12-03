@@ -311,16 +311,6 @@ class MvcFrontTest extends BaseTestCase
 	}
 
 	/**
-	 * @depends				testInterface
-	 * @expectedException	InvalidArgumentException
-	 * @return				null
-	 */
-	public function testStrategyNotValidChoice()
-	{
-		$this->front->setStrategy('not-html-console-or-ajax');
-	}
-
-	/**
 	 * @depends	testInterface
 	 * @return	null
 	 */
@@ -359,7 +349,7 @@ class MvcFrontTest extends BaseTestCase
 							  ->setStrategy('console')
 							  ->noInputRequired()
 							  ->buildContext();
-		$this->assertEquals($codes, $context->getAclRoleCodes());
+		$this->assertEquals($codes, $context->getAclCodes());
 	}
 
 	/**
@@ -378,7 +368,7 @@ class MvcFrontTest extends BaseTestCase
 							  ->setStrategy('console')
 							  ->noInputRequired()
 							  ->buildContext();
-		$this->assertEquals(array($code), $context->getAclRoleCodes());
+		$this->assertEquals(array($code), $context->getAclCodes());
 	}
 
 	/**

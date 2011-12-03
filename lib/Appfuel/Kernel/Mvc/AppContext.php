@@ -25,6 +25,19 @@ use InvalidArgumentException,
 class AppContext extends Dictionary implements AppContextInterface
 {
 	/**
+	 * The strategy used in this context. The mvc action be working with
+	 * console, ajax or html
+	 * @var string
+	 */
+	protected $strategy = null;
+
+	/**
+	 * The route associated to the this context
+	 * @var string
+	 */
+	protected $route = null;
+
+	/**
 	 * Holds most of the user input given to the application. Used by the
 	 * Front controller and all action controllers
 	 * @var	AppInputInterface
@@ -52,12 +65,31 @@ class AppContext extends Dictionary implements AppContextInterface
 	protected $exitCode = 200;
 
 	/**
-	 * @param	AppInputInterface		$input
+	 * @param	string	$strategy	console|ajax|html
+	 * @param	AppInputInterface	$input
 	 * @return	AppContext
 	 */
-	public function __construct(AppInputInterface $input)
+	public function __construct($route, $strategy, AppInputInterface $input)
 	{
+		$this->setRoute($route);
+		$this->setStrategy($strategy);
 		$this->setInput($input);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getRoute()
+	{
+		return $this->route;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getStrategy()
+	{
+		return $this->strategy;
 	}
 
 	/**
@@ -81,7 +113,7 @@ class AppContext extends Dictionary implements AppContextInterface
 	/**
 	 * @return	array
 	 */
-	public function getAclRoleCodes()
+	public function getAclCodes()
 	{
 		return $this->aclCodes;
 	}
@@ -90,7 +122,7 @@ class AppContext extends Dictionary implements AppContextInterface
 	 * @param	string	$code
 	 * @return	AppContext
 	 */
-	public function addAclRoleCode($code)
+	public function addAclCode($code)
 	{
 		if (empty($code) || ! is_string($code)) {
 			throw new InvalidArgumentException(
@@ -98,7 +130,7 @@ class AppContext extends Dictionary implements AppContextInterface
 			);
 		}
 	
-		if ($this->isAclRoleCode($code)) {
+		if ($this->isAclCode($code)) {
 			return $this;	
 		}
 
@@ -110,7 +142,7 @@ class AppContext extends Dictionary implements AppContextInterface
 	 * @param	string	$code
 	 * @return	bool
 	 */
-	public function isAclRoleCode($code)
+	public function isAclCode($code)
 	{
 		if (empty($code) || 
 			! is_string($code) || ! in_array($code, $this->aclCodes, true)) {
@@ -156,5 +188,32 @@ class AppContext extends Dictionary implements AppContextInterface
 	protected function setInput(AppInputInterface $input)
 	{
 		$this->input = $input;
+	}
+
+	/**
+	 * @param	string	$strategy
+	 * @return	null
+	 */
+	protected function setStrategy($strategy)
+	{
+        if (empty($strategy) || ! is_string($strategy)) {
+            $err = 'strategy must be a non empty string';
+            throw new InvalidArgumentException($err);
+        }
+		$this->strategy = $strategy;
+	}
+
+	/**
+	 * @param	string	$strategy
+	 * @return	null
+	 */
+	protected function setRoute($route)
+	{
+		if (! is_string($route)) {
+			$err = 'the route for this context must be a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->route = $route;
 	}
 }

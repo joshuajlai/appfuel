@@ -119,7 +119,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input    = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$expected = array(
 			'get'    => array(), 
 			'post'   => array(),
@@ -129,7 +129,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		);
 
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertEquals($codes, $context->getAclRoleCodes());
+		$this->assertEquals($codes, $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('my-key', $route);
 		$this->assertEquals('console', $strategy);
@@ -162,7 +162,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input    = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$expected = array(
 			'get'    => array('param1'=>'value1','param2'=>'value2'), 
 			'post'   => array(),
@@ -171,7 +171,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'argv'   => array()
 		);
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertEquals($codes, $context->getAclRoleCodes());
+		$this->assertEquals($codes, $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('my-key', $route);
 		$this->assertEquals('html', $strategy);
@@ -203,7 +203,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$expected = array(
 			'get'    => array('param1'=>'value1','param2'=>'value2'), 
 			'post'   => array(),
@@ -212,7 +212,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'argv'   => array()
 		);	
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertEquals(array(), $context->getAclRoleCodes());
+		$this->assertEquals(array(), $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('my-key', $route);
 		$this->assertEquals('ajax', $strategy);
@@ -242,7 +242,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$expected = array(
 			'get'    => array('param1'=>'value1','param2'=>'value2'), 
 			'post'   => array(),
@@ -251,7 +251,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'argv'   => array()
 		);	
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertEquals(array(), $context->getAclRoleCodes());
+		$this->assertEquals(array(), $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('my-key', $route);
 		$this->assertEquals('console', $strategy);
@@ -311,7 +311,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$expected = $inputParams;
 		$expected['get'] = array(
 			'paramX' => 'valueX', 
@@ -319,7 +319,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'param6' => 'value6'
 		);
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertEquals(array(), $context->getAclRoleCodes());
+		$this->assertEquals(array(), $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('post', $input->getMethod());
 		$this->assertEquals('my-key', $route);
@@ -359,9 +359,9 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
-		$this->assertEquals(array(), $context->getAclRoleCodes());
+		$this->assertEquals(array(), $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('cli', $input->getMethod());
 		$this->assertEquals('my-route', $route);
@@ -422,7 +422,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$expected = array(
 			'get'    => array('param1' => 'value1'),
 			'post'   => $_POST,
@@ -515,7 +515,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$expected = array(
 			'get'    => array('param1' => 'value1'),
 			'post'   => $_POST,
@@ -560,7 +560,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$expected = array(
 			'get'    => $_GET,
 			'post'   => $_POST,
@@ -606,7 +606,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$expected = array(
 			'get'    => array('param1' => 'value1'),
 			'post'   => array(),
@@ -658,7 +658,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$input = $context->getInput();
 		$view     = $context->getView();
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$expected = array(
 			'get'    => array(),
 			'post'   => array(),
@@ -690,7 +690,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 									->dispatch();
 
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$this->assertInstanceOf(
 			'Appfuel\Kernel\Mvc\AppContextInterface',
 			$context
@@ -719,7 +719,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 								 ->dispatch();
 	
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$this->assertInstanceOf(
 			'Appfuel\Kernel\Mvc\AppContextInterface',
 			$context
@@ -743,12 +743,12 @@ class MvcActionDispatcherTest extends BaseTestCase
 	public function testDispatchConsole()
 	{
 		$context = $this->dispatcher->setRoute('my-key')
-								 ->setStrategy('console')
-								 ->noInputRequired()
-								 ->dispatch();
+									->setStrategy('console')
+									->noInputRequired()
+									->dispatch();
 
 		$route    = $context->get('app-route');
-		$strategy = $context->get('app-strategy');
+		$strategy = $context->getStrategy();
 		$this->assertInstanceOf(
 			'Appfuel\Kernel\Mvc\AppContextInterface',
 			$context

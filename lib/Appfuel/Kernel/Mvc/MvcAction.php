@@ -63,7 +63,70 @@ class MvcAction implements MvcActionInterface
 	 * @param	AppContextInterface $context
 	 * @return	AppContextInterface
 	 */
-	public function callContext($route, AppContextInterface $context)
+	public function call($uri, array $params, AppContextInterface $original)
+	{
+		$dispatcher = $this->validateDispatcher();
+
+		$err = 'Failed to call action ';
+		if (! is_string($uri)) {
+			$err .= 'uri must be a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$strategy = $original->get('app-strategy', null);
+		if (empty($strategy) || ! is_string($strategy)) {
+			$err .= "strategy is not a string or not set into context. ";
+			$err .= "searched context for strategy with 'app-strategy'";
+			throw new RunTimeException($err);
+		}
+
+		$inputMethod = $original->getInput()
+							    ->getMethod();
+
+		$useUri  = true;
+		$context = $dispatcher->clear()
+							  ->setUri($uri)
+							  ->setStrategy($strategy)
+							  ->defineInput($method, $params, $useUri)
+						      ->buildContext();
+		
+		$result = $dispatcher->runDispatch($context);
+		if (! ($result instanceof AppContextInterface)) {
+			$result = $context;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param	string	$uri
+	 * @param	string	$strategy	dispatch as console|ajax|html
+	 * @return	AppContextInterface
+	 */
+	public function callUri($uri, $strategy)
+	{
+		$dispatcher = $this->validateDispatcher();
+
+		$err = 'Failed to call action ';
+		if (! is_string($uri)) {
+			$err .= 'uri must be a string';
+			throw new InvalidArgumentException($err);
+		}
+		$context = $dispatcher->clear()
+							  ->setUri($uri)
+							  ->setStrategy($strategy)
+							  ->useUriForInputSource()
+							  ->buildContext();
+
+		$result = $dispatcher->runDispatch($context);
+		if (! ($result instanceof AppContextInterface)) {
+			$result = $context;
+		}
+
+		return $result;
+	}
+
+	public function callWithNoInputs($route, AppContextInterface $original)
 	{
 		$err = 'Failed to call action ';
 		if (! is_string($route)) {
@@ -71,29 +134,21 @@ class MvcAction implements MvcActionInterface
 			throw new InvalidArgumentException($err);
 		}
 
+		$this->validateDispatcher();
 		$dispatcher = $this->getDispatcher();
-		if (null === $dispatcher) {
-			$err .= "-($route): dispatcher must be set";
-			throw new RunTimeException($err);
-		}
-
-		$strategy = $context->get('app-strategy', null);
+	
+		$strategy = $original->get('app-strategy', null);
 		if (empty($strategy) || ! is_string($strategy)) {
 			$err .= "strategy is not a string or not set into context. ";
 			$err .= "searched context for strategy with 'app-strategy'";
 			throw new RunTimeException($err);
 		}
 
-		$result = $dispatch->clear()
-						   ->setStrategy($strategy)
-						   ->setRoute($route)
-						   ->runDispatch($context);
-		
-		if ($result instanceof AppContextInterface) {
-			$context = $result;
-		}
-
-		return $context;
+		return $dispatcher->clear()
+						  ->setRoute($route)
+						  ->setStrategy($strategy)
+						  ->noInputRequired()
+						  ->dispatch();
 	}
 
 	/**
@@ -110,12 +165,7 @@ class MvcAction implements MvcActionInterface
 	 */
 	public function callManual($uri, $strategy, $method, array $input)
 	{
-		$dispatcher = $this->getDispatcher();
-		if (null === $dispatcher) {
-			$err = "Failed to call action -($route): dispatcher must be set";
-			throw new RunTimeException($err);
-		}
-
+		$this->validateDispatcher();
 		$useUri  = true;
 		$context = $dispatcher->clear()
 							  ->setStrategy($strategy)
@@ -129,5 +179,23 @@ class MvcAction implements MvcActionInterface
 		}
 
 		return $context;
+	}
+
+	/**
+	 * Determines if the dispatcher exists and is the correct interface
+	 * 
+	 * @throws	RunTimeException
+	 * @return	MvcActionDispatcherInterface
+	 */
+	protected function validateDispatcher($err)
+	{
+		$dispatcher = $this->getDispatcher();
+		if (! ($dispatcher instanceof MvcActionDispatcherInterface)) {
+			$err  = 'operation requires a dispatcher but the dispatcher has ';
+			$err .= 'not been set';
+			throw new RunTimeException($err);
+		}
+
+		return $dispatcher;
 	}
 }

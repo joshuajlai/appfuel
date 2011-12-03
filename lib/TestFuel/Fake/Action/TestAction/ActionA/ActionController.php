@@ -8,19 +8,20 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Fake\Action\TestDispatch\ActionA;
+namespace TestFuel\Fake\Action\TestAction\ActionA;
 
 use Appfuel\Kernel\Mvc\MvcAction,
-	Appfuel\Kernel\Mvc\AppContextInterface,
-	Appfuel\View\ViewTemplateInterface,
-	Appfuel\View\AjaxTemplateInterface;
+	Appfuel\Kernel\Mvc\AppContextInterface;
 
 /**
- * This fake action controller is used test the MvcAction and ActionFactory
+ * The goal of action A is to call action B and action C and turn their views
+ * views into string and assign them into action A with label action-b and 
+ * action c
  */
 class ActionController extends MvcAction
 {
 	/**
+	 * The action is public 
 	 * @param	array $codes
 	 * @return	bool
 	 */
@@ -36,18 +37,23 @@ class ActionController extends MvcAction
      */
     public function process(AppContextInterface $context)
 	{
-		$strategy = $context->getStrategy();
 		$view = $context->getView();
-		$view->assign('common-a', 'value-a')
-			 ->assign('common-b', 'value-b');
-			 
 
-		switch($strategy) {
-			case 'console':  $label = 'console-foo';break;
-			case 'ajax':     $label = 'ajax-foo';	break;
-			case 'html':	 $label = 'html-foo';	break;
-		}
+		$params = array(
+			'get' => array(
+				'label-a' => 'value-a',
+				'label-b' => 'value-b'
+			)
+		);
+		$uriB = 'action-b/label-a/value-a/label-b/value-b';
+		$uriC = 'action-c/label-c/value-c/label-d/value-d';
 
-		$view->assign($label, 'bar');
+		$strategy = $context->getStrategy();
+		$contextB = $this->callUri($uriB, $strategy);
+		$contextC = $this->callUri($uriC, $strategy);
+
+		$view->assign('action-b', $contextB->buildView());
+		$view->assign('action-c', $contextC->buildView());
 	}
+
 }

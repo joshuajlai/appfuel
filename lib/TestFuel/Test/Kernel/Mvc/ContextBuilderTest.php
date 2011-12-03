@@ -66,6 +66,82 @@ class ContextBuilderTest extends ControllerTestCase
 	}
 
 	/**
+	 * @return	array
+	 */
+	public function provideValidContextStrategies()
+	{
+		return array(
+			array('console'),
+			array('ajax'),
+			array('html')
+		);
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function provideInvalidContextStrategies()
+	{
+		return array(
+			array('this-will-fail'),
+			array('not-a-valid-strategy'),
+			array('no-strategy-in-this-string')
+		);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testDefaultStrategyIsNull()
+	{
+		$this->assertNull($this->builder->getStrategy());
+	}
+
+	/**
+	 * @dataProvider	provideValidContextStrategies
+	 * @depends			testInterface
+	 * @return			null
+	 */
+	public function testGetSetStrategy($strategy)
+	{
+		$this->assertSame(
+			$this->builder, 
+			$this->builder->setStrategy($strategy)
+		);
+		$this->assertEquals($strategy, $this->builder->getStrategy());
+
+		$newStrategy = strtoupper($strategy);
+			$this->assertSame(
+			$this->builder, 
+			$this->builder->setStrategy($newStrategy)
+		);
+		$this->assertEquals($strategy, $this->builder->getStrategy());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidStringsIncludeNull
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testSetStrategy_Failure($strategy)
+	{
+		$this->builder->setStrategy($strategy);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidContextStrategies
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testSetStrategy_FailureStringNotCorrect($strategy)
+	{
+		$this->builder->setStrategy($strategy);
+	}
+
+	/**
 	 * @depends	testInterface
 	 * @return	null
 	 */
@@ -534,12 +610,16 @@ class ContextBuilderTest extends ControllerTestCase
 	 * interface then it will look for a uri string in the sever super global
 	 * $_SERVER['REQUEST_URI']
 	 *
-	 * @depends	testInterface
-	 * @return	null
+	 * @dataProvider	provideValidContextStrategies
+	 * @depends			testInterface
+	 * @return			null
 	 */
-	public function testBuildWithNoConfiguration()
+	public function testBuildWithNoConfiguration($strategy)
 	{
+		$route = 'my-route';
 		$this->setupSuperGlobals('get', 'my-route/param1/value1');
+		$this->builder->setRoute($route)
+					  ->setStrategy($strategy);
 		$context = $this->builder->build();
 		$this->assertInstanceOf(
 			'Appfuel\Kernel\Mvc\AppContext',
@@ -557,18 +637,23 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($_POST, $input->getAll('post'));
 		$this->assertEquals($_FILES, $input->getAll('files'));
 		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
-
+		$this->assertEquals($strategy, $context->getStrategy());
+		$this->assertEquals($route, $context->getRoute());
 	}
 
 	/**
 	 *
+	 * @dataProvider	provideValidContextStrategies
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testBuildWithUseUriString()
+	public function testBuildWithUseUriString($strategy)
 	{
 		$this->setupSuperGlobals('get', 'my-route/param1/value1');
-		$context = $this->builder->useUriString('other-route/paramZ/valueY')
+		$route   = 'my-route';
+		$context = $this->builder->setRoute($route)
+								 ->setStrategy($strategy)
+								 ->useUriString('other-route/paramZ/valueY')
 								 ->build();
 		$this->assertInstanceOf(
 			'Appfuel\Kernel\Mvc\AppContext',
@@ -588,14 +673,17 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($_POST, $input->getAll('post'));
 		$this->assertEquals($_FILES, $input->getAll('files'));
 		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
+		$this->assertEquals($strategy, $context->getStrategy());
+		$this->assertEquals($route, $context->getRoute());
 
 	}
 
 	/**
-	 * @depends	testInterface
-	 * @return	null
+	 * @dataProvider	provideValidContextStrategies
+	 * @depends			testInterface
+	 * @return			null
 	 */
-	public function testBuildWithUseSetUri()
+	public function testBuildWithUseSetUri($strategy)
 	{
 		$this->setupSuperGlobals('post', 'my-route/param1/value1');
 		
@@ -605,7 +693,10 @@ class ContextBuilderTest extends ControllerTestCase
 			->method('getParams')
 			->will($this->returnValue($params));
 
-		$context = $this->builder->setUri($uri)
+		$route   = 'my-route';
+		$context = $this->builder->setRoute($route)
+								 ->setStrategy($strategy)
+								 ->setUri($uri)
 								 ->build();
 
 		$this->assertInstanceOf(
@@ -623,32 +714,45 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($_POST, $input->getAll('post'));
 		$this->assertEquals($_FILES, $input->getAll('files'));
 		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
+		$this->assertEquals($strategy, $context->getStrategy());
+		$this->assertEquals($route, $context->getRoute());
 	}
 
 	/**
-	 * @depends	testInterface
-	 * @return	null
+	 * @dataProvider	provideValidContextStrategies
+	 * @depends			testInterface
+	 * @return			null
 	 */
-	public function testBuildWithSetInput()
+	public function testBuildWithSetInput($strategy)
 	{
 		$input = $this->getMock('Appfuel\Kernel\Mvc\AppInputInterface');
-		$context = $this->builder->setInput($input)
+
+		$route   = 'my-route';
+		$context = $this->builder->setRoute($route)
+								 ->setStrategy($strategy)
+								 ->setInput($input)
 								 ->build();
 
 		$this->assertSame($input, $context->getInput());
+		$this->assertEquals($strategy, $context->getStrategy());
+		$this->assertEquals($route, $context->getRoute());
 	}
 
 
 	/**
 	 * This is the same as using build with no configurations
 	 *
-	 * @depends	testInterface
-	 * @return	null
+	 * @dataProvider	provideValidContextStrategies
+	 * @depends			testInterface
+	 * @return			null
 	 */
-	public function testBuildWithBuildInputFromDefaults()
+	public function testBuildWithBuildInputFromDefaults($strategy)
 	{
 		$this->setupSuperGlobals('get', 'my-route/param1/value1');
-		$context = $this->builder->buildInputFromDefaults()
+		$route   = 'my-route';
+		$context = $this->builder->setRoute($route)
+								 ->setStrategy($strategy)
+								 ->buildInputFromDefaults()
 								 ->build();
 
 		$this->assertInstanceOf(
@@ -667,14 +771,16 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($_POST, $input->getAll('post'));
 		$this->assertEquals($_FILES, $input->getAll('files'));
 		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
-
+		$this->assertEquals($strategy, $context->getStrategy());
+		$this->assertEquals($route, $context->getRoute());
 	}
 
 	/**
-	 * @depends	testInterface
-	 * @return	null
+	 * @dataProvider	provideValidContextStrategies
+	 * @depends			testInterface
+	 * @return			null
 	 */
-	public function testBuildWithDefineInputAs()
+	public function testBuildWithDefineInputAs($strategy)
 	{
 		$params  = array(
 			'get'		=> array('my-get'	 => 'value1'),
@@ -683,7 +789,10 @@ class ContextBuilderTest extends ControllerTestCase
 			'cookie'	=> array('my-cookie' => 'value4'),
 			'argv'		=> array('my-argv'   => 'value5')
 		);
-		$context = $this->builder->defineInputAs('cli', $params)
+		$route   = 'my-route';
+		$context = $this->builder->setRoute($route)
+								 ->setStrategy($strategy)
+								 ->defineInputAs('cli', $params)
 								 ->build();
 		
 		$this->assertInstanceOf(
@@ -702,6 +811,7 @@ class ContextBuilderTest extends ControllerTestCase
 		$this->assertEquals($params['files'],	$input->getAll('files'));
 		$this->assertEquals($params['cookie'],	$input->getAll('cookie'));
 		$this->assertEquals($params['argv'],	$input->getAll('argv'));
-
+		$this->assertEquals($strategy, $context->getStrategy());
+		$this->assertEquals($route, $context->getRoute());
 	}
 }
