@@ -8,17 +8,18 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Fake\InterceptingFilter;
+namespace TestFuel\Fake\Action\TestFront;
 
-use Appfuel\Kernel\Mvc\ContextInterface,
+use Appfuel\View\ViewTemplateInterface,
+	Appfuel\Kernel\Mvc\AppContextInterface,
 	Appfuel\Kernel\Mvc\Filter\AbstractFilter,
 	Appfuel\Kernel\Mvc\Filter\InterceptingFilterInterface;
 
 /**
- * This filter work with the results of the AddLabelFilter and prepends	
- * the text '4 5 6 ' to the value of label 'test-filter-label'
+ * The controller will assign the pre filters label into the view where we
+ * replace spaces with colons
  */
-class PrependLabelFilter 
+class ReplaceSpacesFilter 
 	extends AbstractFilter implements InterceptingFilterInterface
 {
 	/**
@@ -27,21 +28,23 @@ class PrependLabelFilter
 	 */
 	public function __construct(InterceptingFilterInterface $next = null)
 	{
-		parent::__construct('pre', $next);
+		parent::__construct('post', $next);
 	}
 
 	/**
 	 * @param	ContextInterface $context
 	 * @return	null
 	 */
-	public function filter(ContextInterface $context)
+	public function filter(AppContextInterface $context)
 	{
-		$value = $context->get('test-filter-label', false);
-		if (false === $value) {
-			return;
+		$view = $context->getView();
+		if (! ($view instanceof ViewTemplateInterface)) {
+			$this->next($context);;
 		}
 
-		$value = '4 5 6 ' . $value;
-		$context->add('test-filter-label', $value);
+		$value = $view->getAssigned('my-assignment', '');
+		$value = str_replace(' ', ':', $value);
+		$view->assign('my-assignment', $value);
+		$this->next($context);
 	}
 }

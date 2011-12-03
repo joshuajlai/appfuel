@@ -177,22 +177,23 @@ class FilterManager implements FilterManagerInterface
 	}
 
 	/**
+	 * apply all filters down the chain. Returning a context indicates that
+	 * its a new context that should be used inplace of the one passed in
+	 *
 	 * @param	FilterChainInterface $chain
 	 * @param	ContextInterface $context
-	 * @return	ContextInterface
+	 * @return	ContextInterface | null 
 	 */
 	public function applyChain(FilterChainInterface $chain, 
 							   AppContextInterface  $context)
 	{
 		if (! $chain->hasFilters()) {
-			return $context;
+			return;
 		}
 		
 		$result = $chain->apply($context);
 		if ($result instanceof AppContextInterface) {
-			$contexrt = $result;
+			return $result;
 		}
-	
-		return $context;
 	}
 }

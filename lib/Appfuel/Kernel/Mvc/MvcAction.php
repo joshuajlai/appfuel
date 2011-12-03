@@ -52,10 +52,82 @@ class MvcAction implements MvcActionInterface
 
 	/**
 	 * @param	AppContextInterface $context
-	 * @return	AppContextInterface
+	 * @return	null
 	 */
 	public function process(AppContextInterface $context)
+	{}
+
+	/**
+	 * 
+	 * @param	string	$route
+	 * @param	AppContextInterface $context
+	 * @return	AppContextInterface
+	 */
+	public function callContext($route, AppContextInterface $context)
 	{
+		$err = 'Failed to call action ';
+		if (! is_string($route)) {
+			$err .= 'route must be a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$dispatcher = $this->getDispatcher();
+		if (null === $dispatcher) {
+			$err .= "-($route): dispatcher must be set";
+			throw new RunTimeException($err);
+		}
+
+		$strategy = $context->get('app-strategy', null);
+		if (empty($strategy) || ! is_string($strategy)) {
+			$err .= "strategy is not a string or not set into context. ";
+			$err .= "searched context for strategy with 'app-strategy'";
+			throw new RunTimeException($err);
+		}
+
+		$result = $dispatch->clear()
+						   ->setStrategy($strategy)
+						   ->setRoute($route)
+						   ->runDispatch($context);
+		
+		if ($result instanceof AppContextInterface) {
+			$context = $result;
+		}
+
+		return $context;
+	}
+
+	/**
+	 * Manually configure the dispatcher to call another mvc action. Note
+	 * the route is part of the uri, which can be a RequestUri or a string.
+	 * if the mvc action returns a context it will override the context passed
+	 * in.
+	 *
+	 * @param	mixed	string|RequestUri $uri
+	 * @param	string	$strategy
+	 * @param	string	$method
+	 * @param	array	input
+	 * @return	AppContextInterface
+	 */
+	public function callManual($uri, $strategy, $method, array $input)
+	{
+		$dispatcher = $this->getDispatcher();
+		if (null === $dispatcher) {
+			$err = "Failed to call action -($route): dispatcher must be set";
+			throw new RunTimeException($err);
+		}
+
+		$useUri  = true;
+		$context = $dispatcher->clear()
+							  ->setStrategy($strategy)
+							  ->setUri($uri)
+							  ->defineInput($method, $input, $useUri)
+							  ->buildContext();
+
+		$result = $dispatcher->runDispatch($context);
+		if ($result instanceof AppContextInterface) {
+			$context = $result;
+		}
+
 		return $context;
 	}
 }

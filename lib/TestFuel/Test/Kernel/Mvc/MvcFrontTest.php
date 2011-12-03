@@ -880,7 +880,7 @@ class MvcFrontTest extends BaseTestCase
 			echo $data;
 		};
 
-		$filters = array('TestFuel\Fake\InterceptingFilter\AddLabelFilter');
+		$filters = array('TestFuel\Fake\Action\TestFront\AddLabelFilter');
 		KernelRegistry::addParam('intercepting-filters', $filters);
 
 		$output->expects($this->once())
@@ -893,6 +893,65 @@ class MvcFrontTest extends BaseTestCase
 		$this->expectOutputString($expected);
 	}
 
+	/**
+	 * The PrependLabelFilter will prepend '4 5 6' to 'value 1 2 3' from the
+	 * first filter and the action controller will append its value on to it
+	 * 
+	 *  
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testRunDispatchConsoleWith2PreFilter()
+	{
+		$uriString = 'my-route/param1/value1';
+		$output = $this->getMock('Appfuel\Console\ConsoleOutputInterface');
+		$render = function($data) {
+			echo $data;
+		};
 
+		$filters = array(
+			'TestFuel\Fake\Action\TestFront\AddLabelFilter',
+			'TestFuel\Fake\Action\TestFront\PrependLabelFilter',
+		);
+		KernelRegistry::addParam('intercepting-filters', $filters);
 
+		$output->expects($this->once())
+			  ->method('render')
+			  ->will($this->returnCallback($render));
+
+		$result = $this->front->runConsoleUri($uriString, $output);
+		$expected = '4 5 6 value 1 2 3 this action has been executed';
+		$this->assertEquals(200, $result);
+		$this->expectOutputString($expected);
+	}
+
+	/**
+	 * The post filter will replace all spaces with ':' 
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testRunDispatchConsoleWithPreAndPostFilters()
+	{
+		$uriString = 'my-route/param1/value1';
+		$output = $this->getMock('Appfuel\Console\ConsoleOutputInterface');
+		$render = function($data) {
+			echo $data;
+		};
+
+		$filters = array(
+			'TestFuel\Fake\Action\TestFront\AddLabelFilter',
+			'TestFuel\Fake\Action\TestFront\PrependLabelFilter',
+			'TestFuel\Fake\Action\TestFront\ReplaceSpacesFilter',
+		);
+		KernelRegistry::addParam('intercepting-filters', $filters);
+
+		$output->expects($this->once())
+			  ->method('render')
+			  ->will($this->returnCallback($render));
+
+		$result = $this->front->runConsoleUri($uriString, $output);
+		$expected = '4:5:6:value:1:2:3:this:action:has:been:executed';
+		$this->assertEquals(200, $result);
+		$this->expectOutputString($expected);
+	}
 }

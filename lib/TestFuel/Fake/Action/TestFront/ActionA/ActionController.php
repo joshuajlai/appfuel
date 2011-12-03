@@ -15,7 +15,7 @@ use Appfuel\Kernel\Mvc\MvcAction,
 	Appfuel\View\ViewTemplateInterface;
 
 /**
- * Mvc Action used to test the front controller
+ * Mvc Action used to test the front controller.
  */
 class ActionController extends MvcAction
 {

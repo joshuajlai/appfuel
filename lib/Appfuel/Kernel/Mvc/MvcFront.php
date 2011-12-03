@@ -363,8 +363,15 @@ class MvcFront implements MvcFrontInterface
 		$filters = KernelRegistry::getParam('intercepting-filters', array());
 		$filterManager = $this->getFilterManager();
 		$filterManager->loadFilters($filters);
-		$filterManager->applyPreFilters($context);
+		$result = $filterManager->applyPreFilters($context);
 		
+		/*
+		 * Use the returned context in place of the one built
+		 */
+		if ($result instanceof AppContextInterface) {
+			$context = $result;
+		}
+
 		/*
 		 * Only dispatch a context if its exit code is within the range of 
 		 * success. Note console and html, ajax and api all follow http status
@@ -374,7 +381,7 @@ class MvcFront implements MvcFrontInterface
 		if ($exitCode >= 200 || $exitCode < 300) {
 			/* 
 			 * the mvc action can completely replace the context by returning 
-			 * a ne one otherwise the reference to the context that was passed 
+			 * a new one otherwise the reference to the context that was passed 
 			 * in is used for the post intercepting filters
 			 */
 			$result = $dispatcher->runDispatch($context);
@@ -387,7 +394,10 @@ class MvcFront implements MvcFrontInterface
 			 * context
 			 * after the mvc action has processed it
 			 */
-			$filterManager->applyPostFilters($context);	
+			$context = $filterManager->applyPostFilters($context);
+			if ($result instanceof AppContextInterface) {
+				$context = $result;
+			}
 		}
 
 		/* render context based on the output engine that was set, not the

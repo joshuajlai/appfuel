@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Fake\InterceptingFilter;
+namespace TestFuel\Fake\Action\TestFront;
 
 use Appfuel\Kernel\Mvc\AppContextInterface,
 	Appfuel\Kernel\Mvc\Filter\AbstractFilter,
@@ -38,5 +38,7 @@ class AddLabelFilter
 	{
 		$view = $context->getView();
 		$view->assign('my-assignment', 'value 1 2 3');
+
+		$this->next($context);
 	}
 }
