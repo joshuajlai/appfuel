@@ -111,6 +111,19 @@ class AppContext extends Dictionary implements AppContextInterface
 	}
 
 	/**
+	 * @return	string
+	 */
+	public function buildView()
+	{
+		$view = $this->getView();
+		if (! ($view instanceof ViewTemplateInterface)) {
+			return '';
+		}
+
+		return $view->build();
+	}
+
+	/**
 	 * @return	array
 	 */
 	public function getAclCodes()

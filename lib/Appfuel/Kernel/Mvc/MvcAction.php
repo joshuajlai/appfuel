@@ -80,21 +80,8 @@ class MvcAction implements MvcActionInterface
 	 */
 	public function call($uri, array $params, AppContextInterface $original)
 	{
-		$dispatcher = $this->validateDispatcher();
-
-		$err = 'Failed to call action ';
-		if (! is_string($uri)) {
-			$err .= 'uri must be a string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$strategy = $original->get('app-strategy', null);
-		if (empty($strategy) || ! is_string($strategy)) {
-			$err .= "strategy is not a string or not set into context. ";
-			$err .= "searched context for strategy with 'app-strategy'";
-			throw new RunTimeException($err);
-		}
-
+		$dispatcher  = $this->getDispatcher();
+		$strategy    = $original->getStrategy();
 		$inputMethod = $original->getInput()
 							    ->getMethod();
 
@@ -105,12 +92,8 @@ class MvcAction implements MvcActionInterface
 							  ->defineInput($method, $params, $useUri)
 						      ->buildContext();
 		
-		$result = $dispatcher->runDispatch($context);
-		if (! ($result instanceof AppContextInterface)) {
-			$result = $context;
-		}
-
-		return $result;
+		$dispatcher->dispatch($context);
+		return $context;
 	}
 
 	/**
@@ -120,7 +103,7 @@ class MvcAction implements MvcActionInterface
 	 */
 	public function callUri($uri, $strategy)
 	{
-		$dispatcher = $this->validateDispatcher();
+		$dispatcher = $this->getDispatcher();
 						
 		$context = $dispatcher->clear()
 							  ->setUri($uri)
@@ -128,7 +111,7 @@ class MvcAction implements MvcActionInterface
 							  ->useUriForInputSource()
 							  ->buildContext();
 
-		$dispatcher->runDispatch($context);
+		$dispatcher->dispatch($context);
 		return $context;
 	}
 
@@ -139,7 +122,7 @@ class MvcAction implements MvcActionInterface
 	 */
 	public function callWithNoInputs($route, $strategy)
 	{
-		$dispatcher = $this->validateDispatcher();
+		$dispatcher = $this->getDispatcher();
 
 		$context = $dispatcher->clear()
 					->setRoute($route)
@@ -147,7 +130,7 @@ class MvcAction implements MvcActionInterface
 					->noInputRequired()
 					->buildContext();
 
-		$dispatcher->runDispatch($context);
+		$dispatcher->dispatch($context);
 		return $context;
 	}
 
@@ -163,21 +146,23 @@ class MvcAction implements MvcActionInterface
 	 * @param	array	input
 	 * @return	AppContextInterface
 	 */
-	public function callManual($uri, $strategy, $method, array $input)
+	public function manualCall($uri, 
+								$method, 
+								array $input, 
+								$strategy, 
+								$useUri = true)
 	{
-		$this->validateDispatcher();
-		$useUri  = true;
+		$dispatcher = $this->getDispatcher();
+
+		$useUri = ($useUri === true) ? true : false;
+
 		$context = $dispatcher->clear()
 							  ->setStrategy($strategy)
 							  ->setUri($uri)
 							  ->defineInput($method, $input, $useUri)
 							  ->buildContext();
 
-		$result = $dispatcher->runDispatch($context);
-		if ($result instanceof AppContextInterface) {
-			$context = $result;
-		}
-
+		$dispatcher->dispatch($context);
 		return $context;
 	}
 
@@ -197,23 +182,5 @@ class MvcAction implements MvcActionInterface
 	protected function setRoute($route)
 	{
 		$this->route = $route;
-	}
-
-	/**
-	 * Determines if the dispatcher exists and is the correct interface
-	 * 
-	 * @throws	RunTimeException
-	 * @return	MvcActionDispatcherInterface
-	 */
-	protected function validateDispatcher($err)
-	{
-		$dispatcher = $this->getDispatcher();
-		if (! ($dispatcher instanceof MvcActionDispatcherInterface)) {
-			$err  = 'operation requires a dispatcher but the dispatcher has ';
-			$err .= 'not been set';
-			throw new RunTimeException($err);
-		}
-
-		return $dispatcher;
 	}
 }

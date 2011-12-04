@@ -75,7 +75,9 @@ class MvcActionTest extends BaseTestCase
 		KernelRegistry::clearParams();
 
         $routeMap = array(
-            'my-route' => 'TestFuel\Fake\Action\TestFront\ActionA'
+            'action-a' => 'TestFuel\Fake\Action\TestAction\ActionA',
+            'action-b' => 'TestFuel\Fake\Action\TestAction\ActionB',
+            'action-c' => 'TestFuel\Fake\Action\TestAction\ActionC',
         );
         KernelRegistry::setRouteMap($routeMap);
 		$cli = null;
@@ -92,7 +94,7 @@ class MvcActionTest extends BaseTestCase
 
 
 		$this->dispatcher = new MvcActionDispatcher();
-		$this->action = new MvcAction('my-route', $this->dispatcher);
+		$this->action = new MvcAction('action-a', $this->dispatcher);
 	}
 
 	/**
@@ -150,5 +152,33 @@ class MvcActionTest extends BaseTestCase
 	{
 		$context = $this->getMock('Appfuel\Kernel\Mvc\AppContextInterface');
 		$this->assertNull($this->action->process($context));
+	}
+
+	/**
+	 * Three mvc actions have been designed for this test.
+	 * TestFuel\Fake\Action\TestAction\(ActionA,ActionB,ActionC)
+	 * Action A calls Action B and C and combines the results.
+	 *
+	 * @return	null
+	 */
+	public function testCallUri()
+	{
+		$context = $this->action->callUri('action-a', 'console');
+		$expected = 'processed label-a=value-a label-b=value-b and '; 
+		$expected .= 'processed label-a=value-c label-b=value-d';
+
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppContextInterface',
+			$context
+		);
+
+		$view = $context->getView();
+		$this->assertInstanceOf(
+			'Appfuel\Console\ConsoleViewTemplate',
+			$view
+		);
+
+		$result = $view->build();
+		$this->assertEquals($expected, $result);
 	}
 }

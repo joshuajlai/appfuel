@@ -8,15 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Fake\Action\TestAction\ActionA;
+namespace TestFuel\Fake\Action\TestAction\ActionC;
 
 use Appfuel\Kernel\Mvc\MvcAction,
 	Appfuel\Kernel\Mvc\AppContextInterface;
 
 /**
- * The goal of action A is to call action B and action C and turn their views
- * views into string and assign them into action A with label action-b and 
- * action c
+ * This action is designed to be called by ActionA
  */
 class ActionController extends MvcAction
 {
@@ -37,24 +35,13 @@ class ActionController extends MvcAction
      */
     public function process(AppContextInterface $context)
 	{
-		$view = $context->getView();
+		$view  = $context->getView();
+		$input = $context->getInput();
+	
+		$valueC = $input->get('get', 'label-c');
+		$valueD = $input->get('get', 'label-d');
 
-		$params = array(
-			'get' => array(
-				'label-a' => 'value-a',
-				'label-b' => 'value-b'
-			)
-		);
-		$uriB = 'action-b/label-a/value-a/label-b/value-b';
-		$uriC = 'action-c/label-c/value-c/label-d/value-d';
-
-		$strategy = $context->getStrategy();
-		$contextB = $this->callUri($uriB, $strategy);
-		$contextC = $this->callUri($uriC, $strategy);
-
-		$results = $contextB->buildView() . ' and ' .
-				   $contextC->buildView();
-		$view->assign('results', $results);
+		$result = "processed label-a=$valueC label-b=$valueD";
+		$view->assign('action-c:', $result);
 	}
-
 }
