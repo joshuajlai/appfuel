@@ -382,7 +382,6 @@ class MvcFrontTest extends BaseTestCase
 		$front = $this->createMvcFront($dispatcher);
 		
 		$this->assertSame($front, $front->setUri($uriString));
-
 		$_SERVER['REQUEST_METHOD'] = 'get';
 		$useUri = true;
 		$context = $dispatcher->setStrategy('console')
@@ -390,7 +389,7 @@ class MvcFrontTest extends BaseTestCase
 							  ->buildContext();
 
 		$this->assertEquals('my-route', $dispatcher->getRoute());
-		$this->assertEquals('my-route', $context->get('app-route'));
+		$this->assertEquals('my-route', $context->getRoute());
 		$input = $context->getInput();
 		$expected = array('param1' => 'value1');
 		$this->assertEquals($expected, $input->getAll('get'));

@@ -308,28 +308,19 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		$uri      = $this->getUri();
 		$route    = $this->getRoute();
 		$strategy = $this->getStrategy();
-		$builder  = $this->getContextBuilder();
+		$namespace = $this->getActionNamespace();
 		
+		$builder  = $this->getContextBuilder();
 		$builder->setStrategy($strategy)
 				->setRoute($route);
 
-		if (! ($uri instanceof RequestUriInterface)) {
-			$uri = $builder->createUri('');
+		if ( $uri instanceof RequestUriInterface) {
+			$builder->setUri($uri);
 		}
-		$builder->setUri($uri);
+		$builder->setInput($this->getInput());
 
-		$input = $this->getInput();
-		if (! ($input instanceof AppInputInterface)) {
-			$err .= 'input is required but not set';
-			throw new RunTimeException($err);
-		}
-		$builder->setInput($input);
-
-		$context   = $builder->build();
-		$namespace = $this->getActionNamespace();
+		$context = $builder->build();
 		$context->setView($this->createView($namespace, $strategy));
-
-		$context->add('app-route', $this->getRoute());
 		
 		$codes = $this->getRoleCodes();
 		foreach ($codes as $code) {
