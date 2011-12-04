@@ -24,12 +24,27 @@ class MvcAction implements MvcActionInterface
 	protected $dispatcher = null;
 
 	/**
-	 * @param	MvcActionDispatcherInterface $dispatcher
-	 * @return	null
+	 * The route key this action is mapped to
+	 * @var string
 	 */
-	public function setDispatcher(MvcActionDispatcherInterface $dispatcher)
+	protected $route = null;
+
+	/**
+	 * @param	string	$route
+	 * @return	MvcAction
+	 */
+	public function __construct($route, MvcActionDispatcherInterface $disp)
 	{
-		$this->dispatcher = $dispatcher;
+		$this->setRoute($route);
+		$this->setDispatcher($disp);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getRoute()
+	{
+		return $this->route;
 	}
 	
 	/**
@@ -106,49 +121,34 @@ class MvcAction implements MvcActionInterface
 	public function callUri($uri, $strategy)
 	{
 		$dispatcher = $this->validateDispatcher();
-
-		$err = 'Failed to call action ';
-		if (! is_string($uri)) {
-			$err .= 'uri must be a string';
-			throw new InvalidArgumentException($err);
-		}
+						
 		$context = $dispatcher->clear()
 							  ->setUri($uri)
 							  ->setStrategy($strategy)
 							  ->useUriForInputSource()
 							  ->buildContext();
 
-		$result = $dispatcher->runDispatch($context);
-		if (! ($result instanceof AppContextInterface)) {
-			$result = $context;
-		}
-
-		return $result;
+		$dispatcher->runDispatch($context);
+		return $context;
 	}
 
-	public function callWithNoInputs($route, AppContextInterface $original)
+	/**
+	 * @param	string	$route
+	 * @param	string	$strategy
+	 * @return	null
+	 */
+	public function callWithNoInputs($route, $strategy)
 	{
-		$err = 'Failed to call action ';
-		if (! is_string($route)) {
-			$err .= 'route must be a string';
-			throw new InvalidArgumentException($err);
-		}
+		$dispatcher = $this->validateDispatcher();
 
-		$this->validateDispatcher();
-		$dispatcher = $this->getDispatcher();
-	
-		$strategy = $original->get('app-strategy', null);
-		if (empty($strategy) || ! is_string($strategy)) {
-			$err .= "strategy is not a string or not set into context. ";
-			$err .= "searched context for strategy with 'app-strategy'";
-			throw new RunTimeException($err);
-		}
+		$context = $dispatcher->clear()
+					->setRoute($route)
+					->setStrategy($strategy)
+					->noInputRequired()
+					->buildContext();
 
-		return $dispatcher->clear()
-						  ->setRoute($route)
-						  ->setStrategy($strategy)
-						  ->noInputRequired()
-						  ->dispatch();
+		$dispatcher->runDispatch($context);
+		return $context;
 	}
 
 	/**
@@ -179,6 +179,24 @@ class MvcAction implements MvcActionInterface
 		}
 
 		return $context;
+	}
+
+	/**
+	 * @param	MvcActionDispatcherInterface $dispatcher
+	 * @return	null
+	 */
+	protected function setDispatcher(MvcActionDispatcherInterface $dispatcher)
+	{
+		$this->dispatcher = $dispatcher;
+	}
+
+	/**
+	 * @param	string	$route
+	 * @return	null
+	 */
+	protected function setRoute($route)
+	{
+		$this->route = $route;
 	}
 
 	/**

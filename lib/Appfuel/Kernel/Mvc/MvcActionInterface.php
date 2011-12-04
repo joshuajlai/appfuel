@@ -15,15 +15,14 @@ namespace Appfuel\Kernel\Mvc;
 interface MvcActionInterface
 {
 	/**
+	 * @return	string
+	 */
+	public function getRoute();
+
+	/**
 	 * @return	MvcActionDispatcherInterface
 	 */
 	public function getDispatcher();
-
-	/**
-	 * @param	MvcActionDispatcherInterface
-	 * @return	null
-	 */
-	public function setDispatcher(MvcActionDispatcherInterface $dispatcher);
 
 	/**
 	 * Used to determine acl controll

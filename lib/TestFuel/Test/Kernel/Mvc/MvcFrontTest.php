@@ -330,7 +330,12 @@ class MvcFrontTest extends BaseTestCase
 	 */
 	public function testRouteThatIsNotMappedWithDispatcher()
 	{
-		$this->front->setRoute('route-not-found');
+		$this->front->setRoute('route-not-found')
+					->setStrategy('console')
+					->noInputRequired();
+
+		$dispatcher = $this->front->getDispatcher();
+		$this->front->run($dispatcher);
 	}
 
 	/**
@@ -388,7 +393,6 @@ class MvcFrontTest extends BaseTestCase
 							  ->defineInputFromSuperGlobals($useUri)
 							  ->buildContext();
 
-		$this->assertEquals('my-route', $dispatcher->getRoute());
 		$this->assertEquals('my-route', $context->getRoute());
 		$input = $context->getInput();
 		$expected = array('param1' => 'value1');
@@ -413,7 +417,7 @@ class MvcFrontTest extends BaseTestCase
 							  ->defineInputFromSuperGlobals($useUri)
 							  ->buildContext();
 
-		$this->assertEquals('my-route', $dispatcher->getRoute());
+		$this->assertEquals('my-route', $context->getRoute());
 		$input = $context->getInput();
 		$expected = array('param1' => 'value1');
 		$this->assertEquals($expected, $input->getAll('get'));
@@ -445,7 +449,7 @@ class MvcFrontTest extends BaseTestCase
 							  ->defineInputFromSuperGlobals($useUri)
 							  ->buildContext();
 
-		$this->assertEquals('my-route', $dispatcher->getRoute());
+		$this->assertEquals('my-route', $context->getRoute());
 		$input = $context->getInput();
 		$expected = array('paramX' => 'valueY');
 		$this->assertEquals($expected, $input->getAll('get'));
@@ -522,7 +526,7 @@ class MvcFrontTest extends BaseTestCase
 							->buildContext();
 		
 		$input = $context->getInput();	
-		$this->assertEquals('my-route', $dispatcher->getRoute());
+		$this->assertEquals('my-route', $context->getRoute());
 		
 		$params['get'] = array('param1' => 'value1');
 		$this->assertEquals($params, $input->getAll());
@@ -563,7 +567,7 @@ class MvcFrontTest extends BaseTestCase
 							->buildContext();
 		
 		$input = $context->getInput();	
-		$this->assertEquals('my-route', $dispatcher->getRoute());
+		$this->assertEquals('my-route', $context->getRoute());
 		
 		$params['get'] = array(
 			'param1' => 'value1',
@@ -773,7 +777,7 @@ class MvcFrontTest extends BaseTestCase
 
 		$context = $dispatcher->setStrategy('ajax')
 							  ->buildContext();
-		$this->assertEquals('my-route', $dispatcher->getRoute());
+		$this->assertEquals('my-route', $context->getRoute());
 		
 		$input = $context->getInput();
 		$this->assertEquals('get', $input->getMethod());

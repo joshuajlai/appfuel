@@ -100,10 +100,14 @@ class ActionFactoryTest extends BaseTestCase
 	 */
 	public function testCreateMvcAction()
 	{
-		$namespace = 'TestFuel\Fake\Action\TestDispatch\ActionA';
-		$action    = $this->factory->createMvcAction($namespace);
+		$dispatcher= $this->getMock(
+			'Appfuel\Kernel\Mvc\MvcActionDispatcherInterface'
+		);
+		$route     = 'my-route';
+		$ns = 'TestFuel\Fake\Action\TestDispatch\ActionA';
+		$action = $this->factory->createMvcAction($route, $ns, $dispatcher);
 		$this->assertInstanceOf(
-			"$namespace\\ActionController",
+			"$ns\\ActionController",
 			$action
 		);
 		$this->assertInstanceof(
@@ -115,10 +119,10 @@ class ActionFactoryTest extends BaseTestCase
 			$action
 		);
 
-		$namespace = 'TestFuel\Fake\Action\TestDispatch\ActionB';
-		$action    = $this->factory->createMvcAction($namespace);
+		$ns = 'TestFuel\Fake\Action\TestDispatch\ActionB';
+		$action = $this->factory->createMvcAction($route, $ns, $dispatcher);
 		$this->assertInstanceOf(
-			"$namespace\\ActionController",
+			"$ns\\ActionController",
 			$action
 		);
 		$this->assertInstanceof(

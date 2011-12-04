@@ -117,17 +117,10 @@ interface MvcActionDispatcherInterface
 	public function buildContext();
 
 	/**
-	 * Dispatch a request a context using the fluent interface
-	 *
-	 * @return	AppContextInterface
-	 */
-	public function dispatch();
-
-	/**
 	 * Run the dispatch without any use of the fluent interface
 	 *
 	 * @param	AppContextInterface $context
 	 * @return	AppContextInterface
 	 */
-	public function runDispatch(AppContextInterface $context);
+	public function dispatch(AppContextInterface $context);
 }

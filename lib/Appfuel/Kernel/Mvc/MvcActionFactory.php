@@ -71,7 +71,9 @@ class MvcActionFactory implements MvcActionFactoryInterface
 	 * @param	string	$namespace
 	 * @return	ActionControllerInterface
 	 */
-	public function createMvcAction($namespace)
+	public function createMvcAction($route,
+									$namespace, 
+									MvcActionDispatcherInterface $dispatcher)
 	{
 		if (! is_string($namespace)) {
 			throw new InvalidArgumentException(
@@ -79,7 +81,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
 			);
 		}
 		$class = "$namespace\\{$this->getActionClass()}";
-		return new $class();
+		return new $class($route, $dispatcher);
 	}
 
     /**

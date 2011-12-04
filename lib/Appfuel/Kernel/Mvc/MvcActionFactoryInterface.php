@@ -30,5 +30,7 @@ interface MvcActionFactoryInterface
 	 * @param	string	$namespace
 	 * @return	ActionControllerInterface
 	 */
-	public function createMvcAction($namespace);
+	public function createMvcAction($route, 
+									$namespace, 
+									MvcActionDispatcherInterface $dispatcher);
 }

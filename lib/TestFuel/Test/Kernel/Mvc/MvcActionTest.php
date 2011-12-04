@@ -51,6 +51,18 @@ class MvcActionTest extends BaseTestCase
 	protected $bkSuperGlobals = array();
 
 	/**
+	 * Route key injected into the controller. First paremeter
+	 * @var string
+	 */
+	protected $route = null;
+
+	/**
+	 * Dispatcher injected into controller. Second parameter
+	 * @var string
+	 */
+	protected $dispatcher = null;
+
+	/**
 	 * @return null
 	 */
 	public function setUp()
@@ -58,7 +70,6 @@ class MvcActionTest extends BaseTestCase
 		$this->bkRoutes = KernelRegistry::getRouteMap();
 		$this->bkParams = KernelRegistry::getParams();
 
-		$this->action = new MvcAction();
 	
 		KernelRegistry::clearRouteMap();
 		KernelRegistry::clearParams();
@@ -78,6 +89,10 @@ class MvcActionTest extends BaseTestCase
 			'cookie' => $_COOKIE, 
 			'argv'   => $cli
 		);
+
+
+		$this->dispatcher = new MvcActionDispatcher();
+		$this->action = new MvcAction('my-route', $this->dispatcher);
 	}
 
 	/**
@@ -87,7 +102,6 @@ class MvcActionTest extends BaseTestCase
 	{
 		KernelRegistry::setRouteMap($this->bkRoutes);
 		KernelRegistry::setParams($this->bkParams);
-		$this->action = null;
 
 		$_GET    = $this->bkSuperGlobals['get'];
 		$_POST   = $this->bkSuperGlobals['post'];
@@ -97,6 +111,8 @@ class MvcActionTest extends BaseTestCase
 		if (null !== $cli) {
 			$_SERVER['argv'] = $cli;
 		}
+		$this->dispatcher = null;
+		$this->action = null;
 	}
 
 	/**

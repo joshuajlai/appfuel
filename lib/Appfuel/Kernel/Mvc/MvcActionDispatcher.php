@@ -50,13 +50,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	protected $route = null;
 
 	/**
-	 * The namespace of the mvc action. This is determined by the route, using
-	 * the KernelRegistry. This is automatically set when the route is set.
-	 * @var string
-	 */
-	protected $actionNamespace = null;
-
-	/**
 	 * Uri object which holds the route and get params
 	 * @var RequestUriInterface
 	 */
@@ -127,11 +120,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		}
 		
 		$this->route = $route;
-		$namespace = KernelRegistry::getActionNamespace($route);
-		if (false === $namespace) {
-			throw new RouteNotFoundException($route, '');
-		}
-		$this->actionNamespace = $namespace;
 		return $this;
 	}
 
@@ -142,7 +130,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	{
 		return $this->route;
 	}
-
 
 	/**
 	 * @param	string	$code
@@ -308,8 +295,11 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		$uri      = $this->getUri();
 		$route    = $this->getRoute();
 		$strategy = $this->getStrategy();
-		$namespace = $this->getActionNamespace();
-		
+		$namespace = $this->getActionNamespace($route);
+		if (false === $namespace) {
+			throw new RouteNotFoundException($route, '');
+		}
+
 		$builder  = $this->getContextBuilder();
 		$builder->setStrategy($strategy)
 				->setRoute($route);
@@ -326,6 +316,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		foreach ($codes as $code) {
 			$context->addAclCode($code);
 		}
+		$this->clear();
 
 		return $context;
 	}
@@ -333,36 +324,24 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	/**
 	 * Dispatch a request a context using the fluent interface
 	 *
-	 * @return	AppContextInterface
-	 */
-	public function dispatch()
-	{
-		return $this->runDispatch($this->buildContext());
-	}
-
-	/**
-	 * Run the dispatch without any use of the fluent interface
-	 *
 	 * @param	AppContextInterface $context
 	 * @return	AppContextInterface
 	 */
-	public function runDispatch(AppContextInterface $context)
+	public function dispatch(AppContextInterface $context)
 	{
-		$route     = $this->getRoute();
-		$namespace = $this->getActionNamespace();
-		if (null === $namespace) {
-			$err  = 'failed to dispatch: route not set, can not get mvc ';
-			$err .= 'action namespace';
-			throw new RunTimeException($err);
+		$route     = $context->getRoute();
+		$namespace = $this->getActionNamespace($route);
+		if (false === $namespace) {
+			throw new RouteNotFoundException($route, '');
 		}
 
-		$factory = $this->getActionFactory();
-		$action  = $factory->createMvcAction($namespace);
+		$factory    = $this->getActionFactory();
+		$dispatcher = new self($factory, $this->getContextBuilder());
+		$action  = $factory->createMvcAction($route, $namespace, $dispatcher);
 		
 		/* Create a new dipatcher for the mvc action giving it the ability 
 		 * to call other action controllers based on the route key 
 		 */		
-		$action->setDispatcher(new self($factory, $this->getContextBuilder()));
 
 		/*
 		 * Acl codes are simple way of giving the action controllers an easy
@@ -379,7 +358,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 			$context = $result;
 		}
 		
-		$this->clear();
 		return $context;
 	}
 
@@ -475,8 +453,8 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	/**
 	 * @return	string
 	 */
-	protected function getActionNamespace()
+	protected function getActionNamespace($route)
 	{
-		return $this->actionNamespace;
+		return KernelRegistry::getActionNamespace($route);
 	}
 }

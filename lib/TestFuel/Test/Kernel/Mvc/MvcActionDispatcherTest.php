@@ -688,8 +688,9 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$context = $this->dispatcher->setRoute('my-key')
 									->setStrategy('ajax')
 									->noInputRequired()
-									->dispatch();
+									->buildContext();
 
+		$this->dispatcher->dispatch($context);
 		$route    = $context->getRoute();
 		$strategy = $context->getStrategy();
 		$this->assertInstanceOf(
@@ -717,8 +718,9 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$context = $this->dispatcher->setRoute('my-key')
 								 ->setStrategy('html')
 								 ->noInputRequired()
-								 ->dispatch();
+								 ->buildContext();
 	
+		$this->dispatcher->dispatch($context);
 		$route    = $context->getRoute();
 		$strategy = $context->getStrategy();
 		$this->assertInstanceOf(
@@ -746,7 +748,9 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$context = $this->dispatcher->setRoute('my-key')
 									->setStrategy('console')
 									->noInputRequired()
-									->dispatch();
+									->buildContext();
+
+		$this->dispatcher->dispatch($context);
 
 		$route    = $context->getRoute();
 		$strategy = $context->getStrategy();

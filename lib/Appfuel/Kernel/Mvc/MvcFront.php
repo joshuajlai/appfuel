@@ -384,7 +384,7 @@ class MvcFront implements MvcFrontInterface
 			 * a new one otherwise the reference to the context that was passed 
 			 * in is used for the post intercepting filters
 			 */
-			$result = $dispatcher->runDispatch($context);
+			$result = $dispatcher->dispatch($context);
 			if ($result instanceof AppContextInterface) {
 				$context = $result;
 			}
