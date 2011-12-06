@@ -13,23 +13,18 @@ namespace Appfuel\View\Formatter;
 /**
  * Format an array of arrays into csv 
  */
-class CsvFormatter implements ViewFormatterInterface
+class CsvFormatter extends BaseFormatter implements ViewFormatterInterface
 {
 
     /** 
      * @param   mixed	$data
 	 * @return	string
      */
-    public function format($data)
+    public function format(array $data)
     {
-        if (is_string($data)) {
-            return $data;
-        }
-        else if (is_object($data) && is_callable(array($data, '__toString'))) {
-            return $data->__toString();
-        }
-        else if (! is_array($data)) {
-            return '';
+        if (! $this->isValidFormat($data)) {
+            $err = 'Csv Formatter failed: data must be an associative array';
+			throw new InvalidArgumentException($err);
         }
 
 		$result = '';

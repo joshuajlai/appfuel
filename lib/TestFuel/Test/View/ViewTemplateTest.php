@@ -230,6 +230,25 @@ class ViewTemplateTest extends BaseTestCase
         $this->assertEquals($data, $this->template->getAllAssigned());
 	}
 
+	/**
+	 * assignDeep splits the key on '.' and uses each part as a template 
+	 * name with the last part being the key. Since the ViewTemplate can not
+	 * hold any other templates than this has no meaning the key will still
+	 * be the key
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testAssignDeepAsNoMeaning()
+	{
+		$key = 'template1.template2.template3';
+		$value = 'value';
+		$this->assertSame(
+			$this->template, 
+			$this->template->assign($key, $value, true)
+		);
+		$this->assertEquals($value, $this->template->getAssigned($key));
+	}
 
 	/**
 	 * Note that this is using the text formatter in ArrayAssoc mode which will

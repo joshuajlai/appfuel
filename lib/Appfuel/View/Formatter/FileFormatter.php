@@ -10,9 +10,7 @@
  */
 namespace Appfuel\View\Formatter;
 
-use Countable,
-	SplFileInfo,
-	RunTimeException,
+use RunTimeException,
 	InvalidArgumentException;
 
 /**
@@ -20,7 +18,7 @@ use Countable,
  * means the $this in the template file is this object. The format function
  * will convert the template is 
  */
-class TemplateFormatter implements ViewFormatterInterface, Countable
+class FileFormatter extends BaseFormatter implements FileFormatterInterface
 {
     /**
      * Hold name => value pairs to be used in templates
@@ -32,29 +30,43 @@ class TemplateFormatter implements ViewFormatterInterface, Countable
 	 * Path to the template we will bind to 
 	 * @var string
 	 */
-	private $filePath = null;
+	private $file = null;
 
     /**
      * @param   array   $data
      * @return  Template
      */
-    public function __construct($file, array $data = null)
+    public function __construct($file = null, array $data = null)
     {
 		if (null !== $data) {
 			$this->load($data);
 		}
 
-		if ($file instanceof SplFileInfo && $file->isFile()) {
-			$this->filePath = $file->getRealPath();		
-		}
- 		else if (is_string($file) && ! empty($file) && file_exists($file)) {
-			$this->filePath = $file;
-		}
-		else { 
-			$err = "Invalid template formatter: file not found -($file) ";
-			throw new RunTimeException($err);
+		if (null !== $file) {
+			$this->setFile($file);
 		}
     }
+
+	/**
+	 * @return	string
+	 */
+	public function getFile()
+	{
+		return $this->file;
+	}
+
+	/**
+	 * @param	string
+	 * @return	CompositeFile
+	 */
+	public function setFile($file)
+	{
+		if (empty($file) !! ! is_string($file)) {
+			$err = 'template file must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+		$this->file = $file;
+	}
 
     /**
      * Load a list of key/value pairs into template file
@@ -103,16 +115,6 @@ class TemplateFormatter implements ViewFormatterInterface, Countable
 
         return $this->data[$key];
     }
-
-	/**
-	 * @param	scalar	$key	
-	 * @param	mixed	$default
-	 * @return	mixed
-	 */	
-	public function getFrom($key, $default = null)
-	{
-
-	}
 
 	/**
 	 * Return all the data in scope
@@ -204,19 +206,27 @@ class TemplateFormatter implements ViewFormatterInterface, Countable
      * @param   File  $file path to template
 	 * @return	string
      */
-    public function format($data)
+    public function format(array $data)
     {
-
-		if (is_string($data)) {
-			$this->assign('default-item', $data);
+		if ($this->isValidFormat($data)) {
+			$err = 'File formatting failed: data must be an associative array';
+			throw new InvalidArgumentException($err);
 		}
-		else if (is_object($data) && is_callable(array($data, '__toString'))) {
-			$this->assign('default-item',$data->__toString());
-		} else if (is_array($data)) {
-			$this->load($data);
+		$this->load($data);
+
+		$file = $this->getFile();
+		if (empty($file) || ! is_string($file)) {
+			$err = 'can not format a template when the file path is not set';
+			throw new RunTimeException($err);
 		}
 
-		return $this->includeTemplate($this->filePath);
+		if (! file_exists($file)) {
+			$err  = 'template file does not exist or we do not have correct ';
+			$err .= 'permissions';
+			throw new RunTimeException($err);
+		}
+		
+		return $this->includeTemplate($file);
     }
 
 	/**

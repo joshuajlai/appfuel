@@ -15,7 +15,7 @@ use InvalidArgumentException;
 /**
  * Converts each key value pair in an associative array as a new line 
  */
-class TextFormatter implements ViewFormatterInterface
+class TextFormatter extends BaseFormatter implements ViewFormatterInterface
 {
 	/**
 	 * Used to delimit key and value
@@ -150,31 +150,15 @@ class TextFormatter implements ViewFormatterInterface
      * @param   mixed	$data
 	 * @return	string
      */
-    public function format($data)
+    public function format(array $data)
     {
-		if (! is_array($data)) {
-			return $this->parseString($data);
+		if (! $this->isValidFormat($data)) {
+			$err = 'Text formatter failed: data must be an associative array';
+			throw new InvalidArgumentException($err);
 		}
 
 		return $this->parseArray($data, $this->getArrayStrategy());	
     }
-
-	/**
-	 * @param	mixed	$data
-	 * @return	string
-	 */
-	public function parseString($data)
-	{
-		if (is_scalar($data)) {
-			return $data;
-		}
-		else if (is_object($data) && is_callable(array($data, '__toString'))) {
-			return $data->__toString();
-		}
-		else {
-			return '';
-		}
-	}
 
 	/**
 	 * Parse Array will parse out the data array depending on type

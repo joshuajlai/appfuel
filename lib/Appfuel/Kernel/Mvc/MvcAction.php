@@ -14,6 +14,12 @@ use Appfuel\View\AjaxTemplateInterface,
 	Appfuel\View\ViewTemplateInterface;
 
 /**
+ * The mvc action is the controller in mvc. The front controller always 
+ * dispatches a context to be processed by the mvc action based on a 
+ * route (obtained via request uri, generally) that maps to that mvc action.
+ * Every mvc action can also dispatch calls (process context) to any other
+ * mvc action based on route (and context building), which always mvc actions
+ * to be used rather than duplicated. 
  */
 class MvcAction implements MvcActionInterface
 {
@@ -73,30 +79,6 @@ class MvcAction implements MvcActionInterface
 	{}
 
 	/**
-	 * 
-	 * @param	string	$route
-	 * @param	AppContextInterface $context
-	 * @return	AppContextInterface
-	 */
-	public function call($uri, array $params, AppContextInterface $original)
-	{
-		$dispatcher  = $this->getDispatcher();
-		$strategy    = $original->getStrategy();
-		$inputMethod = $original->getInput()
-							    ->getMethod();
-
-		$useUri  = true;
-		$context = $dispatcher->clear()
-							  ->setUri($uri)
-							  ->setStrategy($strategy)
-							  ->defineInput($method, $params, $useUri)
-						      ->buildContext();
-		
-		$dispatcher->dispatch($context);
-		return $context;
-	}
-
-	/**
 	 * @param	string	$uri
 	 * @param	string	$strategy	dispatch as console|ajax|html
 	 * @return	AppContextInterface
@@ -146,11 +128,7 @@ class MvcAction implements MvcActionInterface
 	 * @param	array	input
 	 * @return	AppContextInterface
 	 */
-	public function manualCall($uri, 
-								$method, 
-								array $input, 
-								$strategy, 
-								$useUri = true)
+	public function call($uri, $method, array $in, $strategy, $useUri = true)
 	{
 		$dispatcher = $this->getDispatcher();
 
@@ -159,7 +137,7 @@ class MvcAction implements MvcActionInterface
 		$context = $dispatcher->clear()
 							  ->setStrategy($strategy)
 							  ->setUri($uri)
-							  ->defineInput($method, $input, $useUri)
+							  ->defineInput($method, $in, $useUri)
 							  ->buildContext();
 
 		$dispatcher->dispatch($context);

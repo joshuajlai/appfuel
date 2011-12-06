@@ -11,22 +11,19 @@
 namespace Appfuel\View\Formatter;
 
 /**
- * Json encode an associative array of data
+ * Common logic between all formatter.
  */
-class JsonFormatter extends BaseFormatter implements ViewFormatterInterface
+class BaseFormatter
 {
 
     /** 
-     * @param   mixed	$data
-	 * @return	string
+	 * Check that determines if the data is infact an associative array
+	 *
+     * @param   array	$data
+	 * @return	bool
      */
-    public function format(array $data)
+    public function isValidFormat(array $data)
     {
-		if (! $this->isValidFormat($data)) {
-			$err = 'Json format failed: data must be an associative array';
-			throw new InvalidArgumentException($err);
-		}
-
-		return json_encode($data);
+		return ! ($data === array_values($data));
     }
 }

@@ -363,7 +363,7 @@ class MvcFront implements MvcFrontInterface
 		$filters = KernelRegistry::getParam('intercepting-filters', array());
 		$filterManager = $this->getFilterManager();
 		$filterManager->loadFilters($filters);
-		$result = $filterManager->applyPreFilters($context);
+		$filterManager->applyPreFilters($context);
 		
 		/*
 		 * Use the returned context in place of the one built
@@ -384,20 +384,14 @@ class MvcFront implements MvcFrontInterface
 			 * a new one otherwise the reference to the context that was passed 
 			 * in is used for the post intercepting filters
 			 */
-			$result = $dispatcher->dispatch($context);
-			if ($result instanceof AppContextInterface) {
-				$context = $result;
-			}
+			$dispatcher->dispatch($context);
 
 			/*
 			 * post intercepting filters allow business logic access to the 
 			 * context
 			 * after the mvc action has processed it
 			 */
-			$context = $filterManager->applyPostFilters($context);
-			if ($result instanceof AppContextInterface) {
-				$context = $result;
-			}
+			$filterManager->applyPostFilters($context);
 		}
 
 		/* render context based on the output engine that was set, not the

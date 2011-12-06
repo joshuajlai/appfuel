@@ -178,7 +178,97 @@ class MvcActionTest extends BaseTestCase
 			$view
 		);
 
-		$result = $view->build();
+		$result = $view->getAssigned('results');
 		$this->assertEquals($expected, $result);
 	}
+
+	/**
+	 * This show how to call another mvc action when you do not require any
+	 * inputs to be passed
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testCallWithNoInputs()
+	{
+		$context = $this->action->callWithNoInputs('action-a', 'console');
+		$expected = 'processed label-a=value-a label-b=value-b and '; 
+		$expected .= 'processed label-a=value-c label-b=value-d';
+		
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppContextInterface',
+			$context
+		);
+		
+		/* prove inputs are empty */
+		$input = $context->getInput();
+		$data = array(
+			'get'    => array(),
+			'post'   => array(),
+			'files'  => array(),
+			'cookie' => array(),
+			'argv'   => array()
+		);
+		$this->assertEquals($data, $input->getAll());
+		$view = $context->getView();
+		$this->assertInstanceOf(
+			'Appfuel\Console\ConsoleViewTemplate',
+			$view
+		);
+
+		$result = $view->getAssigned('results');
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * Call is the most manual way to call another mvc action, you have to 
+	 * specify the uri, request method, input paramters and tell it if you
+	 * want the uri as your get params (enabled by default)
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testCall()
+	{
+		$strategy = 'console';
+		$method   = 'post';
+		$uri      = 'action-a/paramX/valueY';
+		$params   = array(
+			'get'    => array('param1' => 'value1'),
+			'post'   => array('param2' => 'value2'),
+			'files'  => array('param3' => 'value3'),
+			'cookie' => array('param4' => 'value4'),
+			'argv'   => array('param5' => 'value5'),
+			'custom' => array('myparam' => 'myvalue'),
+		);
+		$context = $this->action->call($uri, $method, $params, $strategy);
+		$expected = 'processed label-a=value-a label-b=value-b and '; 
+		$expected .= 'processed label-a=value-c label-b=value-d';
+
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Mvc\AppContextInterface',
+			$context
+		);
+	
+		$params['get']['paramX'] = 'valueY';	
+		/* prove inputs are empty */
+		$input = $context->getInput();
+
+		$this->assertEquals($params, $input->getAll());
+		$this->assertEquals($method, $input->getMethod());
+		$this->assertEquals('action-a', $context->getRoute());
+		$this->assertEquals($strategy, $context->getStrategy());
+
+		$view = $context->getView();
+		$this->assertInstanceOf(
+			'Appfuel\Console\ConsoleViewTemplate',
+			$view
+		);
+
+		$result = $view->getAssigned('results');
+		$this->assertEquals($expected, $result);
+	}
+
+
+
 }

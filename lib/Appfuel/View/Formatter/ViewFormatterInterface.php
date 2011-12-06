@@ -11,14 +11,14 @@
 namespace Appfuel\View\Formatter;
 
 /**
- * The view formatter converts a data structure, usually an array into a string
+ * The view formatter is responsible for converting the known data structure of
+ * an associative array into a string.
  */
 interface ViewFormatterInterface
 {
     /** 
-     * @param	mixed	$data	data to be formatted into a string
+     * @param	mixed	$data	array data to be formatted into a string
 	 * @return	string
      */
-    public function format($data);
-
+    public function format(array $data);
 }
