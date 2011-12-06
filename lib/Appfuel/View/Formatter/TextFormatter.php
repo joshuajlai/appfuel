@@ -161,6 +161,23 @@ class TextFormatter extends BaseFormatter implements ViewFormatterInterface
     }
 
 	/**
+	 * @param	mixed	$data
+	 * @return	string
+	 */
+	public function parseString($data)
+	{
+		if (is_scalar($data)) {
+			return $data;
+		}
+		else if (is_object($data) && is_callable(array($data, '__toString'))) {
+			return $data->__toString();
+		}
+		else {
+			return '';
+		}
+	}
+
+	/**
 	 * Parse Array will parse out the data array depending on type
 	 * values:	parse only values - will travel down sub arrays 
 	 * keys:	parse only keys	  - will not travel down sub arrays

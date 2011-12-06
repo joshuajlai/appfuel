@@ -840,14 +840,13 @@ class MvcFrontTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testRunDispatchConsoleNoInputNoFilters()
+	public function estRunDispatchConsoleNoInputNoFilters()
 	{
 		$uriString = 'my-route/param1/value1';
 		$output = $this->getMock('Appfuel\Console\ConsoleOutputInterface');
 		$render = function($data) {
 			echo $data;
 		};
-
 		$output->expects($this->once())
 			  ->method('render')
 			  ->will($this->returnCallback($render));
@@ -865,7 +864,7 @@ class MvcFrontTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testRunDispatchConsoleWithPreFilter()
+	public function estRunDispatchConsoleWithPreFilter()
 	{
 		$uriString = 'my-route/param1/value1';
 		$output = $this->getMock('Appfuel\Console\ConsoleOutputInterface');
@@ -894,7 +893,7 @@ class MvcFrontTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testRunDispatchConsoleWith2PreFilter()
+	public function estRunDispatchConsoleWith2PreFilter()
 	{
 		$uriString = 'my-route/param1/value1';
 		$output = $this->getMock('Appfuel\Console\ConsoleOutputInterface');
@@ -923,7 +922,7 @@ class MvcFrontTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testRunDispatchConsoleWithPreAndPostFilters()
+	public function estRunDispatchConsoleWithPreAndPostFilters()
 	{
 		$uriString = 'my-route/param1/value1';
 		$output = $this->getMock('Appfuel\Console\ConsoleOutputInterface');

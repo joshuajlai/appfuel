@@ -37,7 +37,7 @@ class PrependLabelFilter
 	public function filter(AppContextInterface $context)
 	{
 		$view = $context->getView();
-		$value = $view->getAssigned('my-assignment', false);
+		$value = $view->get('my-assignment', false);
 		if (false === $value) {
 			return $this->next($context);
 		}

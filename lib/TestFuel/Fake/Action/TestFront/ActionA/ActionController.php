@@ -11,8 +11,7 @@
 namespace TestFuel\Fake\Action\TestFront\ActionA;
 
 use Appfuel\Kernel\Mvc\MvcAction,
-	Appfuel\Kernel\Mvc\AppContextInterface,
-	Appfuel\View\ViewTemplateInterface;
+	Appfuel\Kernel\Mvc\AppContextInterface;
 
 /**
  * Mvc Action used to test the front controller.
@@ -39,7 +38,7 @@ class ActionController extends MvcAction
 
 		$label   = 'my-assignment';
 		$default = 'this action has been executed';
-		$value   = $view->getAssigned($label, null);
+		$value   = $view->get($label, null);
 		if (! empty($value) && is_string($value)) {
 			$value .= " $default";
 		}
@@ -49,5 +48,4 @@ class ActionController extends MvcAction
 
 		$view->assign($label, $value);
 	}
-
 }

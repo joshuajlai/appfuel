@@ -127,6 +127,11 @@ interface ViewTemplateInterface
 	public function get($key, $default = null);
 
 	/**
+	 * @return	array
+	 */
+	public function getAll();
+
+	/**
 	 * @param	string
 	 * @return	bool
 	 */
@@ -140,11 +145,6 @@ interface ViewTemplateInterface
 	 * @return	null
 	 */
 	public function getFrom($key, $default = null);
-
-	/**
-	 * @return	array
-	 */
-	public function getAllAssigned();
 
 	/**
 	 * Build the template file indicated by key into string. Use data in

@@ -12,9 +12,10 @@ namespace Appfuel\View;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\View\Compositor\FileCompositor,
-	Appfuel\View\Compositor\TextCompositor,
-	Appfuel\View\Compositor\CompositorInterface;
+	Appfuel\View\Compositor\FileFormatter,
+	Appfuel\View\Compositor\TextFormatter,
+	Appfuel\View\Formatter\FileFormatterInterface,
+	Appfuel\View\Formatter\ViewFormatterInterface;
 
 /**
  * The view template is the most basic of the templates. Holding all its data
@@ -82,13 +83,24 @@ class ViewTemplate implements ViewTemplateInterface
 	 */
 	public function setFile($file)
 	{
-		if (empty($file) || ! is_string($file)) {
+		if (empty($file) || ! is_string($file) || ! ($file = trim($file))) {
 			$err = 'file path must be a non empty string';
 			throw new InvalidArgumentException($err);
 		}
 
 		$this->file = $file;
 		return $this;
+	}
+
+	/**
+	 * When a file is set with a non empty string it indicates that this 
+	 * template will be formatted with a FileFormatter.
+	 *
+	 * @return	bool
+	 */
+	public function isFileTemplate()
+	{
+		return ! empty($this->file) && is_string($this->file);
 	}
 
 	/**
@@ -408,8 +420,8 @@ class ViewTemplate implements ViewTemplateInterface
 			$this->buildTemplates();
 		}
 
-		$file = $this->getFile();
-		if (! empty($file) && is_string($file)) {
+		if ($this->isFileTemplate()) {
+			$file = $this->getFile();
 			if (! ($formatter instanceof FileFormatterInterface)) {
 				$err  = 'build failed: when a template file is set the view ';
 				$err .= 'formatter must implement Appfuel\View\FileFormatter';

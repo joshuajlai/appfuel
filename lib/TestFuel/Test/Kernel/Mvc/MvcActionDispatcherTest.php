@@ -703,9 +703,9 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'TestFuel\Fake\Action\TestDispatch\ActionA\AjaxView',
 			$view
 		);
-		$this->assertEquals('bar',     $view->getAssigned('ajax-foo'));
-		$this->assertEquals('value-a', $view->getAssigned('common-a'));
-		$this->assertEquals('value-b', $view->getAssigned('common-b'));
+		$this->assertEquals('bar',     $view->get('ajax-foo'));
+		$this->assertEquals('value-a', $view->get('common-a'));
+		$this->assertEquals('value-b', $view->get('common-b'));
 		$this->assertEquals('my-key', $route);
 		$this->assertEquals('ajax', $strategy);
 	}
@@ -733,9 +733,9 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'TestFuel\Fake\Action\TestDispatch\ActionA\HtmlView',
 			$view
 		);
-		$this->assertEquals('bar', $view->getAssigned('html-foo'));
-		$this->assertEquals('value-a', $view->getAssigned('common-a'));
-		$this->assertEquals('value-b', $view->getAssigned('common-b'));
+		$this->assertEquals('bar', $view->get('html-foo'));
+		$this->assertEquals('value-a', $view->get('common-a'));
+		$this->assertEquals('value-b', $view->get('common-b'));
 		$this->assertEquals('my-key', $route);
 		$this->assertEquals('html', $strategy);
 	}
@@ -765,9 +765,9 @@ class MvcActionDispatcherTest extends BaseTestCase
 			$view
 		);
 
-		$this->assertEquals('bar',     $view->getAssigned('console-foo'));
-		$this->assertEquals('value-a', $view->getAssigned('common-a'));
-		$this->assertEquals('value-b', $view->getAssigned('common-b'));
+		$this->assertEquals('bar',     $view->get('console-foo'));
+		$this->assertEquals('value-a', $view->get('common-a'));
+		$this->assertEquals('value-b', $view->get('common-b'));
 		$this->assertEquals('my-key',  $route);
 		$this->assertEquals('console', $strategy);
 	}

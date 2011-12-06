@@ -10,21 +10,11 @@
  */
 namespace TestFuel\Fake\Action\TestDispatch\ActionA;
 
-use Appfuel\View\ViewFileTemplate;
+use Appfuel\View\ViewTemplate;
 
 /**
  * Used to test the action factories ability to create custom ajax views
  */
-class HtmlView extends ViewFileTemplate 
+class HtmlView extends ViewTemplate 
 {
-	/**
-	 * Must override constructor. we normally define the path to the 
-	 * template here
-	 *
-	 * @return	HtmlView
-	 */
-	public function __construct()
-	{
-
-	}
 }

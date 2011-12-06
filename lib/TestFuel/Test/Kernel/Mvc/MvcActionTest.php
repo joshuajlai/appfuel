@@ -161,7 +161,7 @@ class MvcActionTest extends BaseTestCase
 	 *
 	 * @return	null
 	 */
-	public function testCallUri()
+	public function estCallUri()
 	{
 		$context = $this->action->callUri('action-a', 'console');
 		$expected = 'processed label-a=value-a label-b=value-b and '; 
@@ -189,7 +189,7 @@ class MvcActionTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testCallWithNoInputs()
+	public function estCallWithNoInputs()
 	{
 		$context = $this->action->callWithNoInputs('action-a', 'console');
 		$expected = 'processed label-a=value-a label-b=value-b and '; 
@@ -228,7 +228,7 @@ class MvcActionTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testCall()
+	public function estCall()
 	{
 		$strategy = 'console';
 		$method   = 'post';
@@ -268,7 +268,4 @@ class MvcActionTest extends BaseTestCase
 		$result = $view->getAssigned('results');
 		$this->assertEquals($expected, $result);
 	}
-
-
-
 }

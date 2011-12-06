@@ -42,7 +42,7 @@ class ReplaceSpacesFilter
 			$this->next($context);;
 		}
 
-		$value = $view->getAssigned('my-assignment', '');
+		$value = $view->get('my-assignment', '');
 		$value = str_replace(' ', ':', $value);
 		$view->assign('my-assignment', $value);
 		$this->next($context);

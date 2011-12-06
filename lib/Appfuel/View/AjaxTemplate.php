@@ -110,17 +110,17 @@ class AjaxTemplate extends ViewTemplate implements AjaxTemplateInterface
 	 * @param	array	$data	used for private scope
 	 * @return	string
 	 */
-    public function build(array $data = null, $isPrivate = false)
+    public function build()
 	{
 		/* we manually assign the new structure.
 		 */
 		$result = array(
 			'code'		=> $this->getStatusCode(),
 			'message'	=> $this->getStatusText(),
-			'data'		=> $this->getAllAssigned()
+			'data'		=> $this->getAll()
 		);
 		$this->assign = $result;
 
-		return parent::build($data, $isPrivate);
+		return parent::build();
 	}
 }

@@ -363,7 +363,7 @@ class MvcFront implements MvcFrontInterface
 		$filters = KernelRegistry::getParam('intercepting-filters', array());
 		$filterManager = $this->getFilterManager();
 		$filterManager->loadFilters($filters);
-		$filterManager->applyPreFilters($context);
+		$result = $filterManager->applyPreFilters($context);
 		
 		/*
 		 * Use the returned context in place of the one built

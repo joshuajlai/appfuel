@@ -12,7 +12,6 @@ namespace TestFuel\Fake\Action\TestDispatch\ActionA;
 
 use Appfuel\Kernel\Mvc\MvcAction,
 	Appfuel\Kernel\Mvc\AppContextInterface,
-	Appfuel\View\ViewTemplateInterface,
 	Appfuel\View\AjaxTemplateInterface;
 
 /**
