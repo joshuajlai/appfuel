@@ -1,3 +1,15 @@
-<head>
-	<title><?php $this->render('title', '')?></title>
+<head <?php $this->renderAttributes()?>>
+<?php
+	/* 
+	 * html creation and configuration is handled by the 
+	 * Appfuel\View\Html\Head\HtmlHeadInterface the interface below
+	 * Appfuel\View\Html\Head\HtmlHeadFormatterInterface
+	 */
+	$this->renderCharset();
+	$this->renderBase();
+	$this->renderTitle();
+	$this->renderCss();
+	$this->renderJs();
+	$this->renderMeta();
+?>
 </head>

@@ -152,6 +152,10 @@ class TextFormatter extends BaseFormatter implements ViewFormatterInterface
      */
     public function format(array $data)
     {
+		if (empty($data)) {
+			return '';
+		}
+
 		if (! $this->isValidFormat($data)) {
 			$err = 'Text formatter failed: data must be an associative array';
 			throw new InvalidArgumentException($err);

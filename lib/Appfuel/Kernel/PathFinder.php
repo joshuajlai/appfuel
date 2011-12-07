@@ -18,7 +18,7 @@ use SplFileInfo,
  * The path finder is used to encapsulate the knowledge of the base path and
  * whatever relative path the developer specifies in the constructor. This 
  * allows the code to resolve absolute paths without ever caring about what
- * what they are or how to build them.
+ * they are or how to build them. They can care only about the relative path
  */
 class PathFinder implements PathFinderInterface
 {
@@ -36,26 +36,27 @@ class PathFinder implements PathFinderInterface
 	protected $relativeRoot = '';
 
     /**
-     * When includeBase is true prepend the application base path to 
-     * the given path and make that the full path
-     * 
+     *  
      * @param   string  $path
-     * @param   bool    $includeBase
+     * @param   bool    $isBasePath
      * @return  File
      */
-    public function __construct($relativePath = '', $enableBasePath = true)
+    public function __construct($path = '', $isBasePath = true)
     {
-		if (! defined('AF_BASE_PATH')) {
+		if (! defined('AF_BASE_PATH') && true === $isBasePath) {
 			throw new RunTimeException(
 				"base path constant must be set AF_BASE_PATH"
 			);
 		}
 
-		if (is_string($relativePath) && ! empty($relativePath)) {
-			$this->setRelativeRootPath($relativePath);
+		/* set only a string that is not empty since the default relative
+		 * root is empty
+		 */
+		if (is_string($path) && ($path = trim($path))) {
+			$this->setRelativeRootPath($path);
 		}
 
-		if (false === $enableBasePath) {
+		if (false === $isBasePath) {
 			$this->disableBasePath();
 		}
     }

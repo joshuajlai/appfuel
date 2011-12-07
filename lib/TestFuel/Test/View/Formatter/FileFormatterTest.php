@@ -13,7 +13,7 @@ namespace TestFuel\Test\View\Formatter;
 use StdClass,
 	SplFileInfo,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\View\Formatter\TemplateFormatter;
+	Appfuel\View\Formatter\FileFormatter;
 
 /**
  * The template formatter converts a php template into a string. It binds 
@@ -21,7 +21,7 @@ use StdClass,
  * parser class the $this reference in the template file. All functions except
  * format and include support the functionality of the template file
  */
-class TemplateFormatterTest extends BaseTestCase
+class FileFormatterTest extends BaseTestCase
 {
 	/**
 	 * System under test
@@ -43,7 +43,7 @@ class TemplateFormatterTest extends BaseTestCase
 		$path = "{$this->getTestFilesPath()}/ui/appfuel/template.phtml";	
 		$this->templatePath = $path;
 
-		$this->formatter = new TemplateFormatter($this->templatePath);
+		$this->formatter = new FileFormatter($this->templatePath);
 	}
 
     /**
@@ -399,61 +399,6 @@ class TemplateFormatterTest extends BaseTestCase
     }
 
     /**
-     * Same test as above accept with an SplFileInfo object data is loaded
-	 * into the formatter
-     *
-     * @return null
-     */
-    public function testFormatWithInConstructorFileObjectLoadData()
-    {
-        $file = new SplFileInfo($this->getTemplatePath());
-        $data = array(
-            'foo' => 'bar'
-        );
-
-        $formatter = new TemplateFormatter($file, $data);
-        $result = $formatter->format(null);
-
-        $expected = 'This is a test template. Foo=bar. EOF.';
-        $this->assertEquals($expected, $result);
-    }
-
-	/**
-     * Same test as above accept with an SplFileInfo object
-     * and data is passed into format
-	 *
-     * @return null
-     */
-    public function testFormatWithInConstructorFileObject()
-    {
-        $file = new SplFileInfo($this->getTemplatePath());
-        $data = array(
-            'foo' => 'bar'
-        );
-
-        $formatter = new TemplateFormatter($file);
-        $result = $formatter->format($data);
-
-        $expected = 'This is a test template. Foo=bar. EOF.';
-        $this->assertEquals($expected, $result);
-    }
-
-	/**
-	 * In this test we will not pass any data and the template will render
-	 * with default data
-	 *
-     * @return null
-     */
-    public function testFormatWithDefaultData()
-    {
-		$this->assertEquals(0, $this->formatter->count());
-        $result = $this->formatter->format(null);
-
-        $expected = 'This is a test template. Foo=baz. EOF.';
-        $this->assertEquals($expected, $result);
-    }
-
-    /**
      * Show that with the absolute path you can build a file from within
      * a template file
      *
@@ -461,10 +406,9 @@ class TemplateFormatterTest extends BaseTestCase
      */
     public function testFormatFileBuildInTemplate()
     {
-        $path = "{$this->getTestFilesPath()}/ui/appfuel/include_template.phtml";
-        $file = new SplFileInfo($path);
+        $file = "{$this->getTestFilesPath()}/ui/appfuel/include_template.phtml";
         $data = array('template_path' => $this->getTemplatePath());
-        $formatter = new TemplateFormatter($file);
+        $formatter = new FileFormatter($file);
         $result = $formatter->format($data);
         $expected = 'New template: This is a test template. Foo=baz. EOF.';
         $this->assertEquals($expected, $result);

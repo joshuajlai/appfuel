@@ -44,7 +44,7 @@ interface FileFormatterInterface extends ViewFormatterInterface
      * @param   array   $data
      * @return  TemplateFormatter
      */
-    public function load(array $data)
+    public function load(array $data);
 
 	/**
 	 * Assign a key value pair into the template

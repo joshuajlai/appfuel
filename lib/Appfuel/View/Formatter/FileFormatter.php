@@ -61,7 +61,7 @@ class FileFormatter extends BaseFormatter implements FileFormatterInterface
 	 */
 	public function setFile($file)
 	{
-		if (empty($file) !! ! is_string($file)) {
+		if (empty($file) || ! is_string($file)) {
 			$err = 'template file must be a non empty string';
 			throw new InvalidArgumentException($err);
 		}
@@ -208,7 +208,7 @@ class FileFormatter extends BaseFormatter implements FileFormatterInterface
      */
     public function format(array $data)
     {
-		if ($this->isValidFormat($data)) {
+		if (! $this->isValidFormat($data)) {
 			$err = 'File formatting failed: data must be an associative array';
 			throw new InvalidArgumentException($err);
 		}
@@ -236,6 +236,9 @@ class FileFormatter extends BaseFormatter implements FileFormatterInterface
 	 */
 	public function importTemplate($file, array $data = null)
 	{
+		if (null === $data) {
+			$data = array();
+		}
 		$formatter = new self($file);
 		return $formatter->format($data);
 	}

@@ -12,8 +12,10 @@ namespace Appfuel\View;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\View\Compositor\FileFormatter,
-	Appfuel\View\Compositor\TextFormatter,
+	Appfuel\Kernel\PathFinder,
+	Appfuel\Kernel\PathFinderInterface,
+	Appfuel\View\Formatter\FileFormatter,
+	Appfuel\View\Formatter\TextFormatter,
 	Appfuel\View\Formatter\FileFormatterInterface,
 	Appfuel\View\Formatter\ViewFormatterInterface;
 
@@ -55,17 +57,35 @@ class ViewTemplate implements ViewTemplateInterface
 	 */
 	protected $file = null;
 
+	/**
+	 * Resolves relative path assigned to file into an absolute path used
+	 * by the formatter during build
+	 * @var PathFinder
+	 */
+	protected $pathFinder = null;
 
 	/**
 	 * @param	mixed	$file 
 	 * @param	array	$data
 	 * @return	FileTemplate
 	 */
-	public function __construct(array $data = null)
+	public function __construct(array $data = null, 
+								ViewFormatterInterface $formatter = null,
+								PathFinderInterface $pathFinder = null)
 	{
 		if (null !== $data) {
 			$this->load($data);
 		}
+
+		if (null === $formatter) {
+			$formatter = new Formatter\TextFormatter();
+		}
+		$this->setViewFormatter($formatter);
+
+		if (null === $pathFinder) {
+			$pathFinder = new PathFinder();
+		}
+		$this->setPathFinder($pathFinder);
 	}
 
 	/**
@@ -89,6 +109,45 @@ class ViewTemplate implements ViewTemplateInterface
 		}
 
 		$this->file = $file;
+		return $this;
+	}
+
+	/**
+	 * @return	PathFinderInterface
+	 */
+	public function getPathFinder()
+	{
+		return $this->pathFinder;
+	}
+
+	/**
+	 * @param	PathFinderInterface
+	 * @return	ViewTemplate
+	 */
+	public function setPathFinder(PathFinderInterface $pathFinder)
+	{
+		$this->pathFinder = $pathFinder;
+		return $this;
+	}
+
+	/**
+	 * Used with file templates to change the part of the absolute path 
+	 * from the root to the relative. When isBase is true the root path
+	 * starts at the end of AF_BASE_PATH.
+	 *
+	 * @throws	InvalidArgumentException	when path is not a string
+	 * @param	string	$path
+	 * @return	ViewTemplate
+	 */
+	public function setRootPath($path, $isBase = true)
+	{
+		$pathFinder = $this->getPathFinder();
+
+		if (false === $isBase && true === $pathFinder->isBasePathEnabled()) {
+			$pathFinder->disableBasePath();
+		}
+
+		$pathFinder->setRelativeRootPath($path);
 		return $this;
 	}
 
@@ -237,7 +296,7 @@ class ViewTemplate implements ViewTemplateInterface
 	 */
 	public function templateCount()
 	{
-		return count($this->template);
+		return count($this->templates);
 	}
 
 	/**

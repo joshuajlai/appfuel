@@ -208,37 +208,6 @@ class TextFormatterTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testFormatEmptyString()
-	{
-		$data = '';
-		$this->assertEquals($data, $this->formatter->format($data));
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testFormatNonEmptyString()
-	{
-		$data = 'this is a string';
-		$this->assertEquals($data, $this->formatter->format($data));
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testFormatObjectSupportinToString()
-	{
-		$path = 'this/is/path';
-		$data = new SplFileInfo($path);
-		$this->assertEquals($path, $this->formatter->format($data));
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
 	public function testFormatEmptyArray()
 	{
 		$data = array();
@@ -305,8 +274,8 @@ class TextFormatterTest extends BaseTestCase
 	 */
 	public function testFormatArrayNotAssociative()
 	{
-		$data = array(1,2,3,4);
-		$expected = '0 1 1 2 2 3 3 4';
+		$data = array('values' => array(1,2,3,4));
+		$expected = 'values 0 1 1 2 2 3 3 4';
 		$this->assertEquals($expected, $this->formatter->format($data));
 	}
 
@@ -315,10 +284,10 @@ class TextFormatterTest extends BaseTestCase
 	 */
 	public function testFormatArrayNotAssociativeFormatArrayValues()
 	{
-		$data = array(1,2,3,4);
+		$data = array('values' =>array(2,3,4));
 		$this->formatter->setFormatArrayValues();
 		
-		$expected = '1 2 3 4';
+		$expected = '2 3 4';
 		$this->assertEquals($expected, $this->formatter->format($data));
 	}
 
@@ -327,10 +296,10 @@ class TextFormatterTest extends BaseTestCase
 	 */
 	public function testFormatArrayNotAssociativeFormatArrayKeys()
 	{
-		$data = array(1,2,3,4);
+		$data = array('key' => 1, 'my-key'=>2,'your-key' =>4);
 		$this->formatter->setFormatArrayKeys();
 		
-		$expected = '0 1 2 3';
+		$expected = 'key my-key your-key';
 		$this->assertEquals($expected, $this->formatter->format($data));
 	}
 

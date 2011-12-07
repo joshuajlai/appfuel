@@ -24,6 +24,10 @@ class BaseFormatter
      */
     public function isValidFormat(array $data)
     {
+		if (empty($data)) {
+			return true;
+		}
+
 		return ! ($data === array_values($data));
     }
 }

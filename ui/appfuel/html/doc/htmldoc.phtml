@@ -1,0 +1,20 @@
+<?php $this->renderDocType() ?>
+<html>
+<head <?this->renderHeadAttributes();?>>
+<?php
+    $this->renderCharset();
+    $this->renderBase();
+    $this->renderTitle();
+    $this->renderCss();
+    $this->renderJs();
+    $this->renderMeta();
+?>
+</head>
+<body<?php $this->renderBodyAttributes(); ?>>
+<?php 
+	$this->renderContext(); 		
+	$this->renderJsScripts();
+	$this->renderInlineJs();
+?>
+</body>
+</html>

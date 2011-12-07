@@ -52,36 +52,6 @@ class CsvFormatterTest extends BaseTestCase
 			$this->formatter
 		);
 	}
-    /**
-     * @depends testInterface
-     * @return  null
-     */
-    public function testFormatEmptyString()
-    {  
-        $data = '';
-        $this->assertEquals($data, $this->formatter->format($data));
-    }
-
-    /**
-     * @depends testInterface
-     * @return  null
-     */
-    public function testFormatNonEmptyString()
-    {  
-        $data = 'this is a string';
-        $this->assertEquals($data, $this->formatter->format($data));
-    }
-
-    /**
-     * @depends testInterface
-     * @return  null
-     */
-    public function testFormatObjectSupportinToString()
-    {  
-        $path = 'this/is/path';
-        $data = new SplFileInfo($path);
-        $this->assertEquals($path, $this->formatter->format($data));
-    }
 
 	/**
 	 * @return	null

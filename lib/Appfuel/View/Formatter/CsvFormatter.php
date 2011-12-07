@@ -10,12 +10,13 @@
  */
 namespace Appfuel\View\Formatter;
 
+use InvalidArgumentException;
+
 /**
  * Format an array of arrays into csv 
  */
 class CsvFormatter extends BaseFormatter implements ViewFormatterInterface
 {
-
     /** 
      * @param   mixed	$data
 	 * @return	string
@@ -37,4 +38,15 @@ class CsvFormatter extends BaseFormatter implements ViewFormatterInterface
 
 		return $result;
     }
+
+	/**
+	 * indexed and associative arrays are acceptable
+	 * 
+	 * @var		array	$data
+	 * @return	true
+	 */
+	public function isValidFormat(array $data)
+	{
+		return true;
+	}
 }

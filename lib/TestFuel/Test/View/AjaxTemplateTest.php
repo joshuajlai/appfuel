@@ -74,7 +74,7 @@ class AjaxTemplateTest extends BaseTestCase
 			$formatter
 		);
 
-		$this->assertEquals(array(), $this->template->getAllAssigned());
+		$this->assertEquals(array(), $this->template->getAll());
 		$this->assertEquals(200, $this->template->getStatusCode());
 		$this->assertEquals('OK', $this->template->getStatusText());
 
