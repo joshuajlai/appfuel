@@ -169,4 +169,25 @@ interface DbRequestInterface
 	 * @return	DbRequestInterface
 	 */
 	public function setCallback($callback);
+
+    /**
+     * @return  array
+     */
+    public function getValues();
+    
+    /**
+	 * Used in prepared sql, this holds the values to be bound
+	 *
+	 * 1) empty arrays are allowed
+	 * 2) request type of prepared-stmt is not validated against
+	 *
+     * @param   array  $values
+     * @return  DbRequestInterface
+     */
+    public function setValues(array $values);
+
+    /**
+     * @return bool
+     */
+    public function isValues();
 }

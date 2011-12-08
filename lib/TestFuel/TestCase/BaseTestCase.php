@@ -189,6 +189,20 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	}
 
 	/**
+	 * @return	array
+	 */
+	public function provideInvalidArray()
+	{
+		return array(
+			array(new StdClass()),
+			array(12345),
+			array(1.234),
+			array(false),
+			array(true)
+		);
+	}
+
+	/**
 	 * Restore the registry to a state it was when we initialized
 	 *
 	 * @return	null

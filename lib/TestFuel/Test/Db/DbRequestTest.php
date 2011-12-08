@@ -394,4 +394,190 @@ class DbRequestTest extends BaseTestCase
 	{
 		$this->request->setResultType($callback);
 	}
+
+    /**
+     * @return null
+     */
+    public function testGetSetIsValues()
+    {  
+        $this->assertFalse($this->request->isValues());
+        $this->assertEquals(array(), $this->request->getValues());
+
+        $values = array(1,2,3,4);
+        $this->assertSame($this->request, $this->request->setValues($values));
+        $this->assertEquals($values, $this->request->getValues());
+        $this->assertTrue($this->request->isValues());
+
+        /* empty array will work */
+        $values = array();
+        $this->assertSame($this->request, $this->request->setValues($values));
+        $this->assertEquals($values, $this->request->getValues());
+        $this->assertFalse($this->request->isValues());
+    }
+
+	/**
+	 * @depends				testInterface
+	 * @expectedException	Exception
+	 * @dataProvider		provideInvalidArray
+	 * @return null
+	 */
+	public function testSetValuesNotArray_Failure($values)
+	{
+		$this->request->setValues($values);
+	}
+
+    /**
+     * When sql has not be set addSql will use setSql instead of trying to 
+     * append.
+     *
+     * @return null
+     */
+    public function testAddSqlWhenNoSqlExists()
+    {  
+        /* default is no sql because no was passed into constructor for 
+         * setup
+         */
+        $this->assertFalse($this->request->isSql());
+        $sql = "SELECT * FROM TABLE WHERE id=blah";
+        $this->assertSame(
+            $this->request,
+            $this->request->addSql($sql),
+            'must use a fluent interface'
+        );
+        $this->assertTrue($this->request->isSql());
+        $this->assertEquals($sql, $this->request->getSql());
+    }
+
+    /**
+     * When you use addSql multiple times, each string is concatenated and
+     * use setSql to assign back the result
+     *
+     * @depends     testAddSqlWhenNoSqlExists
+     * @return null
+     */
+    public function testAddSqlMultipleTimes()
+    {
+        $sql = "SELECT * FROM TABLE WHERE id=blah";
+        $this->request->setSql($sql);
+        $this->assertTrue($this->request->isSql());
+        $this->assertEquals($sql, $this->request->getSql());
+
+        $sql2 = "SELECT * FROM TABLE WHERE id=foo";
+        $this->request->addSql($sql2);
+        $this->assertTrue($this->request->isSql(), 'should not change');
+
+        $expected = "{$sql};$sql2";
+        $this->assertEquals($expected, $this->request->getSql());
+
+        $sql3 = "SELECT * FROM TABLE WHERE id=bar";
+        $this->request->addSql($sql3);
+        $this->assertTrue($this->request->isSql(), 'should not change');
+
+        $expected = "{$sql};{$sql2};$sql3";
+        $this->assertEquals($expected, $this->request->getSql());
+
+        /* reset to one sql like this */
+        $this->request->setSql($sql);
+        $this->assertTrue($this->request->isSql(), 'should not change');
+        $this->assertEquals($sql, $this->request->getSql());
+    }
+
+    /**
+     * When you use addSql multiple times, each string is concatenated and
+     * use setSql to assign back the result
+     *
+     * @depends     testAddSqlMultipleTimes
+     * @return null
+     */
+    public function testLoadSqlNoSqlExists()
+    {
+        $sql1 = "SELECT * FROM TABLE WHERE id=blah";
+        $sql2 = "SELECT * FROM TABLE WHERE id=foo";
+        $sql3 = "SELECT * FROM TABLE WHERE id=bar";
+        $sql = array($sql1, $sql2, $sql3);
+
+        $this->assertFalse($this->request->isSql());
+        $this->assertSame(
+            $this->request,
+            $this->request->loadSql($sql),
+            'must use a fluent interface'
+        );
+        $this->assertTrue($this->request->isSql());
+
+        $expected = "{$sql1};{$sql2};$sql3";
+        $this->assertEquals($expected, $this->request->getSql());
+    }
+
+    /**
+     * @depends             testInterface
+     * @expectedException   InvalidArgumentException
+     * @dataProvider        provideInvalidStringsIncludeNull
+     * @return null
+     */
+    public function testSetSqlAddSql_Failure($sql)
+    {  
+        $this->request->addSql($sql);
+    }
+
+	/**
+	 * @depends				testInterface
+	 * @expectedException	Exception
+	 * @dataProvider		provideInvalidArray
+	 * @return null
+	 */
+	public function testLoadSqlNotArray_Failure($values)
+	{
+		$this->request->loadSql($values);
+	}
+
+    /**
+     * @expectedException	InvalidArgumentException 
+     * @dataProvider        provideInvalidStringsIncludeNull
+     * @return null
+     */
+    public function testInvalidSqlLoadSql_Failure($badSql)
+    {
+        $sql = array(
+            'SELECT * FROM TABLE',
+            $badSql
+        );
+        $this->request->loadSql($sql);
+    }
+
+    /**
+	 * @depends				testInterface
+     * @return null
+     */
+    public function testGetSetMultiResultOptions()
+    {
+        $this->assertEquals(array(), $this->request->getMultiResultOptions());
+
+        $options = array(1,2,3);
+        $this->assertSame(
+            $this->request,
+            $this->request->setMultiResultOptions($options)
+        );
+
+        $this->assertEquals($options, $this->request->getMultiResultOptions());
+
+        /* empty array is valid */
+        $options = array();
+        $this->assertSame(
+            $this->request,
+            $this->request->setMultiResultOptions($options)
+        );
+
+        $this->assertEquals($options, $this->request->getMultiResultOptions());
+    }
+
+	/**
+	 * @depends				testInterface
+	 * @expectedException	Exception
+	 * @dataProvider		provideInvalidArray
+	 * @return null
+	 */
+	public function testSetMultiResultNotArray_Failure($values)
+	{
+		$this->request->setMultiResultOptions($values);
+	}
 }

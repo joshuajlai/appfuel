@@ -62,6 +62,21 @@ class DbRequest implements DbRequestInterface
 	 */
 	protected $callback = null;
 
+    /**
+     * Hold the values used in the prepared sql
+     * @var array
+     */
+    protected $values = array();
+
+    /**
+     * For multi-query requests this holds the options that map to each 
+	 * resultset. Options include:
+     *  resultKey - replaces the number index with resultKey
+     *  callback  - filters each row of the result with this callback
+     * @var array
+     */
+    protected $multiResultOptions = array();
+
 	/**
 	 * @param	string	$type	type of db operation is it read | write | both
 	 * @param	string	$sql	optionally set the sql string
@@ -193,6 +208,52 @@ class DbRequest implements DbRequestInterface
 		return $this;
 	}
 
+    /**
+     * Add a sql string by appending it to the current sql string concatenated
+	 * with a ';'.
+     * 
+	 * @throws	InvalidArgumentException
+     * @param   string  $sql
+     * @return  DbRequest
+     */
+    public function addSql($sql)
+    {
+        if (empty($sql) || ! is_string($sql) || ! ($sql = trim($sql))) {
+            throw new InvalidArgumentException(
+				"Invalid sql: must be non empty string"
+			);
+        }
+
+        if (! $this->isSql()) {
+            $this->setSql($sql);
+            return $this;
+        }
+
+        $this->setSql("{$this->getSql()};$sql");
+        return $this;
+    }
+
+    /**
+     * @param   array   $sqlList
+     * @return  DbRequest
+     */
+    public function loadSql(array $sqlList)
+    {
+        foreach ($sqlList as $sqlStr) {
+            $this->addSql($sqlStr);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isSql()
+    {
+        return is_string($this->sql) && ! empty($this->sql);
+    }
+
 	/**
 	 * @return	string
 	 */
@@ -223,6 +284,24 @@ class DbRequest implements DbRequestInterface
 		$this->resultType = $type;
 		return $this;
 	}
+
+    /**
+     * @return  string
+     */
+    public function getMultiResultOptions()
+    {  
+        return $this->multiResultOptions;
+    }
+
+    /**
+     * @param   array  $options
+     * @return  DbRequest
+     */
+    public function setMultiResultOptions(array $options)
+    { 
+        $this->multiResultOptions = $options;
+        return $this;
+    }
 
 	/**
 	 * @return	RequestQuery
@@ -272,4 +351,30 @@ class DbRequest implements DbRequestInterface
 		$this->callback = $callback;
 		return $this;
 	}
+
+    /**
+     * @return  array
+     */
+    public function getValues()
+    {
+        return $this->values;
+    }
+
+    /**
+     * @param   array  $values
+     * @return  DbRequest
+     */
+    public function setValues(array $values)
+    {
+        $this->values = $values;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isValues()
+    {
+        return count($this->values) > 0;
+    }
 }
