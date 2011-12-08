@@ -22,13 +22,13 @@ class HtmlTemplate extends ViewTemplate
 	 * Assign a FileFormatter because html templates generally require a
 	 * .phtml template file. Also set the root path to be appfuel
 	 * 
-	 * @param	string				$filePath	relative path to template file
-	 * @param	PathFinderInterface $pathFinder	resolves the relative path
-	 * @param	array				$data		data to be assigned
-	 * @return	HtmlDocTemplate
+	 * @param	string				$path	relative path to template file
+	 * @param	array				$data	data to be assigned
+	 * @return	HtmlTemplate
 	 */
-	public function __construct($filePath = null, array $data = null)
+	public function __construct($path = null, array $data = null)
 	{
+		
 		parent::__construct($data, new FileFormatter());
 		
 		/* 
@@ -37,6 +37,8 @@ class HtmlTemplate extends ViewTemplate
 		 */
 		$this->setRootPath('ui/appfuel/html');
 		
+		if (null !== $path) {
+			$this->setFile($path);
+		}
 	}
-
 }
