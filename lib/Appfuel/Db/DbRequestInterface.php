@@ -106,6 +106,43 @@ interface DbRequestInterface
 	 */
 	public function setSql($sql);
 
+    /**
+     * Add a sql string by appending it to the current sql string concatenated
+     * with a ';'.
+     * 
+	 * 1) Must throw InvalidArgumentException when array entry is empty or
+	 *	  or is not a string
+	 * 2) Each array entry string must be trimmed for whitespaces
+	 *
+     * @throws  InvalidArgumentException
+     * @param   string  $sql
+     * @return  DbRequest
+     */
+    public function addSql($sql);
+
+    /**
+	 * Add each array entry to the sql string that was assigned with setSql
+	 *
+	 * 1) Must throw InvalidArgumentException when array entry is empty or
+	 *	  or is not a string
+	 * 2) Each array entry string must be trimmed for whitespaces
+	 *
+	 * All the requirements can be met is you use addSql interface for each
+	 * array entry
+	 *
+	 * @throws	InvalidArgumentException
+     * @param   array   $sqlList
+     * @return  DbRequest
+     */
+    public function loadSql(array $sqlList);
+
+    /**
+	 * Return true when the sql is a non empty string otherwise return false
+	 *
+     * @return  bool
+     */
+    public function isSql();
+
 	/**
 	 * @return	string
 	 */
@@ -131,6 +168,27 @@ interface DbRequestInterface
 	 * @return	DbRequestInterface
 	 */
 	public function setResultType($type);
+
+    /**
+     * @return  string
+     */
+    public function getMultiResultOptions();
+
+    /**
+	 * In a multi query the response object returned has multiple datasets 
+	 * keyed by the index position of the submitted query, so if you sent
+	 * a string with 5 queries then the indexes are 0-4, these can be 
+	 * replaced with a string by providing a array of options keyed by the
+	 * the numeric key. The adapter looks for the numberic key then looks 
+	 * for 'result-key and callback in that array of options.
+	 * the 'result-key' is used to change the index of the resultset to 
+	 * the more readable value of 'result-key'. 
+	 * the 'callback' is used to apply the callback to the resultset
+	 *
+     * @param   array  $options
+     * @return  DbRequestInterface
+     */
+    public function setMultiResultOptions(array $options);
 
 	/**
 	 * This is a flag used to tell the vendor db adapter to use buffered  a
