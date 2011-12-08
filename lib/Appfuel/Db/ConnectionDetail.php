@@ -8,10 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Db\Connection;
+namespace Appfuel\Db;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\Connection\ConnectionDetailInterface;
+use InvalidArgumentException;
 
 /**
  * Holds information neccessary to determine the vendor, vendor's adaptor and
@@ -47,7 +46,7 @@ class ConnectionDetail implements ConnectionDetailInterface
 	 * Port number used to connect to mysql
 	 * @var int
 	 */
-	protected $port = null;
+	protected $port = 3306;
 
 	/**
 	 * The socket or named pipe that should be used
@@ -56,63 +55,48 @@ class ConnectionDetail implements ConnectionDetailInterface
 	protected $socket = null;
 
 	/**
-	 * Used in replication to indicate master or slave connections
-	 * @var string
-	 */
-	protected $type = null;
-	
-	/**
 	 * @param	string	$vendor
 	 * @param	string	$adapter
 	 * @return	Dsn
 	 */
-	public function __construct(array $detail)
+	public function __construct(array $data)
 	{
 
-		$err = 'Connection detail failed:';
-		if (! isset($detail['hostname']) ||
-			! $this->isValidString($detail['hostname'])) {
-			throw new Exception("$err host must be a non empty string");
+		$err = 'Connection detail failed: ';
+		if (! isset($data['host']) || ! $this->isValidString($data['host'])) {
+			$err .= 'host must be a non empty string';
+			throw new InvalidArgumentException($err);
 		}
-		$this->host = $detail['hostname'];
+		$this->host = $data['host'];
 
-		if (! isset($detail['username']) || 
-			! $this->isValidString($detail['username'])) {
-			throw new Exception("$err username must be a non empty string");
+		if (! isset($data['user']) || ! $this->isValidString($data['user'])) {
+			$err .= 'username must be a non empty string';
+			throw new InvalidArgumentException($err);
 		}
-		$this->userName = $detail['username'];
+		$this->userName = $data['user'];
 	
-		if (! isset($detail['password']) || 
-			! $this->isValidString($detail['password'])) {
-			throw new Exception("$err password must be a non empty string");
+		if (! isset($data['pass']) || ! $this->isValidString($data['pass'])) {
+			$err .= 'password must be a non empty string';
+			throw new InvalidArgumentException($err);
 		}
-		$this->password = $detail['password'];
+		$this->password = $data['pass'];
 	
-		if (! isset($detail['dbname']) || 
-			! $this->isValidString($detail['dbname'])) {
-			throw new Exception("$err dbname must be a non empty string");
+		if (! isset($data['name']) || ! $this->isValidString($data['name'])) {
+			$err .= 'database name must be a non empty string';
+			throw new InvalidArgumentException($err);
 		}
-		$this->dbName = $detail['dbname'];
+		$this->dbName = $data['name'];
 			
 		/* optional members */
-		if (isset($detail['port']) && is_numeric($detail['port']) && 
-			$detail['port'] > 0) {
-			$this->port = $detail['port'];
+		if (isset($data['port']) && 
+			is_int($data['port']) && $data['port'] > 0) {
+			$this->port = $data['port'];
 		}
 	
-		if (isset($detail['socket']) && 
-			$this->isValidString($detail['socket'])) {
-			$this->socket = $detail['socket'];
+		if (isset($data['socket']) && 
+			$this->isValidString($data['socket'])) {
+			$this->socket = $data['socket'];
 		}
-			
-		if (isset($detail['type']) && $this->isValidString($detail['type'])) {
-			$type = strtolower($detail['type']);	
-			if (! in_array($type, array('master', 'slave'))) {
-				throw new Exception("$err type must me master|slave -($type)");
-			}
-	
-			$this->type = $type;
-		}	
 	}
 
 	/**
@@ -185,14 +169,6 @@ class ConnectionDetail implements ConnectionDetailInterface
 	public function getSocket()
 	{
 		return $this->socket;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getType()
-	{
-		return $this->type;
 	}
 
 	/**

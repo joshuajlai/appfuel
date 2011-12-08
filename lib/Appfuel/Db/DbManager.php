@@ -13,7 +13,6 @@ namespace Appfuel\Db;
 use Appfuel\Framework\Exception,
 	Appfuel\Framework\Registry,
 	Appfuel\Db\Connection\Connector,
-	Appfuel\Db\Connection\ConnectionDetail,
 	Appfuel\Framework\Db\Connection\ConnectorInterface;
 
 /**
@@ -207,26 +206,26 @@ class DbManager
 	
 		$server = self::getServerData($dbData['master']);
 		$master = array(
-			'type'	   => 'master',
-			'dbname'   => $dbData['dbname'],
-			'username' => $userData['username'],
-			'password' => $userData['password'],
-			'hostname' => $server['hostname'],
-			'port'     => $server['port'],
-			'socket'   => $server['socket']
+			'type'	=> 'master',
+			'name'	=> $dbData['dbname'],
+			'user'	=> $userData['username'],
+			'pass'	=> $userData['password'],
+			'host'	=> $server['hostname'],
+			'port'  => $server['port'],
+			'socket'=> $server['socket']
 		);
 		$masterConn = new $connClass(new ConnectionDetail($master));
 		$slaveConn  = null;
 		if (isset($dbData['slave']) && is_string($dbData['slave'])) {
 			$server = self::getServerData($dbData['slave']);
 			$slave = array(
-				'type'	   => 'slave',
-				'dbname'   => $dbData['dbname'],
-				'username' => $userData['username'],
-				'password' => $userData['password'],
-				'hostname' => $server['hostname'],
-				'port'     => $server['port'],
-				'socket'   => $server['socket']
+				'type'		=> 'slave',
+				'name'		=> $dbData['dbname'],
+				'user'		=> $userData['username'],
+				'pass'		=> $userData['password'],
+				'host'		=> $server['hostname'],
+				'port'		=> $server['port'],
+				'socket'	=> $server['socket']
 			);
 			$slaveConn = new $connClass(new ConnectionDetail($slave));
 		}

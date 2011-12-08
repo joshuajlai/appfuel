@@ -15,7 +15,7 @@ use Appfuel\Db\DbManager,
     Appfuel\Framework\Exception,
     Appfuel\Db\Connection\DetailFactory as ConnFactory,
     Appfuel\Framework\Db\Connection\DetailFactoryInterface,
-    Appfuel\Framework\Db\Connection\ConnectionDetailInterface;
+    Appfuel\Db\ConnectionDetailInterface;
 
 /**
  */

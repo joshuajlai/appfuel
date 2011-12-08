@@ -18,7 +18,7 @@ use mysqli,
 	Appfuel\Framework\Db\Adapter\AdapterInterface,
 	Appfuel\Framework\Db\Adapter\ErrorInterface,
 	Appfuel\Framework\Db\Connection\ConnectionInterface,
-	Appfuel\Framework\Db\Connection\ConnectionDetailInterface;
+	Appfuel\Db\ConnectionDetailInterface;
 
 /**
  * Handles only the connection to the database. The connection has following
