@@ -36,7 +36,7 @@ class Adapter extends AdapterBase implements PreparedAdapterInterface
 		$stmt   = new Stmt($driver->stmt_init());
 	        
 		if (! $stmt->prepare($request->getSql())) {
-            return $this->createResponse($stmt->getError());;
+            return $this->createResponse($stmt->getError());
         }
 
         /* normalize and bind parameters */

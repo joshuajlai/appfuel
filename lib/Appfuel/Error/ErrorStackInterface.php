@@ -11,27 +11,15 @@
 namespace Appfuel\Error;
 
 /**
- * The error stack handles a collection of errors or treats that collection
- * as if it were one error.
+ * The error stack handles a collection of errors
  */
-interface ErrorStackInterface extends ErrorInterface
+interface ErrorStackInterface 
 {
-    /**
-     * @return  string
-     */
-    public function getErrorSeparator();
-
-    /**
-     * @param   string  $text
-     * @return  ErrorStack
-     */
-    public function setErrorSeparator($text);
-
 	/**
 	 * @param	ErrorInterface	$error
 	 * @return	ErrorStack	
 	 */
-	public function addErrorObject(ErrorInterface $error);
+	public function addErrorItem(ErrorInterface $error);
 
 	/**
 	 * @param	string	$text	

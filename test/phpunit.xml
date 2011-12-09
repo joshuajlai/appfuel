@@ -9,7 +9,6 @@
 	<directory suffix="Test.php">../lib/TestFuel/Test/View</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Test/Kernel</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/View</directory>
-		<directory suffix="Test.php">../lib/TestFuel/Test/Error</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Log</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Http</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Console</directory>
@@ -17,6 +16,7 @@
 	<file>../lib/TestFuel/Test/Db/ConnectionDetailTest.php</file>
 	<directory suffix="Test.php">../lib/TestFuel/Test/Db/Mysql/Mysqli</directory>
 	<file>../lib/TestFuel/Test/Db/DbRequestTest.php</file>
+	<directory suffix="Test.php">../lib/TestFuel/Test/Error</directory>
 	</testsuite>
 </testsuites>
 </phpunit>

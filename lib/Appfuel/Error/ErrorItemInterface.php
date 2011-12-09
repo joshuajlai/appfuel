@@ -16,7 +16,7 @@ namespace Appfuel\Error;
  * to other objects so we can be just an error item. It is recommended to
  * pass these members through the constructor and make the setter protected.
  */
-interface ErrorInterface
+interface ErrorItemInterface
 {
 	/**
 	 * Any scalar value used to describe the error.
