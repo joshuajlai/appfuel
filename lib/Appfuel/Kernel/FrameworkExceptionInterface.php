@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Exception;
+namespace Appfuel\Kernel;
 
 /**
  * Adds namespace and tags to the exception
  */
-interface AppfuelExceptionInterface
+interface FrameworkExceptionInterface
 {
 	/**
 	 * @return	string

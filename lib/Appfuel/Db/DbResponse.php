@@ -10,73 +10,48 @@
  */
 namespace Appfuel\Db;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Db\DbErrorInterface as ErrorInterface,
-	Appfuel\Framework\Db\DbResponseInterface;
+use InvalidArgumentException,
+	Appfuel\Error\ErrorStack,
+	Appfuel\Error\ErrorStackInterface;
 
 /**
- * Normalize the meaning of a database response by providing a status, error 
- * and actual data given by the database. When queries that do not produce 
- * result are used you can check the status determine if they were successful.
+ * A vendor agnostic object that encapsulates details about the database
+ * execution by a vendor specific query adapter. It holds the result 
+ * (multi query results can hold an array of DbResponses). Holds a list 
+ * errors from the database
  */
 class DbResponse implements DbResponseInterface
 {
 	/**
-	 * Flag used to indicate the state of the returned data. True means
-	 * the query ran as expected false means errors are present
-	 * @var bool
-	 */
-	protected $status = null;
-
-	/**
 	 * Holds the information requested from the database
 	 * @var array
 	 */
-	protected $resultset = null;
-
-	/**
-	 * Number of rows returned for the query issued
-	 * @var int
-	 */
-	protected $rowCount = 0;
+	protected $results = array();
 
 	/**
 	 * Error object holding all error info about the query just issued
 	 * @var	Error
 	 */
-	protected $error = null;
+	protected $errorStack = null;
 
 	/**
-	 * @param	bool	$status 
-	 * @param	array	$data
-	 * @param	Error	$error
+	 * @param	ErrorStackInterface	$stack
 	 * @return	DbResponse
 	 */
-	public function __construct(array $data = null, ErrorInterface $err = null)
+	public function __construct(ErrorStackInterface $stack = null)
 	{
-		$this->status = true;
-		
-		/* set error and toggle status to false */
-		if ($err !== null) {
-			$this->error  = $err;
-			$this->status = false;
+		if ($stack === null) {
+			$stack = new ErrorStack();
 		}
-	    
-		/* we save the database recordset and check if it is structured
-		 * with the correct keys 
-		 */	
-		if ($data !== null  && true === $this->status) {
-			$this->resultset = $data;
-			$this->rowCount  = count($data);	
-		}
+		$this->errorStack = $stack;
 	}
 
 	/**
-	 * @return bool
+	 * @return	ErrorStackInterface
 	 */
-	public function isSuccess()
+	public function getErrorStack()
 	{
-		return true === $this->status && empty($this->error);
+		return $this->errorStack;	
 	}
 
 	/**
@@ -84,7 +59,8 @@ class DbResponse implements DbResponseInterface
 	 */
 	public function isError()
 	{
-		return $this->error instanceof ErrorInterface;
+		return $this->getErrorStack()
+					->isError();
 	}
 
 	/**
@@ -92,44 +68,128 @@ class DbResponse implements DbResponseInterface
 	 */
 	public function getError()
 	{
-		return $this->error;
+		return $this->getErrorStack()
+					->current();
 	}
 
-	/**
-	 * @return	bool
-	 */
-	public function getStatus()
-	{
-		return $this->status;
-	}
-	
 	/**
 	 * @return	int | false on failure
 	 */
-	public function getRowCount()
+	public function count()
 	{
-		return $this->rowCount;
+		return count($this->results);
 	}
 
 	/**
-	 * @return	array | false on fauilure
+	 * The current resultset
+	 *
+	 * @return	array | DbResponseInterface
 	 */
-	public function getResultset()
+	public function current()
 	{
-		return $this->resultset;
+		return current($this->results);
 	}
 
 	/**
-	 * Returns the first item in the resultset
-	 * 
-	 * @return	mixed
+	 * @return	scalar | null when no key exists
 	 */
-	public function getCurrentResult()
+	public function key()
 	{
-		if (is_array($this->resultset)) {
-			return current($this->resultset);
+		return key($this->results);
+	}
+
+	/**
+	 * Advance the pointer to the next result
+	 *
+	 * @return	null
+	 */
+	public function next()
+	{
+		next($this->results);
+	}	
+
+	/**
+	 * Advance the pointer to the beginning of the resultset
+	 *
+	 * @return	null
+	 */
+	public function rewind()
+	{
+		reset($this->results);
+	}
+
+	/**
+	 * Determine if the item at the key is any array (a database resultset) or
+	 * a DbResponseInterface (happens with multi queries)
+	 *
+	 * @return	bool
+	 */
+	public function valid()
+	{
+		$key = $this->key();
+		if (null === $key || ! isset($this->results[$key])) {
+			return false;
 		}
 
-		return false;
+		$result = $this->results[$key];
+		if (! array($result) && ! ($result instanceof DbResponseInterface)) {
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * The full resultset. On a mult query this is an array of 
+	 * DbResponseInterface objects
+	 *
+	 * @return	array
+	 */
+	public function getResultSet()
+	{
+		return $this->results;
+	}
+
+	/**
+	 * @param	array	$results
+	 * @return	DbResponse
+	 */	
+	public function setResultSet(array $results)
+	{
+		$this->results = $results;
+		return $this;
+	}
+
+	/**
+	 * Add a single result to the resultset. When key is not includes then it
+	 * takes the count as the index number.
+	 *
+	 * @param	mixed array|DbResponseInterface $result
+	 * @param	scalar	$key	optional
+	 * @return	DbResponse
+	 */
+	public function addResult($result, $key = null)
+	{
+		$err = 'addResult failed: ';
+		if (! is_array($result) && ! ($result instanceof DbResponseInterface)) {
+			$err .= 'must be an array or an object that implements';
+			$err .= 'Appfuel\Db\DbResponseInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		if (null === $key) {
+			$key = $this->count();
+		}
+
+		if (is_string($key)) {
+			$key = trim($key);
+		}
+
+		if (! is_int($key) && (! is_string($key) || strlen($key) === 0)) {
+			$err .= 'result key must be an integer or a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->results[$key] = $result;
+		return $this;
 	}
 }

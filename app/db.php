@@ -128,7 +128,8 @@ return array(
 		'af-qa-app' => array(
 			'connector-class'=> 'Appfuel\Db\Mysql\Mysqli\Connection',
 			'db-key'		 => 'app-db',
-			'user-key'		 => 'af-app-user'
+			'user-key'		 => 'af-app-user',
+			
 		),
 		'af-test' => array(
 			'php-conn-class' => 'Appfuel\Db\Mysql\Mysqli\Connection',

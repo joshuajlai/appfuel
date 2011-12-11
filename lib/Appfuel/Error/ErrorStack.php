@@ -26,6 +26,14 @@ class ErrorStack implements ErrorStackInterface, Countable, Iterator
 	protected $errors = array();
 
 	/**
+	 * @return	bool
+	 */
+	public function isError()
+	{
+		return $this->count() > 0;
+	}
+
+	/**
 	 * @param	ErrorInterface	$error
 	 * @return	ErrorStack	
 	 */

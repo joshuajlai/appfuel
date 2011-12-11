@@ -73,18 +73,12 @@ class FaultHandler implements FaultHandlerInterface
 	{
 		$logger  = $this->getLogger();
 		$display = $this->getOutputEngine();
-		if ($e instanceof AppfuelException) {
-			$code = $e->getCode();
-			$text =(string) $e;
-		}
-		else {
-			$msg  = $e->getMessage();
-			$file = $e->getFile();
-			$line = $e->getLine();
-			$code = $e->getCode();
+		$msg  = $e->getMessage();
+		$file = $e->getFile();
+		$line = $e->getLine();
+		$code = $e->getCode();
+		$text = "uncaught exception $msg in $file:$line";
 
-			$text = "uncaught exception $msg in $file:$line";
-		}
 		$logger->log($text, LOG_ERR);
 			
 		if (strlen($code) < 1 || ! is_int($code)) {

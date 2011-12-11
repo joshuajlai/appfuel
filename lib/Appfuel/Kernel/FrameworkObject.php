@@ -10,7 +10,11 @@
  */
 namespace Appfuel\Kernel;
 
-use Appfuel\AppfuelException;
+use Appfuel\Log\Logger,
+	Appfuel\Log\LoggerInterface,
+	Appfuel\Error\ErrorStack,
+	Appfuel\Error\ErrorStackInterface,
+	
 
 /**
  * The Framework object extended by any class that needs general framework
@@ -21,32 +25,51 @@ class FrameworkObject implements FrameworkObjectInterface
 	/**
 	 * @var	AppfuelErrorInterface
 	 */
-	protected $afError = null;
-	
+	protected $errorStack = null;
+
+	/**
+	 * @param	ErrorStackInterface
+	 * @return	FrameworkObject
+	 */	
+	public function __construct(ErrorStackInterface $errorStack = null,
+								LoggerInterface $logger = null)
+	{
+		if (null === $errorStack) {
+			$errorStack = new ErrorStack();
+		}
+		$this->setErrorStack($errorStack);
+
+		if (null === $logger) {
+			$logger = new Logger();
+		}
+		$this->setLogger($logger);
+	}
+
 	/**
 	 * @return	bool
 	 */
 	public function isError()
 	{
-		return $this->afError instanceof AppfuelErrorInterface;
+		return $this->getErrorStack()
+				    ->isError();
 	}
 
 	/**
 	 * @param	AppfuelErrorInterface	$error
 	 * @return	FrameworkObject
 	 */
-	public function setAppfuelError(AppfuelErrorInterface $error)
+	public function setErrorStack(ErrorStackInterface $stack)
 	{
-		$this->afError = $error;
+		$this->errorStack = $stack;
 		return $this;
 	}
 
 	/**
-	 * @return	AppfuelErrorInterface | null when not set
+	 * @return	ErrorStackInterface
 	 */
-	public function getAppfuelError()
+	public function getErrorStack()
 	{
-		return $this->afError;
+		return $this->errorStack;
 	}
 
 	/**
@@ -54,36 +77,54 @@ class FrameworkObject implements FrameworkObjectInterface
 	 * @param	scalar	$code
 	 * @return	FrameworkObject
 	 */
-	public function setError($text, $code = 0) 
+	public function addError($msg, $code = null) 
 	{
-		$this->afError = new AppfuelError($text, $code);
+		$this->getErrorStack()
+			 ->addError($msg, $code);
+
 		return $this;
 	}
 
 	/**
-	 * Alias to getAppfuelError
-	 * 
-	 * @return	AppfuelErrorInterface
+	 * @return	ErrorItemInterface | null when no error exists
 	 */
 	public function getError()
 	{
-		return $this->afError;
+		return $this->getErrorStack()
+					->current();
 	}
 
 	/**
-	 * @throws	AppfuelException
-	 * @param	string	$msg
-	 * @param	scalar	$code
-	 * @param	string	$tags
-	 * @return	null
+	 * @return	LoggerInterface
 	 */
-	public function throwException($msg, $code = 0, $tags = null)
+	public function getLogger()
 	{
-		throw new AppfuelException($msg, $code, null, get_class($this), $tags);
+		return $this->logger;
 	}
 
+	/**
+	 * @param	LoggerInterface $logger
+	 * @return	FrameworkObject
+	 */
+	public function setLogger(LoggerInterface $logger)
+	{
+		$this->logger = $logger;
+		return $this;
+	}
+
+	/**
+	 * Log a message and priority level to the logger. In appfuel this defaults
+	 * to the syslog
+	 * 
+	 * @param	string	$msg
+	 * @param	int		$level
+	 * @return	FrameworkObject
+	 */
 	public function log($msg, $level)
 	{
-	
+		$this->getLogger()
+			 ->log($msg, $level);
+
+		return $this;
 	}
 }

@@ -15,6 +15,7 @@ use Appfuel\Kernel\KernelInitializer,
 /* we kmow we are in the bin directory and one level up is the base path */
 $base = realpath(dirname(__FILE__) . '/..');
 
+echo "\n", print_r(new Exception('my message', 30, new Exception('prev error',11)),1), "\n";exit;
 $file = "$base/lib/Appfuel/Kernel/KernelInitializer.php";
 if (! file_exists($file)) {
     $err = "Could not locate Manager file at ($file)\n";
