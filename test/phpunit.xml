@@ -17,11 +17,11 @@
 	<directory suffix="Test.php">../lib/TestFuel/Test/Error</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Test/Kernel</directory>
 -->
+	<directory suffix="Test.php">../lib/TestFuel/Unit/Console</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/Http</directory>
 	<file>../lib/TestFuel/Unit/Kernel/KernelRegistryTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/KernelOutputTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/IncludePathTest.php</file>
-	<file>../lib/TestFuel/Unit/Console/ConsoleOutputTest.php</file>
-	<file>../lib/TestFuel/Unit/Console/ConsoleViewTemplateTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Http;
+namespace TestFuel\Unit\Http;
 
 use StdClass,
 	Appfuel\Http\HttpOutput,
@@ -47,7 +47,7 @@ class HttpOutputTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\OutputInterface',
+			'Appfuel\Http\HttpOutputInterface',
 			$this->output
 		);
 	}

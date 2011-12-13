@@ -44,11 +44,19 @@ class ConsoleViewTemplateTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testInterface()
+	public function testInitialState()
 	{	
 		$this->assertInstanceOf(
 			'Appfuel\Console\ConsoleViewTemplateInterface',
 			$this->view
+		);
+
+		$this->assertInstanceOf('Appfuel\View\ViewTemplate',$this->view);
+
+		$formatter = $this->view->getViewFormatter();
+		$this->assertInstanceOf(
+			'Appfuel\View\Formatter\TextFormatter',
+			$formatter
 		);
 	}
 }
