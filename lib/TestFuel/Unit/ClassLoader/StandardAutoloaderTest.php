@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\ClassLoader;
+namespace TestFuel\Unit\ClassLoader;
 
 use StdClass,
-	TestFuel\TestCase\FrameworkTestCase,
+	TestFuel\TestCase\BaseTestCase,
 	Appfuel\ClassLoader\StandardAutoLoader;
 
 /**
@@ -21,7 +21,7 @@ use StdClass,
  * register and unregister the autoloader. We test the ability to add search
  * paths and we test that we can load a class
  */
-class StandardAutoLoaderTest extends FrameworkTestCase
+class StandardAutoLoaderTest extends BaseTestCase
 {
 	/**
 	 * System under test

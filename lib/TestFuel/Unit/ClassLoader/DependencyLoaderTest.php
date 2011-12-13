@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\ClassLoader;
+namespace TestFuel\Unit\ClassLoader;
 
 use StdClass,
-	TestFuel\TestCase\FrameworkTestCase,
+	TestFuel\TestCase\BaseTestCase,
 	Appfuel\ClassLoader\ClassDependency,
 	Appfuel\ClassLoader\DependencyLoader;
 
@@ -23,7 +23,7 @@ use StdClass,
  * do that actual loading of a namespace. This AutoLoader is immutable so we
  * test that. We test loading a single dependency and multiple dependencies.
  */
-class DependencyLoaderTest extends FrameworkTestCase
+class DependencyLoaderTest extends BaseTestCase
 {
 	/**
 	 * System under test

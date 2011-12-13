@@ -3,6 +3,10 @@
 <phpunit backupGlobals="false" bootstrap="bootstrap.php" colors="true">
 <testsuites>
 	<testsuite name="Appfuel Tests">
+	<directory suffix="Test.php">../lib/TestFuel/Unit/Console</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/Http</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/DataStructure</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/ClassLoader</directory>
 <!--		
 	<file>../lib/TestFuel/Test/Kernel/Mvc/ContextBuilderTest.php</file>
 	<file>../lib/TestFuel/Test/Kernel/Mvc/MvcActionDispatcherTest.php</file>
@@ -17,9 +21,7 @@
 	<directory suffix="Test.php">../lib/TestFuel/Test/Error</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Test/Kernel</directory>
 -->
-	<directory suffix="Test.php">../lib/TestFuel/Unit/Console</directory>
-	<directory suffix="Test.php">../lib/TestFuel/Unit/Http</directory>
-	<directory suffix="Test.php">../lib/TestFuel/Unit/DataStructure</directory>
+
 	<file>../lib/TestFuel/Unit/Kernel/KernelRegistryTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/KernelOutputTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/IncludePathTest.php</file>
