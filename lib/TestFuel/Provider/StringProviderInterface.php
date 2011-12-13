@@ -29,7 +29,7 @@ interface StringProviderInterface
 	/**
 	 * @return	array
 	 */
-	public function providEmptyStrings();
+	public function provideEmptyStrings();
 
 	/**
 	 * @return	array
@@ -39,5 +39,5 @@ interface StringProviderInterface
 	/**
 	 * @return	array
 	 */
-	public function provideInvalidStrings($isNull = true);
+	public function provideStrictInvalidStrings($isNull = true);
 }

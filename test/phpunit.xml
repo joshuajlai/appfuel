@@ -20,6 +20,8 @@
 	<file>../lib/TestFuel/Unit/Kernel/KernelRegistryTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/KernelOutputTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/IncludePathTest.php</file>
+	<file>../lib/TestFuel/Unit/Console/ConsoleOutputTest.php</file>
+	<file>../lib/TestFuel/Unit/Console/ConsoleViewTemplateTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

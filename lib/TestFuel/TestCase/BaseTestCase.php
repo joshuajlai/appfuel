@@ -40,7 +40,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	/**
 	 * @return	StringProvider
 	 */
-	public function setStringProvider()
+	public function getStringProvider()
 	{
 		return $this->stringProvider;
 	}
@@ -159,12 +159,31 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 
 	/**
 	 * @return	array
+	 */	
+	public function provideAllStringsIncludingCastable()
+	{
+		$provider = $this->getStringProvider();
+		return $provider->provideAllStrings();
+		
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function provideNoCastableStrings()
+	{
+		return $this->getStringProvider()
+					->provideNoCastableStrings();
+	}
+
+	/**
+	 * @return	array
 	 */
 	public function provideInvalidStringsIncludeNull()
 	{
-		$data = $this->provideInvalidStrings();
-		array_push($data, array(null));
-		return $data;
+		$provider = $this->getStringProvider();
+		$includeNull = true;
+		return $provider->provideInvalidStrings($includeNull);
 	}
 
 	/**
@@ -172,19 +191,9 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	 */
 	public function provideInvalidStrings()
 	{
-		return array(
-			array(0), 
-			array(-1), 
-			array(1), 
-			array(12345), 
-			array(1.23454), 
-			array(true), 
-			array(false), 
-			array(new StdClass()),
-			array(array()), 
-			array(array(1)),
-			array(array(1,2,3)),
-		);
+		$provider = $this->getStringProvider();
+		$includeNull = false;
+		return $provider->provideInvalidStrings($includeNull);
 	}
 
 	/**

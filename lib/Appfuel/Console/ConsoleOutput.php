@@ -26,7 +26,9 @@ class ConsoleOutput implements ConsoleOutputInterface
 	 */
 	public function isValidOutput($data)
 	{
-		if (is_scalar($data) || 
+		if (is_null($data)   ||
+			is_bool($data)   ||
+			is_scalar($data) || 
 			is_object($data) && is_callable(array($data, '__toString'))) {
 			return true;
 		}

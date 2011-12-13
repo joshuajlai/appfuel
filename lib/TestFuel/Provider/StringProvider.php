@@ -10,6 +10,9 @@
  */
 namespace TestFuel\Provider;
 
+use StdClass,
+	SplFileInfo;
+
 /**
  * Encapsulates on the general cases for getting sets string values to be
  * used with phpunits dataProvider
@@ -21,10 +24,25 @@ class StringProvider implements StringProviderInterface
 	 */
 	public function provideAllStrings()
 	{
-		$empty = $this->provideEmptyStrings();
-		$regular = $this->provideNonEmptyString();
+		$empty   = $this->provideEmptyStrings();
+		$regular = $this->provideNonEmptyStrings();
+		$cast    = $this->provideCastableValues();
+		return array_merge($empty, $regular, $cast);
+	}
 
-		return array_merge($empty, $regular);
+	/**
+	 * @return	array
+	 */
+	public function provideCastableValues()
+	{
+		return array(
+			array(12345),
+			array(1.2345),
+			array(true),
+			array(false),
+			array(null),
+			array(new SplFileInfo('some/path'))
+		);
 	}
 
 	/**
@@ -44,7 +62,7 @@ class StringProvider implements StringProviderInterface
 	/**
 	 * @return	array
 	 */
-	public function providEmptyStrings()
+	public function provideEmptyStrings()
 	{
 		return array(
 			array(''),
@@ -84,7 +102,7 @@ class StringProvider implements StringProviderInterface
 	/**
 	 * @return	array
 	 */
-	public function provideInvalidStrings($isNull = true)
+	public function provideStrictInvalidStrings($isNull = true)
 	{
 		$results = array(
             array(0),
@@ -106,5 +124,18 @@ class StringProvider implements StringProviderInterface
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function provideNoCastableStrings()
+	{
+		return array(
+            array(array()),
+			array(array('string')),
+            array(array(1,2,3)),
+            array(new StdClass()),
+		);
 	}
 }	
