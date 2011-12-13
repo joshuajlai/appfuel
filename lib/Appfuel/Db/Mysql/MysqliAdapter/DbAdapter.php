@@ -8,16 +8,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Db\Mysql\Mysqli;
+namespace Appfuel\Db\Mysql\Adapter;
 
-use RunTimeException,
-	mysqli as MysqliDriver,
+use mysqli,
+	RunTimeException,,
 	Appfuel\Db\DbResponse,
 	Appfuel\Db\DbRequestInterface,
 	Appfuel\Kernel\FrameworkObject;
 
 /**
- * The database adapter is 
+ * This database adapter is specific to mysql
  */
 class DbAdapter implements DbAdapterInterface
 {

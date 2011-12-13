@@ -12,12 +12,12 @@
 		<directory suffix="Test.php">../lib/TestFuel/Test/Http</directory>
 		<directory suffix="Test.php">../lib/TestFuel/Test/Console</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Test/Db/Mysql/Mysqli</directory>
--->
-	<file>../lib/TestFuel/Test/Db/ConnectionDetailTest.php</file>
 	<file>../lib/TestFuel/Test/Db/DbRequestTest.php</file>
 	<file>../lib/TestFuel/Test/Db/DbResponseTest.php</file>
 	<directory suffix="Test.php">../lib/TestFuel/Test/Error</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Test/Kernel</directory>
+-->
+	<file>../lib/TestFuel/Test/Kernel/KernelRegistryTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

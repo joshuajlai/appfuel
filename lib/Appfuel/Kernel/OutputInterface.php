@@ -17,5 +17,5 @@ namespace Appfuel\Kernel;
 interface OutputInterface
 {
 	public function render($data);
-	public function renderError($msg);
+	public function renderError($msg, $code = 500);
 }

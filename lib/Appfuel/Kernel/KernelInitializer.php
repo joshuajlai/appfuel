@@ -53,7 +53,7 @@ class KernelInitializer
 	 *
 	 * @return	KernalInitializer
 	 */
-	public function __construct($base, $type)
+	public function __construct($base)
 	{
 		$err = 'Initialization error: ';
 		if (defined('AF_BASE_PATH')) {
@@ -73,20 +73,6 @@ class KernelInitializer
 		}
 
 		$this->setConfigPath("$base/app");
-
-		if (defined('AF_APP_TYPE')) {
-			$type = AF_APP_TYPE;
-		}
-		else {
-			define('AF_APP_TYPE', strtolower($type));
-		}
-
-		$valid = array('app-console', 'app-htmlpage', 'app-api', 'app-ajax');
-		if (! in_array(AF_APP_TYPE, $valid, true)) {
-			$list = implode('|', $valid);
-			$err .= "app type must be one of the following -($list)";
-			throw new InvalidArgumentException($err);
-		}
 		$this->initDependencyLoader();
 		$this->initKernelDependencies();
 	}
@@ -160,10 +146,24 @@ class KernelInitializer
 			$err = "Could not find config with key -($key)";
 			throw new InvalidArgumentException($err);
 		}
+		$config = $data[$section];
 
-		$data = $data[$section];
-		$max  = count($data);
-		KernelRegistry::setParams($data);
+		if (isset($data['common']) && is_array($data['common'])) {
+			$common = $data['common'];
+			foreach ($common as $key => $value) {
+				if (! isset($config[$key]) || ! is_array($config[$key])) {
+					$config[$key] = $value;
+				}
+				else {
+					$config[$key] = array_merge_recursive(
+						$value,
+						$config[$key]
+					);
+				}
+			}
+		}
+		$max  = count($config);
+		KernelRegistry::setParams($config);
 		self::$status['kernal:config'] = "config intialized with $max items";
 		return $this;
 	}
@@ -252,36 +252,39 @@ class KernelInitializer
 	 */
 	public function initFaultHandling()
 	{
-		$display = KernelRegistry::getParam('display-error', 'on');
-		$level	 = KernelRegistry::getParam('error-level', 'all,strict');
-		$class	 = KernelRegistry::getParam('fault-handler', null);
-		if (null === $class) {
-			$class = 'Appfuel\Kernel\FaultHandler';
+		$isErrorDisabled = KernelRegistry::getParam('disable-af-errors', false);
+		$isFaultDisabled = KernelRegistry::getParam(
+			'disable-af-fault-handler', 
+			false
+		);
+
+		$isErrorDisabled = ($isErrorDisabled === true) ? true : false;
+		$report = '';
+		if (false === $isErrorDisabled) {
+			$display = KernelRegistry::getParam('display-error', 'on');
+			if (null !== $display) {
+				$errorDisplay = new Error\ErrorDisplay();
+				$errorDisplay->set($display);
+				$report .= 'display error ';
+			}
+
+			$level	 = KernelRegistry::getParam('error-level', 'all,strict');
+			if (null !== $level) {
+				$errorReporting = new Error\ErrorLevel();
+				$errorReporting->setLevel($level);
+				$report .= 'error reporting ';
+			}
 		}
 
-        if (null !== $display) {
-            $errorDisplay = new Error\ErrorDisplay();
-            $errorDisplay->set($display);
-        }
-
-        if (null !== $level) {
-            $errorReporting = new Error\ErrorLevel();
-            $errorReporting->setLevel($level);
-        }
-
-		$handler = new $class();
-		if (! ($handler instanceof FaultHandlerInterface)) {
-			$msg = 'fault handler not initialized';
-			self::$status['kernel:app-dependency'] = $msg;
-			return $this;
+		$isFaultDisabled = ($isFaultDisabled === true) ? true : false;
+		if (false === $isFaultDisabled) {
+			$handler = new FaultHandler(new KernelOutput());
+			set_error_handler(array($handler, 'handleError'));
+			set_exception_handler(array($handler, 'handleException'));
+			$report .= 'fault handling';
 		}
-
-		set_error_handler(array($handler, 'handleError'));
-		set_exception_handler(array($handler, 'handleException'));
-
 			
-		$msg = 'fault handler initialized';
-		self::$status['kernel:app-dependency'] = $msg;
+		self::$status['kernel:app-dependency'] = "initialized: $report";
 		return $this;
 	}
 
@@ -401,8 +404,13 @@ class KernelInitializer
 				$err .= "\StartupTaskInterface";
 				throw new RunTimeException($err);
 			}
-	
-			$task->execute();
+			$keys = $task->getRegistryKeys();
+			$params = array();
+			foreach ($keys as $key => $default) {
+				$value = KernelRegistry::getParam($key, $default);
+				$params[$key] = $value;
+			}
+			$task->execute($params);
 			$statusResult = $task->getStatus();
 			if (empty($statusResult) || ! is_string($statusResult)) {
 				$statusResult = 'status not reported';

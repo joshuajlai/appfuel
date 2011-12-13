@@ -8,17 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Env;
-
-use Appfuel\Framework\Exception,
-	Appfuel\Stdlib\Data\BagInterface,
-	Appfuel\Stdlib\Data\Bag;
+namespace Appfuel\Kernel;
 
 /**
  * Value object used to hold the current state of the frameworks environment 
  * settings.
  */
-class State
+class KernelState implements KernelStateInterface
 {
 	/**
 	 * Include path string
@@ -60,20 +56,14 @@ class State
 	 */
 	public function __construct()
 	{
-		$this->displayError   = ini_get('display_errors');
-		
-		$reporting = new ErrorReporting();
-		
-		$this->errorReporting = error_reporting();
-		$this->errorLevel     = $reporting->getLevel();
-
+		$this->displayError    = ini_get('display_errors');
+		$this->errorReporting  = error_reporting();
 		$this->defaultTimezone = date_default_timezone_get();
+		$this->includePath	   = get_include_path();
 		
 		$stack  = spl_autoload_functions();
-		$this->autoloadStack  = $stack;
+		$this->autoloadStack = $stack;
 		$this->isAutoloadEnabled = is_array($stack) && ! empty($stack);
-
-		$this->includePath = get_include_path();
 	}
 
 	/**

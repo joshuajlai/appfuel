@@ -33,13 +33,7 @@ class FrameworkTestCase extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		$state = $this->getEnvState();
-		error_reporting($state->getErrorReporting());
-		ini_set('error_display', $state->getDisplayError());
-		date_default_timezone_set($state->getDefaultTimezone());
-
-		$this->restoreIncludePath();
-		$this->restoreAutoloaders();
+		$this->restoreKernelState();
 	}
 
 	/**
@@ -53,16 +47,28 @@ class FrameworkTestCase extends BaseTestCase
 		$this->assertTrue(true);
 	}
 
+
 	/**
-	 * Will restore the include path to the same state it was in when 
-	 * testing was initialized
+	 * Restore the kernel state to it's original values
 	 *
-	 * @return	null
+	 * @return null
 	 */
-	public function restoreIncludePath()
+	public function restoreKernelState()
 	{
-		$state = $this->getEnvState();
+		$state = TestRegistry::getKernelState();
+		error_reporting($state->getErrorReporting());
+		date_default_timezone_set($state->getDefaultTimezone());
+		ini_set('error_display', $state->getDisplayError());
 		set_include_path($state->getIncludePath());
+	
+		$functions = $state->getAutoloadStack();
+        foreach ($functions as $item) {
+            if (is_string($item)) {
+                spl_autoload_register($item);
+            } else if (is_array($item) && 2 === count($item)) {
+                spl_autoload_register(array($item[0], $item[1]));
+            }
+        }
 	}
 
     /**
@@ -73,7 +79,6 @@ class FrameworkTestCase extends BaseTestCase
     public function restoreAutoloaders()
     {
         $state = $this->getEnvState();
-		$functions = $state->getAutoloadStack();
         foreach ($functions as $item) {
             if (is_string($item)) {
                 spl_autoload_register($item);

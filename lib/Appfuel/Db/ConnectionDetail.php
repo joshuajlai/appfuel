@@ -61,7 +61,6 @@ class ConnectionDetail implements ConnectionDetailInterface
 	 */
 	public function __construct(array $data)
 	{
-
 		$err = 'Connection detail failed: ';
 		if (! isset($data['host']) || ! $this->isValidString($data['host'])) {
 			$err .= 'host must be a non empty string';

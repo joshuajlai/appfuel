@@ -9,13 +9,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rob@rsbdev.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-use TestFuel\TestCase\BaseTestCase;
+use Appfuel\Kernel\KernelInitializer;
 $base = realpath(dirname(__FILE__) . '/../');
-$file = "{$base}/lib/TestFuel/TestCase/BaseTestCase.php";
+$file = "{$base}/lib/Appfuel/Kernel/KernelInitializer.php";
 if (! file_exists($file)) {
-	throw new \Exception("Could not find base test case file at $file");
+	throw new \Exception("Could not find kernel initializer file at $file");
 }
 require_once $file;
-BaseTestCase::initialize($base);
+
+$init = new KernelInitializer($base);
+$init->initialize(null, 'test');
+
 unset($file);
 unset($base);

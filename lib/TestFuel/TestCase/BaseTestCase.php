@@ -11,10 +11,7 @@
 namespace TestFuel\TestCase;
 
 use StdClass,
-	Appfuel\App\AppManager,
-	Appfuel\Framework\Registry,
-	Appfuel\Framework\Env\State as EnvState,
-	Appfuel\Framework\File\FileManager,
+	Appfuel\Kernel\KernelRegistry,
 	PHPUnit_Extensions_OutputTestCase;
 
 /**
@@ -23,140 +20,115 @@ use StdClass,
  */
 class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 {
-	/**
-	 * Absolute path to the test directory
-	 * @var string
-	 */
-	static protected $testPath = null;
+    /**
+     * @return  BaseTestCase
+     */
+    public function __construct($name = null,
+                                array $data = array(),
+                                $dataName = '')
+    {  
+        parent::__construct($name, $data, $dataName);
+    }
 
 	/**
-	 * Absolute path to the test files directory
-	 * @var string
-	 */
-	static protected $testFilesPath = null;
-
-	/**
-	 * Absolute path to the application root directory. We cache it here, to
-	 * avoid calling the AppManager over and over again
-	 * @var string
-	 */
-	static protected $basePath = null;
-
-	/**
-	 * Absolute path to the parent directory of the appfuel test cases
-	 * @var string
-	 */
-	static protected $appfuelTestPath = null;
-
-	/**
-	 * AppManager is used to initialize the system. 
-	 * @var AppManager
-	 */
-	static protected $appManager = null;
-	
-	/**
-	 * value object that contains values for error display, reporting,
-	 * default timezone and autoload stack
-	 * @var EnvState
-	 */
-	static protected $envState = null;
-
-	/**
-	 * Backup of the registry just after intialization
-	 * @var	array
-	 */
-	static protected $registryData = null;
-
-	/**
-	 * Backup of the domain map
-	 * @var	array
-	 */
-	static protected $domainMap = null;
-
-	/**
-	 * @param	AppManager	$manager
-	 * @param	string		$configFile		absolute path to config file
+	 * Always have full error reporting and errors turned on
+	 * 
 	 * @return	null
 	 */
-	static public function initialize($base)
+	public function setUp()
 	{
-		$file = "{$base}/lib/Appfuel/App/AppManager.php";
-		if (! file_exists($file)) {
-			throw new \Exception("Could not find app manager file at $file");
-		}
-		require_once $file;
-
-		$manager = new AppManager($base, 'app-test');
-		$manager->initialize('test');
-
-		self::$registryData = Registry::getAll();
-		self::$domainMap	= Registry::getDomainMap();
-
-		self::$envState = new EnvState();
-		
-		$test = "$base/test";
-		self::$basePath			= $base;
-		self::$appManager		= $manager;
-		self::$testPath			= $test;
-		self::$testFilesPath	= "{$test}/files";
-		self::$appfuelTestPath  = "{$test}/appfuel";
+        error_reporting(E_ALL | E_STRICT);
+        ini_set('error_diplay', 'on');
+		$this->clearKernelRegistry();
 	}
 
 	/**
-	 * @return	string
+	 * @return null
 	 */
-	public function getBasePath()
+	public function tearDown()
 	{
-		return self::$basePath;
+		$this->restoreKernelState();
+		$this->restoreKernelRegistry();
 	}
 
 	/**
-	 * @return	string
+	 * @return null
 	 */
-	public function getTestPath()
+	public function clearKernelRegistry()
 	{
-		return self::$testPath;
+		KernelRegistry::clear();
 	}
 
 	/**
-	 * @return	string
+	 * Restore all the kernel registry settings with the settings backup 
+	 * that occured in the UnitTestStartup strategy
+	 *
+	 * @return	null
 	 */
-	public function getTestFilesPath()
+	public function restoreKernelRegistry()
 	{
-		return self::$testFilesPath;
+		KernelRegistry::setParams(TestRegistry::getKernelParams());
+		KernelRegistry::setRouteMap(TestRegistry::getKernelRouteMap());
+		KernelRegistry::setDomainMap(TestRegistry::getKernelDomainMap());
 	}
 
-	/**
-	 * @return	string
-	 */
-	public function getAppfuelTestPath()
-	{
-		return self::$appfuelTestPath;
-	}
+    /**
+     * Restore the kernel state to it's original values
+     *
+     * @return null
+     */
+    public function restoreKernelState()
+    {
+        $state = TestRegistry::getKernelState();
+        error_reporting($state->getErrorReporting());
+        date_default_timezone_set($state->getDefaultTimezone());
+        ini_set('error_display', $state->getDisplayError());
+        set_include_path($state->getIncludePath());
 
-	/**
-	 * @return	string
-	 */
-	public function getTestConfigFile()
-	{
-		return self::$testConfigFile;
-	}
+        $functions = $state->getAutoloadStack();
+        foreach ($functions as $item) {
+            if (is_string($item)) {
+                spl_autoload_register($item);
+            } else if (is_array($item) && 2 === count($item)) {
+                spl_autoload_register(array($item[0], $item[1]));
+            }
+        }
+    }
 
-	/**
-	 * @return	AppManager
-	 */
-	public function getAppManager()
-	{
-		return self::$appManager;
-	}
+    /**
+     * Restore autoloader to its previous state
+     * 
+     * @return null
+     */
+    public function restoreAutoloaders()
+    {
+        $state = $this->getEnvState();
+        foreach ($functions as $item) {
+            if (is_string($item)) {
+                spl_autoload_register($item);
+            } else if (is_array($item) && 2 === count($item)) {
+                spl_autoload_register(array($item[0], $item[1]));
+            }
+        }
+    }
 
-	/**
-	 * @return	EnvState
-	 */
-	public function getEnvState()
-	{
-		return	self::$envState;
-	}
+    /**
+     * Remove registered autoloader functions. Note that this does not
+     * backup those functions
+     *
+     * @return AfTestCase
+     */
+    public function clearAutoloaders()
+    {
+        $functions = spl_autoload_functions();
+        foreach ($functions as $item) {
+            if (is_string($item)) {
+                spl_autoload_unregister($item);
+            } else if (is_array($item) && 2 === count($item)) {
+                spl_autoload_unregister(array($item[0], $item[1]));
+            }
+        }
+    }
 
 	/**
 	 * @return	array
@@ -201,114 +173,4 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 			array(true)
 		);
 	}
-
-	/**
-	 * Restore the registry to a state it was when we initialized
-	 *
-	 * @return	null
-	 */
-	public function restoreRegistry()
-	{
-		$this->initializeRegistry(
-			self::$registryData,
-			self::$domainMap
-		);
-	}
-
-	/**
-	 * @param	array	$data
-	 * @return	null
-	 */
-	public function initializeRegistry($data = null, array $domainMap = null)
-	{
-		if (null === $data) {
-			$data = self::$registryData;
-		}
-		Registry::initialize($data, $domainMap);
-	}
-
-    /**
-     * Provides a mock route so you don't have to specify the all the methods
-     * 
-     * @return  RouteInteface
-     */
-    public function getMockRoute()
-    {  
-        /* namespace to the known action controller */
-        $routeInterface = 'Appfuel\Framework\App\Route\RouteInterface';
-        $methods = array(
-            'getRouteString',
-            'getAccessPolicy',
-            'getResponseType',
-            'getActionNamespace',
-            'getSubModuleNamespace',
-            'getModuleNamespace',
-            'getRootActionNamespace'
-        );
-    
-		return $this->getMockBuilder($routeInterface)
-                    ->setMethods($methods)
-                    ->getMock();
-    }
-
-    /**
-     * @return  MessageInteface
-     */
-    public function getMockContext()
-    {
-        /* namespace to the known action controller */
-        $msgInterface = 'Appfuel\Framework\App\ContextInterface';
-        $methods = array(
-            'getRoute',
-            'SetRoute',
-            'isRoute',
-            'getRequest',
-            'setRequest',
-            'isRequest',
-            'getResponseType',
-            'setResponseType',
-            'calculateResponseType',
-            'getError',
-            'setError',
-            'isError',
-            'clearError',
-            /* dictionary methods */
-            'add',
-            'get',
-            'getAll',
-            'count',
-            'load'
-        );
-
-        return $this->getMockBuilder($msgInterface)
-                    ->setMethods($methods)
-                    ->getMock();
-    }
-
-    /**
-     * Used to encapsulate the common logic necessary for testing
-     * the template builds
-     *
-     * @param   string  $path
-     * @return  Appfuel\Framework\FileInterface
-     */
-    public function createMockFrameworkFile($path)
-    {
-        $path = "{$this->getTestFilesPath()}/{$path}";
-        $file = $this->getMock('Appfuel\Framework\File\FrameworkFileInterface');
-
-        $file->expects($this->any())
-             ->method('isFile')
-             ->will($this->returnValue(true));
-
-        $file->expects($this->any())
-             ->method('getRealPath')
-             ->will($this->returnValue($path));
-
-        $file->expects($this->any())
-             ->method('getFullPath')
-             ->will($this->returnValue($path));
-
-        return $file;
-    }
 }

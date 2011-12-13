@@ -43,26 +43,6 @@ class DbTestCase extends BaseTestCase
                                 $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
-		$connector = DbManager::getConnector();
-		$master = $connector->getMaster();
-		$this->setConnectionDetail($master->getConnectionDetail());
-    }
-
-    /**
-     * @return  ConnectionDetailInterface
-     */
-    public function getConnectionDetail()
-    {
-        return $this->connDetail;
-    }
-
-    /**
-     * @return  ConnectionDetailInterface
-     */
-    public function setConnectionDetail(ConnectionDetailInterface $detail)
-    {
-        $this->connDetail = $detail;
-        return $this;
     }
 
 }

@@ -84,7 +84,6 @@ class FaultHandler implements FaultHandlerInterface
 		if (strlen($code) < 1 || ! is_int($code)) {
 			$code = 500;
 		}
-
 		$display->renderError($text, $code);
 		exit($code);
 	}
