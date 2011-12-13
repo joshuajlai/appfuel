@@ -19,6 +19,7 @@
 -->
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Console</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Http</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/DataStructure</directory>
 	<file>../lib/TestFuel/Unit/Kernel/KernelRegistryTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/KernelOutputTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/IncludePathTest.php</file>
