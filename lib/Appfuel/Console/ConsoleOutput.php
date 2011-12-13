@@ -56,13 +56,13 @@ class ConsoleOutput implements ConsoleOutputInterface
 	 * @paraj	int		$code	ignored by commandline
 	 * @return	null
 	 */
-	public function renderError($msg, $code = 1)
+	public function renderError($data)
 	{
-		if (! $this->isValidOutput($msg)) {
+		if (! $this->isValidOutput($data)) {
 			$err = 'data must be able to cast to a string';
 			throw new InvalidArgumentException($err);
 		}
 
-		fwrite(STDERR, (string)$msg . PHP_EOL);
+		fwrite(STDERR, (string)$data . PHP_EOL);
 	}
 }

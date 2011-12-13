@@ -11,6 +11,7 @@
 namespace TestFuel\TestCase;
 
 use StdClass,
+	TestFuel\Provider\StringProvider,
 	Appfuel\Kernel\KernelRegistry,
 	PHPUnit_Extensions_OutputTestCase;
 
@@ -20,6 +21,11 @@ use StdClass,
  */
 class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 {
+	/**
+	 * @var StringProvider
+	 */
+	protected $stringProvider = null;
+
     /**
      * @return  BaseTestCase
      */
@@ -27,8 +33,17 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
                                 array $data = array(),
                                 $dataName = '')
     {  
+		$this->stringProvider = new StringProvider();
         parent::__construct($name, $data, $dataName);
     }
+
+	/**
+	 * @return	StringProvider
+	 */
+	public function setStringProvider()
+	{
+		return $this->stringProvider;
+	}
 
 	/**
 	 * Always have full error reporting and errors turned on
@@ -102,7 +117,8 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
      */
     public function restoreAutoloaders()
     {
-        $state = $this->getEnvState();
+        $state = TestRegistry::getKernelState();
+        $functions = $state->getAutoloadStack();
         foreach ($functions as $item) {
             if (is_string($item)) {
                 spl_autoload_register($item);
@@ -129,6 +145,17 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
             }
         }
     }
+
+	/**
+	 * Restore the include path to the original kernel state
+	 *
+	 * @return	null
+	 */
+	public function restoreIncludePath()
+	{
+        $state = TestRegistry::getKernelState();
+        set_include_path($state->getIncludePath());
+	}
 
 	/**
 	 * @return	array

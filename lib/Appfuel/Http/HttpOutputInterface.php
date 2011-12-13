@@ -10,17 +10,14 @@
  */
 namespace Appfuel\Http;
 
-
-use Appfuel\Kernel\OutputInterface;
-
 /**
  * Handle specific details for outputting http data
  */
-interface HttpOutputInterface extends OutputInterface
+interface HttpOutputInterface
 {
 	/**
 	 * @param	HttpResponseInterface $response
 	 * @return	null
 	 */
-	public function renderResponse(HttpResponseInterface $response);
+	public function render(HttpResponseInterface $response);
 }

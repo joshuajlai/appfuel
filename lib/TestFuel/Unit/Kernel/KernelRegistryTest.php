@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernel;
+namespace TestFuel\Unit\Kernel;
 
 use StdClass,
 	Appfuel\Kernel\KernelRegistry,
@@ -21,33 +21,6 @@ use StdClass,
  */
 class KernelRegistryTest extends BaseTestCase
 {
-	/**
-	 * Back up the data in the registry
-	 * @var string
-	 */
-	protected $backupData = null;
-
-	/**
-	 * Backup the registry data then initialize it with an empty bag
-	 * @return null
-	 */
-	public function setUp()
-	{
-		$this->backUpParams  = KernelRegistry::getParams();
-		$this->backUpDomains = KernelRegistry::getDomainMap();
-		KernelRegistry::clear();
-	}
-
-	/**
-	 * Restore the original registry data
-	 * @return null
-	 */
-	public function tearDown()
-	{
-		KernelRegistry::setParams($this->backUpParams);
-		KernelRegistry::setDomainMap($this->backUpDomains);
-	}
-
 	/**
 	 * @return	array
 	 */

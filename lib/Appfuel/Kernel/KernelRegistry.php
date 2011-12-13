@@ -18,6 +18,13 @@ use InvalidArgumentException;
 class KernelRegistry
 {
 	/**
+	 * Strategy used to dertermine the type of output is used. Appfuel 
+	 * has the following: console, html, ajax (api soon to come)
+	 * @var string
+	 */
+	static protected $appStrategy = null;
+
+	/**
 	 * List of kernal global kernal parameters used during intialization
 	 * @var Dictionary
 	 */
@@ -34,6 +41,35 @@ class KernelRegistry
 	 * @var array
 	 */
 	static protected $routes = array();
+
+	/**
+	 * @return	string
+	 */
+	static public function getAppStrategy()
+	{
+		return self::$appStrategy;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	static public function setAppStrategy($name)
+	{
+		if (empty($name) || ! is_string($name) || ! ($name = trim($name))) {
+			$err = 'Application strategy mustt be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+		
+		$name  = strtolower($name);
+		$valid = array('console', 'html', 'ajax');
+		if (! in_array($name, $valid, true)) {
+			$err = "Application strategy must be -(console|html|ajax)";
+			throw new InvalidArgumentException($err);
+		}
+
+		self::$appStrategy = $name;
+	}
 
 	/**
 	 * @return	array

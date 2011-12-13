@@ -10,35 +10,16 @@
  */
 namespace Appfuel\Http;
 
-
-use Appfuel\Kernel\OutputInterface;
-
 /**
  * Handle specific details for outputting http data
  */
-class HttpOutput implements OutputInterface
+class HttpOutput implements HttpOutputInterface
 {
-    /**
-     * @param   HttpResponseInterface|string   $data
-     * @return  mixed
-     */
-    public function render($data)
-    {
-		if ($data instanceof HttpResponseInterface) {
-			$response = $data;
-		}
-		else {
-			$response = $this->createHttpResponse($data);
-		}
-
-		return $this->renderResponse($response);
-    }
-
 	/**
 	 * @param	HttpResponseInterface $response
 	 * @return	null
 	 */
-	public function renderResponse(HttpResponseInterface $response)
+	public function render(HttpResponseInterface $response)
 	{
 		if (headers_sent()) {
 			return;
@@ -52,25 +33,5 @@ class HttpOutput implements OutputInterface
 		foreach($headerList as $header) {
 			header($header, $replaceSimilar);
 		}
-	}
-
-	/**
-	 * @param	string	$msg
-	 * @param	int		$code
-	 * @return	null
-	 */
-	public function renderError($msg, $code = 500)
-	{
-		$this->renderResponse($this->createHttpResponse($msg, $code));
-	}
-
-	/**
-	 * @param	string	$content
-	 * @param	int		$code
-	 * @return	HttpResponse
-	 */
-	protected function createHttpResponse($content, $code = null)
-	{
-		return new HttpResponse($content, $code);
 	}
 }

@@ -43,9 +43,8 @@ return array(
 		'include-path'			=> array(
 			'/usr/local/php/share/pear',
 			AF_BASE_PATH . '/test',
-			AF_BASE_PATH . '/test/lib',
 			AF_BASE_PATH . '/test/classes',
-			AF_BASE_PATH . '/lib',
+			AF_LIB_PATH 
 		),
 		'startup-tasks'	=> array(
 			'TestFuel\UnitTestStartup',

@@ -12,7 +12,11 @@ namespace Appfuel\Kernel;
 
 use Appfuel\Http\HttpOutput,
 	Appfuel\Http\HttpResponse,
-	Appfuel\Console\ConsoleOutput;
+	Appfuel\Http\HttpOutputInterface,
+	Appfuel\Http\HttpResponseInterface,
+	Appfuel\Console\ConsoleOutput,
+	Appfuel\Console\ConsoleOutputInterface,
+	Appfuel\Kernel\Mvc\AppContextInterface;
 
 /**
  * The kernel output uses the KernelRegistry to figure out which 
@@ -20,7 +24,54 @@ use Appfuel\Http\HttpOutput,
  * and then uses that to build the correct Output object to output the error
  */
 class KernelOutput implements OutputInterface
-{
+{	
+	/**
+	 * Output engine used to render http responses
+	 * @var HttpOutputInterface
+	 */
+	protected $http = null;
+	
+	/**
+	 * Output engine used to render console responses
+	 * @var ConsoleOutputInterface
+	 */
+	protected $console = null;
+
+	/**
+	 * @param	HttpOutputInterface $http
+	 * @param	ConsoleOutputInterface $console
+	 * @return	KernelOutput
+	 */
+	public function __construct(HttpOutputInterface $http = null,
+								ConsoleOutputInterface $console = null)
+	{
+		if (null === $http) {
+			$http = new HttpOutput();
+		}
+		$this->http = $http;
+
+		if (null === $console) {
+			$console = new ConsoleOutput();
+		}
+		$this->console = $console;
+	}
+
+	/**
+	 * @return	HttpOutputInterface
+	 */
+	public function getHttpOutput()
+	{
+		return $this->http;
+	}
+
+	/**
+	 * @return	ConsoleOutputInterface
+	 */
+	public function getConsoleOutput()
+	{
+		return $this->console;
+	}
+
 	/**
 	 * @param	mixed	$data
 	 * @return	null
@@ -28,13 +79,11 @@ class KernelOutput implements OutputInterface
 	public function render($data)
 	{
 		if ($this->isHttpOutput()) {
-			$output = new HttpOutput();
-			$output->render($data);
-			return;
+			$this->renderHttp($data);
 		}
-
-		$output = new ConsoleOutput();
-		$output->render($data);
+		else {
+			$this->renderConsole($data);
+		}
 	}
 	
 	/**
@@ -44,27 +93,75 @@ class KernelOutput implements OutputInterface
 	public function renderError($msg, $code = 500)
 	{
 		if ($this->isHttpOutput()) {
-			$output = new HttpOutput();
 			$response = new HttpResponse($msg, $code);
-			$output->renderResponse($response);
+			$this->renderHttp($response);
 			return;
 		}
 
-		$output = new ConsoleOutput();
-		$output->render($msg);
+		$console = $this->getConsoleOutput();
+		$console->renderError($msg);
 	}
 
-	public function isHttpOutput()
+	/**
+	 * @param	scalar | AppContextInteface	$data
+	 * @return	null
+	 */
+	public function renderConsole($data)
 	{
-		$strategy = KernelRegistry::getParam('af-output-strategy', 'console');
-		if (empty($strategy) || ! is_string($strategy)) {
-			return false;
+		$output = $this->getConsoleOutput();
+		if ($data instanceof AppContextInteface) {
+			$text =(string) $data->getView();;
 		}
-		$http = array('html', 'ajax');
-		if (in_array($strategy, $http, true)) {
-			return true;
+		else {
+			$text = $data;
 		}
 
-		return false;
+		$output->render($text);
+	}
+
+	/**
+	 * @param	scalar | AppContextInteface	$data
+	 * @return	null
+	 */
+	public function renderHttp($data)
+	{
+		$output = $this->getHttpOutput();
+		if ($data instanceof AppContextInteface) {
+			$httpResponse = $context->get('http-response', null);
+			if (! ($httpResponse instanceof HttpResponseInterface)) {
+				$headers = $context->get('http-headers', array());
+				$view    = $context->getView();
+				$code    = $context->getExitCode();
+				$httpResponse = new HttpResponse($context->getView(), $code);
+				if (! empty($headers) && is_array($headers)) {
+					$httpReponse->loadHeaders($headers);
+				}
+			}
+
+		}
+		else if ($data instanceof HttpResponseInterface) {
+			$response = $data;
+		}
+		else {
+			$response = new HttpResponse($data);
+		}
+			
+		$output->renderResponse($httpResponse);
+	}
+
+	/**
+	 * Detemine if the output engine is http by checking the KernelRegistry
+	 * for the application strategy
+	 *
+	 * @return	bool
+	 */
+	public function isHttpOutput()
+	{
+		$strategy = KernelRegistry::getAppStrategy();
+		if (empty($strategy) || 'console' === $strategy) {
+			return false;
+		}
+
+		return true;
 	}
 }

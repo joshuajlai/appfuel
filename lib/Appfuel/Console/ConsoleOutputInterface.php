@@ -10,12 +10,12 @@
  */
 namespace Appfuel\Console;
 
-
-use Appfuel\Kernel\OutputInterface;
-
 /**
+ * Provides validation to ensure scalar data or objects that implement
+ * __toString. Will render to the standard output stream and will render
+ * errors to the standard error stream
  */
-interface ConsoleOutputInterface extends OutputInterface
+interface ConsoleOutputInterface
 {
 	/**
 	 * @param	mixed	$data
@@ -23,4 +23,19 @@ interface ConsoleOutputInterface extends OutputInterface
 	 */
 	public function isValidOutput($data);
 
+	/**
+	 * Write to the STDOUT.
+	 *
+	 * @param	mixed	$data
+	 * @return	null
+	 */
+	public function render($data);
+
+	/**
+	 * Write to the STDERR.
+	 *
+	 * @param	string	$msg	error message
+	 * @return	null
+	 */
+	public function renderError($data);
 }

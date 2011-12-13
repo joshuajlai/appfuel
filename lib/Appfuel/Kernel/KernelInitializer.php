@@ -53,7 +53,7 @@ class KernelInitializer
 	 *
 	 * @return	KernalInitializer
 	 */
-	public function __construct($base)
+	public function __construct($base, $strategy)
 	{
 		$err = 'Initialization error: ';
 		if (defined('AF_BASE_PATH')) {
@@ -72,9 +72,12 @@ class KernelInitializer
 			define('AF_LIB_PATH', AF_BASE_PATH . '/lib');
 		}
 
+
 		$this->setConfigPath("$base/app");
 		$this->initDependencyLoader();
 		$this->initKernelDependencies();
+		
+		KernelRegistry::setAppStrategy($strategy);
 	}
 
 	/**
@@ -95,8 +98,8 @@ class KernelInitializer
 	 * @param	null|string|array	$route
 	 * @return	null
 	 */
-	public function initialize($config = null, 
-							   $section = null, 
+	public function initialize($section = 'main', 
+							   $config = null, 
 							   $domain = null,
 							   $route = null)
 	{
