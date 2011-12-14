@@ -8,17 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernel\Error;
+namespace TestFuel\Unit\Kernel\Error;
 
 use Appfuel\Kernel\Error\ErrorLevel,
-	TestFuel\TestCase\FrameworkTestCase;
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * The ErrorLevel class encapsulates the logic arround a single 
  * php method error_reporting. The intent is to create a uniform set of
  * of error levels that can be used in a config file.
  */
-class ErrorLevelTest extends FrameworkTestCase
+class ErrorLevelTest extends BaseTestCase
 {
 	/**
 	 * System Under Test

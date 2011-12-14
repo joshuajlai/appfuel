@@ -10,8 +10,6 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\Kernel\OutputInterface;
-
 /**
  * The front controller is used build the intialize context, run the pre
  * intercepting filters, dispatch to the mv action, handle any errors,
@@ -52,12 +50,6 @@ interface MvcFrontInterface
      * @return  MvcFrontInterface
      */
     public function addAclCode($code);
-
-    /**
-     * @param   OutputInterface $output
-     * @return  MvcFront
-     */
-    public function setOutputEngine(OutputInterface $output);
 
     /**
      * @return  OutputInterface

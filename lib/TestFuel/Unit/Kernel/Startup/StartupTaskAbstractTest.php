@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernel\Startup;
+namespace TestFuel\Unit\Kernel\Startup;
 
 use StdClass,
 	Exception,

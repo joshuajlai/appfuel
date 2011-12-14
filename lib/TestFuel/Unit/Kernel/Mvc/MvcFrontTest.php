@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Kernel\Mvc;
+namespace TestFuel\Unit\Kernel\Mvc;
 
 use StdClass,
 	Appfuel\Kernel\Mvc\MvcFront,
@@ -173,122 +173,6 @@ class MvcFrontTest extends BaseTestCase
 		$front = $this->createMvcFront($dispatcher, $manager);
 		$this->assertSame($dispatcher, $front->getDispatcher());
 		$this->assertSame($manager, $front->getFilterManager());	
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testGetSetOutputEngineForConsole()
-	{
-		$this->assertNull($this->front->getOutputEngine());
-		$output = $this->getMock('Appfuel\Console\ConsoleOutputInterface');
-	
-		$this->front->setStrategy('console');	
-		$this->assertSame(
-			$this->front,
-			$this->front->setOutputEngine($output),
-			'uses fluent interface'
-		);
-		$this->assertSame($output, $this->front->getOutputEngine());
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testGetSetOutputEngineForAjax()
-	{
-		$this->assertNull($this->front->getOutputEngine());
-		$output = $this->getMock('Appfuel\Http\HttpOutputInterface');
-	
-		$this->front->setStrategy('ajax');	
-		$this->assertSame(
-			$this->front,
-			$this->front->setOutputEngine($output),
-			'uses fluent interface'
-		);
-		$this->assertSame($output, $this->front->getOutputEngine());
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testGetSetOutputEngineForHtml()
-	{
-		$this->assertNull($this->front->getOutputEngine());
-		$output = $this->getMock('Appfuel\Http\HttpOutputInterface');
-	
-		$this->front->setStrategy('html');	
-		$this->assertSame(
-			$this->front,
-			$this->front->setOutputEngine($output),
-			'uses fluent interface'
-		);
-		$this->assertSame($output, $this->front->getOutputEngine());
-	}
-
-	/**
-	 * It is a runtime exception to use an HttpOutputInterface with a console
-	 * strategy
-	 *
-	 * @expectedException	RunTimeException
-	 * @depends				testInterface
-	 * @return				null
-	 */
-	public function testSetOuputEngineConsoleWithHttp()
-	{
-		$output = $this->getMock('Appfuel\Http\HttpOutputInterface');
-		$this->front->setStrategy('console')
-					->setOutputEngine($output);
-		
-	}
-
-	/**
-	 * It is a runtime exception to use an ConsoleOutputInterface with a html
-	 * strategy
-	 *
-	 * @expectedException	RunTimeException
-	 * @depends				testInterface
-	 * @return				null
-	 */
-	public function testSetOuputEngineHtmlWithConsoleOutput()
-	{
-		$output = $this->getMock('Appfuel\Console\ConsoleOutputInterface');
-		$this->front->setStrategy('html')
-					->setOutputEngine($output);
-		
-	}
-
-	/**
-	 * It is a runtime exception to use an ConsoleOutputInterface with a ajax
-	 * strategy
-	 *
-	 * @expectedException	RunTimeException
-	 * @depends				testInterface
-	 * @return				null
-	 */
-	public function testSetOuputEngineAjaxWithConsoleOutput()
-	{
-		$output = $this->getMock('Appfuel\Console\ConsoleOutputInterface');
-		$this->front->setStrategy('ajax')
-					->setOutputEngine($output);
-		
-	}
-
-	/**
-	 * It is a runtime exception to set the output engine for the strategy is
-	 * set
-	 *
-	 * @expectedException	RunTimeException
-	 * @depends				testInterface
-	 * @return				null
-	 */
-	public function testSetOuputEngineBeforeStrategy()
-	{
-		$output = $this->getMock('Appfuel\Console\ConsoleOutputInterface');
-		$this->front->setOutputEngine($output);
 	}
 
 	/**

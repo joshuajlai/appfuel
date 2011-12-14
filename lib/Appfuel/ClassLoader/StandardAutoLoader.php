@@ -10,7 +10,7 @@
  */
 namespace Appfuel\ClassLoader;
 
-use Appfuel\Framework\Exception;
+use InvalidArgumentException;
 
 /**
  * The standard autoloader is an implementation that implements the technical 
@@ -57,7 +57,8 @@ class StandardAutoLoader implements AutoLoaderInterface
 				$this->addPaths($path);
 			}
 			else {
-				throw new Exception("path must be a string or an array");
+				$err = "path must be a string or an array";
+				throw new InvalidArgumentException($err);
 			}
 		}
 
@@ -112,6 +113,7 @@ class StandardAutoLoader implements AutoLoaderInterface
 	}
 
 	/**
+	 * @throws	InvalidArgumentException
 	 * @param	string	$namespace	
 	 * @param	string	absolute path to namespace
 	 * @return	StandardAutoLoader
@@ -119,7 +121,8 @@ class StandardAutoLoader implements AutoLoaderInterface
 	public function addPath($path)
 	{
 		if (empty($path) || !is_string($path) || !($path = trim($path))) {
-			throw new Exception("a path must be a non empty string");
+			$err = 'a path must be a non empty string';
+			throw new InvalidArgumentException($err);
 		}
 
 		if (! in_array($path, $this->pathList)) {
@@ -189,7 +192,7 @@ class StandardAutoLoader implements AutoLoaderInterface
 	public function loadClass($class)
 	{
 		if (class_exists($class,false) || interface_exists($class,false)) {
-			return false;
+			return true;
         }
 
 		$parser = $this->getParser();
@@ -211,7 +214,5 @@ class StandardAutoLoader implements AutoLoaderInterface
 			require $file;
 			return true;
 		}
-
-		return null;
 	}
 }

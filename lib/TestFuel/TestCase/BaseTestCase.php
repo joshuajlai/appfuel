@@ -12,6 +12,7 @@ namespace TestFuel\TestCase;
 
 use StdClass,
 	TestFuel\Provider\StringProvider,
+	Appfuel\Kernel\PathFinder,
 	Appfuel\Kernel\KernelRegistry,
 	PHPUnit_Extensions_OutputTestCase;
 
@@ -26,13 +27,19 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	 */
 	protected $stringProvider = null;
 
+	/**
+	 * @var PathFinder
+	 */
+	protected $pathFinder = null;
+
     /**
      * @return  BaseTestCase
      */
     public function __construct($name = null,
                                 array $data = array(),
                                 $dataName = '')
-    {  
+    {
+		$this->pathFinder = new PathFinder('test');  
 		$this->stringProvider = new StringProvider();
         parent::__construct($name, $data, $dataName);
     }
@@ -43,6 +50,20 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	public function getStringProvider()
 	{
 		return $this->stringProvider;
+	}
+
+	/**
+	 * @return	PathFinder
+	 */
+	public function getPathFinder()
+	{
+		return $this->pathFinder;
+	}
+
+	public function getTestFilesPath()
+	{
+		return $this->getPathFinder()
+					->getPath('files');
 	}
 
 	/**
@@ -101,6 +122,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
         set_include_path($state->getIncludePath());
 
         $functions = $state->getAutoloadStack();
+		$this->clearAutoloaders();
         foreach ($functions as $item) {
             if (is_string($item)) {
                 spl_autoload_register($item);
@@ -119,6 +141,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
     {
         $state = TestRegistry::getKernelState();
         $functions = $state->getAutoloadStack();
+		$this->clearAutoloaders();
         foreach ($functions as $item) {
             if (is_string($item)) {
                 spl_autoload_register($item);
@@ -183,7 +206,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	{
 		$provider = $this->getStringProvider();
 		$includeNull = true;
-		return $provider->provideInvalidStrings($includeNull);
+		return $provider->provideStrictInvalidStrings($includeNull);
 	}
 
 	/**
@@ -193,7 +216,7 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	{
 		$provider = $this->getStringProvider();
 		$includeNull = false;
-		return $provider->provideInvalidStrings($includeNull);
+		return $provider->provideStrictInvalidStrings($includeNull);
 	}
 
 	/**

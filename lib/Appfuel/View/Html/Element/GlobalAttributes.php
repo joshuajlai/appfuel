@@ -10,8 +10,6 @@
  */
 namespace Appfuel\View\Html\Element;
 
-use Appfuel\Framework\Exception;
-
 /**
  * 
  */

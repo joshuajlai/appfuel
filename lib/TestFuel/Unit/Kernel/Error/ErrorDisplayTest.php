@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TesFuel\Test\Kernel\Error;
+namespace TesFuel\Unit\Kernel\Error;
 
 use Appfuel\Kernel\Error\ErrorDisplay,
-	TestFuel\TestCase\FrameworkTestCase;
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * ErrorDisplay provides a uniform interface for setting the configuration 
@@ -20,7 +20,7 @@ use Appfuel\Kernel\Error\ErrorDisplay,
  * on, off and error states into just one valid indicator for each category
  * 'on', 'off', 'stderr'.
  */
-class DisplayErrorTest extends FrameworkTestCase
+class DisplayErrorTest extends BaseTestCase
 {
 	/**
 	 * System Under Test

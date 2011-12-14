@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\View\Html\Element;
+namespace TestFuel\Unit\View\Html\Element;
 
 use Appfuel\View\Html\Element\Tag,
 	Appfuel\View\Html\Element\Link,

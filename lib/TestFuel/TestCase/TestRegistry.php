@@ -11,6 +11,7 @@
 namespace TestFuel\TestCase;
 
 use InvalidArgumentException,
+	Appfuel\Kernel\PathFinderInterface,
 	Appfuel\Kernel\KernelStateInterface;
 
 /**
@@ -139,9 +140,9 @@ class TestRegistry
 	 */
 	static public function clear()
 	{
-		self::clearParams();
-		self::clearDomainMap();
-		self::clearRouteMap();
+		self::clearKernelParams();
+		self::clearKernelDomainMap();
+		self::clearKernelRouteMap();
 	}
 
 }

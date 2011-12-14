@@ -11,7 +11,6 @@
 namespace TestFuel;
 
 use TestFuel\TestCase\TestRegistry,
-	Appfuel\Kernel\PathFinder,
 	Appfuel\Kernel\KernelState,
 	Appfuel\Kernel\KernelRegistry,
 	Appfuel\Kernel\Startup\StartupTaskAbstract;
@@ -38,11 +37,11 @@ class UnitTestStartup extends StartupTaskAbstract
 		$routes  = KernelRegistry::getRouteMap();
 		$domains = KernelRegistry::getDomainMap();
 		$state  = new KernelState();
-
 		TestRegistry::setKernelState($state);
 		TestRegistry::setKernelParams($params);
 		TestRegistry::setKernelRouteMap($routes);
 		TestRegistry::setKernelDomainMap($domains);	
+
 		$this->setStatus('appfuel unittest: initialized');
 	}
 }	

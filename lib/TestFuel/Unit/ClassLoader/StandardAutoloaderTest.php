@@ -173,7 +173,7 @@ class StandardAutoLoaderTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @depends				testPath
 	 * @return				null
 	 */
@@ -184,7 +184,7 @@ class StandardAutoLoaderTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @depends				testPath
 	 * @return				null
 	 */
@@ -195,7 +195,7 @@ class StandardAutoLoaderTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @depends				testPath
 	 * @return				null
 	 */
@@ -252,7 +252,7 @@ class StandardAutoLoaderTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideInvalidPaths
 	 * @depends				testPath
 	 * @return				null
@@ -339,8 +339,8 @@ class StandardAutoLoaderTest extends BaseTestCase
 		$iresult = $this->loader->loadClass($interface);
 
 		$this->restoreAutoloaders();
-		$this->assertFalse($cresult);
-		$this->assertFalse($iresult);
+		$this->assertTrue($cresult);
+		$this->assertTrue($iresult);
 	}
 
 

@@ -17,7 +17,9 @@ use Exception,
 	Appfuel\View\ViewTemplate,
 	Appfuel\Console\ConsoleViewTemplate,
 	Appfuel\View\AjaxTemplateInterface,
-	Appfuel\View\ViewTemplateInterface;
+	Appfuel\View\ViewTemplateInterface,
+	Appfuel\ClassLoader\StandardAutoLoader,
+	Appfuel\ClassLoader\AutoLoaderInterface;
 
 /**
  * Used to build action controllers
@@ -29,17 +31,35 @@ class MvcActionFactory implements MvcActionFactoryInterface
 	 * @var string
 	 */
 	protected $actionClass = null;
+	
+	/**
+	 * Namespace parser is used to turn class names into paths so we 
+	 * can check if a file exists without using the autoloader.
+	 * @var	AutoLoaderInterface
+	 */
+	protected $loader = null;
 
 	/**
 	 * @param	string	$controllerClass
 	 * @return	ActionFactory
 	 */
-	public function __construct($actionClass = null)
+	public function __construct($actionClass = null,
+								AutoLoaderInterface $loader = null)
 	{
 		if (null === $actionClass) {
 			$actionClass = 'ActionController';
 		}
 		$this->setActionClass($actionClass);
+
+		/*
+		 * Note that we use the load class from the lib directory. This 
+		 * constant is set during intialization. I will refactor next to a 
+		 * a path finder. (on a deadline right now) --rsb
+		 */
+		if (null === $loader) {
+			$loader = new StandardAutoLoader(AF_LIB_PATH);
+		}
+		$this->loader = $loader;
 	}
 
 	/**
@@ -48,6 +68,14 @@ class MvcActionFactory implements MvcActionFactoryInterface
 	public function getActionClass()
 	{
 		return $this->actionClass;
+	}
+
+	/**
+	 * @return	AutoLoaderInterface
+	 */
+	public function getLoader()
+	{
+		return $this->loader;
 	}
 
 	/**
@@ -126,13 +154,10 @@ class MvcActionFactory implements MvcActionFactoryInterface
             return new ViewTemplate();
         }
 
-        $class = "$namespace\HtmlView";
-        try {
-            $view = new $class();
-        } catch (Exception $e) {
-            $view = new ViewTemplate();
-        }
-
+        $class  = "$namespace\HtmlView";
+		$loader = $this->getLoader();
+		$isView = $loader->loadClass($class);
+		$view = (true === $isView)? new $class() : new ViewTemplate();
         if (! $view instanceof ViewTemplateInterface) {
             throw new RunTimeException(
 				"console view does not use correct interface"
@@ -151,12 +176,10 @@ class MvcActionFactory implements MvcActionFactoryInterface
             return new ConsoleViewTemplate();
         }
 
-        $class = "$namespace\ConsoleView";
-        try {
-            $view = new $class();
-        } catch (Exception $e) {
-            $view = new ConsoleViewTemplate();
-        }
+		$loader = $this->getLoader();
+        $class  = "$namespace\ConsoleView";
+		$isView = $loader->loadClass($class);
+		$view = (true === $isView)? new $class() : new ConsoleViewTemplate();
 
         if (! $view instanceof ViewTemplateInterface) {
             throw new RunTimeException(
@@ -176,13 +199,10 @@ class MvcActionFactory implements MvcActionFactoryInterface
 			return new AjaxTemplate();
 		}
 			
-		$class = "$namespace\AjaxView";
-		try {
-            $view = new $class();
-        } catch (Exception $e) {
-            $view = new AjaxTemplate();
-        }
-
+		$loader = $this->getLoader();
+		$class  = "$namespace\AjaxView";
+		$isView = $loader->loadClass($class);
+		$view = (true === $isView)? new $class() : new AjaxTemplate();
         if (! $view instanceof AjaxTemplateInterface) {
             throw new RunTimeException(
 				"json view does not use correct interface"

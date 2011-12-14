@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<phpunit backupGlobals="false" bootstrap="bootstrap.php" colors="true">
+<phpunit backupGlobals="false" 
+		 bootstrap="bootstrap.php" 
+		 colors="true"
+		 convertErrorsToExceptions="true">
 <testsuites>
 	<testsuite name="Appfuel Tests">
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Console</directory>
@@ -13,6 +16,9 @@
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Expr</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Orm/Domain</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Orm/Repository</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/View</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/Kernel/Error</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/Kernel/Startup</directory>
 <!--		
 	<file>../lib/TestFuel/Test/Kernel/Mvc/ContextBuilderTest.php</file>
 	<file>../lib/TestFuel/Test/Kernel/Mvc/MvcActionDispatcherTest.php</file>
@@ -30,7 +36,17 @@
 
 	<file>../lib/TestFuel/Unit/Kernel/KernelRegistryTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/KernelOutputTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/FaultHandlerTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/IncludePathTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/RequestUriTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/ActionFactoryTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/AppContextTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/AppInputTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/AppInput_FailureTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/ContextBuilderTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionDispatcherTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcFrontTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\View\Html\Element\Meta;
+namespace TestFuel\Unit\View\Html\Element\Meta;
 
 use TestFuel\TestCase\BaseTestCase,
 	Appfuel\View\Html\Element\Meta\Tag  as MetaTag,

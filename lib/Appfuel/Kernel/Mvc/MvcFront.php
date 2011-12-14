@@ -12,13 +12,9 @@ namespace Appfuel\Kernel\Mvc;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Http\HttpResponse,
-	Appfuel\Http\HttpOutput,
-	Appfuel\Http\HttpOutputInterface,
-	Appfuel\Console\ConsoleOutput,
-	Appfuel\Console\ConsoleOutputInterface,
 	Appfuel\View\ViewTemplateInterface,
 	Appfuel\Kernel\KernelRegistry,
+	Appfuel\Kernel\KernelOutput,
 	Appfuel\Kernel\OutputInterface,
 	Appfuel\Kernel\Mvc\Filter\FilterManager,
 	Appfuel\Kernel\Mvc\Filter\FilterManagerInterface;
@@ -69,7 +65,8 @@ class MvcFront implements MvcFrontInterface
 	 * @return	AppContext
 	 */
 	public function __construct(MvcActionDispatcherInterface $dispatcher = null,
-								FilterManagerInterface $filterManager = null)
+								FilterManagerInterface $filterManager = null,
+								OutputInterface $output = null)
 	{
 		if (null === $dispatcher) {
 			$dispatcher = new MvcActionDispatcher();
@@ -80,6 +77,10 @@ class MvcFront implements MvcFrontInterface
 			$filterManager = new FilterManager();
 		}
 		$this->filterManager = $filterManager;
+
+		if (null === $output) {
+			$ouput = new KernelOutput();
+		}
 	}
 
 	/**
@@ -97,6 +98,15 @@ class MvcFront implements MvcFrontInterface
 	{
 		return $this->filterManager;
 	}
+
+	/**
+	 * @return	OutputInterface
+	 */
+	public function getOutputEngine()
+	{
+		return $this->output;
+	}
+
 	/**
 	 * @param	string	$strategy	ajax|html|console
 	 * @return	MvcFront
@@ -142,50 +152,6 @@ class MvcFront implements MvcFrontInterface
 			 ->addAclCode($code);
 
 		return $this;
-	}
-
-	/**
-	 * @param	OutputInterface $output
-	 * @return	MvcFront
-	 */
-	public function setOutputEngine(OutputInterface $output)
-	{
-		$strategy = $this->getDispatcher()
-						 ->getStrategy();
-
-		if (null === $strategy) {
-			$err = 'strategy must be set before output engine is set';
-			throw new RunTimeException($err);
-		}
-
-		if ('console' === $strategy) {
-			if ($output instanceof ConsoleOutputInterface) {
-				$this->output = $output;
-				return $this;
-			}
-			else {
-				$err  = 'for console strategy output engine must implement ';
-				$err .= 'Appfuel\Console\ConsoleOutputInterface';
-				throw new RunTimeException($err);
-			} 
-		}
-
-		if (! ($output instanceof HttpOutputInterface)) {
-			$err  = 'for html or ajax strategies output engine must implement ';
-			$err .= 'Appfuel\Http\HttpOutputInterface';
-			throw new RunTimeException($err);
-		}
-
-		$this->output = $output;
-		return $this;
-	}
-
-	/**
-	 * @return	OutputInterface
-	 */
-	public function getOutputEngine()
-	{
-		return $this->output;
 	}
 
 	/**
@@ -264,23 +230,16 @@ class MvcFront implements MvcFrontInterface
 	 * @param	string|RequestUriInterface
 	 * @return	int
 	 */
-	public function runConsoleUri($uri, ConsoleOutputInterface $out = null)
+	public function runConsoleUri($uri)
 	{
-		if (null === $out) {
-			$out = $this->createConsoleOutput();
-		}
-
 		/* clear any configuration and start fresh */			
-		$dispatcher = $this->getDispatcher()
-						   ->clear();
-
-		$this->setStrategy('console')
-			 ->setOutputEngine($out);
-
 		$useUri = true;
-		$dispatcher->setUri($uri)
-				   ->defineInputFromSuperGlobals($useUri);
-
+		$dispatcher = $this->getDispatcher()
+						   ->clear()
+						   ->setStrategy('console')
+						   ->setUri($uri)
+						  ->defineInputFromSuperGlobals($useUri);
+							
 		return $this->run($dispatcher);
 	}
 
@@ -291,19 +250,13 @@ class MvcFront implements MvcFrontInterface
 	 * @param	string	$route
 	 * @return	int	
 	 */
-	public function runConsoleRoute($route, ConsoleOutputInterface $out = null)
+	public function runConsoleRoute($route)
 	{
-		if (null === $out) {
-			$out = $this->createConsoleOutput();
-		}
-
-
 		$useUri = false;
 		$dispatcher = $this->getDispatcher()
 						   ->clear()
 						   ->setStrategy('console')
 						   ->setRoute($route)
-						   ->setOutputEngine($out)
 						   ->defineInputFromSuperGlobals($useUri);
 
 		return $this->run($dispatcher);
@@ -397,85 +350,13 @@ class MvcFront implements MvcFrontInterface
 		/* render context based on the output engine that was set, not the
 		 * strategy used
 		 */
-		$this->render($context);
+		$output = $this->getOutputEngine();
+		$output->render($context);
 
 		/*
 		 * we get the exit code again because if might have changed with the
 		 * mvc action or post filters
 		 */
 		return $context->getExitCode();
-	}
-
-	/**
-	 * Decides which render interface to run based on the implementation of
-	 * the output engine
-	 *
-	 * @param	AppContextInterface $context
-	 * @return	null
-	 */
-	public function render(AppContextInterface $context)
-	{
-		$output = $this->getOutputEngine();
-		if ($output instanceof HttpOutputInterface) {
-			$this->renderHttp($output, $context);
-		}
-		else if ($output instanceof ConsoleOutputInterface) {
-			$this->renderConsole($output, $context);
-		}
-		else {
-			$err  = 'render failed: output engine was not set or did not ';
-			$err .= 'implement Appfuel\Http\HttpOutputInterface or ';
-			$err .= 'Appfuel\Console\ConsoleOutputInterface';
-			throw new RunTimeException($err);
-		}
-	}
-
-	/**
-	 * @param	HttpOutputInterface $output
-	 * @param	AppContextInterface $context
-	 * @return	null
-	 */
-	public function renderHttp(HttpOutputInterface $output,
-							  AppContextInterface $context)
-	{
-		$httpResponse = $context->get('http-response', null);
-		if (! ($httpResponse instanceof HttpResponseInterface)) {
-			$headers = $context->get('http-headers', array());
-			$view    = $context->getView();
-			$code	 = $context->getExitCode();
-			$httpResponse = new HttpResponse($context->getView(), $code);
-			if (! empty($headers) && is_array($headers)) {
-				$httpReponse->loadHeaders($headers);	 
-			}
-		}
-
-		$output->renderResponse($httpResponse);
-	}
-
-	/**
-	 * @param	ConsoleOutputInterface $output
-	 * @param	AppContextInterface $context
-	 * @return	null
-	 */
-	public function renderConsole(ConsoleOutputInterface $output,
-								  AppContextInterface $context)
-	{
-		$output->render($context->getView());
-	}
-
-	/**
-	 * @return	ConsoleOutput
-	 */
-	public function createConsoleOutputEngine()
-	{
-		return new ConsoleOutput();
-	}
-
-	/**
-	 * @return	HttpOutput
-	 */
-	public function createHttpOutputEngine()
-	{
-		return new HttpOutput();
 	}
 }

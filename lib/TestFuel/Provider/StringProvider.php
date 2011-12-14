@@ -120,10 +120,10 @@ class StringProvider implements StringProviderInterface
         );
 
 		if (true === $isNull) {
-			$result[] = array(null);
+			$results[] = array(null);
 		}
 
-		return $result;
+		return $results;
 	}
 
 	/**

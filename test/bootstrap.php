@@ -19,6 +19,5 @@ require_once $file;
 
 $init = new KernelInitializer($base, 'console');
 $init->initialize('test');
-
 unset($file);
 unset($base);
