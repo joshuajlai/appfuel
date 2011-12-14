@@ -29,6 +29,8 @@
 	<file>../lib/TestFuel/Unit/Kernel/KernelRegistryTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/KernelOutputTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/IncludePathTest.php</file>
+	<file>../lib/TestFuel/Unit/Orm/AbstractOrmFactoryTest.php</file>
+	<file>../lib/TestFuel/Unit/Orm/Domain/DomainModelTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

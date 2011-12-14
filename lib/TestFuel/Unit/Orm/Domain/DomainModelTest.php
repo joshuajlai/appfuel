@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Domain;
+namespace TestFuel\Unit\Orm\Domain;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
@@ -102,7 +102,7 @@ class DomainModelTest extends BaseTestCase
 	public function testDomainInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainModelInterface',
+			'Appfuel\Orm\Domain\DomainModelInterface',
 			$this->domain
 		);
 	}
@@ -112,7 +112,7 @@ class DomainModelTest extends BaseTestCase
 	 */
 	public function testGetSet()
 	{
-		$stateInterface = 'Appfuel\Framework\Orm\Domain\DomainStateInterface';
+		$stateInterface = 'Appfuel\Orm\Domain\DomainStateInterface';
 		$state = $this->getMock($stateInterface);
 		$this->assertSame(
 			$this->domain, 
@@ -155,7 +155,7 @@ class DomainModelTest extends BaseTestCase
 
 		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			'Appfuel\Orm\Domain\DomainStateInterface',
 			$state
 		);
 
@@ -181,7 +181,7 @@ class DomainModelTest extends BaseTestCase
 		);
 		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			'Appfuel\Orm\Domain\DomainStateInterface',
 			$state
 		);
 		$this->assertTrue($state->isMarshal());
@@ -206,7 +206,7 @@ class DomainModelTest extends BaseTestCase
 		);
 		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			'Appfuel\Orm\Domain\DomainStateInterface',
 			$state
 		);
 		$this->assertTrue($state->isMarshal());
@@ -233,7 +233,7 @@ class DomainModelTest extends BaseTestCase
 		);
 		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			'Appfuel\Orm\Domain\DomainStateInterface',
 			$state
 		);
 		$this->assertTrue($state->isMarshal());
@@ -379,7 +379,7 @@ class DomainModelTest extends BaseTestCase
 		);
 		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			'Appfuel\Orm\Domain\DomainStateInterface',
 			$state
 		);
 		$this->assertTrue($state->isDirty());
@@ -391,7 +391,7 @@ class DomainModelTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testMarkDirtyMemberDoesNotExist()
@@ -427,7 +427,7 @@ class DomainModelTest extends BaseTestCase
 
 		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			'Appfuel\Orm\Domain\DomainStateInterface',
 			$state
 		);
 		$this->assertTrue($state->isNew());
@@ -460,7 +460,7 @@ class DomainModelTest extends BaseTestCase
 
 		$state = $this->domain->_getDomainState();
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			'Appfuel\Orm\Domain\DomainStateInterface',
 			$state
 		);
 		$this->assertTrue($state->isDelete());

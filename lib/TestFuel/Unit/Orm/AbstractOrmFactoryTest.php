@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Orm;
+namespace TestFuel\Unit\Orm;
 
 use StdClass,
 	Appfuel\Orm,
@@ -47,7 +47,7 @@ class AbstractOrmFactoryTest extends BaseTestCase
 	public function testDomainInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\OrmFactoryInterface',
+			'Appfuel\Orm\OrmFactoryInterface',
 			$this->factory
 		);
 	}

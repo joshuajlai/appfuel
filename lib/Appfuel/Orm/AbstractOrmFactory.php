@@ -11,7 +11,7 @@
 namespace Appfuel\Orm;
 
 use Appfuel\Db\Handler\DbHandler,
-	Appfuel\Framework\Orm\OrmFactoryInterface;
+	Appfuel\Orm\OrmFactoryInterface;
 
 /**
  * The Orm factory interface enforces a series of creation methods used 

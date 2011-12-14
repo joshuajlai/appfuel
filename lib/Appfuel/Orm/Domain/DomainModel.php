@@ -10,10 +10,9 @@
  */
 namespace Appfuel\Orm\Domain;
 
-use BadMethodCallException,
-	Appfuel\Framework\Exception,
-	Appfuel\Framework\Orm\Domain\DomainStateInterface,
-	Appfuel\Framework\Orm\Domain\DomainModelInterface;
+use RunTimeException,
+	BadMethodCallException,
+	InvalidArgumentException;
 
 /**
  * Common functionality for every orm domain model
@@ -74,7 +73,9 @@ abstract class DomainModel implements DomainModelInterface
 	public function setId($id)
 	{
 		if (! is_scalar($id)) {
-			throw new Exception("Domain id must be a scalar value");
+			throw new InvalidArgumentException(
+				"Domain id must be a scalar value"
+			);
 		}
 		$this->id = $id;
 		return $this;
@@ -102,7 +103,7 @@ abstract class DomainModel implements DomainModelInterface
 			if (! $this->_isStrictMarshalling()) {
 				return $this;
 			}
-			throw new Exception("member does not exist, $member)");
+			throw new RunTimeException("member does not exist, $member)");
 		}
 
 		if ('set' === $prefix) {
@@ -191,7 +192,7 @@ abstract class DomainModel implements DomainModelInterface
 			} catch (Exception $e) {
 				if ($isStrict) {
 					$msg = $e->getMessage();
-					throw new Exception("$err $setter: $msg", null, $e);
+					throw new RunTimeException("$err $setter: $msg", null, $e);
 				}
 			}
 		}
@@ -218,7 +219,9 @@ abstract class DomainModel implements DomainModelInterface
 	public function _markDirty($member)
 	{
 		if (! property_exists($this, $member)) {
-			throw new Exception("invalid markDirty ($member) does not exist");
+			throw new InvalidArgumentException(
+				"invalid markDirty ($member) does not exist"
+			);
 		}
 
 		$this->_getDomainState()

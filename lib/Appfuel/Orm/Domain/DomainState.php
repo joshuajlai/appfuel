@@ -10,8 +10,7 @@
  */
 namespace Appfuel\Orm\Domain;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Orm\Domain\DomainStateInterface;
+use InvalidArgumentException;
 
 /**
  * Holds information about the current state of the domain.
@@ -45,20 +44,23 @@ class DomainState implements DomainStateInterface
 	}
 
 	/**
+	 * @throws	InvalidArgumentException
 	 * @param	string	$state
 	 * @return	DomainState
 	 */
 	public function setState($state)
 	{
-		$err = "setState failed:";
+		$err = "setState failed: ";
 		if (empty($state) || ! is_string($state)) {
-			throw new Exception("$err param must be a non empty string");
+			$err .= 'param must be a non empty string';
+			throw new InvalidargumentException($err);
 		}
 
 		$validStates = array('marshal', 'new', 'dirty', 'delete');
 		if (! in_array($state, $validStates)) {
 			$list = implode(',', $this->validStates);
-			throw new Exception("$err param must be one of ($list)");
+			$err .=  "param must be one of ($list)";
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->state = $state;
@@ -183,14 +185,15 @@ class DomainState implements DomainStateInterface
 	}
 
 	/**
-	 * @throws	Appfuel\Framework\Exception
+	 * @throws	InvalidArgumentException
 	 * @param	string	$member
 	 * @return	bool
 	 */
 	public function isDirtyMember($member)
 	{
 		if (empty($member) || ! is_string($member)) {
-			throw new Exception("isDirtyMember failed param must be a string");
+			$err = "isDirtyMember failed param must be a string";
+			throw new InvalidArgumentException($err);
 		}
 
 		return in_array($member, $this->dirtyMembers);
