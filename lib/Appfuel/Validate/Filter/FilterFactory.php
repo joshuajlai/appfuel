@@ -10,9 +10,6 @@
  */
 namespace Appfuel\Validate\Filter;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Validate\Filter\FilterFactoryInterface;
-
 /**
  * Create the filter from the name given. In this case the 
  */

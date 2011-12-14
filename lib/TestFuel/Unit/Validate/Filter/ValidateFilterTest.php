@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Validate\Filter;
+namespace TestFuel\Unit\Validate\Filter;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase;
@@ -52,7 +52,7 @@ class ValidateFilterTest extends BaseTestCase
 	public function testInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Validate\Filter\FilterInterface',
+			'Appfuel\Validate\Filter\FilterInterface',
 			$this->filter
 		);
 	}

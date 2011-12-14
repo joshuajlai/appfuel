@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Validate\Filter;
+namespace Appfuel\Validate\Filter;
 
-use Appfuel\Framework\DataStructure\DictionaryInterface;
+use Appfuel\DataStructure\DictionaryInterface;
 
 /**
  * Filter raw input into a known clean value

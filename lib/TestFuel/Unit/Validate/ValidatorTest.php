@@ -8,13 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Validate;
+namespace TestFuel\Unit\Validate;
 
 use StdClass,
 	Appfuel\Validate\Validator,
 	Appfuel\Validate\Coordinator,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\DataStructure\Dictionary;
+	Appfuel\DataStructure\Dictionary;
 
 /**
  * This is a standard validator which represents one field. It will run
@@ -46,7 +46,7 @@ class ValidatorTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$class = 'Appfuel\Framework\Validate\Filter\FilterInterface';
+		$class = 'Appfuel\Validate\Filter\FilterInterface';
 		$this->filterInterface = $class;
 		$this->field = 'my-field';
 		$this->validator = new Validator($this->field);
@@ -61,7 +61,7 @@ class ValidatorTest extends BaseTestCase
 	}
 
 	/**
-	 * @return	Appfuel\Framework\Validate\Filter\FilterInterface
+	 * @return	Appfuel\Validate\Filter\FilterInterface
 	 */
 	public function getMockFilter()
 	{
@@ -75,7 +75,7 @@ class ValidatorTest extends BaseTestCase
 	 * @param	mixed	$returned	value the filter method returns
 	 * @param	mixed	$err		default error message of filter
 	 * @param	bool	$isFail		indicates a filter failure
-	 * @return	Appfuel\Framework\Validate\Filter\FilterInterface
+	 * @return	Appfuel\Validate\Filter\FilterInterface
 	 */ 
 	public function buildMockFilter($raw, $params, $returned, $err, $isFail)
 	{
@@ -104,7 +104,7 @@ class ValidatorTest extends BaseTestCase
 	public function testInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Validate\FieldValidatorInterface',
+			'Appfuel\Validate\FieldValidatorInterface',
 			$this->validator
 		);
 	}
@@ -120,7 +120,7 @@ class ValidatorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testConstructorFieldEmptyString()
@@ -129,7 +129,7 @@ class ValidatorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testConstructorFieldArray()
@@ -138,7 +138,7 @@ class ValidatorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testConstructorFieldObject()
@@ -593,7 +593,4 @@ class ValidatorTest extends BaseTestCase
 		$error->next();
 		$this->assertEquals($errB, $error->current());	
 	}
-
-
-
 }

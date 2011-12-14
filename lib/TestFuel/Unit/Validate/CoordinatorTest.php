@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Validate;
+namespace TestFuel\Unit\Validate;
 
 use StdClass,
 	Appfuel\Validate\Coordinator,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\DataStructure\Dictionary;
+	Appfuel\DataStructure\Dictionary;
 
 /**
  * Test the coordinator's ability to move raw and clean data aswell as add error text
@@ -48,7 +48,7 @@ class CoordinatorTest extends BaseTestCase
 	public function testInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Validate\CoordinatorInterface',
+			'Appfuel\Validate\CoordinatorInterface',
 			$this->coord
 		);
 	}
@@ -186,7 +186,7 @@ class CoordinatorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testAddCleanBadKeyEmptyString()
@@ -195,7 +195,7 @@ class CoordinatorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testAddCleanBadKeyArray()
@@ -204,7 +204,7 @@ class CoordinatorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testAddCleanBadKeyObject()
@@ -409,7 +409,7 @@ class CoordinatorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testAddErrorBadFieldEmptyString()
@@ -418,7 +418,7 @@ class CoordinatorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testAddErrorBadFieldArray()
@@ -427,7 +427,7 @@ class CoordinatorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testAddErrorBadFieldObject()

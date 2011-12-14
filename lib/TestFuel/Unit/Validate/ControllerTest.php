@@ -8,13 +8,13 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Validate;
+namespace TestFuel\Unit\Validate;
 
 use StdClass,
 	Appfuel\Validate\Controller,
 	Appfuel\Validate\Coordinator,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\DataStructure\Dictionary;
+	Appfuel\DataStructure\Dictionary;
 
 /**
  * Test the controller's ability to add rules or filters to fields and 
@@ -50,7 +50,7 @@ class ControllerTest extends BaseTestCase
 	public function testInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Validate\ControllerInterface',
+			'Appfuel\Validate\ControllerInterface',
 			$this->controller
 		);
 	}

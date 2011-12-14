@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Validate\Filter\PHPFilter;
+namespace TestFuel\Unit\Validate\Filter\PHPFilter;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\DataStructure\Dictionary,
+	Appfuel\DataStructure\Dictionary,
 	Appfuel\Validate\Filter\PHPFilter\IpFilter;
 
 /**
@@ -48,7 +48,7 @@ class IpFilterTest extends BaseTestCase
 	public function testInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Validate\Filter\FilterInterface',
+			'Appfuel\Validate\Filter\FilterInterface',
 			$this->filter
 		);
 

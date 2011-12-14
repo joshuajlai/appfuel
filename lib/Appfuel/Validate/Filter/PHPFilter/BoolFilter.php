@@ -10,9 +10,8 @@
  */
 namespace Appfuel\Validate\Filter\PHPFilter;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Validate\Filter\ValidateFilter,
-	Appfuel\Framework\DataStructure\DictionaryInterface;
+use Appfuel\Validate\Filter\ValidateFilter,
+	Appfuel\DataStructure\DictionaryInterface;
 
 /**
  * Filters bool values: 

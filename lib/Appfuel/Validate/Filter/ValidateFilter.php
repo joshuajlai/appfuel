@@ -10,8 +10,7 @@
  */
 namespace Appfuel\Validate\Filter;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Validate\Filter\FilterInterface;
+use InvalidArgumentException;
 
 /**
  * Define the failiure token to remove ambiguity from valid false and null 
@@ -48,7 +47,9 @@ abstract class ValidateFilter implements FilterInterface
 	public function __construct($name)
 	{
 		if (empty($name) || ! is_string($name)) {
-			throw new Exception("Name must be a none empty string");
+			throw new InvalidArgumentException(
+				"Name must be a none empty string"
+			);
 		}
 
 		$this->name = $name;
@@ -78,7 +79,9 @@ abstract class ValidateFilter implements FilterInterface
 	public function setDefaultError($error)
 	{
 		if (! is_string($error)) {
-			throw new Exception("default error must be a string");
+			throw new InvalidArgumentException(
+				"default error must be a string"
+			);
 		}
 
 		$this->defaultError = $error;

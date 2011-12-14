@@ -10,9 +10,7 @@
  */
 namespace Appfuel\Validate;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Validate\ErrorInterface,
-	Appfuel\Framework\DataStructure\DictionaryInterface;
+use InvalidArgumentException;
 
 /**
  * Holds one or more error messages for a single field
@@ -70,7 +68,7 @@ class Error implements ErrorInterface
 	public function setSeparator($char)
 	{
 		if (! is_string($char)) {
-			throw new Exception("separator must be a string");
+			throw new InvalidArgumentException("separator must be a string");
 		}
 
 		$this->sep = $char;
@@ -104,7 +102,9 @@ class Error implements ErrorInterface
 	public function add($msg)
 	{
 		if (empty($msg) || ! is_string($msg)) {
-			throw new Exception("error message must be a non empty string");
+			throw new InvalidArgumentException(
+				"error message must be a non empty string"
+			);
 		}
 
 		$this->errors[] = $msg;
@@ -171,7 +171,9 @@ class Error implements ErrorInterface
 	protected function setField($field)
 	{
 		if ((is_string($field) && empty($field)) || ! is_scalar($field)) {
-			throw new Exception("field must be a non empty scalar value");
+			throw new InvalidArgumentException(
+				"field must be a non empty scalar value"
+			);
 		}
 
 		$this->field = $field;

@@ -10,10 +10,8 @@
  */
 namespace Appfuel\Validate;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Validate\ErrorInterface,
-	Appfuel\Framework\Validate\CoordinatorInterface,
-	Appfuel\Framework\DataStructure\DictionaryInterface;
+use InvalidArgumentException,
+	Appfuel\DataStructure\DictionaryInterface;
 
 /**
  * Handle the movement or raw and clean data as well as handling text. The 
@@ -70,7 +68,9 @@ class Coordinator implements CoordinatorInterface
     public function addClean($field, $value)
     {
         if (empty($field) || ! is_scalar($field)) {
-            throw new Exception("Can not add to clean field must be scalar");
+            throw new InvalidArgumentException(
+				"Can not add to clean field must be scalar"
+			);
         }
 
         $this->clean[$field] = $value;
@@ -112,7 +112,9 @@ class Coordinator implements CoordinatorInterface
             $source = $source->getAll();
         }
         else if (! is_array($source)) {
-            throw new Exception("Datasource must be an array or dictionary");
+            throw new InvalidArgumentException(
+				"Datasource must be an array or dictionary"
+			);
         }
 
         $this->source = $source;
@@ -154,7 +156,9 @@ class Coordinator implements CoordinatorInterface
     public function addError($field, $txt)
     {
         if (empty($field) || ! is_scalar($field)) {
-            throw new Exception("Error key must be a non empty scalar");
+            throw new InvalidArgumentException(
+				"Error key must be a non empty scalar"
+			);
         }
 
 		if (! $this->isFieldError($field)) {

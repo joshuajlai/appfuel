@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Validate;
+namespace TestFuel\Unit\Validate;
 
 use StdClass,
 	Appfuel\Validate\Error,
@@ -62,7 +62,7 @@ class ErrorTest extends BaseTestCase
 	public function testInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Validate\ErrorInterface',
+			'Appfuel\Validate\ErrorInterface',
 			$this->error
 		);
 		$this->assertInstanceOf('Countable',$this->error);
@@ -91,7 +91,7 @@ class ErrorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testSetFieldEmptyString()
@@ -100,7 +100,7 @@ class ErrorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testSetFieldEmptyArray()
@@ -109,7 +109,7 @@ class ErrorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testSetFieldEmptyObj()
@@ -156,7 +156,7 @@ class ErrorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testSetSeparatorBadSeparatorInt()
@@ -165,7 +165,7 @@ class ErrorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testSetSeparatorBadSeparatorArray()
@@ -174,7 +174,7 @@ class ErrorTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testSetSeparatorBadSeparatorObj()

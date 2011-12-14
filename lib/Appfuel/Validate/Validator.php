@@ -10,11 +10,10 @@
  */
 namespace Appfuel\Validate;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Framework\Validate\CoordinatorInterface,
-	Appfuel\Framework\Validate\Filter\FilterInterface,
-	Appfuel\Framework\Validate\FieldValidatorInterface;
+use InvalidArgumentException,
+	Appfuel\DataStructure\Dictionary,
+	Appfuel\Validate\Filter\FilterInterface,
+	Appfuel\Validate\FieldValidatorInterface;
 
 /**
  * During validation the validator grab the field from the coordinators raw
@@ -47,7 +46,9 @@ class Validator implements FieldValidatorInterface
 								$error = null)
 	{
 		if (empty($field) || ! is_scalar($field)) {
-			throw new Exception("Field must be a non empty scalar");
+			throw new InvalidArgumentException(
+				"Field must be a non empty scalar"
+			);
 		}
 
 		$this->field = $field;

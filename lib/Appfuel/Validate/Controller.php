@@ -10,12 +10,10 @@
  */
 namespace Appfuel\Validate;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Validate\ValidatorInterface,
-	Appfuel\Framework\Validate\ControllerInterface,
-	Appfuel\Framework\Validate\CoordinatorInterface,
-	Appfuel\Framework\Validate\Filter\FilterInterface,
-	Appfuel\Framework\Validate\Filter\FilterFactoryInterface;
+use RunTimeException,
+	InvalidArgumentException,
+	Appfuel\Validate\Filter\FilterInterface,
+	Appfuel\Validate\Filter\FilterFactoryInterface;
 
 /**
  * This is a Facade that unifies all the validation subsystems allowing
@@ -64,9 +62,10 @@ class Controller implements ControllerInterface
 	 */	
 	public function addFilter($field, $fltr, array $params = null, $err = null)
 	{	
-		$errmsg = "addFilter failed:";
+		$errmsg = "addFilter failed: ";
 		if (empty($field) || ! is_string($field)) {
-			throw new Exception("$errmsg field must be a non empty string");
+			$errmsg .= "field must be a non empty string";
+			throw new InvalidArgumentException($errmsg);
 		}
 
 		if (is_string($fltr)) {
@@ -76,7 +75,7 @@ class Controller implements ControllerInterface
 		else if (! $fltr instanceof FilterInterface) {
 			$errmsg .= " filter must be a string or implement the ";
 			$errmsg .= "Appfuel\Framework\Validator\Filter\FilterInterface";
-			throw new Exception($errmsg);
+			throw new InvalidArgumentException($errmsg);
 		}
 
 		if (isset($this->validators[$field])) {
@@ -84,7 +83,7 @@ class Controller implements ControllerInterface
 			if ($validator instanceof ValidatorInterface) {
 				$errmsg .= " validator must implment the ";
 				$errmsg .= "Appfuel\Framework\Validate\ValidatorInterface";
-				throw new Exception($errmsg);
+				throw new RunTimeException($errmsg);
 			}
 				
 			$validator->addFilter($fltr, $params, $err);
