@@ -10,9 +10,8 @@
  */
 namespace Appfuel\Orm\Domain;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Expr\BinaryExpr,
-	Appfuel\Framework\Orm\Domain\DomainExprInterface;
+use InvalidArgumentException,
+	Appfuel\Expr\BinaryExpr;
 
 /**
  * Allows a simple domain expression to given as a string in the constructor
@@ -98,14 +97,17 @@ class DomainExpr extends BinaryExpr implements DomainExprInterface
 
 		$err = "Failed to parse domain expression: ";
 		if (! array_key_exists('domain', $match)) {
-			throw new Exception("$err could not find domain");
+			$err .= 'could not find domain';
+			throw new InvalidArgumentException($err);
 		}
 
 		if (! array_key_exists('member', $match)) {
-			throw new Exception("$err could not find domain member");
+			$err .= 'could not find domain member';
+			throw new InvalidArgumentException($err);
 		}
 		if (! array_key_exists('operator', $match)) {
-			throw new Exception("$err could not find expression operator");
+			$err .= 'could not find expression operator';
+			throw new InvalidArgumentException($err);
 		}
 
 		if (array_key_exists('value', $match)) {
@@ -118,7 +120,8 @@ class DomainExpr extends BinaryExpr implements DomainExprInterface
 
 		$op = strtolower(trim(current($match['operator'])));
 		if (! in_array($op, $validOps, true)) {
-			throw new Exception("$err invalid operator given");
+			$err .= 'invalid operator given';
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->setMember(current($match['member']));
@@ -133,7 +136,8 @@ class DomainExpr extends BinaryExpr implements DomainExprInterface
 	protected function setDomain($domainKey)
 	{
 		if (empty($domainKey) || ! is_string($domainKey)) {
-			throw new Exception("Invalid domain key must non empty string");
+			$err = "Invalid domain key must non empty string";
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->domain = $domainKey;
@@ -146,10 +150,10 @@ class DomainExpr extends BinaryExpr implements DomainExprInterface
 	protected function setMember($domainMember)
 	{
 		if (empty($domainMember) || ! is_string($domainMember)) {
-			throw new Exception("Invalid domain member must non empty string");
+			$err = "Invalid domain member must non empty string";
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->setOperand($domainMember);
 	}
 }
-

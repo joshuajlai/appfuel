@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Orm\Domain;
+namespace Appfuel\Orm\Domain;
 
-use Appfuel\Framework\Expr\BinaryExprInterface;
+use Appfuel\Expr\BinaryExprInterface;
 
 /**
  * Domain Expressions are used by the repository to parse a single string

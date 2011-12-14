@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Orm\Domain;
+namespace TestFuel\Unit\Orm\Domain;
 
 use StdClass,
 	Appfuel\Orm\Domain\DomainExpr,
@@ -73,7 +73,7 @@ class DomainExprTest extends BaseTestCase
 	 * the first part of the expression must be word.word otherwise an 
 	 * exception is thrown
 	 *
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testInvalidExpressionNoDomain()
@@ -82,7 +82,7 @@ class DomainExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testInvalidExpressionNoValue()
@@ -91,7 +91,7 @@ class DomainExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testInvalidExprBadOpNotLessthan()
@@ -100,7 +100,7 @@ class DomainExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testInvalidExprBadOpNotLessthanEq()
@@ -109,7 +109,7 @@ class DomainExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testInvalidExprBadOpNotGreaterthan()
@@ -118,7 +118,7 @@ class DomainExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testInvalidExprBadOpNotGreaterthanEq()
@@ -127,7 +127,7 @@ class DomainExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testInvalidExprBadOpNotNot()
@@ -136,7 +136,7 @@ class DomainExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testInvalidExprBadOpDoubleNot()
@@ -145,7 +145,7 @@ class DomainExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testInvalidExprBadOpInNot()
@@ -154,7 +154,7 @@ class DomainExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testInvalidExprBadOpBetweenNot()
