@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Expr;
+namespace Appfuel\Expr;
 
-use Appfuel\Framework\Exception;
+use InvalidArgumentException;
 
 /**
  * Simple expression designed to old objects that support to string
@@ -53,11 +53,13 @@ class UnaryExpr extends BasicExpr implements UnaryExprInterface
 	{
 		$err = 'fix type must be (pre|post)';
 		if (! is_string($type) || empty($type)) {
-			throw new Exception("$err param given is empty or not a string");
+			throw new InvalidArgumentException(
+				"$err param given is empty or not a string"
+			);
 		}
 
 		if (! in_array($type, array('pre', 'post'))) {
-			throw new Exception("$err param given is ($type)");
+			throw new InvalidArgumentException("$err param given is ($type)");
 		}
 
 		$this->fixType = $type;
@@ -125,7 +127,7 @@ class UnaryExpr extends BasicExpr implements UnaryExprInterface
 	{
 		if (empty($op) || ! is_string($op)) {
 			$err = 'Invalid operator must be a non empty string';
-			throw new Exception($err);
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->operator = $op;

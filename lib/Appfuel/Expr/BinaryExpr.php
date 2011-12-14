@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Expr;
+namespace Appfuel\Expr;
 
-use Appfuel\Framework\Exception;
+use InvalidArgumentException;
 
 /**
  * Binary expression with left and right operands
@@ -121,7 +121,7 @@ class BinaryExpr extends BasicExpr implements BinaryExprInterface
 	{
 		if (empty($op) || ! is_string($op)) {
 			$err = 'Invalid operator must be a non empty string';
-			throw new Exception($err);
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->operator = $op;
@@ -137,7 +137,7 @@ class BinaryExpr extends BasicExpr implements BinaryExprInterface
 	{
         if (! $this->isValid($op)) {
             $err = 'Invalid operand must be scalar or object with __toString';
-            throw new Exception($err);
+            throw new InvalidArgumentException($err);
         }
 
         $this->rightOp = $op;

@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Framework\Expr;
+namespace TestFuel\Unit\Expr;
 
 use StdClass,
 	SplFileInfo,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\Expr\BasicExpr;
+	Appfuel\Expr\BasicExpr,
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * A generic expression can do three things 
@@ -30,7 +30,7 @@ class BasicExprTest extends BaseTestCase
     {
 		$expr = new BasicExpr('expr');
         $this->assertInstanceOf(
-            'Appfuel\Framework\Expr\ExprInterface',
+            'Appfuel\Expr\ExprInterface',
             $expr
         );
     }
@@ -135,7 +135,7 @@ class BasicExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testObjectDoesNotSupportToString()
@@ -147,7 +147,7 @@ class BasicExprTest extends BaseTestCase
 	}
 	
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testBasicExprEmptyString()

@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Framework\Expr;
+namespace TestFuel\Unit\Expr;
 
 use StdClass,
 	SplFileInfo,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\Expr\ExprList;
+	Appfuel\Expr\ExprList;
 	
 
 /**
@@ -31,7 +31,7 @@ class ExprTest extends BaseTestCase
 	 * Name of the expression inteface class
 	 * @var string
 	 */
-	protected $exprInterface  = 'Appfuel\Framework\Expr\ExprInterface';
+	protected $exprInterface  = 'Appfuel\Expr\ExprInterface';
 	
 	/**
 	 * @return null
@@ -55,7 +55,7 @@ class ExprTest extends BaseTestCase
 	public function testHasCorrectInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Expr\ExprListInterface', 
+			'Appfuel\Expr\ExprListInterface', 
 			$this->exprList
 		);
 	}
@@ -158,7 +158,7 @@ class ExprTest extends BaseTestCase
 	}
 
     /**
-     * @expectedException   Appfuel\Framework\Exception
+     * @expectedException   InvalidArgumentException
      * @return null
      */
     public function testAddFilterBadOperator()
@@ -171,7 +171,7 @@ class ExprTest extends BaseTestCase
     }
 
     /**
-     * @expectedException   Appfuel\Framework\Exception
+     * @expectedException   InvalidArgumentException
      * @return null
      */
     public function testAddFilterBadOperatorEmptyString()
@@ -183,7 +183,7 @@ class ExprTest extends BaseTestCase
     }
 
     /**
-     * @expectedException   Appfuel\Framework\Exception
+     * @expectedException   InvalidArgumentException
      * @return null
      */
     public function testAddFilterBadOperatorArray()
@@ -195,7 +195,7 @@ class ExprTest extends BaseTestCase
     }
 
     /**
-     * @expectedException   Appfuel\Framework\Exception
+     * @expectedException   InvalidArgumentException
      * @return null
      */
     public function testAddFilterBadOperatorObj()

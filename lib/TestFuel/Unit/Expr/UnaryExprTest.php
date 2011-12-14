@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Framework\Expr;
+namespace TestFuel\Unit\Expr;
 
 use StdClass,
 	SplFileInfo,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\Expr\UnaryExpr;
+	Appfuel\Expr\UnaryExpr;
 
 /**
  * Test the adapters ability to wrap mysqli
@@ -62,12 +62,12 @@ class UnaryExprTest extends BaseTestCase
 	public function testUnaryHasCorrectInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Expr\ExprInterface',
+			'Appfuel\Expr\ExprInterface',
 			$this->expr
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Expr\UnaryExprInterface',
+			'Appfuel\Expr\UnaryExprInterface',
 			$this->expr
 		);
 	}
@@ -95,7 +95,7 @@ class UnaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadTypeSetFixTypeNoPrePost()
@@ -105,7 +105,7 @@ class UnaryExprTest extends BaseTestCase
 
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadTypeSetFixTypeEmptyString()
@@ -114,7 +114,7 @@ class UnaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadTypeSetFixTypeNumber()
@@ -123,7 +123,7 @@ class UnaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadTypeSetFixTypeArray()
@@ -132,7 +132,7 @@ class UnaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testBadTypeSetFixTypeObject()
@@ -150,7 +150,7 @@ class UnaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testOperatorInvalidEmptyString()
@@ -159,7 +159,7 @@ class UnaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testOperatorInvalidNumber()
@@ -168,7 +168,7 @@ class UnaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testOperatorInvalidArray()
@@ -177,7 +177,7 @@ class UnaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testOperatorInvalidObject()
@@ -187,7 +187,7 @@ class UnaryExprTest extends BaseTestCase
 
 	/**
 	 * Even objects supporting toString
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testOperatorInvalidObjectWithToString()

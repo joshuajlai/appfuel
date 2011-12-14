@@ -10,6 +10,7 @@
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Error</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Log</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Validate</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/Expr</directory>
 <!--		
 	<file>../lib/TestFuel/Test/Kernel/Mvc/ContextBuilderTest.php</file>
 	<file>../lib/TestFuel/Test/Kernel/Mvc/MvcActionDispatcherTest.php</file>

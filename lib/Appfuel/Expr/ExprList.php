@@ -8,9 +8,9 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Expr;
+namespace Appfuel\Expr;
 
-use Appfuel\Framework\Exception;
+use InvalidArgumentException;
 
 /**
  * The criteria holds any information necessary for the sql factory to build
@@ -86,12 +86,16 @@ class ExprList implements ExprListInterface
 	protected function setCurrentOp($op)
 	{
 		if (empty($op) || ! is_string($op)) {
-			throw new Exception("operator must be (and|or) can not be empty");
+			throw new InvalidArgumentException(
+				"operator must be (and|or) can not be empty"
+			);
 		}
 
 		$op = strtolower($op);
 		if (! in_array($op, array('and', 'or'))) {
-			throw new Exception("add filter failed 2nd param  must be and|or");
+			throw new InvalidArgumentException(
+				"add filter failed 2nd param  must be and|or"
+			);
 		}
 	
 		$this->currentOp = $op;
@@ -123,7 +127,6 @@ class ExprList implements ExprListInterface
 	{
 		return key($this->exprs);
 	}
-
 
 	/**
 	 * move forward to the next expression

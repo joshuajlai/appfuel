@@ -8,14 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Framework\Expr;
+namespace TestFuel\Unit\Expr;
 
 use StdClass,
 	SplFileInfo,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\Expr\BasicExpr,
-	Appfuel\Framework\Expr\UnaryExpr,
-	Appfuel\Framework\Expr\BinaryExpr;
+	Appfuel\Expr\UnaryExpr,
+	Appfuel\Expr\BasicExpr,
+	Appfuel\Expr\BinaryExpr,
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * Test capabilities of the binary expression class
@@ -76,12 +76,12 @@ class BinaryExprTest extends BaseTestCase
 	public function testHasCorrectInterface()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Expr\ExprInterface',
+			'Appfuel\Expr\ExprInterface',
 			$this->expr
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Expr\BinaryExprInterface',
+			'Appfuel\Expr\BinaryExprInterface',
 			$this->expr
 		);
 	}
@@ -96,7 +96,7 @@ class BinaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testOperatorInvalidEmptyString()
@@ -105,7 +105,7 @@ class BinaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testOperatorInvalidNumber()
@@ -114,7 +114,7 @@ class BinaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testOperatorInvalidObject()
@@ -124,7 +124,7 @@ class BinaryExprTest extends BaseTestCase
 
 	/**
 	 * Even objects supporting toString
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testOperatorInvalidObjectWithToString()
@@ -178,7 +178,7 @@ class BinaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testLeftOperandInvalidEmptyString()
@@ -187,7 +187,7 @@ class BinaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testRightOperandInvalidEmptyString()
@@ -196,7 +196,7 @@ class BinaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testLeftOperatorInvalidObject()
@@ -205,7 +205,7 @@ class BinaryExprTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testRightOperatorInvalidObject()
