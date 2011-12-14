@@ -10,18 +10,12 @@
  */
 namespace Appfuel\Orm\Domain;
 
-use Countable,
-	Iterator,
-	Appfuel\Framework\Exception,
-	Appfuel\Framework\Orm\Domain\DomainModelInterface,
-	Appfuel\Framework\Orm\Domain\DomainBuilderInterface,
-	Appfuel\Framework\Orm\Domain\DomainCollectionInterface;
+use InvalidArgumentException,
 
 /**
  * Common functionality for every orm domain model
  */
-class DomainCollection 
-	implements DomainCollectionInterface, Countable, Iterator
+class DomainCollection implements DomainCollectionInterface
 {
 	/**
 	 * Domain key is used to identify the domain class which is mapped in
@@ -246,7 +240,8 @@ class DomainCollection
 	private function setDomainKey($key)
 	{
 		if (empty($key) || ! is_string($key)) {
-			throw new Exception("domain key must be a non empty string");
+			$err = "domain key must be a non empty string";
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->domainKey = $key;

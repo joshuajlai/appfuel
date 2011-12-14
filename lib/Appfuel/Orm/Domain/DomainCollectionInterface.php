@@ -8,12 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Orm\Domain;
+namespace Appfuel\Orm\Domain;
 
+use Countable,
+	Iterator;
 /**
  * Domain collections can hold one or more domains of a single type
  */
-interface DomainCollectionInterface
+interface DomainCollectionInterface extends Countable, Iterator
 {
 	/**
 	 * Used to enforce that only domains of this type will be allowed in

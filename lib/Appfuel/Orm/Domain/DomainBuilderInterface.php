@@ -8,19 +8,24 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Framework\Orm\Domain;
+namespace Appfuel\Orm\Domain;
 
 /**
- * Used to turn domain keys into domain domain objects. Its not the factory's
- * responsibility to build full domain objects marshalled and ready to go, 
- * only to map the domain key to a fully qualified class name and instantiate 
- * it
+ * Data Builder turns already mapped data into domain objects, strings, 
+ * json or any other format required.
  */
-interface DomainObjectFactoryInterface
+interface DomainBuilderInterface
 {
 	/**
 	 * @param	string	$key	used to determine which object to create
-	 * @return	mixed
+	 * @return	DomainModelInterface
 	 */
 	public function createDomainObject($key);
+
+	/**
+	 * @param	string	$key
+	 * @param	array	$data  
+	 * @return	DomainModel
+	 */
+	public function buildDomain($key, array $data);
 }

@@ -8,9 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Test\Appfuel\Orm\Domain;
+namespace TestFuel\Unit\Orm\Domain;
 
 use StdClass,
+	Appfuel\Kernel\KernelRegistry,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Orm\Domain\DomainBuilder;
 
@@ -43,8 +44,8 @@ class DomainBuilderTest extends BaseTestCase
 			'role'		 => "\\TestFuel\Fake\Domain\\Role\\RoleDomain"
 		);
 
-
-		$this->initializeRegistry(null, $this->map);
+		parent::setUp();
+		KernelRegistry::setDomainMap($this->map);
 		$this->builder = new DomainBuilder();
 	}
 
@@ -53,8 +54,8 @@ class DomainBuilderTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		$this->restoreRegistry();
 		$this->builder = null;
+		parent::tearDown();
 	}
 
 	/**
@@ -63,7 +64,7 @@ class DomainBuilderTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainBuilderInterface',
+			'Appfuel\Orm\Domain\DomainBuilderInterface',
 			$this->builder
 		);
 	}
@@ -89,31 +90,5 @@ class DomainBuilderTest extends BaseTestCase
 		$this->assertFalse($this->builder->createDomainObject(12345));
 		$this->assertFalse($this->builder->createDomainObject(array(1,2,3)));
 		$this->assertFalse($this->builder->createDomainObject(new StdClass()));
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @expectedException Exception
-	 * @return	null
-	 */
-	public function testCreateDomainObjectObjectNotFound_Failure()
-	{
-		$this->initializeRegistry(null,array('user' => 'Does/NotExistDomain'));
-		$domain = $this->builder->createDomainObject('user');
-	}
-
-	public function testBuildDomain()
-	{
-		$data = array(
-			'firstName' => 'robert',
-			'lastName'  => 'scott',
-			'email'     => array(
-				'email' => 'rsb@blah.com',
-				'id'    => 66
-			)
-		);
-
-		$domain = $this->builder->buildDomain('user', $data);
-		
 	}
 }

@@ -39,20 +39,9 @@ abstract class AbstractOrmFactory implements OrmFactoryInterface
 	 *
 	 * @return	DataBuilderInterface
 	 */
-	public function createDataBuilder()
+	public function createDomainBuilder()
 	{
-		return new Domain\OrmDataBuilder($this->createObjectFactory());
-	}
-
-	/**
-	 * The object factory is responsible for create new domain or domain 
-	 * related objects. It is used by the domains data builder
-	 *
-	 * @return	Domain\DomainObjectFactory
-	 */
-	public function createObjectFactory()
-	{
-		return new Domain\DomainObjectFactory();
+		return new Domain\DomainBuilder();
 	}
 
 	/**

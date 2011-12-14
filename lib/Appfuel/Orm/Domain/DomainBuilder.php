@@ -10,11 +10,9 @@
  */
 namespace Appfuel\Orm\Domain;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Registry,
-	Appfuel\Framework\Orm\Domain\DomainModelInterface,
-	Appfuel\Framework\Orm\Domain\DomainBuilderInterface,
-	Appfuel\Framework\Orm\Domain\MappedObjectNotFoundException;
+use Exception,
+	RunTimeException,
+	Appfuel\Kernel\KernelRegistry;
 
 /**
  * The domain builder works in calobaration with the registry to allow
@@ -62,16 +60,16 @@ class DomainBuilder implements DomainBuilderInterface
 	 */
 	public function createDomainObject($key)
 	{
-		$domainClass = Registry::getDomainClass($key);
+		$domainClass = KernelRegistry::getDomainClass($key);
 		if (false === $domainClass) {
 			return false;
 		}
 
 		try {
 			return new $domainClass();
-		} catch (\Exception $e) {
+		} catch (Exception $e) {
 			$err = "object not found for ($key) at ($domainClass)";
-			throw new MappedObjectNotFoundException($err, 0, $e);
+			throw new RunTimeException($err, 0, $e);
 		}
 	}
 }

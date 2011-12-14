@@ -33,6 +33,7 @@
 	<file>../lib/TestFuel/Unit/Orm/Domain/DomainModelTest.php</file>
 	<file>../lib/TestFuel/Unit/Orm/Domain/DomainStateTest.php</file>
 	<file>../lib/TestFuel/Unit/Orm/Domain/DomainExprTest.php</file>
+	<file>../lib/TestFuel/Unit/Orm/Domain/DomainBuilderTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

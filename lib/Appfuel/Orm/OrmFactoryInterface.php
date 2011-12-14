@@ -42,7 +42,7 @@ interface OrmFactoryInterface
 	 *
 	 * @return	DataBuilderInterface
 	 */
-	public function createDataBuilder();
+	public function createDomainBuilder();
 
 	/**
 	 * The identity handler is a facade hiding simple or complex mapping 
@@ -52,14 +52,6 @@ interface OrmFactoryInterface
 	 */
 	public function createIdentityHandler();
 	
-	/**
-	 * The object factory is responsible for create new domain or domain 
-	 * related objects.
-	 *
-	 * @return	Domain\ObjectFactory
-	 */
-	public function createObjectFactory();
-
 	/**
 	 * The assembler is used by the repository to coordinate the interactions
 	 * with the source handler (getting data to and from the data source) and
