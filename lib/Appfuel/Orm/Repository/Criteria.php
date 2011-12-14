@@ -10,12 +10,11 @@
  */
 namespace Appfuel\Orm\Repository;
 
-use Appfuel\Framework\Exception,
-	Appfuel\Framework\Expr\ExprList,
-	Appfuel\Framework\Expr\ExprListInterface,
-	Appfuel\Framework\DataStructure\Dictionary,
-	Appfuel\Framework\Orm\Domain\DomainExprInterface,
-	Appfuel\Framework\Orm\Repository\CriteriaInterface;
+use InvalidArgumentException,
+	Appfuel\Expr\ExprList,
+	Appfuel\Expr\ExprListInterface,
+	Appfuel\DataStructure\Dictionary,
+	Appfuel\Orm\Domain\DomainExprInterface;
 
 /**
  * The criteria holds any information necessary for the sql factory to build
@@ -67,7 +66,8 @@ class Criteria extends Dictionary implements CriteriaInterface
 	{
 		foreach ($list as $key => $exprList) {
 			if (! $exprList instanceof ExprListInterface) {
-				throw new Exception("Each key must have an ExprListInterface");
+				 $err = "Each key must have an ExprListInterface";
+				throw new InvalidArgumentException($err);
 			}
 		}
 		$this->exprs = $list;
@@ -83,7 +83,8 @@ class Criteria extends Dictionary implements CriteriaInterface
 	public function addExpr($key, DomainExprInterface $expr, $op = 'and')
 	{
 		if (empty($key) || ! is_scalar($key)) {
-			throw new Exception("option key must be a non empty string");
+			$err = "option key must be a non empty string";
+			throw new InvalidArgumentException($err);
 		}
 
 		$list = $this->getExprList($key);

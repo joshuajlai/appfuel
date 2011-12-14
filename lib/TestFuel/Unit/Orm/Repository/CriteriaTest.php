@@ -8,14 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Orm\Repository;
+namespace TestFuel\Unit\Orm\Repository;
 
 use StdClass,
+	Appfuel\Expr\ExprList,
 	Appfuel\Orm\Domain\DomainExpr,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Framework\Expr\ExprList,
 	Appfuel\Orm\Repository\Criteria,
-	Appfuel\Framework\DataStructure\Dictionary;
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\DataStructure\Dictionary;
 
 /**
  */
@@ -31,7 +31,7 @@ class CriteriaTest extends BaseTestCase
 	 * Used to create mock objects in tests
 	 * @var string
 	 */
-	protected $listInterface = 'Appfuel\Framework\Expr\ExprListInterface';
+	protected $listInterface = 'Appfuel\Expr\ExprListInterface';
 	
 	/**
 	 * @return null
@@ -55,12 +55,12 @@ class CriteriaTest extends BaseTestCase
 	public function testImplementedInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Repository\CriteriaInterface',
+			'Appfuel\Orm\Repository\CriteriaInterface',
 			$this->criteria
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\Framework\DataStructure\DictionaryInterface',
+			'Appfuel\DataStructure\DictionaryInterface',
 			$this->criteria
 		);
 	}
@@ -122,7 +122,7 @@ class CriteriaTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testSetExprsNoExprListInterfaceInList()
@@ -134,7 +134,7 @@ class CriteriaTest extends BaseTestCase
 	/**
 	 * All keys must have ExprListInterfaces as values
 	 *
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return	null
 	 */
 	public function testSetExprsMissingExprListInterfaceInList()
@@ -286,7 +286,7 @@ class CriteriaTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testAddExprBadExprArray()
@@ -296,7 +296,7 @@ class CriteriaTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testAddExprBadExprObj()
@@ -307,7 +307,7 @@ class CriteriaTest extends BaseTestCase
 
 
 	/**
-	 * @expectedException	Appfuel\Framework\Exception
+	 * @expectedException	InvalidArgumentException
 	 * @return null
 	 */
 	public function testAddExprBadKeyEmptyString()

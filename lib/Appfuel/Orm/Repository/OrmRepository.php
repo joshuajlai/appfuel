@@ -10,13 +10,7 @@
  */
 namespace Appfuel\Orm\Repository;
 
-use BadMethodCallException,
-	Appfuel\Framework\Exception,
-	Appfuel\Framework\Orm\OrmFactoryInterface,
-	Appfuel\Framework\Orm\Domain\DomainStateInterface,
-	Appfuel\Framework\Orm\Domain\DomainModelInterface,
-	Appfuel\Framework\Orm\Repository\AssemblerInterface,
-	Appfuel\Framework\Orm\Repository\RepositoryInterface;
+use Appfuel\Orm\OrmFactoryInterface,
 
 /**
  * The repository is facade for the orm systems. Developers use the repo to 

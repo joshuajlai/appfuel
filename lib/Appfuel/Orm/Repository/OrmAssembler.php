@@ -10,14 +10,6 @@
  */
 namespace Appfuel\Orm\Repository;
 
-use BadMethodCallException,
-	Appfuel\Framework\Exception,
-	Appfuel\Framework\AppfuelErrorInterface,
-	Appfuel\Framework\Orm\Domain\DataBuilderInterface,
-	Appfuel\Framework\Orm\Source\SourceHandlerInterface,
-	Appfuel\Framework\Orm\Repository\CriteriaInterface,
-	Appfuel\Framework\Orm\Repository\AssemblerInterface;
-
 /**
  * The assembler proxies data between two objects, the SourceHandler and
  * the DataBuilder. The source handler performs operations on the data source

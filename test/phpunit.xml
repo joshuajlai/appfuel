@@ -11,6 +11,8 @@
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Log</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Validate</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Expr</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/Orm/Domain</directory>
+	<directory suffix="Test.php">../lib/TestFuel/Unit/Orm/Repository</directory>
 <!--		
 	<file>../lib/TestFuel/Test/Kernel/Mvc/ContextBuilderTest.php</file>
 	<file>../lib/TestFuel/Test/Kernel/Mvc/MvcActionDispatcherTest.php</file>
@@ -29,11 +31,6 @@
 	<file>../lib/TestFuel/Unit/Kernel/KernelRegistryTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/KernelOutputTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/IncludePathTest.php</file>
-	<file>../lib/TestFuel/Unit/Orm/AbstractOrmFactoryTest.php</file>
-	<file>../lib/TestFuel/Unit/Orm/Domain/DomainModelTest.php</file>
-	<file>../lib/TestFuel/Unit/Orm/Domain/DomainStateTest.php</file>
-	<file>../lib/TestFuel/Unit/Orm/Domain/DomainExprTest.php</file>
-	<file>../lib/TestFuel/Unit/Orm/Domain/DomainBuilderTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>
