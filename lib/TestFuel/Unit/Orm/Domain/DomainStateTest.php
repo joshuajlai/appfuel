@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Test\Orm\Domain;
+namespace TestFuel\Unit\Orm\Domain;
 
 use TestFuel\TestCase\BaseTestCase,
 	Appfuel\Orm\Domain\DomainState;
@@ -47,7 +47,7 @@ class DomainStateTest extends BaseTestCase
 	public function testImplementedInterfaces()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Framework\Orm\Domain\DomainStateInterface',
+			'Appfuel\Orm\Domain\DomainStateInterface',
 			$this->state
 		);
 	}
