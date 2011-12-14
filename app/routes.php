@@ -1,6 +1,6 @@
 <?php
 
 return array(
-	''			=> 'Appfuel\Action\DefaultAction',
+	''			=> 'Appfuel\Action\Welcome',
 	'af-admin'	=> 'Appfuel\Action\Admin\Landing'
 );
