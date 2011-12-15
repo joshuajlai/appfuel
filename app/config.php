@@ -8,9 +8,7 @@ return array(
 		'default-timezone'		=> 'America/Los_Angeles',
 		'display-errors'		=> 'on',
 		'error-reporting'		=> 'all, strict',
-		'startup-tasks'	=> array(
-			'Appfuel\Db\DbStartup',
-		),
+
 
 		'db' => array(
 			'databases' => array(
@@ -25,17 +23,8 @@ return array(
 		'include-path'		=> array(AF_BASE_PATH . '/lib'),	
 		'include-path-action'	=> 'replace',
 		'error-reporting'	=> 'all, strict',
-		'startup-tasks'		=> array(
-			'Appfuel\App\AppStartup',
-		),
-		'intercepting-filters'	=> array(
-			'Appfuel\App\Filter\AuthFilter', 
-			'Appfuel\App\Filter\OrgFilter', 
-			'Appfuel\App\Filter\ThemeFilter',
-			'Appfuel\App\Filter\OutputFilter',
-		),
-
-
+		'startup-tasks'		=> array(),
+		'intercepting-filters'	=> array(),
 	),
 	
 	'test' => array(
@@ -47,9 +36,10 @@ return array(
 			AF_LIB_PATH 
 		),
 		'startup-tasks'	=> array(
+			'Appfuel\Db\DbStartup',
 			'TestFuel\UnitTestStartup',
 		),
-		'db'					=> array(
+		'db' => array(
 			'databases' => array(
 				'af-unittest' => array(
 					'dbname'            => 'af_unittest',

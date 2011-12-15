@@ -39,7 +39,7 @@ class ActionController extends MvcAction
 
 		$title = 'Welcome Page';
 		$text  = 'Welcome to appfuel more text to come';
-		$view->assign('title', $title)
+		$view->assign('title', $title);
 		$view->assign('message', $text);
 	}
 }

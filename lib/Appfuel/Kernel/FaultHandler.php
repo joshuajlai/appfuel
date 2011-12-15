@@ -80,9 +80,9 @@ class FaultHandler implements FaultHandlerInterface
 		$text = "uncaught exception $msg in $file:$line";
 
 		$logger->log($text, LOG_ERR);
-			
-		if (strlen($code) < 1 || ! is_int($code)) {
-			$code = 500;
+		
+		if (empty($code)|| ! is_int($code)) {
+			$code = 9500;
 		}
 		$display->renderError($text, $code);
 		exit($code);

@@ -12,8 +12,11 @@ namespace Appfuel\Kernel;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\ClassLoader\DependencyLoader,
+	Appfuel\Kernel\Mvc\MvcFront,
+	Appfuel\Kernel\Mvc\MvcActionDispatcherInterface,
+	Appfuel\Kernel\Mvc\Filter\FilterManagerInterface,
 	Appfuel\Kernel\Startup\StartupTaskInterface,
+	Appfuel\ClassLoader\DependencyLoader,
 	Appfuel\ClassLoader\DependencyLoaderInterface;
 
 /**
@@ -510,6 +513,19 @@ class KernelInitializer
 	{
 		$this->isDomainMap = false;
 		return $this;
+	}
+
+	/**
+	 * @param	MvcActionDispatcherInterface $dispatch,
+	 * @param	FilterManagerInterface $filterManager,
+	 * @param	OutputInterface $output
+	 * @return	MvcFront
+	 */
+	public function createFront(MvcActionDispatcherInterface $dispatch = null,
+								FilterManagerInterface $filterManager = null,
+								OutputInterface $output = null)
+	{
+		return new MvcFront($dispatch, $filterManager, $output);
 	}
 
 	/**

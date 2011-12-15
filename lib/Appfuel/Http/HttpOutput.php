@@ -27,11 +27,13 @@ class HttpOutput implements HttpOutputInterface
 
 		header($response->getStatusLine());
 		
-		$headerList = $reponse->getHeaderList();
+		$headerList = $response->getHeaderList();
 
 		$replaceSimilar = false;
 		foreach($headerList as $header) {
 			header($header, $replaceSimilar);
 		}
+
+		echo $response->getContent();
 	}
 }

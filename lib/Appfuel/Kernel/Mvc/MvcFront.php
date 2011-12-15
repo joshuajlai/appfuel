@@ -79,8 +79,9 @@ class MvcFront implements MvcFrontInterface
 		$this->filterManager = $filterManager;
 
 		if (null === $output) {
-			$ouput = new KernelOutput();
+			$output = new KernelOutput();
 		}
+		$this->output = $output;
 	}
 
 	/**

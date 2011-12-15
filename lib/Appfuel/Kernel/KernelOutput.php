@@ -90,9 +90,14 @@ class KernelOutput implements OutputInterface
 	 * @param	mixed	$data
 	 * @return	null
 	 */
-	public function renderError($msg, $code = 500)
+	public function renderError($msg, $code = null)
 	{
 		if ($this->isHttpOutput()) {
+			if (empty($code) || ! is_int($code) || 
+				$code < 100 || $code >= 600) {
+				$code = 500;
+			}
+
 			$response = new HttpResponse($msg, $code);
 			$this->renderHttp($response);
 			return;
@@ -126,15 +131,15 @@ class KernelOutput implements OutputInterface
 	public function renderHttp($data)
 	{
 		$output = $this->getHttpOutput();
-		if ($data instanceof AppContextInteface) {
-			$httpResponse = $context->get('http-response', null);
-			if (! ($httpResponse instanceof HttpResponseInterface)) {
-				$headers = $context->get('http-headers', array());
-				$view    = $context->getView();
-				$code    = $context->getExitCode();
-				$httpResponse = new HttpResponse($context->getView(), $code);
+		if ($data instanceof AppContextInterface) {
+			$response = $data->get('http-response', null);
+			if (! ($response instanceof HttpResponseInterface)) {
+				$headers = $data->get('http-headers', array());
+				$view    = $data->getView();
+				$code    = $data->getExitCode();
+				$response = new HttpResponse($view->build(), $code);
 				if (! empty($headers) && is_array($headers)) {
-					$httpReponse->loadHeaders($headers);
+					$response->loadHeaders($headers);
 				}
 			}
 
@@ -146,7 +151,7 @@ class KernelOutput implements OutputInterface
 			$response = new HttpResponse($data);
 		}
 			
-		$output->renderResponse($httpResponse);
+		$output->render($response);
 	}
 
 	/**
