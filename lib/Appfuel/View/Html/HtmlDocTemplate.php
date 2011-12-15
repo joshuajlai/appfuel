@@ -25,8 +25,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 * @param	array				$data		data to be assigned
 	 * @return	HtmlDocTemplate
 	 */
-	public function __construct($filePath = null,
-								PathFinderInterface $finder = null,
+	public function __construct( $finder = null,
 								array $data = null)
 	{
 		if (null === $filePath) {

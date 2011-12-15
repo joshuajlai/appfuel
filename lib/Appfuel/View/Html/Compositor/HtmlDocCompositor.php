@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Html;
+namespace Appfuel\View\Html\Compositor;
 
 use RunTimeException,
 	InvalidArgumentException,
@@ -18,8 +18,8 @@ use RunTimeException,
 /**
  * Assign a path finder with a relative path of ui/appfuel/html
  */
-class HtmlDocFormatter 
-	extends HtmlFormatter implements HtmlDocFormatterInterface
+class HtmlDocCompositor 
+	extends HtmlCompositor implements HtmlDocCompositorInterface
 {
     /**
      * @param   array   $data
