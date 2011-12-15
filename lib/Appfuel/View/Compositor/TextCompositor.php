@@ -8,14 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Formatter;
+namespace Appfuel\View\Compositor;
 
 use InvalidArgumentException;
 
 /**
  * Converts each key value pair in an associative array as a new line 
  */
-class TextFormatter extends BaseFormatter implements ViewFormatterInterface
+class TextCompositor extends BaseCompositor implements ViewCompositorInterface
 {
 	/**
 	 * Used to delimit key and value
@@ -150,7 +150,7 @@ class TextFormatter extends BaseFormatter implements ViewFormatterInterface
      * @param   mixed	$data
 	 * @return	string
      */
-    public function format(array $data)
+    public function compose(array $data)
     {
 		if (empty($data)) {
 			return '';

@@ -8,30 +8,30 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\View\Formatter;
+namespace TestFuel\Unit\View\Compositor;
 
 use StdClass,
 	SplFileInfo,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\View\Formatter\CsvFormatter;
+	Appfuel\View\Compositor\CsvCompositor;
 
 /**
  * The text formmater converts and array of key=>value pairs into a string
  */
-class CsvFormatterTest extends BaseTestCase
+class CsvCompositorTest extends BaseTestCase
 {
 	/**
 	 * System under test
 	 * @var TextFormatter
 	 */
-	protected $formatter = null;
+	protected $compositor = null;
 
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->formatter = new CsvFormatter();
+		$this->compositor = new CsvCompositor();
 	}
 
 	/**
@@ -39,7 +39,7 @@ class CsvFormatterTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		$this->formatter = null;
+		$this->compositor = null;
 	}
 
 	/**
@@ -48,8 +48,8 @@ class CsvFormatterTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\View\Formatter\ViewFormatterInterface',
-			$this->formatter
+			'Appfuel\View\Compositor\ViewCompositorInterface',
+			$this->compositor
 		);
 	}
 
@@ -64,6 +64,6 @@ class CsvFormatterTest extends BaseTestCase
 		);
 
 		$expected = "foo,bar,baz" . PHP_EOL . "biz,wiz,kiz" . PHP_EOL;
-		$this->assertEquals($expected, $this->formatter->format($data));
+		$this->assertEquals($expected, $this->compositor->compose($data));
 	}
 }

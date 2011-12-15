@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\View\Formatter;
+namespace TestFuel\Unit\View\Compositor;
 
 use StdClass,
 	SplFileInfo,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\View\Formatter\FileFormatter;
+	Appfuel\View\Compositor\FileCompositor;
 
 /**
  * The template formatter converts a php template into a string. It binds 
@@ -21,13 +21,13 @@ use StdClass,
  * parser class the $this reference in the template file. All functions except
  * format and include support the functionality of the template file
  */
-class FileFormatterTest extends BaseTestCase
+class FileCompositorTest extends BaseTestCase
 {
 	/**
 	 * System under test
-	 * @var TextFormatter
+	 * @var FileCompositor
 	 */
-	protected $formatter = null;
+	protected $compositor = null;
 
     /**
      * Path to template file 
@@ -40,10 +40,13 @@ class FileFormatterTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$path = "{$this->getTestFilesPath()}/ui/appfuel/template.phtml";	
+		$path = "ui/appfuel/template.phtml";	
 		$this->templatePath = $path;
 
-		$this->formatter = new FileFormatter($this->templatePath);
+		$compositor = new FileCompositor();
+		$compositor->setRootPath('test/files');
+		$compositor->setFile($path);
+		$this->compositor = $compositor;
 	}
 
     /**
@@ -59,7 +62,7 @@ class FileFormatterTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		$this->formatter = null;
+		$this->compositor = null;
 	}
 
 	/**
@@ -188,8 +191,8 @@ class FileFormatterTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\View\Formatter\ViewFormatterInterface',
-			$this->formatter
+			'Appfuel\View\Compositor\ViewCompositorInterface',
+			$this->compositor
 		);
 	}
 
@@ -201,9 +204,9 @@ class FileFormatterTest extends BaseTestCase
      */
     public function testConstructorNoData()
     {
-        $this->assertEquals(0, $this->formatter->count());
+        $this->assertEquals(0, $this->compositor->count());
 
-        $result = $this->formatter->getAll();
+        $result = $this->compositor->getAll();
         $this->assertInternalType('array', $result);
         $this->assertEmpty($result);
     }
@@ -216,17 +219,17 @@ class FileFormatterTest extends BaseTestCase
 	public function testAssignExistsGet($key, $value)
 	{
 		$default = 'this is a default';
-		$this->assertFalse($this->formatter->exists($key));
-		$this->assertNull($this->formatter->get($key));
-		$this->assertEquals($default, $this->formatter->get($key, $default));
+		$this->assertFalse($this->compositor->exists($key));
+		$this->assertNull($this->compositor->get($key));
+		$this->assertEquals($default, $this->compositor->get($key, $default));
 
 		$this->assertSame(
-			$this->formatter, 
-			$this->formatter->assign($key, $value),
+			$this->compositor, 
+			$this->compositor->assign($key, $value),
 			'uses fluent interface'
 		);
-		$this->assertTrue($this->formatter->exists($key));
-		$this->assertEquals($value, $this->formatter->get($key));
+		$this->assertTrue($this->compositor->exists($key));
+		$this->assertEquals($value, $this->compositor->get($key));
 		
 	}
 
@@ -241,12 +244,12 @@ class FileFormatterTest extends BaseTestCase
 		$key2   = 'number';
 		$value2 = 12345; 
 
-		$this->assertEquals(0, $this->formatter->count());	
-		$this->formatter->assign($key1, $value1);
-		$this->assertEquals(1, $this->formatter->count());
+		$this->assertEquals(0, $this->compositor->count());	
+		$this->compositor->assign($key1, $value1);
+		$this->assertEquals(1, $this->compositor->count());
 			
-		$this->formatter->assign($key2, $value2);
-		$this->assertEquals(2, $this->formatter->count());
+		$this->compositor->assign($key2, $value2);
+		$this->assertEquals(2, $this->compositor->count());
     }
 
 	/**
@@ -259,25 +262,25 @@ class FileFormatterTest extends BaseTestCase
 	public function testGetDefaultValue()
 	{	
 		$key = 'key-not-found';
-		$this->assertFalse($this->formatter->exists($key));
+		$this->assertFalse($this->compositor->exists($key));
 		
 		/* the default return value when a key is not found */
-		$this->assertNull($this->formatter->get($key));
+		$this->assertNull($this->compositor->get($key));
 
 		$default = 'this is a string';
-		$this->assertEquals($default, $this->formatter->get($key, $default));
+		$this->assertEquals($default, $this->compositor->get($key, $default));
 
 		$default = false;
-		$this->assertEquals($default, $this->formatter->get($key, $default));
+		$this->assertEquals($default, $this->compositor->get($key, $default));
 
 		$default = true;
-		$this->assertEquals($default, $this->formatter->get($key, $default));
+		$this->assertEquals($default, $this->compositor->get($key, $default));
 
 		$default = array(1,2,3);
-		$this->assertEquals($default, $this->formatter->get($key, $default));
+		$this->assertEquals($default, $this->compositor->get($key, $default));
 
 		$default = new StdClass();
-		$this->assertEquals($default, $this->formatter->get($key, $default));
+		$this->assertEquals($default, $this->compositor->get($key, $default));
 	}
 
 	/**
@@ -293,20 +296,20 @@ class FileFormatterTest extends BaseTestCase
 			'key4' => 'value4'
 		);
 
-		$this->assertEquals(0, $this->formatter->count());
+		$this->assertEquals(0, $this->compositor->count());
 		$this->assertSame(
-			$this->formatter,
-			$this->formatter->load($data),
+			$this->compositor,
+			$this->compositor->load($data),
 			'uses fluent interface'
 		);
-		$this->assertEquals(count($data), $this->formatter->count());
+		$this->assertEquals(count($data), $this->compositor->count());
 
 		foreach ($data as $key => $value) {
-			$this->assertTrue($this->formatter->exists($key));
-			$this->assertEquals($value, $this->formatter->get($key));
+			$this->assertTrue($this->compositor->exists($key));
+			$this->assertEquals($value, $this->compositor->get($key));
 		}
 
-		$this->assertEquals($data, $this->formatter->getAll());	
+		$this->assertEquals($data, $this->compositor->getAll());	
 	}
 
 	/**
@@ -315,9 +318,9 @@ class FileFormatterTest extends BaseTestCase
 	 */
 	public function testRender($key, $value, $result)
 	{
-		$this->formatter->assign($key, $value);
+		$this->compositor->assign($key, $value);
 		$this->expectOutputString($result);
-		$this->formatter->render($key);
+		$this->compositor->render($key);
 	}
 
 	/**
@@ -326,9 +329,9 @@ class FileFormatterTest extends BaseTestCase
 	 */
 	public function testRenderArrayWithSeparator($key, $value, $sep, $result)
 	{
-		$this->formatter->assign($key, $value);
+		$this->compositor->assign($key, $value);
 		$this->expectOutputString($result);
-		$this->formatter->render($key, null, $sep);
+		$this->compositor->render($key, null, $sep);
 
 	}
 
@@ -339,7 +342,7 @@ class FileFormatterTest extends BaseTestCase
 	public function testRenderNotFound($default, $result)
 	{
 		$this->expectOutputString($result);
-		$this->formatter->render('not-found', $default);
+		$this->compositor->render('not-found', $default);
 	}
 
 	/**
@@ -353,7 +356,7 @@ class FileFormatterTest extends BaseTestCase
 	public function testRenderNotFoundArrayWithSep($key, $value, $sep, $result)
 	{
 		$this->expectOutputString($result);
-		$this->formatter->render('not found', $value, $sep);
+		$this->compositor->render('not found', $value, $sep);
 
 	}
 
@@ -363,9 +366,9 @@ class FileFormatterTest extends BaseTestCase
 	 */
 	public function testRenderJson($key, $value, $result)
 	{
-		$this->formatter->assign($key, $value);
+		$this->compositor->assign($key, $value);
 		$this->expectOutputString($result);
-		$this->formatter->renderAsJson($key);
+		$this->compositor->renderAsJson($key);
 
 	}
 
@@ -376,7 +379,7 @@ class FileFormatterTest extends BaseTestCase
 	public function testRenderJsonNotFound($key, $value, $result)
 	{
 		$this->expectOutputString($result);
-		$this->formatter->renderAsJson('not-found', $value);
+		$this->compositor->renderAsJson('not-found', $value);
 
 	}
 
@@ -393,7 +396,7 @@ class FileFormatterTest extends BaseTestCase
             'foo' => 'bar'
         );
 
-        $result = $this->formatter->format($data);
+        $result = $this->compositor->compose($data);
         $expected = 'This is a test template. Foo=bar. EOF.';
         $this->assertEquals($expected, $result);
     }
@@ -406,10 +409,12 @@ class FileFormatterTest extends BaseTestCase
      */
     public function testFormatFileBuildInTemplate()
     {
-        $file = "{$this->getTestFilesPath()}/ui/appfuel/include_template.phtml";
+        $file = "ui/appfuel/include_template.phtml";
         $data = array('template_path' => $this->getTemplatePath());
-        $formatter = new FileFormatter($file);
-        $result = $formatter->format($data);
+        $compositor = new FileCompositor();
+		$compositor->setRootPath('test/files');
+		$compositor->setFile($file);
+        $result = $compositor->compose($data);
         $expected = 'New template: This is a test template. Foo=baz. EOF.';
         $this->assertEquals($expected, $result);
     }

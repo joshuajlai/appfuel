@@ -8,17 +8,19 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Formatter;
+namespace Appfuel\View\Compositor;
 
 use RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+	Appfuel\Kernel\PathFinder,
+	Appfuel\Kernel\PathFinderInterface;
 
 /**
  * The template formatter binds a template file with the formatter object. This
  * means the $this in the template file is this object. The format function
  * will convert the template is 
  */
-class FileFormatter extends BaseFormatter implements FileFormatterInterface
+class FileCompositor extends BaseCompositor implements FileCompositorInterface
 {
     /**
      * Hold name => value pairs to be used in templates
@@ -32,19 +34,24 @@ class FileFormatter extends BaseFormatter implements FileFormatterInterface
 	 */
 	private $file = null;
 
+	/**
+	 * Used to resolve relative file paths to absolute paths so the
+	 * formatter does not need to care
+	 * @var PathFinder
+	 */
+	private $pathFinder = null;
+
     /**
      * @param   array   $data
      * @return  Template
      */
-    public function __construct($file = null, array $data = null)
+    public function __construct(PathFinderInterface $pathFinder = null)
     {
-		if (null !== $data) {
-			$this->load($data);
+		if (null === $pathFinder) {
+			$pathFinder = new PathFinder();
 		}
 
-		if (null !== $file) {
-			$this->setFile($file);
-		}
+		$this->setPathFinder($pathFinder);
     }
 
 	/**
@@ -67,6 +74,27 @@ class FileFormatter extends BaseFormatter implements FileFormatterInterface
 		}
 		$this->file = $file;
 	}
+
+    /**
+     * Used with file templates to change the part of the absolute path 
+     * from the root to the relative. When isBase is true the root path
+     * starts at the end of AF_BASE_PATH.
+     *
+     * @throws  InvalidArgumentException    when path is not a string
+     * @param   string  $path
+     * @return  ViewTemplate
+     */
+    public function setRootPath($path, $isBase = true)
+    {  
+        $pathFinder = $this->getPathFinder();
+
+        if (false === $isBase && true === $pathFinder->isBasePathEnabled()) {
+            $pathFinder->disableBasePath();
+        }
+
+        $pathFinder->setRelativeRootPath($path);
+        return $this;
+    }
 
     /**
      * Load a list of key/value pairs into template file
@@ -199,6 +227,24 @@ class FileFormatter extends BaseFormatter implements FileFormatterInterface
         return count($this->data);
     }
 
+	/**
+	 * @return	PathFinderInterface
+	 */
+	public function getPathFinder()
+	{
+		return $this->pathFinder;
+	}
+
+	/**
+	 * @param	PathFinderInterface $finder
+	 * @return	FileFormatter
+	 */
+	public function setPathFinder(PathFinderInterface $finder)
+	{
+		$this->pathFinder = $finder;
+		return $this;
+	}
+
     /** 
      * returns the contents of the file specified as a string. This is used 
      * in conjuction with output buffering to produce a view template
@@ -206,7 +252,7 @@ class FileFormatter extends BaseFormatter implements FileFormatterInterface
      * @param   File  $file path to template
 	 * @return	string
      */
-    public function format(array $data)
+    public function compose(array $data)
     {
 		if (! $this->isValidFormat($data)) {
 			$err = 'File formatting failed: data must be an associative array';
@@ -219,6 +265,9 @@ class FileFormatter extends BaseFormatter implements FileFormatterInterface
 			$err = 'can not format a template when the file path is not set';
 			throw new RunTimeException($err);
 		}
+
+		$file = $this->getPathFinder()
+					 ->getPath($file);
 
 		if (! file_exists($file)) {
 			$err  = 'template file does not exist or we do not have correct ';
@@ -239,8 +288,11 @@ class FileFormatter extends BaseFormatter implements FileFormatterInterface
 		if (null === $data) {
 			$data = array();
 		}
-		$formatter = new self($file);
-		return $formatter->format($data);
+		$formatter = new self($this->getPathFinder());
+		$formatter->load($data)
+				  ->setFile($file);
+
+		return $formatter->compose($data);
 	}
 
     /**

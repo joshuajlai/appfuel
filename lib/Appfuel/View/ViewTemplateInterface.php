@@ -10,7 +10,7 @@
  */
 namespace Appfuel\View;
 
-use Appfuel\View\Formatter\ViewFormatterInterface;
+use Appfuel\View\Compositor\ViewCompositorInterface;
 
 /**
  * The view template is the most basic of the templates. Holding all its data
@@ -21,13 +21,13 @@ interface ViewTemplateInterface
 	/**
 	 * @return	ViewFormatterInterface
 	 */
-	public function getViewFormatter();
+	public function getViewCompositor();
 
 	/**
 	 * @param	ViewFormatterInterface $formatter
 	 * @return	ViewTemplate
 	 */
-	public function setViewFormatter(ViewFormatterInterface $formatter);
+	public function setViewCompositor(ViewCompositorInterface $compositor);
     
 	/**
      * Determines if template has been added

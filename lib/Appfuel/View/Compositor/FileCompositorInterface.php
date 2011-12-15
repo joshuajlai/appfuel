@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Formatter;
+namespace Appfuel\View\Compositor;
 
 use RunTimeException,
 	InvalidArgumentException;
@@ -18,7 +18,7 @@ use RunTimeException,
  * means the $this in the template file is this object. This format interface
  * will be used in the .phtml files 
  */
-interface FileFormatterInterface extends ViewFormatterInterface
+interface FileCompositorInterface extends ViewCompositorInterface
 {
 	/**
 	 * Not used by .phtml files but needs to be public. Enforce through 

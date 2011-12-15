@@ -68,10 +68,10 @@ class AjaxTemplateTest extends BaseTestCase
 	 */
 	public function testDefaultConstructor()
 	{
-		$formatter = $this->template->getViewFormatter();
+		$compositor = $this->template->getViewCompositor();
 		$this->assertInstanceOf(
-			'Appfuel\View\Formatter\JsonFormatter',
-			$formatter
+			'Appfuel\View\Compositor\JsonCompositor',
+			$compositor
 		);
 
 		$this->assertEquals(array(), $this->template->getAll());

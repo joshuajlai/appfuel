@@ -8,12 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Formatter;
+namespace Appfuel\View\Compositor;
 
 /**
- * Common logic between all formatter.
+ * Common logic between all Compositors.
  */
-class BaseFormatter
+class BaseCompositor
 {
 
     /** 

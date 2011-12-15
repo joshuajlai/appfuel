@@ -8,20 +8,20 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Formatter;
+namespace Appfuel\View\Compositor;
 
 use InvalidArgumentException;
 
 /**
  * Format an array of arrays into csv 
  */
-class CsvFormatter extends BaseFormatter implements ViewFormatterInterface
+class CsvCompositor extends BaseCompositor implements ViewCompositorInterface
 {
     /** 
      * @param   mixed	$data
 	 * @return	string
      */
-    public function format(array $data)
+    public function compose(array $data)
     {
         if (! $this->isValidFormat($data)) {
             $err = 'Csv Formatter failed: data must be an associative array';

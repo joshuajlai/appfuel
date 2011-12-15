@@ -14,10 +14,10 @@ use RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Kernel\PathFinder,
 	Appfuel\Kernel\PathFinderInterface,
-	Appfuel\View\Formatter\FileFormatter,
-	Appfuel\View\Formatter\TextFormatter,
-	Appfuel\View\Formatter\FileFormatterInterface,
-	Appfuel\View\Formatter\ViewFormatterInterface;
+	Appfuel\View\Compositor\FileCompositor,
+	Appfuel\View\Compositor\TextCompositor,
+	Appfuel\View\Compositor\FileCompositorInterface,
+	Appfuel\View\Compositor\ViewCompositorInterface;
 
 /**
  * The view template is the most basic of the templates. Holding all its data
@@ -70,22 +70,16 @@ class ViewTemplate implements ViewTemplateInterface
 	 * @return	FileTemplate
 	 */
 	public function __construct(array $data = null, 
-								ViewFormatterInterface $formatter = null,
-								PathFinderInterface $pathFinder = null)
+								ViewCompositorInterface $compositor = null)
 	{
 		if (null !== $data) {
 			$this->load($data);
 		}
 
-		if (null === $formatter) {
-			$formatter = new Formatter\TextFormatter();
+		if (null === $compositor) {
+			$compositor = new TextCompositor();
 		}
-		$this->setViewFormatter($formatter);
-
-		if (null === $pathFinder) {
-			$pathFinder = new PathFinder();
-		}
-		$this->setPathFinder($pathFinder);
+		$this->setViewCompositor($compositor);
 	}
 
 	/**
@@ -109,24 +103,6 @@ class ViewTemplate implements ViewTemplateInterface
 		}
 
 		$this->file = $file;
-		return $this;
-	}
-
-	/**
-	 * @return	PathFinderInterface
-	 */
-	public function getPathFinder()
-	{
-		return $this->pathFinder;
-	}
-
-	/**
-	 * @param	PathFinderInterface
-	 * @return	ViewTemplate
-	 */
-	public function setPathFinder(PathFinderInterface $pathFinder)
-	{
-		$this->pathFinder = $pathFinder;
 		return $this;
 	}
 
@@ -165,18 +141,18 @@ class ViewTemplate implements ViewTemplateInterface
 	/**
 	 * @return	ViewFormatterInterface
 	 */
-	public function getViewFormatter()
+	public function getViewCompositor()
 	{
-		return $this->formatter;
+		return $this->compositor;
 	}
 
 	/**
 	 * @param	ViewFormatterInterface $formatter
 	 * @return	ViewTemplate
 	 */
-	public function setViewFormatter(ViewFormatterInterface $formatter)
+	public function setViewCompositor(ViewCompositorInterface $compositor)
 	{
-		$this->formatter = $formatter;
+		$this->compositor = $compositor;
 		return $this;
 	}
     /**
@@ -467,11 +443,11 @@ class ViewTemplate implements ViewTemplateInterface
 	 */
     public function build()
 	{
-		$formatter = $this->getViewFormatter();
-		if (! ($formatter instanceof ViewFormatterInterface)) {
-			$err  = 'build failed: can not build without a view formatter or ';
-			$err .= 'view formatter that does not implement a Appfuel\View';
-			$err .= '\Formatter\ViewFormatterInterface';
+		$compositor = $this->getViewCompositor();
+		if (! ($compositor instanceof ViewCompositorInterface)) {
+			$err  = 'build failed: can not build without a view compositor or ';
+			$err .= 'view compositor that does not implement a Appfuel\View';
+			$err .= '\Compositor\ViewCompositorInterface';
 			throw new RunTimeException($err);
 		}
 
@@ -481,16 +457,17 @@ class ViewTemplate implements ViewTemplateInterface
 
 		if ($this->isFileTemplate()) {
 			$file = $this->getFile();
-			if (! ($formatter instanceof FileFormatterInterface)) {
+			if (! ($compositor instanceof FileCompositorInterface)) {
 				$err  = 'build failed: when a template file is set the view ';
-				$err .= 'formatter must implement Appfuel\View\FileFormatter';
+				$err .= 'compositor must implement Appfuel\View\FileCompositor';
 				$err .= 'Interface';
 				throw new RunTimeException($err);
 			}
-			$formatter->setFile($file);
+
+			$compositor->setFile($file);
 		}
 
-		return $formatter->format($this->getAll());
+		return $compositor->compose($this->getAll());
 	}
 
 	/**

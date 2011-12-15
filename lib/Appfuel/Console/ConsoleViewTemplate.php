@@ -11,7 +11,7 @@
 namespace Appfuel\Console;
 
 use Appfuel\View\ViewTemplate,
-	Appfuel\View\Formatter\TextFormatter;
+	Appfuel\View\Compositor\TextCompositor;
 
 /**
  * Template used to generate generic html documents
@@ -30,8 +30,8 @@ class ConsoleViewTemplate
 		 * second param: character to delimit each array item
 		 * third param:  parse only array values, ignore keys
 		 */
-		$formatter = new TextFormatter(' ', ' ', 'values');	
-		parent::__construct( $data, $formatter);
+		$compositor = new TextCompositor(' ', ' ', 'values');	
+		parent::__construct( $data, $compositor);
     }
 
 }

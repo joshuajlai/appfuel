@@ -11,7 +11,7 @@
 namespace Appfuel\View;
 
 use InvalidArgumentException,
-	Appfuel\View\Formatter\JsonFormatter;
+	Appfuel\View\Compositor\JsonCompositor;
 
 /**
  * The view template is the most basic of the templates. Holding all its data
@@ -39,7 +39,7 @@ class AjaxTemplate extends ViewTemplate implements AjaxTemplateInterface
 	public function __construct(array $data = null)
 	{
 		$this->setStatus(200, 'OK');
-		parent::__construct($data, new JsonFormatter());
+		parent::__construct($data, new JsonCompositor());
 	}
 
 	/**

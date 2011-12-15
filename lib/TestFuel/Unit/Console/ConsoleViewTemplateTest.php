@@ -53,10 +53,10 @@ class ConsoleViewTemplateTest extends BaseTestCase
 
 		$this->assertInstanceOf('Appfuel\View\ViewTemplate',$this->view);
 
-		$formatter = $this->view->getViewFormatter();
+		$compositor = $this->view->getViewCompositor();
 		$this->assertInstanceOf(
-			'Appfuel\View\Formatter\TextFormatter',
-			$formatter
+			'Appfuel\View\Compositor\TextCompositor',
+			$compositor
 		);
 	}
 }

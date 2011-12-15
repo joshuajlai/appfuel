@@ -15,8 +15,7 @@ use Appfuel\View\ViewCompositeTemplate;
 /**
  * Template used to generate generic html documents
  */
-class HtmlDocTemplate 
-	extends ViewCompositeTemplate implements HtmlDocTemplateInterface
+class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 {
 	/**
 	 * Defaults to the appfuel template file 
@@ -31,10 +30,11 @@ class HtmlDocTemplate
 								array $data = null)
 	{
 		if (null === $filePath) {
-			$filePath = 'html/doc/standard.phtml';
+			$filePath = 'appfuel/html/doc/standard.phtml';
 		}
+		$formatter = new HtmlDocFormatter($filePath);
 
-		parent::__construct($filePath, $finder, $data);
+		parent::__construct($data, $formatter);
 	}
 
 }
