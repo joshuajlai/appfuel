@@ -8,16 +8,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\View\Compositor;
+namespace TestFuel\Unit\View\Html;
 
 use StdClass,
 	SplFileInfo,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\View\Html\Compositor\HtmlCompositor;
+	Appfuel\View\Html\HtmlPage,
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  */
-class HtmlCompositorTest extends BaseTestCase
+class HtmlPageTest extends BaseTestCase
 {
 	/**
 	 * System under test
@@ -36,28 +36,15 @@ class HtmlCompositorTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$path = "ui/appfuel/html/doc";	
-		$this->templatePath = $path;
-
-		$compositor = new HtmlCompositor();
-		$compositor->setRelativeRootPath('test/files');
-		$this->compositor = $compositor;
+		$this->page = new HtmlPage();
 	}
-
-    /**
-     * @return  string
-     */
-    public function getTemplatePath()
-    {
-        return $this->templatePath;
-    }
 
 	/**
 	 * @return null
 	 */
 	public function tearDown()
 	{
-		$this->compositor = null;
+		$this->page = null;
 	}
 
 	/**
@@ -66,13 +53,8 @@ class HtmlCompositorTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\View\Compositor\ViewCompositorInterface',
-			$this->compositor
-		);
-
-		$this->assertInstanceOf(
-			'Appfuel\View\Html\Compositor\HtmlCompositorInterface',
-			$this->compositor
+			'Appfuel\View\ViewTemplateInterface',
+			$this->page
 		);
 	}
 }

@@ -10,11 +10,11 @@
  */
 namespace Appfuel\View\Html;
 
-use Appfuel\View\ViewCompositeTemplateInterface;
+use Appfuel\View\ViewTemplateInterface;
 
 /**
  * Interface to manage the html page 
  */
-interface HtmlDocTemplateInterface extends ViewCompositeTemplateInterface
+interface HtmlDocTemplateInterface extends ViewTemplateInterface
 {
 }

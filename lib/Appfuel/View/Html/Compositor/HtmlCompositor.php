@@ -19,15 +19,5 @@ use Appfuel\Kernel\PathFinder,
  */
 class HtmlCompositor extends FileCompositor implements HtmlCompositorInterface
 {
-    /**
-     * @param   array   $data
-     * @return  Template
-     */
-    public function __construct(PathFinderInterface $pathFinder = null)
-    {
-		if (null === $pathFinder) {
-			$pathFinder = new PathFinder('ui/appfuel/html');
-		}
-		parent::__construct($pathFinder);
-    }
+
 }

@@ -34,9 +34,19 @@ interface FileCompositorInterface extends ViewCompositorInterface
 	 *
 	 * @throws	InvalidArgumentException	when path is a non empty string
 	 * @param	string
-	 * @return	CompositeFile
+	 * @return	FileCompositorInterface
 	 */
 	public function setFile($path);
+
+	/**
+	 * The path relative to the base path that is appended to the base path
+	 * and prepended to the file path to produce the absolute path of the file
+	 *
+	 * @param	string	$path
+	 * @param	bool	$isBase
+	 * @return	FileCompositorInterface
+	 */ 
+	public function setRelativeRootPath($path, $isBase = true);
 
     /**
      * Load a list of key/value pairs into template file

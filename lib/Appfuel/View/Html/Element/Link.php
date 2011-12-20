@@ -22,7 +22,7 @@ class Link extends Tag
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($href = null)
+	public function __construct($href = null, $rel = null, $type = null)
 	{
 		$valid = array(
 			'href',
@@ -36,8 +36,15 @@ class Link extends Tag
 			 ->disableClosingTag()
 			 ->addValidAttributes($valid);
 
-		$this->addAttribute('rel',  'stylesheet')
-			 ->addAttribute('type', 'text/css');
+		if (null === $rel) {
+			$rel = 'stylesheet';
+		}
+
+		if (null === $type) {
+			$type = 'text/css';
+		}
+		$this->addAttribute('rel',  $rel)
+			 ->addAttribute('type', $type);
 
 		if ($this->isValidString($href)) {
 			$this->addAttribute('href', $href);

@@ -26,13 +26,14 @@ class HttpEquiv extends Tag
 	public function __construct($eq, $content)
 	{
 		$this->addValidAttributes(array('http-equiv','content'))
+			 ->setTagName('meta')
 			 ->disableClosingTag();
 
 		if (! $this->isValidString($eq) || ! $this->isValidString($content)) {
-			throw new Exception("both attrs must be present");
+			throw new InvalidArgumentException("both attrs must be present");
 		}
 
-		$this->addAttribute('http-equiv', $encoding)
+		$this->addAttribute('http-equiv', $eq)
 			 ->addAttribute('content', $content);
 	}
 

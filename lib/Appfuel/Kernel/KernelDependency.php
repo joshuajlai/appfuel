@@ -45,14 +45,13 @@ class KernelDependency extends ClassDependency
 	 */
 	public function __construct($rootPath = null)
 	{
-		if (! defined('AF_BASE_PATH')) {
+		if (! defined('AF_LIB_PATH')) {
 			$err  = 'constant AF_BASE_PATH must be defined before loading ';
 			$err .= 'dependencies';
 			throw new RunTimeException($err);
 		}
 
-		$root = AF_BASE_PATH . "/lib";
-		parent::__construct($root);
+		parent::__construct(AF_LIB_PATH);
 		
 		$dependencies = array(
 			'\Appfuel\Error\ErrorInterface',

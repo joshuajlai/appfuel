@@ -44,41 +44,6 @@ class Tag extends ParentTag
 	}
 
 	/**
-	 * 
-	 * @param	string	$name
-	 * @param	string	$value
-	 * @return	Tag
-	 */
-	public function addAttribute($key, $value)
-	{
-		switch ($key) {
-			case 'name':
-				if (! $this->attributeExists('charset') && 
-					! $this->attributeExists('http-equiv')) {
-					parent::addAttribute('name', $value);
-				}
-				break;
-			case 'charset':
-				if (! $this->attributeExists('name') && 
-					! $this->attributeExists('http-equiv')) {
-					parent::addAttribute('charset', $value);
-				}
-				break;
-			case 'http-equiv':
-				if (! $this->attributeExists('charset') && 
-					! $this->attributeExists('name')) {
-					parent::addAttribute('http-equiv', $value);
-				}
-				break;
-
-			default:
-				parent::addAttribute($key, $value);
-		}
-
-		return $this;
-	}
-
-	/**
 	 * Determines if a attributes are valid for a charset
 	 * 
 	 * @return bool
@@ -115,21 +80,5 @@ class Tag extends ParentTag
 			   $this->attributeExists('content') &&
 			   ! $this->attributeExists('http-equiv')  &&
 			   ! $this->attributeExists('charset');
-	}
-
-	/**
-	 * Only build valid charset, http-equiv or name meta tags
-	 *
-	 * @return	string
-	 */
-	public function build()
-	{
-		if ($this->isValidCharset()   || 
-			$this->isValidHttpEquiv() ||
-			$this->isValidName() ) {
-			return parent::build();
-		}
-
-		return '';
 	}
 }

@@ -182,11 +182,40 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 
 	/**
 	 * @return	array
+	 */
+	public function provideEmptyStrings()
+	{
+		$provider = $this->getStringProvider();
+		return $provider->provideEmptyStrings();
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function provideNonEmptyStrings()
+	{
+		$provider = $this->getStringProvider();
+		return $provider->provideNonEmptyStrings();
+	}
+
+
+	/**
+	 * @return	array
 	 */	
 	public function provideAllStringsIncludingCastable()
 	{
 		$provider = $this->getStringProvider();
 		return $provider->provideAllStrings();
+		
+	}
+
+	/**
+	 * @return	array
+	 */	
+	public function provideEmptyNonEmptyAndToString()
+	{
+		$provider = $this->getStringProvider();
+		return $provider->provideEmptyNonEmptyAndToString();
 		
 	}
 

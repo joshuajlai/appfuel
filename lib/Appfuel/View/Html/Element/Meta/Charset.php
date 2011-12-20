@@ -10,7 +10,7 @@
  */
 namespace Appfuel\View\Html\Element\Meta;
 
-use Appfuel\Framework\Exception;
+use InvalidArgumentException;
 
 /**
  * A specialized meta tag that deals only with character encoding
@@ -24,25 +24,19 @@ class Charset extends Tag
 	 */
 	public function __construct($encoding)
 	{
-		$this->addValidAttribute('charset')
+		$this->setTagName('meta')
+			 ->addValidAttribute('charset')
+			 ->addValidAttribute('http-equiv')
+			 ->addValidAttribute('content')
 			 ->disableClosingTag();
 
 		if (! $this->isValidString($encoding)) {
-			throw new Exception("Encoding must be a valid string");
+			throw new InvalidArgumentException("Encoding must valid string");
 		}
 
-		$this->addAttribute('charset', $encoding);
-	}
+		$this->addAttribute('http-equiv', 'Content-Type')
+			 ->addAttribute('content', 'text/html')
+			 ->addAttribute('charset', $encoding);
 
-	/**
-	 * Build only charset meta tags
-	 *
-	 * @return string
-	 */
-	public function build()
-	{
-		if ($this->isValidCharset()) {
-			return parent::build();
-		}
 	}
 }

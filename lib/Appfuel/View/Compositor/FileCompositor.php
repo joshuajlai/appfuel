@@ -22,6 +22,12 @@ use RunTimeException,
  */
 class FileCompositor extends BaseCompositor implements FileCompositorInterface
 {
+	/**
+	 * Default location of the template path. 
+	 * @var string
+	 */
+	static private $templatePath = 'ui';
+
     /**
      * Hold name => value pairs to be used in templates
      * @var array
@@ -48,11 +54,32 @@ class FileCompositor extends BaseCompositor implements FileCompositorInterface
     public function __construct(PathFinderInterface $pathFinder = null)
     {
 		if (null === $pathFinder) {
-			$pathFinder = new PathFinder();
+			$pathFinder = new PathFinder(self::getTemplatePath());
 		}
 
 		$this->setPathFinder($pathFinder);
     }
+
+	/**
+	 * @return	string
+	 */
+	static public function getTemplatePath()
+	{
+		return self::$templatePath;
+	}
+
+	/**
+	 * @param	string	$path
+	 * @return	null
+	 */
+	static public function setTemplatePath($path)
+	{
+		if (! is_string($path)) {
+			$err = 'the template path must be a string';
+			throw new InvalidArgumentException($err);
+		}
+		self::$templatePath = $path;
+	}
 
 	/**
 	 * @return	string
@@ -82,9 +109,10 @@ class FileCompositor extends BaseCompositor implements FileCompositorInterface
      *
      * @throws  InvalidArgumentException    when path is not a string
      * @param   string  $path
-     * @return  ViewTemplate
+	 * @param	bool	$isBase				disable the base path 
+     * @return  FileCompositor
      */
-    public function setRootPath($path, $isBase = true)
+    public function setRelativeRootPath($path, $isBase = true)
     {  
         $pathFinder = $this->getPathFinder();
 
@@ -271,7 +299,7 @@ class FileCompositor extends BaseCompositor implements FileCompositorInterface
 
 		if (! file_exists($file)) {
 			$err  = 'template file does not exist or we do not have correct ';
-			$err .= 'permissions';
+			$err .= "permissions -($file)";
 			throw new RunTimeException($err);
 		}
 		

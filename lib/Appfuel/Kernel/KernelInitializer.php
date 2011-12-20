@@ -56,7 +56,7 @@ class KernelInitializer
 	 *
 	 * @return	KernalInitializer
 	 */
-	public function __construct($base, $strategy)
+	public function __construct($base, $strategy, $lib = null)
 	{
 		$err = 'Initialization error: ';
 		if (defined('AF_BASE_PATH')) {
@@ -71,10 +71,23 @@ class KernelInitializer
 			throw new InvalidArgumentException($err);
 		}
 
-		if (! defined('AF_LIB_PATH')) {
-			define('AF_LIB_PATH', AF_BASE_PATH . '/lib');
+		if (null === $lib) {
+			$lib = 'lib';
 		}
 
+		if (empty($lib) || ! is_string($lib)) {
+			$err = 'the library directory must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		if (! defined('AF_LIB_PATH')) {
+			define('AF_LIB_PATH', AF_BASE_PATH . "/$lib");
+		}
+
+		if (! file_exists(AF_LIB_PATH)) {
+			$err = 'library path must exist before initialization';
+			throw new RunTimeException($err);
+		}
 
 		$this->setConfigPath("$base/app");
 		$this->initDependencyLoader();
@@ -555,9 +568,9 @@ class KernelInitializer
 		 * p - path
 		 * c - class name
 		 */
-		$p = AF_BASE_PATH . '/lib/Appfuel/ClassLoader';
+		$p = AF_LIB_PATH . '/Appfuel/ClassLoader';
 		$c = "\Appfuel\ClassLoader";
-		$kpath  = AF_BASE_PATH . '/lib/Appfuel/Kernel/KernelDependency.php';
+		$kpath  = AF_LIB_PATH . '/Appfuel/Kernel/KernelDependency.php';
 		$kclass = "\Appfuel\Kernel\KernelDependency";
 		$files  = array(
 			"$c\AutoLoaderInterface"	   => "$p/AutoLoaderInterface.php",

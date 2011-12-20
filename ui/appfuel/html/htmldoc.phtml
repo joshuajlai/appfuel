@@ -1,0 +1,37 @@
+<?php $this->render('doc-type', '<!DOCTYPE HTML>'); ?>
+
+<html<?php $this->render('html-attr-string', '');?>>
+<head<?php $this->render('head-attr-string', '');?>>
+<?php
+    $this->render('html-charset', PHP_EOL);
+    $this->render('html-base', PHP_EOL);
+    $this->render('html-title', PHP_EOL);
+	$this->render('html-meta', '', PHP_EOL);
+
+	$isCss = $this->get('is-css', true);
+	$isCss = ($isCss === false) ? false : true;
+	if ($isCss) {
+		$this->render('links-css',  PHP_EOL, PHP_EOL);
+		$this->render('inline-css', PHP_EOL);
+	}
+
+	$isJs = $this->get('is-js', true);
+	$isJs = ($isJs === false) ? false : true;
+    if ($isJs) {
+		$this->render('scripts-js-head', '', PHP_EOL);
+		$this->render('inline-js-head', '', PHP_EOL);
+	} 
+?>
+
+</head>
+<body<?php $this->render('body-attr-string', ''); ?>>
+<?php 
+	$this->render('body-content', PHP_EOL);
+	if ($isJs) {
+		$this->render('scripts-js-body', '', PHP_EOL);
+		$this->render('inline-js-body', PHP_EOL);
+	}
+	$this->render('final-content', PHP_EOL);
+?>
+</body>
+</html>

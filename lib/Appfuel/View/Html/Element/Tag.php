@@ -10,7 +10,7 @@
  */
 namespace Appfuel\View\Html\Element;
 
-use Appfuel\Framework\Exception;
+use InvalidArgumentException;
 
 /**
  * This class looks to model the html5 tag. It has attribute validation which
@@ -23,7 +23,7 @@ use Appfuel\Framework\Exception;
  * tag. There are seperate methods for building content, the attribute string
  * and the tag itself.
  */
-class Tag
+class Tag implements HtmlTagInterface
 {
 	/**
 	 * Used to separate content
@@ -91,7 +91,9 @@ class Tag
 	public function setTagName($name)
 	{
 		if (! $this->isValidString($name)) {
-			throw new Exception("Invalid name for tag must be a string");
+			throw new InvalidArgumentException(
+				"Invalid name for tag must be a string"
+			);
 		}
 		$this->tagName = $name;
 		return $this;
@@ -417,12 +419,6 @@ class Tag
 	 */
     public function addContent($data, $action = 'append')
     {
-		$action = strtolower($action);
-        $valid  = array('append', 'prepend','replace');
-        if (! in_array($action, $valid)) {
-			return $this;
-        }
-
         /*
          * make sure the data is an array
          */
@@ -450,6 +446,8 @@ class Tag
             case 'replace':
                 $this->content = $data;
                 break;
+			default :
+				$this->content = $data;
         }
 
         return $this;

@@ -47,22 +47,15 @@ class ViewTemplate implements ViewTemplateInterface
 	/**
 	 * The formatter turns the assignments into a string. The compositor
 	 * is only reponsible for its own assignments
-	 * @var	ViewFormatterInterface
+	 * @var	ViewCompositorInterface
 	 */
-	protected $formatter = null;
+	protected $compositor = null;
 
 	/**
 	 * Relative path to a file template
 	 * @var string
 	 */
 	protected $file = null;
-
-	/**
-	 * Resolves relative path assigned to file into an absolute path used
-	 * by the formatter during build
-	 * @var PathFinder
-	 */
-	protected $pathFinder = null;
 
 	/**
 	 * @param	mixed	$file 
@@ -115,15 +108,13 @@ class ViewTemplate implements ViewTemplateInterface
 	 * @param	string	$path
 	 * @return	ViewTemplate
 	 */
-	public function setRootPath($path, $isBase = true)
+	public function setRelativeRootPath($path, $isBase = true)
 	{
-		$pathFinder = $this->getPathFinder();
-
-		if (false === $isBase && true === $pathFinder->isBasePathEnabled()) {
-			$pathFinder->disableBasePath();
+		$compositor = $this->getViewCompositor();
+		if ($compositor instanceof FileCompositorInterface) {
+			$compositor->setRelativeRootPath($path, $isBase);
 		}
 
-		$pathFinder->setRelativeRootPath($path);
 		return $this;
 	}
 
@@ -315,6 +306,10 @@ class ViewTemplate implements ViewTemplateInterface
 			);
         }
 
+		if (false !== strpos($key, '.')) {
+			return $this->assignTo($key, $value);
+		}
+
         $this->assign[$key] = $value;
 		return $this;
 	}
@@ -355,7 +350,7 @@ class ViewTemplate implements ViewTemplateInterface
 		}
 
 		$label = array_pop($parts);
-		$template = $this->traverseTemplates($part);
+		$template = $this->traverseTemplates($parts);
 		if (! ($template instanceof ViewTemplateInterface)) {
 			$err .= "no template found at -($template)";
 			throw new RunTimeException($err);
@@ -486,11 +481,12 @@ class ViewTemplate implements ViewTemplateInterface
 			}
 			$target = $data[0];
 			$label  = $data[1];
+			
+			$sourceTemplate = $this->getTemplate($source);
 			if (! $this->isTemplate($sourceTemplate)) {
 				$error .= 'source template not found';
 				throw new RunTimeException($err);
 			}
-			$sourceTemplate = $this->getTemplate($source);
 	
 			if (! $this->isTemplate($target)) {
 				$error .= 'target template not found';
@@ -498,7 +494,7 @@ class ViewTemplate implements ViewTemplateInterface
 			}
 
 			if ('this' === $target) {
-				$this->assign($label, $source->build());
+				$this->assign($label, $sourceTemplate->build());
 			}
 			else {
 				$targetTemplate = $this->getTemplate($target);

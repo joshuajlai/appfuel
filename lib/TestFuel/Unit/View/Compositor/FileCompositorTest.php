@@ -44,7 +44,7 @@ class FileCompositorTest extends BaseTestCase
 		$this->templatePath = $path;
 
 		$compositor = new FileCompositor();
-		$compositor->setRootPath('test/files');
+		$compositor->setRelativeRootPath('test/files');
 		$compositor->setFile($path);
 		$this->compositor = $compositor;
 	}
@@ -412,7 +412,7 @@ class FileCompositorTest extends BaseTestCase
         $file = "ui/appfuel/include_template.phtml";
         $data = array('template_path' => $this->getTemplatePath());
         $compositor = new FileCompositor();
-		$compositor->setRootPath('test/files');
+		$compositor->setRelativeRootPath('test/files');
 		$compositor->setFile($file);
         $result = $compositor->compose($data);
         $expected = 'New template: This is a test template. Foo=baz. EOF.';

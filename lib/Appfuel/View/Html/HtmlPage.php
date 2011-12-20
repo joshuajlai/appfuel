@@ -10,13 +10,14 @@
  */
 namespace Appfuel\View\Html;
 
-use Appfuel\View\ViewTemplate,
-	Appfuel\View\Formatter\FileFormatter;
+use Appfuel\View\Compositor\TextCompositor,
+	Appfuel\View\ViewTemplate,
+	Appfuel\View\ViewTemplateInterface;
 
 /**
  * Template used to generate generic html documents
  */
-class HtmlTemplate extends ViewTemplate
+class HtmlPage extends ViewTemplate
 {
 	/**
 	 * Assign a FileFormatter because html templates generally require a
@@ -26,19 +27,23 @@ class HtmlTemplate extends ViewTemplate
 	 * @param	array				$data	data to be assigned
 	 * @return	HtmlTemplate
 	 */
-	public function __construct($path = null, array $data = null)
+	public function __construct(HtmlDocTemplateInterface $doc = null,
+								ViewTemplateInterface $content = null)
 	{
-		
-		parent::__construct($data, new FileFormatter());
-		
-		/* 
-		 * any file path will be relative to this root path and
-		 * this path is relative to AF_BASE_PATH
-		 */
-		$this->setRootPath('ui/appfuel/html');
-		
-		if (null !== $path) {
-			$this->setFile($path);
+		if (null == $doc) {
+			$doc = new HtmlDocTemplate();
 		}
+
+		if (null === $content) {
+			$content = new ViewTemplate();
+		}
+
+		$this->addTemplate('htmldoc', $doc)
+			 ->addTemplate('content', $content);
+
+		$this->assignTemplate('content', 'htmldoc', 'html-body-content')
+			 ->assignTemplate('htmldoc');
+
+		parent::__construct(null, new TextCompositor(null,null, 'values'));
 	}
 }

@@ -22,7 +22,7 @@ class Style extends Tag
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($content = null)
+	public function __construct($content = null, $type = null)
 	{
 		$valid = array(
 			'media',
@@ -32,7 +32,10 @@ class Style extends Tag
 		$this->setTagName('style')
 			 ->addValidAttributes($valid);
 
-		$this->addAttribute('type', 'text/css');
+		if (null === $type) {
+			$type = 'text/css';
+		}	
+		$this->addAttribute('type', $type);
 
 		if ($this->isValidString($content)) {
 			$this->addContent($content);

@@ -60,6 +60,17 @@ class StringProvider implements StringProviderInterface
 	}
 
 	/**
+	 * @return array
+	 */
+	public function provideEmptyNonEmptyAndToString()
+	{
+		$empty = $this->provideEmptyString();
+		$nonEmpty = $this->provideNonEmptyString();
+		$callable = array(array(new SplFileInfo('my/file')));
+		return array_merge($empty, $nonEmpty, $callable);
+	}
+
+	/**
 	 * @return	array
 	 */
 	public function provideEmptyStrings()

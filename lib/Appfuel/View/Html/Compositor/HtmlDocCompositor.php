@@ -13,27 +13,95 @@ namespace Appfuel\View\Html\Compositor;
 use RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Kernel\PathFinder,
-	Appfuel\Kernel\PathFinderInterface;
+	Appfuel\Kernel\PathFinderInterface,
+	Appfuel\View\Compositor\FileCompositor;
 
 /**
- * Assign a path finder with a relative path of ui/appfuel/html
+ * This class exposes the functionality in the .phtml file pointed to by
+ * $file. All public methods are exposed through $this. This class extends
+ * the regular html compositor by adding functionality for doc type, 
+ * javascript and css.
  */
 class HtmlDocCompositor 
-	extends HtmlCompositor implements HtmlDocCompositorInterface
+	extends FileCompositor implements HtmlDocCompositorInterface
 {
     /**
+	 * File and pathfinder are optional. If you need to use a different 
+	 * template in the same template path then use file to specify the path
+	 * to the template. If that template is located outside of the template
+	 * dir then use a path finder object to set the relative root path of 
+	 * that template and use file to hold the relative path of the template 
+	 * itself.
+	 *
      * @param   array   $data
      * @return  Template
      */
-    public function __construct($file = null,
+    public function __construct($file = null, 
 								PathFinderInterface $pathFinder = null)
     {
-		parent::__construct($pathFinder);
 		if (null === $file) {
-			$file = 'doc/htmldoc.phtml';
+			$file = 'appfuel/html/htmldoc.phtml';
 		}
 		$this->setFile($file);
+		parent::__construct($pathFinder);
+
     }
+
+	/**
+	 * @return	string
+	 */
+	public function getDefaultCharset()
+	{
+		return '<meta http-equiv="Content-Type" ' .
+				'content="text/html; charset=utf-8">';
+	}
+
+	/**
+	 * Always true unless a strict (bool) false is assigned to 'is-css-enabled'
+	 *
+	 * @return	bool
+	 */
+	public function isCssEnabled()
+	{
+		$isCss = $this->get('is-css-enabled', true);
+		return (false === $isCss) ? false : true;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isInlineCssEnabled()
+	{
+		$isCss = $this->get('is-inlinecss-enabled', true);
+		return (false === $isCss) ? false : true;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isJsEnabled()
+	{
+		$isjs = $this->get('is-js-enabled', true);
+		return (false === $isjs) ? false : true;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isJsHeadInlineEnabled()
+	{
+		$isjs = $this->get('is-jsinline-head-enabled', true);
+		return (false === $isjs) ? false : true;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isJsBodyInlineEnabled()
+	{
+		$isjs = $this->get('is-jsinline-body-enabled', true);
+		return (false === $isjs) ? false : true;
+	}
 
 	/**
 	 * @param	string	$type
@@ -127,7 +195,8 @@ class HtmlDocCompositor
 				break;
 			default: $text = '<!DOCTYPE HTML>';
 			
-			return $text;
 		}
+			
+		return $text;
 	}
 }
