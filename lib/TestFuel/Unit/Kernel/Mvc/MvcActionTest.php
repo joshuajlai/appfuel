@@ -150,7 +150,7 @@ class MvcActionTest extends BaseTestCase
 	 */
 	public function testProcess()
 	{
-		$context = $this->getMock('Appfuel\Kernel\Mvc\AppContextInterface');
+		$context = $this->getMock('Appfuel\Kernel\Mvc\MvcContextInterface');
 		$this->assertNull($this->action->process($context));
 	}
 
@@ -168,7 +168,7 @@ class MvcActionTest extends BaseTestCase
 		$expected .= 'processed label-a=value-c label-b=value-d';
 
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContextInterface',
+			'Appfuel\Kernel\Mvc\MvcContentInterface',
 			$context
 		);
 
@@ -196,7 +196,7 @@ class MvcActionTest extends BaseTestCase
 		$expected .= 'processed label-a=value-c label-b=value-d';
 		
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContextInterface',
+			'Appfuel\Kernel\Mvc\MvcContentInterface',
 			$context
 		);
 		
@@ -246,7 +246,7 @@ class MvcActionTest extends BaseTestCase
 		$expected .= 'processed label-a=value-c label-b=value-d';
 
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContextInterface',
+			'Appfuel\Kernel\Mvc\MvcContentInterface',
 			$context
 		);
 	

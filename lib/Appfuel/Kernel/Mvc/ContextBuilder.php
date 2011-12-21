@@ -287,7 +287,7 @@ class ContextBuilder implements ContextBuilderInterface
 		$this->clear();
 
 		/* clear out build state */
-		return new AppContext($route, $strategy, $input);
+		return new MvcContext($route, $strategy, $input);
 	}
 
 	/**

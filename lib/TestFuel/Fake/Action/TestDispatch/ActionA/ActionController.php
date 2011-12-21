@@ -11,7 +11,7 @@
 namespace TestFuel\Fake\Action\TestDispatch\ActionA;
 
 use Appfuel\Kernel\Mvc\MvcAction,
-	Appfuel\Kernel\Mvc\AppContextInterface,
+	Appfuel\Kernel\Mvc\MvcContextInterface,
 	Appfuel\View\AjaxTemplateInterface;
 
 /**
@@ -33,7 +33,7 @@ class ActionController extends MvcAction
      * @param   ConsoleViewTemplateInterface  $view
      * @return  mixed   null | AppContextInterface 
      */
-    public function process(AppContextInterface $context)
+    public function process(MvcContextInterface $context)
 	{
 		$strategy = $context->getStrategy();
 		$view = $context->getView();

@@ -19,7 +19,7 @@ use Appfuel\View\ViewTemplateInterface,
  * It is also required to hold the AppInputInterface to the action controllers
  * can retrieve any user input.
  */
-interface AppContextInterface extends DictionaryInterface
+interface MvcContextInterface extends DictionaryInterface
 {
 	/**
 	 * @return	string

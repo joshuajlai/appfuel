@@ -12,18 +12,18 @@ namespace TestFuel\Unit\Kernel\Mvc;
 
 use StdClass,
 	Appfuel\Kernel\Mvc\AppInput,
-	Appfuel\Kernel\Mvc\AppContext,
+	Appfuel\Kernel\Mvc\MvcContext,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\DataStructure\Dictionary;
 
 /**
  * The request object was designed to service web,api and cli request
  */
-class AppContextTest extends BaseTestCase
+class MvcContextTest extends BaseTestCase
 {
 	/**
 	 * System under test
-	 * @var AppContext
+	 * @var MvcContext
 	 */
 	protected $context = null;
 
@@ -54,7 +54,7 @@ class AppContextTest extends BaseTestCase
 		$this->route = 'my-route';
 		$this->strategy = 'console';
 		$this->input = $this->getMock('Appfuel\Kernel\Mvc\AppInputInterface');
-		$this->context = new AppContext(
+		$this->context = new MvcContext(
 			$this->route,
 			$this->strategy, 
 			$this->input
@@ -77,7 +77,7 @@ class AppContextTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContextInterface',
+			'Appfuel\Kernel\Mvc\MvcContextInterface',
 			$this->context
 		);
 	}
@@ -117,7 +117,7 @@ class AppContextTest extends BaseTestCase
 	 */
 	public function testConstructorStrategy_Failure($strategy)
 	{
-		$context = new AppContext($this->route, $strategy, $this->input);
+		$context = new MvcContext($this->route, $strategy, $this->input);
 	}
 
 	/**

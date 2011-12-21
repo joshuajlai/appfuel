@@ -11,7 +11,7 @@
 namespace Appfuel\Kernel\Mvc\Filter;
 
 
-use Appfuel\Kernel\Mvc\AppContextInterface;
+use Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
  * Filters are registered and run by the filter manager which is used by
@@ -38,12 +38,11 @@ interface InterceptingFilterInterface
 	 * @param	ContextInterface	$context
 	 * @return	mixed	bool | ContextInterface
 	 */
-	public function filter(AppContextInterface $context);
+	public function filter(MvcContextInterface $context);
 	
 	/**
 	 * @param	ContextInterface $context
 	 * @return	
 	 */
-	public function next(AppContextInterface $context);
-	
+	public function next(MvcContextInterface $context);
 }

@@ -12,7 +12,7 @@ namespace Appfuel\Kernel\Mvc\Filter;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Kernel\Mvc\AppContextInterface;
+	Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
  * The filter manager is a facade which handles the usage of intercepting
@@ -162,7 +162,7 @@ class FilterManager implements FilterManagerInterface
 	 * @param	ContextInterface
 	 * @return	ContextInterface
 	 */
-	public function applyPreFilters(AppContextInterface $context)
+	public function applyPreFilters(MvcContextInterface $context)
 	{
 		return $this->applyChain($this->getPreChain(), $context);
 	}
@@ -171,7 +171,7 @@ class FilterManager implements FilterManagerInterface
 	 * @param	ContextInterface
 	 * @return	ContextInterface
 	 */
-	public function applyPostFilters(AppContextInterface $context)
+	public function applyPostFilters(MvcContextInterface $context)
 	{
 		return $this->applyChain($this->getPostChain(), $context);
 	}
@@ -185,14 +185,14 @@ class FilterManager implements FilterManagerInterface
 	 * @return	ContextInterface | null 
 	 */
 	public function applyChain(FilterChainInterface $chain, 
-							   AppContextInterface  $context)
+							   MvcContextInterface  $context)
 	{
 		if (! $chain->hasFilters()) {
 			return;
 		}
 		
 		$result = $chain->apply($context);
-		if ($result instanceof AppContextInterface) {
+		if ($result instanceof MvcContextInterface) {
 			return $result;
 		}
 	}

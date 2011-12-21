@@ -10,9 +10,6 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\View\AjaxTemplateInterface,
-	Appfuel\View\ViewTemplateInterface;
-
 /**
  * The mvc action is the controller in mvc. The front controller always 
  * dispatches a context to be processed by the mvc action based on a 
@@ -75,7 +72,7 @@ class MvcAction implements MvcActionInterface
 	 * @param	AppContextInterface $context
 	 * @return	null
 	 */
-	public function process(AppContextInterface $context)
+	public function process(MvcContextInterface $context)
 	{}
 
 	/**

@@ -13,7 +13,7 @@ namespace TestFuel\Unit\Kernel\Mvc;
 use StdClass,
 	Appfuel\Kernel\Mvc\AppInput,
 	Appfuel\Kernel\Mvc\RequestUri,
-	Appfuel\Kernel\Mvc\AppContext,
+	Appfuel\Kernel\Mvc\MvcContext,
 	Appfuel\Kernel\KernelRegistry,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Console\ConsoleViewTemplate,
@@ -128,7 +128,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'argv'   => array()
 		);
 
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertEquals($codes, $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('my-key', $route);
@@ -170,7 +170,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => array(),
 			'argv'   => array()
 		);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertEquals($codes, $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('my-key', $route);
@@ -211,7 +211,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => array(),
 			'argv'   => array()
 		);	
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertEquals(array(), $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('my-key', $route);
@@ -250,7 +250,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => array(),
 			'argv'   => array()
 		);	
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertEquals(array(), $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('my-key', $route);
@@ -318,7 +318,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'param5' => 'value5',
 			'param6' => 'value6'
 		);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertEquals(array(), $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('post', $input->getMethod());
@@ -361,7 +361,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$route    = $context->getRoute();
 		$strategy = $context->getStrategy();
 
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertEquals(array(), $context->getAclCodes());
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('cli', $input->getMethod());
@@ -431,7 +431,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => $_COOKIE,
 			'argv'   => $_SERVER['argv']
 		);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('post', $input->getMethod());
 		$this->assertEquals('my-route', $route);
@@ -524,7 +524,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => $_COOKIE,
 			'argv'   => $_SERVER['argv']
 		);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('post', $input->getMethod());
 		$this->assertEquals('my-route', $route);
@@ -569,7 +569,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => $_COOKIE,
 			'argv'   => $_SERVER['argv']
 		);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('get', $input->getMethod());
 		$this->assertEquals('my-route', $route);
@@ -615,7 +615,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => array(),
 			'argv'   => array()
 		);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('get', $input->getMethod());
 		$this->assertEquals('my-route', $route);
@@ -667,7 +667,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 			'cookie' => array(),
 			'argv'   => array()
 		);
-		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppContext', $context);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\MvcContext', $context);
 		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
 		$this->assertEquals('get', $input->getMethod());
 		$this->assertEquals('my-route', $route);
@@ -694,7 +694,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$route    = $context->getRoute();
 		$strategy = $context->getStrategy();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContextInterface',
+			'Appfuel\Kernel\Mvc\MvcContextInterface',
 			$context
 		);
 
@@ -724,7 +724,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$route    = $context->getRoute();
 		$strategy = $context->getStrategy();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContextInterface',
+			'Appfuel\Kernel\Mvc\MvcContextInterface',
 			$context
 		);
 
@@ -755,7 +755,7 @@ class MvcActionDispatcherTest extends BaseTestCase
 		$route    = $context->getRoute();
 		$strategy = $context->getStrategy();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContextInterface',
+			'Appfuel\Kernel\Mvc\MvcContextInterface',
 			$context
 		);
 

@@ -22,7 +22,7 @@ class ActionFactoryTest extends BaseTestCase
 {
 	/**
 	 * System under test
-	 * @var AppContext
+	 * @var MvcActionFactory
 	 */
 	protected $factory = null;
 

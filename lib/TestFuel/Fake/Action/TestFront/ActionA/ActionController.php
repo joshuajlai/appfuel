@@ -11,7 +11,7 @@
 namespace TestFuel\Fake\Action\TestFront\ActionA;
 
 use Appfuel\Kernel\Mvc\MvcAction,
-	Appfuel\Kernel\Mvc\AppContextInterface;
+	Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
  * Mvc Action used to test the front controller.
@@ -32,7 +32,7 @@ class ActionController extends MvcAction
      * @param   ConsoleViewTemplateInterface  $view
      * @return  mixed   null | AppContextInterface 
      */
-    public function process(AppContextInterface $context)
+    public function process(MvcContextInterface $context)
 	{
 		$view = $context->getView();
 

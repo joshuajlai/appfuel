@@ -22,7 +22,7 @@ use InvalidArgumentException,
  * context. The context is passed into each intercepting filter and then into
  * the action controllers process method.
  */
-class AppContext extends Dictionary implements AppContextInterface
+class MvcContext extends Dictionary implements MvcContextInterface
 {
 	/**
 	 * The strategy used in this context. The mvc action be working with

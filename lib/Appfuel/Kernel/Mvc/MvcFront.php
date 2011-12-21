@@ -322,7 +322,7 @@ class MvcFront implements MvcFrontInterface
 		/*
 		 * Use the returned context in place of the one built
 		 */
-		if ($result instanceof AppContextInterface) {
+		if ($result instanceof MvcContextInterface) {
 			$context = $result;
 		}
 

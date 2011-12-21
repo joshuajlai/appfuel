@@ -10,7 +10,7 @@
  */
 namespace TestFuel\Fake\Action\TestFront;
 
-use Appfuel\Kernel\Mvc\AppContextInterface,
+use Appfuel\Kernel\Mvc\MvcContextInterface,
 	Appfuel\Kernel\Mvc\Filter\AbstractFilter,
 	Appfuel\Kernel\Mvc\Filter\InterceptingFilterInterface;
 
@@ -34,7 +34,7 @@ class AddLabelFilter
 	 * @param	ContextInterface $context
 	 * @return	null
 	 */
-	public function filter(AppContextInterface $context)
+	public function filter(MvcContextInterface $context)
 	{
 		$view = $context->getView();
 		$view->assign('my-assignment', 'value 1 2 3');

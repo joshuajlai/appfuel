@@ -36,5 +36,5 @@ interface MvcActionInterface
 	 * @param	ViewTemplateInterface	$view
 	 * @return	mixed	null | AppContextInterface 
 	 */
-	public function process(AppContextInterface $context);
+	public function process(MvcContextInterface $context);
 }

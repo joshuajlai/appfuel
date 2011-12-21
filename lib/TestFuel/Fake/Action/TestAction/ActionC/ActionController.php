@@ -11,7 +11,7 @@
 namespace TestFuel\Fake\Action\TestAction\ActionC;
 
 use Appfuel\Kernel\Mvc\MvcAction,
-	Appfuel\Kernel\Mvc\AppContextInterface;
+	Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
  * This action is designed to be called by ActionA
@@ -33,7 +33,7 @@ class ActionController extends MvcAction
      * @param   ConsoleViewTemplateInterface  $view
      * @return  mixed   null | AppContextInterface 
      */
-    public function process(AppContextInterface $context)
+    public function process(MvcContextInterface $context)
 	{
 		$view  = $context->getView();
 		$input = $context->getInput();

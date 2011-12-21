@@ -122,5 +122,5 @@ interface MvcActionDispatcherInterface
 	 * @param	AppContextInterface $context
 	 * @return	AppContextInterface
 	 */
-	public function dispatch(AppContextInterface $context);
+	public function dispatch(MvcContextInterface $context);
 }

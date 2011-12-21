@@ -328,7 +328,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 * @param	AppContextInterface $context
 	 * @return	AppContextInterface
 	 */
-	public function dispatch(AppContextInterface $context)
+	public function dispatch(MvcContextInterface $context)
 	{
 		$route     = $context->getRoute();
 		$namespace = $this->getActionNamespace($route);
@@ -336,14 +336,14 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 			throw new RouteNotFoundException($route, '');
 		}
 
-		$factory    = $this->getActionFactory();
-		$dispatcher = new self($factory, $this->getContextBuilder());
-		$action  = $factory->createMvcAction($route, $namespace, $dispatcher);
-		
+		$factory = $this->getActionFactory();
+
 		/* Create a new dipatcher for the mvc action giving it the ability 
 		 * to call other action controllers based on the route key 
 		 */		
-
+		$dispatcher = new self($factory, $this->getContextBuilder());
+		$action = $factory->createMvcAction($route, $namespace, $dispatcher);
+		
 		/*
 		 * Acl codes are simple way of giving the action controllers an easy
 		 * way to restrict access. The role codes are completely controlled by
@@ -354,12 +354,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 			throw new RouteDeniedException($route, '');		
 		}
 
-		$result = $action->process($context);
-		if ($result instanceof AppContextInterface) {
-			$context = $result;
-		}
-		
-		return $context;
+		return $action->process($context);
 	}
 
 	/**

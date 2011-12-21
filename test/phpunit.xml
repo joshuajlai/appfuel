@@ -40,7 +40,7 @@
 	<file>../lib/TestFuel/Unit/Kernel/IncludePathTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/RequestUriTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/ActionFactoryTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/AppContextTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcContextTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/AppInputTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/AppInput_FailureTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/ContextBuilderTest.php</file>

@@ -11,7 +11,7 @@
 namespace TestFuel\Unit\Kernel\Kernel;
 
 use Appfuel\Kernel\Mvc\AppInput,
-	Appfuel\Kernel\Mvc\AppContext,
+	Appfuel\Kernel\Mvc\MvcContext,
 	Appfuel\Kernel\Mvc\RequestUri,
 	Appfuel\Kernel\Mvc\ContextBuilder,
 	TestFuel\TestCase\ControllerTestCase;
@@ -622,7 +622,7 @@ class ContextBuilderTest extends ControllerTestCase
 					  ->setStrategy($strategy);
 		$context = $this->builder->build();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContext',
+			'Appfuel\Kernel\Mvc\MvcContext',
 			$context
 		);
 		
@@ -656,7 +656,7 @@ class ContextBuilderTest extends ControllerTestCase
 								 ->useUriString('other-route/paramZ/valueY')
 								 ->build();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContext',
+			'Appfuel\Kernel\Mvc\MvcContext',
 			$context
 		);
 		
@@ -700,7 +700,7 @@ class ContextBuilderTest extends ControllerTestCase
 								 ->build();
 
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContext',
+			'Appfuel\Kernel\Mvc\MvcContext',
 			$context
 		);
 		
@@ -756,7 +756,7 @@ class ContextBuilderTest extends ControllerTestCase
 								 ->build();
 
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContext',
+			'Appfuel\Kernel\Mvc\MvcContext',
 			$context
 		);
 		
@@ -796,7 +796,7 @@ class ContextBuilderTest extends ControllerTestCase
 								 ->build();
 		
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppContext',
+			'Appfuel\Kernel\Mvc\MvcContextInterface',
 			$context
 		);
 		

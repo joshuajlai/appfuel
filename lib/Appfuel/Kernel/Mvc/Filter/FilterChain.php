@@ -12,7 +12,7 @@ namespace Appfuel\Kernel\Mvc\Filter;
 
 use	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Kernel\Mvc\AppContextInterface;
+	Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
  * Filter chain is designed to hold filters of a particular type pre or post.
@@ -56,7 +56,7 @@ class FilterChain implements FilterChainInterface
 	 * @param	AppContextInterface
 	 * @return	mixed	Exception | ContextInterface
 	 */
-	public function apply(AppContextInterface $context)
+	public function apply(MvcContextInterface $context)
 	{
 		$head = $this->getHead();
 		if (! $head) {

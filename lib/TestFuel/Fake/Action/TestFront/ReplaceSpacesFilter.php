@@ -11,7 +11,7 @@
 namespace TestFuel\Fake\Action\TestFront;
 
 use Appfuel\View\ViewTemplateInterface,
-	Appfuel\Kernel\Mvc\AppContextInterface,
+	Appfuel\Kernel\Mvc\MvcContextInterface,
 	Appfuel\Kernel\Mvc\Filter\AbstractFilter,
 	Appfuel\Kernel\Mvc\Filter\InterceptingFilterInterface;
 
@@ -35,7 +35,7 @@ class ReplaceSpacesFilter
 	 * @param	ContextInterface $context
 	 * @return	null
 	 */
-	public function filter(AppContextInterface $context)
+	public function filter(MvcContextInterface $context)
 	{
 		$view = $context->getView();
 		if (! ($view instanceof ViewTemplateInterface)) {
