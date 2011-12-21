@@ -12,7 +12,7 @@ namespace TestFuel\Style\View\Html\Element;
 
 use Appfuel\View\Html\Element\Tag,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\View\Html\Element\Style;
+	Appfuel\View\Html\Element\CssStyle;
 
 /**
  * 
@@ -37,7 +37,7 @@ class StyleTest extends BaseTestCase
     public function setUp()
     {   
 		$this->content  = 'h1{color:red}';
-        $this->tag = new Style($this->content);
+        $this->tag = new CssStyle($this->content);
     }
 
     /**
@@ -95,7 +95,7 @@ class StyleTest extends BaseTestCase
 		$this->assertEquals($expected, $this->tag->build());
 
 		/* will not render without a href */
-		$style = new Style();
+		$style = new CssStyle();
 		$this->assertEquals('', $style->build());
 	}
 }

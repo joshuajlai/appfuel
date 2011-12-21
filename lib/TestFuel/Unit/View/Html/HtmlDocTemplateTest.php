@@ -13,6 +13,7 @@ namespace TestFuel\Unit\View\Html;
 use StdClass,
 	SplFileInfo,
 	TestFuel\TestCase\BaseTestCase,
+	Appfuel\View\Html\Element\Link,
 	Appfuel\View\Html\Element\Meta\HttpEquiv,
 	Appfuel\View\Html\Element\Meta\Tag as MetaTag,
 	Appfuel\View\Html\HtmlDocTemplate;
@@ -813,6 +814,261 @@ class HtmlDocTemplateTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
+	public function testAddGetLinkTag()
+	{
+		/* no css links by default */
+		$this->assertEquals(array(), $this->htmlDoc->getLinkTags());
+
+		$link1 = $this->getMock($this->tagInterface);
+		$link1->expects($this->once())
+			  ->method('getTagName')
+			  ->will($this->returnValue('link'));
+
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addLinkTag($link1)
+		);
+		$expected = array($link1);
+		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());
+
+		$link2 = $this->getMock($this->tagInterface);
+		$link2->expects($this->once())
+			  ->method('getTagName')
+			  ->will($this->returnValue('link'));
+
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addLinkTag($link2)
+		);
+		$expected = array($link1, $link2);
+		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());
+
+		$link3 = new Link('mycss.css');
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addLinkTag($link3)
+		);
+		$expected = array($link1, $link2, $link3);
+		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testSetLinkTagNotLink()
+	{
+		$link = $this->getMock($this->tagInterface);
+		$link->expects($this->once())
+			  ->method('getTagName')
+			  ->will($this->returnValue('style'));
+
+		$this->htmlDoc->addLinkTag($link);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testSetLinkTags()
+	{
+		$tags = array(
+			new Link('mycss.css'),
+			new Link('yourcss.css'),
+			new Link('ourcss.css')
+		);
+
+		$this->assertSame($this->htmlDoc, $this->htmlDoc->setLinkTags($tags));
+		$this->assertEquals($tags, $this->htmlDoc->getLinkTags());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testSetLinkTagsNotLink()
+	{
+		$link = $this->getMock($this->tagInterface);
+		$link->expects($this->once())
+			  ->method('getTagName')
+			  ->will($this->returnValue('style'));
+
+		$tags = array(
+			new Link('mycss.css'),
+			new Link('yourcss.css'),
+			$link,
+			new Link('ourcss.css')
+		);
+
+
+		$this->htmlDoc->setLinkTags($tags);
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testAddCssFile()
+	{
+		$this->assertEquals(array(), $this->htmlDoc->getLinkTags());
+
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addCssFile('mycss.css')
+		);
+
+		$link1 = new Link('mycss.css');
+		$this->assertEquals(array($link1), $this->htmlDoc->getLinkTags());
+	
+	
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addCssFile('your.css', 'print')
+		);
+
+		$link2 = new Link('your.css', 'print');
+		$expected = array($link1, $link2);
+		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());
+	
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addCssFile('our.css', 'screen', 'text/html')
+		);
+
+		$link3 = new Link('our.css', 'screen', 'text/html');
+		$expected = array($link1, $link2, $link3);
+		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());
+	}
+
+	/**
+	 * SetFile can parse arrays with up to three items in the array
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testSetCssFilesAllArrays()
+	{
+		$files = array(
+			array('mycss.css'),
+			array('your.css', 'print'),
+			array('our.css', 'screen', 'text/html')
+		);
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->setCssFiles($files)
+		);
+
+		$expected = array(
+			new Link('mycss.css'),
+			new Link('your.css', 'print'),
+			new Link('our.css', 'screen', 'text/html')
+		);
+		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());
+	}
+
+	/**
+	 * When using an array of only strings the default rel and type for the 
+	 * link are assumed
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testSetCssFilesAllStrings()
+	{
+		$files = array('mycss.css', 'your.css', 'our.css');
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->setCssFiles($files)
+		);
+
+	
+		$expected = array(
+			new Link('mycss.css'),
+			new Link('your.css'),
+			new Link('our.css')
+		);
+		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());	
+	}
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testSetCssFilesMixedArray()
+	{
+		$files = array(
+			array('mycss.css'),
+			'your.css',
+			array('our.css', 'screen', 'text/html')
+		);
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->setCssFiles($files)
+		);
+
+		$expected = array(
+			new Link('mycss.css'),
+			new Link('your.css'),
+			new Link('our.css', 'screen', 'text/html')
+		);
+		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());
+	}
+
+	/**
+	 * Since an empty Link will not render it exists but build will ignore it
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testSetCssFilesOneEmpty()
+	{
+		$files = array('mycss.css', '', 'our.css');
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->setCssFiles($files)
+		);
+
+	
+		$expected = array(
+			new Link('mycss.css'),
+			new Link(''),
+			new Link('our.css')
+		);
+		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());	
+	}
+
+	/**
+	 * In the case of arrays its simply ignored
+	 *
+	 * @depends	testInterface
+	 * @return	null
+	 */
+	public function testSetCssFilesOneEmptyArray()
+	{
+		$files = array(
+			array('mycss.css'),
+			array(),
+			array('our.css', 'screen', 'text/html')
+		);
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->setCssFiles($files)
+		);
+
+		$expected = array(
+			new Link('mycss.css'),
+			new Link('our.css', 'screen', 'text/html')
+		);
+		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());
+	}
+
+
+	/**
+	 * @depends	testInterface
+	 * @return	null
+	 */
 	public function testIsJsEnableDisable()
 	{
 		$this->assertTrue($this->htmlDoc->isJsEnabled());
@@ -823,4 +1079,6 @@ class HtmlDocTemplateTest extends BaseTestCase
 		$this->assertSame($this->htmlDoc, $this->htmlDoc->enableJs());
 		$this->assertTrue($this->htmlDoc->isJsEnabled());
 	}
+
+	
 }

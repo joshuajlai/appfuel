@@ -10,13 +10,11 @@
  */
 namespace Appfuel\View\Html\Element;
 
-use Appfuel\Framework\Exception;
-
 /**
  * The link tag defines the relationship between a document and external 
  * resource. Mostly used to link stylesheet
  */
-class Style extends Tag
+class CssStyle extends Tag
 {
 	/**
 	 * @param	string	$data	content for the title

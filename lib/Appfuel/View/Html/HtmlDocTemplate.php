@@ -16,7 +16,8 @@ use InvalidArgumentException,
 	Appfuel\View\Html\Element\Base,
 	Appfuel\View\Html\Element\Title,
 	Appfuel\View\Html\Element\Link,
-	Appfuel\View\Html\Element\Style,
+	Appfuel\View\Html\Element\Script,
+	Appfuel\View\Html\Element\CssStyle,
 	Appfuel\View\Html\Element\Meta\Charset,
 	Appfuel\View\Html\Element\Meta\Tag as MetaTag,
 	Appfuel\View\Html\Element\HtmlTagInterface,
@@ -81,9 +82,26 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	protected $cssLinks = array();
 
 	/**
+	 * @var CssStyle
+	 */
+	protected $inlineCss = null;
+
+	/**
 	 * @var bool
 	 */
 	protected $isJs = true;
+
+	/**
+	 * Script tags add to the html head
+	 * @var array
+	 */
+	protected $jsHeadScripts = array();
+
+	/**
+	 * Inline js for html head
+	 * @var Script
+	 */
+	protected $jsHeadInline = null;
 
 	/**
 	 * Defaults to the appfuel template file 
@@ -110,6 +128,8 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 		parent::__construct($data, $compositor);
 		$this->setTitleTag(new Title());
 		$this->setCharset('UTF-8');
+		$this->setCssStyleTag(new CssStyle());
+		$this->setJsHeadInlineScriptTag(new Script());
 	}
 
 	/**
@@ -117,7 +137,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function build()
 	{
-		$this->assign('title', $this->getTitleTag());
+		$this->assign('html-title', $this->getTitleTag());
 		
 		$attrs = $this->buildAttributeString($this->getHtmlAttributes());
 		if (! empty($attrs)) {
@@ -151,17 +171,32 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 		}
 
 		$isCss = $this->isCssEnabled();
-		$this->assign('is-css', $this->isCssEnabled());
+		$this->assign('is-css', $isCss);
 		if ($isCss) {
 			$links = $this->getLinkTags();
 			if (! empty($links)) {
 				$this->assign('links-css', $links);
 			}
 
-			$inlineCss = $this->getStyleTag();
+			$inlineCss = $this->getCssStyleTag();
 			if ($inlineCss instanceof HtmlTagInterface) {
 				$this->assign('inline-css', $inlineCss);
 			}
+		}
+
+		$isJs = $this->isJsEnabled();
+		$this->assign('is-js', $isJs);
+		if ($isJs) {
+			$headScripts = $this->getJsHeadScriptTags();
+			if (! empty($scripts)) {
+				$this->assign('scripts-js-head', $headScripts);
+			}
+			$headInline = $this->getJsHeadInlineScriptTag();
+			if ($headInline instanceof HtmlTagInterface) {
+				$this->assign('inline-js-head', $headInline);
+			}
+
+			
 		}
 
 		return parent::build();
@@ -355,7 +390,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 * @param	array	$links	
 	 * @return	HtmlDocTemplate
 	 */
-	public function setLinkTags(array $links) 
+	public function loadLinkTags(array $links) 
 	{
 		foreach ($links as $link) {
 			$this->addLinkTag($link);
@@ -379,10 +414,10 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 * @param	array	$files
 	 * @return	HtmlDocTemplate
 	 */
-	public function setCssFiles(array $files)
+	public function loadCssFiles(array $files)
 	{
 		foreach ($files as $file) {
-			$href = null;
+			$href = '';
 			$rel  = null;
 			$type = null;
 			if (is_string($file)) {
@@ -393,9 +428,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 					$href = $file[0];
 				}
 				else {
-					throw new InvalidArgumentException(
-						'first item -(href) in array is required'
-					);
+					continue;
 				}
 
 				if (isset($file[1]) && is_string($file[1])) {
@@ -409,6 +442,29 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			$this->addCssFile($href, $rel, $type);
 		}
 
+		return $this;
+	}
+
+	/**
+	 * @return	CssStyle
+	 */
+	public function getCssStyleTag()
+	{
+		return $this->inlineCss;
+	}
+
+	/**
+	 * @param	HtmlTagInterface $tag
+	 * @return	HtmlDocTemplate
+	 */
+	public function setCssStyleTag(HtmlTagInterface $tag)
+	{
+		if ('style' !== $tag->getTagName()) {
+			$err = 'Html tag set must be a style tag';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->inlineCss = $tag;
 		return $this;
 	}
 
@@ -436,6 +492,150 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	{
 		$this->isJs = false;
 		return $this;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getJsHeadScriptTags()
+	{
+		return array_values($this->jsHeadScripts);
+	}
+	
+	/**
+	 * The source is used to prevent the same script from being loaded twice
+	 *
+	 * @param	HtmlTagInterface $tag
+	 * @return	HtmlDocInterface
+	 */
+	public function addJsHeadScriptTag(HtmlTagInterface $tag)
+	{
+		$src = $tag->getAttribute('src');
+		if ('script' !== $tag->getTagName() && ! empty($src)) {
+			$err  = 'js script must be an html script tag and have a non ';
+			$err .= 'empty src attribute';
+			throw new InvalidArgumentException($err);
+		}
+
+		if ($this->isJsHeadScript($src)) {
+			return $this;
+		}
+
+		$this->jsHeadScripts[$src] = $tag;
+		return $this;
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	HtmlDocTemplate
+	 */
+	public function loadJsHeadScriptTags(array $list)
+	{
+		foreach ($list as $tag) {
+			$this->addJsHeadScriptTag($tag);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	string	src 
+	 * @return	bool
+	 */
+	public function isJsHeadScript($src)
+	{
+		if (isset($this->jsHeadScript[$src]) && 
+			$this->jsHeadScript[$src] instanceof HtmlTagInterface) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**	
+	 * @param	string	$src
+	 * @return	HtmlDocTemplate
+	 */
+	public function addJsHeadFile($src)
+	{
+		if ($this->isJsHeadScript($src)) {
+			return $this;
+		}
+
+		$script = new Script();
+		$script->addAttribute('src', $src);
+		$this->jsHeadScripts[$src] = $script;
+		return $this;
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	HtmlDocTemplate
+	 */
+	public function loadJsHeadFiles(array $list)
+	{
+		foreach ($list as $src) {
+			$this->addJsHeadFile($src);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @return	Script
+	 */
+	public function getJsHeadInlineScriptTag()
+	{
+		return $this->jsHeadInline;
+	}
+
+	/**
+	 * @param	HtmlTagInterface $tag
+	 * @return	HtmlDocTemplate
+	 */
+	public function setJsHeadInlineScriptTag(HtmlTagInterface $tag)
+	{
+		if ('script' !== $tag->getTagName()) {
+			$err  = 'js -(html head) inline script must be an html script tag';
+			throw new InvalidArgumentException($err);
+		}
+
+		if (! empty($tag->getAttribute('src'))) {
+			$err = 'js -(html head) inline script can not have a source attr';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->jsHeadInline = $tag;
+		return $this;
+	}
+
+	/**
+	 * @param	string	$text
+	 * @return	HtmlDocTemplate
+	 */
+	public function addJsHeadInlineContent($jsContent)
+	{
+		$script = $this->getJsHeadInlineScriptTag();
+		$script->addContent($jsContent);
+		return $this;	
+	}
+
+	/**
+	 * Retrieve only the contents of the script tag. Html Tag contents are
+	 * stored as an array and then built into a string, isArray allows you 
+	 * to get the contents as that array
+	 *
+	 * @param	bool	$isArray
+	 * @return	array | string
+	 */
+	public function getJsHeadInlineContent($isArray = false)
+	{
+		$script = $this->getJsHeadInlineScriptTag();
+		if (true === $isArray) {
+			return $script->getContent();
+		}
+
+		return $script->buildContent();
 	}
 
 	/**
