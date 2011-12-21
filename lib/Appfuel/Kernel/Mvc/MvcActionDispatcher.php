@@ -297,7 +297,8 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		$strategy = $this->getStrategy();
 		$namespace = $this->getActionNamespace($route);
 		if (false === $namespace) {
-			throw new RouteNotFoundException($route, '');
+			$err .= "namespace -($namespace) was not found for route -($route)";
+			throw new RunTimeException($err);
 		}
 
 		$builder  = $this->getContextBuilder();
