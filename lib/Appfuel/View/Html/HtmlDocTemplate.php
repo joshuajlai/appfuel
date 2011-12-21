@@ -21,8 +21,8 @@ use InvalidArgumentException,
 	Appfuel\View\Html\Element\Meta\Charset,
 	Appfuel\View\Html\Element\Meta\Tag as MetaTag,
 	Appfuel\View\Html\Element\HtmlTagInterface,
-	Appfuel\View\Html\Compositor\HtmlDocCompositor,
-	Appfuel\View\Html\Compositor\HtmlDocCompositorInterface;
+	Appfuel\View\Compositor\FileCompositor,
+	Appfuel\View\Compositor\FileCompositorInterface;
 
 
 /**
@@ -112,17 +112,16 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 * @return	HtmlDocTemplate
 	 */
 	public function __construct($filePath = null,
-								HtmlDocCompositorInterface $compositor = null,
+								FileCompositorInterface $compositor = null,
 								array $data = null)
 	{
 		if (null === $filePath) {
-			$filePath = 'htmldoc.phtml';
+			$filePath = 'appfuel/html/htmldoc.phtml';
 		}
 
 		if (null === $compositor) {
-			$compositor = new HtmlDocCompositor($filePath);
-			$compositor->setRelativeRootPath('ui/appfuel/html')
-					   ->setFile($filePath);
+			$compositor = new FileCompositor();
+			$compositor->setFile($filePath);
 		}
 
 		parent::__construct($data, $compositor);
