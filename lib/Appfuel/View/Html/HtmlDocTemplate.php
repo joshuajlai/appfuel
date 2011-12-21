@@ -600,7 +600,8 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		if (! empty($tag->getAttribute('src'))) {
+		$src = $tag->getAttribute('src');
+		if (is_string($src) && ! empty($src)) {
 			$err = 'js -(html head) inline script can not have a source attr';
 			throw new InvalidArgumentException($err);
 		}

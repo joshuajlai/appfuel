@@ -879,7 +879,10 @@ class HtmlDocTemplateTest extends BaseTestCase
 			new Link('ourcss.css')
 		);
 
-		$this->assertSame($this->htmlDoc, $this->htmlDoc->setLinkTags($tags));
+		$this->assertSame(
+			$this->htmlDoc, 
+			$this->htmlDoc->loadLinkTags($tags)
+		);
 		$this->assertEquals($tags, $this->htmlDoc->getLinkTags());
 	}
 
@@ -903,7 +906,7 @@ class HtmlDocTemplateTest extends BaseTestCase
 		);
 
 
-		$this->htmlDoc->setLinkTags($tags);
+		$this->htmlDoc->loadLinkTags($tags);
 	}
 
 	/**
@@ -957,7 +960,7 @@ class HtmlDocTemplateTest extends BaseTestCase
 		);
 		$this->assertSame(
 			$this->htmlDoc,
-			$this->htmlDoc->setCssFiles($files)
+			$this->htmlDoc->loadCssFiles($files)
 		);
 
 		$expected = array(
@@ -980,7 +983,7 @@ class HtmlDocTemplateTest extends BaseTestCase
 		$files = array('mycss.css', 'your.css', 'our.css');
 		$this->assertSame(
 			$this->htmlDoc,
-			$this->htmlDoc->setCssFiles($files)
+			$this->htmlDoc->loadCssFiles($files)
 		);
 
 	
@@ -1005,7 +1008,7 @@ class HtmlDocTemplateTest extends BaseTestCase
 		);
 		$this->assertSame(
 			$this->htmlDoc,
-			$this->htmlDoc->setCssFiles($files)
+			$this->htmlDoc->loadCssFiles($files)
 		);
 
 		$expected = array(
@@ -1027,7 +1030,7 @@ class HtmlDocTemplateTest extends BaseTestCase
 		$files = array('mycss.css', '', 'our.css');
 		$this->assertSame(
 			$this->htmlDoc,
-			$this->htmlDoc->setCssFiles($files)
+			$this->htmlDoc->loadCssFiles($files)
 		);
 
 	
@@ -1054,7 +1057,7 @@ class HtmlDocTemplateTest extends BaseTestCase
 		);
 		$this->assertSame(
 			$this->htmlDoc,
-			$this->htmlDoc->setCssFiles($files)
+			$this->htmlDoc->loadCssFiles($files)
 		);
 
 		$expected = array(

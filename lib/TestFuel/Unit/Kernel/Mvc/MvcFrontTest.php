@@ -208,9 +208,9 @@ class MvcFrontTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	Appfuel\Kernel\Mvc\RouteNotFoundException
-	 * @depends	testInterface
-	 * @return	null
+	 * @expectedException	RunTimeException
+	 * @depends				testInterface
+	 * @return				null
 	 */
 	public function testRouteThatIsNotMappedWithDispatcher()
 	{
