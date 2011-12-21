@@ -116,7 +116,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 								array $data = null)
 	{
 		if (null === $filePath) {
-			$filePath = 'appfuel/htmldoc.phtml';
+			$filePath = 'appfuel/html/htmldoc.phtml';
 		}
 
 		if (null === $compositor) {
