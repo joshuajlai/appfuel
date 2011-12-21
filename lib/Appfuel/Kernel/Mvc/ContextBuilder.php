@@ -141,7 +141,6 @@ class ContextBuilder implements ContextBuilderInterface
 		if (! is_string($uri)) {
 			throw new RunTimeException("$err must be a valid string");
 		}
-
 		return $this->setUri($this->createUri($uri));
 	}
 

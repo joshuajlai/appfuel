@@ -3,10 +3,10 @@
 <html<?php $this->render('html-attr-string', '');?>>
 <head<?php $this->render('head-attr-string', '');?>>
 <?php
-    $this->render('html-charset', PHP_EOL);
-    $this->render('html-base', PHP_EOL);
-    $this->render('html-title', PHP_EOL);
-	$this->render('html-meta', '', PHP_EOL);
+    $this->render('html-charset',	PHP_EOL);
+    $this->render('html-base',		PHP_EOL);
+    $this->render('html-title',		PHP_EOL);
+	$this->render('html-meta', PHP_EOL,	PHP_EOL);
 
 	$isCss = $this->get('is-css', true);
 	$isCss = ($isCss === false) ? false : true;
@@ -19,7 +19,7 @@
 	$isJs = ($isJs === false) ? false : true;
     if ($isJs) {
 		$this->render('scripts-js-head', '', PHP_EOL);
-		$this->render('inline-js-head', '', PHP_EOL);
+		$this->render('inline-js-head', PHP_EOL, PHP_EOL);
 	} 
 ?>
 
