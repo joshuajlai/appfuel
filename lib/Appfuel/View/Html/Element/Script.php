@@ -10,7 +10,7 @@
  */
 namespace Appfuel\View\Html\Element;
 
-use Appfuel\Framework\Exception;
+use RunTimeException;
 
 /**
  * Allows authors to add interativity to the html document. In this 
@@ -27,7 +27,7 @@ class Script extends Tag
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($content = null)
+	public function __construct($src = null, $content = null)
 	{
 		$valid = array(
 			'async',
@@ -41,8 +41,18 @@ class Script extends Tag
 
 		$this->addAttribute('type', 'text/javascript');
 
-		if ($this->isValidString($content)) {
+		if (null !== $src && null !== $content) {
+			$err  = 'It is a runtime error to set both script source and ';
+			$err .= 'content';
+			throw new RunTimeException($content);
+		}
+
+		if (null !== $content && $this->isValidString($content)) {
 			$this->addContent($content);
+		}
+
+		if (null !== $src && is_string($src) && ($src = trim($src))) {
+			$this->addAttribute('src', $src);
 		}
 	}
 

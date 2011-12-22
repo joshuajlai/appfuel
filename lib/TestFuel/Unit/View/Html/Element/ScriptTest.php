@@ -39,7 +39,7 @@ class ScriptTest extends BaseTestCase
     public function setUp()
     {   
 		$this->content  = 'alert("hello world!");';
-        $this->tag = new Script($this->content);
+        $this->tag = new Script(null, $this->content);
     }
 
     /**

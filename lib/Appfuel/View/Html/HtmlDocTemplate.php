@@ -510,7 +510,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	public function addJsHeadScriptTag(HtmlTagInterface $tag)
 	{
 		$src = $tag->getAttribute('src');
-		if ('script' !== $tag->getTagName() && ! empty($src)) {
+		if ('script' !== $tag->getTagName() || empty($src)) {
 			$err  = 'js script must be an html script tag and have a non ';
 			$err .= 'empty src attribute';
 			throw new InvalidArgumentException($err);
@@ -543,8 +543,8 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function isJsHeadScript($src)
 	{
-		if (isset($this->jsHeadScript[$src]) && 
-			$this->jsHeadScript[$src] instanceof HtmlTagInterface) {
+		if (isset($this->jsHeadScripts[$src]) && 
+			$this->jsHeadScripts[$src] instanceof HtmlTagInterface) {
 			return true;
 		}
 
@@ -557,12 +557,16 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function addJsHeadFile($src)
 	{
+		if (! is_string($src) || empty($src)) {
+			$err  = 'js src must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
 		if ($this->isJsHeadScript($src)) {
 			return $this;
 		}
 
-		$script = new Script();
-		$script->addAttribute('src', $src);
+		$script = new Script($src);
 		$this->jsHeadScripts[$src] = $script;
 		return $this;
 	}

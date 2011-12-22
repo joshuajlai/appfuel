@@ -1066,22 +1066,4 @@ class HtmlDocTemplateTest extends BaseTestCase
 		);
 		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());
 	}
-
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testIsJsEnableDisable()
-	{
-		$this->assertTrue($this->htmlDoc->isJsEnabled());
-
-		$this->assertSame($this->htmlDoc, $this->htmlDoc->disableJs());
-		$this->assertFalse($this->htmlDoc->isJsEnabled());
-		
-		$this->assertSame($this->htmlDoc, $this->htmlDoc->enableJs());
-		$this->assertTrue($this->htmlDoc->isJsEnabled());
-	}
-
-	
 }
