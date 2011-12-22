@@ -13,6 +13,7 @@ namespace Appfuel\View\Html;
 use InvalidArgumentException,
 	Appfuel\View\ViewTemplate,
 	Appfuel\View\ViewCompositeTemplate,
+	Appfuel\View\Html\Element\Tag as ElementTag,
 	Appfuel\View\Html\Element\Base,
 	Appfuel\View\Html\Element\Title,
 	Appfuel\View\Html\Element\Link,
@@ -104,6 +105,31 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	protected $jsHeadInline = null;
 
 	/**
+	 * Script tags added to the end of the html body
+	 * @var array
+	 */
+	protected $jsBodyScripts = array();
+
+	/**
+	 * Inline js for the html body
+	 * @var Script
+	 */
+	protected $jsBodyInline = null;
+
+	/**
+	 * We use a tag only for its ability to store content
+	 * @var Tag
+	 */
+	protected $bodyContent = null;
+
+	/**
+	 * Sometimes it is necessary to have body content at the end, after
+	 * the script tags. 
+	 * @var Tag
+	 */
+	protected $finalBodyContent = null;
+
+	/**
 	 * Defaults to the appfuel template file 
 	 *
 	 * @param	string				$filePath	relative path to template file
@@ -129,6 +155,10 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 		$this->setCharset('UTF-8');
 		$this->setCssStyleTag(new CssStyle());
 		$this->setJsHeadInlineScriptTag(new Script());
+		$this->setJsBodyInlineScriptTag(new Script());
+
+		$this->bodyContent = new ElementTag();
+		$this->finalBodyContent = new ElementTag();
 	}
 
 	/**
@@ -187,7 +217,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 		$this->assign('is-js', $isJs);
 		if ($isJs) {
 			$headScripts = $this->getJsHeadScriptTags();
-			if (! empty($scripts)) {
+			if (! empty($headScripts)) {
 				$this->assign('scripts-js-head', $headScripts);
 			}
 			$headInline = $this->getJsHeadInlineScriptTag();
@@ -195,8 +225,22 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 				$this->assign('inline-js-head', $headInline);
 			}
 
-			
+			$bodyScripts = $this->getJsBodyScriptsTags();
+			if (! empty($bodyScripts)) {
+				$this->assign('scripts-js-body', $bodyScripts);
+			}
+
+			$bodyInline = $this->getJsBodyInlineScriptTag();
+			if ($bodyInline instanceof HtmlTagInterface) {
+				$this->assign('inline-js-body', $bodyInline);
+			}
 		}
+
+		$contentTag = $this->getBodyContentTag();
+		$this->assign('body-content', $contentTag->buildContent());
+		
+		$finalContentTag = $this->getFinalBodyContentTag();
+		$this->assign('body-content-final', $finalContentTag->buildContent());
 
 		return parent::build();
 	}
@@ -640,6 +684,237 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 		}
 
 		return $script->buildContent();
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getJsBodyScriptTags()
+	{
+		return array_values($this->jsBodyScripts);
+	}
+	
+	/**
+	 * The source is used to prevent the same script from being loaded twice
+	 *
+	 * @param	HtmlTagInterface $tag
+	 * @return	HtmlDocInterface
+	 */
+	public function addJsBodyScriptTag(HtmlTagInterface $tag)
+	{
+		$src = $tag->getAttribute('src');
+		if ('script' !== $tag->getTagName() || empty($src)) {
+			$err  = 'js script must be an html script tag and have a non ';
+			$err .= 'empty src attribute';
+			throw new InvalidArgumentException($err);
+		}
+
+		if ($this->isJsBodyScript($src)) {
+			return $this;
+		}
+
+		$this->jsBodyScripts[$src] = $tag;
+		return $this;
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	HtmlDocTemplate
+	 */
+	public function loadJsBodyScriptTags(array $list)
+	{
+		foreach ($list as $tag) {
+			$this->addJsBodyScriptTag($tag);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	string	src 
+	 * @return	bool
+	 */
+	public function isJsBodyScript($src)
+	{
+		if (isset($this->jsBodyScripts[$src]) && 
+			$this->jsBodyScripts[$src] instanceof HtmlTagInterface) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/**	
+	 * @param	string	$src
+	 * @return	HtmlDocTemplate
+	 */
+	public function addJsBodyFile($src)
+	{
+		if (! is_string($src) || empty($src)) {
+			$err  = 'js src must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		if ($this->isJsBodyScript($src)) {
+			return $this;
+		}
+
+		$script = new Script($src);
+		$this->jsBodyScripts[$src] = $script;
+		return $this;
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	HtmlDocTemplate
+	 */
+	public function loadJsBodyFiles(array $list)
+	{
+		foreach ($list as $src) {
+			$this->addJsBodyFile($src);
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @return	Script
+	 */
+	public function getJsBodyInlineScriptTag()
+	{
+		return $this->jsBodyInline;
+	}
+
+	/**
+	 * @param	HtmlTagInterface $tag
+	 * @return	HtmlDocTemplate
+	 */
+	public function setJsBodyInlineScriptTag(HtmlTagInterface $tag)
+	{
+		if ('script' !== $tag->getTagName()) {
+			$err  = 'js -(html head) inline script must be an html script tag';
+			throw new InvalidArgumentException($err);
+		}
+
+		$src = $tag->getAttribute('src');
+		if (is_string($src) && ! empty($src)) {
+			$err = 'js -(html head) inline script can not have a source attr';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->jsBodyInline = $tag;
+		return $this;
+	}
+
+	/**
+	 * @param	string	$text
+	 * @return	HtmlDocTemplate
+	 */
+	public function addJsBodyInlineContent($jsContent)
+	{
+		$script = $this->getJsBodyInlineScriptTag();
+		$script->addContent($jsContent);
+		return $this;	
+	}
+
+	/**
+	 * Retrieve only the contents of the script tag. Html Tag contents are
+	 * stored as an array and then built into a string, isArray allows you 
+	 * to get the contents as that array
+	 *
+	 * @param	bool	$isArray
+	 * @return	array | string
+	 */
+	public function getJsBodyInlineContent($isArray = false)
+	{
+		$script = $this->getJsBodyInlineScriptTag();
+		if (true === $isArray) {
+			return $script->getContent();
+		}
+
+		return $script->buildContent();
+	}
+
+	/**
+	 * @return	HtmlTagInterface
+	 */
+	public function getBodyContentTag()
+	{
+		return $this->bodyContent;
+	}
+
+	/**
+	 * @param	string	$content
+	 * @return	HtmlDocTemplate
+	 */
+	public function addBodyContent($data)
+	{
+		$tag = $this->getBodyContentTag();
+
+        if (null !== $data &&
+            ! is_string($data) && ! is_callable(array($data, '__toString'))) {
+			$err  = 'body content must be string or an object that implements';
+			$err .= '_toString';
+			throw new InvalidArgumentException($err);
+		}
+
+		$tag->addContent((string)$data);
+		return $this;
+	}
+
+	/**
+	 * @param	bool	$isArray
+	 * @return	string|array of content items 
+	 */
+	public function getBodyContent($isArray = false)
+	{
+		$tag = $this->getBodyContentTag();
+		if (true === $isArray) {
+			return $tag->getContent();
+		}
+
+		return $tag->buildContent();
+	}
+
+	/**
+	 * @return	HtmlTagInterface
+	 */
+	public function getFinalBodyContentTag()
+	{
+		return $this->finalBodyContent;
+	}
+
+	/**
+	 * @param	string	$content
+	 * @return	HtmlDocTemplate
+	 */
+	public function addFinalBodyContent($data)
+	{
+		$tag = $this->getFinalBodyContentTag();
+
+        if (null !== $data &&
+            ! is_string($data) && ! is_callable(array($data, '__toString'))) {
+			$err  = 'body content must be string or an object that implements';
+			$err .= '_toString';
+			throw new InvalidArgumentException($err);
+		}
+
+		$tag->addContent((string)$data);
+		return $this;
+	}
+
+	/**
+	 * @param	bool	$isArray
+	 * @return	string|array of content items 
+	 */
+	public function getFinalBodyContent($isArray = false)
+	{
+		$tag = $this->getFinalBodyContentTag();
+		if (true === $isArray) {
+			return $tag->getContent();
+		}
+
+		return $tag->buildContent();
 	}
 
 	/**

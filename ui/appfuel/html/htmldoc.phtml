@@ -6,32 +6,33 @@
     $this->render('html-charset','');
     $this->render('html-base','');
     $this->render('html-title','');
-	$this->render('html-meta', PHP_EOL,	PHP_EOL);
+	$this->render('html-meta', '',PHP_EOL);
 
 	$isCss = $this->get('is-css', true);
 	$isCss = ($isCss === false) ? false : true;
 	if ($isCss) {
-		$this->render('links-css',  PHP_EOL, PHP_EOL);
-		$this->render('inline-css', PHP_EOL);
+		$this->render('links-css',  '', PHP_EOL);
+		$this->render('inline-css', '');
 	}
 
 	$isJs = $this->get('is-js', true);
 	$isJs = ($isJs === false) ? false : true;
     if ($isJs) {
 		$this->render('scripts-js-head', '', PHP_EOL);
-		$this->render('inline-js-head', PHP_EOL, PHP_EOL);
+		$this->render('inline-js-head', '');
 	} 
 ?>
 
 </head>
 <body<?php $this->render('body-attr-string', ''); ?>>
 <?php 
-	$this->render('body-content', PHP_EOL);
+	$this->render('body-content', '');
 	if ($isJs) {
-		$this->render('scripts-js-body', '', PHP_EOL);
-		$this->render('inline-js-body', PHP_EOL);
+		$this->render('scripts-js-body', '', '');
+		$this->render('inline-js-body', '');
 	}
-	$this->render('final-content', PHP_EOL);
+
+	$this->render('body-content-final', PHP_EOL);
 ?>
 </body>
 </html>

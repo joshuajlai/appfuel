@@ -1066,4 +1066,224 @@ class HtmlDocTemplateTest extends BaseTestCase
 		);
 		$this->assertEquals($expected, $this->htmlDoc->getLinkTags());
 	}
+
+	/**
+	 * The body tag is not used to draw out the html body tag or its attributes
+	 * it is used only to build its contents into a string. Therefore it
+	 * uses a generic Tag with no tagName set
+	 *
+	 * @return	null
+	 */
+	public function testDefaultGetBodyContentTag()
+	{
+		$tag = $this->htmlDoc->getBodyContentTag();
+		$this->assertInstanceOf(
+			'Appfuel\View\Html\Element\Tag',
+			$tag
+		);
+		
+		$this->assertNull($tag->getTagName());
+		$this->assertEmpty($tag->buildContent());
+	}
+
+	/**
+	 * @depends	testDefaultGetBodyContentTag
+	 * @return	null
+	 */
+	public function testAddBodyContent()
+	{
+		$body = $this->htmlDoc->getBodyContentTag();
+		$content1 = 'i am content 1';
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addBodyContent($content1)
+		);
+
+		$expected = array($content1);
+		$this->assertEquals($expected, $body->getContent());
+		
+		$this->assertEquals($expected, $this->htmlDoc->getBodyContent(true));
+		$this->assertEquals(
+			$body->buildContent(),
+			$this->htmlDoc->getBodyContent()
+		);
+
+		$content2 = 'i am content 2';
+		$content2Obj = new SplFileInfo($content2);
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addBodyContent($content2Obj)
+		);
+
+		$expected = array($content1, $content2);
+		$this->assertEquals($expected, $body->getContent());
+		
+		$this->assertEquals($expected, $this->htmlDoc->getBodyContent(true));
+		$this->assertEquals(
+			$body->buildContent(),
+			$this->htmlDoc->getBodyContent()
+		);
+
+		$content3 = '';
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addBodyContent($content3)
+		);
+
+		$expected = array($content1, $content2, $content3);
+		$this->assertEquals($expected, $body->getContent());
+		
+		$this->assertEquals($expected, $this->htmlDoc->getBodyContent(true));
+		$this->assertEquals(
+			$body->buildContent(),
+			$this->htmlDoc->getBodyContent()
+		);
+	}
+
+	/**
+	 * @depends	testDefaultGetBodyContentTag
+	 * @return	null
+	 */
+	public function testAddBodyContentNull()
+	{
+		$body = $this->htmlDoc->getBodyContentTag();
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addBodyContent(null)
+		);
+		$expected = array(null);
+		$this->assertEquals($expected, $body->getContent());
+		
+		$this->assertEquals($expected, $this->htmlDoc->getBodyContent(true));
+		$this->assertEquals(
+			$body->buildContent(),
+			$this->htmlDoc->getBodyContent()
+		);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideNoCastableStrings
+	 * @depends				testDefaultGetBodyContentTag
+	 * @return				null
+	 */
+	public function testAddBodyContentNoStringable($content)
+	{
+		$this->htmlDoc->addBodyContent($content);
+	}
+
+	/**
+	 * Same as body content only it appears at the very end
+	 * @return	null
+	 */
+	public function testDefaultGetFinalBodyContentTag()
+	{
+		$tag = $this->htmlDoc->getFinalBodyContentTag();
+		$this->assertInstanceOf(
+			'Appfuel\View\Html\Element\Tag',
+			$tag
+		);
+		
+		$this->assertNull($tag->getTagName());
+		$this->assertEmpty($tag->buildContent());
+	}
+
+	/**
+	 * @depends	testDefaultGetFinalBodyContentTag
+	 * @return	null
+	 */
+	public function testAddFinalBodyContent()
+	{
+		$body = $this->htmlDoc->getFinalBodyContentTag();
+		$content1 = 'i am content 1';
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addFinalBodyContent($content1)
+		);
+
+		$expected = array($content1);
+		$this->assertEquals($expected, $body->getContent());
+		
+		$this->assertEquals(
+			$expected, 
+			$this->htmlDoc->getFinalBodyContent(true)
+		);
+		$this->assertEquals(
+			$body->buildContent(),
+			$this->htmlDoc->getFinalBodyContent()
+		);
+
+		$content2 = 'i am content 2';
+		$content2Obj = new SplFileInfo($content2);
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addFinalBodyContent($content2Obj)
+		);
+
+		$expected = array($content1, $content2);
+		$this->assertEquals($expected, $body->getContent());
+		
+		$this->assertEquals(
+			$expected, 
+			$this->htmlDoc->getFinalBodyContent(true)
+		);
+		$this->assertEquals(
+			$body->buildContent(),
+			$this->htmlDoc->getFinalBodyContent()
+		);
+
+		$content3 = '';
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addFinalBodyContent($content3)
+		);
+
+		$expected = array($content1, $content2, $content3);
+		$this->assertEquals($expected, $body->getContent());
+		
+		$this->assertEquals(
+			$expected, 
+			$this->htmlDoc->getFinalBodyContent(true)
+		);
+
+		$this->assertEquals(
+			$body->buildContent(),
+			$this->htmlDoc->getFinalBodyContent()
+		);
+	}
+
+	/**
+	 * @depends	testDefaultGetFinalBodyContentTag
+	 * @return	null
+	 */
+	public function testAddFinalBodyContentNull()
+	{
+		$body = $this->htmlDoc->getFinalBodyContentTag();
+		$this->assertSame(
+			$this->htmlDoc,
+			$this->htmlDoc->addFinalBodyContent(null)
+		);
+		$expected = array(null);
+		$this->assertEquals($expected, $body->getContent());
+		
+		$this->assertEquals(
+			$expected, 
+			$this->htmlDoc->getFinalBodyContent(true)
+		);
+		$this->assertEquals(
+			$body->buildContent(),
+			$this->htmlDoc->getFinalBodyContent()
+		);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideNoCastableStrings
+	 * @depends				testDefaultGetFinalBodyContentTag
+	 * @return				null
+	 */
+	public function testAddFinalBodyContentNoStringable($content)
+	{
+		$this->htmlDoc->addFinalBodyContent($content);
+	}
 }
