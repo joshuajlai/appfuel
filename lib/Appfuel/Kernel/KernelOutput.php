@@ -16,7 +16,7 @@ use Appfuel\Http\HttpOutput,
 	Appfuel\Http\HttpResponseInterface,
 	Appfuel\Console\ConsoleOutput,
 	Appfuel\Console\ConsoleOutputInterface,
-	Appfuel\Kernel\Mvc\AppContextInterface;
+	Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
  * The kernel output uses the KernelRegistry to figure out which 
@@ -114,7 +114,7 @@ class KernelOutput implements OutputInterface
 	public function renderConsole($data)
 	{
 		$output = $this->getConsoleOutput();
-		if ($data instanceof AppContextInteface) {
+		if ($data instanceof MvcContextInteface) {
 			$text =(string) $data->getView();;
 		}
 		else {
@@ -131,7 +131,7 @@ class KernelOutput implements OutputInterface
 	public function renderHttp($data)
 	{
 		$output = $this->getHttpOutput();
-		if ($data instanceof AppContextInterface) {
+		if ($data instanceof MvcContextInterface) {
 			$response = $data->get('http-response', null);
 			if (! ($response instanceof HttpResponseInterface)) {
 				$headers = $data->get('http-headers', array());
