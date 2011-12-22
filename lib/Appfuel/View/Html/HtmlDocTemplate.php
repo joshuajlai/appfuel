@@ -166,39 +166,71 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function build()
 	{
+		$this->buildTitle()
+			 ->buildCharset()
+			 ->buildBase()
+			 ->buildAttributes()
+			 ->buildCss()
+			 ->buildJs()
+			 ->buildContent();
+
+		return parent::build();
+	}
+
+	/**
+	 * @return	HtmlDocInterface
+	 */
+	public function buildTitle()
+	{
 		$this->assign('html-title', $this->getTitleTag());
-		
-		$attrs = $this->buildAttributeString($this->getHtmlAttributes());
-		if (! empty($attrs)) {
-			$this->assign('html-attr-string', $attrs);
-		}
+		return $this;
+	}
 
-		$attrs = $this->buildAttributeString($this->getHeadAttributes());
-		if (! empty($attrs)) {
-			$this->assign('head-attr-string', $attrs);
-		}
-
-		$attrs = $this->buildAttributeString($this->getBodyAttributes());
-		if (! empty($attrs)) {
-			$this->assign('body-attr-string', $attrs);
-		}
-
+	/**
+	 * @return	HtmlDocInterface
+	 */
+	public function buildCharset()
+	{
 		$encoding = $this->getCharset();
 		if (! empty($encoding)) {
 			$charset = new Charset($encoding);
 			$this->assign('html-charset', $charset->build());
 		}
 
+		return $this;
+	}
+
+	/**
+	 * @return	HtmlDocInterface
+	 */
+	public function buildBase()
+	{
 		$base = $this->getBaseTag();
 		if ($base instanceof HtmlTagInterface) {
 			$this->assign('html-base', $base->build());
 		}
 		
+		return $this;
+	}
+
+	/**
+	 * @return	HtmlDocInterface
+	 */
+	public function buildMeta()
+	{
 		$meta = $this->getMetaTags();
 		if (! empty($meta)) {
 			$this->assign('html-meta', $meta);
 		}
 
+		return $this;
+	}
+
+	/**
+	 * @return	HtmlDocInterface
+	 */
+	public function buildCss()
+	{
 		$isCss = $this->isCssEnabled();
 		$this->assign('is-css', $isCss);
 		if ($isCss) {
@@ -212,7 +244,14 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 				$this->assign('inline-css', $inlineCss);
 			}
 		}
+		return $this;
+	}
 
+	/**
+	 * @return	HtmlDocInterface
+	 */
+	public function buildJs()
+	{
 		$isJs = $this->isJsEnabled();
 		$this->assign('is-js', $isJs);
 		if ($isJs) {
@@ -236,13 +275,43 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			}
 		}
 
+		return $this;
+	}
+
+	/**
+	 * @return	HtmlDocInterface
+	 */
+	public function buildContent()
+	{
 		$contentTag = $this->getBodyContentTag();
 		$this->assign('body-content', $contentTag->buildContent());
 		
 		$finalContentTag = $this->getFinalBodyContentTag();
 		$this->assign('body-content-final', $finalContentTag->buildContent());
 
-		return parent::build();
+		return $this;
+	}
+
+	/**
+	 * @return	HtmlDocInterface
+	 */
+	public function buildAttributes()
+	{
+		$attrs = $this->buildAttributeString($this->getHtmlAttributes());
+		if (! empty($attrs)) {
+			$this->assign('html-attr-string', $attrs);
+		}
+
+		$attrs = $this->buildAttributeString($this->getHeadAttributes());
+		if (! empty($attrs)) {
+			$this->assign('head-attr-string', $attrs);
+		}
+
+		$attrs = $this->buildAttributeString($this->getBodyAttributes());
+		if (! empty($attrs)) {
+			$this->assign('body-attr-string', $attrs);
+		}
+		return $this;
 	}
 
 	/**
