@@ -193,8 +193,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	{
 		$encoding = $this->getCharset();
 		if (! empty($encoding)) {
-			$charset = new Charset($encoding);
-			$this->assign('html-charset', $charset->build());
+			$this->assign('html-charset', new Charset($encoding));
 		}
 
 		return $this;
@@ -207,7 +206,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	{
 		$base = $this->getBaseTag();
 		if ($base instanceof HtmlTagInterface) {
-			$this->assign('html-base', $base->build());
+			$this->assign('html-base', $base);
 		}
 		
 		return $this;
