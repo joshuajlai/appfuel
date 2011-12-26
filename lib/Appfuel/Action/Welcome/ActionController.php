@@ -11,7 +11,10 @@
 namespace Appfuel\Action\Welcome;
 
 use Appfuel\Kernel\Mvc\MvcAction,
-	Appfuel\Kernel\Mvc\AppContextInterface;
+	Appfuel\View\ViewTemplate,
+	Appfuel\View\Html\HtmlDocTemplate,
+	Appfuel\View\Compositor\FileCompositor,
+	Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
  * The landing page seen when you first install appfuel and have not modified
@@ -33,13 +36,23 @@ class ActionController extends MvcAction
      * @param   AppContextInterface  $context
      * @return  null 
      */
-    public function process(AppContextInterface $context)
+    public function process(MvcContextInterface $context)
 	{
-		$view = $context->getView();
-
 		$title = 'Welcome Page';
-		$text  = 'Welcome to appfuel more text to come';
-		$view->assign('title', $title);
-		$view->assign('message', $text);
+		$htmlDoc = new HtmlDocTemplate();
+		$htmlDoc->setTitle($title);
+
+		$compositor = new FileCompositor();
+		$compositor->setFile(
+			'appfuel/html/tpl/view/welcome/welcome-view.phtml'
+		);
+
+		$view = new ViewTemplate(null, $compositor);
+		
+		$view->assign('title', 'Welcome To Appfuel Framework');
+		$view->assign('msg', 'some text will need to go here');
+		
+		$htmlDoc->addBodyContent($view);
+		$context->setView($htmlDoc);
 	}
 }

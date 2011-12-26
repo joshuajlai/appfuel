@@ -12,22 +12,17 @@ namespace Appfuel\View\Compositor;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Kernel\PathFinder,
+	Appfuel\View\UiPathFinder,
 	Appfuel\Kernel\PathFinderInterface;
 
 /**
- * The template formatter binds a template file with the formatter object. This
- * means the $this in the template file is this object. The format function
- * will convert the template is 
+ * The FileCompositor's main responsibility is to compose a template file 
+ * (generally .phtml files) into a string. This class is the $this in the 
+ * template file and provides the interface to retrieve and render assignments
+ * made by the action controller.
  */
 class FileCompositor extends BaseCompositor implements FileCompositorInterface
 {
-	/**
-	 * Default location of the template path. 
-	 * @var string
-	 */
-	static private $templatePath = 'ui';
-
     /**
      * Hold name => value pairs to be used in templates
      * @var array
@@ -48,13 +43,20 @@ class FileCompositor extends BaseCompositor implements FileCompositorInterface
 	private $pathFinder = null;
 
     /**
+	 * The path finder is used to encapsulate the absolute path of the template
+	 * file so the view need only set the path as a relative path.
+	 *
      * @param   array   $data
      * @return  Template
      */
     public function __construct(PathFinderInterface $pathFinder = null)
     {
 		if (null === $pathFinder) {
-			$pathFinder = new PathFinder(self::getTemplatePath());
+			$path = KernelRegistry::getParam('template-path', 'ui');
+			if (empty($path) || ! is_string($path)) {
+				$path = 'ui';
+			}
+			$pathFinder = new PathFinder($path);
 		}
 
 		$this->setPathFinder($pathFinder);

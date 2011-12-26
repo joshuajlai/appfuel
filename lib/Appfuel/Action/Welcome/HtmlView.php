@@ -16,31 +16,26 @@ use Appfuel\View\ViewTemplate,
 /**
  * Template used to generate generic html documents
  */
-class HtmlViewTemplate extends FileViewTemplate
+class HtmlViewTemplate extends ViewTemplate
 {
-	/**
-	 * Location of the view template file
-	 * @var	string
-	 */
-	protected $viewTpl = null;
-
-	/**
-	 * Location of the html document template
-	 * @var string
-	 */
-	protected $HtmlDocClass = null;
-
-	protected $layoutCode = null;
-
-	protected $manifest = null;
-
 	/**
 	 * @param	string				$path	relative path to template file
 	 * @param	array				$data	data to be assigned
 	 * @return	HtmlTemplate
 	 */
-	public function __construct()
+	public function __construct(HtmlDocTemplateInterface $doc = null)
 	{
-	}
+		parent::__construct($data, new FileFormatter());
+		
+		if (null === $path) {
+			$path = 'ui/appfuel/html';
+		}
 
+		/* 
+		 * any file path will be relative to this root path and
+		 * this path is relative to AF_BASE_PATH
+		 */
+		$this->setRootPath($path);
+				
+	}
 }

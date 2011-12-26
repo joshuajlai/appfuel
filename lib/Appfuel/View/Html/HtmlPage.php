@@ -27,23 +27,21 @@ class HtmlPage extends ViewTemplate
 	 * @param	array				$data	data to be assigned
 	 * @return	HtmlTemplate
 	 */
-	public function __construct(HtmlDocTemplateInterface $doc = null,
-								ViewTemplateInterface $content = null)
+	public function __construct(ViewTemplateInterface $content,
+								HtmlDocTemplateInterface $doc = null)
 	{
 		if (null == $doc) {
 			$doc = new HtmlDocTemplate();
 		}
 
-		if (null === $content) {
-			$content = new ViewTemplate();
-		}
-
 		$this->addTemplate('htmldoc', $doc)
 			 ->addTemplate('content', $content);
 
-		$this->assignTemplate('content', 'htmldoc', 'html-body-content')
+		$this->assignTemplate('content', 'htmldoc', 'body-content')
 			 ->assignTemplate('htmldoc');
 
-		parent::__construct(null, new TextCompositor(null,null, 'values'));
+		$data = null;
+		$viewCompositor = new TextCompositor(null, null, 'values');
+		parent::__construct($data, $viewCompositor);
 	}
 }

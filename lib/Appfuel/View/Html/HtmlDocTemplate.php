@@ -32,12 +32,6 @@ use InvalidArgumentException,
 class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 {
 	/**
-	 * Html title tag
-	 * @var Element\Title
-	 */
-	protected $title = null;
-
-	/**
 	 * Attributes for the html tag
 	 * @var array
 	 */
@@ -54,67 +48,6 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 * @var array
 	 */
 	protected $bodyAttrs = array();
-
-	/**
-	 * Special meta tag to detemine the character set of the page. We only
-	 * need a string because all the other attributes are fixed
-	 * @var string
-	 */
-	protected $charset = null;
-
-	/**
-	 * @var string
-	 */
-	protected $base = null;
-
-	/**
-	 * @var array
-	 */
-	protected $meta = array();
-
-	/**
-	 * @var bool
-	 */
-	protected $isCss = true;
-	
-	/**
-	 * @var array
-	 */	
-	protected $cssLinks = array();
-
-	/**
-	 * @var CssStyle
-	 */
-	protected $inlineCss = null;
-
-	/**
-	 * @var bool
-	 */
-	protected $isJs = true;
-
-	/**
-	 * Script tags add to the html head
-	 * @var array
-	 */
-	protected $jsHeadScripts = array();
-
-	/**
-	 * Inline js for html head
-	 * @var Script
-	 */
-	protected $jsHeadInline = null;
-
-	/**
-	 * Script tags added to the end of the html body
-	 * @var array
-	 */
-	protected $jsBodyScripts = array();
-
-	/**
-	 * Inline js for the html body
-	 * @var Script
-	 */
-	protected $jsBodyInline = null;
 
 	/**
 	 * We use a tag only for its ability to store content
@@ -142,7 +75,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 								array $data = null)
 	{
 		if (null === $filePath) {
-			$filePath = 'appfuel/html/htmldoc.phtml';
+			$filePath = 'appfuel/html/tpl/doc/htmldoc.phtml';
 		}
 
 		if (null === $compositor) {
@@ -151,6 +84,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 		}
 
 		parent::__construct($data, $compositor);
+		$this->useDocType('html5');
 		$this->setTitleTag(new Title());
 		$this->setCharset('UTF-8');
 		$this->setCssStyleTag(new CssStyle());
@@ -166,12 +100,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function build()
 	{
-		$this->buildTitle()
-			 ->buildCharset()
-			 ->buildBase()
-			 ->buildAttributes()
-			 ->buildCss()
-			 ->buildJs()
+		$this->buildAttributes()
 			 ->buildContent();
 
 		return parent::build();
@@ -180,94 +109,10 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	/**
 	 * @return	HtmlDocInterface
 	 */
-	public function buildTitle()
-	{
-		$this->assign('html-title', $this->getTitleTag());
-		return $this;
-	}
-
-	/**
-	 * @return	HtmlDocInterface
-	 */
-	public function buildCharset()
-	{
-		$encoding = $this->getCharset();
-		if (! empty($encoding)) {
-			$this->assign('html-charset', new Charset($encoding));
-		}
-
-		return $this;
-	}
-
-	/**
-	 * @return	HtmlDocInterface
-	 */
-	public function buildBase()
-	{
-		$base = $this->getBaseTag();
-		if ($base instanceof HtmlTagInterface) {
-			$this->assign('html-base', $base);
-		}
-		
-		return $this;
-	}
-
-	/**
-	 * @return	HtmlDocInterface
-	 */
-	public function buildMeta()
-	{
-		$meta = $this->getMetaTags();
-		if (! empty($meta)) {
-			$this->assign('html-meta', $meta);
-		}
-
-		return $this;
-	}
-
-	/**
-	 * @return	HtmlDocInterface
-	 */
-	public function buildCss()
-	{
-		$isCss = $this->isCssEnabled();
-		$this->assign('is-css', $isCss);
-		if ($isCss) {
-			$links = $this->getLinkTags();
-			if (! empty($links)) {
-				$this->assign('links-css', $links);
-			}
-
-			$inlineCss = $this->getCssStyleTag();
-			if ($inlineCss instanceof HtmlTagInterface) {
-				$this->assign('inline-css', $inlineCss);
-			}
-		}
-		return $this;
-	}
-
-	/**
-	 * @return	HtmlDocInterface
-	 */
 	public function buildJs()
 	{
 		$isJs = $this->isJsEnabled();
-		$this->assign('is-js', $isJs);
 		if ($isJs) {
-			$headScripts = $this->getJsHeadScriptTags();
-			if (! empty($headScripts)) {
-				$this->assign('scripts-js-head', $headScripts);
-			}
-			$headInline = $this->getJsHeadInlineScriptTag();
-			if ($headInline instanceof HtmlTagInterface) {
-				$this->assign('inline-js-head', $headInline);
-			}
-
-			$bodyScripts = $this->getJsBodyScriptsTags();
-			if (! empty($bodyScripts)) {
-				$this->assign('scripts-js-body', $bodyScripts);
-			}
-
 			$bodyInline = $this->getJsBodyInlineScriptTag();
 			if ($bodyInline instanceof HtmlTagInterface) {
 				$this->assign('inline-js-body', $bodyInline);
@@ -318,7 +163,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function getTitleTag()
 	{
-		return $this->title;
+		return $this->get('html-title', null);
 	}
 
 	/**
@@ -330,7 +175,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 		if ('title' !== $tag->getTagName()) {
 			throw new InvalidArgumentException('title must be a title tag');
 		}
-		$this->title = $tag;
+		$this->assign('html-title', $tag);
 		return $this;
 	}
 
@@ -364,7 +209,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function getCharset()
 	{
-		return $this->charset;
+		return $this->get('html-charset');
 	}
 
 	/**
@@ -377,8 +222,8 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			$err = 'meta tag charset must be a non empty string';
 			throw new InvalidArgumentException($err);
 		}
-
-		$this->charset =$encoding;
+			
+		$this->assign('html-charset', new Charset($encoding));
 		return $this;
 	}
 
@@ -387,7 +232,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function getBaseTag()
 	{
-		return $this->base;
+		return $this->get('html-base');
 	}
 
 	/**
@@ -401,7 +246,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->base = $base;
+		$this->assign('html-base', $base);
 		return $this;
 	}
 
@@ -426,8 +271,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->meta[] = $tag;
-		return $this;
+		return $this->assignIntoArray('html-meta', $tag);
 	}
 
 	/**
@@ -445,7 +289,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function getMetaTags()
 	{
-		return $this->meta;
+		return $this->get('html-meta', array());
 	}
 
 	/**
@@ -453,7 +297,8 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function isCssEnabled()
 	{
-		return $this->isCss;
+		$isCss = $this->get('is-css', true);
+		return ($isCss === false) ? false : true;
 	}
 
 	/**
@@ -461,7 +306,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function enableCss()
 	{
-		$this->isCss = true;
+		$this->assign('is-css', true);
 		return $this;
 	}
 
@@ -470,7 +315,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function disableCss()
 	{
-		$this->isCss = false;
+		$this->assign('is-css', false);
 		return $this;
 	}
 
@@ -485,7 +330,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->cssLinks[] = $link;
+		$this->assignIntoArray('links-css', $link);
 		return $this;
 	}
 
@@ -494,7 +339,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function getLinkTags()
 	{
-		return $this->cssLinks;
+		return $this->get('links-css', array());
 	}
 
 	/**
@@ -575,8 +420,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->inlineCss = $tag;
-		return $this;
+		return $this->assign('inline-css', $tag);
 	}
 
 	/**
@@ -584,7 +428,8 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function isJsEnabled()
 	{
-		return $this->isJs;
+		$isJs = $this->get('is-js', true);
+		return ($isJs === false) ? false : true;
 	}
 
 	/**
@@ -592,8 +437,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function enableJs()
 	{
-		$this->isJs = true;
-		return $this;
+		return $this->assign('is-js', true);
 	}
 
 	/**
@@ -601,8 +445,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function disableJs()
 	{
-		$this->isJs = false;
-		return $this;
+		return $this->assign('is-js', false);
 	}
 
 	/**
@@ -610,7 +453,8 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function getJsHeadScriptTags()
 	{
-		return array_values($this->jsHeadScripts);
+		$list = $this->get('scripts-js-head', array());
+		return (is_array($list)) ? array_values($list) : array();
 	}
 	
 	/**
@@ -628,12 +472,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		if ($this->isJsHeadScript($src)) {
-			return $this;
-		}
-
-		$this->jsHeadScripts[$src] = $tag;
-		return $this;
+		return $this->assignIntoAssocArray('scripts-js-head', $src, $tag);
 	}
 
 	/**
@@ -655,8 +494,10 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function isJsHeadScript($src)
 	{
-		if (isset($this->jsHeadScripts[$src]) && 
-			$this->jsHeadScripts[$src] instanceof HtmlTagInterface) {
+		$list = $this->get('scripts-js-head', array());
+		if (is_array($list) && 
+			isset($list[$src]) &&
+			$list[$src] instanceof HtmlTagInterface) {
 			return true;
 		}
 
@@ -674,13 +515,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		if ($this->isJsHeadScript($src)) {
-			return $this;
-		}
-
-		$script = new Script($src);
-		$this->jsHeadScripts[$src] = $script;
-		return $this;
+		return $this->addJsHeadScriptTag(new Script($src));
 	}
 
 	/**
@@ -701,7 +536,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function getJsHeadInlineScriptTag()
 	{
-		return $this->jsHeadInline;
+		return $this->get('inline-js-head', null);
 	}
 
 	/**
@@ -721,8 +556,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->jsHeadInline = $tag;
-		return $this;
+		return $this->assign('inline-js-head', $tag);
 	}
 
 	/**
@@ -759,7 +593,8 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function getJsBodyScriptTags()
 	{
-		return array_values($this->jsBodyScripts);
+		$list = $this->get('scripts-js-body', array());
+		return (is_array($list)) ? array_values($list) : array();
 	}
 	
 	/**
@@ -777,12 +612,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		if ($this->isJsBodyScript($src)) {
-			return $this;
-		}
-
-		$this->jsBodyScripts[$src] = $tag;
-		return $this;
+		return $this->assignIntoAssocArray('scripts-js-body', $src, $tag);
 	}
 
 	/**
@@ -804,8 +634,10 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function isJsBodyScript($src)
 	{
-		if (isset($this->jsBodyScripts[$src]) && 
-			$this->jsBodyScripts[$src] instanceof HtmlTagInterface) {
+		$list = $this->get('scripts-js-body', array());
+		if (is_array($list) && 
+			isset($list[$src]) &&
+			$list[$src] instanceof HtmlTagInterface) {
 			return true;
 		}
 
@@ -823,13 +655,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		if ($this->isJsBodyScript($src)) {
-			return $this;
-		}
-
-		$script = new Script($src);
-		$this->jsBodyScripts[$src] = $script;
-		return $this;
+		return $this->addJsBodyScriptTag(new Script($src));
 	}
 
 	/**
@@ -850,7 +676,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	 */
 	public function getJsBodyInlineScriptTag()
 	{
-		return $this->jsBodyInline;
+		return $this->get('inline-js-body', null);
 	}
 
 	/**
@@ -870,8 +696,7 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->jsBodyInline = $tag;
-		return $this;
+		return $this->assign('inline-js-body', $tag);
 	}
 
 	/**
@@ -1129,5 +954,134 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
         }
 
         return trim($result);
+	}
+
+	/**
+	 * @return	string | null when not set
+	 */
+	public function getDocType()
+	{
+		return $this->get('doctype', null);
+	}
+
+	/**
+	 * @param	string	$docType
+	 * @return	HtmlDocTemplate
+	 */
+	public function setDocType($docType)
+	{
+		if (! is_string($docType) || empty($docType)) {
+			$err = 'doctype must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		return $this->assign('doctype', $docType);
+	}
+
+	/**
+	 * @param	string	$type
+	 * @return	null
+	 */
+	public function useDocType($type)
+	{
+		if (! is_string($type) || empty($type)) {
+			$err = 'doctype must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+		$docType = $this->getDocTypeString($type);
+		if (false === $docType) {
+			$err = "doctype key -($type) has not been mapped";
+			throw new InvalidArgumentException($err);
+		}
+
+		return $this->setDocType($docType);
+	}
+
+	/**
+	 * @param	string	$type
+	 * @return	string
+	 */
+	public function getDocTypeString($type)
+	{
+		switch ($type) {
+			case 'html5': 
+				$text = '<!DOCTYPE HTML>';
+				break;
+
+			case 'html401-strict':
+				$text = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">';
+				break;
+			case 'html401-transitional':
+				$text = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+   "http://www.w3.org/TR/html4/loose.dtd">';
+				break;
+			case 'html401-frameset':
+				$text = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN"
+   "http://www.w3.org/TR/html4/frameset.dtd">';
+				break;
+			case 'xhtml10-strict':
+				$text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">';
+				break;
+			case 'xhtml10-transitional':
+				$text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">';
+			case 'xhtml10-frameset':
+				$text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Frameset//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-frameset.dtd">';
+				break;
+			case 'xhtml11':
+				$text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" 
+   "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">';
+				break;
+			case 'xhtml11-basic':
+				$text = '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.1//EN"
+    "http://www.w3.org/TR/xhtml-basic/xhtml-basic11.dtd">';
+				break;
+			case 'mathml20':
+				$text = '<!DOCTYPE math PUBLIC "-//W3C//DTD MathML 2.0//EN"	
+	"http://www.w3.org/Math/DTD/mathml2/mathml2.dtd">';
+				break;
+			case 'mathml101':
+				$text = '<!DOCTYPE math SYSTEM 
+	"http://www.w3.org/Math/DTD/mathml1/mathml.dtd">';
+				break;
+			case 'xhtml+mathml+svg':
+				$text = '<!DOCTYPE html PUBLIC
+    "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN"
+    "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">';
+				break;
+			case 'xhtml-host+mathml+svg':
+				$text = '<!DOCTYPE html PUBLIC
+    "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN"
+    "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">';
+				break;
+			case 'xhtml+mathml+svg-host':
+				$text = '<!DOCTYPE svg:svg PUBLIC
+    "-//W3C//DTD XHTML 1.1 plus MathML 2.0 plus SVG 1.1//EN"
+    "http://www.w3.org/2002/04/xhtml-math-svg/xhtml-math-svg.dtd">';
+				break;
+			case 'svg11-full':
+				$text = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+	"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">';
+				break;
+			case 'svg10':
+				$text = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.0//EN"
+	"http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">';
+				break;
+			case 'svg11-basic':
+				$text = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1 Basic//EN"
+	"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-basic.dtd">';
+				break;
+			case 'svg11-tiny':
+				$text = '<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1 Tiny//EN"
+	"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11-tiny.dtd">';
+				break;
+			default: $text = false;
+
+		}
+			
+		return $text;
 	}
 }

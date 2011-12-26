@@ -1,0 +1,58 @@
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * This template controls how the html page is displayed. It is a generic
+ * view template so its only responsiblity is to display things if they are
+ * available. This is ment to be controlled by an 
+ * Appfuel\View\Html\HtmlDocTemplateInterface which assigns all the objects
+ * and strings into the file compositor (the $this in this template file). 
+ */ 
+$this->render('doctype', '<!DOCTYPE HTML>'); ?>
+
+<html<?php $this->render('html-attr-string', '');?>>
+<head<?php $this->render('head-attr-string', '');?>>
+<?php $this->render('html-charset','');?>
+
+<?php $this->render('html-base','');?>
+
+<?php $this->render('html-title','');?>
+
+<?php $this->render('html-meta', '',PHP_EOL);?>
+
+<?php
+	$isCss = $this->get('is-css', true);
+	$isCss = ($isCss === false) ? false : true;
+	if ($isCss) {
+		$this->render('links-css',  '', '');
+		$this->render('inline-css', '');
+	}?>
+
+<?php
+	$isJs = $this->get('is-js', true);
+	$isJs = ($isJs === false) ? false : true;
+    if ($isJs) {
+		$this->render('scripts-js-head', '', '');
+		$this->render('inline-js-head', '');
+	}?>
+</head>
+<body<?php $this->render('body-attr-string', ''); ?>>
+<?php $this->render('body-content', ''); ?>
+
+<?php
+	if ($isJs) {
+		$this->render('scripts-js-body', '', '');
+		$this->render('inline-js-body', '');
+	}
+
+	$this->render('body-content-final', PHP_EOL);
+?>
+
+</body>
+</html>

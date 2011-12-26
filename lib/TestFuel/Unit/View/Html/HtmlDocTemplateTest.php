@@ -595,7 +595,20 @@ class HtmlDocTemplateTest extends BaseTestCase
 	 */
 	public function testDefaultCharsetIsUtf8()
 	{
-		$this->assertEquals('UTF-8', $this->htmlDoc->getCharset());
+		$charset = $this->htmlDoc->getCharset();
+		$this->assertInstanceOf(
+			'Appfuel\View\Html\Element\Meta\Charset',
+			$charset
+		);
+		$this->assertEquals(
+			'Content-Type', 
+			$charset->getAttribute('http-equiv')
+		);
+		$this->assertEquals(
+			'text/html',
+			$charset->getAttribute('content')
+		);	
+		$this->assertEquals('UTF-8', $charset->getAttribute('charset'));
 	}
 
 	/**
@@ -624,8 +637,21 @@ class HtmlDocTemplateTest extends BaseTestCase
 			$this->htmlDoc->setCharset($encoding)
 		);
 
-		$result = $this->htmlDoc->getCharset();
-		$this->assertEquals($encoding, $result);
+		$charset = $this->htmlDoc->getCharset();
+		$this->assertInstanceOf(
+			'Appfuel\View\Html\Element\Meta\Charset',
+			$charset
+		);
+			
+		$this->assertEquals(
+			'Content-Type', 
+			$charset->getAttribute('http-equiv')
+		);
+		$this->assertEquals(
+			'text/html',
+			$charset->getAttribute('content')
+		);	
+		$this->assertEquals($encoding, $charset->getAttribute('charset'));
 	}
 
     /**

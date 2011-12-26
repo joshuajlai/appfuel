@@ -12,11 +12,7 @@ namespace Appfuel\View;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Kernel\PathFinder,
-	Appfuel\Kernel\PathFinderInterface,
-	Appfuel\View\Compositor\FileCompositor,
 	Appfuel\View\Compositor\TextCompositor,
-	Appfuel\View\Compositor\FileCompositorInterface,
 	Appfuel\View\Compositor\ViewCompositorInterface;
 
 /**
@@ -52,12 +48,6 @@ class ViewTemplate implements ViewTemplateInterface
 	protected $compositor = null;
 
 	/**
-	 * Relative path to a file template
-	 * @var string
-	 */
-	protected $file = null;
-
-	/**
 	 * @param	mixed	$file 
 	 * @param	array	$data
 	 * @return	FileTemplate
@@ -73,60 +63,6 @@ class ViewTemplate implements ViewTemplateInterface
 			$compositor = new TextCompositor();
 		}
 		$this->setViewCompositor($compositor);
-	}
-
-	/**
-	 * Relative file path to template file
-	 * @return	null
-	 */
-	public function getFile()
-	{
-		return $this->file;
-	}
-
-	/**
-	 * @param	string	$file
-	 * @return	ViewTemplate
-	 */
-	public function setFile($file)
-	{
-		if (empty($file) || ! is_string($file) || ! ($file = trim($file))) {
-			$err = 'file path must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->file = $file;
-		return $this;
-	}
-
-	/**
-	 * Used with file templates to change the part of the absolute path 
-	 * from the root to the relative. When isBase is true the root path
-	 * starts at the end of AF_BASE_PATH.
-	 *
-	 * @throws	InvalidArgumentException	when path is not a string
-	 * @param	string	$path
-	 * @return	ViewTemplate
-	 */
-	public function setRelativeRootPath($path, $isBase = true)
-	{
-		$compositor = $this->getViewCompositor();
-		if ($compositor instanceof FileCompositorInterface) {
-			$compositor->setRelativeRootPath($path, $isBase);
-		}
-
-		return $this;
-	}
-
-	/**
-	 * When a file is set with a non empty string it indicates that this 
-	 * template will be formatted with a FileFormatter.
-	 *
-	 * @return	bool
-	 */
-	public function isFileTemplate()
-	{
-		return ! empty($this->file) && is_string($this->file);
 	}
 
 	/**
@@ -294,7 +230,7 @@ class ViewTemplate implements ViewTemplateInterface
 	 * which searches templates in templates and assigns the last one the
 	 * key value
 	 *
-	 * @param	scalar	$key
+	 * @param	string	$key
 	 * @param	mixed	$value
 	 * @return	ViewTemplate
 	 */
@@ -312,6 +248,69 @@ class ViewTemplate implements ViewTemplateInterface
 
         $this->assign[$key] = $value;
 		return $this;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @param	array	$value 
+	 * @return	ViewTemplate
+	 */
+	public function assignMerge($key, array $value)
+	{
+		$target = $this->get($key, null);
+		if (empty($target) || ! is_array($target)) {
+			return $this->assign($key, $value);
+		}
+
+		return $this->assign($key, array_replace_recursive($target, $value));
+	}
+
+	/**
+	 * @param	string	$key
+	 * @param	mixed	$value
+	 * @return	ViewTemplate
+	 */
+	public function assignIntoArray($key, $value, $isPrepend = false)
+	{
+		$target = $this->get($key, '__af_not_found__');
+		if ('__af_not_found__' === $target) {
+			if (! is_array($value)) {
+				$value = array($value);
+			}
+	
+			return $this->assign($key, $value);
+		}
+		else if (! is_array($target)) {
+			return $this;
+		}
+
+		if (true === $isPrepend) {
+			array_unshift($target, $value);
+		}
+		else {
+			$target[] = $value;
+		}
+
+		return $this->assign($key, $target);
+	}
+
+	public function assignIntoAssocArray($key, $arrayKey, $value)
+	{
+		if (! is_scalar($arrayKey)) {
+			$err = 'array key must be a valid php array key';
+			throw new InvalidArgumentException($err);
+		}
+
+		$target = $this->get($key, '__af_not_found__');
+		if ('__af_not_found__' === $target) {
+			return $this->assign($key, array($arrayKey => $value));
+		}
+		else if (! is_array($target)) {
+			return $this;
+		}
+
+		$target[$arrayKey] = $value;
+		return $this->assign($key, $target);
 	}
 
 	/**
@@ -366,6 +365,14 @@ class ViewTemplate implements ViewTemplateInterface
 	 */
 	public function get($key, $default = null)
 	{	
+		if (empty($key) || ! is_string($key)) {
+			return $default;
+		}
+
+		if (false !== strpos($key, '.')) {
+			return $this->getFrom($key, $default);
+		}
+
 		if (! $this->isAssigned($key)) {
 			return $default;
 		}
@@ -448,18 +455,6 @@ class ViewTemplate implements ViewTemplateInterface
 
 		if ($this->templateCount() > 0) {
 			$this->buildTemplates();
-		}
-
-		if ($this->isFileTemplate()) {
-			$file = $this->getFile();
-			if (! ($compositor instanceof FileCompositorInterface)) {
-				$err  = 'build failed: when a template file is set the view ';
-				$err .= 'compositor must implement Appfuel\View\FileCompositor';
-				$err .= 'Interface';
-				throw new RunTimeException($err);
-			}
-
-			$compositor->setFile($file);
 		}
 
 		return $compositor->compose($this->getAll());

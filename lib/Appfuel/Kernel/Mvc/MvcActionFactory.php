@@ -129,6 +129,9 @@ class MvcActionFactory implements MvcActionFactoryInterface
         }
 
         switch($type) {
+			case 'html-page': 
+				$view = $this->createHtmlPage($namespace);
+				break;
             case 'html':
                 $view = $this->createHtmlView($namespace);
                 break;
@@ -160,12 +163,83 @@ class MvcActionFactory implements MvcActionFactoryInterface
 		$view = (true === $isView)? new $class() : new ViewTemplate();
         if (! $view instanceof ViewTemplateInterface) {
             throw new RunTimeException(
-				"console view does not use correct interface"
+				"html view does not use correct interface"
 			);
         }
 
         return $view;
     }
+
+	/**
+	 * @param	string	$namespace
+	 * @return	HtmlPageInterface
+	 */
+	public function createHtmlPage($namespace)
+	{
+		if (empty($namespace) || ! is_string($namespace)) {
+			$err = 'for html pages mvc actions must give their namespace';
+			throw new InvalidArgumentException($err);
+		}
+
+		$class = "$namespace\HtmlView";
+		$loader = $this->getLoader();
+		$isView = $loader->loadClass($class);
+		if (! $isView) {
+			throw new RunTimeException("html view -($class) does not exist");
+		}
+	
+		$view = new $class();
+	    if (! $page instanceof HtmlViewInterface) {
+			$err  = 'html page does not implement Appfuel\View\Html\HtmlPage';
+			$err .= 'Interface';
+            throw new RunTimeException($err);
+        }
+
+		/*
+		 * By default the html doc is Appfuel\View\Html\HtmlDocTemplate,
+		 * however, if a class is given then I will create that class and check
+		 * it against appfuels html doc interface
+		 */
+		$htmlDocClass = $view->getHtmlDocClass();
+		if (! empty($htmlDocClass) && is_string($htmlDocClass)) {
+			$htmlDoc = new $htmlDocClass();
+			if (! ($htmlDoc instanceof HtmlDocTemplateInterface)) {
+				$err  = 'html doc does not implement Appfuel\View\Html\Html';
+				$err .= 'DocTemplateInterface';
+				throw new RunTimeException($err);
+			}
+		}
+		else {
+			$htmlDoc = $this->createHtmlDoc();
+		}
+
+		/*
+		 * if this view belongs to an html layout then create the layout
+		 * set the view in the layout and replace the view with the layout
+		 */
+		$layoutClass = $view->getLayoutClass();
+		if (! empty($layoutClass) && is_string($layoutClass)) {
+			$layout = new $layoutClass();
+			if (! ($layout instanceof HtmlLayoutInterface)) {
+				$err  = 'html layout does not implement Appfuel\View\Html\Html';
+				$err .= 'LayoutInterface';
+				throw new RunTimeException($err);
+			}
+
+			$layout->setView($view);
+			$view = $layout;
+		}
+
+		$pageClass = $view->getHtmlPageClass();
+		if (! empty($pageClass) && is_string($pageClass)) {
+			$page = new $pageClass($view, $htmlDoc);
+		}
+		else {
+			$page = new HtmlPage($view, $htmlDoc);
+		}
+
+		return $page;
+	}
 
     /**
      * @return  ConsoleViewTemplate
