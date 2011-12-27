@@ -11,8 +11,7 @@
 namespace Appfuel\View\Html;
 
 use InvalidArgumentException,
-	Appfuel\View\ViewTemplate,
-	Appfuel\View\ViewCompositeTemplate,
+	Appfuel\View\FileViewTemplate,
 	Appfuel\View\Html\Element\Tag as ElementTag,
 	Appfuel\View\Html\Element\Base,
 	Appfuel\View\Html\Element\Title,
@@ -29,7 +28,7 @@ use InvalidArgumentException,
 /**
  * Template used to generate generic html documents
  */
-class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
+class HtmlDocTemplate extends FileViewTemplate implements HtmlDocInterface
 {
 	/**
 	 * Attributes for the html tag
@@ -65,25 +64,18 @@ class HtmlDocTemplate extends ViewTemplate implements HtmlDocTemplateInterface
 	/**
 	 * Defaults to the appfuel template file 
 	 *
-	 * @param	string				$filePath	relative path to template file
+	 * @param	string				$file		relative path to template file
 	 * @param	PathFinderInterface $pathFinder	resolves the relative path
-	 * @param	array				$data		data to be assigned
 	 * @return	HtmlDocTemplate
 	 */
-	public function __construct($filePath = null,
-								FileCompositorInterface $compositor = null,
-								array $data = null)
+	public function __construct($file = null,
+								PathFinderInterface $pathFinder = null)
 	{
-		if (null === $filePath) {
-			$filePath = 'appfuel/html/tpl/doc/htmldoc.phtml';
+		if (null === $file) {
+			$file = 'appfuel/html/tpl/doc/htmldoc.phtml';
 		}
-
-		if (null === $compositor) {
-			$compositor = new FileCompositor();
-			$compositor->setFile($filePath);
-		}
-
-		parent::__construct($data, $compositor);
+		parent::__construct($file, $pathFinder);
+		
 		$this->useDocType('html5');
 		$this->setTitleTag(new Title());
 		$this->setCharset('UTF-8');

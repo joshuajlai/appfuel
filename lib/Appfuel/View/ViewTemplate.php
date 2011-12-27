@@ -19,7 +19,7 @@ use RunTimeException,
  * The view template is the most basic of the templates. Holding all its data
  * in key/value pair it uses a formatter to convert it a string.
  */
-class ViewTemplate implements ViewTemplateInterface
+class ViewTemplate implements ViewInterface
 {
 	/**
 	 * List of other template used by this template

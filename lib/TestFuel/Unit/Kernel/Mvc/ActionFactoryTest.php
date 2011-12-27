@@ -266,7 +266,7 @@ class ActionFactoryTest extends BaseTestCase
 		$view = $this->factory->createHtmlView($ns);
 		$this->assertInstanceOf("$ns\HtmlView",$view);
 		$this->assertInstanceOf(
-			'Appfuel\View\ViewTemplateInterface',
+			'Appfuel\View\ViewInterface',
 			$view
 		);
 	}

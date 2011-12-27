@@ -11,7 +11,6 @@
 namespace Appfuel\Kernel\Mvc;
 
 use InvalidArgumentException,
-	Appfuel\View\ViewTemplateInterface,
 	Appfuel\DataStructure\Dictionary,
 	Appfuel\DomainStructure\DictionaryInterface;
 
@@ -54,7 +53,7 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	/**
 	 * The mvc actions make assignments into the the view template which
 	 * will be converted into a string for the output engine.
-	 * @ViewTemplateInterface
+	 * @var mixed
 	 */
 	protected $view = null;
 
@@ -104,23 +103,10 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 * @param	ViewTemplateInterface $template
 	 * @return	AppContext
 	 */
-	public function setView(ViewTemplateInterface $template)
+	public function setView($view)
 	{
-		$this->view = $template;
+		$this->view = $view;
 		return $this;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function buildView()
-	{
-		$view = $this->getView();
-		if (! ($view instanceof ViewTemplateInterface)) {
-			return '';
-		}
-
-		return $view->build();
 	}
 
 	/**

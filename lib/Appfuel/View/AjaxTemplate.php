@@ -17,7 +17,7 @@ use InvalidArgumentException,
  * The view template is the most basic of the templates. Holding all its data
  * in key/value pair it uses a formatter to convert it a string.
  */
-class AjaxTemplate extends ViewTemplate implements AjaxTemplateInterface
+class AjaxTemplate extends ViewTemplate implements AjaxInterface
 {
 	/**
 	 * Code sent back to clientside to determine the status of the request

@@ -47,7 +47,7 @@ class ConsoleViewTemplateTest extends BaseTestCase
 	public function testInitialState()
 	{	
 		$this->assertInstanceOf(
-			'Appfuel\Console\ConsoleViewTemplateInterface',
+			'Appfuel\Console\ConsoleViewInterface',
 			$this->view
 		);
 

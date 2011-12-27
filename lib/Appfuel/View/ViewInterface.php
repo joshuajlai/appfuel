@@ -16,7 +16,7 @@ use Appfuel\View\Compositor\ViewCompositorInterface;
  * The view template is the most basic of the templates. Holding all its data
  * in key/value pair it uses a formatter to convert it a string.
  */
-interface ViewTemplateInterface
+interface ViewInterface
 {
 	/**
 	 * @return	ViewFormatterInterface

@@ -16,31 +16,7 @@ use Appfuel\View\ViewTemplate,
 /**
  * Template used to generate generic html documents
  */
-class HtmlViewTemplate extends FileViewTemplate
+interface HtmlViewInterface extends FileViewInterface
 {
-	/**
-	 * Location of the view template file
-	 * @var	string
-	 */
-	protected $viewTpl = null;
-
-	/**
-	 * Location of the html document template
-	 * @var string
-	 */
-	protected $HtmlDocClass = null;
-
-	protected $layoutCode = null;
-
-	protected $manifest = null;
-
-	/**
-	 * @param	string				$path	relative path to template file
-	 * @param	array				$data	data to be assigned
-	 * @return	HtmlTemplate
-	 */
-	public function __construct()
-	{
-	}
 
 }

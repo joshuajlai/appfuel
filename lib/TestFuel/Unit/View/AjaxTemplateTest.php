@@ -50,12 +50,12 @@ class AjaxTemplateTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\View\AjaxTemplateInterface',
+			'Appfuel\View\AjaxInterface',
 			$this->template
 		);
 
 		$this->assertInstanceOf(
-			'Appfuel\View\ViewTemplateInterface',
+			'Appfuel\View\ViewInterface',
 			$this->template
 		);
 	}

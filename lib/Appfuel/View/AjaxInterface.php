@@ -13,7 +13,7 @@ namespace Appfuel\View;
 /**
  * Interface needed to service ajax calls from the application.
  */
-interface AjaxTemplateInterface extends ViewTemplateInterface
+interface AjaxInterface extends ViewInterface
 {
 	/**
 	 * @return	string

@@ -10,8 +10,7 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\View\ViewTemplateInterface,
-	Appfuel\DataStructure\DictionaryInterface;
+use Appfuel\DataStructure\DictionaryInterface;
 
 /**
  * This interface is a dictionary used to hold any application specific info
@@ -63,7 +62,7 @@ interface MvcContextInterface extends DictionaryInterface
 	 * @param	ViewTemplateInterface
 	 * @return	AppContextInterface
 	 */
-	public function setView(ViewTemplateInterface $view);
+	public function setView($view);
 
 	/**
 	 * @return	int

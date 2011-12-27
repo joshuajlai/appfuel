@@ -8,13 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Html;
+namespace Appfuel\Console;
 
-use Appfuel\View\ViewTemplateInterface;
+use Appfuel\View\ViewInterface;
 
 /**
- * Interface to manage the html page 
  */
-interface HtmlDocTemplateInterface extends ViewTemplateInterface
+interface ConsoleViewInterface extends ViewInterface
 {
 }

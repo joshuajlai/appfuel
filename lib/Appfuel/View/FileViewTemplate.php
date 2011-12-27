@@ -12,6 +12,8 @@ namespace Appfuel\View;
 
 use RunTimeException,
 	InvalidArgumentException,
+	Appfuel\Kernel\KernelRegistry,
+	Appfuel\Kernel\PathFinder,
 	Appfuel\Kernel\PathFinderInterface,
 	Appfuel\View\Compositor\FileCompositor,
 	Appfuel\View\Compositor\FileCompositorInterface,
@@ -21,8 +23,14 @@ use RunTimeException,
  * The file view template uses a FileCompositorInterface to compose a phtml
  * file into string. A 
  */
-class FileViewTemplate extends ViewTemplate
+class FileViewTemplate extends ViewTemplate implements FileViewInterface
 {
+	/**
+	 * Directory used to hold clientside resources
+	 * @var string
+	 */
+	static protected $resourceDir = 'ui';
+
     /**
      * Relative path to a file template
      * @var string
@@ -31,18 +39,40 @@ class FileViewTemplate extends ViewTemplate
 
 	/**
 	 * @param	mixed	$file 
-	 * @param	array	$data
-	 * @return	FileTemplate
+	 * @param	PathFinderInterface	$pathFinder
+	 * @return	FileViewTemplate
 	 */
-	public function __construct($templateFile,
-								PathFinderInterface $pathFinder = null,
-								 array $data = null)
+	public function __construct($file, PathFinderInterface $pathFinder = null)
 	{
 		if (null === $pathFinder) {
-			$pathFinder = new UiPathFinder();
+			$pathFinder = new PathFinder(self::getResourceDir());
 		}
-		$this->setFile($templateFile);
+		$this->setFile($file);
+
+		$data = null;
 		parent::__construct($data, new FileCompositor($pathFinder));
+	}
+
+	/**
+	 * @return	string
+	 */
+	static public function getResourceDir()
+	{
+		return self::$resourceDir;
+	}
+
+	/**
+	 * @param	string	$dir
+	 * @return	null
+	 */
+	static public function setResourceDir($dir)
+	{
+		if (! is_string($dir)) {
+			$err = "the resource directory must be a string";
+			throw new InvalidArgumentException($err);
+		}
+
+		self::$resourceDir = trim($dir);
 	}
 
 	/**

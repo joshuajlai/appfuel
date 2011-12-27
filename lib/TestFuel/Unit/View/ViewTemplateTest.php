@@ -90,7 +90,7 @@ class ViewTemplateTest extends BaseTestCase
 	public function testInterface()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\View\ViewTemplateInterface',
+			'Appfuel\View\ViewInterface',
 			$this->template
 		);
 	}

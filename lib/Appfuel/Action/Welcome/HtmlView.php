@@ -8,34 +8,28 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Html;
+namespace Appfuel\Action\Welcome;
 
-use Appfuel\View\ViewTemplate,
-	Appfuel\View\Formatter\FileFormatter;
+use Appfuel\View\Html\HtmlViewTemplate;
 
 /**
  * Template used to generate generic html documents
  */
-class HtmlViewTemplate extends ViewTemplate
+class HtmlView extends HtmlViewTemplate
 {
 	/**
 	 * @param	string				$path	relative path to template file
 	 * @param	array				$data	data to be assigned
 	 * @return	HtmlTemplate
 	 */
-	public function __construct(HtmlDocTemplateInterface $doc = null)
+	public function __construct()
 	{
-		parent::__construct($data, new FileFormatter());
+		$tpl = 'view/welecom/welcome-view.phtml';
+		$htmlDoc = 'Appfuel\View\Html\HtmlDocTemplate';
+		$requires = array();
+		$enableFrameworkSeed = true;
+		$layout	  = null;
 		
-		if (null === $path) {
-			$path = 'ui/appfuel/html';
-		}
-
-		/* 
-		 * any file path will be relative to this root path and
-		 * this path is relative to AF_BASE_PATH
-		 */
-		$this->setRootPath($path);
-				
+		
 	}
 }

@@ -12,7 +12,7 @@ namespace Appfuel\View\Compositor;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\View\UiPathFinder,
+	Appfuel\Kernel\PathFinder,
 	Appfuel\Kernel\PathFinderInterface;
 
 /**
@@ -52,36 +52,11 @@ class FileCompositor extends BaseCompositor implements FileCompositorInterface
     public function __construct(PathFinderInterface $pathFinder = null)
     {
 		if (null === $pathFinder) {
-			$path = KernelRegistry::getParam('template-path', 'ui');
-			if (empty($path) || ! is_string($path)) {
-				$path = 'ui';
-			}
-			$pathFinder = new PathFinder($path);
+			$pathFinder = new PathFinder();
 		}
 
 		$this->setPathFinder($pathFinder);
     }
-
-	/**
-	 * @return	string
-	 */
-	static public function getTemplatePath()
-	{
-		return self::$templatePath;
-	}
-
-	/**
-	 * @param	string	$path
-	 * @return	null
-	 */
-	static public function setTemplatePath($path)
-	{
-		if (! is_string($path)) {
-			$err = 'the template path must be a string';
-			throw new InvalidArgumentException($err);
-		}
-		self::$templatePath = $path;
-	}
 
 	/**
 	 * @return	string

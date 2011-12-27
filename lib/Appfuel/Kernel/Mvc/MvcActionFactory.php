@@ -15,9 +15,12 @@ use Exception,
 	InvalidArgumentException,
 	Appfuel\View\AjaxTemplate,
 	Appfuel\View\ViewTemplate,
+	Appfuel\View\Html\HtmlDocTemplate,
+	Appfuel\View\Html\HtmlDocInterface,
+	Appfuel\View\Html\HtmlViewInterface,
+	Appfuel\View\AjaxInterface,
+	Appfuel\View\ViewInterface,
 	Appfuel\Console\ConsoleViewTemplate,
-	Appfuel\View\AjaxTemplateInterface,
-	Appfuel\View\ViewTemplateInterface,
 	Appfuel\ClassLoader\StandardAutoLoader,
 	Appfuel\ClassLoader\AutoLoaderInterface;
 
@@ -161,7 +164,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
 		$loader = $this->getLoader();
 		$isView = $loader->loadClass($class);
 		$view = (true === $isView)? new $class() : new ViewTemplate();
-        if (! $view instanceof ViewTemplateInterface) {
+        if (! $view instanceof ViewInterface) {
             throw new RunTimeException(
 				"html view does not use correct interface"
 			);
@@ -189,7 +192,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
 		}
 	
 		$view = new $class();
-	    if (! $page instanceof HtmlViewInterface) {
+	    if (! $view instanceof HtmlViewInterface) {
 			$err  = 'html page does not implement Appfuel\View\Html\HtmlPage';
 			$err .= 'Interface';
             throw new RunTimeException($err);
@@ -203,7 +206,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
 		$htmlDocClass = $view->getHtmlDocClass();
 		if (! empty($htmlDocClass) && is_string($htmlDocClass)) {
 			$htmlDoc = new $htmlDocClass();
-			if (! ($htmlDoc instanceof HtmlDocTemplateInterface)) {
+			if (! ($htmlDoc instanceof HtmlDocInterface)) {
 				$err  = 'html doc does not implement Appfuel\View\Html\Html';
 				$err .= 'DocTemplateInterface';
 				throw new RunTimeException($err);
@@ -255,7 +258,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
 		$isView = $loader->loadClass($class);
 		$view = (true === $isView)? new $class() : new ConsoleViewTemplate();
 
-        if (! $view instanceof ViewTemplateInterface) {
+        if (! $view instanceof ViewInterface) {
             throw new RunTimeException(
 				"console view does not use correct interface"
 			);
@@ -277,7 +280,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
 		$class  = "$namespace\AjaxView";
 		$isView = $loader->loadClass($class);
 		$view = (true === $isView)? new $class() : new AjaxTemplate();
-        if (! $view instanceof AjaxTemplateInterface) {
+        if (! $view instanceof AjaxInterface) {
             throw new RunTimeException(
 				"json view does not use correct interface"
 			);
@@ -285,4 +288,9 @@ class MvcActionFactory implements MvcActionFactoryInterface
 
         return $view;
     }
+
+	public function createHtmlDoc()
+	{
+		return new HtmlDocTemplate();
+	}
 }
