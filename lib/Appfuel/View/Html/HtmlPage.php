@@ -20,15 +20,14 @@ use Appfuel\View\Compositor\TextCompositor,
 class HtmlPage extends ViewTemplate
 {
 	/**
-	 * Assign a FileFormatter because html templates generally require a
-	 * .phtml template file. Also set the root path to be appfuel
-	 * 
-	 * @param	string				$path	relative path to template file
-	 * @param	array				$data	data to be assigned
-	 * @return	HtmlTemplate
+	 * @param	FileViewInterface $content	main html body content
+	 * @param	FileViewInterface $inlineJs inline js content 
+	 * @param	HtmlDocInterface  $doc		html doc template
+	 * @return	HtmlPage
 	 */
-	public function __construct(ViewTemplateInterface $content,
-								HtmlDocTemplateInterface $doc = null)
+	public function __construct(FileViewInterface $content,
+								FileViewInterface $inlineJs = null,
+								HtmlDocInterface  $doc = null)
 	{
 		if (null == $doc) {
 			$doc = new HtmlDocTemplate();
@@ -36,12 +35,35 @@ class HtmlPage extends ViewTemplate
 
 		$this->addTemplate('htmldoc', $doc)
 			 ->addTemplate('content', $content);
-
-		$this->assignTemplate('content', 'htmldoc', 'body-content')
-			 ->assignTemplate('htmldoc');
+		
+		if (null !== $inlneJs) {
+			$this->addTemplate('inline-js', $inlineJs);
+		}
 
 		$data = null;
 		$viewCompositor = new TextCompositor(null, null, 'values');
 		parent::__construct($data, $viewCompositor);
+	}
+
+	public function build()
+	{
+		$content = $this->getTemplate('content');
+		$htmlDoc = $this->getTemplate('htmldoc');
+		if (null === $htmlDoc) {
+			return 'error: no html doc template found';
+		}
+	
+		$data = '';
+		if (null !== $content) {
+			$data = $content->build();
+		}
+		$htmlDoc->addBodyContent($data);
+		
+		$inlineJs = $this->getTemplate('inline-js');
+		if (null !== $inlineJs) {
+			$htmlDoc->addJsBodyInlineContent($inlineJs->build());
+		}
+
+		return $htmldoc->build();
 	}
 }

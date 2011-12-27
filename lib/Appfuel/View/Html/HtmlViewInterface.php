@@ -10,13 +10,11 @@
  */
 namespace Appfuel\View\Html;
 
-use Appfuel\View\ViewTemplate,
-	Appfuel\View\Formatter\FileFormatter;
+use Appfuel\View\FileViewInterface;
 
 /**
- * Template used to generate generic html documents
+ * Interface to manage the html page 
  */
 interface HtmlViewInterface extends FileViewInterface
 {
-
 }

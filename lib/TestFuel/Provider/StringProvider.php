@@ -106,7 +106,10 @@ class StringProvider implements StringProviderInterface
 			array('string;semi;colon'),
 			array('longerstringwithnospacesnotusedforkeysofanykindaswired'),
 		);
-		
+	
+		if (false === $isNumeric) {
+			return $result;
+		}	
 		return array_merge($result, $this->provideNumericStrings());
 	}
 

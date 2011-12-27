@@ -198,6 +198,13 @@ class MvcActionFactory implements MvcActionFactoryInterface
             throw new RunTimeException($err);
         }
 
+		$jsTemplate = null;
+		$jsTpl = $view->getJsTplFile();
+		if (! empty($jsTpl) && is_string($jsTpl)) {
+			$jsTemplate = new FileViewTemplate($jsTpl);
+			$jsTemplate->viewCompositor($view->getViewCompositor());	
+		}
+
 		/*
 		 * By default the html doc is Appfuel\View\Html\HtmlDocTemplate,
 		 * however, if a class is given then I will create that class and check
@@ -238,7 +245,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
 			$page = new $pageClass($view, $htmlDoc);
 		}
 		else {
-			$page = new HtmlPage($view, $htmlDoc);
+			$page = new HtmlPage($view, $jsTemplate, $htmlDoc);
 		}
 
 		return $page;

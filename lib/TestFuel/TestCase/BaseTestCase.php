@@ -198,6 +198,14 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		return $provider->provideNonEmptyStrings();
 	}
 
+	/**
+	 * @return	array
+	 */
+	public function provideNonEmptyStringsNoNumbers()
+	{
+		$provider = $this->getStringProvider();
+		return $provider->provideNonEmptyStrings(false);
+	}
 
 	/**
 	 * @return	array
