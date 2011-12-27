@@ -13,8 +13,51 @@ namespace Appfuel\View\Html;
 use Appfuel\View\FileViewInterface;
 
 /**
- * Interface to manage the html page 
+ * Interface to manage the html view
  */
 interface HtmlViewInterface extends FileViewInterface
 {
+    /**
+     * @return  string
+     */
+    public function getJsFile();
+
+    /**
+     * @param   string  $file
+     * @return  HtmlViewTemplate
+     */
+    public function setJsFile($file);
+
+    /**
+     * @return  string
+     */
+    public function getHtmlDocClass();
+
+    /**
+     * @param   string  $file
+     * @return  HtmlViewTemplate
+     */
+    public function setHtmlDocClass($class);
+    
+	/**
+     * @return  string
+     */
+    public function getLayoutClass();
+
+    /**
+     * @param   string  $file
+     * @return  HtmlViewTemplate
+     */
+    public function setLayoutClass($class);
+
+    /**
+     * @return  string
+     */
+    public function getHtmlPageClass();
+
+    /**
+     * @param   string  $file
+     * @return  HtmlViewTemplate
+     */
+    public function setHtmlPageClass($class);
 }
