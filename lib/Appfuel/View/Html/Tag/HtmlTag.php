@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Html\Element;
+namespace Appfuel\View\Html\Tag;
 
 use InvalidArgumentException;
 
@@ -23,7 +23,7 @@ use InvalidArgumentException;
  * tag. There are seperate methods for building content, the attribute string
  * and the tag itself.
  */
-class Tag implements HtmlTagInterface
+class HtmlTag implements HtmlTagInterface
 {
 	/**
 	 * Used to separate content

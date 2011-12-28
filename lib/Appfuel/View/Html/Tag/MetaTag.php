@@ -8,16 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Html\Element\Meta;
-
-use Appfuel\View\Html\Element\Tag as ParentTag;
+namespace Appfuel\View\Html\Tag;
 
 /**
  * The base tag specifies a default url and/or a default target for all 
  * elements with a url(hyperlinks, images, forms, etc..). This tag must
  * live in the head element but thats not enforced. 
  */
-class Tag extends ParentTag
+class MetaTag extends HtmlTag
 {
 	/**
 	 * Only has two valid attributes href and target

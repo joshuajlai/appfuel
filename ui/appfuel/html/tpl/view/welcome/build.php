@@ -12,6 +12,7 @@ return array(
 	'asset-files' => array(
 
 	),
+	'framework-js' => array(
 
-	'depends' => array('appfuel/html/pkg/global/app-global.php'),
+	)
 );

@@ -27,5 +27,6 @@ class HtmlView extends HtmlViewTemplate
 		$tpl = 'appfuel/html/tpl/view/welcome/welcome-view.phtml';
 		$js	 = 'appfuel/html/tpl/view/welcome/welcome-init.phtml';
 		parent::__construct($tpl, $js);
+		
 	}
 }

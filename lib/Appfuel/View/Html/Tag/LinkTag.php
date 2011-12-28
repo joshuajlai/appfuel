@@ -8,46 +8,65 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Html\Element;
+namespace Appfuel\View\Html\Tag;
 
 /**
  * The link tag defines the relationship between a document and external 
  * resource. Mostly used to link stylesheet
  */
-class CssStyle extends Tag
+class LinkTag extends HtmlTag
 {
 	/**
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($content = null, $type = null)
+	public function __construct($href = null, $rel = null, $type = null)
 	{
 		$valid = array(
+			'href',
+			'hreflang',
 			'media',
-			'scope',
+			'rel',
+			'sizes',
 			'type'
 		);
-		$this->setTagName('style')
+		$this->setTagName('link')
+			 ->disableClosingTag()
 			 ->addValidAttributes($valid);
+
+		if (null === $rel) {
+			$rel = 'stylesheet';
+		}
 
 		if (null === $type) {
 			$type = 'text/css';
-		}	
-		$this->addAttribute('type', $type);
+		}
+		$this->addAttribute('rel',  $rel)
+			 ->addAttribute('type', $type);
 
-		if ($this->isValidString($content)) {
-			$this->addContent($content);
+		if ($this->isValidString($href)) {
+			$this->addAttribute('href', $href);
 		}
 	}
 
 	/**
-	 * Only render when content is available
+	 * Determines if the href is present 
 	 * 
+	 * @return bool
+	 */
+	public function isValidHref()
+	{
+		return $this->attributeExists('href') && ! empty($this->attrs['href']);
+	}
+
+	/**
+	 * Check the href attribute before building
+	 *
 	 * @return string
 	 */
 	public function build()
 	{
-		if (0 === $this->contentCount()) {
+		if (! $this->isValidHref()) {
 			return '';
 		}
 
