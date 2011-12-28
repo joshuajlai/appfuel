@@ -15,8 +15,10 @@ use Exception,
 	InvalidArgumentException,
 	Appfuel\View\AjaxTemplate,
 	Appfuel\View\ViewTemplate,
+	Appfuel\View\FileViewTemplate,
 	Appfuel\View\Html\HtmlDocTemplate,
 	Appfuel\View\Html\HtmlDocInterface,
+	Appfuel\View\Html\HtmlPageTemplate,
 	Appfuel\View\Html\HtmlViewInterface,
 	Appfuel\View\AjaxInterface,
 	Appfuel\View\ViewInterface,
@@ -199,10 +201,10 @@ class MvcActionFactory implements MvcActionFactoryInterface
         }
 
 		$jsTemplate = null;
-		$jsTpl = $view->getJsTplFile();
+		$jsTpl = $view->getJsFile();
 		if (! empty($jsTpl) && is_string($jsTpl)) {
 			$jsTemplate = new FileViewTemplate($jsTpl);
-			$jsTemplate->viewCompositor($view->getViewCompositor());	
+			$jsTemplate->setViewCompositor($view->getViewCompositor());	
 		}
 
 		/*
@@ -242,10 +244,10 @@ class MvcActionFactory implements MvcActionFactoryInterface
 
 		$pageClass = $view->getHtmlPageClass();
 		if (! empty($pageClass) && is_string($pageClass)) {
-			$page = new $pageClass($view, $htmlDoc);
+			$page = new $pageClass($view, $jsTemplate, $htmlDoc);
 		}
 		else {
-			$page = new HtmlPage($view, $jsTemplate, $htmlDoc);
+			$page = new HtmlPageTemplate($view, $jsTemplate, $htmlDoc);
 		}
 
 		return $page;

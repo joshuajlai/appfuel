@@ -12,7 +12,7 @@ namespace Appfuel\Action\Welcome;
 
 use Appfuel\Kernel\Mvc\MvcAction,
 	Appfuel\View\ViewTemplate,
-	Appfuel\View\Html\HtmlDocTemplate,
+	Appfuel\View\Html\HtmlPageInterface,
 	Appfuel\View\Compositor\FileCompositor,
 	Appfuel\Kernel\Mvc\MvcContextInterface;
 
@@ -38,21 +38,22 @@ class ActionController extends MvcAction
      */
     public function process(MvcContextInterface $context)
 	{
-		$title = 'Welcome Page';
-		$htmlDoc = new HtmlDocTemplate();
-		$htmlDoc->setTitle($title);
-
-		$compositor = new FileCompositor();
-		$compositor->setFile(
-			'appfuel/html/tpl/view/welcome/welcome-view.phtml'
-		);
-
-		$view = new ViewTemplate(null, $compositor);
+		$view = $context->getView();
+		$assignTitle = 'content.title';
+		$title = 'Welcome to the Appfuel Framework';
 		
-		$view->assign('title', 'Welcome To Appfuel Framework');
-		$view->assign('msg', 'some text will need to go here');
-		
-		$htmlDoc->addBodyContent($view);
-		$context->setView($htmlDoc);
+		$assignMsg =  'content.msg';
+		$msg = 'some text will need to go here';
+		if (! ($view instanceof HtmlPageInterface)) {
+			$assignTitle = 'title';
+			$assignMsg = 'msg';
+		}
+		$view->assign($assignTitle, $title)
+			 ->assign($assignMsg, $msg);
+
+		$doc = $view->getHtmlDoc();
+		$doc->setTitle($title);
+		$yui = 'http://yui.yahooapis.com/3.4.1/build/yui/yui-min.js';
+		$doc->addJsBodyFile($yui);
 	}
 }

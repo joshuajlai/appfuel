@@ -290,7 +290,7 @@ class MvcFront implements MvcFrontInterface
 		$useUri = true;
 		$dispatcher = $this->getDispatcher()
 						   ->clear()
-						   ->setStrategy('html')
+						   ->setStrategy('html-page')
 						   ->useServerRequestUri()
 						   ->defineInputFromSuperGlobals($useUri);
 

@@ -19,12 +19,12 @@ use Appfuel\View\Compositor\ViewCompositorInterface;
 interface ViewInterface
 {
 	/**
-	 * @return	ViewFormatterInterface
+	 * @return	ViewCompositorInterface
 	 */
 	public function getViewCompositor();
 
 	/**
-	 * @param	ViewFormatterInterface $formatter
+	 * @param	ViewCompositorInterface $formatter
 	 * @return	ViewTemplate
 	 */
 	public function setViewCompositor(ViewCompositorInterface $compositor);
@@ -39,10 +39,10 @@ interface ViewInterface
 
     /**
      * @param   string					$key
-     * @param   ViewTemplateInterface   $template
-     * @return  ViewTemplateInterface
+     * @param   ViewInterface   $template
+     * @return  ViewInterface
      */
-    public function addTemplate($key, ViewTemplateInterface $template);
+    public function addTemplate($key, ViewInterface $template);
 
     /**
      * @param   string  $key

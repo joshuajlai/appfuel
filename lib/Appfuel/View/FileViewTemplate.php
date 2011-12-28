@@ -129,10 +129,10 @@ class FileViewTemplate extends ViewTemplate implements FileViewInterface
     public function build()
 	{
 		$compositor = $this->getViewCompositor();
-		if (! ($compositor instanceof ViewCompositorInterface)) {
-			$err  = 'build failed: can not build without a view compositor or ';
-			$err .= 'view compositor that does not implement a Appfuel\View';
-			$err .= '\Compositor\ViewCompositorInterface';
+		if (! ($compositor instanceof FileCompositorInterface)) {
+			$err  = 'build failed: when a template file is set the view ';
+			$err .= 'compositor must implement Appfuel\View\FileCompositor';
+			$err .= 'Interface';
 			throw new RunTimeException($err);
 		}
 
@@ -140,18 +140,7 @@ class FileViewTemplate extends ViewTemplate implements FileViewInterface
 			$this->buildTemplates();
 		}
 
-		if ($this->isFileTemplate()) {
-			$file = $this->getFile();
-			if (! ($compositor instanceof FileCompositorInterface)) {
-				$err  = 'build failed: when a template file is set the view ';
-				$err .= 'compositor must implement Appfuel\View\FileCompositor';
-				$err .= 'Interface';
-				throw new RunTimeException($err);
-			}
-
-			$compositor->setFile($file);
-		}
-
+		$compositor->setFile($this->getFile());
 		return $compositor->compose($this->getAll());
 	}
 }

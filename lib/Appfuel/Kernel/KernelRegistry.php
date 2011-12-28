@@ -62,9 +62,10 @@ class KernelRegistry
 		}
 		
 		$name  = strtolower($name);
-		$valid = array('console', 'html', 'ajax');
+		$valid = array('console', 'html', 'html-page', 'ajax');
 		if (! in_array($name, $valid, true)) {
-			$err = "Application strategy must be -(console|html|ajax)";
+			$err = "Application strategy must be ";
+			$err .= "-(console|html|html-page|ajax)";
 			throw new InvalidArgumentException($err);
 		}
 

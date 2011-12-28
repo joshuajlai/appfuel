@@ -405,8 +405,8 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		}
 		$factory = $this->getActionFactory();	
 		switch ($strategy) {
-			case 'html':
-				$view   = $factory->createHtmlView($namespace);
+			case 'html-page':
+				$view   = $factory->createHtmlPage($namespace);
 				break;
 			case 'ajax':
 				$view   = $factory->createAjaxView($namespace);
@@ -416,7 +416,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 				break;
 			default:
 				$err .= "view strategy is not recognized must be on of the ";
-				$err .= "following -(html|ajax|console)";
+				$err .= "following -(html|ajax|console) -($strategy)";
 				throw new RunTimeException($err);
 		}
 		return $view;

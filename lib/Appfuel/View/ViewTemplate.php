@@ -10,7 +10,8 @@
  */
 namespace Appfuel\View;
 
-use RunTimeException,
+use Exception,
+	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\View\Compositor\TextCompositor,
 	Appfuel\View\Compositor\ViewCompositorInterface;
@@ -93,7 +94,7 @@ class ViewTemplate implements ViewInterface
 		if (! empty($key) || 
 			is_string($key) || 
 			isset($this->templates[$key]) ||
-			$this->templates[$key] instanceof ViewTemplateInterface) {
+			$this->templates[$key] instanceof ViewInterface) {
 			return true;
 		}
 
@@ -105,7 +106,7 @@ class ViewTemplate implements ViewInterface
      * @param   TemplateInterface   $template
      * @return  CompositeTemplate
      */
-    public function addTemplate($key, ViewTemplateInterface $template)
+    public function addTemplate($key, ViewInterface $template)
     {
         if (empty($key) || ! is_string($key)) {
 			$err = 'addTemplate failed: key must be a non empty string';
@@ -334,7 +335,7 @@ class ViewTemplate implements ViewInterface
 
 		if (false === strpos($key, '.')) {
 			$template = $this->getTemplate($key);
-			if (! ($template instanceof ViewTemplateInterface)) {
+			if (! ($template instanceof ViewInterface)) {
 				$err .= "template not found at -($key)";
 				throw new RunTimeException($err);
 			}
@@ -350,7 +351,7 @@ class ViewTemplate implements ViewInterface
 
 		$label = array_pop($parts);
 		$template = $this->traverseTemplates($parts);
-		if (! ($template instanceof ViewTemplateInterface)) {
+		if (! ($template instanceof ViewInterface)) {
 			$err .= "no template found at -($template)";
 			throw new RunTimeException($err);
 		}
@@ -406,7 +407,7 @@ class ViewTemplate implements ViewInterface
 
 		if (false === strpos($key, '.')) {
 			$template = $this->getTemplate($key);
-			if (! ($template instanceof ViewTemplateInterface)) {
+			if (! ($template instanceof ViewInterface)) {
 				return $default;
 			}
 			return $template->get($key, $default);
@@ -420,7 +421,7 @@ class ViewTemplate implements ViewInterface
 
 		$key = array_pop($parts);
 		$template = $this->traverseTemplates($parts);
-		if (! ($template instanceof ViewTemplateInterface)) {
+		if (! ($template instanceof ViewInterface)) {
 			return $default;
 		}
 
@@ -528,7 +529,7 @@ class ViewTemplate implements ViewInterface
 		$template = $this;
 		foreach ($keys as $templateKey) {
 			$template = $template->getTemplate($templateKey);
-			if (! ($template instanceof ViewTemplateInterface)) {
+			if (! ($template instanceof ViewInterface)) {
 				return $templateKey;
 			}
 		}

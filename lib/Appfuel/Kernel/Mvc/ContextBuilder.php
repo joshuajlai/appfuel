@@ -64,7 +64,7 @@ class ContextBuilder implements ContextBuilderInterface
 		}
         $strategy = strtolower($strategy);
 
-        $valid = array('html', 'console', 'ajax');
+        $valid = array('html', 'html-page', 'console', 'ajax');
         if (! in_array($strategy, $valid, true)) {
             $err  = 'strategy must be on of the following ';
             $err .= '-(' . implode('|', $valid) . ')';

@@ -24,12 +24,8 @@ class HtmlView extends HtmlViewTemplate
 	 */
 	public function __construct()
 	{
-		$tpl = 'view/welecom/welcome-view.phtml';
-		$htmlDoc = 'Appfuel\View\Html\HtmlDocTemplate';
-		$requires = array();
-		$enableFrameworkSeed = true;
-		$layout	  = null;
-		
-		
+		$tpl = 'appfuel/html/tpl/view/welcome/welcome-view.phtml';
+		$js	 = 'appfuel/html/tpl/view/welcome/welcome-init.phtml';
+		parent::__construct($tpl, $js);
 	}
 }

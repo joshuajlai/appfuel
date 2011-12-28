@@ -48,6 +48,7 @@ $this->render('doctype', '<!DOCTYPE HTML>'); ?>
 <?php
 	if ($isJs) {
 		$this->render('scripts-js-body', '', '');
+		echo PHP_EOL;
 		$this->render('inline-js-body', '');
 	}
 
