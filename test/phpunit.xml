@@ -33,7 +33,6 @@
 	<directory suffix="Test.php">../lib/TestFuel/Test/Error</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Test/Kernel</directory>
 
-	<file>../lib/TestFuel/Unit/Kernel/KernelRegistryTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/KernelOutputTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/FaultHandlerTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/IncludePathTest.php</file>
@@ -47,6 +46,7 @@
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcFrontTest.php</file>
 -->
+	<file>../lib/TestFuel/Unit/View/Html/Tag/TagAttributesTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\View\Html\Element;
+namespace TestFuel\Unit\View\Html\Tag;
 
 use StdClass,
 	SplFileInfo,
-	Appfuel\View\Html\Element\Tag,
+	Appfuel\View\Html\Tag\HtmlTag,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
