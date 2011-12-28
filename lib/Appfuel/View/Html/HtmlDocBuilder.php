@@ -28,31 +28,47 @@ use InvalidArgumentException,
 /**
  * Template used to generate generic html documents
  */
-class HtmlDocTemplate extends FileViewTemplate implements HtmlDocInterface
+class HtmlDocBuilder implements HtmlDocBuilderInterface
 {
 	/**
 	 * Attributes for the html tag
 	 * @var array
 	 */
-	protected $htmlAttrs = array();
+	protected $htmlAttrs = null;
 
 	/**
 	 * Attributes for the head tag
 	 * @var array
 	 */
-	protected $headAttrs = array();
+	protected $headAttrs = null;
 
 	/**
 	 * Attributes for the body tag
 	 * @var array
 	 */
-	protected $bodyAttrs = array();
+	protected $bodyAttrs = null;
+
+	/**
+	 * @var	 TitleTag
+	 */
+	protected $title = null;
 
 	/**
 	 * We use a tag only for its ability to store content
 	 * @var Tag
 	 */
-	protected $bodyContent = null;
+	protected $metaList = null;
+
+
+	/**
+	 * @var bool
+	 */
+	protected $isCss = true;
+
+	/**
+	 * @var bool
+	 */
+	protected $isJs = true;
 
 	/**
 	 * Sometimes it is necessary to have body content at the end, after
