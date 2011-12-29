@@ -12,7 +12,7 @@ namespace Appfuel\View\Html\Tag;
 
 /**
  */
-interface HtmlTagInterface
+interface GenericTagInterface
 {
 	/**
 	 * @return string

@@ -55,7 +55,7 @@ class LinkTagTest extends BaseTestCase
 	public function testConstructor()
 	{
 		$this->assertInstanceOf(
-			'\Appfuel\View\Html\Tag\HtmlTagInterface',
+			'\Appfuel\View\Html\Tag\GenericTagInterface',
 			$this->link
 		);
 	}

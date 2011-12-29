@@ -12,14 +12,14 @@ namespace TestFuel\Unit\View\Html\Tag;
 
 use StdClass,
 	SplFileInfo,
-	Appfuel\View\Html\Tag\HtmlTag,
+	Appfuel\View\Html\Tag\GenericTag,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
  * The html element tag is used to automate the rendering of the html element
  * and provide a simpler interface to add data to the element
  */
-class HtmlTagTest extends BaseTestCase
+class GenericTagTest extends BaseTestCase
 {
     /**
      * System under test
@@ -38,7 +38,7 @@ class HtmlTagTest extends BaseTestCase
     public function setUp()
     { 
 		$this->tagName = 'title';  
-        $this->tag = new HtmlTag($this->tagName);
+        $this->tag = new GenericTag($this->tagName);
     }
 
     /**
@@ -55,7 +55,7 @@ class HtmlTagTest extends BaseTestCase
 	public function testInitialState()
 	{
 		$this->assertInstanceOf(
-			'Appfuel\View\Html\Tag\HtmlTagInterface',
+			'Appfuel\View\Html\Tag\GenericTagInterface',
 			$this->tag
 		);
 

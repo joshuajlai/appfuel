@@ -17,7 +17,7 @@ use RunTimeException;
  * elements with a url(hyperlinks, images, forms, etc..). This tag must
  * live in the head element but thats not enforced. 
  */
-class BaseTag extends HtmlTag
+class BaseTag extends GenericTag
 {
 	/**
 	 * Only has two valid attributes href and target

@@ -53,7 +53,7 @@ class StyleTestTag extends BaseTestCase
 	public function testInitialState()
 	{
 		$this->assertInstanceOf(
-			'\Appfuel\View\Html\Tag\HtmlTagInterface',
+			'\Appfuel\View\Html\Tag\GenericTagInterface',
 			$this->tag
 		);
 

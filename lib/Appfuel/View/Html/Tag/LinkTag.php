@@ -14,7 +14,7 @@ namespace Appfuel\View\Html\Tag;
  * The link tag defines the relationship between a document and external 
  * resource. Mostly used to link stylesheet
  */
-class LinkTag extends HtmlTag
+class LinkTag extends GenericTag
 {
 	/**
 	 * @param	string	$data	content for the title

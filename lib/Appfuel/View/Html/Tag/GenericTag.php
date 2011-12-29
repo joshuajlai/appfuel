@@ -14,7 +14,7 @@ use InvalidArgumentException;
 
 /**
  */
-class HtmlTag implements HtmlTagInterface
+class GenericTag implements GenericTagInterface
 {
 	/**
 	 * Used to hold html tag attributes

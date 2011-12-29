@@ -71,7 +71,10 @@ class ScriptTagTest extends BaseTestCase
 	public function testInitialState()
 	{
 
-		$this->assertInstanceOf('\Appfuel\View\Html\Tag\HtmlTag', $this->tag);
+		$this->assertInstanceOf(
+			'\Appfuel\View\Html\Tag\GenericTagInterface', 
+			$this->tag
+		);
 		$this->assertFalse($this->tag->isEmpty());
 		$this->assertEquals($this->content, $this->tag->getContentString());
 		$this->assertTrue($this->tag->isAttribute('type'));

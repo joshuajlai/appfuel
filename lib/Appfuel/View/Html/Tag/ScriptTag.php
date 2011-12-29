@@ -19,7 +19,7 @@ use RunTimeException;
  * 1) src attribute is present and there is no content
  * 2) content is available and there is no src attribute
  */
-class ScriptTag extends HtmlTag
+class ScriptTag extends GenericTag
 {
 	/**
 	 * @param	string	$data	content for the title

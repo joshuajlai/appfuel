@@ -13,7 +13,7 @@ namespace Appfuel\View\Html\Tag;
 /**
  * Currently I am not validating on what attributes exist with other attributes
  */
-class MetaTag extends HtmlTag
+class MetaTag extends GenericTag
 {
 	/**
 	 * Only has two valid attributes href and target

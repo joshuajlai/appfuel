@@ -63,7 +63,7 @@ class TitleTagTest extends BaseTestCase
 	public function testConstructor()
 	{
 		$this->assertInstanceOf(
-			'\Appfuel\View\Html\Tag\HtmlTag',
+			'\Appfuel\View\Html\Tag\GenericTagInterface',
 			$this->title
 		);
 

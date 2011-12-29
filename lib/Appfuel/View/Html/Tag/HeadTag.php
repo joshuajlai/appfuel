@@ -13,7 +13,7 @@ namespace Appfuel\View\Html\Tag;
 /**
  * Title tag used in the html head
  */
-class TitleTag extends GenericTag
+class HeadTag extends HtmlTag
 {
 	/**
 	 * @param	string	$data	content for the title
