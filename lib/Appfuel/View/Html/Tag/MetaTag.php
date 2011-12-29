@@ -11,9 +11,7 @@
 namespace Appfuel\View\Html\Tag;
 
 /**
- * The base tag specifies a default url and/or a default target for all 
- * elements with a url(hyperlinks, images, forms, etc..). This tag must
- * live in the head element but thats not enforced. 
+ * Currently I am not validating on what attributes exist with other attributes
  */
 class MetaTag extends HtmlTag
 {
@@ -22,61 +20,26 @@ class MetaTag extends HtmlTag
 	 *
 	 * @return	base
 	 */
-	public function __construct($name = null, $content = null)
+	public function __construct($name = null, $content = null, $equiv = null)
 	{
-		$validAttrs = array(
-			'charset',
-			'content',
-			'http-equiv',
-			'name'
-		);
-		$this->setTagName('meta')
-			 ->disableClosingTag()
-			 ->addValidAttributes($validAttrs);
-			
-
-		if ($this->isValidString($name) && $this->isValidString($content)) {
-			$this->addAttribute('name', $name)
-				 ->addAttribute('content', $content);
+		parent::__construct('meta');
+		$attrs = $this->getTagAttributes();
+		$attrs->loadWhiteList(array('charset','content','http-equiv','name'));
+			  
+		
+		if (null !== $equiv) {
+			$attrs->add('http-equiv', $equiv);
 		}
-	}
 
-	/**
-	 * Determines if a attributes are valid for a charset
-	 * 
-	 * @return bool
-	 */
-	public function isValidCharset()
-	{
-		return $this->attributeExists('charset') &&
-			   ! $this->attributeExists('name')  &&
-			   ! $this->attributeExists('http-equiv') &&
-			   ! $this->attributeExists('content');
-	}
+		if (null !== $name) {
+			$attrs->add('name', $name);
+		}
 
-	/**
-	 * Determines if a attributes are valid for a http-equiv
-	 * 
-	 * @return bool
-	 */
-	public function isValidHttpEquiv()
-	{
-		return $this->attributeExists('http-equiv') &&
-			   $this->attributeExists('content') &&
-			   ! $this->attributeExists('name')  &&
-			   ! $this->attributeExists('charset');
-	}
+		if (null !== $content) {
+			$attrs->add('content', $content);
+		}
 
-	/**
-	 * Determines if a attributes are valid for a name
-	 * 
-	 * @return bool
-	 */
-	public function isValidName()
-	{
-		return $this->attributeExists('name') &&
-			   $this->attributeExists('content') &&
-			   ! $this->attributeExists('http-equiv')  &&
-			   ! $this->attributeExists('charset');
+			 
+		$this->disableClosingTag();
 	}
 }

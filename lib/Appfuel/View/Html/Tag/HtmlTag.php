@@ -204,8 +204,10 @@ class HtmlTag implements HtmlTagInterface
 	 */
     public function addContent($data, $action = 'append')
     {
-		$this->getTagContent()
-			 ->add($data, $action);
+		if ($this->isClosingTag()) {
+			$this->getTagContent()
+				 ->add($data, $action);
+		}
 
         return $this;
     }
