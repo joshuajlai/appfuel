@@ -10,6 +10,8 @@
  */
 namespace Appfuel\View\Html\Tag;
 
+use InvalidArgumentException;
+
 /**
  * The base tag specifies a default url and/or a default target for all 
  * elements with a url(hyperlinks, images, forms, etc..). This tag must
@@ -24,18 +26,23 @@ class BaseTag extends HtmlTag
 	 */
 	public function __construct($href = null, $target = null)
 	{
-		$validAttrs = array('href','target');
-		$this->setTagName('base')
-			 ->disableClosingTag()
-			 ->addValidAttributes($validAttrs);
-			
+		parent::__construct('base');
+		$this->disableClosingTag();
 
-		if ($this->isValidString($href)) {
-			$this->addAttribute('href', $href);
+		$attrs = $this->getTagAttributes();
+		$attrs->loadWhiteList(array('href','target'));
+
+		if (null === $href && null === $target) {
+			$err = 'both params href and target can not be empty';
+			throw new InvalidArgumentException($err);			
+		}
+		
+		if (is_string($href) && ! empty($href)) {
+			$attrs->add('href', $href);
 		}
 
-		if ($this->isValidString($target)) {
-			$this->addAttribute('target', $target);
+		if (is_string($target) && ! empty($target)) {
+			$attrs->add('target', $target);
 		}
 	}
 }

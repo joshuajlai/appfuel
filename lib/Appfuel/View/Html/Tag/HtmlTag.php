@@ -13,24 +13,9 @@ namespace Appfuel\View\Html\Tag;
 use InvalidArgumentException;
 
 /**
- * This class looks to model the html5 tag. It has attribute validation which
- * allows you to indicate which attributes are valid for a given tag. Also 
- * has added all the html5 global attributes sa valid attributes so they do 
- * not need to be declared with every class extending this. Currently this
- * class does not support the validation of the attribute values. The interface
- * always you to add and remove attributes and content. It also allows you to
- * enable or disable the closing tag as some tags do not require the closing
- * tag. There are seperate methods for building content, the attribute string
- * and the tag itself.
  */
 class HtmlTag implements HtmlTagInterface
 {
-	/**
-	 * Used to separate content
-	 * @var string
-	 */
-	protected $separator = ' ';
-
 	/**
 	 * Used to hold html tag attributes
 	 * @var TagAttributesInterface
@@ -39,9 +24,9 @@ class HtmlTag implements HtmlTagInterface
 
 	/**
 	 * Used to hold the contents of the tag
-	 * @var array
+	 * @var TagContentInterface
 	 */ 
-	protected $content = array();
+	protected $content = null;
 
 	/**
 	 * Name of the html tag. This name will be used to generate the actual
@@ -54,6 +39,27 @@ class HtmlTag implements HtmlTagInterface
 	 * @var bool
 	 */
 	protected $isClosingTag = true;
+
+	/**
+	 * @param	TagContentInterface $content 
+	 * @param	TagAttributesInterface $attrs
+	 * @return	HtmlTag
+	 */
+	public function __construct($tagName, 
+								TagContentInterface $content = null,
+								TagAttributesInterface $attrs = null)
+	{
+		$this->setTagName($tagName);
+		if (null === $content) {
+			$content = new TagContent();
+		}
+		$this->content = $content;
+
+		if (null === $attrs) {
+			$attrs = new TagAttributes();
+		}
+		$this->attrs = $attrs;
+	}
 
 	/**
 	 * @return string
@@ -69,7 +75,7 @@ class HtmlTag implements HtmlTagInterface
 	 */
 	public function setTagName($name)
 	{
-		if (! $this->isValidString($name)) {
+		if (! is_string($name) || ! ($name = trim($name))) {
 			throw new InvalidArgumentException(
 				"Invalid name for tag must be a string"
 			);
@@ -105,33 +111,14 @@ class HtmlTag implements HtmlTagInterface
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getSeparator()
-	{
-		return $this->separator;
-	}
-
-	/**
-	 * @param	scalar	$char
-	 * @return	Tag
-	 */
-	public function setSeparator($char)
-	{
-		if (! is_scalar($char)) {
-			return $this;
-		}
-
-		$this->separator = $char;
-		return $this;
-	}
-
-	/**
 	 * @param	array	$attrs	list of attributes to add
 	 * @return	Tag
 	 */
 	public function loadAttributes(array $attrs)
 	{
+		$this->getTagAttributes()
+			 ->load($attrs);
+		return $this;
 	}
 
 	/**
@@ -139,8 +126,12 @@ class HtmlTag implements HtmlTagInterface
 	 * @param	string	$value
 	 * @return	Tag
 	 */
-	public function addAttribute($name, $value)
+	public function addAttribute($name, $value = null)
 	{
+		$this->getTagAttributes()
+			 ->add($name, $value);
+
+		return $this;
 	}
 
 	/**
@@ -151,10 +142,18 @@ class HtmlTag implements HtmlTagInterface
 	 */
 	public function getAttribute($name, $default = null)
 	{
+		return $this->getTagAttributes()
+					->get($name, $default);
 	}
 
+	/**
+	 * @param	string	$name
+	 * @return	bool
+	 */
 	public function isAttribute($name)
 	{
+		return $this->getTagAttributes()
+					->exists($name);
 	}
 
 	/**
@@ -166,36 +165,8 @@ class HtmlTag implements HtmlTagInterface
 	 */
     public function addContent($data, $action = 'append')
     {
-        /*
-         * make sure the data is an array
-         */
-        if (! is_array($data)) {
-            $data = array($data);
-        }
-
-        /*
-         * content data structure does not exits. This could be caused
-         * by the first use in the constructor or a concrete class blew
-         * it away. Either way we recover by adding data to it and we are done
-         */
-        if (empty($this->content)) {
-            $this->content = $data;
-            return $this;
-        }
-
-        switch ($action) {
-            case 'append':
-                $this->content = array_merge($this->content, $data);
-                break;
-            case 'prepend':
-                $this->content = array_merge($data, $this->content);
-                break;
-            case 'replace':
-                $this->content = $data;
-                break;
-			default :
-				$this->content = $data;
-        }
+		$this->getTagContent()
+			 ->add($data, $action);
 
         return $this;
     }
@@ -203,17 +174,16 @@ class HtmlTag implements HtmlTagInterface
 	/**
 	 * @return array
 	 */
-	public function getContent()
+	public function getContent($index = null)
 	{
-		return $this->content;
+		return $this->getTagContent()
+					->get($index);
 	}
 
-	/**
-	 * @return int
-	 */
-	public function contentCount()
+	public function clearContent($index = null)
 	{
-		return count($this->content);
+		return $this->getTagContent()
+					->clear($index);
 	}
 
 	/**
@@ -222,43 +192,20 @@ class HtmlTag implements HtmlTagInterface
 	 *
 	 * @return string
 	 */
-	public function buildContent()
+	public function getContentString()
 	{
-        $content  = $this->getContent();
-        $sep      = $this->getSeparator();
-        $str = '';
-        foreach ($content as $index => $item) {
-            if (is_scalar($item)) {
-                $str .= $sep . $item;
-            } else if (is_array($item)) {
-                $str .= implode($sep, $item);
-            } else if (is_object($item) && method_exists($item, '__toString')) {
-                $str .= $sep . $item->__toString();
-            }
-        }
+		return $this->getTagContent()
+					->build();
 
-        return trim($str, $sep);
 	}
 
 	/**
-	 * Used to build a string of attr=value sets for the tag when 
-	 * attributes are disabled it returns an empty string
-	 *
 	 * @return string
 	 */
-	public function buildAttributes()
+	public function getAttributeString()
 	{
-		if (! $this->isAttributesEnabled()) {
-			return '';
-		}
-
-		$attrs = $this->getAttributes();
-		$result = '';
-		foreach ($attrs as $attr => $value) {
-			$result .= "$attr=\"$value\" ";
-		}
-
-		return trim($result);
+		return $this->getTagAttributes()
+					->build();
 	}
 
 	/**
@@ -266,45 +213,69 @@ class HtmlTag implements HtmlTagInterface
 	 */
 	public function build()
 	{
+		return $this->buildTag(
+				$this->getTagContent(), 
+				$this->getTagAttributes()
+		);
+	}
+
+	/**
+	 * @param	string|TagContentInterface	$content
+	 * @param	string|TagAttributesInterface $attrs
+	 * @return	string
+	 */
+	public function buildTag($content, $attrs = '')
+	{
+		if (! (is_string($attrs) || 
+			  ($attrs instanceof TagAttributesInterface))) {
+			$err  = 'attributes must be a string or an object that implements ';
+			$err .= 'Appfuel\View\Html\Tag\TagAttributesInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		if (! (is_string($content) ||
+			  ($content instanceof TagContentInterface))) {
+			$err  = 'content must be a string of an object that implements ';
+			$err .= 'Appfuel\View\Html\Tag\TagContentInterface';
+			throw new InvalidArgumentException($err);
+		}
+
 		$tagName = $this->getTagName();
-		
 		/* an html element with no tag name can not be rendered to anything
 		 * useful
 		 */
 		if (empty($tagName)) {
 			return '';
 		}
-		
 		$isClosingTag = $this->isClosingTag();
-		$attrCount    = $this->attributeCount();
+		$tag = "<{$tagName}";
 
+		$isAttrs = (is_string($attrs) && ! empty($attrs)) ||
+				  ($attrs instanceof TagAttributesInterface && 
+				   $attrs->count() > 0);
+			
+			
 		/* an html element that need no closing tag must have some attributes
 		 * otherwise it servers no purpose
 		 */
-		if (! $isClosingTag && $attrCount === 0) {
+		if (! $isClosingTag && ! $isAttrs) {
 			return '';
 		}
 
-		$tag = "<{$tagName}";
-		
-		/* add the attributes for this element */
-		if ($this->isAttributesEnabled()) {
-			$tag .= ' ' . $this->buildAttributes();
-			$tag  = trim($tag);
+		if ($isAttrs) {
+			$tag .= " $attrs";
 		}
-		
-		/* the last parent of the element is dependent on wether it needs
-		 * a closing tag or not. When no closing tag is required no content
-		 * is used for that tag
-		 */
+	
+		/*
+		 * content is only used for tags that close
+		 */	
 		if ($isClosingTag) {
-			$content = $this->buildContent();
-			$tag .= ">{$content}</{$tagName}>";
+			$tag .= ">$content</{$tagName}>";
 		} 
 		else {
 			$tag .= '/>';
 		}
-		
+
 		return $tag;
 	}
 
@@ -317,11 +288,18 @@ class HtmlTag implements HtmlTagInterface
 	}
 
 	/**
-	 * @param	string $str
-	 * @return	boo
+	 * @return	TagAttributesInterface
 	 */
-	protected function isValidString($str)
+	protected function getTagAttributes()
 	{
-		return is_string($str) && ! empty($str);
+		return $this->attrs;
+	}
+
+	/**
+	 * @return	TagContentInterface
+	 */
+	protected function getTagContent()
+	{
+		return $this->content;
 	}
 }

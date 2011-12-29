@@ -152,7 +152,7 @@ class TagContent implements TagContentInterface
         $sep      = $this->getSeparator();
         $str = '';
         foreach ($content as $item) {
-            $str .= $sep . (string)$item;
+            $str .= $sep . $item;
         }
 
         return trim($str, $sep);

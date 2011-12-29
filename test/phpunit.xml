@@ -48,6 +48,8 @@
 -->
 	<file>../lib/TestFuel/Unit/View/Html/Tag/TagAttributesTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/TagContentTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/Tag/HtmlTagTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/Tag/BaseTagTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

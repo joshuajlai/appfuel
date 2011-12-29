@@ -12,14 +12,13 @@ namespace TestFuel\Unit\View\Html\Element;
 
 use StdClass,
 	SplFileInfo,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\View\Html\Element\Tag,
-	Appfuel\View\Html\Element\Base;
+	Appfuel\View\Html\Tag\BaseTag,
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * Test the base tag
  */
-class BaseTest extends BaseTestCase
+class BaseTagTest extends BaseTestCase
 {
     /**
      * System under test
@@ -46,7 +45,7 @@ class BaseTest extends BaseTestCase
     {   
 		$this->href   = 'http://www.someurl.com/css/';
 		$this->target = '_blank';
-        $this->base   = new Base($this->href, $this->target);
+        $this->base   = new BaseTag($this->href, $this->target);
     }
 
     /**
@@ -54,7 +53,7 @@ class BaseTest extends BaseTestCase
      */
     public function tearDown()
     {   
-        unset($this->base);
+        $this->base = null;
     }
 
 	/**
@@ -63,7 +62,7 @@ class BaseTest extends BaseTestCase
 	public function testConstructor()
 	{
 		$this->assertInstanceOf(
-			'\Appfuel\View\Html\Element\Tag',
+			'\Appfuel\View\Html\Tag\HtmlTagInterface',
 			$this->base,
 			'must extend the tag class'
 		);
@@ -82,16 +81,16 @@ class BaseTest extends BaseTestCase
 	{
 		$expected = '<base href="' . $this->href   . 
 					'" target="'   . $this->target . '"/>';
-		
+	
 		$this->assertEquals($expected, $this->base->build()); 
 
-		$base = new Base($this->href);
+		$base = new BaseTag($this->href);
 
 		$expected = '<base href="' . $this->href . '"/>';
 		$this->assertEquals($expected, $base->build());
 
 
-		$base = new Base(null, $this->target);
+		$base = new BaseTag(null, $this->target);
 		$expected = '<base target="' . $this->target . '"/>';
 		
 		$this->assertEquals($expected, $base->build()); 

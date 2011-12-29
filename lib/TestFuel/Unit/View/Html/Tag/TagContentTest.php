@@ -370,7 +370,4 @@ class TagContentTest extends BaseTestCase
 		$this->expectOutputString($expected);
 		echo $this->content;
 	}
-
-
-
 }
