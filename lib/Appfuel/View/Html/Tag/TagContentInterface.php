@@ -83,6 +83,14 @@ interface TagContentInterface
 
 	/**
 	 * Requirements:
+	 * 1) must return true when content count is 0 and false otherwise
+	 *
+	 * @return	bool
+	 */
+	public function isEmpty();
+
+	/**
+	 * Requirements:
 	 * 1) when index is null replace the content with an empty array
 	 * 2) when index is an int and in range unset that content block
 	 * 3) when index is not an integer or out of range return false

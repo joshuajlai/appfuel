@@ -22,35 +22,19 @@ class StyleTag extends HtmlTag
 	 */
 	public function __construct($content = null, $type = null)
 	{
-		$valid = array(
-			'media',
-			'scope',
-			'type'
-		);
-		$this->setTagName('style')
-			 ->addValidAttributes($valid);
-
-		if (null === $type) {
+		if (empty($type) || ! is_string($type)) {
 			$type = 'text/css';
-		}	
-		$this->addAttribute('type', $type);
+		}
 
-		if ($this->isValidString($content)) {
+		parent::__construct('style');
+		$attrs = $this->getTagAttributes();
+		$attrs->loadWhiteList(array('media','scope','type'))
+			  ->add('type', $type);
+
+		if (is_string($content) && ! empty($content)) {
 			$this->addContent($content);
 		}
-	}
 
-	/**
-	 * Only render when content is available
-	 * 
-	 * @return string
-	 */
-	public function build()
-	{
-		if (0 === $this->contentCount()) {
-			return '';
-		}
-
-		return parent::build();
+		$this->disableRenderWhenEmpty();
 	}
 }

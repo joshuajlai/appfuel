@@ -18,8 +18,6 @@ use RunTimeException;
  *
  * 1) src attribute is present and there is no content
  * 2) content is available and there is no src attribute
- *
- * In each case the type attribute is set with text/javascript mime
  */
 class ScriptTag extends HtmlTag
 {
@@ -27,33 +25,64 @@ class ScriptTag extends HtmlTag
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($src = null, $content = null)
+	public function __construct($src = null, $content = null, $type = null)
 	{
-		$valid = array(
-			'async',
-			'charset',
-			'defer',
-			'src',
-			'type'
-		);
-		$this->setTagName('script')
-			 ->addValidAttributes($valid);
-
-		$this->addAttribute('type', 'text/javascript');
-
 		if (null !== $src && null !== $content) {
 			$err  = 'It is a runtime error to set both script source and ';
 			$err .= 'content';
-			throw new RunTimeException($content);
+			throw new RunTimeException($err);
 		}
 
-		if (null !== $content && $this->isValidString($content)) {
+		if (null === $type || ! is_string($type)) {
+			$type = 'text/javascript';
+		}
+
+		parent::__construct('script');
+		$attrs = $this->getTagAttributes();
+		$attrs->loadWhiteList(array('async','charset','defer','src','type'))
+			  ->add('type', 'text/javascript');
+
+		if (null !== $content) {
 			$this->addContent($content);
 		}
 
 		if (null !== $src && is_string($src) && ($src = trim($src))) {
-			$this->addAttribute('src', $src);
+			$attrs->add('src', $src);
 		}
+
+		$this->disableRenderWhenEmpty();
+	}
+
+	/**
+	 * @throws	RunTimeException	when content as already been added
+	 * @param	string	$name	
+	 * @param	string	$value	default null
+	 * @return	ScriptTag
+	 */
+	public function addAttribute($name, $value = null)
+	{
+		if ('src' === $name && ! $this->isEmpty()) {
+			$err = 'can not add a source attribute to a script with content';
+			throw new RunTimeException($err);
+		}
+
+		return parent::addAttribute($name, $value);
+	}
+
+	/**
+	 * @throws	RunTimeException	when src is already added
+	 * @param	string	$name	
+	 * @param	string	$action		default append
+	 * @return	ScriptTag
+	 */
+	public function addContent($name, $action = 'append')
+	{
+		if ($this->isAttribute('src')) {
+			$err = 'can not add content to a script with a src attribute';
+			throw new RunTimeException($err);
+		}
+
+		return parent::addContent($name, $action);
 	}
 
 	/**
@@ -61,18 +90,17 @@ class ScriptTag extends HtmlTag
 	 */
 	public function build()
 	{
-		$content = '';
-		$count   = $this->contentCount();
-		if ($this->attributeExists('src') && 0 === $count) {
-			$content = parent::build();
-		} 
-		else if (! $this->attributeExists('src') && $count > 0) {
-			$content = parent::build();
-		}
-		else {
-			$content = '';
+		$attrs   = $this->getTagAttributes();
+		$content = $this->getTagContent();
+	
+		if ($attrs->exists('src')) {
+			return $this->buildTag('', $attrs); 
 		}
 
-		return $content;
+		if (false === $this->isRenderWhenEmpty() && $content->isEmpty()) {
+			return '';
+		}
+
+		return $this->buildTag($content, $attrs);
 	}
 }

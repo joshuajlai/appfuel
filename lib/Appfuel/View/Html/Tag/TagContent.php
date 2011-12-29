@@ -104,6 +104,14 @@ class TagContent implements TagContentInterface
 	}
 
 	/**
+	 * @return	bool
+	 */
+	public function isEmpty()
+	{
+		return 0 === count($this->data);
+	}
+
+	/**
 	 * @param	$index  default = null
 	 * @return	string|false on failure
 	 */

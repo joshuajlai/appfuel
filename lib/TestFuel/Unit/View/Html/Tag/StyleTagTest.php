@@ -10,18 +10,17 @@
  */
 namespace TestFuel\Style\View\Html\Element;
 
-use Appfuel\View\Html\Element\Tag,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\View\Html\Element\CssStyle;
+use Appfuel\View\Html\Tag\StyleTag,
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  * 
  */
-class StyleTest extends BaseTestCase
+class StyleTestTag extends BaseTestCase
 {
     /**
      * System under test
-     * @var Message
+     * @var StyleTage
      */
     protected $tag = null;
 
@@ -37,7 +36,7 @@ class StyleTest extends BaseTestCase
     public function setUp()
     {   
 		$this->content  = 'h1{color:red}';
-        $this->tag = new CssStyle($this->content);
+        $this->tag = new StyleTag($this->content);
     }
 
     /**
@@ -45,27 +44,26 @@ class StyleTest extends BaseTestCase
      */
     public function tearDown()
     {   
-        unset($this->tag);
+        $this->tag = null;
     }
 
 	/**
 	 * @return null
 	 */
-	public function testConstructor()
+	public function testInitialState()
 	{
 		$this->assertInstanceOf(
-			'\Appfuel\View\Html\Element\Tag',
-			$this->tag,
-			'must extend the tag class'
+			'\Appfuel\View\Html\Tag\HtmlTagInterface',
+			$this->tag
 		);
 
 		/*
 		 * this tag does not have any content
 		 */
-		$expected = array($this->content);
-		$this->assertEquals($expected, $this->tag->getContent());
-
-		$this->assertTrue($this->tag->attributeExists('type'));
+		$this->assertFalse($this->tag->isEmpty());
+		$this->assertTrue($this->tag->isClosingTag());
+		$this->assertFalse($this->tag->isRenderWhenEmpty());
+		$this->assertTrue($this->tag->isAttribute('type'));
 		$this->assertEquals('text/css', $this->tag->getAttribute('type'));
 	}
 
@@ -74,15 +72,22 @@ class StyleTest extends BaseTestCase
 	 */
 	public function testValidAttributes()
 	{
-        $valid = array(
-            'media',
-            'scope',
-            'type'
-        );
+		$value = 'some-value';
+		$this->assertFalse($this->tag->isAttribute('scope'));
+		$this->assertSame(
+			$this->tag, 
+			$this->tag->addAttribute('scope', $value)
+		);
+		$this->assertTrue($this->tag->isAttribute('scope'));
+		$this->assertEquals($value, $this->tag->getAttribute('scope'));
 
-		foreach ($valid as $attr) {
-			$this->assertTrue($this->tag->isValidAttribute($attr));
-		}
+		$this->assertFalse($this->tag->isAttribute('media'));
+		$this->assertSame(
+			$this->tag, 
+			$this->tag->addAttribute('media', $value)
+		);
+		$this->assertTrue($this->tag->isAttribute('media'));
+		$this->assertEquals($value, $this->tag->getAttribute('media'));
 	}
 
 	/**
@@ -93,9 +98,5 @@ class StyleTest extends BaseTestCase
 		$expected = '<style type="text/css">' . $this->content . '</style>';
 
 		$this->assertEquals($expected, $this->tag->build());
-
-		/* will not render without a href */
-		$style = new CssStyle();
-		$this->assertEquals('', $style->build());
 	}
 }

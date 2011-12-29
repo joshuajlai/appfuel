@@ -20,56 +20,36 @@ class LinkTag extends HtmlTag
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($href = null, $rel = null, $type = null)
+	public function __construct($href, $rel = null, $type = null)
 	{
-		$valid = array(
+		if (empty($href) || ! is_string($href)) {
+			$err = 'href must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		parent::__construct('link');
+		$this->disableClosingTag();
+
+		$attrs = $this->getTagAttributes();
+		$attrs->loadWhiteList(array(
 			'href',
 			'hreflang',
 			'media',
 			'rel',
 			'sizes',
 			'type'
-		);
-		$this->setTagName('link')
-			 ->disableClosingTag()
-			 ->addValidAttributes($valid);
+		));
 
-		if (null === $rel) {
+		if (empty($rel) || ! is_string($rel)) {
 			$rel = 'stylesheet';
 		}
 
-		if (null === $type) {
+		if (empty($type) || ! is_string($type)) {
 			$type = 'text/css';
 		}
-		$this->addAttribute('rel',  $rel)
-			 ->addAttribute('type', $type);
 
-		if ($this->isValidString($href)) {
-			$this->addAttribute('href', $href);
-		}
-	}
-
-	/**
-	 * Determines if the href is present 
-	 * 
-	 * @return bool
-	 */
-	public function isValidHref()
-	{
-		return $this->attributeExists('href') && ! empty($this->attrs['href']);
-	}
-
-	/**
-	 * Check the href attribute before building
-	 *
-	 * @return string
-	 */
-	public function build()
-	{
-		if (! $this->isValidHref()) {
-			return '';
-		}
-
-		return parent::build();
+		$attrs->add('rel',  $rel)
+			  ->add('type', $type)
+			  ->add('href', $href);
 	}
 }

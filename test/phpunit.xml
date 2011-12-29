@@ -50,6 +50,9 @@
 	<file>../lib/TestFuel/Unit/View/Html/Tag/TagContentTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/HtmlTagTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/BaseTagTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/Tag/LinkTagTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/Tag/StyleTagTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/Tag/ScriptTagTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

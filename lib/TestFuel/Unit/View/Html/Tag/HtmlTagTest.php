@@ -63,6 +63,7 @@ class HtmlTagTest extends BaseTestCase
 		$this->assertEquals('', $this->tag->getContentString());
 		$this->assertEquals('', $this->tag->getAttributeString());
 		$this->assertTrue($this->tag->isClosingTag());
+		$this->assertTrue($this->tag->isRenderWhenEmpty());
 	}
 
 	/**
@@ -112,6 +113,53 @@ class HtmlTagTest extends BaseTestCase
 
 		$this->assertSame($this->tag, $this->tag->enableClosingTag());
 		$this->assertTrue($this->tag->isClosingTag());
+	}
+
+	/**
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testEnableDisableRenderWhenEmpty()
+	{
+		$this->assertSame(
+			$this->tag,
+			$this->tag->disableRenderWhenEmpty()
+		);
+		$this->assertFalse($this->tag->isRenderWhenEmpty());
+
+		$this->assertSame(
+			$this->tag,
+			$this->tag->enableRenderWhenEmpty()
+		);
+		$this->assertTrue($this->tag->isRenderWhenEmpty());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testIsEmpty()
+	{
+		$this->assertEquals('', $this->tag->getContentString());
+		$this->assertTrue($this->tag->isEmpty());
+
+		$this->tag->addContent('i am a title');
+		$this->assertFalse($this->tag->isEmpty());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testBuildWithIsRenderWhenEmpty()
+	{
+		$this->assertTrue($this->tag->isEmpty());
+		$this->assertTrue($this->tag->isClosingTag());
+		$this->assertTrue($this->tag->isRenderWhenEmpty());
+
+		$expected='<title></title>';
+		$this->assertEquals($expected, $this->tag->build());
+
+		$this->tag->disableRenderWhenEmpty();
+		$this->assertEquals('', $this->tag->build());
 	}
 
 	/**

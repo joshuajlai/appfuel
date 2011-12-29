@@ -41,6 +41,14 @@ class HtmlTag implements HtmlTagInterface
 	protected $isClosingTag = true;
 
 	/**
+	 * Flag used to determine if the html tag should be rendered when it has
+	 * no content. When false and no content exists and $isClosingTag is true
+	 * then build will return an empty string. This does not effect buildTag
+	 * @var bool
+	 */
+	protected $isRenderWhenEmpty = true;
+
+	/**
 	 * @param	TagContentInterface $content 
 	 * @param	TagAttributesInterface $attrs
 	 * @return	HtmlTag
@@ -107,6 +115,37 @@ class HtmlTag implements HtmlTagInterface
 	public function disableClosingTag()
 	{
 		$this->isClosingTag = false;
+		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isRenderWhenEmpty()
+	{
+		return $this->isRenderWhenEmpty;
+	}
+
+	/**
+	 * Do not render the tag when there is no content and the closing tag
+	 * is enabled
+	 *
+	 * @return	HtmlTag
+	 */
+	public function disableRenderWhenEmpty()
+	{
+		$this->isRenderWhenEmpty = false;
+		return $this;
+	}
+
+	/**
+	 * Render the tag eventhough there is no content to render. 
+	 * 
+	 * @return	HtmlTag
+	 */
+	public function enableRenderWhenEmpty()
+	{
+		$this->isRenderWhenEmpty = true;
 		return $this;
 	}
 
@@ -180,6 +219,23 @@ class HtmlTag implements HtmlTagInterface
 					->get($index);
 	}
 
+	/**
+	 * @return	bool
+	 */
+	public function isEmpty()
+	{
+		return $this->getTagContent()
+					->isEmpty();
+	}
+
+	/**
+	 * Since content is held as blocks stored sequentially in an array, you 
+	 * can clear the whole array by leaving index null or you can clear an 
+	 * individual block by giving its index
+	 *
+	 * @param	int	$index null 
+	 * @return	bool
+	 */
 	public function clearContent($index = null)
 	{
 		return $this->getTagContent()
@@ -209,14 +265,19 @@ class HtmlTag implements HtmlTagInterface
 	}
 
 	/**
+	 * We don't call HtmlTag::isEmpty here because we have and need the 
+	 * content tag and that method is just a wrapper.
+	 *
 	 * @return string
 	 */
 	public function build()
 	{
-		return $this->buildTag(
-				$this->getTagContent(), 
-				$this->getTagAttributes()
-		);
+		$content = $this->getTagContent();
+		if (false === $this->isRenderWhenEmpty() && $content->isEmpty()) {
+			return '';
+		}
+
+		return $this->buildTag($content, $this->getTagAttributes());
 	}
 
 	/**
