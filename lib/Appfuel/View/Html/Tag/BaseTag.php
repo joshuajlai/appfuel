@@ -10,7 +10,7 @@
  */
 namespace Appfuel\View\Html\Tag;
 
-use InvalidArgumentException;
+use RunTimeException;
 
 /**
  * The base tag specifies a default url and/or a default target for all 
@@ -34,7 +34,7 @@ class BaseTag extends HtmlTag
 
 		if (null === $href && null === $target) {
 			$err = 'both params href and target can not be empty';
-			throw new InvalidArgumentException($err);			
+			throw new RunTimeException($err);			
 		}
 		
 		if (is_string($href) && ! empty($href)) {

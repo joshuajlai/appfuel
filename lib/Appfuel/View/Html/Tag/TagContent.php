@@ -30,6 +30,21 @@ class TagContent implements TagContentInterface
 	 */ 
 	protected $data = array();
 
+	/**
+	 * @param	string	$char	content separator
+	 * @return	TagContent
+	 */
+	public function __construct($data = null, $char = null)
+	{
+		if (null === $char) {
+			$char = ' ';
+		}
+		$this->setSeparator($char);
+
+		if (null !== $data) {
+			$this->add($data);
+		}
+	}
 
 	/**
 	 * @return string

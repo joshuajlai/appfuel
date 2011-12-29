@@ -11,7 +11,7 @@
 namespace Appfuel\View\Html\Tag;
 
 /**
- * The html 5 title tag supports global attributes
+ * Title tag used in the html head
  */
 class TitleTag extends HtmlTag
 {
@@ -21,11 +21,8 @@ class TitleTag extends HtmlTag
 	 */
 	public function __construct($data = null, $sep = ' ')
 	{
-		$this->setTagName('title')
-			 ->setSeparator($sep);
-
-		if ($this->isValidString($data)) {
-			$this->addContent($data);
-		}
+		$content = new TagContent($data, $sep);
+		parent::__construct('title', $content);
+		$this->disableRenderWhenEmpty();
 	}
 }

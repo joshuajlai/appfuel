@@ -54,6 +54,7 @@
 	<file>../lib/TestFuel/Unit/View/Html/Tag/StyleTagTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/ScriptTagTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/MetaTagTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/Tag/TitleTagTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>
