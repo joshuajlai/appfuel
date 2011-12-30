@@ -18,17 +18,24 @@ class MetaTag extends GenericTag
 	/**
 	 * Only has two valid attributes href and target
 	 *
-	 * @return	base
+	 * @param	string	$name
+	 * @param	string	$content
+	 * @param	string	$httpEquiv
+	 * @param	string	$charset
+	 * @return	MetaTag
 	 */
-	public function __construct($name = null, $content = null, $equiv = null)
+	public function __construct($name = null, 
+								$content = null, 
+								$httpEquiv = null,
+								$charset = null)
 	{
 		parent::__construct('meta');
 		$attrs = $this->getTagAttributes();
 		$attrs->loadWhiteList(array('charset','content','http-equiv','name'));
 			  
 		
-		if (null !== $equiv) {
-			$attrs->add('http-equiv', $equiv);
+		if (null !== $httpEquiv) {
+			$attrs->add('http-equiv', $httpEquiv);
 		}
 
 		if (null !== $name) {
@@ -39,7 +46,10 @@ class MetaTag extends GenericTag
 			$attrs->add('content', $content);
 		}
 
-			 
+		if (null !== $charset) {
+			$attrs->add('charset', $charset);
+		}
+
 		$this->disableClosingTag();
 	}
 }

@@ -100,7 +100,7 @@ class LinkTagTest extends BaseTestCase
 	public function testBuild()
 	{
 		$expected = '<link rel="stylesheet" type="text/css" href="' .
-					$this->href . '"/>';
+					$this->href . '">';
 
 		$this->assertEquals($expected, $this->link->build());
 	}

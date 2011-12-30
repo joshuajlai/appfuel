@@ -94,6 +94,11 @@ interface GenericTagInterface
 	 */
 	public function getContent($index = null);
 
+	/**
+	 * Wrapper that delegates to TagContentInterface::clear
+	 *
+	 * @return	bool
+	 */
 	public function clearContent($index = null);
 
 	/**
@@ -103,6 +108,27 @@ interface GenericTagInterface
 	 * @return string
 	 */
 	public function getContentString();
+
+	/**
+	 * Number of content blocks added to the TagContentInterface
+	 *
+	 * @return	int
+	 */
+	public function getContentCount();
+
+	/**
+	 * @return	string
+	 */
+	public function getContentSeparator();
+
+	/**
+	 * Requirements:
+	 * 1) delegate to TagContentInterface::setSeparator
+	 * 2) must be a fluent interface
+	 *
+	 * @return	GenericTagInterface
+	 */
+	public function setContentSeparator($char);
 
 	/**
 	 * @return string

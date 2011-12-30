@@ -81,7 +81,7 @@ class MetaTest extends BaseTestCase
 		$meta = new MetaTag('my-name');
 		$this->assertTrue($meta->isAttribute('name'));
 		$this->assertFalse($meta->isAttribute('content'));
-		$this->assertEquals('<meta name="my-name"/>', $meta->build());
+		$this->assertEquals('<meta name="my-name">', $meta->build());
 	}
 
 
@@ -91,7 +91,7 @@ class MetaTest extends BaseTestCase
 	public function testBuild()
 	{
 		$expected = '<meta name="' . $this->name   . 
-					'" content="'   . $this->content . '"/>';
+					'" content="'   . $this->content . '">';
 		
 		$this->assertEquals($expected, $this->meta->build()); 
 	}

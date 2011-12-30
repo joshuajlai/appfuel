@@ -80,18 +80,18 @@ class BaseTagTest extends BaseTestCase
 	public function testBuild()
 	{
 		$expected = '<base href="' . $this->href   . 
-					'" target="'   . $this->target . '"/>';
+					'" target="'   . $this->target . '">';
 	
 		$this->assertEquals($expected, $this->base->build()); 
 
 		$base = new BaseTag($this->href);
 
-		$expected = '<base href="' . $this->href . '"/>';
+		$expected = '<base href="' . $this->href . '">';
 		$this->assertEquals($expected, $base->build());
 
 
 		$base = new BaseTag(null, $this->target);
-		$expected = '<base target="' . $this->target . '"/>';
+		$expected = '<base target="' . $this->target . '">';
 		
 		$this->assertEquals($expected, $base->build()); 
 	}

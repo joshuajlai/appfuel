@@ -222,6 +222,33 @@ class GenericTag implements GenericTagInterface
 	}
 
 	/**
+	 * @return	int
+	 */
+	public function getContentCount()
+	{
+		return $this->getTagContent()
+					->count();
+	}
+
+	public function getContentSeparator()
+	{
+		return $this->getTagContent()
+					->getSeparator();
+	}
+
+	/**
+	 * @param	string	$char
+	 * @return	GenericTag
+	 */
+	public function setContentSeparator($char)
+	{
+		$this->getTagContent()
+			 ->setSeparator($char);
+
+		return $this;
+	}
+
+	/**
 	 * @return	bool
 	 */
 	public function isEmpty()
@@ -336,7 +363,7 @@ class GenericTag implements GenericTagInterface
 			$tag .= ">$content</{$tagName}>";
 		} 
 		else {
-			$tag .= '/>';
+			$tag .= '>';
 		}
 
 		return $tag;
