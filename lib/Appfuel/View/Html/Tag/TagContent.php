@@ -31,7 +31,8 @@ class TagContent implements TagContentInterface
 	protected $data = array();
 
 	/**
-	 * @param	string	$char	content separator
+	 * @param	mixed	string|array	$data	cotent
+	 * @param	string					$char	content separator
 	 * @return	TagContent
 	 */
 	public function __construct($data = null, $char = null)
@@ -42,7 +43,17 @@ class TagContent implements TagContentInterface
 		$this->setSeparator($char);
 
 		if (null !== $data) {
-			$this->add($data);
+			if (is_string($data)) {
+				$this->add($data);
+			}
+			else if (is_array($data)) {
+				$this->load($data);
+			}
+			else {
+				$err  = 'data must be a string (single content block) or ';
+				$err .= 'an array (list of content blocks) ';
+				throw new InvalidArgumentException($err);
+			}
 		}
 	}
 
@@ -67,6 +78,18 @@ class TagContent implements TagContentInterface
 
 		$this->sep =(string) $char;
 		return $this;
+	}
+
+	public function load(array $list)
+	{
+		foreach ($list as $item) {
+			if (is_string($item)) {
+				$this->add($item);
+			}
+			elseif (is_array($item) && isset($item[0]) && isset($item[1])) {
+				$this->add($item[0], $item[1]);
+			}
+		}
 	}
 
 	/**
@@ -171,14 +194,7 @@ class TagContent implements TagContentInterface
 	 */
 	public function build()
 	{
-        $content  = $this->get();
-        $sep      = $this->getSeparator();
-        $str = '';
-        foreach ($content as $item) {
-            $str .= $sep . $item;
-        }
-
-        return trim($str, $sep);
+		return implode($this->getSeparator(), $this->get());
 	}
 
 	/**

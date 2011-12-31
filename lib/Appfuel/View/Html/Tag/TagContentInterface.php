@@ -61,6 +61,23 @@ interface TagContentInterface
     public function add($data, $action = 'append');
 
 	/**
+	 * Load a series of content blocks at once.
+	 *
+	 * Requirements:
+	 * 1) when the item in the list is a string delagate call to
+	 *    TagContentInterface::add using default action
+	 * 2) when the item in the list is an array and both the first and second
+	 *    element are set then delegate to TagContentInterface::add where
+	 *	  element 1 is param 1 and element 2 is param 2.
+	 *    if the elements are not set the skip that iteration
+	 * 3) trate as a fluent interface and return TagContentInterface
+	 *
+	 * @param	array	$list
+	 * @return	TagContentInterface
+	 */
+	public function load(array $list);
+
+	/**
 	 * Return a content block at a given index.
 	 *
 	 * Requirements:

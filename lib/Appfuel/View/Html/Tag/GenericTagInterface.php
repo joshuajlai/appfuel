@@ -81,6 +81,16 @@ interface GenericTagInterface
 	public function getAttributeString();
 
 	/**
+	 * Requirements	
+	 * 1) delegate to TagContentInterface::load(list $data)
+	 * 2) use a fluent interface
+	 *
+	 * @param	array	$list
+	 * @return	GenericTagInterface
+	 */
+	public function loadContent(array $list);
+
+	/**
 	 * Add content to the tag
 	 * 
 	 * @param	mixed	$data	

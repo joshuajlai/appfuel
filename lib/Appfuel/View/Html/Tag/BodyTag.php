@@ -10,7 +10,7 @@
  */
 namespace Appfuel\View\Html\Tag;
 
-use RunTimeException;
+use LogicException;
 
 /**
  */
@@ -26,4 +26,20 @@ class BodyTag extends GenericTag
 		$content = new TagContent($data, $sep);
 		parent::__construct('body', $content);
 	}
+
+    /**
+     * Fix the tag to only be a body tag
+     *
+     * @param   string  $name
+     * @return  HeadTag
+     */
+    public function setTagName($name)
+    {  
+        if (! is_string($name) || 'body' !== strtolower($name)) {
+            $err = 'this tag can only be a head tag';
+            throw new LogicException($err);
+        }
+
+        return parent::setTagName($name);
+    }
 }

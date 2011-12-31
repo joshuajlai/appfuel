@@ -195,6 +195,16 @@ class GenericTag implements GenericTagInterface
 					->exists($name);
 	}
 
+	public function loadContent(array $list)
+	{
+		if ($this->isClosingTag()) {
+			$this->getTagContent()
+				 ->load($list);
+		}
+
+		return $this;
+	}
+
 	/**
 	 * Add content to the tag
 	 * 
