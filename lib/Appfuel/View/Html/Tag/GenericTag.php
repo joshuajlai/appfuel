@@ -10,7 +10,8 @@
  */
 namespace Appfuel\View\Html\Tag;
 
-use InvalidArgumentException;
+use LogicException,
+	InvalidArgumentException;
 
 /**
  */
@@ -33,6 +34,13 @@ class GenericTag implements GenericTagInterface
 	 * tag string ex) <table> </table> the tag name is table
 	 */
 	protected $tagName = null;
+
+	/**
+	 * Used to allow concrete classes extending this class to ensure no one can
+	 * change the tag name of their class
+	 * @var bool
+	 */
+	protected $isTagNameReadOnly = false;
 
 	/**
 	 * Used to determine if a full closing tag is needed
@@ -59,12 +67,12 @@ class GenericTag implements GenericTagInterface
 	{
 		$this->setTagName($tagName);
 		if (null === $content) {
-			$content = new TagContent();
+			$content = $this->createTagContent();
 		}
 		$this->content = $content;
 
 		if (null === $attrs) {
-			$attrs = new TagAttributes();
+			$attrs = $this->createTagAttributes();
 		}
 		$this->attrs = $attrs;
 	}
@@ -83,6 +91,11 @@ class GenericTag implements GenericTagInterface
 	 */
 	public function setTagName($name)
 	{
+		if ($this->isTagNameReadOnly()) {
+			$err = 'tag name is read-only and can not be modified';
+			throw new LogicException($err);
+		}
+
 		if (! is_string($name) || ! ($name = trim($name))) {
 			throw new InvalidArgumentException(
 				"Invalid name for tag must be a string"
@@ -388,6 +401,32 @@ class GenericTag implements GenericTagInterface
 	}
 
 	/**
+	 * @return	bool
+	 */
+	protected function isTagNameReadOnly()
+	{
+		return $this->isTagNameReadOnly;
+	}
+
+	/**
+	 * @return	GenericTag
+	 */
+	protected function enableTagNameReadOnly()
+	{
+		$this->isTagNameReadOnly = true;
+		return $this;
+	}
+
+	/**
+	 * @return	GenericTag
+	 */
+	protected function disableTagNameReadOnly()
+	{
+		$this->isTagNameReadOnly = false;
+		return $this;
+	}
+
+	/**
 	 * @return	TagAttributesInterface
 	 */
 	protected function getTagAttributes()
@@ -401,5 +440,24 @@ class GenericTag implements GenericTagInterface
 	protected function getTagContent()
 	{
 		return $this->content;
+	}
+
+	/**
+	 * @param	mixed	string|array	$data	content
+	 * @param	string					$sep	content separator
+	 * @return	TagContent
+	 */
+	protected function createTagContent($data = null, $sep = null)
+	{
+		return new TagContent($data, $sep);
+	}
+
+	/**
+	 * @param	array	$whiteList
+	 * @return	TagAttributes
+	 */
+	protected function createTagAttributes(array $whiteList = null)
+	{
+		return new TagAttributes($whiteList);
 	}
 }
