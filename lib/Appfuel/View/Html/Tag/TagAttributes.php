@@ -58,6 +58,17 @@ class TagAttributes implements TagAttributesInterface
 	protected $isValidation = true;
 
 	/**
+	 * @param	array	$attrs	white list of valid attributes
+	 * @return	TagAttributes
+	 */
+	public function __construct(array $attrs = null)
+	{
+		if (null !== $attrs) {
+			$this->loadWhiteList($attrs);
+		}
+	}
+
+	/**
 	 * @return bool
 	 */
 	public function isValidation()

@@ -13,6 +13,9 @@ namespace Appfuel\View\Html\Tag;
 use LogicException;
 
 /**
+ * The html body tag. Delegates attributes to TagAttributeInterface and 
+ * delegates content to TagContentInterface. The tag name on this class 
+ * can not be changed (can be upper or lower case).
  */
 class BodyTag extends GenericTag
 {
@@ -24,7 +27,28 @@ class BodyTag extends GenericTag
 	public function __construct($data = null, $sep = PHP_EOL)
 	{
 		$content = new TagContent($data, $sep);
-		parent::__construct('body', $content);
+		$attrs   = new TagAttributes(array(
+			'onafterprint',
+			'onbeforeprint',
+			'onbeforeunload',
+			'onblur',
+			'onerror',
+			'onfocus',
+			'onhashchange',
+			'onload',
+			'onmessage',
+			'onoffline',
+			'ononline',
+			'onpagehide',
+			'onpageshow',
+			'onpopstate',
+			'onresize',
+			'onscroll',
+			'onstorage',
+			'onunload'
+		));
+		
+		parent::__construct('body', $content, $attrs);
 	}
 
     /**
