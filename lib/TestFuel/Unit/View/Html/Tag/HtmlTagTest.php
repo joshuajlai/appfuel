@@ -10,25 +10,25 @@
  */
 namespace TestFuel\Unit\View\Html\Element;
 
-use Appfuel\View\Html\Tag\BodyTag,
+use Appfuel\View\Html\Tag\HtmlTag,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
  */
-class BodyTagTest extends BaseTestCase
+class HtmlTagTest extends BaseTestCase
 {
     /**
      * System under test
-     * @var BodyTag
+     * @var HtmlTag
      */
-    protected $body = null;
+    protected $html = null;
 
     /**
      * @return null
      */
     public function setUp()
     {   
-        $this->body = new BodyTag();
+        $this->html = new HtmlTag();
     }
 
     /**
@@ -36,7 +36,7 @@ class BodyTagTest extends BaseTestCase
      */
     public function tearDown()
     {   
-		$this->body = null;
+		$this->html = null;
     }
 
 	/**
@@ -46,26 +46,21 @@ class BodyTagTest extends BaseTestCase
 	{
 		$this->assertInstanceOf(
 			'\Appfuel\View\Html\Tag\GenericTagInterface',
-			$this->body
+			$this->html
 		);
 		
-		$this->assertEquals('body', $this->body->getTagName());
+		$this->assertEquals('html', $this->html->getTagName());
 	}
 
 	/**
-	 * @return	string
+	 * The html tag has locked the tag name so any attempt to change it will
+	 * result it a LogicException
+	 *
+	 * @expectedException	LogicException
+	 * @return				null
 	 */
-	public function testBuild()
+	public function testSetTagName_Failure()
 	{
-		$content1 = '<h1>i am a header</h1>';
-		$content2 = '<p> i an some text </p>';
-		
-		$list = array($content1, $content2);
-		$this->body->loadContent($list)
-				   ->addAttribute('id', 'my-body');
-
-		$sep = $this->body->getContentSeparator();
-		$expected = "<body id=\"my-body\">{$content1}{$sep}{$content2}</body>";
-		$this->assertEquals($expected, $this->body->build());
+		$this->html->setTagName('link');
 	}
 }

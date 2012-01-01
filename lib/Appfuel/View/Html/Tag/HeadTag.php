@@ -10,8 +10,7 @@
  */
 namespace Appfuel\View\Html\Tag;
 
-use LogicException,
-	InvalidArgumentException;
+use InvalidArgumentException;
 
 /**
  * Handles all tags associated with the html head.
@@ -82,22 +81,6 @@ class HeadTag extends GenericTag
 		$content = new TagContent($data, $sep);
 		parent::__construct('head', $content);
 		$this->setTitle(new TitleTag());
-	}
-
-	/**
-	 * Fix the tag to only be a head tag
-	 *
-	 * @param	string	$name
-	 * @return	HeadTag
-	 */
-	public function setTagName($name)
-	{
-		if ('head' !== $name) {
-			$err = 'this tag can only be a head tag';
-			throw new LogicException($err);
-		}
-
-		return parent::setTagName($name);
 	}
 
 	/**

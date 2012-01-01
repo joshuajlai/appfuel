@@ -38,7 +38,7 @@ class GenericTagTest extends BaseTestCase
     public function setUp()
     { 
 		$this->tagName = 'title';  
-        $this->tag = new GenericTag($this->tagName);
+        $this->tag = new GenericTag($this->tagName, null, null, false);
     }
 
     /**

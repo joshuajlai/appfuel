@@ -14,7 +14,7 @@ use RunTimeException;
 
 /**
  */
-class HmltTag extends GenericTag
+class HtmlTag extends GenericTag
 {
 	/**
 	 * @var GenericTagInterface
@@ -37,7 +37,6 @@ class HmltTag extends GenericTag
 		$attrs = $this->createTagAttributes(array('manifest'));
 		
 		parent::__construct('html', $content, $attrs);
-		$this->enableTagNameReadOnly();
 	}
 
 	/**

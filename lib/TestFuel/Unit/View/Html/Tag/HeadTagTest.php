@@ -71,26 +71,6 @@ class HeadTagTest extends BaseTestCase
 	}
 
 	/**
-	 * No reason to do this but it will work
-	 * 
-	 * @return	null
-	 */
-	public function testSetTagName()
-	{
-		$this->assertSame($this->head, $this->head->setTagName('head'));
-		$this->assertEquals('head', $this->head->getTagName());
-	}
-
-	/**
-	 * @expectedException	LogicException
-	 * @return				null
-	 */
-	public function testSetTagNameNotHead()
-	{
-		$this->head->setTagName('title');
-	}
-
-	/**
 	 * @depends	testInitialState
 	 * @return	null
 	 */

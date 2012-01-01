@@ -40,7 +40,7 @@ class GenericTag implements GenericTagInterface
 	 * change the tag name of their class
 	 * @var bool
 	 */
-	protected $isTagNameReadOnly = false;
+	protected $isTagNameLocked = false;
 
 	/**
 	 * Used to determine if a full closing tag is needed
@@ -63,7 +63,8 @@ class GenericTag implements GenericTagInterface
 	 */
 	public function __construct($tagName, 
 								TagContentInterface $content = null,
-								TagAttributesInterface $attrs = null)
+								TagAttributesInterface $attrs = null,
+								$isTagNameLocked = true)
 	{
 		$this->setTagName($tagName);
 		if (null === $content) {
@@ -75,6 +76,11 @@ class GenericTag implements GenericTagInterface
 			$attrs = $this->createTagAttributes();
 		}
 		$this->attrs = $attrs;
+
+		$isTagNameLocked = ($isTagNameLocked === false) ? false : true;
+		if ($isTagNameLocked) {
+			$this->lockTagName();
+		}
 	}
 
 	/**
@@ -91,7 +97,7 @@ class GenericTag implements GenericTagInterface
 	 */
 	public function setTagName($name)
 	{
-		if ($this->isTagNameReadOnly()) {
+		if ($this->isTagNameLocked()) {
 			$err = 'tag name is read-only and can not be modified';
 			throw new LogicException($err);
 		}
@@ -403,26 +409,26 @@ class GenericTag implements GenericTagInterface
 	/**
 	 * @return	bool
 	 */
-	protected function isTagNameReadOnly()
+	protected function isTagNameLocked()
 	{
-		return $this->isTagNameReadOnly;
+		return $this->isTagNameLocked;
 	}
 
 	/**
 	 * @return	GenericTag
 	 */
-	protected function enableTagNameReadOnly()
+	protected function lockTagName()
 	{
-		$this->isTagNameReadOnly = true;
+		$this->isTagNameLocked = true;
 		return $this;
 	}
 
 	/**
 	 * @return	GenericTag
 	 */
-	protected function disableTagNameReadOnly()
+	protected function unlockTagName()
 	{
-		$this->isTagNameReadOnly = false;
+		$this->isTagNameLocked = false;
 		return $this;
 	}
 
