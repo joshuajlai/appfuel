@@ -24,8 +24,12 @@ class BodyTag extends GenericTag
 	 *
 	 * @return	base
 	 */
-	public function __construct($data = null, $sep = PHP_EOL)
+	public function __construct($data = null, $sep = null)
 	{
+		if (null === $sep) {
+			$sep = PHP_EOL;
+		}
+
 		$content = new TagContent($data, $sep);
 		$attrs   = new TagAttributes(array(
 			'onafterprint',

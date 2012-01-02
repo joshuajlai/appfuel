@@ -43,7 +43,7 @@ class TagContent implements TagContentInterface
 		$this->setSeparator($char);
 
 		if (null !== $data) {
-			if (is_string($data)) {
+			if (is_string($data) || is_object($data)) {
 				$this->add($data);
 			}
 			else if (is_array($data)) {
@@ -83,7 +83,7 @@ class TagContent implements TagContentInterface
 	public function load(array $list)
 	{
 		foreach ($list as $item) {
-			if (is_string($item)) {
+			if (is_string($item) || is_object($item)) {
 				$this->add($item);
 			}
 			elseif (is_array($item) && isset($item[0]) && isset($item[1])) {

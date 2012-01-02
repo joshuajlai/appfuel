@@ -76,11 +76,15 @@ class HeadTag extends GenericTag implements HeadTagInterface
 	 * @param	string	$data	content for the title
 	 * @return	Title
 	 */
-	public function __construct($data = null, $sep = PHP_EOL)
+	public function __construct($sep = null)
 	{
-		$content = new TagContent($data, $sep);
-		parent::__construct('head', $content);
-		$this->setTitle(new TitleTag());
+		if (null === $sep) {
+			$sep = PHP_EOL;
+		}
+
+		parent::__construct('head');
+		$this->setContentSeparator($sep)
+			 ->setTitle(new TitleTag());
 	}
 
 	/**
