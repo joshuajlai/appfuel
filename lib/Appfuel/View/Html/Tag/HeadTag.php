@@ -15,7 +15,7 @@ use InvalidArgumentException;
 /**
  * Handles all tags associated with the html head.
  */
-class HeadTag extends GenericTag
+class HeadTag extends GenericTag implements HeadTagInterface
 {
 	/**
 	 * Html head title tag

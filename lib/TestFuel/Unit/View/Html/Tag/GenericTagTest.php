@@ -12,8 +12,10 @@ namespace TestFuel\Unit\View\Html\Tag;
 
 use StdClass,
 	SplFileInfo,
+	TestFuel\TestCase\BaseTestCase,
+	Appfuel\View\Html\Tag\TagContent,
 	Appfuel\View\Html\Tag\GenericTag,
-	TestFuel\TestCase\BaseTestCase;
+	Appfuel\View\Html\Tag\TagAttributes;
 
 /**
  * The html element tag is used to automate the rendering of the html element
@@ -64,6 +66,106 @@ class GenericTagTest extends BaseTestCase
 		$this->assertEquals('', $this->tag->getAttributeString());
 		$this->assertTrue($this->tag->isClosingTag());
 		$this->assertTrue($this->tag->isRenderWhenEmpty());
+	}
+	
+	/**
+	 * We can prove the TagContent is being used because its passed in by 
+	 * reference
+	 *
+	 * @return	null
+	 */
+	public function testConstructorTagContent()
+	{
+		$content = new TagContent();
+		$tag = new GenericTag('title', $content);
+
+		$text1 = 'text block 1';
+		$this->assertSame($tag, $tag->addContent($text1));
+		$this->assertEquals($text1, $content->get(0));
+
+		$text2 = 'text block 2';
+		$this->assertSame($tag, $tag->addContent($text2));
+		$this->assertEquals($text2, $content->get(1));	
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testConstructorTagAttributes()
+	{
+		$attrs = new TagAttributes(array('my-attr','your-attr'));
+		$tag = new GenericTag('title', null, $attrs);
+		
+		$attr1 = 'my-value';
+		$this->assertFalse($attrs->exists('my-attr'));
+		$this->assertSame($tag, $tag->addAttribute('my-attr', $attr1));
+		$this->assertTrue($attrs->exists('my-attr'));
+		$this->assertEquals($attr1, $attrs->get('my-attr'));
+
+		$attr2 = 'my-other-value';
+		$this->assertFalse($attrs->exists('your-attr'));
+		$this->assertSame($tag, $tag->addAttribute('your-attr', $attr2));
+		$this->assertTrue($attrs->exists('your-attr'));
+		$this->assertEquals($attr2, $attrs->get('your-attr'));
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testConstructorContentAndAttrs()
+	{
+		$content = new TagContent();
+		$attrs = new TagAttributes(array('my-attr'));
+		$tag = new GenericTag('title', $content, $attrs);
+
+		$attr1 = 'my-value';
+		$this->assertFalse($attrs->exists('my-attr'));
+		$this->assertSame($tag, $tag->addAttribute('my-attr', $attr1));
+		$this->assertTrue($attrs->exists('my-attr'));
+		$this->assertEquals($attr1, $attrs->get('my-attr'));
+
+		$text1 = 'text block 1';
+		$this->assertSame($tag, $tag->addContent($text1));
+		$this->assertEquals($text1, $content->get(0));
+	}
+
+	/**
+	 * @return
+	 */
+	public function testContstructorAllParams()
+	{
+		$tagName = 'title';
+		$content = new TagContent();
+		$attrs = new TagAttributes(array('my-attr'));
+		$lockTagName = false;
+		$tag = new GenericTag($tagName, $content, $attrs, $lockTagName);
+
+		$attr1 = 'my-value';
+		$this->assertFalse($attrs->exists('my-attr'));
+		$this->assertSame($tag, $tag->addAttribute('my-attr', $attr1));
+		$this->assertTrue($attrs->exists('my-attr'));
+		$this->assertEquals($attr1, $attrs->get('my-attr'));
+
+		$text1 = 'text block 1';
+		$this->assertSame($tag, $tag->addContent($text1));
+		$this->assertEquals($text1, $content->get(0));
+
+		/* should be able to change the tag name now */
+		$this->assertSame($tag, $tag->setTagName('link'));
+		$this->assertEquals('link', $tag->getTagName());
+	}
+
+	/**
+	 * By default when create a generic tag the tag name is locked. Any 
+	 * attempt to change it will result in a LogicException
+	 *
+	 * @expectedException	LogicException
+	 * @return				null
+	 */
+	public function testSetTagNameWhenLocked_Failure()
+	{
+		$tag = new GenericTag('title');
+		$tag->setTagName('link');
 	}
 
 	/**
@@ -186,6 +288,20 @@ class GenericTagTest extends BaseTestCase
 		$result = $this->tag->buildTag($content, $attr);
 		$expected = '<title id="1234">i am a title</title>';
 		$this->assertEquals($expected, $result);
+	}
+
+	public function testBuildRenderWhenEmpty()
+	{
+		$this->assertTrue($this->tag->isEmpty());
+		$this->assertTrue($this->tag->isClosingTag());
+		$this->tag->enableRenderWhenEmpty();
+		
+		$tagName  = $this->tag->getTagName();
+		$expected = "<$tagName></$tagName>";
+		$this->assertEquals($expected, $this->tag->build());
+		
+		$this->tag->disableRenderWhenEmpty();
+		$this->assertEquals('', $this->tag->build());
 	}
 
 	/**

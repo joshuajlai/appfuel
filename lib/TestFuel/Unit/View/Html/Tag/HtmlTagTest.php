@@ -11,6 +11,8 @@
 namespace TestFuel\Unit\View\Html\Element;
 
 use Appfuel\View\Html\Tag\HtmlTag,
+	Appfuel\View\Html\Tag\HeadTag,
+	Appfuel\View\Html\Tag\BodyTag,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
@@ -22,6 +24,12 @@ class HtmlTagTest extends BaseTestCase
      * @var HtmlTag
      */
     protected $html = null;
+
+	/**
+	 * Used to create mock objects and check object types
+	 * @var string
+	 */
+	protected $tagInterface = 'Appfuel\View\Html\Tag\GenericTagInterface';
 
     /**
      * @return null
@@ -44,12 +52,21 @@ class HtmlTagTest extends BaseTestCase
 	 */
 	public function testConstructor()
 	{
+		$this->assertInstanceOf($this->tagInterface, $this->html);
 		$this->assertInstanceOf(
-			'\Appfuel\View\Html\Tag\GenericTagInterface',
+			'Appfuel\View\Html\Tag\HtmlTagInterface', 
 			$this->html
 		);
 		
 		$this->assertEquals('html', $this->html->getTagName());
+		
+		$head = $this->html->getHead();
+		$this->assertInstanceOf($this->tagInterface, $head);
+		$this->assertEquals('head', $head->getTagName());
+		
+		$body = $this->html->getBody();
+		$this->assertInstanceOf($this->tagInterface, $body);
+		$this->assertEquals('body', $body->getTagName());
 	}
 
 	/**
@@ -63,4 +80,62 @@ class HtmlTagTest extends BaseTestCase
 	{
 		$this->html->setTagName('link');
 	}
+
+	/**
+	 * @return	null
+	 */
+	public function testGetSetHead()
+	{
+		$head = $this->getMock($this->tagInterface);
+		$head->expects($this->once())
+			 ->method('getTagName')
+			 ->will($this->returnValue('head'));
+
+		$this->assertSame($this->html, $this->html->setHead($head));
+		$this->assertSame($head, $this->html->getHead());	
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @return				null
+	 */
+	public function testSetHeadWrongTagName_Failure()
+	{
+		$head = $this->getMock($this->tagInterface);
+		$head->expects($this->once())
+			 ->method('getTagName')
+			 ->will($this->returnValue('link'));
+
+		$this->html->setHead($head);
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testGetSetBody()
+	{
+		$body = $this->getMock($this->tagInterface);
+		$body->expects($this->once())
+			 ->method('getTagName')
+			 ->will($this->returnValue('body'));
+
+		$this->assertSame($this->html, $this->html->setBody($body));
+		$this->assertSame($body, $this->html->getBody());	
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @return				null
+	 */
+	public function testSetBodyTagName_Failure()
+	{
+		$body = $this->getMock($this->tagInterface);
+		$body->expects($this->once())
+			 ->method('getTagName')
+			 ->will($this->returnValue('link'));
+
+		$this->html->setBody($body);
+	}
+
+
 }

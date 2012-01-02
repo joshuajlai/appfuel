@@ -10,11 +10,12 @@
  */
 namespace Appfuel\View\Html\Tag;
 
-use RunTimeException;
+use RunTimeException,
+	InvalidArgumentException;
 
 /**
  */
-class HtmlTag extends GenericTag
+class HtmlTag extends GenericTag implements HtmlTagInterface
 {
 	/**
 	 * @var GenericTagInterface
@@ -31,12 +32,23 @@ class HtmlTag extends GenericTag
 	 *
 	 * @return	base
 	 */
-	public function __construct()
+	public function __construct(GenericTagInterface $head = null,
+								GenericTagInterface $body = null)
 	{
 		$content = $this->createTagContent(null, PHP_EOL);
 		$attrs = $this->createTagAttributes(array('manifest'));
 		
 		parent::__construct('html', $content, $attrs);
+
+		if (null === $head) {
+			$head = new HeadTag();
+		}
+		$this->setHead($head);
+
+		if (null === $body) {
+			$body = new BodyTag();
+		}
+		$this->setBody($body);
 	}
 
 	/**
@@ -58,16 +70,8 @@ class HtmlTag extends GenericTag
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->head = $head;
+		$this->head = $tag;
 		return $this;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isHead()
-	{
-		return $this->head instanceof GenericTagInterface;
 	}
 
 	/**
@@ -93,36 +97,12 @@ class HtmlTag extends GenericTag
 		return $this;
 	}
 
-	/**
-	 * @return	bool
-	 */
-	public function isBody()
-	{
-		return $this->body instanceof GenericTagInterface;
-	}
-
-
 	public function build()
 	{
 		$content = $this->getTagContent();
-		if (! $this->isHead()) {
-			return '';
-		}
 		$content->add($this->getHead());
-
-		if ($this->isBody()) {
-			$body = $this->getBody();
-		}
-		else {
-			$body = $this->createBodyTag();
-		}
-		$content->add($body);
+		$content->add($this->getBody());
 
 		return $this->buildTag($content, $this->getTagAttributes());
-	}
-
-	protected function createBodyTag()
-	{
-		return new BodyTag();
 	}
 }

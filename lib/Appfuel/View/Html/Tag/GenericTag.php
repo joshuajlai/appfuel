@@ -214,6 +214,12 @@ class GenericTag implements GenericTagInterface
 					->exists($name);
 	}
 
+	/**
+	 * Can only load content into a tag that supports content
+	 *
+	 * @param	array	$list
+	 * @return	GenericTag
+	 */
 	public function loadContent(array $list)
 	{
 		if ($this->isClosingTag()) {
@@ -225,7 +231,8 @@ class GenericTag implements GenericTagInterface
 	}
 
 	/**
-	 * Add content to the tag
+	 * Add content to the tag. Can only add content to a tag that supports 
+	 * content (has closing tag enabled)
 	 * 
 	 * @param	mixed	$data	
 	 * @param	string	$action		what to do with the content
@@ -259,6 +266,9 @@ class GenericTag implements GenericTagInterface
 					->count();
 	}
 
+	/**
+	 * @return	string
+	 */
 	public function getContentSeparator()
 	{
 		return $this->getTagContent()
@@ -360,12 +370,6 @@ class GenericTag implements GenericTagInterface
 		}
 
 		$tagName = $this->getTagName();
-		/* an html element with no tag name can not be rendered to anything
-		 * useful
-		 */
-		if (empty($tagName)) {
-			return '';
-		}
 		$isClosingTag = $this->isClosingTag();
 		$tag = "<{$tagName}";
 
