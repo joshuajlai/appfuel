@@ -30,8 +30,13 @@ class HtmlTagTest extends BaseTestCase
 	 * @var string
 	 */
 	protected $tagInterface = 'Appfuel\View\Html\Tag\GenericTagInterface';
-
-    /**
+	
+	/**
+	 * @var string
+	 */
+	protected $tagHeadInterface = 'Appfuel\View\Html\Tag\HeadTagInterface'; 
+    
+	/**
      * @return null
      */
     public function setUp()
@@ -61,7 +66,7 @@ class HtmlTagTest extends BaseTestCase
 		$this->assertEquals('html', $this->html->getTagName());
 		
 		$head = $this->html->getHead();
-		$this->assertInstanceOf($this->tagInterface, $head);
+		$this->assertInstanceOf($this->tagHeadInterface, $head);
 		$this->assertEquals('head', $head->getTagName());
 		
 		$body = $this->html->getBody();
@@ -86,7 +91,7 @@ class HtmlTagTest extends BaseTestCase
 	 */
 	public function testGetSetHead()
 	{
-		$head = $this->getMock($this->tagInterface);
+		$head = $this->getMock($this->tagHeadInterface);
 		$head->expects($this->once())
 			 ->method('getTagName')
 			 ->will($this->returnValue('head'));
@@ -101,7 +106,7 @@ class HtmlTagTest extends BaseTestCase
 	 */
 	public function testSetHeadWrongTagName_Failure()
 	{
-		$head = $this->getMock($this->tagInterface);
+		$head = $this->getMock($this->tagHeadInterface);
 		$head->expects($this->once())
 			 ->method('getTagName')
 			 ->will($this->returnValue('link'));
@@ -136,6 +141,4 @@ class HtmlTagTest extends BaseTestCase
 
 		$this->html->setBody($body);
 	}
-
-
 }

@@ -32,7 +32,7 @@ class HtmlTag extends GenericTag implements HtmlTagInterface
 	 *
 	 * @return	base
 	 */
-	public function __construct(GenericTagInterface $head = null,
+	public function __construct(HeadTagInterface $head = null,
 								GenericTagInterface $body = null)
 	{
 		$content = $this->createTagContent(null, PHP_EOL);
@@ -63,7 +63,7 @@ class HtmlTag extends GenericTag implements HtmlTagInterface
 	 * @param	HtmlHeadTagInterface $head
 	 * @return	HtmlTag
 	 */
-	public function setHead(GenericTagInterface $tag)
+	public function setHead(HeadTagInterface $tag)
 	{
 		if ('head' !== $tag->getTagName()) {
 			$err = 'tag must have a tag name of -(head)';

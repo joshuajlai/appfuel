@@ -10,9 +10,6 @@
  */
 namespace Appfuel\View\Html\Tag;
 
-use RunTimeException,
-	InvalidArgumentException;
-
 /**
  */
 interface HtmlTagInterface extends GenericTagInterface
@@ -30,7 +27,7 @@ interface HtmlTagInterface extends GenericTagInterface
 	 * @param	HtmlHeadTagInterface $head
 	 * @return	HtmlTagInterface
 	 */
-	public function setHead(GenericTagInterface $tag);
+	public function setHead(HeadTagInterface $tag);
 
 	/**
 	 * @return	GenericTagInterface
