@@ -17,8 +17,10 @@ namespace Appfuel\View\Html\Tag;
 class LinkTag extends GenericTag
 {
 	/**
-	 * @param	string	$data	content for the title
-	 * @return	Title
+	 * @param	string	$href	url or file path to resource
+	 * @param	string	$rel	relationship between current doc and link
+	 * @param	string  $type	mime type
+	 * @return	LinkTag
 	 */
 	public function __construct($href, $rel = null, $type = null)
 	{

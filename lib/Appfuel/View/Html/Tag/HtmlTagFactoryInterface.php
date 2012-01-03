@@ -39,14 +39,59 @@ interface HtmlTagFactoryInterface
      * @param   string  $contentSeparator
      * @return  HeadTagInterface
      */
-    public function createHeadTag($contentSeparator = PHP_EOL);
+    public function createHeadTag($contentSep = PHP_EOL);
 
     /**
 	 * @param	mixed	string | array of strings $content
      * @param   string  $contentSeparator
      * @return  HeadTagInterface
      */
-    public function createBodyTag($content = null, $contentSeparator = PHP_EOL);
+    public function createBodyTag($content = null, $contentSep = PHP_EOL);
 
+    /**
+     * @param   mixed   string | array of strings $content
+     * @param   string  $contentSep 
+     * @return  TitleTag
+     */
+    public function createTitleTag($content = null, $contentSep = ' ');
 
+	/**
+     * @param   string  $href   url or file path to resource  
+     * @param   string  $rel    relationship between current doc and link
+     * @param   string  $type   mime type
+     * @return  LinkTag
+	 */
+	public function createLinkTag($href, $rel = null, $type = null);
+
+    /**
+     * @param   string  $name
+     * @param   string  $content
+     * @param   string  $httpEquiv
+     * @param   string  $charset
+     * @return  MetaTag
+     */
+    public function createMetaTag($name = null, 
+								  $content = null,
+                                  $httpEquiv = null,
+                                  $charset = null);
+
+	/**
+     * @param   string  $src    
+     * @param   mixed   $data
+     * @param   string  $sep
+     * @param   string  $type
+     * @return  ScriptTag
+     */
+    public function createScriptTag($src = null,
+                                    $data = null,
+                                    $sep  = null,
+                                    $type = null);
+	
+	/**
+     * @param   mixed   $data
+     * @param   string  $type
+     * @param   string  $sep
+     * @return  StyleTag
+     */
+	public function createStyleTag($data = null, $type = null, $sep = null);
 }

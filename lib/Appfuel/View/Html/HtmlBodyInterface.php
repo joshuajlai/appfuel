@@ -10,45 +10,41 @@
  */
 namespace Appfuel\View\Html;
 
-use Appfuel\View\ViewInterface,
-	Appfuel\View\Html\Tag\HtmlTagInterface,
+use InvalidArgumentException,
+	Appfuel\View\ViewTemplate,
+	Appfuel\View\ViewInterface,
+	Appfuel\View\Html\Tag\BodyTag,
+	Appfuel\View\Html\Tag\ScriptTag,
 	Appfuel\View\Html\Tag\GenericTagInterface;
 
 /**
  * Template used to generate generic html documents
  */
-interface HtmlPageInterface extends ViewInterface
+interface HtmlBodyInterface extends	ViewInterface
 {
 	/**
 	 * @return	HtmlTagInterface
 	 */
-	public function getHtmlTag();
+	public function getBodyTag();
 
 	/**
 	 * @param	HtmlDocInterface $doc
 	 * @return	HtmlPage
 	 */
-	public function setHtmlTag(HtmlTagInterface $tag);
+	public function setBodyTag(GenericTagInterface $tag);
 
 	/**
-	 * @param	ViewInterface $view
-	 * @return	HtmlPage
+	 * @return	bool
 	 */
-	public function setView(ViewInterface $view);
-
-	/**	
-	 * @return	ViewInterface
-	 */
-	public function getView();
+	public function isJs();
 
 	/**
-	 * @param	GenericTagInterface $script
-	 * @return	HtmlPage
+	 * @return	HtmlBody
 	 */
-	public function setInlineJs(GenericTagInterface $script);
+	public function enableJs();
 
-	/**	
-	 * @return	GenericTagInterface
+	/**
+	 * @return	HtmlBody
 	 */
-	public function getInlineJs();
+	public function disableJs();
 }

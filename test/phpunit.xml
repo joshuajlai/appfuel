@@ -59,6 +59,8 @@
 	<file>../lib/TestFuel/Unit/View/Html/Tag/BodyTagTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/HtmlTagTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/HtmlTagFactoryTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/HtmlPageTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/HtmlBodyTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

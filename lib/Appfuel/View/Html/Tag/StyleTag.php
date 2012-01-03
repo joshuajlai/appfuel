@@ -17,24 +17,25 @@ namespace Appfuel\View\Html\Tag;
 class StyleTag extends GenericTag
 {
 	/**
-	 * @param	string	$data	content for the title
-	 * @return	Title
+	 * @param	mixed	$data	style content
+	 * @param	string	$type	
+	 * @param	string	$sep	content separator 
+	 * @return	StyleTag
 	 */
-	public function __construct($content = null, $type = null)
+	public function __construct($data = null, $type = null, $sep = null)
 	{
+		$this->disableRenderWhenEmpty();
 		if (empty($type) || ! is_string($type)) {
 			$type = 'text/css';
 		}
 
-		parent::__construct('style');
-		$attrs = $this->getTagAttributes();
-		$attrs->loadWhiteList(array('media','scope','type'))
-			  ->add('type', $type);
-
-		if (is_string($content) && ! empty($content)) {
-			$this->addContent($content);
+		if (null === $sep) {
+			$sep = PHP_EOL;
 		}
-
-		$this->disableRenderWhenEmpty();
+		
+		$content = new TagContent($data, $sep);
+		$attrs   = new TagAttributes(array('media', 'scope', 'type'));
+		$attrs->add('type', $type);
+		parent::__construct('style', $content, $attrs);
 	}
 }

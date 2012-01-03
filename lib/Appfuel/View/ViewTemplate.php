@@ -51,7 +51,7 @@ class ViewTemplate implements ViewInterface
 	/**
 	 * @param	mixed	$file 
 	 * @param	array	$data
-	 * @return	FileTemplate
+	 * @return	ViewTemplate
 	 */
 	public function __construct(array $data = null, 
 								ViewCompositorInterface $compositor = null)

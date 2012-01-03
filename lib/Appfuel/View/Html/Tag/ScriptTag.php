@@ -22,34 +22,53 @@ use RunTimeException;
 class ScriptTag extends GenericTag
 {
 	/**
-	 * @param	string	$data	content for the title
-	 * @return	Title
+	 * @param	string	$src	file path or url to script
+	 * @param	mixed	$data	$content
+	 * @param	string	$sep	content separator
+	 * @param	string	$type	mime type
+	 * @return	ScriptTag
 	 */
-	public function __construct($src = null, $content = null, $type = null)
+	public function __construct($src = null, 
+								$data = null, 
+								$sep = null, 
+								$type = null)
 	{
-		if (null !== $src && null !== $content) {
+		$content = null;
+		if (null !== $src && null !== $data) {
 			$err  = 'It is a runtime error to set both script source and ';
 			$err .= 'content';
 			throw new RunTimeException($err);
 		}
 
+		$attrs = new TagAttributes(array(
+			'async',
+			'charset',
+			'defer',
+			'src',
+			'type'
+		));
+
 		if (null === $type || ! is_string($type)) {
 			$type = 'text/javascript';
 		}
 
-		parent::__construct('script');
-		$attrs = $this->getTagAttributes();
-		$attrs->loadWhiteList(array('async','charset','defer','src','type'))
-			  ->add('type', 'text/javascript');
+		$attrs->add('type', $type);
 
-		if (null !== $content) {
-			$this->addContent($content);
-		}
-
+		/* 
+		 * when a source is available there is no need for content
+		 */
 		if (null !== $src && is_string($src) && ($src = trim($src))) {
 			$attrs->add('src', $src);
 		}
+		else {
+			/* default content separator for script */
+			if (null === $sep) {
+				$sep = PHP_EOL;
+			}
+			$content = new TagContent($data, $sep);
+		}
 
+		parent::__construct('script', $content, $attrs);
 		$this->disableRenderWhenEmpty();
 	}
 
