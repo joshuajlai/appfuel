@@ -41,9 +41,6 @@ class HtmlPageTest extends BaseTestCase
 	public function setUp()
 	{
 		$this->view = new ViewTemplate();
-		$this->view->getViewCompositor()
-					->setFormatArrayValues();
-		$this->view->assign('foo', '<h1>this is a title</title>');
 		$this->page = new HtmlPage($this->view);
 	}
 
@@ -65,17 +62,5 @@ class HtmlPageTest extends BaseTestCase
 			$this->page
 		);
 		$this->assertSame($this->view, $this->page->getView());
-		$script = $this->page->getInlineJs();
-		$this->assertInstanceOf(
-			'Appfuel\View\Html\Tag\ScriptTag',
-			$script
-		);
-		$this->assertTrue($script->isEmpty());
-
-		$html = $this->page->getHtmlTag();
-		$this->assertInstanceOf(
-			'Appfuel\View\Html\Tag\HtmlTagInterface',
-			$html
-		);
 	}
 }

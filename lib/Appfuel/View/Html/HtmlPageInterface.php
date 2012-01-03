@@ -20,17 +20,6 @@ use Appfuel\View\ViewInterface,
 interface HtmlPageInterface extends ViewInterface
 {
 	/**
-	 * @return	HtmlTagInterface
-	 */
-	public function getHtmlTag();
-
-	/**
-	 * @param	HtmlDocInterface $doc
-	 * @return	HtmlPage
-	 */
-	public function setHtmlTag(HtmlTagInterface $tag);
-
-	/**
 	 * @param	ViewInterface $view
 	 * @return	HtmlPage
 	 */

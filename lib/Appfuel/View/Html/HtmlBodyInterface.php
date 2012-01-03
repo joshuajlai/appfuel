@@ -10,17 +10,14 @@
  */
 namespace Appfuel\View\Html;
 
-use InvalidArgumentException,
-	Appfuel\View\ViewTemplate,
-	Appfuel\View\ViewInterface,
-	Appfuel\View\Html\Tag\BodyTag,
+use Appfuel\View\Html\Tag\BodyTag,
 	Appfuel\View\Html\Tag\ScriptTag,
 	Appfuel\View\Html\Tag\GenericTagInterface;
 
 /**
  * Template used to generate generic html documents
  */
-interface HtmlBodyInterface extends	ViewInterface
+interface HtmlBodyInterface
 {
 	/**
 	 * @return	HtmlTagInterface
@@ -29,10 +26,30 @@ interface HtmlBodyInterface extends	ViewInterface
 
 	/**
 	 * @param	HtmlDocInterface $doc
-	 * @return	HtmlPage
+	 * @return	HtmlBodyInterface
 	 */
 	public function setBodyTag(GenericTagInterface $tag);
 
+    /** 
+     * @param   string  $name
+     * @param   string  $value
+	 * @return	HtmlBodyInterface
+     */
+    public function addAttribute($name, $value = null);
+
+    /**
+     * @param   string  $name
+     * @param   string  $default
+     * @return  mixed
+     */
+    public function getAttribute($name, $default = null);
+
+    /**
+     * @param   string  $name
+     * @return  bool
+     */
+    public function isAttribute($name);
+	
 	/**
 	 * @return	bool
 	 */
@@ -47,4 +64,64 @@ interface HtmlBodyInterface extends	ViewInterface
 	 * @return	HtmlBody
 	 */
 	public function disableJs();
+
+    /**
+     * @return  ScriptTag
+     */
+    public function getInlineScriptTag();
+
+    /**
+     * @param   GenericTagInterface  $tag
+     * @return  HtmlBody
+     */
+    public function setInlineScriptTag(GenericTagInterface $tag);
+
+    /**
+     * @param   mixed   string | object supporting __toString
+     * @return  HtmlBody
+     */
+    public function addInlineScriptContent($data);
+
+    /**
+     * @return  string
+     */
+    public function getInlineScriptContentString();
+
+    /**
+     * @param   mixed   string | object supporting __toString
+     * @return  HtmlBody
+     */
+    public function addMarkup($data);
+
+    /**
+     * @param   mixed   $src
+     * @return  HtmlBody
+     */
+    public function addScript($src);
+
+   /**
+     * @return  array
+     */
+    public function getScripts();
+
+    /**
+     * @return  int
+     */
+    public function getScriptCount();
+
+    /**
+     * @param   int $index 
+     * @return  string | array
+     */
+    public function getMarkup($index = null);
+
+    /**
+     * @return  string  
+     */
+    public function getMarkupString();
+
+    /**
+     * @return  string
+     */
+    public function build();
 }

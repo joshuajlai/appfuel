@@ -11,20 +11,23 @@
 namespace Appfuel\View\Html;
 
 use InvalidArgumentException,
-	Appfuel\View\ViewTemplate,
-	Appfuel\View\ViewInterface,
-	Appfuel\View\Compositor\TextCompositor,
 	Appfuel\View\Html\Tag\BodyTag,
 	Appfuel\View\Html\Tag\ScriptTag,
 	Appfuel\View\Html\Tag\TagContent,
 	Appfuel\View\Html\Tag\HtmlTagInterface,
-	Appfuel\View\Html\Tag\GenericTagInterface;
+	Appfuel\View\Html\Tag\GenericTagInterface,
+	Appfuel\View\Html\Tag\HtmlTagFactoryInterface;
 
 /**
  * Template used to generate generic html documents
  */
-class HtmlBody extends ViewTemplate implements HtmlBodyInterface
+class HtmlBody implements HtmlBodyInterface
 {
+	/**
+	 * @var HtmlTagFactoryInterface
+	 */
+	protected $factory = null;
+
 	/**
 	 * @var HtmlTagInterface
 	 */
@@ -34,7 +37,7 @@ class HtmlBody extends ViewTemplate implements HtmlBodyInterface
 	 * List of html content blocks to be added as the first block of content
 	 * in the body tag
 	 */
-	protected $content = null;
+	protected $markup = null;
 
 	/**
 	 * list of javascript files to be loaded at the bottom of the body tag
@@ -60,18 +63,23 @@ class HtmlBody extends ViewTemplate implements HtmlBodyInterface
 	 * @param	GenericTagInterface  $inline inline js script tag
 	 * @return	HtmlBody
 	 */
-	public function __construct(GenericTagInterface $body = null,
-								GenericTagInterface $script = null)
+	public function __construct(HtmlTagFactoryInterface $factory)
 	{
-		$compositor = new TextCompositor(null, null, 'values');
-		parent::__construct(null, $compositor);
-		
-		if (null === $body) {
-			$body = new BodyTag();
-		}
-		$this->setBodyTag($body);	
-	
-		$this->content = new TagContent();	
+		$this->setBodyTag($factory->createBodyTag());
+
+		/* 
+		 * hold all html markup in a TagContent object unit we are
+		 * ready to build
+		 */
+		$this->markup = $factory->createTagContent(null, PHP_EOL);
+
+		/*
+		 * All inline javascript is kept as one or more content blocks in
+		 * one script tag
+		 */
+		$this->setInlineScriptTag($factory->createScriptTag());
+
+		$this->factory = $factory;
 	}
 
 	/**
@@ -95,6 +103,39 @@ class HtmlBody extends ViewTemplate implements HtmlBodyInterface
 
 		$this->body = $tag;
 		return $this;
+	}
+
+	/**	
+	 * @param	string	$name
+	 * @return	string	$value
+	 */
+	public function addAttribute($name, $value = null)
+	{
+		$this->getBodyTag()
+			 ->addAttribute($name, $value);
+
+		return $this;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @param	string	$default
+	 * @return	mixed
+	 */
+	public function getAttribute($name, $default = null)
+	{
+		return $this->getBodyTag()
+					->getAttribute($name, $default);
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	bool
+	 */
+	public function isAttribute($name)
+	{
+		return $this->getBodyTag()
+					->isAttribute($name);
 	}
 
 	/**
@@ -122,12 +163,169 @@ class HtmlBody extends ViewTemplate implements HtmlBodyInterface
 		$this->isJs = false;
 		return $this;
 	}
+	
+	/**
+	 * @return	ScriptTag
+	 */
+	public function getInlineScriptTag()
+	{
+		return $this->inlineScript;
+	}
+
+	/**
+	 * @param	GenericTagInterface	 $tag
+	 * @return	HtmlBody
+	 */
+	public function setInlineScriptTag(GenericTagInterface $tag)
+	{
+		if ('script' !== $tag->getTagName()) {
+			$err = 'this must be a script tag';
+			throw new InvalidArgumentException($err);
+		}
+
+		if ($tag->isAttribute('src')) {
+			$err = 'script tag can not have a src attribute';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->inlineScript = $tag;
+		return $this;
+	}
+
+	/**
+	 * @param	mixed	string | object supporting __toString
+	 * @return	HtmlBody
+	 */
+	public function addInlineScriptContent($data)
+	{
+		$this->getInlineScriptTag()
+			 ->addContent($data);
+
+		return $this;
+	}
+
+	/**
+	 * @param	int	$index 
+	 * @return	string | array
+	 */
+	public function getInlineScriptContent($index = null)
+	{
+		return $this->getInlineScriptTag()
+					->getContent($index);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getInlineScriptContentString()
+	{
+		return $this->getInlineScriptTag()
+					->getContentString();
+	}
+
+	/**
+	 * @param	mixed	string | object supporting __toString
+	 * @return	HtmlBody
+	 */
+	public function addMarkup($data)
+	{
+		$this->getMarkupContent()
+			 ->add($data);
+
+		return $this;
+	}
+
+	/**
+	 * @param	mixed	$src
+	 * @return	HtmlBody
+	 */
+	public function addScript($src)
+	{
+		if (is_string($src) && ! empty($src)) {
+			$script = $this->getTagFactory()
+						   ->createScriptTag($src);
+		}
+		else if (($src instanceof GenericTagInterface) && 
+				 'script' === $src->getTagName()) {
+			$script = $src;
+		}
+		else {
+			$err  = 'must be a string or an Appfuel\View\Hmtml\GenericTag';
+			$err .= 'Interface with a tag name of script';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->scripts[] = $script;
+		return $this;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getScripts()
+	{
+		return $this->scripts;
+	}
+
+	/**
+	 * @return	int
+	 */
+	public function getScriptCount()
+	{
+		return count($this->scripts);
+	}
+
+	/**
+	 * @param	int	$index 
+	 * @return	string | array
+	 */
+	public function getMarkup($index = null)
+	{
+		return $this->getMarkupContent()
+					->get($index);
+	}
+
+	/**
+	 * @return	string	
+	 */
+	public function getMarkupString()
+	{
+		return $this->getMarkupContent()
+					->build();
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function build()
+	{
+		$body = $this->getBodyTag();
+		$markup = $this->getMarkupString();
+		$body->addContent($markup, 'prepend');
+
+		/* add the inline script as the last script tag */
+		$this->addScript($this->getInlineScriptTag());
+		$scripts = $this->getScripts();
+		foreach ($scripts as $scriptTag) {
+			$body->addContent($scriptTag);
+		}
+	
+		return $body->build();
+	}
+
+	/**
+	 * @return	HtmlTagFactoryInterface
+	 */
+	protected function getTagFactory()
+	{
+		return $this->factory;	
+	}
 
 	/**
 	 * @return	TagContent
 	 */
-	protected function getBodyContent()
+	protected function getMarkupContent()
 	{
-		return $this->content;
+		return $this->markup;
 	}
 }

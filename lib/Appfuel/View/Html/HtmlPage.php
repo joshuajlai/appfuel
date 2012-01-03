@@ -15,8 +15,9 @@ use InvalidArgumentException,
 	Appfuel\View\ViewInterface,
 	Appfuel\View\Html\Tag\HtmlTag,
 	Appfuel\View\Html\Tag\ScriptTag,
-	Appfuel\View\Html\Tag\HtmlTagInterface,
-	Appfuel\View\Html\Tag\GenericTagInterface;
+	Appfuel\View\Html\Tag\GenericTagInterface,
+	Appfuel\View\Html\Tag\HtmlTagFactory,
+	Appfuel\View\Html\Tag\HtmlTagFactoryInterface;
 
 /**
  * Template used to generate generic html documents
@@ -26,7 +27,17 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	/**
 	 * @var HtmlTagInterface
 	 */
-	protected $html = null;
+	protected $htmlFactory = null;
+
+	/**
+	 * @var HeadTag
+	 */
+	protected $headTag = null;
+
+	/**
+	 * @var BodyTag
+	 */
+	protected $bodyTag = null;
 
 	/**
 	 * Key used to add and get the view template
@@ -47,25 +58,18 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	 * @return	HtmlPage
 	 */
 	public function __construct(ViewInterface $template,
-								GenericTagInterface $inlineJs = null,
-								HtmlTagInterface  $doc = null,
-								$contentKey = null)
+								$contentKey = null,
+								HtmlTagFactoryInterface $factory = null)
 	{
+		if (null === $factory) {
+			$factory = new HtmlTagFactory();
+		}
+
 		if (null !== $contentKey) {
 			$this->setContentKey($contentKey);
 		}
 
 		$this->setView($template);
-
-		if (null === $inlineJs) {
-			$inlineJs = new ScriptTag();
-		}
-		$this->setInlineJs($inlineJs);
-
-		if (null == $doc) {
-			$doc = new HtmlTag();
-		}
-		$this->setHtmlTag($doc);
 	}
 
 	/**

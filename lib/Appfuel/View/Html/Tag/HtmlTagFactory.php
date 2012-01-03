@@ -17,6 +17,27 @@ use RunTimeException;
  */
 class HtmlTagFactory implements HtmlTagFactoryInterface
 {
+
+	/**
+	 * @param	mixed	$data	
+	 * @param	string	$char	content separator
+	 * @return	TagContent
+	 */
+	public function createTagContent($data = null, $sep = null)
+	{
+		return new TagContent($data, $sep);
+	}
+
+	/**
+	 * @param	mixed	$data	
+	 * @param	string	$char	content separator
+	 * @return	TagContent
+	 */
+	public function createTagAttributes(array $whiteList = null)
+	{
+		return new TagAttributes($whiteList);
+	}
+
 	/**
 	 * @param	string	$tagName
 	 * @param	TagContentInterface	$content	
