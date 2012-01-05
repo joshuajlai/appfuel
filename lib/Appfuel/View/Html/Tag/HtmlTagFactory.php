@@ -93,6 +93,16 @@ class HtmlTagFactory implements HtmlTagFactoryInterface
 		return new TitleTag($content, $contentSep);
 	}
 
+	/**
+	 * @param	string	$href
+	 * @param	string	$target
+	 * @return	BaseTag
+	 */
+	public function createBaseTag($href = null, $target = null)
+	{
+		return new BaseTag($href, $target);
+	}
+
     /**
      * @param   string  $href   url or file path to resource  
      * @param   string  $rel    relationship between current doc and link

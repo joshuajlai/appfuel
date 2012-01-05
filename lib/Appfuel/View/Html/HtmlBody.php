@@ -313,6 +313,28 @@ class HtmlBody implements HtmlBodyInterface
 		return $body->build();
 	}
 
+	public function configure(GenericTagInterface $body = null)
+	{
+		if (null === $body) {
+			$body = $this->getBodyTag();
+		}
+        else if ('body' !== $body->getTagName()) {
+            $err = 'configure failed: body tag must have a tag name of -(body)';
+            throw new InvalidArgumentException($err);
+        }
+		$markup = $this->getMarkupString();
+		$body->addContent($markup, 'prepend');
+
+		/* add the inline script as the last script tag */
+		$this->addScript($this->getInlineScriptTag());
+		$scripts = $this->getScripts();
+		foreach ($scripts as $scriptTag) {
+			$body->addContent($scriptTag);
+		}
+
+		return $body;
+	}
+
 	/**
 	 * @return	HtmlTagFactoryInterface
 	 */

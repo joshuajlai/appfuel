@@ -64,10 +64,8 @@ class HeadTagTest extends BaseTestCase
 	
 		$this->assertFalse($this->head->isBase());
 		$this->assertFalse($this->head->isMeta());
-		$this->assertFalse($this->head->isLinks());
-		$this->assertFalse($this->head->isStyle());
+		$this->assertFalse($this->head->isCssTags());
 		$this->assertFalse($this->head->isScripts());
-		$this->assertFalse($this->head->isInlineScript());
 	}
 
 	/**
@@ -169,48 +167,48 @@ class HeadTagTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testLinks()
+	public function testCssTagsLinks()
 	{
 		$link1 = new LinkTag('reset.css');
 		$link2 = new LinkTag('base.css');
 		$link3 = new LinkTag('page.css');
 		$this->assertSame(
 			$this->head,
-			$this->head->addLink($link1)
+			$this->head->addCssTag($link1)
 		);
 
 		$expected = array($link1);
-		$this->assertEquals($expected, $this->head->getLinks());
+		$this->assertEquals($expected, $this->head->getCssTags());
 
 		$this->assertSame(
 			$this->head,
-			$this->head->addLink($link2)
+			$this->head->addCssTag($link2)
 		);
 
 		$expected = array($link1, $link2);
-		$this->assertEquals($expected, $this->head->getLinks());
+		$this->assertEquals($expected, $this->head->getCssTags());
 
 		$this->assertSame(
 			$this->head,
-			$this->head->addLink($link3)
+			$this->head->addCssTag($link3)
 		);
 
 		$expected = array($link1, $link2, $link3);
-		$this->assertEquals($expected, $this->head->getLinks());
+		$this->assertEquals($expected, $this->head->getCssTags());
 
-		$this->assertTrue($this->head->isLinks());
+		$this->assertTrue($this->head->isCssTags());
 	}
 
 	/**
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testStyle()
+	public function testCssTagsStyle()
 	{
 		$style = new StyleTag("p{color:red}");
-		$this->assertSame($this->head, $this->head->setStyle($style));
-		$this->assertSame($style, $this->head->getStyle());
-		$this->assertTrue($this->head->isStyle());
+		$this->assertSame($this->head, $this->head->addCssTag($style));
+		$this->assertSame(array($style), $this->head->getCssTags());
+		$this->assertTrue($this->head->isCssTags());
 	}
 
 	/**
@@ -250,35 +248,14 @@ class HeadTagTest extends BaseTestCase
 	}
 
 	/**
-	 * @expectedException	InvalidArgumentException
-	 * @return				null
-	 */
-	public function testAddScriptNoSource_Failure()
-	{
-		$script = new ScriptTag(null, 'alert("this is a test");');
-		$this->head->addScript($script);
-	}
-
-	/**
 	 * @depends	testInitialState
 	 * @return	null
 	 */
 	public function testInlineScript()
 	{
 		$script = new ScriptTag(null, 'alert("this is a test");');
-		$this->assertSame($this->head, $this->head->setInlineScript($script));
-		$this->assertSame($script, $this->head->getInlineScript());
-		$this->assertTrue($this->head->isInlineScript());
+		$this->assertSame($this->head, $this->head->addScript($script));
+		$this->assertEquals(array($script), $this->head->getScripts());
+		$this->assertTrue($this->head->isScripts());
 	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @return				null
-	 */
-	public function testSetInlineScriptSource_Failure()
-	{
-		$script = new ScriptTag('my-file.js');
-		$this->head->setInlineScript($script);
-	}
-
 }

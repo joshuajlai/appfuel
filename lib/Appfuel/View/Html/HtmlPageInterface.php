@@ -19,6 +19,13 @@ use Appfuel\View\ViewInterface,
  */
 interface HtmlPageInterface extends ViewInterface
 {
+    /**
+     * @param   string  $name
+     * @param   string  $value
+     * @return  HtmlPage
+     */
+    public function addHtmlAttribute($name, $value = null);
+
 	/**
 	 * @param	ViewInterface $view
 	 * @return	HtmlPage
@@ -29,15 +36,4 @@ interface HtmlPageInterface extends ViewInterface
 	 * @return	ViewInterface
 	 */
 	public function getView();
-
-	/**
-	 * @param	GenericTagInterface $script
-	 * @return	HtmlPage
-	 */
-	public function setInlineJs(GenericTagInterface $script);
-
-	/**	
-	 * @return	GenericTagInterface
-	 */
-	public function getInlineJs();
 }

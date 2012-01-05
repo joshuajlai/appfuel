@@ -82,33 +82,17 @@ interface HeadTagInterface extends GenericTagInterface
 	 * @param	GenericTagInterface $tag
 	 * @return	HeadTag
 	 */
-	public function addLink(GenericTagInterface $tag);
+	public function addCssTag(GenericTagInterface $tag);
 
 	/**
 	 * @return	array
 	 */
-	public function getLinks();
+	public function getCssTags();
 
 	/**
 	 * @return	bool
 	 */
-	public function isLinks();
-
-	/**
-	 * @return	GenericTagInterface
-	 */
-	public function getStyle();
-
-	/**
-	 * @param	GenericTagInterface $tag
-	 * @return	HeadTag
-	 */
-	public function setStyle(GenericTagInterface $tag);
-
-	/**
-	 * @return	bool	
-	 */
-	public function isStyle();
+	public function isCssTags();
 
 	/**
 	 * @throws	InvalidArgumentException
@@ -126,22 +110,6 @@ interface HeadTagInterface extends GenericTagInterface
 	 * @return	bool
 	 */
 	public function isScripts();
-
-	/**
-	 * @return	GenericTagInterface
-	 */
-	public function getInlineScript();
-
-	/**
-	 * @param	GenericTagInterface $tag
-	 * @return	HeadTag
-	 */
-	public function setInlineScript(GenericTagInterface $tag);
-
-	/**
-	 * @return	bool	
-	 */
-	public function isInlineScript();
 
 	/**
 	 * @return	array

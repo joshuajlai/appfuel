@@ -39,13 +39,7 @@ class HeadTag extends GenericTag implements HeadTagInterface
 	 * List of link tags
 	 * @var array
 	 */
-	protected $links = array();
-
-	/**
-	 * Inline Style tag
-	 * @var	StyleTag
-	 */
-	protected $style = null;
+	protected $cssTags = array();
 
 	/**
 	 * List of ScriptTags
@@ -54,22 +48,14 @@ class HeadTag extends GenericTag implements HeadTagInterface
 	protected $scripts = array();
 
 	/**
-	 * Single script for inline javascript
-	 * @var ScriptTag
-	 */
-	protected $inlineScript = null;
-
-	/**
 	 * @var array
 	 */
 	protected $contentOrder = array(
 		'Title', 
 		'Base', 
 		'Meta', 
-		'Links', 
-		'Style', 
+		'CssTags', 
 		'Scripts', 
-		'InlineScript' 
 	);
 
 	/**
@@ -211,62 +197,32 @@ class HeadTag extends GenericTag implements HeadTagInterface
 	 * @param	GenericTagInterface $tag
 	 * @return	HeadTag
 	 */
-	public function addLink(GenericTagInterface $tag)
+	public function addCssTag(GenericTagInterface $tag)
 	{
-		if ('link' !== $tag->getTagName()) {
-			$err = 'must have a tag name of -(link)';
+		$tagName = $tag->getTagName();
+		if ('link' !== $tagName && 'style' !== $tagName) {
+			$err = 'must have a tag name of -(link|style)';
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->links[] = $tag;
+		$this->cssTags[] = $tag;
 		return $this;
 	}
 
 	/**
 	 * @return	array
 	 */
-	public function getLinks()
+	public function getCssTags()
 	{
-		return $this->links;
+		return $this->cssTags;
 	}
 
 	/**
 	 * @return	bool
 	 */
-	public function isLinks()
+	public function isCssTags()
 	{
-		return count($this->links) > 0;
-	}
-
-	/**
-	 * @return	GenericTagInterface
-	 */
-	public function getStyle()
-	{
-		return $this->style;
-	}
-
-	/**
-	 * @param	GenericTagInterface $tag
-	 * @return	HeadTag
-	 */
-	public function setStyle(GenericTagInterface $tag)
-	{
-		if ('style' !== $tag->getTagName()) {
-			$err = 'must have a tag name of -(title)';
-			throw new InvalidArgumentException($err);
-		}
-		
-		$this->style = $tag;
-		return $this;
-	}
-
-	/**
-	 * @return	bool	
-	 */
-	public function isStyle()
-	{
-		return $this->style instanceof GenericTagInterface;
+		return count($this->cssTags) > 0;
 	}
 
 	/**
@@ -278,11 +234,6 @@ class HeadTag extends GenericTag implements HeadTagInterface
 	{
 		if ('script' !== $tag->getTagName()) {
 			$err = 'must have a tag name of -(script)';
-			throw new InvalidArgumentException($err);
-		}
-
-		if (! $tag->isAttribute('src')) {
-			$err = 'only script tags that have src attributes are allowed';
 			throw new InvalidArgumentException($err);
 		}
 
@@ -304,42 +255,6 @@ class HeadTag extends GenericTag implements HeadTagInterface
 	public function isScripts()
 	{
 		return count($this->scripts) > 0;
-	}
-
-	/**
-	 * @return	GenericTagInterface
-	 */
-	public function getInlineScript()
-	{
-		return $this->inlineScript;
-	}
-
-	/**
-	 * @param	GenericTagInterface $tag
-	 * @return	HeadTag
-	 */
-	public function setInlineScript(GenericTagInterface $tag)
-	{
-		if ('script' !== $tag->getTagName()) {
-			$err = 'must have a tag name of -(title)';
-			throw new InvalidArgumentException($err);
-		}
-
-		if ($tag->isAttribute('src')) {
-			$err = 'src attribute is not allowed for an inline script';
-			throw new InvalidArgumentException($err);
-		}	
-
-		$this->inlineScript = $tag;
-		return $this;
-	}
-
-	/**
-	 * @return	bool	
-	 */
-	public function isInlineScript()
-	{
-		return $this->inlineScript instanceof GenericTagInterface;
 	}
 
 	/**
