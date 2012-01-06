@@ -13,6 +13,7 @@ namespace TestFuel\Unit\Kernel\Mvc;
 use StdClass,
 	Appfuel\Kernel\Mvc\AppInput,
 	Appfuel\Kernel\Mvc\MvcContext,
+	Appfuel\Kernel\Mvc\MvcRouteDetail,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\DataStructure\Dictionary;
 
@@ -28,17 +29,17 @@ class MvcContextTest extends BaseTestCase
 	protected $context = null;
 
 	/**
-	 * First parameter in the constructor
-	 * @var string
-	 */
-	protected $route = null;
-
-	/**
-	 * Second parameter in the constructor, used to indicate the strategy of
+	 * first parameter in the constructor, used to indicate the strategy of
 	 * the context (console|ajax|html)
 	 * @var string
 	 */
 	protected $strategy = null;
+
+	/**
+	 * Second parameter in the constructor
+	 * @var RouteDetail
+	 */
+	protected $route = null;
 
 	/**
 	 * Third Paramter is the application input
@@ -51,12 +52,14 @@ class MvcContextTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$this->route = 'my-route';
+		$this->route = $this->getMock(
+			'Appfuel\Kernel\Mvc\MvcRouteDetailInterface'
+		);
 		$this->strategy = 'console';
 		$this->input = $this->getMock('Appfuel\Kernel\Mvc\AppInputInterface');
 		$this->context = new MvcContext(
-			$this->route,
 			$this->strategy, 
+			$this->route,
 			$this->input
 		);
 	}
@@ -86,9 +89,9 @@ class MvcContextTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function testRoute()
+	public function testRouteDetail()
 	{
-		$this->assertEquals($this->route, $this->context->getRoute());
+		$this->assertEquals($this->route, $this->context->getRouteDetail());
 	}
 
 	/**
@@ -117,7 +120,7 @@ class MvcContextTest extends BaseTestCase
 	 */
 	public function testConstructorStrategy_Failure($strategy)
 	{
-		$context = new MvcContext($this->route, $strategy, $this->input);
+		$context = new MvcContext($strategy, $this->route, $this->input);
 	}
 
 	/**

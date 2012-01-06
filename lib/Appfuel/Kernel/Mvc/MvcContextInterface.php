@@ -28,7 +28,7 @@ interface MvcContextInterface extends DictionaryInterface
 	/**
 	 * @return	string
 	 */
-	public function getRoute();
+	public function getRouteDetail();
 
 	/**
 	 * List of codes used for role based access control

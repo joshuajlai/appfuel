@@ -31,7 +31,7 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	protected $strategy = null;
 
 	/**
-	 * The route associated to the this context
+	 * The route value object associated with this context
 	 * @var string
 	 */
 	protected $route = null;
@@ -68,17 +68,19 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 * @param	AppInputInterface	$input
 	 * @return	AppContext
 	 */
-	public function __construct($route, $strategy, AppInputInterface $input)
+	public function __construct($strategy, 
+								MvcRouteDetailInterface $route,
+								AppInputInterface $input)
 	{
-		$this->setRoute($route);
 		$this->setStrategy($strategy);
+		$this->setRouteDetail($route);
 		$this->setInput($input);
 	}
 
 	/**
-	 * @return	string
+	 * @return	RouteDetailInterface
 	 */
-	public function getRoute()
+	public function getRouteDetail()
 	{
 		return $this->route;
 	}
@@ -206,13 +208,8 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 * @param	string	$strategy
 	 * @return	null
 	 */
-	protected function setRoute($route)
+	protected function setRouteDetail(MvcRouteDetailInterface $route)
 	{
-		if (! is_string($route)) {
-			$err = 'the route for this context must be a string';
-			throw new InvalidArgumentException($err);
-		}
-
 		$this->route = $route;
 	}
 }

@@ -38,8 +38,6 @@
 	<file>../lib/TestFuel/Unit/Kernel/IncludePathTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/RequestUriTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/ActionFactoryTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcContextTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/AppInputTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/AppInput_FailureTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/ContextBuilderTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionDispatcherTest.php</file>
@@ -60,6 +58,8 @@
 	<file>../lib/TestFuel/Unit/View/Html/Tag/HtmlTagTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/HtmlTagFactoryTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/HtmlPageTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteDetailTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcContextTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

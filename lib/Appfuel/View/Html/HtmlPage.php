@@ -100,7 +100,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 		$this->setTagFactory($factory);
 
 		if (null === $htmlDocFile) {
-			$htmlDocFile = 'appfuel/html/tpl/doc/htmldoc.phtml';
+			$htmlDocFile = 'appfuel/html/tpl/common/htmldoc.phtml';
 		}
 		$htmlDoc = new FileViewTemplate($htmlDocFile);
 		$this->addTemplate('htmldoc', $htmlDoc);
