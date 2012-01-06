@@ -72,22 +72,21 @@ class HtmlPageTest extends BaseTestCase
 
 		$this->assertSame($this->view, $this->page->getView());
 		
-		$htmlTag = $this->page->getHtmlTag();
+		$html = $this->page->getHtmlTag();
 		$this->assertInstanceOf(
 			'Appfuel\View\Html\Tag\HtmlTagInterface',
-			$htmlTag
+			$html
 		);
-
-		$htmlHead = $this->page->getHtmlHead();
+		$head = $html->getHead();
 		$this->assertInstanceOf(
-			'Appfuel\View\Html\HtmlHeadInterface',
-			$htmlHead
+			'Appfuel\View\Html\Tag\HeadTagInterface',
+			$head
 		);
-
-		$htmlBody = $this->page->getHtmlBody();
+		
+		$body = $html->getBody();
 		$this->assertInstanceOf(
-			'Appfuel\View\Html\HtmlBodyInterface',
-			$htmlBody
+			'Appfuel\View\Html\Tag\GenericTagInterface',
+			$body
 		);
 	}
 
@@ -104,17 +103,6 @@ class HtmlPageTest extends BaseTestCase
 
 		$this->assertSame($this->page, $this->page->setHtmlTag($tag));
 		$this->assertSame($tag, $this->page->getHtmlTag());
-	}
-
-	/**
-	 * @depends	testInitialState
-	 * @return	null
-	 */
-	public function testGetSetHtmlBody()
-	{
-		$body = $this->getMock('Appfuel\View\Html\HtmlBodyInterface');
-		$this->assertSame($this->page, $this->page->setHtmlBody($body));
-		$this->assertSame($body, $this->page->getHtmlBody());
 	}
 
 	/**
@@ -145,7 +133,8 @@ class HtmlPageTest extends BaseTestCase
 	 */
 	public function testAddHeadttribute()
 	{
-		$head = $this->page->getHtmlHead();
+		$html = $this->page->getHtmlTag();
+		$head = $html->getHead();
 
 		$this->assertFalse($head->isAttribute('id'));
 		$this->assertNull($head->getAttribute('id'));
@@ -164,8 +153,8 @@ class HtmlPageTest extends BaseTestCase
 	 */
 	public function testSetHeadTitle()
 	{
-		$title = $this->page->getHtmlHead()
-							->getHeadTag()
+		$title = $this->page->getHtmlTag()
+							->getHead()
 							->getTitle();
 		$text = "my-title";
 		$this->assertSame($this->page, $this->page->setHeadTitle($text));
@@ -203,11 +192,12 @@ class HtmlPageTest extends BaseTestCase
 	 */
 	public function testSetHeadBase()
 	{
-		$head = $this->page->getHtmlHead();
+		$head = $this->page->getHtmlTag()
+						   ->getHead();
 
-		$this->assertNull($head->getBaseTag());
+		$this->assertNull($head->getBase());
 		$this->assertSame($this->page, $this->page->setHeadBase('myhref'));
-		$base = $head->getBaseTag();
+		$base = $head->getBase();
 		$this->assertInstanceOf(
 			'Appfuel\View\Html\Tag\BaseTag',
 			$base
@@ -219,7 +209,7 @@ class HtmlPageTest extends BaseTestCase
 			$this->page->setHeadBase(null, 'mytarget')
 		);
 
-		$base = $head->getBaseTag();
+		$base = $head->getBase();
 		$this->assertInstanceOf(
 			'Appfuel\View\Html\Tag\BaseTag',
 			$base
@@ -233,13 +223,14 @@ class HtmlPageTest extends BaseTestCase
 	 */
 	public function testSetHeadMeta()
 	{
-		$head = $this->page->getHtmlHead();
-		$this->assertEquals(array(), $head->getMetaTags());
+		$head = $this->page->getHtmlTag()
+						   ->getHead();
+		$this->assertEquals(array(), $head->getMeta());
 		$this->assertSame(
 			$this->page, 
 			$this->page->addHeadMeta('auther', 'robert')
 		);
-		$list = $head->getMetaTags();
+		$list = $head->getMeta();
 		$tag = new MetaTag('auther', 'robert');
 		$this->assertEquals($tag, $list[0]);
 		
@@ -248,7 +239,7 @@ class HtmlPageTest extends BaseTestCase
 			$this->page->addHeadMeta(null, null, null, 'UTF-8')
 		);
 
-		$list = $head->getMetaTags();
+		$list = $head->getMeta();
 		$tag = new MetaTag(null, null, null, 'UTF-8');
 		$this->assertEquals($tag, $list[1]);
 
@@ -257,7 +248,7 @@ class HtmlPageTest extends BaseTestCase
 			$this->page->addHeadMeta(null,'text/html','Content-Type','UTF-8')
 		);
 
-		$list = $head->getMetaTags();
+		$list = $head->getMeta();
 		$tag = new MetaTag(null, 'text/html', 'Content-Type', 'UTF-8');
 		$this->assertEquals($tag, $list[2]);
 	}
@@ -268,8 +259,9 @@ class HtmlPageTest extends BaseTestCase
 	 */
 	public function testAddHeadMetaTag()
 	{
-		$head = $this->page->getHtmlHead();
-		$this->assertEquals(array(), $head->getMetaTags());
+		$head = $this->page->getHtmlTag()
+						   ->getHead();
+		$this->assertEquals(array(), $head->getMeta());
 
 		$tag1 = new MetaTag('auther', 'robert');
 		$this->assertSame(
@@ -278,7 +270,7 @@ class HtmlPageTest extends BaseTestCase
 		);
 
 		$expected = array($tag1);
-		$this->assertEquals($expected, $head->getMetaTags());
+		$this->assertEquals($expected, $head->getMeta());
 
 		$tag2 = new MetaTag(null, null, null, 'UTF-8');
 		$this->assertSame(
@@ -286,7 +278,7 @@ class HtmlPageTest extends BaseTestCase
 			$this->page->addHeadMetaTag($tag2)
 		);
 		$expected = array($tag1, $tag2);
-		$this->assertEquals($expected, $head->getMetaTags());
+		$this->assertEquals($expected, $head->getMeta());
 
 		$tag3 = new MetaTag(null, 'text/html', 'Content-Type', 'UTF-8');
 		$this->assertSame(
@@ -294,7 +286,7 @@ class HtmlPageTest extends BaseTestCase
 			$this->page->addHeadMetaTag($tag3)
 		);
 		$expected = array($tag1, $tag2, $tag3);
-		$this->assertEquals($expected, $head->getMetaTags());
+		$this->assertEquals($expected, $head->getMeta());
 	}
 
 	/**
@@ -313,14 +305,15 @@ class HtmlPageTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testAddHeadLink()
+	public function testAddCssLink()
 	{
-		$head = $this->page->getHtmlHead();
+		$head = $this->page->getHtmlTag()
+						   ->getHead();
 		$this->assertEquals(array(), $head->getCssTags());
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addHeadLink('myfile.css')
+			$this->page->addCssLink('myfile.css')
 		);
 		$tag1 = new LinkTag('myfile.css');
 		$expected = array($tag1);
@@ -328,7 +321,7 @@ class HtmlPageTest extends BaseTestCase
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addHeadLink('my-other-file.css', 'index')
+			$this->page->addCssLink('my-other-file.css', 'index')
 		);
 		$tag2 = new LinkTag('my-other-file.css', 'index');
 		$expected = array($tag1, $tag2);
@@ -336,7 +329,7 @@ class HtmlPageTest extends BaseTestCase
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addHeadLink('file.css', 'index', 'text/html')
+			$this->page->addCssLink('file.css', 'index', 'text/html')
 		);
 		$tag3 = new LinkTag('file.css', 'index', 'text/html');
 		$expected = array($tag1, $tag2, $tag3);
@@ -347,13 +340,14 @@ class HtmlPageTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testAddHeadStyle()
+	public function testAddCssStyle()
 	{
-		$head = $this->page->getHtmlHead();
+		$head = $this->page->getHtmlTag()
+						   ->getHead();
 		$this->assertEquals(array(), $head->getCssTags());
 
 		$content1 = 'p{color:red}';
-		$this->assertSame($this->page, $this->page->addHeadStyle($content1));
+		$this->assertSame($this->page, $this->page->addCssStyle($content1));
 
 		$tag1 = new StyleTag($content1);
 		$expected = array($tag1);
@@ -362,7 +356,7 @@ class HtmlPageTest extends BaseTestCase
 		$content2 = 'p{color:red}';
 		$this->assertSame(
 			$this->page, 
-			$this->page->addHeadStyle($content1, 'text/html')
+			$this->page->addCssStyle($content1, 'text/html')
 		);
 
 		$tag2 = new StyleTag($content1, 'text/html');
@@ -374,23 +368,22 @@ class HtmlPageTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testAddHeadInlineStyle()
+	public function testAddToInlineStyle()
 	{
-		$head = $this->page->getHtmlHead();
-		$style = $head->getInlineStyleTag();
+		$style = $this->page->getInlineStyleTag();
 		$this->assertTrue($style->isEmpty());
 
 		$content1 = 'p{color:red}';
 		$this->assertSame(
 			$this->page, 
-			$this->page->addHeadInlineStyle($content1)
+			$this->page->addToInlineStyle($content1)
 		);
 		$this->assertEquals($content1, $style->getContent(0));
 
 		$content2 = 'h1{color:blue}';
 		$this->assertSame(
 			$this->page, 
-			$this->page->addHeadInlineStyle($content2)
+			$this->page->addToInlineStyle($content2)
 		);
 		$this->assertEquals($content2, $style->getContent(1));
 	}
@@ -409,65 +402,12 @@ class HtmlPageTest extends BaseTestCase
 
 	/**
 	 * @depends	testInitialState
-	 * @return	null
-	 */
-	public function testAddHeadScript()
-	{
-		$head = $this->page->getHtmlHead();
-		$this->assertEquals(array(), $head->getScripts());
-
-		$this->assertSame(
-			$this->page,
-			$this->page->addHeadScript('my-file.js')
-		);
-
-		$tag1 = new ScriptTag('my-file.js');
-		$expected = array($tag1);
-		$this->assertEquals($expected, $head->getScripts());
-
-		$this->assertSame(
-			$this->page,
-			$this->page->addHeadScript('my-other-file.js')
-		);
-
-		$tag2 = new ScriptTag('my-other-file.js');
-		$expected = array($tag1, $tag2);
-		$this->assertEquals($expected, $head->getScripts());
-
-		$tag3 = new ScriptTag('file.js');
-		$this->assertSame(
-			$this->page,
-			$this->page->addHeadScript($tag3)
-		);
-		$expected = array($tag1, $tag2, $tag3);
-		$this->assertEquals($expected, $head->getScripts());
-	}
-
-	/**
-	 * @depends	testInitialState
-	 * @return	null
-	 */
-	public function testAddHeadInlineScript()
-	{
-		$head = $this->page->getHtmlHead();
-		$script = $head->getInlineScriptTag();
-		$this->assertTrue($script->isEmpty());
-
-		$content1 = 'alert("blah");';
-		$this->assertSame(
-			$this->page,
-			$this->page->addHeadInlineScript($content1)
-		);
-		$this->assertEquals($content1, $script->getContent(0));
-	}
-
-	/**
-	 * @depends	testInitialState
 	 * @return	null	
 	 */
 	public function testAddBodyAttribute()
 	{
-		$body = $this->page->getHtmlBody();
+		$body = $this->page->getHtmlTag()
+						   ->getBody();
 
 		$this->assertFalse($body->isAttribute('id'));
 		$this->assertNull($body->getAttribute('id'));
@@ -484,43 +424,44 @@ class HtmlPageTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testAddMarkup()
+	public function testAddContent()
 	{
-		$body = $this->page->getHtmlBody();
+		$body = $this->page->getHtmlTag()
+						   ->getBody();
 		
 		$markup1 = '<h1>i am a title</h1>';
 		$markup2 = '<p>i am some text</p>';
 		$markup3 = '<div>i am a section</div>';
 
-		$this->assertTrue($body->isMarkupEmpty());
+		$this->assertTrue($body->isEmpty());
 		$this->assertSame(
 			$this->page,
-			$this->page->addMarkup($markup1)
+			$this->page->addContent($markup1)
 		);
-		$this->assertEquals($markup1, $body->getMarkup(0));
+		$this->assertEquals($markup1, $body->getContent(0));
 		
 		$this->assertSame(
 			$this->page,
-			$this->page->addMarkup($markup2, 'append')
+			$this->page->addContent($markup2, 'append')
 		);	
-		$this->assertEquals($markup1, $body->getMarkup(0));
-		$this->assertEquals($markup2, $body->getMarkup(1));
+		$this->assertEquals($markup1, $body->getContent(0));
+		$this->assertEquals($markup2, $body->getContent(1));
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addMarkup($markup3, 'prepend')
+			$this->page->addContent($markup3, 'prepend')
 		);	
-		$this->assertEquals($markup3, $body->getMarkup(0));
-		$this->assertEquals($markup1, $body->getMarkup(1));
-		$this->assertEquals($markup2, $body->getMarkup(2));
+		$this->assertEquals($markup3, $body->getContent(0));
+		$this->assertEquals($markup1, $body->getContent(1));
+		$this->assertEquals($markup2, $body->getContent(2));
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addMarkup($markup2, 'replace')
+			$this->page->addContent($markup2, 'replace')
 		);	
-		$this->assertEquals($markup2, $body->getMarkup(0));
-		$this->assertFalse($body->getMarkup(1));
-		$this->assertFalse($body->getMarkup(2));
+		$this->assertEquals($markup2, $body->getContent(0));
+		$this->assertFalse($body->getContent(1));
+		$this->assertFalse($body->getContent(2));
 	}
 
 	/**
@@ -529,44 +470,42 @@ class HtmlPageTest extends BaseTestCase
 	 */
 	public function testAddBodyScript()
 	{
-		$body = $this->page->getHtmlBody();
-		$this->assertEquals(array(), $body->getScripts());
+		$this->assertEquals(array(), $this->page->getScriptTags());
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addBodyScript('my-file.js')
+			$this->page->addScript('my-file.js')
 		);
 
 		$tag1 = new ScriptTag('my-file.js');
 		$expected = array($tag1);
-		$this->assertEquals($expected, $body->getScripts());
+		$this->assertEquals($expected, $this->page->getScriptTags());
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addBodyScript('my-other-file.js')
+			$this->page->addScript('my-other-file.js')
 		);
 
 		$tag2 = new ScriptTag('my-other-file.js');
 		$expected = array($tag1, $tag2);
-		$this->assertEquals($expected, $body->getScripts());
+		$this->assertEquals($expected, $this->page->getScriptTags());
 
 		$tag3 = new ScriptTag('file.js');
 		$this->assertSame(
 			$this->page,
-			$this->page->addBodyScript($tag3)
+			$this->page->addScriptTag($tag3)
 		);
 		$expected = array($tag1, $tag2, $tag3);
-		$this->assertEquals($expected, $body->getScripts());
+		$this->assertEquals($expected, $this->page->getScriptTags());
 	}
 
 	/**
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testAddToBodyInlineScript()
+	public function testAddToInlineScript()
 	{
-		$body = $this->page->getHtmlBody();
-		$script = $body->getInlineScriptTag();
+		$script = $this->page->getInlineScriptTag();
 		$this->assertTrue($script->isEmpty());
 
 		$content1 = 'alert("blah");';
@@ -575,20 +514,20 @@ class HtmlPageTest extends BaseTestCase
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addToBodyInlineScript($content1)
+			$this->page->addToInlineScript($content1)
 		);
 		$this->assertEquals($content1, $script->getContent(0));
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addToBodyInlineScript($content2, 'append')
+			$this->page->addToInlineScript($content2, 'append')
 		);
 		$this->assertEquals($content1, $script->getContent(0));
 		$this->assertEquals($content2, $script->getContent(1));
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addToBodyInlineScript($content3, 'prepend')
+			$this->page->addToInlineScript($content3, 'prepend')
 		);
 		$this->assertEquals($content3, $script->getContent(0));
 		$this->assertEquals($content1, $script->getContent(1));
@@ -597,7 +536,7 @@ class HtmlPageTest extends BaseTestCase
 
 		$this->assertSame(
 			$this->page,
-			$this->page->addToBodyInlineScript($content2, 'replace')
+			$this->page->addToInlineScript($content2, 'replace')
 		);
 		$this->assertEquals($content2, $script->getContent(0));
 		$this->assertFalse($script->getContent(1));
