@@ -19,21 +19,4 @@ use Appfuel\View\ViewInterface,
  */
 interface HtmlPageInterface extends ViewInterface
 {
-    /**
-     * @param   string  $name
-     * @param   string  $value
-     * @return  HtmlPage
-     */
-    public function addHtmlAttribute($name, $value = null);
-
-	/**
-	 * @param	ViewInterface $view
-	 * @return	HtmlPage
-	 */
-	public function setView(ViewInterface $view);
-
-	/**	
-	 * @return	ViewInterface
-	 */
-	public function getView();
 }

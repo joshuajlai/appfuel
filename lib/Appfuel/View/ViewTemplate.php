@@ -91,9 +91,11 @@ class ViewTemplate implements ViewInterface
      */
     public function isTemplate($key)
     {
-		if (! empty($key) || 
-			is_string($key) || 
-			isset($this->templates[$key]) ||
+		if (! is_string($key)) {
+			return false;
+		}
+
+		if (isset($this->templates[$key]) &&
 			$this->templates[$key] instanceof ViewInterface) {
 			return true;
 		}

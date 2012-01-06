@@ -13,6 +13,7 @@ namespace Appfuel\View\Html;
 use InvalidArgumentException,
 	Appfuel\View\ViewTemplate,
 	Appfuel\View\ViewInterface,
+	Appfuel\View\FileViewTemplate,
 	Appfuel\View\Html\Tag\HtmlTag,
 	Appfuel\View\Html\Tag\ScriptTag,
 	Appfuel\View\Html\Tag\HtmlTagFactory,
@@ -65,18 +66,23 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	protected $isCss = true;
 
 	/**
-	 * @param	FileViewInterface $content	main html body content
-	 * @param	FileViewInterface $inlineJs inline js content 
-	 * @param	HtmlDocInterface  $doc		html doc template
+	 * @param	string|ViewInterface $view	
+	 * @param	HtmlTagInterface	 $htmlTag
+	 * @param	HtmlHeadInterface	 $htmlHead
+	 * @param	HtmlBodyInterface	 $htmlBody
+	 * @param	HtmlTagFactory		 $factory
 	 * @return	HtmlPage
 	 */
-	public function __construct(ViewInterface $template,
+	public function __construct($view = null,
+								$htmlDocFile = null,
 								HtmlTagInterface $htmlTag = null,
 								HtmlHeadInterface $htmlHead = null,
 								HtmlBodyInterface $htmlBody = null,
 								HtmlTagFactoryInterface $factory = null)
 	{
-		$this->setView($template);
+		if (null !== $view) {
+			$this->setView($view);
+		}
 		
 		if (null === $factory) {
 			$factory = new HtmlTagFactory();
@@ -97,6 +103,12 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 		}
 		$this->setHtmlBody($htmlBody);
 		$this->setTagFactory($factory);
+
+		if (null === $htmlDocFile) {
+			$htmlDocFile = 'appfuel/html/tpl/doc/htmldoc.phtml';
+		}
+		$htmlDoc = new FileViewTemplate($htmlDocFile);
+		$this->addTemplate('htmldoc', $htmlDoc);
 	}
 
 	/**
@@ -360,21 +372,133 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	}
 
 	/**
+	 * @param	string	$name
+	 * @param	string	$value
+	 * @return	HtmlPage
+	 */
+	public function addBodyAttribute($name, $value = null)
+	{
+		$this->getHtmlBody()
+			 ->addAttribute($name, $value);
+
+		return $this;
+	}
+
+	/**
+	 * @param	string	$content
+	 * @return	HtmlPage
+	 */
+	public function addMarkup($content, $action = 'append')
+	{
+		$this->getHtmlBody()
+			 ->addMarkup($content, $action);
+
+		return $this;
+	}
+
+	/**
+	 * @param	string|GenericTagInterface	$src
+	 * @return	HtmlPage
+	 */
+	public function addBodyScript($src)
+	{
+		$this->getHtmlBody()
+			 ->addScript($src);
+
+		return $this;
+	}
+
+	/**
+	 * @param	string	$content	
+	 * @param	string	$action
+	 * @return	HtmlPage
+	 */
+	public function addToBodyInlineScript($content, $action = 'append')
+	{
+		$this->getHtmlBody()
+			 ->addInlineScriptContent($content, $action);
+
+		return $this;
+	}
+
+	/**
 	 * @param	ViewInterface $view
 	 * @return	HtmlPage
 	 */
-	public function setView(ViewInterface $view)
+	public function setView($view)
 	{
-		$this->addTemplate($this->getContentKey(), $view);
+		$key = $this->getContentKey();
+		if ($view instanceof ViewInterface) {
+			return $this->addTemplate($key, $view);
+		}
+		else if (is_string($view) || 
+				(is_object($view) && is_callable(array($view, '__toString')))){
+			$this->view = (string) $view;
+			$this->removeTemplate($key);
+			return $this;
+		}
+
 		return $this;
 	}
 
 	/**	
-	 * @return	ViewInterface
+	 * @return	ViewInterface | string
 	 */
 	public function getView()
 	{
-		return $this->getTemplate($this->getContentKey());
+		$key = $this->getContentKey();
+		if ($this->isTemplate($key)) {
+			return $this->getTemplate($key);
+		}
+
+		return $this->view;
+	}
+
+	/**
+	 * @param	string	$label
+	 * @param	mixed	$value
+	 * @return	HtmlPage
+	 */
+	public function assign($name, $value)
+	{
+		$key = $this->getContentKey();
+		if ($this->isTemplate($key)) {
+			$name = "{$key}.{$name}";
+			return $this->assignTo($name, $value);
+		}
+		
+		return parent::assign($name, $value);
+	}
+
+	/**
+	 * @param	string	$name
+	 * @param	mixed	$default
+	 * @return	mixed
+	 */
+	public function get($name, $default = null)
+	{
+		$key = $this->getContentKey();
+		if ($this->isTemplate($key)) {
+			return $this->getTemplate($key)
+						->get($name, $default);
+		}
+
+		return parent::get($name, $default);
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	bool
+	 */
+	public function isAssigned($name)
+	{
+		$key = $this->getContentKey();
+		if ($this->isTemplate($key)) {
+			return $this->getTemplate($key)
+						->isAssigned($name);
+		}
+		
+		return parent::isAssigned($name);
 	}
 
 	/**
@@ -382,26 +506,53 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	 */
 	public function build()
 	{
-		$html = $this->getHtmlTag();
+		$template = $this->getTemplate('htmldoc');
+		$htmlTag = $this->getHtmlTag();
+		$template->assign('html-attrs', $htmlTag->getAttributeString());
+
 		$head = $this->getHtmlHead();
 		$body = $this->getHtmlBody();
 		
-		if (! $this->isCss()) {
+		$isCss = $this->isCss();
+		if (! $isCss) {
 			$head->disableCss();
 		}
 
-		if (! $this->isJs()) {
+		$isJs  = $this->isJs();
+		if (! $isJs) {
 			$head->disableJs();
 			$body->disableJs();
 		}
+		
+		$headTag = $head->configure();
+		$template->assign('head-attrs', $headTag->getAttributeString());
+		$template->assign('head-title', $headTag->getTitle());
+		if ($headTag->isBase()) {
+			$template->assign('head-base', $headTag->getBase());
+		}
+
+		if ($headTag->isMeta()) {
+			$template->assign('head-meta', $headTag->getMeta());
+		}
+		
+		if ($isCss  && $headTag->isCssTags()) {
+			$template->assign('head-css', $headTag->getCssTags());
+		}
+
+		$bodyTag = $body->configure();
+		$template->assign('body-attrs', $bodyTag->getAttributeString());
 
 		$view = $this->getView();
-		$body->addMarkup($view->build());
+		if ($view instanceof ViewInterface) {
+			$view = $view->build();
+		}
+		$template->assign('body-markup', $view);
 
-		$html->setHead($head->configure())
-			 ->setBody($body->configure());
+		if ($isJs) {
+			$template->assign('body-js', $body->getScripts());
+		}
 
-		return $html->build();
+		return $template->build();
 	}
 
 	/**
@@ -416,7 +567,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	 * @param	string	$key
 	 * @return	HtmlPage
 	 */
-	protected function setContentKey($key)
+	public function setContentKey($key)
 	{
 		if (! is_string($key) || ! ($key = trim($key))) {
 			$err = 'content key must be a non empty string';

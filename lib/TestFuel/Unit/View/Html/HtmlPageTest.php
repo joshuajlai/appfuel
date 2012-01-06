@@ -443,6 +443,10 @@ class HtmlPageTest extends BaseTestCase
 		$this->assertEquals($expected, $head->getScripts());
 	}
 
+	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
 	public function testAddHeadInlineScript()
 	{
 		$head = $this->page->getHtmlHead();
@@ -458,32 +462,184 @@ class HtmlPageTest extends BaseTestCase
 	}
 
 	/**
-	 * @return	null
+	 * @depends	testInitialState
+	 * @return	null	
 	 */
-	public function testBuildEmptyPage()
+	public function testAddBodyAttribute()
 	{
-		$result = $this->page->build();
-		/* remove any whitespaces made during configuration */
-		$result = str_replace(PHP_EOL,'', $result);
+		$body = $this->page->getHtmlBody();
 
-		$expected = '<html><head></head><body></body></html>';
-		$this->assertEquals($expected, $result);		
+		$this->assertFalse($body->isAttribute('id'));
+		$this->assertNull($body->getAttribute('id'));
+		
+		$this->assertSame(
+			$this->page,
+			$this->page->addBodyAttribute('id', 'my-id')
+		);
+		$this->assertTrue($body->isAttribute('id'));
+		$this->assertEquals('my-id', $body->getAttribute('id'));
 	}
 
 	/**
+	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testBuildEmptyPageHtmlAttribute()
+	public function testAddMarkup()
 	{
-		$this->page->addHtmlAttribute('lang', 'en');
-		$result = $this->page->build();
+		$body = $this->page->getHtmlBody();
+		
+		$markup1 = '<h1>i am a title</h1>';
+		$markup2 = '<p>i am some text</p>';
+		$markup3 = '<div>i am a section</div>';
 
-		/* remove any whitespaces made during configuration */
-		$result = str_replace(PHP_EOL,'', $result);
+		$this->assertTrue($body->isMarkupEmpty());
+		$this->assertSame(
+			$this->page,
+			$this->page->addMarkup($markup1)
+		);
+		$this->assertEquals($markup1, $body->getMarkup(0));
+		
+		$this->assertSame(
+			$this->page,
+			$this->page->addMarkup($markup2, 'append')
+		);	
+		$this->assertEquals($markup1, $body->getMarkup(0));
+		$this->assertEquals($markup2, $body->getMarkup(1));
 
-		$expected = '<html lang="en"><head></head><body></body></html>';
-		$this->assertEquals($expected, $result);		
+		$this->assertSame(
+			$this->page,
+			$this->page->addMarkup($markup3, 'prepend')
+		);	
+		$this->assertEquals($markup3, $body->getMarkup(0));
+		$this->assertEquals($markup1, $body->getMarkup(1));
+		$this->assertEquals($markup2, $body->getMarkup(2));
+
+		$this->assertSame(
+			$this->page,
+			$this->page->addMarkup($markup2, 'replace')
+		);	
+		$this->assertEquals($markup2, $body->getMarkup(0));
+		$this->assertFalse($body->getMarkup(1));
+		$this->assertFalse($body->getMarkup(2));
 	}
 
+	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testAddBodyScript()
+	{
+		$body = $this->page->getHtmlBody();
+		$this->assertEquals(array(), $body->getScripts());
 
+		$this->assertSame(
+			$this->page,
+			$this->page->addBodyScript('my-file.js')
+		);
+
+		$tag1 = new ScriptTag('my-file.js');
+		$expected = array($tag1);
+		$this->assertEquals($expected, $body->getScripts());
+
+		$this->assertSame(
+			$this->page,
+			$this->page->addBodyScript('my-other-file.js')
+		);
+
+		$tag2 = new ScriptTag('my-other-file.js');
+		$expected = array($tag1, $tag2);
+		$this->assertEquals($expected, $body->getScripts());
+
+		$tag3 = new ScriptTag('file.js');
+		$this->assertSame(
+			$this->page,
+			$this->page->addBodyScript($tag3)
+		);
+		$expected = array($tag1, $tag2, $tag3);
+		$this->assertEquals($expected, $body->getScripts());
+	}
+
+	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testAddToBodyInlineScript()
+	{
+		$body = $this->page->getHtmlBody();
+		$script = $body->getInlineScriptTag();
+		$this->assertTrue($script->isEmpty());
+
+		$content1 = 'alert("blah");';
+		$content2 = 'var me="me";';
+		$content3 = 'var you="you";';
+
+		$this->assertSame(
+			$this->page,
+			$this->page->addToBodyInlineScript($content1)
+		);
+		$this->assertEquals($content1, $script->getContent(0));
+
+		$this->assertSame(
+			$this->page,
+			$this->page->addToBodyInlineScript($content2, 'append')
+		);
+		$this->assertEquals($content1, $script->getContent(0));
+		$this->assertEquals($content2, $script->getContent(1));
+
+		$this->assertSame(
+			$this->page,
+			$this->page->addToBodyInlineScript($content3, 'prepend')
+		);
+		$this->assertEquals($content3, $script->getContent(0));
+		$this->assertEquals($content1, $script->getContent(1));
+		$this->assertEquals($content2, $script->getContent(2));
+
+
+		$this->assertSame(
+			$this->page,
+			$this->page->addToBodyInlineScript($content2, 'replace')
+		);
+		$this->assertEquals($content2, $script->getContent(0));
+		$this->assertFalse($script->getContent(1));
+		$this->assertFalse($script->getContent(2));
+	}
+
+	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testViewTemplateAssignIsAssign()
+	{
+		$view = new ViewTemplate();
+		$this->assertSame($this->page, $this->page->setView($view));
+		$this->assertSame($view, $this->page->getView());
+
+		/* when a view template is assigned all page assigns get 
+		 * routed into the view template via the content key. you
+		 * can get the content key with getContentKey
+		 */
+		$key = $this->page->getContentKey();
+		$this->assertTrue($this->page->isTemplate($key));
+		$this->assertSame($view, $this->page->getTemplate($key));
+
+		$this->assertSame(
+			$this->page,
+			$this->page->assign('foo', 'bar')
+		);
+		$this->assertTrue($this->page->isAssigned('foo'));
+		$this->assertTrue($view->isAssigned('foo'));	
+		$this->assertEquals('bar', $this->page->get('foo'));
+		$this->assertEquals('bar', $view->get('foo'));
+	}
+
+	public function testViewAsString()
+	{
+		$view = '<div>some manual view content</div>';
+		$this->assertSame($this->page, $this->page->setView($view));
+		$this->assertEquals($view, $this->page->getView());
+
+		$this->assertSame($this->page, $this->page->assign('foo', 'bar'));
+		$this->assertTrue($this->page->isAssigned('foo'));
+		$this->assertEquals('bar', $this->page->get('foo'));
+	}
 }

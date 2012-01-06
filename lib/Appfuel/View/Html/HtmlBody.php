@@ -196,10 +196,10 @@ class HtmlBody implements HtmlBodyInterface
 	 * @param	mixed	string | object supporting __toString
 	 * @return	HtmlBody
 	 */
-	public function addInlineScriptContent($data)
+	public function addInlineScriptContent($data, $action = 'append')
 	{
 		$this->getInlineScriptTag()
-			 ->addContent($data);
+			 ->addContent($data, $action);
 
 		return $this;
 	}
@@ -221,18 +221,6 @@ class HtmlBody implements HtmlBodyInterface
 	{
 		return $this->getInlineScriptTag()
 					->getContentString();
-	}
-
-	/**
-	 * @param	mixed	string | object supporting __toString
-	 * @return	HtmlBody
-	 */
-	public function addMarkup($data)
-	{
-		$this->getMarkupContent()
-			 ->add($data);
-
-		return $this;
 	}
 
 	/**
@@ -276,6 +264,17 @@ class HtmlBody implements HtmlBodyInterface
 	}
 
 	/**
+	 * @param	mixed	string | object supporting __toString
+	 * @return	HtmlBody
+	 */
+	public function addMarkup($data, $action = 'append')
+	{
+		$this->getMarkupContent()
+			 ->add($data, $action);
+
+		return $this;
+	}
+	/**
 	 * @param	int	$index 
 	 * @return	string | array
 	 */
@@ -283,6 +282,15 @@ class HtmlBody implements HtmlBodyInterface
 	{
 		return $this->getMarkupContent()
 					->get($index);
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isMarkupEmpty()
+	{
+		return $this->getMarkupContent()
+					->isEmpty();
 	}
 
 	/**
@@ -299,17 +307,7 @@ class HtmlBody implements HtmlBodyInterface
 	 */
 	public function build()
 	{
-		$body = $this->getBodyTag();
-		$markup = $this->getMarkupString();
-		$body->addContent($markup, 'prepend');
-
-		/* add the inline script as the last script tag */
-		$this->addScript($this->getInlineScriptTag());
-		$scripts = $this->getScripts();
-		foreach ($scripts as $scriptTag) {
-			$body->addContent($scriptTag);
-		}
-	
+		$body = $this->configure();
 		return $body->build();
 	}
 
