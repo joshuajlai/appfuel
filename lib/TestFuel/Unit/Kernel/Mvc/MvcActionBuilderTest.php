@@ -118,5 +118,38 @@ class MvcActionBuilderTest extends BaseTestCase
 		$this->assertSame($loader, $this->builder->getClassLoader());
 	}
 
+	/**
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetUriWithInterface()
+	{
+		$this->assertNull($this->builder->getUri());
+		$uri = $this->getMock('Appfuel\Kernel\Mvc\RequestUriInterface');
+		$this->assertSame($this->builder, $this->builder->setUri($uri));
+		$this->assertSame($uri, $this->builder->getUri());
+	}
 
+	/**
+	 * @dataProvider		provideNonEmptyStrings
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetUriWithString($str)
+	{
+		$this->assertSame($this->builder, $this->builder->setUri($str));
+		$uri = $this->builder->getUri();
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\RequestUri', $uri);
+	}
+
+	/**
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testCreateUri()
+	{
+		$uriStr = 'my-route-key/somevar/somevalue';
+		$uri = $this->builder->createUri($uriStr);
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\RequestUri', $uri);
+	}
 }

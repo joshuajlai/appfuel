@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use RunTimeException,
+use LogicException,
+	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Kernel\KernelRegistry,
     Appfuel\ClassLoader\StandardAutoLoader,
@@ -33,6 +34,13 @@ class MvcActionBuilder implements MvcActionBuilderInterface
 	 * @var AutoLoaderInterface
 	 */
 	protected $loader = null;
+
+    /**
+	 * The uri is designed to hold the route key and optionally get parameters
+	 * for an http get request. 
+     * @var RequestUriInterface
+     */
+    protected $uri = null;
 
     /**
      * @param   string  $controllerClass
@@ -90,4 +98,65 @@ class MvcActionBuilder implements MvcActionBuilderInterface
 		$this->loader = $loader;
 		return $this;
 	}
+
+    /**
+     * @return  RequestUriInterface
+     */
+    public function getUri()
+    {
+        return $this->uri;
+    }
+
+    /**
+     * @param   RequestUriInterface $uri
+     * @return  MvcActionBuilder
+     */
+    public function setUri($uri)
+    {
+		if (is_string($uri)) {
+			$uri = $this->createUri($uri);
+		} 
+		else if (! $uri instanceof RequestUriInterface) {
+			$err  = 'uri must be a string or an objec the implements the ';
+			$err .= 'Appfuel\Kernel\Mvc\RequestUriInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+        $this->uri = $uri;
+        return $this;
+    }
+
+    /**
+     * Use the uri string from the server super global $_SERVER['REQUEST_URI']
+     * to create the uri and set it
+     *
+     * @return  ContextBuilder
+     */
+    public function useServerRequestUri()
+    {
+        $err  = 'php super global $_SERVER[\'REQUEST_URI\'] is not set';
+        if (! isset($_SERVER['REQUEST_URI'])) {
+            throw new RunTimeException($err);
+        }
+
+        $uri = $_SERVER['REQUEST_URI'];
+
+		$err = 'request uri found in $_SERVER is not a string';
+        if (! is_string($uri)) {
+            throw new LogicException($err);
+        }
+
+        return $this->setUri($uri);
+    }
+
+    /**
+     * @param   string  $uriString
+     * @return  RequestUri
+     */
+    public function createUri($uriString)
+    {
+        return new RequestUri($uriString);
+    }
+
+
 }
