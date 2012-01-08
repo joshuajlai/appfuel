@@ -11,7 +11,10 @@
 namespace Appfuel\Kernel\Mvc;
 
 use RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException
+	Appfuel\Kernel\KernelRegistry,
+    Appfuel\ClassLoader\StandardAutoLoader,
+    Appfuel\ClassLoader\AutoLoaderInterface;
 
 /**
  * The context build holds all the logic for create uri strings, requests,
@@ -20,6 +23,20 @@ use RunTimeException,
  */
 class ContextBuilder implements ContextBuilderInterface
 {
+	/**
+	 * The class name used to create the action controller class found in
+	 * the namespace the route maps too
+	 * @var	string
+	 */
+	static protected $actionClassName = 'ActionController';
+
+	/**
+	 * We reuse the autoloader class to parse the namespace into a dir path
+	 * to find the mvc action, view, and route detail.
+	 * @var AutoLoaderInterface
+	 */
+	protected $loader = null;
+
     /**
      * Request Parameters. We parse the uri string and create our own parameters
      * instead of using super global $_GET. This is due to the way we use the 
@@ -34,65 +51,60 @@ class ContextBuilder implements ContextBuilderInterface
      */
     protected $input = null;
 
-	/**
-	 * @var string
-	 */
-	protected $strategy = null;
+    /**
+     * @param   string  $controllerClass
+     * @return  MvcActionBuilder
+     */
+    public function __construct(AutoLoaderInterface $loader = null)
+    {
+        /*
+         * Note that we use the load class from the lib directory. This 
+         * constant is set during intialization. I will refactor next to a 
+         * a path finder. (on a deadline right now) --rsb
+         */
+        if (null === $loader) {
+            $loader = new StandardAutoLoader(AF_LIB_PATH);
+        }
+        $this->setClassLoader($loader);
+    }
 
 	/**
-	 * @var string	
-	 */
-	protected $route = null;
-
-	/**
-	 * @return	string
-	 */
-	public function getStrategy()
-	{
-		return $this->strategy;
-	}
-
-	/**
-	 * @param	string	$strategy
+	 * @param	string	$name
 	 * @return	null
 	 */
-	public function setStrategy($strategy)
+	static public function setActionClassName($name)
 	{
-		if (empty($strategy) || ! is_string($strategy)) {
-			$err = 'strategy must be a non empty string';
+		if (! is_string($name) || ! ($name = trim($name))) {
+			$err = 'class name must be a non empty string';
 			throw new InvalidArgumentException($err);
 		}
-        $strategy = strtolower($strategy);
 
-        $valid = array('html', 'html-page', 'console', 'ajax');
-        if (! in_array($strategy, $valid, true)) {
-            $err  = 'strategy must be on of the following ';
-            $err .= '-(' . implode('|', $valid) . ')';
-            throw new InvalidArgumentException($err);
-        }
-		$this->strategy = $strategy;
-		return $this;
+		self::$actionClassName = $name;
 	}
 
 	/**
 	 * @return	string
 	 */
-	public function getRoute()
+	static public function getActionClassName()
 	{
-		return $this->route;
+		return self::$actionClassName;
 	}
 
 	/**
-	 * @param	string	
-	 * @return	ContextBuilder
+	 * @return	AutoLoaderInterface
 	 */
-	public function setRoute($route)
+	public function getClassLoader()
 	{
-		if (! is_string($route)) {
-			$err = 'the route for this context must be a string';
-			throw new InvalidArgumentException($err);
-		}
-		$this->route = $route;
+		return $this->loader;
+	}
+
+	/**
+	 * @param	AutoLoaderInterface $loader
+	 * @return	MvcActionBuilder
+	 */
+	public function setClassLoader(AutoLoaderInterface $loader)
+	{
+		$this->loader $loader;
 		return $this;
 	}
 
@@ -257,7 +269,7 @@ class ContextBuilder implements ContextBuilderInterface
 	/**
 	 * @return	AppContext
 	 */
-	public function build()
+	public function build($routeKey, $strategy)
 	{
 		$err = 'context build failed: ';
 		$route  = $this->getRoute();
@@ -288,6 +300,11 @@ class ContextBuilder implements ContextBuilderInterface
 
 		/* clear out build state */
 		return new MvcContext($route, $strategy, $input);
+	}
+
+	public function buildView($namespace)
+	{
+		
 	}
 
 	/**
