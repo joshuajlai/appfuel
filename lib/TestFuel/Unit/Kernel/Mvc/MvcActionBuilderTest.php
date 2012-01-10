@@ -77,6 +77,8 @@ class MvcActionBuilderTest extends BaseTestCase
 
 		$className = MvcActionBuilder::getActionClassName();
 		$this->assertEquals('ActionController', $className);
+		$this->assertNull($this->builder->getRouteKey());
+		$this->assertNull($this->builder->getStrategy());
 	}
 
 	/**
@@ -124,6 +126,76 @@ class MvcActionBuilderTest extends BaseTestCase
 			$this->builder->setClassLoader($loader)
 		);
 		$this->assertSame($loader, $this->builder->getClassLoader());
+	}
+
+	/**
+	 * @dataProvider		provideNonEmptyStrings
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetGetStrategy($str)
+	{
+		$this->assertSame($this->builder, $this->builder->setStrategy($str));
+		$this->assertEquals($str, $this->builder->getStrategy());
+	}
+
+	/**
+	 * No trim will occur when the route key is set
+	 *
+	 * @dataProvider		provideEmptyStrings
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetGetStrategyWithEmptyStrings($str)
+	{
+		$this->assertSame($this->builder, $this->builder->setStrategy($str));
+		$this->assertEquals($str, $this->builder->getStrategy());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidStrings
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetStrategyKeyInvalidString_Failure($str)
+	{
+		$this->builder->setStrategy($str);
+	}
+
+	/**
+	 * @dataProvider		provideNonEmptyStrings
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetGetRouteKey($key)
+	{
+		$this->assertSame($this->builder, $this->builder->setRouteKey($key));
+		$this->assertEquals($key, $this->builder->getRouteKey());
+	}
+
+	/**
+	 * No trim will occur when the route key is set
+	 *
+	 * @dataProvider		provideEmptyStrings
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetGetRouteKeyWithEmptyStrings($key)
+	{
+		$this->assertSame($this->builder, $this->builder->setRouteKey($key));
+		$this->assertEquals($key, $this->builder->getRouteKey());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidStrings
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetRouteKeyInvalidString_Failure($key)
+	{
+		$this->builder->setRouteKey($key);
 	}
 
 	/**
@@ -281,7 +353,7 @@ class MvcActionBuilderTest extends BaseTestCase
      * @depends testCreateInput
      * @return  null
      */
-    public function testBuildInputFromDefaultsRequestMethodNotSet()
+    public function testDefineInputFromDefaultsRequestMethodNotSet()
     {
         $this->assertNull($this->builder->getInput());
 
@@ -290,7 +362,7 @@ class MvcActionBuilderTest extends BaseTestCase
 
         $this->assertSame(
             $this->builder,
-            $this->builder->buildInputFromDefaults(),
+            $this->builder->defineInputFromDefaults(),
             'uses fluent interface'
         );
     
@@ -315,7 +387,7 @@ class MvcActionBuilderTest extends BaseTestCase
      * @depends testCreateInput
      * @return  null
      */
-    public function testDefineInputAsNoParams()
+    public function estDefineInputAsNoParams()
     {
         $this->assertNull($this->builder->getInput());
 
@@ -331,7 +403,7 @@ class MvcActionBuilderTest extends BaseTestCase
         $method = 'get';
         $this->assertSame(
             $this->builder,
-            $this->builder->defineInputAs($method),
+            $this->builder->defineInput($method),
             'uses fluent interface'
         );
     
@@ -393,7 +465,7 @@ class MvcActionBuilderTest extends BaseTestCase
         $method = 'get';
         $this->assertSame(
             $this->builder,
-            $this->builder->defineInputAs($method, $params),
+            $this->builder->defineInput($method, $params, false),
             'uses fluent interface'
         );
     
@@ -418,7 +490,7 @@ class MvcActionBuilderTest extends BaseTestCase
      * @depends testCreateInput
      * @return  null
      */
-    public function testDefineInputAsWithPostParams()
+    public function testDefineInputWithPostParams()
     {
         $this->assertNull($this->builder->getInput());
 
@@ -428,7 +500,7 @@ class MvcActionBuilderTest extends BaseTestCase
         $method = 'post';
         $this->assertSame(
             $this->builder,
-            $this->builder->defineInputAs($method, $params),
+            $this->builder->defineInput($method, $params, false),
             'uses fluent interface'
         );
     
@@ -453,7 +525,7 @@ class MvcActionBuilderTest extends BaseTestCase
      * @depends testCreateInput
      * @return  null
      */
-    public function testDefineInputAsWithFilesParams()
+    public function testDefineInputWithFilesParams()
     {
         $this->assertNull($this->builder->getInput());
 
@@ -463,7 +535,7 @@ class MvcActionBuilderTest extends BaseTestCase
         $method = 'cli';
         $this->assertSame(
             $this->builder,
-            $this->builder->defineInputAs($method, $params),
+            $this->builder->defineInput($method, $params, false),
             'uses fluent interface'
         );
     
@@ -488,7 +560,7 @@ class MvcActionBuilderTest extends BaseTestCase
      * @depends testCreateInput
      * @return  null
      */
-    public function testDefineInputAsWithCookieParams()
+    public function testDefineInputWithCookieParams()
     {
         $this->assertNull($this->builder->getInput());
 
@@ -498,7 +570,7 @@ class MvcActionBuilderTest extends BaseTestCase
         $method = 'get';
         $this->assertSame(
             $this->builder,
-            $this->builder->defineInputAs($method, $params),
+            $this->builder->defineInput($method, $params, false),
             'uses fluent interface'
         );
     
@@ -523,7 +595,7 @@ class MvcActionBuilderTest extends BaseTestCase
      * @depends testCreateInput
      * @return  null
      */
-    public function testDefineInputAsWithArgvParams()
+    public function testDefineInputWithArgvParams()
     {
         $this->assertNull($this->builder->getInput());
 
@@ -533,7 +605,7 @@ class MvcActionBuilderTest extends BaseTestCase
         $method = 'cli';
         $this->assertSame(
             $this->builder,
-            $this->builder->defineInputAs($method, $params),
+            $this->builder->defineInput($method, $params, false),
             'uses fluent interface'
         );
     
@@ -558,7 +630,7 @@ class MvcActionBuilderTest extends BaseTestCase
      * @depends testCreateInput
      * @return  null
      */
-    public function testDefineInputAsWithAllParams()
+    public function testDefineInputWithAllParams()
     {
         $this->assertNull($this->builder->getInput());
 
@@ -572,7 +644,7 @@ class MvcActionBuilderTest extends BaseTestCase
         $method = 'cli';
         $this->assertSame(
             $this->builder,
-            $this->builder->defineInputAs($method, $params),
+            $this->builder->defineInput($method, $params, false),
             'uses fluent interface'
         );
     
@@ -656,5 +728,210 @@ class MvcActionBuilderTest extends BaseTestCase
 		$this->builder->addAclCode($code);
 	}
 
+	/**
+	 * @depends	testGetAddAclCode
+	 * @return	null
+	 */
+	public function testAddAclCodes()
+	{
+		$list = array(
+			'my-code',
+			'your-code',
+			'our-code'
+		);
+		$this->assertSame($this->builder, $this->builder->addAclCodes($list));
+		$this->assertEquals($list, $this->builder->getAclCodes());
+	}
 
+	/**
+	 * @depends	testGetAddAclCode
+	 * @return	null
+	 */
+	public function testAddAclCodesNoDuplicates()
+	{
+		$list = array(
+			'my-code',
+			'your-code',
+			'our-code'
+		);
+		$this->builder->addAclCode('my-code');
+
+		$this->assertSame($this->builder, $this->builder->addAclCodes($list));
+		$this->assertEquals($list, $this->builder->getAclCodes());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidStringsIncludeNull
+	 * @depends				testGetAddAclCode
+	 * @return				null
+	 */
+	public function testAddAclCodesInvalidString_Failure($code)
+	{
+		$list = array(
+			'my-code',
+			$code,
+			'our-code'
+		);
+		$this->builder->addAclCodes($list);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @depends				testGetAddAclCode
+	 * @return				null
+	 */
+	public function testAddAclCodesEmptyString_Failure()
+	{
+		$list = array(
+			'my-code',
+			'',
+			'our-code'
+		);
+		$this->builder->addAclCodes($list);
+	}
+
+	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testSetAclCodes()
+	{
+		$list = array(
+			'my-code',
+			'your-code',
+			'our-code'
+		);
+		$this->assertSame($this->builder, $this->builder->setAclCodes($list));
+		$this->assertEquals($list, $this->builder->getAclCodes());
+	}
+
+	/**
+	 * When you use setAclCodes any codes already set get cleared
+	 *
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testSetAclCodesWithCodesAlreadySet()
+	{
+		$list = array(
+			'my-code',
+			'your-code',
+			'our-code'
+		);
+		$this->builder->addAclCode('code-1')
+					  ->addAclCode('code-2');
+
+		$this->assertEquals(
+			array('code-1', 'code-2'),
+			$this->builder->getAclCodes()
+		);
+ 
+		$this->assertSame($this->builder, $this->builder->setAclCodes($list));
+		$this->assertEquals($list, $this->builder->getAclCodes());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidStringsIncludeNull
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetAclCodesInvalidString_Failure($code)
+	{
+		$list = array(
+			'my-code',
+			$code,
+			'our-code'
+		);
+		$this->builder->setAclCodes($list);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetAclCodesEmptyString_Failure()
+	{
+		$list = array(
+			'my-code',
+			'',
+			'our-code'
+		);
+		$this->builder->setAclCodes($list);
+	}
+
+	/**
+	 * We are going to use a namespace that is part of the testing system 
+	 * to check if the framework is creating route details correctory
+	 *
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testCreateRouteDetailWhenDetailExists()
+	{
+		$namespace = 'TestFuel\Fake\Action\TestActionBuilder\HasRouteDetail';
+		$routeKey  = 'action-builder-has-action-detail';
+		$detail = $this->builder->createRouteDetail($routeKey, $namespace);
+		$class = "$namespace\\RouteDetail";
+		$this->assertInstanceOf($class, $detail);
+	}
+
+    /**
+	 * @expectedException	RunTimeException
+     * @depends				testInitialState
+     * @return				null
+     */
+	public function testCreateRouteDetailKeyIsDifferent()
+	{
+		$namespace = 'TestFuel\Fake\Action\TestActionBuilder\HasRouteDetail';
+		$routeKey  = 'will-not-be-the-same';
+		$detail = $this->builder->createRouteDetail($routeKey, $namespace);
+	}
+
+    /**
+	 * @expectedException	RunTimeException
+     * @depends				testInitialState
+     * @return				null
+     */
+	public function testCreateRouteDetailDoesNotExist()
+	{
+		$namespace = 'TestFuel\Fake\Action\TestActionBuilder\DoesNotExist';
+		$routeKey  = 'some-key';
+		$detail = $this->builder->createRouteDetail($routeKey, $namespace);
+	}
+
+    /**
+     * @depends				testInitialState
+     * @return				null
+     */
+	public function testCreateHtmlView()
+	{
+		$namespace = 'TestFuel\Fake\Action\TestActionBuilder\HasHtmlView';
+		$view = $this->builder->createHtmlView($namespace);
+		$this->assertInstanceOf("$namespace\HtmlView", $view);
+	}
+
+    /**
+	 * @expectedException	LogicException
+     * @depends				testInitialState
+     * @return				null
+     */
+	public function testCreateViewDoesNotExist()
+	{
+		$namespace = 'TestFuel\Fake\Action\TestActionBuilder\DoesNotExist';
+		$view = $this->builder->createHtmlView($namespace);
+	}
+
+    /**
+	 * @expectedException	LogicException
+     * @depends				testInitialState
+     * @return				null
+     */
+	public function testCreateViewDoesNotImplementInterface()
+	{
+		$namespace = 'TestFuel\Fake\Action\TestActionBuilder\BadHtmlView';
+		$view = $this->builder->createHtmlView($namespace);
+	}
 }

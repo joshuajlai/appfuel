@@ -58,6 +58,7 @@
 	<file>../lib/TestFuel/Unit/View/Html/Tag/HtmlTagTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/HtmlTagFactoryTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/HtmlPageTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/HtmlViewTemplateTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteDetailTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcContextTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionBuilderTest.php</file>

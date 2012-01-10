@@ -32,6 +32,7 @@ class MvcRouteDetailTest extends BaseTestCase
 		);
 		$this->assertEquals($key, $detail->getRouteKey());
 		$this->assertTrue($detail->isPublic());
+		$this->assertFalse($detail->isInternal());
 		$this->assertEquals(array(), $detail->getInterceptingFilters());
 	}
 
@@ -52,14 +53,32 @@ class MvcRouteDetailTest extends BaseTestCase
 	 * @depends	testInterfaceAndDefaults
 	 * @return	null
 	 */
+	public function testInternalRouteDetail()
+	{
+		$key = 'my-route';
+		$isPublic = null;
+		$isInternal = true;
+		$detail = new MvcRouteDetail($key, $isPublic, $isInternal);
+		$this->assertEquals($key, $detail->getRouteKey());
+		$this->assertTrue($detail->isPublic());
+		$this->assertTrue($detail->isInternal());
+	}
+
+	/**
+	 * @depends	testInterfaceAndDefaults
+	 * @return	null
+	 */
 	public function testPrivateRouteWithAclCodes()
 	{
 		$key = 'my-route';
 		$isPublic = false;
+		$isInternal = null;
+
 		$codes = array('my-code', 'your-code', 'our-code');
-		$detail = new MvcRouteDetail($key, $isPublic, $codes);
+		$detail = new MvcRouteDetail($key, $isPublic, $isInternal, $codes);
 		$this->assertEquals($key, $detail->getRouteKey());
 		$this->assertFalse($detail->isPublic());
+		$this->assertFalse($detail->isInternal());
 		$this->assertTrue($detail->isAllowed($codes[0]));
 		$this->assertTrue($detail->isAllowed($codes[1]));
 		$this->assertTrue($detail->isAllowed($codes[2]));
@@ -74,10 +93,13 @@ class MvcRouteDetailTest extends BaseTestCase
 	{
 		$key = 'my-route';
 		$isPublic = false;
+		$isInternal = false;
 		$filters = array('Filter\FilterC', 'Filter\FilterB', 'Filter\FilterA');
-		$detail = new MvcRouteDetail($key, $isPublic, null, $filters);
+		$detail = new MvcRouteDetail($key,$isPublic,$isInternal,null,$filters);
+
 		$this->assertEquals($key, $detail->getRouteKey());
 		$this->assertFalse($detail->isPublic());
+		$this->assertFalse($detail->isInternal());
 		$this->assertFalse($detail->isAllowed('does-not-exist'));
 		$this->assertEquals($filters, $detail->getInterceptingFilters());
 	}
@@ -90,11 +112,19 @@ class MvcRouteDetailTest extends BaseTestCase
 	{
 		$key = 'my-route';
 		$isPublic = false;
+		$isInternal = false;
 		$codes = array('my-code', 'your-code', 'our-code');
 		$filters = array('Filter\FilterC', 'Filter\FilterB', 'Filter\FilterA');
-		$detail = new MvcRouteDetail($key, $isPublic, $codes, $filters);
+		$detail = new MvcRouteDetail(
+			$key,
+			$isPublic,
+			$isInternal,
+			$codes,
+			$filters
+		);
 		$this->assertEquals($key, $detail->getRouteKey());
 		$this->assertFalse($detail->isPublic());
+		$this->assertFalse($detail->isInternal());
 		$this->assertTrue($detail->isAllowed($codes[0]));
 		$this->assertTrue($detail->isAllowed($codes[1]));
 		$this->assertTrue($detail->isAllowed($codes[2]));
@@ -122,7 +152,7 @@ class MvcRouteDetailTest extends BaseTestCase
 	public function testRouteKeyBadAclCode_Failure($code)
 	{
 		$codes = array('code1', $code, 'code2');
-		$detail = new MvcRouteDetail('my-route', false, $codes);
+		$detail = new MvcRouteDetail('my-route', false, false, $codes);
 	}
 
 	/**
@@ -134,6 +164,6 @@ class MvcRouteDetailTest extends BaseTestCase
 	public function testRouteKeyBadFilter_Failure($filter)
 	{
 		$filters = array('filter1', $filter, 'fillter2');
-		$detail = new MvcRouteDetail('my-route', false, null, $filters);
+		$detail = new MvcRouteDetail('my-route', false, false, null, $filters);
 	}	
 }

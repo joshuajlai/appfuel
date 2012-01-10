@@ -10,9 +10,7 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use InvalidArgumentException,
-	Appfuel\DataStructure\Dictionary,
-	Appfuel\DomainStructure\DictionaryInterface;
+use InvalidArgumentException;
 
 /**
  * The route detail provides framework specific detail about the action
@@ -33,6 +31,14 @@ class MvcRouteDetail implements MvcRouteDetailInterface
 	 * @var	 bool
 	 */
 	protected $isPublic = true;
+
+	/**
+	 * Flag used to detemine if the controller used by this route is internal.
+	 * Internal routes can not be executed by the front controller and thus
+	 * inaccessible from the outside
+	 * @var bool
+	 */
+	protected $isInternal = false;
 
 	/**
 	 * List of acl codes allowed to access this route
@@ -56,16 +62,19 @@ class MvcRouteDetail implements MvcRouteDetailInterface
 	 */
 	public function __construct($route, 
 								$isPublic = true, 
+								$isInternal = false,
 								array $codes = null,
 								array $filters = null)
 	{
-		$this->isPublic = ($isPublic === false) ? false : true;
 		if (! is_string($route)) {
 			$err = 'route key must be a string';
 			throw new InvalidArgumentException($err);
 		}
 		$this->routeKey = $route;
 		
+		$this->isPublic   = ($isPublic === false) ? false : true;
+		$this->isInternal = ($isInternal === true) ? true : false;
+
 		if (null !== $codes) {
 			$err = 'acl codes in the array must strings';
 			foreach ($codes as $code) {
@@ -101,6 +110,14 @@ class MvcRouteDetail implements MvcRouteDetailInterface
 	public function isPublic()
 	{
 		return $this->isPublic;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isInternal()
+	{
+		return $this->isInternal;
 	}
 
 	/**

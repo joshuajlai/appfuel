@@ -20,25 +20,14 @@ interface HtmlViewInterface extends FileViewInterface
     /**
      * @return  string
      */
-    public function getJsFile();
+    public function getHtmlPageClass();
 
     /**
      * @param   string  $file
      * @return  HtmlViewTemplate
      */
-    public function setJsFile($file);
+    public function setHtmlPageClass($class);
 
-    /**
-     * @return  string
-     */
-    public function getHtmlDocClass();
-
-    /**
-     * @param   string  $file
-     * @return  HtmlViewTemplate
-     */
-    public function setHtmlDocClass($class);
-    
 	/**
      * @return  string
      */
@@ -49,15 +38,4 @@ interface HtmlViewInterface extends FileViewInterface
      * @return  HtmlViewTemplate
      */
     public function setLayoutClass($class);
-
-    /**
-     * @return  string
-     */
-    public function getHtmlPageClass();
-
-    /**
-     * @param   string  $file
-     * @return  HtmlViewTemplate
-     */
-    public function setHtmlPageClass($class);
 }

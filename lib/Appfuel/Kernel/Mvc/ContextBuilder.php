@@ -246,14 +246,35 @@ class ContextBuilder implements ContextBuilderInterface
 		return $this->setInput($this->createInput($method, $params));
 	}
 
-	/**	
-	 * @param	string	$method
-	 * @param	array	$params
-	 * @return	ContextBuilder
+	/**
+     * This will allow you to manual define the input used in the context 
+     * that will be dispatched. If a uri has also been defined then its 
+     * parameters will be used as the inputi's get parameters by default. If
+     * you already have get parameters then the uri params will be merged
+     *
+     * @param   string  $method  get|post or cli
+     * @param   array   $params  input parameters
+     * @param   bool    $useUri  flag used to determine if the get parameters
+     *                           will be obtained from the uri
+     * @return  MvcActionBuilder
 	 */
-	public function defineInputAs($method, array $params = array())
+	public function defineInput($method, array $params, $useUri = true)
 	{
-		return $this->setInput($this->createInput($method, $params));
+        if (true === $useUri) {
+            $uri = $this->getUri();
+            if (! ($uri instanceof RequestUriInterface)) {
+                $err  = "defineInput failed: uri is required for its get ";
+                $err .= "params, but has not been set";
+                throw new RunTimeException($err);
+            }
+            $getParams = $uri->getParams();
+            if (array_key_exists('get', $params)) {
+                $getParams = array_merge($params['get'], $getParams);
+            }
+            $params['get'] = $getParams;
+        }
+
+        return $this->setInput($this->createInput($method, $params));
 	}
 
 	/**

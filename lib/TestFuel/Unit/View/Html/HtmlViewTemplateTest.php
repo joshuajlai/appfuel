@@ -45,11 +45,7 @@ class HtmlViewTemplateTest extends BaseTestCase
 	public function setUp()
 	{
 		$this->tplFile = 'appfuel/tpl/page/welecome/welcome.phtml';
-		$this->jsFile  = 'appfuel/tpl/page/welecom/welecome-init.phtml';
-		$this->template = new HtmlViewTemplate(
-			$this->tplFile, 
-			$this->jsFile
-		);
+		$this->template = new HtmlViewTemplate($this->tplFile);
 	}
 
 	/**
@@ -78,75 +74,6 @@ class HtmlViewTemplateTest extends BaseTestCase
 	public function testGetFile()
 	{
 		$this->assertEquals($this->tplFile, $this->template->getFile());
-	}
-
-	/**
-	 * @depends	testInterface
-	 * @return	null
-	 */
-	public function testGetJsFile()
-	{
-		$this->assertEquals($this->jsFile, $this->template->getJsFile());
-	}
-
-	/**
-	 * @dataProvider	provideNonEmptyStringsNoNumbers
-	 * @depends			testInterface
-	 * @return			null
-	 */
-	public function testSetJsFile($file)
-	{
-		$this->assertSame(
-			$this->template,
-			$this->template->setJsFile($file)
-		);
-
-		$this->assertEquals($file, $this->template->getJsFile());
-	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @dataProvider		provideEmptyStrings
-	 * @depends				testInterface
-	 * @return				null
-	 */
-	public function testSetJsFileEmptyString_Failure($file)
-	{
-		$this->template->setJsFile($file);
-	}
-
-	/**
-	 * @depends				testInterface
-	 * @return				null
-	 */
-	public function testGetHtmlDocClassDefault()
-	{
-		$this->assertNull($this->template->getHtmlDocClass());
-	}
-
-	/**
-	 * @dataProvider	provideNonEmptyStringsNoNumbers
-	 * @depends			testInterface
-	 * @return			null
-	 */
-	public function testSetHtmlDocClass($class)
-	{
-		$this->assertSame(
-			$this->template,
-			$this->template->setHtmlDocClass($class)
-		);
-		$this->assertEquals($class, $this->template->getHtmlDocClass());
-	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @dataProvider		provideEmptyStrings
-	 * @depends				testInterface
-	 * @return				null
-	 */
-	public function testSetHtmlDocClassEmptyString_Failure($class)
-	{
-		$this->template->setHtmlDocClass($class);
 	}
 
 	/**
@@ -217,4 +144,82 @@ class HtmlViewTemplateTest extends BaseTestCase
 		$this->template->setHtmlPageClass($class);
 	}
 
+	/**
+	 * @return	null
+	 */
+	public function testGetSetInlineJsKey()
+	{
+		$this->assertEquals('initjs', $this->template->getInlineJsKey());
+		$key = 'my-jskey';
+		$this->assertSame(
+			$this->template,
+			$this->template->setInlineJsKey($key)
+		);
+		$this->assertEquals($key, $this->template->getInlineJsKey());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidStringsIncludeNull
+	 * @depends				testInterface
+	 * @return				null
+	 */
+	public function testSetInlineJsKeyInvalidString_Failure($str)
+	{
+		$this->template->setInlineJsKey($str);
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testGetSetInlineJsTemplate()
+	{
+		$this->assertFalse($this->template->isInlineJsTemplate());
+
+		$template = $this->getMock('Appfuel\View\ViewInterface');
+		$this->assertSame(
+			$this->template,
+			$this->template->setInlineJsTemplate($template)
+		);
+		$this->assertSame($template, $this->template->getInlineJsTemplate());
+		$this->assertTrue($this->template->isInlineJsTemplate());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testGetSetInlineJsTemplateAsString()
+	{
+		$this->assertFalse($this->template->isInlineJsTemplate());
+		$path = 'appfuel/html/tpl/view/welcome/welcome-init.phtml';
+		$this->assertSame(
+			$this->template,
+			$this->template->setInlineJsTemplate($path)
+		);
+
+		$template = $this->template->getInlineJsTemplate();
+		$this->assertInstanceOf(
+			'Appfuel\View\FileViewTemplate',
+			$template
+		);
+		$this->assertTrue($this->template->isInlineJsTemplate());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testAssignInlineJs()
+	{
+		$this->assertFalse($this->template->isInlineJsTemplate());
+		$path = 'appfuel/html/tpl/view/welcome/welcome-init.phtml';
+		$this->template->setInlineJsTemplate($path);
+
+		$template = $this->template->getInlineJsTemplate();
+		$this->assertSame(
+			$this->template,
+			$this->template->assignInlineJs('foo', 'bar')
+		);
+
+		$this->assertEquals('bar', $template->get('foo'));
+	}
 }

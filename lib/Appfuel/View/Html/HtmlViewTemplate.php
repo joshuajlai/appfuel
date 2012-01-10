@@ -11,6 +11,7 @@
 namespace Appfuel\View\Html;
 
 use InvalidArgumentException,
+	Appfuel\View\ViewInterface,
 	Appfuel\View\FileViewTemplate,
 	Appfuel\Kernel\PathFinderInterface;
 
@@ -20,10 +21,10 @@ use InvalidArgumentException,
 class HtmlViewTemplate extends FileViewTemplate implements HtmlViewInterface
 {
 	/**
-	 * This is used to override the default Appfuel\View\Html\HtmlDocTemplate
+	 * This is used to override the default Appfuel\View\Html\HtmlPage
 	 * @var string
 	 */
-	protected $htmlDocClass = null;
+	protected $htmlPageClass = null;
 
 	/**
 	 * The class your html view belongs to this is optional
@@ -32,76 +33,48 @@ class HtmlViewTemplate extends FileViewTemplate implements HtmlViewInterface
 	protected $layoutClass = null;
 
 	/**
-	 * This is used to overide the default Appfuel\View\HtmlPageTemplate
+	 * Key used to assign the inline javascript template
 	 * @var string
 	 */
-	protected $htmlPageClass = null;
+	protected $inlineJsKey = 'initjs';
 
 	/**
-	 * Each html view uses a javascript template to intialize the page 
-	 * @var string
-	 */
-	protected $jsFile = null;
-
-	/**
-	 * @param	string	$tpl
-	 * @param	string	$jsTpl 
+	 * @param	string	$viewTplFile
+	 * @param	string	$jsTpl
 	 * @return	HtmlViewTemplate
 	 */
-	public function __construct($tpl, 
-								$jsFile = null, 
+	public function __construct($viewTplFile, 
+								$jsTpl = null, 
 								PathFinderInterface $pathFinder = null)
 	{
-		parent::__construct($tpl, $pathFinder);
+		parent::__construct($viewTplFile, $pathFinder);
 
-		if (null !== $jsFile) {
-			$this->setJsFile($jsFile);
+		
+		if (null !== $jsTpl) {
+			$this->setInlineJsTemplate($jsTpl);
 		}
 	}
 
 	/**
 	 * @return	string
 	 */
-	public function getJsFile()
+	public function getHtmlPageClass()
 	{
-		return $this->jsFile;
+		return $this->htmlPageClass;
 	}
 
 	/**
 	 * @param	string	$file
 	 * @return	HtmlViewTemplate
 	 */
-	public function setJsFile($file)
-	{
-		if (! is_string($file) || ! ($file = trim($file))) {
-			$err = 'javascript template file path must be an non empty string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->jsFile = $file;
-		return $this;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getHtmlDocClass()
-	{
-		return $this->htmlDocClass;
-	}
-
-	/**
-	 * @param	string	$file
-	 * @return	HtmlViewTemplate
-	 */
-	public function setHtmlDocClass($class)
+	public function setHtmlPageClass($class)
 	{
 		if (! is_string($class) || ! ($class = trim($class))) {
-			$err = 'html doc class must be an non empty string';
+			$err = 'html page class must be an non empty string';
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->htmlDocClass = $class;
+		$this->htmlPageClass = $class;
 		return $this;
 	}
 
@@ -131,23 +104,88 @@ class HtmlViewTemplate extends FileViewTemplate implements HtmlViewInterface
 	/**
 	 * @return	string
 	 */
-	public function getHtmlPageClass()
+	public function getInlineJsKey()
 	{
-		return $this->htmlPageClass;
+		return $this->inlineJsKey;
 	}
 
 	/**
-	 * @param	string	$file
+	 * @param	string	$key
 	 * @return	HtmlViewTemplate
 	 */
-	public function setHtmlPageClass($class)
+	public function setInlineJsKey($key)
 	{
-		if (! is_string($class) || ! ($class = trim($class))) {
-			$err = 'html page class must be an non empty string';
+		if (! is_string($key) || empty($key)) {
+			$err = 'inline js key must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+		
+		if (false !== strpos($key, '.')) {
+			$err = 'inline is key can not have any "." characters';	
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->htmlPageClass = $class;
+		$this->inlineJsKey = $key;
 		return $this;
+	}
+
+	/**
+	 * @return	ViewInterface | null when none exist
+	 */
+	public function getInlineJsTemplate()
+	{
+		return $this->getTemplate($this->getInlineJsKey());
+	}
+
+	/**
+	 * @param	ViewInterface	$template
+	 * @return	HtmlViewTemplate
+	 */
+	public function setInlineJsTemplate($template)
+	{
+		if (is_string($template)) {
+			$template = new FileViewTemplate($template);
+		}
+		else if (! ($template instanceof ViewInterface)) {
+			$err  = 'inline js template must be a string (path to tpl) or ';
+			$err .= 'object that implments Appfuel\View\ViewInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		$key = $this->getInlineJsKey();
+		return $this->addTemplate($key, $template);
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isInlineJsTemplate()
+	{
+		return $this->isTemplate($this->getInlineJsKey());
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function buildInlineJs()
+	{
+		$template = $this->getInlineJsTemplate();
+		
+		$result = '';
+		if ($template instanceof ViewInterface) {
+			$result = $template->build();
+		}
+	
+		return $result;
+	}
+
+	/**
+	 * @param	string	$label
+	 * @param	mixed	$value
+	 * @return	HtmlViewTemplates
+	 */
+	public function assignInlineJs($label, $value)
+	{
+		return $this->assign("{$this->getInlineJsKey()}.{$label}", $value);
 	}
 }
