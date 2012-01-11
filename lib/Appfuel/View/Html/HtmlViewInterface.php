@@ -17,17 +17,6 @@ use Appfuel\View\FileViewInterface;
  */
 interface HtmlViewInterface extends FileViewInterface
 {
-    /**
-     * @return  string
-     */
-    public function getHtmlPageClass();
-
-    /**
-     * @param   string  $file
-     * @return  HtmlViewTemplate
-     */
-    public function setHtmlPageClass($class);
-
 	/**
      * @return  string
      */

@@ -514,26 +514,30 @@ class MvcActionBuilder implements MvcActionBuilderInterface
 		return $htmlView;
 	}
 
-	public function createHtmlLayout($class, HtmlViewInterface $view)
+	/**
+	 * @param	HtmlViewInterface $view
+	 * @return	HtmlViewInterface | HtmlLayoutInterface
+	 */
+	public function createHtmlLayout(HtmlViewInterface $view)
 	{
 	    /*
          * if this view belongs to an html layout then create the layout
          * set the view in the layout and replace the view with the layout
          */
         $layoutClass = $view->getLayoutClass();
-        if (is_string($layoutClass) && ! empty($layoutClass)) {
-            $layout = new $layoutClass();
-            if (! ($layout instanceof HtmlLayoutInterface)) {
-                $err  = 'html layout does not implement Appfuel\View\Html\Html';
-                $err .= 'LayoutInterface';
-                throw new RunTimeException($err);
-            }
+        if (! is_string($layoutClass) || empty($layoutClass)) {
+			return $view;
+		}
+            
+		$layout = new $layoutClass();
+        if (! ($layout instanceof HtmlLayoutInterface)) {
+			$err  = 'html layout does not implement Appfuel\View\Html\Html';
+            $err .= 'LayoutInterface';
+            throw new LogicException($err);
+		}
 
-            $layout->setView($view);
-            $view = $layout;
-        }
-
-		return $view;
+        $layout->setView($view);
+		return $layout;
 	}
 
 	/**
@@ -563,32 +567,64 @@ class MvcActionBuilder implements MvcActionBuilderInterface
 	}
 
 	/**
+	 * @param	string	$file		path to the config data
+	 * @param	HtmlPageInterface	
+	 * @return	null
+	 */
+	public function configureHtmlPage($file, HtmlPageInterface $page)
+	{
+		$configurer = $this->createHtmlPageConfigurer();
+		if (file_exists($filePath)) {
+			return false;
+		}
+		
+		$data = require $filePath;
+		if (! is_array($config)) {
+			$err = 'html page configuration must be an array';
+			throw new RunTimeException($err);
+		}
+		$configurer->configure($data, $page);
+		return true;
+	}
+
+	public function createHtmlPageConfigurer()
+	{
+		return new HtmlPageConfigurer();
+	}
+
+	/**
 	 * @param	string	$namespace
 	 * @return	HtmlPageInterface
 	 */
 	public function buildHtmlPage($namespace)
 	{
 		$htmlView = $this->createHtmlView($namespace);
-		if ($htmlView->isLayout()) {
-			$htmlView = $this->createHtmlLayout($htmlView);
-		}
+		$pathFinder = $htmlView->getViewCompositor()
+							   ->getPathFinder();
+
+		/* used to create the html page class */
+		$pageClass  = $htmlView->getHtmlPageClass();
+		$pageConfigFile = $htmlView->getPageConfigurationFile();
+ 
+		/*
+		 * if the view has a layout it will be create here and the view
+		 * will set into the layout and layout will be handed back. When
+		 * no view exists just the layout is returned
+		 */
+		$htmlView = $this->createHtmlLayout($htmlView);
 
         $jsContent = null;
-        if ($htmlView->isInlineJs()) {
-			$jsContent = $htmlView->getInlineJsContent();
+        if ($htmlView->isInlineJsTemplate()) {
+			$jsContent = $htmlView->buildInlineJsTemplate();
         }
 
-        /*
-         * By default the html doc is Appfuel\View\Html\HtmlDocTemplate,
-         * however, if a class is given then I will create that class and check
-         * it against appfuels html doc interface
-         */
-        $pageClass = $htmlView->getHtmlPageClass();
 		$page = $this->createHtmlPage($htmlView, $pageClass); 
 
 		if ($page->isJs() && is_string($jsContent) && !empty($jsContent)) {
 			$page->addToInlineScript($jsContent, 'prepend');
 		}
+
+		$this->configureHtmlPage($pathFinder->getPath($pageConfigFile), $page);
 
 		return $page;
 	}
@@ -627,4 +663,6 @@ class MvcActionBuilder implements MvcActionBuilderInterface
 	{
 		return KernelRegistry::getActionNamespace($routeKey);
 	}
+
+
 }

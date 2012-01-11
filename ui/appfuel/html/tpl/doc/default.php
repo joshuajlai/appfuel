@@ -27,9 +27,9 @@ return array(
 				'content' => 'appfuel'
 			)
 		),
-		'css-links' => $pkg->getCssFiles(array('framework', 'global-app')),
+		'css-files' => $pkg->getCssFiles(array('framework', 'global-app')),
 	),
 	'html-body' => array(
-		'js-scripts' => $pkg->getJsFiles(array('framework', 'global-app'))
+		'js-files' => $pkg->getJsFiles(array('framework', 'global-app'))
 	)
 );

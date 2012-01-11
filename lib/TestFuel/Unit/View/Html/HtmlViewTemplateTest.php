@@ -59,16 +59,27 @@ class HtmlViewTemplateTest extends BaseTestCase
 	/**
 	 * @return null
 	 */
-	public function testInterface()
+	public function testInitialState()
 	{
 		$this->assertInstanceOf(
 			'Appfuel\View\Html\HtmlViewInterface',
 			$this->template
 		);
+
+		$this->assertNull($this->template->getHtmlPageClass());
+
+		$htmlDocTpl = 'appfuel/html/tpl/doc/htmldoc.phtml';
+		$this->assertEquals($htmlDocTpl, $this->template->getHtmlDocTpl());
+		$this->assertNull($this->template->getTagFactoryClass());
+		$this->assertNull($this->template->getLayoutClass());
+		
+		$this->assertEquals('initjs', $this->template->getInlineJsKey());
+		$this->assertFalse($this->template->isInlineJsTemplate());
+		$this->assertFalse($this->template->getInlineJsTemplate());
 	}
 
 	/**
-	 * @depends	testInterface
+	 * @depends	testInitialState
 	 * @return	null
 	 */
 	public function testGetFile()
@@ -77,17 +88,8 @@ class HtmlViewTemplateTest extends BaseTestCase
 	}
 
 	/**
-	 * @depends				testInterface
-	 * @return				null
-	 */
-	public function testGetLayoutClassDefault()
-	{
-		$this->assertNull($this->template->getLayoutClass());
-	}
-
-	/**
 	 * @dataProvider	provideNonEmptyStringsNoNumbers
-	 * @depends			testInterface
+	 * @depends			testInitialState
 	 * @return			null
 	 */
 	public function testSetLayoutClass($class)
@@ -102,7 +104,7 @@ class HtmlViewTemplateTest extends BaseTestCase
 	/**
 	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideEmptyStrings
-	 * @depends				testInterface
+	 * @depends				testInitialState
 	 * @return				null
 	 */
 	public function testSetLayoutClassEmptyString_Failure($class)
@@ -111,17 +113,8 @@ class HtmlViewTemplateTest extends BaseTestCase
 	}
 
 	/**
-	 * @depends				testInterface
-	 * @return				null
-	 */
-	public function testGetHtmlPageClassDefault()
-	{
-		$this->assertNull($this->template->getHtmlPageClass());
-	}
-
-	/**
 	 * @dataProvider	provideNonEmptyStringsNoNumbers
-	 * @depends			testInterface
+	 * @depends			testInitialState
 	 * @return			null
 	 */
 	public function testSetHtmlPageClass($class)
@@ -136,7 +129,7 @@ class HtmlViewTemplateTest extends BaseTestCase
 	/**
 	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideEmptyStrings
-	 * @depends				testInterface
+	 * @depends				testInitialState
 	 * @return				null
 	 */
 	public function testSetHtmlPageClassEmptyString_Failure($class)
@@ -144,6 +137,55 @@ class HtmlViewTemplateTest extends BaseTestCase
 		$this->template->setHtmlPageClass($class);
 	}
 
+	/**
+	 * @dataProvider	provideNonEmptyStringsNoNumbers
+	 * @depends			testInitialState
+	 * @return			null
+	 */
+	public function testSetHtmlDocTpl($file)
+	{
+		$this->assertSame(
+			$this->template,
+			$this->template->setHtmlDocTpl($file)
+		);
+		$this->assertEquals($file, $this->template->getHtmlDocTpl());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideEmptyStrings
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetHtmlDocTplEmptyString_Failure($file)
+	{
+		$this->template->setHtmlDocTpl($file);
+	}
+
+	/**
+	 * @dataProvider	provideNonEmptyStringsNoNumbers
+	 * @depends			testInitialState
+	 * @return			null
+	 */
+	public function testSetTagFactoryClass($class)
+	{
+		$this->assertSame(
+			$this->template,
+			$this->template->setTagFactoryClass($class)
+		);
+		$this->assertEquals($class, $this->template->getTagFactoryClass());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideEmptyStrings
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetTagFactoryClassEmptyString_Failure($class)
+	{
+		$this->template->setTagFactoryClass($class);
+	}
 	/**
 	 * @return	null
 	 */
@@ -161,7 +203,7 @@ class HtmlViewTemplateTest extends BaseTestCase
 	/**
 	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideInvalidStringsIncludeNull
-	 * @depends				testInterface
+	 * @depends				testInitialState
 	 * @return				null
 	 */
 	public function testSetInlineJsKeyInvalidString_Failure($str)

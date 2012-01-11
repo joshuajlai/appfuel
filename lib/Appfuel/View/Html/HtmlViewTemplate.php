@@ -21,10 +21,23 @@ use InvalidArgumentException,
 class HtmlViewTemplate extends FileViewTemplate implements HtmlViewInterface
 {
 	/**
-	 * This is used to override the default Appfuel\View\Html\HtmlPage
-	 * @var string
+	 * Used to create an alternate implementation of HtmlPageInterface
+	 * @var string	
 	 */
 	protected $htmlPageClass = null;
+
+	/**
+	 * Location of the html doc template file
+	 * @var string
+	 */
+	protected $htmlDocTpl = 'appfuel/html/tpl/doc/htmldoc.phtml';
+
+	/**
+	 * Used by the page builder to create an alternate html tag factory for
+	 * the HtmlPageInterface
+	 * @var	string
+	 */
+	protected $tagFactoryClass = null;
 
 	/**
 	 * The class your html view belongs to this is optional
@@ -75,6 +88,52 @@ class HtmlViewTemplate extends FileViewTemplate implements HtmlViewInterface
 		}
 
 		$this->htmlPageClass = $class;
+		return $this;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getHtmlDocTpl()
+	{
+		return $this->htmlDocTpl;
+	}
+
+	/**
+	 * @param	string	$file
+	 * @return	HtmlView
+	 */
+	public function setHtmlDocTpl($file)
+	{
+		if (! is_string($file) || ! ($file = trim($file))) {
+			$err = 'html doc template file path must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->htmlDocTpl = $file;
+		return $this;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getTagFactoryClass()
+	{
+		return $this->tagFactoryClass;
+	}
+
+	/**
+	 * @param	string	$file
+	 * @return	HtmlViewTemplate
+	 */
+	public function setTagFactoryClass($class)
+	{
+		if (! is_string($class) || ! ($class = trim($class))) {
+			$err = 'html page class must be an non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->tagFactoryClass = $class;
 		return $this;
 	}
 
