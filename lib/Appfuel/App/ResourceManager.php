@@ -8,20 +8,25 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Html\Resource;
+namespace Appfuel\App;
 
 use InvalidArgumentException;
 
 
 /**
  */
-class HtmlResourceManager
+class ResourceManager
 {
 	/**
 	 * Name of the directory used to hold html resources
 	 * @var string
 	 */
 	static protected $resourceDir = 'ui';
+
+	/**
+	 * @var	array
+	 */
+	static protected $siteUrls = array();
 
 	/**
 	 * @return	string
@@ -45,5 +50,6 @@ class HtmlResourceManager
 
 		self::$resourceDir = $name;
 	}
+
 	
 }

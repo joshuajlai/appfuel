@@ -62,6 +62,7 @@
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteDetailTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcContextTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionBuilderTest.php</file>
+	<file>../lib/TestFuel/Unit/App/SiteUrlTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>
