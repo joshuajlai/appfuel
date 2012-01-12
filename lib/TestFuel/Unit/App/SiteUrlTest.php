@@ -40,6 +40,11 @@ class SiteUrlTest extends BaseTestCase
 		$this->assertEquals('', $url->getVersion());
 		$this->assertEquals('', $url->getRelativeRoot());
 		$this->assertEquals('http', $url->getScheme());
+
+		$this->assertSame($url, $url->enableSecurity());
+		$this->assertTrue($url->isSecure());
+
+		$this->assertSame($url, $url->disableSecurity());
 	}
 
 	/**

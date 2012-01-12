@@ -19,12 +19,6 @@ use InvalidArgumentException;
 class SiteUrl implements SiteUrlInterface 
 {
 	/**
-	 * Flag used to determine scheme
-	 * @var bool
-	 */
-	protected $isSecure = false;
-	
-	/**
 	 * Url scheme used. When the isSecure flag is true an s is appended.
 	 * @var string
 	 */
@@ -61,6 +55,12 @@ class SiteUrl implements SiteUrlInterface
 	protected $relativeRoot = '';
 
 	/**
+	 * Flag used to determine if the scheme should be https
+	 * @var bool
+	 */	
+	protected $isSecure = false;
+
+	/**
 	 * @param	string	$base
 	 * @param	string	$dir
 	 * @param	string|number $version
@@ -72,8 +72,8 @@ class SiteUrl implements SiteUrlInterface
 								$dir, 
 								$vendor, 
 								$version = null, 
-								$root = null,
-								$isSecure = null)
+								$root = null, 
+								$isSecure = false)
 	{
 		$this->setBase($base)
 			 ->setResourceDir($dir)
@@ -88,8 +88,34 @@ class SiteUrl implements SiteUrlInterface
 		}
 
 		if (true === $isSecure) {
-			$this->scheme = 'https';
+			$this->enableSecurity();
 		}
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isSecure()
+	{
+		return $this->isSecure;
+	}
+
+	/**
+	 * @return	SiteUrl
+	 */
+	public function enableSecurity()
+	{
+		$this->isSecure = true;
+		return $this;
+	}
+
+	/**
+	 * @return	SiteUrl
+	 */
+	public function disableSecurity()
+	{
+		$this->isSecure = false;
+		return $this;
 	}
 
 	/**
@@ -140,7 +166,12 @@ class SiteUrl implements SiteUrlInterface
 	 */
 	public function getScheme()
 	{
-		return $this->scheme;
+		$scheme = $this->scheme;
+		if ($this->isSecure()) {
+			$scheme .= 's';
+		}
+
+		return $scheme;
 	}
 
 	/**
