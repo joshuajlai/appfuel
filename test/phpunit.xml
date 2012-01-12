@@ -64,6 +64,9 @@
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionBuilderTest.php</file>
 	<file>../lib/TestFuel/Unit/App/SiteUrlTest.php</file>
 	<file>../lib/TestFuel/Unit/App/Resource/FileListTest.php</file>
+	<file>../lib/TestFuel/Unit/App/Resource/JsListTest.php</file>
+	<file>../lib/TestFuel/Unit/App/Resource/CssListTest.php</file>
+	<file>../lib/TestFuel/Unit/App/Resource/AssetListTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>
