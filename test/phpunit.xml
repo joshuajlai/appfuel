@@ -6,6 +6,7 @@
 		 convertErrorsToExceptions="true">
 <testsuites>
 	<testsuite name="Appfuel Tests">
+<!--		
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Console</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Http</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/DataStructure</directory>
@@ -18,7 +19,6 @@
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Orm/Repository</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Kernel/Error</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Kernel/Startup</directory>
-<!--		
 	<directory suffix="Test.php">../lib/TestFuel/Unit/View</directory>
 	<file>../lib/TestFuel/Test/Kernel/Mvc/ContextBuilderTest.php</file>
 	<file>../lib/TestFuel/Test/Kernel/Mvc/MvcActionDispatcherTest.php</file>
@@ -43,7 +43,7 @@
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionDispatcherTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcFrontTest.php</file>
--->
+
 	<file>../lib/TestFuel/Unit/View/Html/Tag/TagAttributesTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/TagContentTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/GenericTagTest.php</file>
@@ -67,6 +67,9 @@
 	<file>../lib/TestFuel/Unit/App/Resource/JsListTest.php</file>
 	<file>../lib/TestFuel/Unit/App/Resource/CssListTest.php</file>
 	<file>../lib/TestFuel/Unit/App/Resource/AssetListTest.php</file>
+-->
+
+	<file>../lib/TestFuel/Unit/App/Resource/Yui3DependencyResolverTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>
