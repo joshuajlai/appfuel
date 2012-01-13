@@ -24,7 +24,7 @@ class MvcRouteDetail implements MvcRouteDetailInterface
 	 * The route associated to the this context
 	 * @var string
 	 */
-	protected $routeKey = null;
+	protected $routeKeys = null;
 	
 	/**
 	 * Flag used to determine if this route is public and reqiures no acl check
@@ -66,11 +66,16 @@ class MvcRouteDetail implements MvcRouteDetailInterface
 								array $codes = null,
 								array $filters = null)
 	{
-		if (! is_string($route)) {
-			$err = 'route key must be a string';
+		if (is_array($route) && ! empty($route)) {
+			$this->addRouteKeys($route);
+		}
+		if (is_string($route)) {
+			$this->addRouteKey($route);
+		}
+		else {
+			$err = 'route key must be a string or an array of strings';
 			throw new InvalidArgumentException($err);
 		}
-		$this->routeKey = $route;
 		
 		$this->isPublic   = ($isPublic === false) ? false : true;
 		$this->isInternal = ($isInternal === true) ? true : false;
@@ -99,9 +104,14 @@ class MvcRouteDetail implements MvcRouteDetailInterface
 	/**
 	 * @return	string
 	 */
-	public function getRouteKey()
+	public function isRouteKey($key)
 	{
-		return $this->routeKey;
+		$result = false;
+		if (is_string($key) && in_array($key, $this->routeKeys, true)) {
+			$result = true;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -140,5 +150,35 @@ class MvcRouteDetail implements MvcRouteDetailInterface
 	public function getInterceptingFilters()
 	{
 		return $this->filters;	
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	MvcRouteDetail
+	 */
+	protected function addRouteKey($key)
+	{
+		if (! is_string($key)) {
+			$err = 'route key must be a string';
+		}
+
+		if (! in_array($key, $this->routeKeys, true)) {
+			$this->routeKeys[] = $key;
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	MvcRouteDetail
+	 */
+	protected function addRouteKeys(array $keys)
+	{
+		foreach ($keys as $key) {
+			$this->addRouteKey($key);
+		}
+
+		return $this;
 	}
 }

@@ -330,10 +330,18 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	 */
 	public function dispatch(MvcContextInterface $context)
 	{
-		$route     = $context->getRoute();
-		$namespace = $this->getActionNamespace($route);
+		$routeKey    = $context->getRouteKey();
+		$routeDetail = $context->getRouteDetail();
+		$namespace   = $this->getActionNamespace($routeKey);
 		if (false === $namespace) {
-			throw new RouteNotFoundException($route, '');
+			$err = "mapping error: mvc action not found for -($routeKey)";
+			throw new LogicException($err);
+		}
+
+		if (false === $routeDetail->isRouteKey($routeKey)) {
+			$err  = "mapping error: -($routeKey) does not belong to mvc ";
+			$err .= "action at namespace -($namespace)";
+			throw new LogicException($err);
 		}
 
 		$factory = $this->getActionFactory();
@@ -342,7 +350,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		 * to call other action controllers based on the route key 
 		 */		
 		$dispatcher = new self($factory, $this->getContextBuilder());
-		$action = $factory->createMvcAction($route, $namespace, $dispatcher);
+		$action = $factory->createMvcAction($routeKey, $namespace, $dispatcher);
 		
 		/*
 		 * Acl codes are simple way of giving the action controllers an easy
@@ -350,8 +358,9 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		 * the developer the dispatcher simply asks the question is this 
 		 * context allowed to be processed based on these codes
 		 */
-		if (false === $action->isContextAllowed($context->getAclCodes())) {
-			throw new RouteDeniedException($route, '');		
+		if (false === $routeDetail->isAllowed($context->getAclCodes())) {
+			$err = 'user request is not allowed: insufficient permissions';
+			throw new RunTimeException($err);
 		}
 
 		return $action->process($context);

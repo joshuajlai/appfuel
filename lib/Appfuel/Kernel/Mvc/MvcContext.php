@@ -31,10 +31,16 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	protected $strategy = null;
 
 	/**
-	 * The route value object associated with this context
+	 * Actual route key used in user request
 	 * @var string
 	 */
-	protected $route = null;
+	protected $routeKey = null;
+
+	/**
+	 * The route value object associated with this context
+	 * @var MvcRouteDetailInterface
+	 */
+	protected $routeDetail = null;
 
 	/**
 	 * Holds most of the user input given to the application. Used by the
@@ -68,13 +74,23 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 * @param	AppInputInterface	$input
 	 * @return	AppContext
 	 */
-	public function __construct($strategy, 
-								MvcRouteDetailInterface $route,
+	public function __construct($strategy,
+								$routeKey, 
+								MvcRouteDetailInterface $routeDetail,
 								AppInputInterface $input)
 	{
 		$this->setStrategy($strategy);
-		$this->setRouteDetail($route);
+		$this->setRouteKey($routeKey);
+		$this->setRouteDetail($routeDetail);
 		$this->setInput($input);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getRouteKey()
+	{
+		return $this->routeKey;
 	}
 
 	/**
@@ -202,6 +218,20 @@ class MvcContext extends Dictionary implements MvcContextInterface
             throw new InvalidArgumentException($err);
         }
 		$this->strategy = $strategy;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	null
+	 */
+	protected function setRouteKey($key)
+	{
+		if (! is_string($key)) {
+			$err = 'route key must be a string';
+			throw new InvalidArgumentException($key);
+		}
+
+		$this->routeKey = $key;
 	}
 
 	/**
