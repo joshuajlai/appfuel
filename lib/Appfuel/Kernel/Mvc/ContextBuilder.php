@@ -301,4 +301,3 @@ class ContextBuilder implements ContextBuilderInterface
         $this->uri   = null;
     }
 }
-}
