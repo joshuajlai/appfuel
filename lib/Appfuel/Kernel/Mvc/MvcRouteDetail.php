@@ -24,7 +24,7 @@ class MvcRouteDetail implements MvcRouteDetailInterface
 	 * The route associated to the this context
 	 * @var string
 	 */
-	protected $routeKeys = null;
+	protected $routeKeys = array();
 	
 	/**
 	 * Flag used to determine if this route is public and reqiures no acl check

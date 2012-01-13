@@ -12,14 +12,13 @@ namespace Appfuel\View\Html;
 
 use InvalidArgumentException,
 	Appfuel\View\FileViewTemplate,
-	Appfuel\View\Html\Element\Tag as ElementTag,
-	Appfuel\View\Html\Element\Base,
-	Appfuel\View\Html\Element\Title,
-	Appfuel\View\Html\Element\Link,
-	Appfuel\View\Html\Element\Script,
-	Appfuel\View\Html\Element\CssStyle,
-	Appfuel\View\Html\Element\Meta\Charset,
-	Appfuel\View\Html\Element\Meta\Tag as MetaTag,
+	Appfuel\View\Html\Tag\GenericTag,
+	Appfuel\View\Html\Element\BaseTag,
+	Appfuel\View\Html\Element\TitleTag,
+	Appfuel\View\Html\Element\LinkTag,
+	Appfuel\View\Html\Element\ScriptTag,
+	Appfuel\View\Html\Element\StyleTag,
+	Appfuel\View\Html\Element\MetaTag,
 	Appfuel\View\Html\Element\HtmlTagInterface,
 	Appfuel\View\Compositor\FileCompositor,
 	Appfuel\View\Compositor\FileCompositorInterface;
@@ -71,20 +70,6 @@ class HtmlDocTemplate extends FileViewTemplate implements HtmlDocInterface
 	public function __construct($file = null,
 								PathFinderInterface $pathFinder = null)
 	{
-		if (null === $file) {
-			$file = 'appfuel/html/tpl/doc/htmldoc.phtml';
-		}
-		parent::__construct($file, $pathFinder);
-		
-		$this->useDocType('html5');
-		$this->setTitleTag(new Title());
-		$this->setCharset('UTF-8');
-		$this->setCssStyleTag(new CssStyle());
-		$this->setJsHeadInlineScriptTag(new Script());
-		$this->setJsBodyInlineScriptTag(new Script());
-
-		$this->bodyContent = new ElementTag();
-		$this->finalBodyContent = new ElementTag();
 	}
 
 	/**
@@ -92,10 +77,7 @@ class HtmlDocTemplate extends FileViewTemplate implements HtmlDocInterface
 	 */
 	public function build()
 	{
-		$this->buildAttributes()
-			 ->buildContent();
-
-		return parent::build();
+		return '';
 	}
 
 	/**

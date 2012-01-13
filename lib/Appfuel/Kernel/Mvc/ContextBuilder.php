@@ -284,11 +284,12 @@ class ContextBuilder implements ContextBuilderInterface
                           ->getInput();
         }
 
-        $this->clear();
 
-		$routeDetail = new RouteDetail($route);
+		$routeDetail = new MvcRouteDetail($route);
+
         /* clear out build state */
-        return new MvcContext($strategy, $routeDetail, $input);
+        $this->clear();
+        return new MvcContext($strategy, $route, $routeDetail, $input);
     }
 
     /**

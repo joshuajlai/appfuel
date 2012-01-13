@@ -135,7 +135,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
 
         switch($type) {
 			case 'html-page': 
-				$view = $this->createHtmlPage($namespace);
+				$view = $this->createHtmlView($namespace);
 				break;
             case 'html':
                 $view = $this->createHtmlView($namespace);
@@ -242,15 +242,7 @@ class MvcActionFactory implements MvcActionFactoryInterface
 			$view = $layout;
 		}
 
-		$pageClass = $view->getHtmlPageClass();
-		if (! empty($pageClass) && is_string($pageClass)) {
-			$page = new $pageClass($view, $jsTemplate, $htmlDoc);
-		}
-		else {
-			$page = new HtmlPageTemplate($view, $jsTemplate, $htmlDoc);
-		}
-
-		return $page;
+		return '';
 	}
 
     /**

@@ -21,12 +21,6 @@ namespace Appfuel\Kernel\Mvc;
 interface MvcRouteDetailInterface
 {
 	/**
-	 * The route key used in the url or cli to issue the request
-	 * @return	string
-	 */
-	public function getRouteKey();
-
-	/**
 	 * Flag used to detemine if any acl checks need to be applied
 	 * @return	bool
 	 */
