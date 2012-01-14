@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use RunTimeException,
+use LogicException,
+	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Kernel\KernelRegistry,
 	Appfuel\Error\ErrorStackInterface,
@@ -335,12 +336,6 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		$namespace   = $this->getActionNamespace($routeKey);
 		if (false === $namespace) {
 			$err = "mapping error: mvc action not found for -($routeKey)";
-			throw new LogicException($err);
-		}
-
-		if (false === $routeDetail->isRouteKey($routeKey)) {
-			$err  = "mapping error: -($routeKey) does not belong to mvc ";
-			$err .= "action at namespace -($namespace)";
 			throw new LogicException($err);
 		}
 

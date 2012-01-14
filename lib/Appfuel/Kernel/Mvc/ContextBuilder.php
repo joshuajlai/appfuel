@@ -11,7 +11,10 @@
 namespace Appfuel\Kernel\Mvc;
 
 use RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+	Appfuel\Kernel\KernelRegistry,
+    Appfuel\ClassLoader\StandardAutoLoader,
+    Appfuel\ClassLoader\AutoLoaderInterface;
 
 /**
  * The context build holds all the logic for create uri strings, requests,
@@ -43,6 +46,48 @@ class ContextBuilder implements ContextBuilderInterface
      * @var string  
      */
     protected $route = null;
+
+    /**
+     * We reuse the autoloader class to parse the namespace into a dir path
+     * to find the mvc action, view, and route detail.
+     * @var AutoLoaderInterface
+     */
+    protected $loader = null;
+
+    /**
+     * @param   string  $controllerClass
+     * @return  MvcActionBuilder
+     */
+    public function __construct(AutoLoaderInterface $loader = null)
+    {
+        /*
+         * Note that we use the load class from the lib directory. This 
+         * constant is set during intialization. I will refactor next to a 
+         * a path finder. (on a deadline right now) --rsb
+         */
+        if (null === $loader) {
+            $loader = new StandardAutoLoader(AF_LIB_PATH);
+        }
+        $this->setClassLoader($loader);
+    }
+
+    /**
+     * @return  AutoLoaderInterface
+     */
+    public function getClassLoader()
+    {
+        return $this->loader;
+    }
+
+    /**
+     * @param   AutoLoaderInterface $loader
+     * @return  MvcActionBuilder
+     */
+    public function setClassLoader(AutoLoaderInterface $loader)
+    {
+        $this->loader = $loader;
+        return $this;
+    }
 
     /**
      * @return  string
@@ -285,11 +330,54 @@ class ContextBuilder implements ContextBuilderInterface
         }
 
 
-		$routeDetail = new MvcRouteDetail($route);
+		$routeDetail = $this->createRouteDetail(
+			$route, 
+			$this->getActionNamespace($route)
+		);
 
         /* clear out build state */
         $this->clear();
         return new MvcContext($strategy, $route, $routeDetail, $input);
+    }
+
+    /**
+     * @param   string  $routeKey
+     * @param   string  $namespace
+     * @return  MvcRouteDetailInterface
+     */
+    public function createRouteDetail($routeKey, $namespace)
+    {  
+        $class    = "$namespace\\RouteDetail";
+        $isDetail = $this->getClassLoader()
+                       ->loadClass($class);
+        if (! $isDetail) {
+            $err  = "a concrete implementation of the route detail must be ";
+            $err .= "available at -($class)";
+            throw new RunTimeException($err);
+        }
+        $detail = new $class();
+
+        if (! $detail instanceof MvcRouteDetailInterface) {
+            $err  = 'route detail must implement -(Appfuel\Kernel\Mvc';
+            $err .= '\RouteDetailInterface';
+            throw new RunTimeException($err);
+        }
+
+        if (false === $detail->isRouteKey($routeKey)) {
+            $err  = 'route detail created does not have the same route key ';
+            $err .= 'as the one given to the MvcActionBuilder';
+            throw new RunTimeException($err);
+        }
+
+        return $detail;
+    }
+
+    /**
+     * @return  string | false when not mapped
+     */
+    protected function getActionNameSpace($routeKey)
+    {  
+        return KernelRegistry::getActionNamespace($routeKey);
     }
 
     /**

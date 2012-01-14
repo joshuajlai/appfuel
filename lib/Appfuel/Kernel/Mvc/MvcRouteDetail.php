@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use InvalidArgumentException;
+use InvalidArgumentException,
+	Appfuel\DataStructure\Dictionary;
 
 /**
  * The route detail provides framework specific detail about the action
@@ -18,7 +19,7 @@ use InvalidArgumentException;
  * provide basic acl checks and can hold intercepting filters specific to 
  * it
  */
-class MvcRouteDetail implements MvcRouteDetailInterface
+class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 {
 	/**
 	 * The route associated to the this context
@@ -69,7 +70,7 @@ class MvcRouteDetail implements MvcRouteDetailInterface
 		if (is_array($route) && ! empty($route)) {
 			$this->addRouteKeys($route);
 		}
-		if (is_string($route)) {
+		else if (is_string($route)) {
 			$this->addRouteKey($route);
 		}
 		else {

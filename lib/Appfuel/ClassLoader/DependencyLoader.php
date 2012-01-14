@@ -84,8 +84,9 @@ class DependencyLoader implements DependencyLoaderInterface
 	{
 		$loader = $this->getLoader();
 		$loader->clearPaths();
-
-		$loader->addPath($dependency->getRootPath());
+	
+		$rootPath = $dependency->getRootPath();
+		$loader->addPath($rootPath);
 		$classes  = $dependency->getNamespaces();
 		foreach ($classes as $class) {
 			if (class_exists($class,false) || interface_exists($class,false)) {
@@ -99,10 +100,11 @@ class DependencyLoader implements DependencyLoaderInterface
 
 		$files = $dependency->getFiles();
 		foreach($files as $file) {
-			if (! file_exists($file)) {
+			$full = "$rootPath/$file";
+			if (! file_exists($full)) {
 				throw new RunTimeException("could not locate file -($file)");
 			}
-			require $file;
+			require $full;
 		}
 	}
 

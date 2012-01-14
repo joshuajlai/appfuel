@@ -122,9 +122,9 @@ class KernelInitializer
 		$this->initConfig($config, $section)
 			 ->initTimezone()
 			 ->initIncludePath()
-			 ->initAppDependencies()
 			 ->initFaultHandling()
-			 ->initAppfuelAutoLoader();
+			 ->initAppfuelAutoLoader()
+			 ->initAppDependencies();
 
 		if ($this->isDomainMapEnabled()) {
 			$this->initDomainMap($domain);
@@ -241,6 +241,7 @@ class KernelInitializer
 		
 		$maxloaded = 0;
 		$loader = $this->getDependencyLoader();
+		
 		foreach ($list as $item) {
 			if (is_array($item)) {
 				$class = array_shift($item);
@@ -253,7 +254,7 @@ class KernelInitializer
 			else {
 				continue;
 			}
-			$loader->load(new $class($rootpath));
+			$loader->loadDependency(new $class($rootpath));
 			$maxloaded++;
 		}
 		
