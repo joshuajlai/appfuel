@@ -17,6 +17,7 @@ use RunTimeException,
 	Appfuel\Kernel\Mvc\Filter\FilterManagerInterface,
 	Appfuel\Kernel\Startup\StartupTaskInterface,
 	Appfuel\ClassLoader\DependencyLoader,
+	Appfuel\ClassLoader\StandardAutoLoader,
 	Appfuel\ClassLoader\DependencyLoaderInterface;
 
 /**
@@ -257,7 +258,6 @@ class KernelInitializer
 			$loader->loadDependency(new $class($rootpath));
 			$maxloaded++;
 		}
-		
 		$msg = "loaded $maxloaded dependency objects";
 		self::$status['kernel:app-dependency'] = $msg;
 		return $this;
@@ -339,10 +339,9 @@ class KernelInitializer
 			return $this;
 		}
 
-		$dependency = $this->getDependencyLoader();
-		$dependency->getLoader()
-				   ->register();
-		
+		$loader = new StandardAutoLoader(AF_LIB_PATH);	
+		$loader->register();
+
 		$msg = "appfuel autoloader initialized";
 		self::$status['kernel:autolaoder'] = $msg;
 		return $this;	
