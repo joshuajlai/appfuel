@@ -175,7 +175,7 @@ class KernelInitializer
 					$config[$key] = $value;
 				}
 				else {
-					$config[$key] = array_merge_recursive(
+					$config[$key] = array_merge(
 						$value,
 						$config[$key]
 					);
