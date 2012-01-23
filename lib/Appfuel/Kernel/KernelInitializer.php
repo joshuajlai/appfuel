@@ -24,7 +24,7 @@ use RunTimeException,
  * The kernal intializer uses the kernal registry to get a list of start up
  * tasks. It will run through each task calling its execute methos. 
  */
-class KernelInitializer
+class KernelInitializer 
 {
 	/**
 	 * Absolute path to the config file
