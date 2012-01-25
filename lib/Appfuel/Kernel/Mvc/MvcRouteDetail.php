@@ -135,10 +135,28 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 * @param	string	$code
 	 * @return	bool
 	 */
-	public function isAllowed($code)
+	public function isAllowed($codes)
 	{
-		if (empty($code) || 
-			! is_string($code) || ! in_array($code, $this->aclCodes, true)) {
+		if ($this->isPublic()) {
+			return true;
+		}
+
+		if (is_string($codes)) {
+			$codes = array($codes);
+		}
+		else if (! is_array($codes)) {
+			return false;
+		}
+
+		$compare = array();
+		foreach ($codes as $code) {
+			if (is_string($code) && ! empty($code)) {
+				$compare[] = $code;
+			}
+		}
+
+		$result = array_intersect($this->aclCodes, $compare);
+		if (empty($result)) {
 			return false;
 		}
 

@@ -11,44 +11,29 @@
 namespace Appfuel\Kernel\Mvc\Filter;
 
 use InvalidArgumentException,
-	Appfuel\Kernel\Mvc\MvcContextInterface;
+	Appfuel\Kernel\Mvc\MvcContextInterface,
+	Appfuel\Kernel\Mvc\ContextBuilder,
+	Appfuel\Kernel\Mvc\ContextBuilderInterface;
 
 /**
  * This intercepting filter pattern has been modified. The knowledge of the
  * the next filter has been offloaded onto the filter manager.
  */
-abstract class AbstractFilter
+class GeneralIntercept
 {
-	/**
-	 * Determines is this is a post or pre filter. We have to so that the 
-	 * filter manager can determine which filter chain to this filter in
-	 * @var	string
-	 */
-	protected $type = null;
-
 	/**
 	 * The next intercepting filter to use after our successful filter
 	 * @var InterceptingFilterInterface
 	 */
 	protected $next = null;
 
-	/**
-	 * @param	string	$type	pre|post
-	 * @param	InterceptingFilterInterface	$next
-	 */
-	public function __construct($type, InterceptingFilterInterface $next = null)
-	{
-		$this->setType($type);
-		if (null !== $next) {
-			$this->setNext($next);
-		}
-	}
+	public $context = null;
 
 	/**
 	 * @param	InterceptingFilterInterface	$filter
 	 * @return	InterceptingFilter
 	 */
-	public function setNext(InterceptingFilterInterface $filter)
+	public function setNext(InterceptFilterInterface $filter)
 	{
 		$this->next = $filter;
 		return $this;
@@ -67,7 +52,7 @@ abstract class AbstractFilter
 	 */
 	public function isNext()
 	{
-		return $this->next instanceof InterceptingFilterInterface;
+		return $this->next instanceof InterceptFilterInterface;
 	}
 
 	/**
@@ -81,36 +66,10 @@ abstract class AbstractFilter
 		}
 
 		$next = $this->getNext();
+		if ($this->context  instanceof MvcContextInterface) {
+			$context = $this->context;
+		}
+
 		return $next->filter($context);
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getType()
-	{
-		return $this->type;
-	}
-
-	/**
-	 * @param	string	$type	pre|post
-	 * @return	InterceptingFilter
-	 */
-	public function setType($type)
-	{
-		if (empty($type) || ! is_string($type)) {
-			throw new InvalidArgumentException(
-				"type must be a non empty string"
-			);		
-		}
-		$type = strtolower($type);
-		if (! in_array($type, array('pre', 'post'))) {
-			throw new InvalidArgumentException(
-				"type must have a value of -(pre|post)"
-			);
-		}
-
-		$this->type = $type;
-		return $this;
 	}
 }

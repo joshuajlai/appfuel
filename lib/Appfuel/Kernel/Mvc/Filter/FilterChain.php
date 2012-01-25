@@ -22,25 +22,20 @@ use	RunTimeException,
 class FilterChain implements FilterChainInterface
 {
 	/**
-	 * Determines is this is a post or pre filter. We have to so that the 
-	 * filter manager can determine which filter chain to this filter in
-	 * @var	string
-	 */
-	protected $type = null;
-
-	/**
 	 * The current filter that will be the first filter used
 	 * @var InterceptingFilterInterface
 	 */
 	protected $head = null;
 
 	/**
-	 * @param	string	$type	pre|post
-	 * @param	InterceptingFilterInterface	$next
+	 * @param	InterceptingFilterInterface	$filter
+	 * @return	FilterChain
 	 */
-	public function __construct($type)
+	public function __construct(InterceptFilterInterface $filter = null)
 	{
-		$this->setType($type);
+		if (null !== $filter) {
+			$this->setHead($filter);
+		}
 	}
 
 	/**
@@ -48,7 +43,7 @@ class FilterChain implements FilterChainInterface
 	 */
 	public function hasFilters()
 	{
-		return $this->head instanceof InterceptingFilterInterface;
+		return $this->head instanceof InterceptFilterInterface;
 	}
 
 	/**
@@ -64,7 +59,12 @@ class FilterChain implements FilterChainInterface
 			throw new RunTimeException($err);
 		}
 
-		return $head->filter($context);
+		$result = $head->filter($context);
+		if (! $result instanceof MvcContextInterface) {
+			echo "<pre>", print_r($result, 1), "</pre>";exit;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -76,14 +76,11 @@ class FilterChain implements FilterChainInterface
 	}
 
 	/**
-	 * @throws	RunTimeException
 	 * @param	InterceptingFilterInterface	$filter
-	 * @return	InterceptingFilter
+	 * @return	FilterChain
 	 */
-	public function setHead(InterceptingFilterInterface $filter)
+	public function setHead(InterceptFilterInterface $filter)
 	{
-		$this->typeCheck($filter);
-
 		$this->head = $filter;
 		return $this;
 	}
@@ -96,62 +93,13 @@ class FilterChain implements FilterChainInterface
 	 * @throws	RunTimeException
 	 * @return	InterceptingFilterInterface | null when not set
 	 */
-	public function addFilter(InterceptingFilterInterface $filter)
+	public function addFilter(InterceptFilterInterface $filter)
 	{
-		$this->typeCheck($filter);
-
 		$head = $this->getHead();
-		if (null !== $head) {
+		if ($head) {
 			$filter->setNext($head);
 		}
 
 		return $this->setHead($filter);
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getType()
-	{
-		return $this->type;
-	}
-
-	/**
-	 * @throws	InvalidArgumentException
-	 * @param	string	$type	pre|post
-	 * @return	InterceptingFilter
-	 */
-	public function setType($type)
-	{
-		if (empty($type) || ! is_string($type)) {
-			throw new InvalidArgumentException(
-				"type must be a non empty string"
-			);		
-		}
-		$type = strtolower($type);
-		if (! in_array($type, array('pre', 'post'))) {
-			throw new InvalidArgumentException(
-				"type must have a value of -(pre|post)"
-			);
-		}
-
-		$this->type = $type;
-		return $this;
-	}
-
-	/**
-	 * @throws	RunTimeException
-	 * @param	InterceptingFilterInterface
-	 * @return	null
-	 */
-	protected function typeCheck(InterceptingFilterInterface $filter)
-	{
-		$chainType  = $this->getType();
-		$filterType = $filter->getType();
-		if ($chainType !== $filterType) {
-			$err  = "addFilter failed: Filter type give is -($filterType) ";
-			$err .= "but does not match chain type -($chainType)";
-			throw new RunTimeException($err);
-		}
 	}
 }

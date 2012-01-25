@@ -24,7 +24,6 @@ class HttpOutput implements HttpOutputInterface
 		if (headers_sent()) {
 			return;
 		}
-
 		header($response->getStatusLine());
 		
 		$headerList = $response->getHeaderList();

@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc\Filter;
 
-use RunTimeException,
+use LogicException,
+	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Kernel\Mvc\MvcContextInterface;
 
@@ -48,23 +49,12 @@ class FilterManager implements FilterManagerInterface
 								FilterChainInterface $post = null)
 	{
 		if (null === $pre) {
-			$pre = new FilterChain('pre');
-		}
-		if ('pre' !== $pre->getType()) {
-			throw new InvalidArgumentException(
-				"First param is a pre not post filter chain"
-			);
+			$pre = new FilterChain();
 		}
 		$this->pre = $pre;
 
 		if (null === $post) {
-			$post = new FilterChain('post');
-		}
-
-		if ('post' !== $post->getType()) {
-			throw new InvalidArgumentException(
-				"Second param is a post not pre filter chain"
-			);
+			$post = new FilterChain();
 		}
 		$this->post = $post;
 	}
@@ -101,40 +91,23 @@ class FilterManager implements FilterManagerInterface
 			$filters = array($filters);
 		}
 		else if (! is_array($filters)) {
-			throw new InvalidArgumentException(
-				"param given must be a string or array"
-			);
+			$err = 'filters must be a string or an array of strings';
+			throw new InvalidArgumentException($err);
 		}
 
 		$filters = array_reverse($filters);
-		$target  = null;
-		$preChain  = $this->getPreChain();
-		$postChain = $this->getPostChain();
 		foreach ($filters as $index => $class) {
 			if (empty($class) || ! is_string($class)) {
-				throw new RunTimeException(
-					"Invalid filter given at index -($index)"
-				);
+				$err = "Invalid filter given at index -($index)";
+				throw new LogicException($err);
 			}
 			$filter = new $class();
-			if (! $filter instanceof InterceptingFilterInterface) {
-				throw new RunTimeException(
-					"Filter does not implment interface"
-				);
+			if (! $filter instanceof InterceptFilterInterface) {
+				$err = "Filter does not implement interface";
+				throw new LogicException($err);
 			}
 
-			$type = $filter->getType();
-			if ('pre' === $type) {
-				$preChain->addFilter($filter);
-			}
-			else if ('post' === $type) {
-				$postChain->addFilter($filter);
-			}
-			else {
-				throw new RunTimeException(
-					"Filter type does not match pre or post"
-				);
-			}
+			$this->addFilter($filter);	
 		}
 
 		return $this;
@@ -144,16 +117,21 @@ class FilterManager implements FilterManagerInterface
 	 * @param	InterceptingFilterInterface $filter
 	 * @return	FilterManager
 	 */
-	public function addFilter(InterceptingFilterInterface $filter)
+	public function addFilter(InterceptFilterInterface $filter)
 	{
-		$type = $filter->getType();
-		if ('pre' === $filter->getType()) {
+		if ($filter instanceof PreInterceptFilterInterface) {
 			$chain = $this->getPreChain();
 		}
-		else {
+		else if ($filter instanceof PostInterceptFilterInterface) {
 			$chain = $this->getPostChain();
 		}
-
+		else {
+			$err  = 'Filter interface is not supported must be a ';
+			$err .= 'PreInterceptFilterInterface or ';
+			$err .= 'PostInterceptFilterInterface';
+			throw new LogicException($err);
+		}
+		
 		$chain->addFilter($filter);
 		return $this;	
 	}
@@ -190,10 +168,7 @@ class FilterManager implements FilterManagerInterface
 		if (! $chain->hasFilters()) {
 			return;
 		}
-		
-		$result = $chain->apply($context);
-		if ($result instanceof MvcContextInterface) {
-			return $result;
-		}
+	
+		return $chain->apply($context);
 	}
 }

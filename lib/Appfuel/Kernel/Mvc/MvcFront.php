@@ -318,7 +318,7 @@ class MvcFront implements MvcFrontInterface
 		$filterManager = $this->getFilterManager();
 		$filterManager->loadFilters($filters);
 		$result = $filterManager->applyPreFilters($context);
-		
+
 		/*
 		 * Use the returned context in place of the one built
 		 */
@@ -332,7 +332,7 @@ class MvcFront implements MvcFrontInterface
 		 * codes.
 		 */
 		$exitCode = $context->getExitCode();
-		if ($exitCode >= 200 || $exitCode < 300) {
+		if ($exitCode >= 200 && $exitCode < 300) {
 			/* 
 			 * the mvc action can completely replace the context by returning 
 			 * a new one otherwise the reference to the context that was passed 
@@ -347,13 +347,13 @@ class MvcFront implements MvcFrontInterface
 			 */
 			$filterManager->applyPostFilters($context);
 		}
+		
 
 		/* render context based on the output engine that was set, not the
 		 * strategy used
 		 */
 		$output = $this->getOutputEngine();
 		$output->render($context);
-
 		/*
 		 * we get the exit code again because if might have changed with the
 		 * mvc action or post filters
