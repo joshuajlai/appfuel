@@ -18,17 +18,8 @@ use Appfuel\Kernel\Mvc\MvcContextInterface;
  * the front controller to perform business logic before and after a 
  * user request is executed in the action controller
  */
-interface InterceptingFilterInterface
+interface InterceptFilterInterface
 {
-	/**
-	 * This is used to determine if this filter is pre or post filter.
-	 * How you set the member is implementation specific. I prefer to 
-	 * have this member immutable.
-	 *
-	 * @return	string	must be (pre|post)
-	 */
-	public function getType();
-
 	/**
 	 * Perform an concrete business logic on the context given. Return
 	 * true when everything when well and you don't need to replace the 
@@ -39,10 +30,26 @@ interface InterceptingFilterInterface
 	 * @return	mixed	bool | ContextInterface
 	 */
 	public function filter(MvcContextInterface $context);
-	
-	/**
-	 * @param	ContextInterface $context
-	 * @return	
-	 */
-	public function next(MvcContextInterface $context);
+
+    /**
+     * @param   InterceptingFilterInterface $filter
+     * @return  InterceptingFilter
+     */
+    public function setNext(InterceptFilterInterface $filter);
+
+    /**
+     * @return  InterceptingFilterInterface | null when not set
+     */
+    public function getNext();
+
+    /**
+     * @return  bool
+     */
+    public function isNext();
+
+    /**
+     * @param   AppContextInterface $context
+     * @return  AppContextInterface
+     */
+    public function next(MvcContextInterface $context);
 }

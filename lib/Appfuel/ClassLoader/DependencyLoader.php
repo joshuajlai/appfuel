@@ -102,7 +102,7 @@ class DependencyLoader implements DependencyLoaderInterface
 		foreach($files as $file) {
 			$full = "$rootPath/$file";
 			if (! file_exists($full)) {
-				throw new RunTimeException("could not locate file -($file)");
+				throw new RunTimeException("could not locate file -($full)");
 			}
 			require $full;
 		}

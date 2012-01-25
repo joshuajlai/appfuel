@@ -349,7 +349,7 @@ class ContextBuilder implements ContextBuilderInterface
     {  
         $class    = "$namespace\\RouteDetail";
         $isDetail = $this->getClassLoader()
-                       ->loadClass($class);
+			            ->loadClass($class);
         if (! $isDetail) {
             $err  = "a concrete implementation of the route detail must be ";
             $err .= "available at -($class)";

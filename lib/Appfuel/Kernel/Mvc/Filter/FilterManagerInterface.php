@@ -20,7 +20,7 @@ interface FilterManagerInterface
 	public function getPostChain();
 	public function getPreChain();
 	public function loadFilters($filters);
-	public function addFilter(InterceptingFilterInterface $filter);
+	public function addFilter(InterceptFilterInterface $filter);
 	public function applyPreFilters(MvcContextInterface $context);
 	public function applyPostFilters(MvcContextInterface $context);
     public function applyChain(FilterChainInterface $f, MvcContextInterface $c);

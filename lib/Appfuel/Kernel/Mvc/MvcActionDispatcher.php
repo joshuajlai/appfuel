@@ -353,6 +353,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		 * the developer the dispatcher simply asks the question is this 
 		 * context allowed to be processed based on these codes
 		 */
+
 		if (false === $routeDetail->isAllowed($context->getAclCodes())) {
 			$err = 'user request is not allowed: insufficient permissions';
 			throw new RunTimeException($err);

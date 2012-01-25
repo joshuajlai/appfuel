@@ -98,7 +98,7 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 */
 	public function getRouteDetail()
 	{
-		return $this->route;
+		return $this->routeDetail;
 	}
 
 	/**
@@ -240,6 +240,6 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 */
 	protected function setRouteDetail(MvcRouteDetailInterface $route)
 	{
-		$this->route = $route;
+		$this->routeDetail = $route;
 	}
 }

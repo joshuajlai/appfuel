@@ -17,13 +17,14 @@ use RunTimeException,
 	Appfuel\Kernel\Mvc\Filter\FilterManagerInterface,
 	Appfuel\Kernel\Startup\StartupTaskInterface,
 	Appfuel\ClassLoader\DependencyLoader,
+	Appfuel\ClassLoader\StandardAutoLoader,
 	Appfuel\ClassLoader\DependencyLoaderInterface;
 
 /**
  * The kernal intializer uses the kernal registry to get a list of start up
  * tasks. It will run through each task calling its execute methos. 
  */
-class KernelInitializer
+class KernelInitializer 
 {
 	/**
 	 * Absolute path to the config file
@@ -174,7 +175,7 @@ class KernelInitializer
 					$config[$key] = $value;
 				}
 				else {
-					$config[$key] = array_merge_recursive(
+					$config[$key] = array_merge(
 						$value,
 						$config[$key]
 					);
@@ -257,7 +258,6 @@ class KernelInitializer
 			$loader->loadDependency(new $class($rootpath));
 			$maxloaded++;
 		}
-		
 		$msg = "loaded $maxloaded dependency objects";
 		self::$status['kernel:app-dependency'] = $msg;
 		return $this;
@@ -339,10 +339,9 @@ class KernelInitializer
 			return $this;
 		}
 
-		$dependency = $this->getDependencyLoader();
-		$dependency->getLoader()
-				   ->register();
-		
+		$loader = new StandardAutoLoader(AF_LIB_PATH);	
+		$loader->register();
+
 		$msg = "appfuel autoloader initialized";
 		self::$status['kernel:autolaoder'] = $msg;
 		return $this;	

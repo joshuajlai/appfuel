@@ -137,7 +137,7 @@ class KernelOutput implements OutputInterface
 				$headers = $data->get('http-headers', array());
 				$view    = $data->getView();
 				$code    = $data->getExitCode();
-				$response = new HttpResponse($view->build(), $code);
+				$response = new HttpResponse((string)$view, $code);
 				if (! empty($headers) && is_array($headers)) {
 					$response->loadHeaders($headers);
 				}

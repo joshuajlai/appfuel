@@ -41,7 +41,7 @@ interface FilterChainInterface
 	 * @param	InterceptingFilterInterface	$filter
 	 * @return	InterceptingFilter
 	 */
-	public function setHead(InterceptingFilterInterface $filter);
+	public function setHead(InterceptFilterInterface $filter);
 	
 	/**
 	 * This will add the filter to head if there is not filter in head. 
@@ -50,10 +50,5 @@ interface FilterChainInterface
 	 *
 	 * @return	InterceptingFilterInterface | null when not set
 	 */
-	public function addFilter(InterceptingFilterInterface $filter);
-
-	/**
-	 * @return	string
-	 */
-	public function getType();
+	public function addFilter(InterceptFilterInterface $filter);
 }
