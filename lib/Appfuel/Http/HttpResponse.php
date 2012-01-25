@@ -220,40 +220,6 @@ class HttpResponse implements HttpResponseInterface
 	}
 
 	/**
-	 * @return null
-	 */
-	public function renderContent()
-	{
-		echo $this->content;
-	}
-
-	/**
-	 * @return null
-	 */
-	public function sendHeaders()
-	{
-		if (headers_sent()) {
-			return;
-		}
-
-		header($this->getStatusLine()->getField());
-		
-		$list = $this->getHeaderList();
-		foreach ($list as $header) {
-			header($header);
-		}
-	}
-
-	/**
-	 * @return null
-	 */
-	public function send()
-	{
-		$this->sendHeaders();
-		$this->renderContent();
-	}
-
-	/**
 	 * @param	string	$version
 	 * @return	null
 	 */
