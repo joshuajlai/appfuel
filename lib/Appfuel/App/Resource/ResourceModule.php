@@ -10,8 +10,7 @@
  */
 namespace Appfuel\App\Resource;
 
-use InvalidArgumentException,
-	Appfuel\Kernel\PathFinderInterface;
+use InvalidArgumentException;
 
 /**
  * The resource module is a value object holding details of the module
@@ -29,6 +28,14 @@ class ResourceModule implements ResourceModuleInterface
 	 * @var string
 	 */
 	protected $type = 'js';
+
+	/**
+	 * When module group is true the module itself is not considered a 
+	 * resource and you wont need to look for its file, instead just resolve
+	 * all its dependencies
+	 * @var bool
+	 */
+	protected $isGroup = false;
 
 	/**
 	 * Flag used to determine if the module contains any theme resources
@@ -55,32 +62,244 @@ class ResourceModule implements ResourceModuleInterface
 	protected $after = array();
 
 	/**
-	 * List of modules that should be removed because they are contained 
-	 * in this module
-	 * @var array
+	 * @param	array $data
+	 * @return	ResourceModule
 	 */
-	protected $supersedes = array();
+	public function __construct(array $data = null)
+	{
+		if (null !== $data) {
+			$this->load($data);
+		}
+	}
 
-	public function __construct(array $data)
+	/**
+	 * @param	array	$data
+	 * @return	null
+	 */
+	public function load(array $data)
 	{
 		if (empty($data)) {
 			$err = 'module data can not be empty';
 			throw new InvalidArgumentException($err);
 		}
 
-		if (! isset($data['name']) || ! is_string($data['name'])) {
-			$err = 'module name not found in module data with key -(name)';
+		if (! isset($data['name'])) {
+			$err = 'module name not found with key -(name) and is required';
 			throw new InvalidArgumentException($err);
 		}
 		$this->setName($data['name']);
 
-		if (isset($data['type']) && 'css' === $data['type']) {
-			$this->type = 'css';
+		if (isset($data['type']) && 
+			is_string($data['type']) &&
+			'css' === strtolower($data['type'])) {
+			$this->setTypeToCss();
 		}
 
 		if (isset($data['skinnable']) && true === $data['skinnable']) {
-			$this->isSkin = true;
+			$this->enableTheme();
 		}
-		
+
+		$isDepend = isset($data['requires']);
+		$dependencies = (true === $isDepend) ? $data['requires'] : null;
+		if (isset($data['is_group']) && true === $data['is_group']) { 
+			$this->setDependencies($dependencies);
+			$this->useModuleAsGroup();	
+		}
+		else if (true === $isDepend) {
+			$this->setDependencies($dependencies);
+		}
+
+		if (isset($data['lang'])) {
+			$this->setLang($data['lang']);
+		}
+
+		if (isset($data['after'])) {
+			$this->setAfter($data['after']);
+		}
 	}
+
+	/**
+	 * @return	string
+	 */
+	public function getName()
+	{
+		return $this->name;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getType()
+	{
+		return $this->type;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isTheme()
+	{
+		return $this->isTheme;	
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isGroup()
+	{
+		return $this->isGroup;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isDependencies()
+	{
+		return count($this->depends) > 0;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getDependencies()
+	{
+		return $this->depends;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getLang()
+	{
+		return $this->lang;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isLang()
+	{
+		return count($this->lang) > 0;
+	}
+
+	/**
+	 * @return array
+	 */
+	public function getAfter()
+	{
+		return $this->after;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isAfter()
+	{
+		return count($this->after) > 0;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setName($name)
+	{
+		if (!is_string($name) || ! ($name = trim($name))) {
+			$err = 'module name must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->name = $name;
+	}
+
+	/**
+	 * @return null
+	 */
+	protected function setTypeToCss()
+	{
+		$this->type = 'css';
+	}
+
+	/**
+	 * @return null
+	 */
+	protected function setTypeToJs()
+	{
+		$this->type = 'js';
+	}
+
+	/**
+	 * @return null
+	 */
+	protected function enableTheme()
+	{
+		$this->isTheme = true;
+	}
+
+	/**
+	 * @return null
+	 */
+	protected function disableTheme()
+	{
+		$this->isTheme = false;
+	}
+
+	/**
+	 * @param	array $data
+	 * @return	null
+	 */
+	protected function setDependencies(array $data)
+	{
+		$err  = 'modules names in the dependency list must be none empty ';
+		$err .= 'strings';
+		foreach ($data as $module) {
+			if (! is_string($module) || ! ($module = trim($module))) {
+				throw new InvalidArgumentException($err);	
+			}
+		}
+
+		$this->depends = $data;
+	}
+
+	/**
+	 * @return null
+	 */
+	protected function useModuleAsGroup()
+	{
+		$this->isGroup = true;
+	}
+
+	/**
+	 * @param	array	$lang
+	 * @return	null
+	 */
+	protected function setLang(array $lang)
+	{
+		$err = 'all lang codes must be a non empty string';
+		foreach ($lang as $codes) {
+			if (! is_string($codes) || ! ($code = trim($code))) {
+				throw new InvalidArgumentException($err);	
+			}
+		}
+
+		$this->lang = $lang;
+	}
+
+	/**
+	 * @param	array	$after
+	 * @return	null
+	 */
+	protected function setAfter(array $after)
+	{
+		$err = 'all module names must be a non empty string';
+		foreach ($after as $name) {
+			if (! is_string($name) || ! ($name = trim($name))) {
+				throw new InvalidArgumentException($err);	
+			}
+		}
+
+		$this->after = $after;
+	}
+
+
 }

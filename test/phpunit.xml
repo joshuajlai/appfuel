@@ -69,7 +69,7 @@
 	<file>../lib/TestFuel/Unit/App/Resource/AssetListTest.php</file>
 -->
 
-	<file>../lib/TestFuel/Unit/App/Resource/Yui3DependencyResolverTest.php</file>
+	<file>../lib/TestFuel/Unit/App/Resource/ResourceModuleTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

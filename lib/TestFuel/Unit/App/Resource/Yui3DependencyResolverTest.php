@@ -105,9 +105,4 @@ class Yui3DependencyResolverTest extends BaseTestCase
 		$this->assertSame($this->resolver, $this->resolver->setMode($mode));
 		$this->assertEquals('min', $this->resolver->getMode());
 	}
-
-	public function testGetModules()
-	{
-		$this->resolver->resolve(array('widget'));
-	}
 }
