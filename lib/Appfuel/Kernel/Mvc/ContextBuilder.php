@@ -176,16 +176,19 @@ class ContextBuilder implements ContextBuilderInterface
      */
     public function useServerRequestUri()
     {
-        $err  = 'ConextBuilder failed: php super global ';
-        $err .= '$_SERVER[\'REQUEST_URI\']';
-        if (! isset($_SERVER['REQUEST_URI'])) {
+		if (isset($_SERVER['QUERY_STRING']) && 
+			is_string($_SERVER['QUERY_STRING'])) {
+			$uri = '?' . $_SERVER['QUERY_STRING'];
+		}
+		else if (isset($_SERVER['REQUEST_URI'])) {
+			$uri = $_SERVER['REQUEST_URI'];
+		}
+		else {
+			$err  = 'ConextBuilder failed: php super global ';
+			$err .= '$_SERVER[\'REQUEST_URI\']';
             throw new RunTimeException("$err is not set");
-        }
-
-        $uri = $_SERVER['REQUEST_URI'];
-        if (! is_string($uri)) {
-            throw new RunTimeException("$err must be a valid string");
-        }
+		}
+	
         return $this->setUri($this->createUri($uri));
     }
 
