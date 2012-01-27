@@ -210,4 +210,16 @@ class AppInput implements AppInputInterface
 		
 		return true;
 	}
+
+	/**
+	 * @return	string | false when not set
+	 */
+	public function getIp()
+	{
+		if (! isset($_SERVER['REMOTE_ADDR'])) {
+			return null;
+		}
+
+		return $_SERVER['REMOTE_ADDR'];
+	}
 }

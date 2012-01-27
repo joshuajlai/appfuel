@@ -435,6 +435,12 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 		return $this->uri;
 	}
 
+	public function setInput(AppInputInterface $input)
+	{
+		$this->input = $input;
+		return $this;
+	}
+
 	/**
 	 * @return	AppInputInterface
 	 */

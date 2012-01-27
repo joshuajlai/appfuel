@@ -46,7 +46,7 @@ class LogEntry implements LogEntryInterface
 		if (null === $priority || is_int($priority)) {
 			$priority = new LogPriority($priority);
 		}
-	
+
 		$this->setPriority($priority);
 		$this->setTimestamp();
 		$this->setText($text);

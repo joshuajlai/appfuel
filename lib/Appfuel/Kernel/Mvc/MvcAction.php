@@ -142,6 +142,32 @@ class MvcAction implements MvcActionInterface
 	}
 
 	/**
+	 * @param	string	$routeKey
+	 * @param	MvcContextInterface $old
+	 * @return	MvcContextInterface
+	 */
+	public function callUseContext($routeKey, MvcContextInterface $context)
+	{
+		$dispatcher = $this->getDispatcher();
+
+		$tmp = $dispatcher->clear()
+						 ->setStrategy($context->getStrategy())
+						 ->setRoute($routeKey)
+						 ->setInput($context->getInput())
+						 ->buildContext();
+
+		$tmp->load($context->getAll());
+		$dispatcher->dispatch($tmp);
+
+		/* transfer all assignments made by mvc action */
+		$context->load($tmp->getAll());
+		$view = $tmp->getView();
+		if (! empty($view)) {
+			$context->setView($view);
+		}
+	}
+
+	/**
 	 * @param	MvcActionDispatcherInterface $dispatcher
 	 * @return	null
 	 */
