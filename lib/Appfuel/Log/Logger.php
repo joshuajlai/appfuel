@@ -94,7 +94,7 @@ class Logger implements LoggerInterface
 			$err .= "implments Appfuel\Log\LogEntryInterface";
 			throw new InvalidArgumentException($err);
 		}
-
+		
 		return $this->logEntry($entry);
 	}
 }

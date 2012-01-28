@@ -104,7 +104,7 @@ class FaultHandler implements FaultHandlerInterface
 
 		$text = "$level: $msg in $file:$line";
 		$logger->log($text, LOG_ERR);
-		
+	
 		if (! (error_reporting() & $level)) {
 			return false;
 		}
