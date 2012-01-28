@@ -43,11 +43,12 @@ interface InterceptFilterInterface
     public function markAsPreFilter();
 	
 	/**
-	 * @param	ContextInterface	$context
-	 * @return	mixed	bool | ContextInterfacee
+	 * @param	MvcContextInterface	$context
+	 * @param	ContextBuilderInterface $builder
+	 * @return	null
 	 */
-	//public function filter(MvcContextInterface $context,
-	//					   ContextBuilderInterface $builder);
+	public function apply(MvcContextInterface $context, 
+						  ContextBuilderInterface $builder);
 
     /**
      * @return  InterceptFilterInterface
@@ -62,7 +63,7 @@ interface InterceptFilterInterface
     /**
      * @return  bool
      */
-	public function isNext();
+	public function isBreakChain();
 
     /**
      * @param   MvcContextInterface $context
@@ -78,7 +79,7 @@ interface InterceptFilterInterface
 	/**
 	 * @return	bool
 	 */
-	public function isContextReplacementEnabled();
+	public function isReplaceContext();
 
     /**
      * @return  mixed

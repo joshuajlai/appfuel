@@ -127,7 +127,7 @@ class InterceptFilter implements InterceptFilterInterface
 	/**
 	 * @return	bool
 	 */
-	public function isNext()
+	public function isBreakChain()
 	{
 		return $this->isNext;
 	}
@@ -153,7 +153,7 @@ class InterceptFilter implements InterceptFilterInterface
 	/**
 	 * @return	bool
 	 */
-	public function isContextReplacementEnabled()
+	public function isReplaceContext()
 	{
 		return $this->context instanceof MvcContextInterface;
 	}
@@ -205,8 +205,8 @@ class InterceptFilter implements InterceptFilterInterface
 	 * @param	ContextBuilderInterface $builder
 	 * @return	null
 	 */
-	public function filter(MvcContextInterface $context, 
-						   ContextBuilderInterface $builder)
+	public function apply(MvcContextInterface $context, 
+						  ContextBuilderInterface $builder)
 	{
 		if (! $this->isCallback()) {
 			return;
