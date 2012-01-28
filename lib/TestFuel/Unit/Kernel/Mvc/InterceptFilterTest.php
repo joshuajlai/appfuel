@@ -67,7 +67,7 @@ class InterceptFilterTest extends BaseTestCase
 		$this->assertEquals('pre', $this->filter->getType());
 		$this->assertTrue($this->filter->isPre());
 		$this->assertFalse($this->filter->isPost());
-		$this->assertTrue($this->filter->isBreakChain());
+		$this->assertFalse($this->filter->isBreakChain());
 		$this->assertFalse($this->filter->isReplaceContext());
 		$this->assertNull($this->filter->getContextToReplace());
 		$this->assertFalse($this->filter->isCallback());
@@ -111,13 +111,13 @@ class InterceptFilterTest extends BaseTestCase
 	public function testBreakFilterChainContinueToNextFilter()
 	{
 		$this->assertSame($this->filter, $this->filter->breakFilterChain());
-		$this->assertFalse($this->filter->isBreakChain());
+		$this->assertTrue($this->filter->isBreakChain());
 		
 		$this->assertSame(
 			$this->filter, 
 			$this->filter->continueToNextFilter()
 		);
-		$this->assertTrue($this->filter->isBreakChain());
+		$this->assertFalse($this->filter->isBreakChain());
 	}
 
 	/**
@@ -203,7 +203,7 @@ class InterceptFilterTest extends BaseTestCase
 		
 		$result = $this->filter->apply($context, $builder);
 		$this->assertNull($result);
-		$this->assertTrue($this->filter->isBreakChain());	
+		$this->assertFalse($this->filter->isBreakChain());	
 		$this->assertFalse($this->filter->isReplaceContext());
 	}
 
@@ -224,7 +224,7 @@ class InterceptFilterTest extends BaseTestCase
 		$result = $this->filter->apply($context, $builder);
 
 		$this->assertNull($result);
-		$this->assertTrue($this->filter->isBreakChain());	
+		$this->assertFalse($this->filter->isBreakChain());	
 		$this->assertFalse($this->filter->isReplaceContext());
 	}
 
@@ -238,11 +238,11 @@ class InterceptFilterTest extends BaseTestCase
 		$builder = $this->getMock($this->builderInterface);
 	
 		$callback = function ($context, $builder) {
-			return array('is-next' => false);
+			return array('is-break-chain' => true);
 		};
 		$this->filter->setCallback($callback);
 		$this->assertNull($this->filter->apply($context, $builder));
-		$this->assertFalse($this->filter->isBreakChain());	
+		$this->assertTrue($this->filter->isBreakChain());	
 		$this->assertFalse($this->filter->isReplaceContext());
 	}
 }

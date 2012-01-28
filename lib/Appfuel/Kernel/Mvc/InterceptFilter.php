@@ -31,7 +31,7 @@ class InterceptFilter implements InterceptFilterInterface
 	 * next filter
 	 * @var bool
 	 */
-	protected $isNext = true;
+	protected $isBreakChain = false;
 
 	/**
 	 * Used by the filter chain to break the reference of the context passed
@@ -111,7 +111,7 @@ class InterceptFilter implements InterceptFilterInterface
 	 */
 	public function continueToNextFilter()
 	{
-		$this->isNext = true;
+		$this->isBreakChain = false;
 		return $this;
 	}
 
@@ -120,7 +120,7 @@ class InterceptFilter implements InterceptFilterInterface
 	 */
 	public function breakFilterChain()
 	{
-		$this->isNext = false;
+		$this->isBreakChain = true;
 		return $this;
 	}
 
@@ -129,7 +129,7 @@ class InterceptFilter implements InterceptFilterInterface
 	 */
 	public function isBreakChain()
 	{
-		return $this->isNext;
+		return $this->isBreakChain;
 	}
 
 	/**
@@ -221,13 +221,15 @@ class InterceptFilter implements InterceptFilterInterface
 		}
 
 		$this->continueToNextFilter();
-		if (isset($result['is-next']) && false === $result['is-next']) {
+		$key = 'is-break-chain';
+		if (isset($result[$key]) && true === $result[$key]) {
 			$this->breakFilterChain();
 		}
 
-		if (isset($result['replace-context']) &&
-			$result['replace-context'] instanceof MvcContextInterface) {
-			$this->setContextToReplace($result['replace-context']);
+		$key = 'replace-context';
+		if (isset($result[$key]) &&
+			$result[$key] instanceof MvcContextInterface) {
+			$this->setContextToReplace($result[$key]);
 		}
 	}
 }
