@@ -69,7 +69,7 @@
 	<file>../lib/TestFuel/Unit/App/Resource/AssetListTest.php</file>
 -->
 
-	<file>../lib/TestFuel/Unit/App/Resource/ResourceModuleTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>
