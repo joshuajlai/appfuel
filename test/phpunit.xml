@@ -70,6 +70,7 @@
 -->
 
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptChainTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

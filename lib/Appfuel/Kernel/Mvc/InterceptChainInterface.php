@@ -29,7 +29,7 @@ interface InterceptChainInterface
 	 * @param	InterceptFilterInterface
 	 * @return	InterceptChain
 	 */
-	public function addFilter(InterceptFiterInterface $filter);
+	public function addFilter(InterceptFilterInterface $filter);
 
 	/**
 	 * @param	array	$filters
@@ -51,5 +51,5 @@ interface InterceptChainInterface
 	 * @param	MvcContextInterface	 $context
 	 * @return	MvcContextInterface
 	 */
-	public function applyFilters(MvContextInterface $context);
+	public function applyFilters(MvcContextInterface $context);
 }

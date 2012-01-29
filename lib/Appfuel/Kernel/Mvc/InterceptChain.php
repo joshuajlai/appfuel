@@ -21,9 +21,34 @@ use Closure,
 class InterceptChain implements InterceptChainInterface
 {
 	/**
+	 * The chain will pass a context builder into each filter's apply method 
+	 * allowing them to create new context re routing the request to a new
+	 * mvc action
+	 * @var	ContextBuilderInterface
+	 */
+	protected $builder = null;
+
+	/**
 	 * List of filters to be run
 	 */
 	protected $filters = array();
+
+	/**
+	 * @param	ContextBuilderInterface		$builder
+	 * @return	InterceptChain
+	 */
+	public function __construct(ContextBuilderInterface $builder)
+	{
+		$this->builder = $builder;
+	}
+
+	/**
+	 * @return	ContextBuilderInterface
+	 */
+	public function getContextBuilder()
+	{
+		return $this->builder;	
+	}
 
 	/**
 	 * @return	array
@@ -48,7 +73,7 @@ class InterceptChain implements InterceptChainInterface
 	 * @param	InterceptFilterInterface
 	 * @return	InterceptChain
 	 */
-	public function addFilter(InterceptFiterInterface $filter)
+	public function addFilter(InterceptFilterInterface $filter)
 	{
 		$this->filters[] = $filter;
 		return $this;
@@ -88,7 +113,7 @@ class InterceptChain implements InterceptChainInterface
 	 * @param	MvcContextInterface	 $context
 	 * @return	MvcContextInterface
 	 */
-	public function applyFilters(MvContextInterface $context)
+	public function applyFilters(MvcContextInterface $context)
 	{
 		if (! $this->isFilters()) {
 			return $context;

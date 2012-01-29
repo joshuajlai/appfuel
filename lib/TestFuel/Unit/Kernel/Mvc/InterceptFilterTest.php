@@ -245,4 +245,25 @@ class InterceptFilterTest extends BaseTestCase
 		$this->assertTrue($this->filter->isBreakChain());	
 		$this->assertFalse($this->filter->isReplaceContext());
 	}
+
+	public function testApplyReplaceContextBreakChain()
+	{
+		$context = $this->getMock($this->contextInterface);
+		$builder = $this->getMock($this->builderInterface);
+
+		$replacement = $this->getMock($this->contextInterface);
+		$this->assertNotSame($context, $replacement);	
+		$callback = function ($context, $builder) use ($replacement) {
+			return array(
+				'is-break-chain'  => true,
+				'replace-context' => $replacement
+			);
+		};	
+
+		$this->filter->setCallback($callback);
+		$this->assertNull($this->filter->apply($context, $builder));
+		$this->assertTrue($this->filter->isBreakChain());	
+		$this->assertTrue($this->filter->isReplaceContext());
+		
+	}
 }
