@@ -34,10 +34,22 @@ class MvcFront implements MvcFrontInterface
 	protected $dispatcher = null;
 
 	/**
-	 * Used to load and run the intercepting filters
-	 * @var FilterManagerInterface
+	 * Used to create context for dispatching
+	 * @var ContextBuilderInterface
 	 */
-	protected $filterManager = null;
+	protected $contextBuilder = null;
+
+	/**
+	 * Apply Intercept filter logic before mvc action is dispatched
+	 * @var FilterChainInterface
+	 */
+	protected $preChain = null;
+
+	/**
+	 * Apply Intercept filter logic after mvc action is dispatched
+	 * @var FilterChainInterface
+	 */
+	protected $postChain = null;
 
 	/**
 	 * Application strategy console|ajax|html
@@ -65,23 +77,32 @@ class MvcFront implements MvcFrontInterface
 	 * @return	AppContext
 	 */
 	public function __construct(MvcActionDispatcherInterface $dispatcher = null,
-								FilterManagerInterface $filterManager = null,
-								OutputInterface $output = null)
+								OutputInterface $output = null,
+								InterceptChainInterface $preChain = null,
+								InterceptChainInterface $postChain = null)
 	{
 		if (null === $dispatcher) {
 			$dispatcher = new MvcActionDispatcher();
 		}
-		$this->dispatcher = $dispatcher;
-
-		if (null === $filterManager) {
-			$filterManager = new FilterManager();
-		}
-		$this->filterManager = $filterManager;
-
+			
 		if (null === $output) {
 			$output = new KernelOutput();
 		}
-		$this->output = $output;
+	
+		$contextBuilder = $dispatcher->getContextBuilder();
+		if (null === $preChain) {
+			$preChain = new InterceptChain($contextBuilder);
+		}
+
+		if (null === $postChain) {
+			$postChain = new InterceptChain($contextBuilder);
+		}
+
+		$this->dispatcher = $dispatcher;
+		$this->output	  = $output;
+		$this->preChain	  = $preChain;
+		$this->postChain  = $postChain;
+		$this->contextBuilder = $contextBuilder;
 	}
 
 	/**
@@ -93,11 +114,27 @@ class MvcFront implements MvcFrontInterface
 	}
 
 	/**
-	 * @return	FilterManagerInterface
+	 * @return	InterceptChainInterface
 	 */
-	public function getFilterManager()
+	public function getPreChain()
 	{
-		return $this->filterManager;
+		return $this->preChain;
+	}
+
+	/**
+	 * @return	InterceptChainInterface
+	 */
+	public function getPostChain()
+	{
+		return $this->postChain;
+	}
+
+	/**
+	 * @return	ContextBuilderInterface
+	 */
+	public function getContextBuilder()
+	{
+		return $this->contextBuilder;
 	}
 
 	/**
@@ -109,124 +146,6 @@ class MvcFront implements MvcFrontInterface
 	}
 
 	/**
-	 * @param	string	$strategy	ajax|html|console
-	 * @return	MvcFront
-	 */
-	public function setStrategy($strategy)
-	{
-		$this->getDispatcher()
-			 ->setStrategy($strategy);
-		return $this;
-	}
-
-	/**
-	 * @param	string	$route
-	 * @return	MvcFront
-	 */
-	public function setRoute($route)
-	{
-		$this->getDispatcher()
-			 ->setRoute($route);
-
-		return $this;
-	}
-
-	/**
-	 * @param	array	$codes
-	 * @return	MvcFront
-	 */
-	public function addAclCodes(array $codes)
-	{
-		$this->getDispatcher()
-			 ->addAclCodes($codes);
-
-		return $this;
-	}
-
-	/**
-	 * @param	string	$code
-	 * @return	MvcFront
-	 */
-	public function addAclCode($code)
-	{
-		$this->getDispatcher()
-			 ->addAclCode($code);
-
-		return $this;
-	}
-
-	/**
-	 * @param	mixed	string|RequestUriInterface
-	 * @return	MvcFront
-	 */
-	public function setUri($uri)
-	{
-		$this->getDispatcher()
-			 ->setUri($uri);
-
-		return $this;
-	}
-
-	/**
-	 * @return	MvcFront
-	 */
-	public function useServerRequestUri()
-	{
-		$this->getDispatcher()
-			 ->useServerRequestUri();
-
-		return $this;
-	}
-
-    /**
-     * @param   string  $method  get|post|cli
-     * @param   array   $params
-     * @param   bool    $useUri  use the uri for get parameters 
-     * @return  MvcFront
-     */
-	public function defineInput($method, array $params, $useUri = true)
-	{
-		$this->getDispatcher()
-			 ->defineInput($method, $params, $useUri);
-
-		return $this;
-	}
-
-	/**
-	 * @param	bool	$useUri 
-	 * @return	MvcFront
-	 */
-	public function defineInputFromSuperGlobals($useUri = true)
-	{
-		$this->getDispatcher()
-			 ->defineInputFromSuperGlobals($useUri);
-
-		return $this;
-	}
-
-	/**
-	 * @return	MvcFront
-	 */
-	public function useUriForInputSource()
-	{
-		$this->getDispatcher()
-			 ->useUriForInputSource();
-
-		return $this;
-	}
-
-	/**
-	 * @return	MvcFront
-	 */
-	public function noInputRequired()
-	{
-		$this->getDispatcher()
-			 ->noInputRequired();
-
-		return $this;
-	}
-
-	/**
 	 * @param	string	$route
 	 * @param	string|RequestUriInterface
 	 * @return	int
@@ -235,13 +154,14 @@ class MvcFront implements MvcFrontInterface
 	{
 		/* clear any configuration and start fresh */			
 		$useUri = true;
-		$dispatcher = $this->getDispatcher()
-						   ->clear()
-						   ->setStrategy('console')
-						   ->setUri($uri)
-						  ->defineInputFromSuperGlobals($useUri);
+		$context = $this->getContextBuilder()
+						->clear()
+						->setStrategy('console')
+						->setUri($uri)
+						->defineInputFromSuperGlobals($useUri)
+						->build();   
 							
-		return $this->run($dispatcher);
+		return $this->run($context);
 	}
 
 	/**
@@ -253,14 +173,15 @@ class MvcFront implements MvcFrontInterface
 	 */
 	public function runConsoleRoute($route)
 	{
-		$useUri = false;
-		$dispatcher = $this->getDispatcher()
-						   ->clear()
-						   ->setStrategy('console')
-						   ->setRoute($route)
-						   ->defineInputFromSuperGlobals($useUri);
+		$useUri  = false;
+		$context = $this->getContextBuilder()
+						->clear()
+						->setStrategy('console')
+						->setRoute($route)
+						->defineInputFromSuperGlobals($useUri)
+						->build();
 
-		return $this->run($dispatcher);
+		return $this->run($context);
 	}
 
 	/**
@@ -270,14 +191,15 @@ class MvcFront implements MvcFrontInterface
 	 */
 	public function runAjax()
 	{
-		$useUri = true;
-		$dispatcher = $this->getDispatcher()
-						   ->clear()
-						   ->setStrategy('ajax')
-						   ->useServerRequestUri()
-						   ->defineInputFromSuperGlobals($useUri);
+		$useUri  = true;
+		$context = $this->getContextBuilder()
+						->clear()
+						->setStrategy('ajax')
+						->useServerRequestUri()
+						->defineInputFromSuperGlobals($useUri)
+						->build();
 
-		return $this->run($dispatcher);
+		return $this->run($context);
 	}
 
 	/**
@@ -287,14 +209,14 @@ class MvcFront implements MvcFrontInterface
 	 */
 	public function runHtml()
 	{
-		$useUri = true;
-		$dispatcher = $this->getDispatcher()
-						   ->clear()
-						   ->setStrategy('html-page')
-						   ->useServerRequestUri()
-						   ->defineInputFromSuperGlobals($useUri);
+		$useUri  = true;
+		$context = $this->getContextBuilder()
+						->clear()
+						->setStrategy('html-page')
+						->useServerRequestUri()
+						->defineInputFromSuperGlobals($useUri);
 
-		return $this->run($dispatcher);
+		return $this->run($context);
 	}
 
 	/**
@@ -302,29 +224,40 @@ class MvcFront implements MvcFrontInterface
 	 * @param	string	$strategy	console|ajax|htmlpage
 	 * @return	int
 	 */
-	public function run(MvcActionDispatcherInterface $dispatcher)
+	public function run(MvcContextInterface $context)
 	{
 		/*
 		 * use the dispatch fluent interface to build the context for 
 		 * dispatching
 		 */
-		$context = $dispatcher->buildContext();
+		$dispatcher = $this->getDispatcher();
+		$routDetail = $context->getRouteDetail(); 
+		$preChain	= $this->getPreFilterChain();
 
 		/* 
 		 * intercepting filters allow business logic access to the context
-		 * before the mvc actions proccessing occurs
+		 * before the mvc actions proccessing. in config you can specify a
+		 * single filter or a list of filters.
 		 */
-		$filters = KernelRegistry::getParam('intercepting-filters', array());
-		$filterManager = $this->getFilterManager();
-		$filterManager->loadFilters($filters);
-		$result = $filterManager->applyPreFilters($context);
+		$filters = kernelRegistry::getParam('mvc-pre-filters', array());
+		if (is_string($filters)) {
+			$filters = array($filters);
+		}
+		else if (! is_array($filters)) {
+			$filters = array();
+		}
 
 		/*
-		 * Use the returned context in place of the one built
+		 * Route details and add specific filters to a single route, allowing
+		 * specialized business logic to be applied to a given route before
+		 * the mvc action is processed
 		 */
-		if ($result instanceof MvcContextInterface) {
-			$context = $result;
+		if ($routeDetail->isPreFilters()) {
+			$filters = array_merge($filters, $routeDetail->getPreFilters());
 		}
+
+		$preChain->loadFilters($filters);
+		$context = $chain->applyFilters($context);
 
 		/*
 		 * Only dispatch a context if its exit code is within the range of 
@@ -340,20 +273,37 @@ class MvcFront implements MvcFrontInterface
 			 */
 			$dispatcher->dispatch($context);
 
-			/*
-			 * post intercepting filters allow business logic access to the 
-			 * context
-			 * after the mvc action has processed it
+			$postChain = $this->getPostFilterChain();
+			/* 
+			 * Allows business logic access to the context after the mvc action 
+			 * is processed and before output
 			 */
-			$filterManager->applyPostFilters($context);
-		}
-		
+			$filters = kernelRegistry::getParam('mvc-post-filters', array());
+			if (is_string($filters)) {
+				$filters = array($filters);
+			}
+			else if (! is_array($filters)) {
+				$filters = array();
+			}
+
+			/* 
+			 * The context could have be switched by pre filters so re need
+			 * grab the route detail again
+			 */
+			$routeDetail = $context->getRouteDetail();
+			if($routeDetail->isPostFilters()) {
+				$filters = array_merge($filters,$routeDetail->getPostFilters());
+			}
+			$context = $postChain->applyFilters($context);
+		}	
+
 
 		/* render context based on the output engine that was set, not the
 		 * strategy used
 		 */
 		$output = $this->getOutputEngine();
 		$output->render($context);
+		
 		/*
 		 * we get the exit code again because if might have changed with the
 		 * mvc action or post filters

@@ -85,7 +85,24 @@ class InterceptChain implements InterceptChainInterface
 	 */
 	public function loadFilters(array $filters)
 	{
-		foreach ($filters as $filter) {
+		foreach ($filters as $index => $data) {
+			$filter = null;
+			if (is_string($data)) {
+	            $filter = new $data();
+			}
+			else if (is_callable($data)) {
+				$filter = new InterceptFilter($data);
+			}
+			else if ($data instanceof InterceptFilterInterface) {
+				$filter = $data;
+			}
+			else {
+				$err  = "could not load filter at -($index) not a string, ";
+				$err .= "failed is_callable check and does not implement ";
+				$err .= "Appfuel\Kernel\Mvc\InterceptFilterInterface";
+				throw new InvalidArgumentException($err);
+			}
+
 			$this->addFilter($filter);
 		}
 

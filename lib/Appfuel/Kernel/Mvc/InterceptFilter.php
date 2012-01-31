@@ -20,13 +20,6 @@ use Closure,
 class InterceptFilter implements InterceptFilterInterface
 {
 	/**
-	 * Type of filter determines which filter chain it lives in. Pre filters
-	 * happen before the mvc action is executed and post filters happen after
-	 * @var string 
-	 */
-	protected $type = 'pre';
-
-	/**
 	 * Used by the filter chain to determine if it should continue to the 
 	 * next filter
 	 * @var bool
@@ -53,39 +46,11 @@ class InterceptFilter implements InterceptFilterInterface
 	 * @param	string	$type
 	 * @return	InterceptFilter
 	 */
-	public function __construct($type = null, $callback = null)
+	public function __construct($callback = null)
 	{
-		if (is_string($type) && strtolower($type) && 'post' === $type) {
-			$this->type = 'post';
-		}
-
 		if (null !== $callback) {
 			$this->setCallback($callback);
 		}
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getType()
-	{
-		return $this->type;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isPre()
-	{
-		return 'pre' === $this->type;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isPost()
-	{
-		return 'post' === $this->type;
 	}
 
 	/**

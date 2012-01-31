@@ -17,31 +17,6 @@ namespace Appfuel\Kernel\Mvc;
  */
 interface InterceptFilterInterface
 {
-    /**
-     * @return  string
-     */
-    public function getType();
-
-    /**
-     * @return  bool
-     */
-    public function isPre();
-
-    /**
-     * @return  bool
-     */
-    public function isPost();
-
-    /**
-     * @return  InterceptFilter
-     */
-    public function markAsPostFilter();
-
-    /**
-     * @return  InterceptFilter
-     */
-    public function markAsPreFilter();
-	
 	/**
 	 * @param	MvcContextInterface	$context
 	 * @param	ContextBuilderInterface $builder

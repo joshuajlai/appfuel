@@ -301,17 +301,17 @@ class InterceptChainTestTest extends BaseTestCase
 		$cback1 = function($myContext, $builder) {
 			$myContext->add('filter1', 'filter-result-1');
 		};
-		$filter1 = new InterceptFilter('pre', $cback1);
+		$filter1 = new InterceptFilter($cback1);
 
 		$cback2 = function($myContext, $builder) {
 			$myContext->add('filter2', 'filter-result-2');
 		};
-		$filter2 = new InterceptFilter('pre', $cback2);
+		$filter2 = new InterceptFilter($cback2);
 
 		$cback3 = function($myContext, $builder) {
 			$myContext->add('filter3', 'filter-result-3');
 		};
-		$filter3 = new InterceptFilter('pre', $cback3);
+		$filter3 = new InterceptFilter($cback3);
 		$this->chain->setFilters(array($filter1, $filter2, $filter3));
 
 		$input  = $this->getMock('Appfuel\Kernel\Mvc\AppInputInterface');
@@ -335,19 +335,19 @@ class InterceptChainTestTest extends BaseTestCase
 		$cback1 = function($myContext, $builder) {
 			$myContext->add('filter1', 'filter-result-1');
 		};
-		$filter1 = new InterceptFilter('pre', $cback1);
+		$filter1 = new InterceptFilter($cback1);
 
 		$cback2 = function($myContext, $builder) {
 			$myContext->add('filter2', 'filter-result-2');
 			return array('is-break-chain' => true);
 		};
 
-		$filter2 = new InterceptFilter('pre', $cback2);
+		$filter2 = new InterceptFilter($cback2);
 
 		$cback3 = function($myContext, $builder) {
 			$myContext->add('filter3', 'filter-result-3');
 		};
-		$filter3 = new InterceptFilter('pre', $cback3);
+		$filter3 = new InterceptFilter($cback3);
 		$this->chain->setFilters(array($filter1, $filter2, $filter3));
 
 		$input  = $this->getMock('Appfuel\Kernel\Mvc\AppInputInterface');
@@ -378,7 +378,7 @@ class InterceptChainTestTest extends BaseTestCase
 		$cback1 = function($myContext, $builder) {
 			$myContext->add('filter1', 'filter-result-1');
 		};
-		$filter1 = new InterceptFilter('pre', $cback1);
+		$filter1 = new InterceptFilter($cback1);
 
 		$cback2 = function($myContext, $builder) use ($replaceContext) {
 			$replaceContext->add('filter2', 'filter-result-2');
@@ -389,12 +389,12 @@ class InterceptChainTestTest extends BaseTestCase
 			);
 		};
 
-		$filter2 = new InterceptFilter('pre', $cback2);
+		$filter2 = new InterceptFilter($cback2);
 
 		$cback3 = function($myContext, $builder) {
 			$myContext->add('filter3', 'filter-result-3');
 		};
-		$filter3 = new InterceptFilter('pre', $cback3);
+		$filter3 = new InterceptFilter($cback3);
 		$this->chain->setFilters(array($filter1, $filter2, $filter3));
 
 		$result = $this->chain->applyFilters($context);
@@ -421,7 +421,7 @@ class InterceptChainTestTest extends BaseTestCase
 		$cback1 = function($myContext, $builder) {
 			$myContext->add('filter1', 'filter-result-1');
 		};
-		$filter1 = new InterceptFilter('pre', $cback1);
+		$filter1 = new InterceptFilter($cback1);
 
 		$cback2 = function($myContext, $builder) use ($replaceContext) {
 			$replaceContext->add('filter2', 'filter-result-2');
@@ -432,12 +432,12 @@ class InterceptChainTestTest extends BaseTestCase
 			);
 		};
 
-		$filter2 = new InterceptFilter('pre', $cback2);
+		$filter2 = new InterceptFilter($cback2);
 
 		$cback3 = function($myContext, $builder) {
 			$myContext->add('filter3', 'filter-result-3');
 		};
-		$filter3 = new InterceptFilter('pre', $cback3);
+		$filter3 = new InterceptFilter($cback3);
 		$this->chain->setFilters(array($filter1, $filter2, $filter3));
 
 		$result = $this->chain->applyFilters($context);

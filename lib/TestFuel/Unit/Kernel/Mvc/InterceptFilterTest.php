@@ -64,44 +64,11 @@ class InterceptFilterTest extends BaseTestCase
 			'Appfuel\Kernel\Mvc\InterceptFilterInterface',
 			$this->filter
 		);
-		$this->assertEquals('pre', $this->filter->getType());
-		$this->assertTrue($this->filter->isPre());
-		$this->assertFalse($this->filter->isPost());
 		$this->assertFalse($this->filter->isBreakChain());
 		$this->assertFalse($this->filter->isReplaceContext());
 		$this->assertNull($this->filter->getContextToReplace());
 		$this->assertFalse($this->filter->isCallback());
 		$this->assertNull($this->filter->getCallback());
-	}
-
-	/**
-	 * @depends		testInitialState
-	 * @return		null
-	 */
-	public function testConstructorSetPost()
-	{
-		$filter = new InterceptFilter('post');
-
-		$this->assertEquals('post', $filter->getType());
-		$this->assertFalse($filter->isPre());
-		$this->assertTrue($filter->isPost());
-	}
-
-	/**
-	 * @depends	testInitialState
-	 * @return	null
-	 */
-	public function testMarkAsPrePostFilter()
-	{
-		$this->assertSame($this->filter, $this->filter->markAsPostFilter());
-		$this->assertEquals('post', $this->filter->getType());
-		$this->assertFalse($this->filter->isPre());
-		$this->assertTrue($this->filter->isPost());
-
-		$this->assertSame($this->filter, $this->filter->markAsPreFilter());
-		$this->assertEquals('pre', $this->filter->getType());
-		$this->assertTrue($this->filter->isPre());
-		$this->assertFalse($this->filter->isPost());
 	}
 
 	/**

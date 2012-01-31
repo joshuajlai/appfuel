@@ -22,19 +22,12 @@ use LogicException,
     Appfuel\ClassLoader\AutoLoaderInterface;
 
 /**
+ * Encapsulates the logic necessary to build an MvcContext.
  */
-class MvcActionBuilder implements MvcActionBuilderInterface
+class MvcContextBuilder implements MvcContextBuilderInterface
 {
 	/**
-	 * The class name used to create the action controller class found in
-	 * the namespace the route maps too
-	 * @var	string
-	 */
-	static protected $actionClassName = 'ActionController';
-
-	/**
-	 * We reuse the autoloader class to parse the namespace into a dir path
-	 * to find the mvc action, view, and route detail.
+	 * The autoloader is used to determine if the class exists. 
 	 * @var AutoLoaderInterface
 	 */
 	protected $loader = null;
@@ -72,44 +65,23 @@ class MvcActionBuilder implements MvcActionBuilderInterface
      */
     protected $aclCodes = array();
 
+	/**
+	 * Any string or object that supports __toString
+	 * @var mixed
+	 */
+	protected $view = null;
+
     /**
      * @param   string  $controllerClass
      * @return  MvcActionBuilder
      */
     public function __construct(AutoLoaderInterface $loader = null)
     {
-        /*
-         * Note that we use the load class from the lib directory. This 
-         * constant is set during intialization. I will refactor next to a 
-         * a path finder. (on a deadline right now) --rsb
-         */
         if (null === $loader) {
             $loader = new StandardAutoLoader(AF_LIB_PATH);
         }
         $this->setClassLoader($loader);
     }
-
-	/**
-	 * @param	string	$name
-	 * @return	null
-	 */
-	static public function setActionClassName($name)
-	{
-		if (! is_string($name) || ! ($name = trim($name))) {
-			$err = 'class name must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-
-		self::$actionClassName = $name;
-	}
-
-	/**
-	 * @return	string
-	 */
-	static public function getActionClassName()
-	{
-		return self::$actionClassName;
-	}
 
 	/**
 	 * @return	AutoLoaderInterface
@@ -210,19 +182,20 @@ class MvcActionBuilder implements MvcActionBuilderInterface
      */
     public function useServerRequestUri()
     {
-        $err  = 'php super global $_SERVER[\'REQUEST_URI\'] is not set';
-        if (! isset($_SERVER['REQUEST_URI'])) {
-            throw new LogicException($err);
+        if (isset($_SERVER['QUERY_STRING']) &&
+            is_string($_SERVER['QUERY_STRING'])) {
+            $uri = '?' . $_SERVER['QUERY_STRING'];
+        }
+        else if (isset($_SERVER['REQUEST_URI'])) {
+            $uri = $_SERVER['REQUEST_URI'];
+        }
+        else {
+            $err  = 'ConextBuilder failed: php super global ';
+            $err .= '$_SERVER[\'REQUEST_URI\']';
+            throw new RunTimeException("$err is not set");
         }
 
-        $uri = $_SERVER['REQUEST_URI'];
-
-		$err = 'request uri found in $_SERVER is not a string';
-        if (! is_string($uri)) {
-            throw new LogicException($err);
-        }
-
-        return $this->setUri($uri);
+        return $this->setUri($this->createUri($uri));
     }
 
     /**
@@ -426,6 +399,31 @@ class MvcActionBuilder implements MvcActionBuilderInterface
 	}
 
 	/**
+	 * @return	mixed
+	 */
+	public function getView()
+	{
+		return $this->view;
+	}
+
+	/**
+	 * @param	mixed	$view
+	 * @return	MvcContextBuilder
+	 */
+	public function setView($view)
+	{
+		if (! is_string($view) && 
+			! (is_object($view) && is_callable(array($view, '__toString')))) {
+			$err  = 'view must be a string or an object that ';
+			$err .= 'implments __toString';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->view = $view;
+		return $this;
+	}
+
+	/**
 	 * @param	string	$routeKey
 	 * @param	string	$namespace
 	 * @return	MvcRouteDetailInterface
@@ -480,9 +478,7 @@ class MvcActionBuilder implements MvcActionBuilderInterface
 				$view = $this->buildConsoleView($namespace);
 
 			default:
-				$err  = 'the strategy used for handling the view has not been ';
-				$err .= 'mapped -(html-page|html|ajax|console)';
-				throw new RunTimeException($err);
+				$view = '';
 		}
 		
 		return $view;
@@ -632,12 +628,11 @@ class MvcActionBuilder implements MvcActionBuilderInterface
 	/**	
 	 * @return	MvcContextInterface
 	 */
-	public function buildContext()
+	public function build()
 	{
 		$strategy = $this->getStrategy();
 		if (! is_string($strategy)) {
-			$err = 'must set the strategy before building the context';
-			throw new RunTimeException($err);
+			$strategy = '';
 		}
 
 		$route = $this->getRouteKey();

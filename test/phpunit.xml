@@ -39,7 +39,6 @@
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/RequestUriTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/ActionFactoryTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/AppInput_FailureTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/ContextBuilderTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionDispatcherTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcActionTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcFrontTest.php</file>
@@ -69,6 +68,7 @@
 	<file>../lib/TestFuel/Unit/App/Resource/AssetListTest.php</file>
 -->
 
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcContextBuilderTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptChainTest.php</file>
 	</testsuite>

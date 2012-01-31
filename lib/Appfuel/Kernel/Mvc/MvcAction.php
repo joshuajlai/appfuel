@@ -27,6 +27,12 @@ class MvcAction implements MvcActionInterface
 	protected $dispatcher = null;
 
 	/**
+	 * Used to build a context the dispatcher needs to call another action
+	 * @var MvcContextBuilderInterface
+	 */
+	protected $contextBuilder = null;
+
+	/**
 	 * The route key this action is mapped to
 	 * @var string
 	 */
@@ -36,10 +42,21 @@ class MvcAction implements MvcActionInterface
 	 * @param	string	$route
 	 * @return	MvcAction
 	 */
-	public function __construct($route, MvcActionDispatcherInterface $disp)
+	public function __construct($route, 
+								MvcActionDispatcherInterface $dispatcher = null,
+								MvcContextBuilder $contextBuilder = null)
 	{
 		$this->setRoute($route);
+
+		if (null === $dispatcher) {
+			$dispatcher = new MvcActionDispatcher();
+		}
 		$this->setDispatcher($disp);
+
+		if (null === $contextBuilder) {
+			$contextBuilder = new MvcContextBuilder();
+		}
+		$this->setContextBuilder($contextBuilder);
 	}
 
 	/**
@@ -60,38 +77,22 @@ class MvcAction implements MvcActionInterface
 	}
 
 	/**
-	 * @param	array	$codes
-	 * @return	bool
+	 * @return 	MvcContextBuilder
 	 */
-	public function isContextAllowed(array $codes)
+	public function getContextBuilder()
 	{
-		return false;
+		return $this->contextBuilder;
 	}
 
 	/**
+	 * Must be implemented by concrete class
+	 *
 	 * @param	AppContextInterface $context
 	 * @return	null
 	 */
 	public function process(MvcContextInterface $context)
-	{}
-
-	/**
-	 * @param	string	$uri
-	 * @param	string	$strategy	dispatch as console|ajax|html
-	 * @return	AppContextInterface
-	 */
-	public function callUri($uri, $strategy)
 	{
-		$dispatcher = $this->getDispatcher();
-						
-		$context = $dispatcher->clear()
-							  ->setUri($uri)
-							  ->setStrategy($strategy)
-							  ->useUriForInputSource()
-							  ->buildContext();
-
-		$dispatcher->dispatch($context);
-		return $context;
+		throw new LogicException("must implement concrete process");
 	}
 
 	/**
@@ -101,15 +102,17 @@ class MvcAction implements MvcActionInterface
 	 */
 	public function callWithNoInputs($route, $strategy)
 	{
-		$dispatcher = $this->getDispatcher();
 
-		$context = $dispatcher->clear()
-					->setRoute($route)
-					->setStrategy($strategy)
-					->noInputRequired()
-					->buildContext();
+		$context = $this->getContextBuilder()
+						->clear()
+						->setRoute($route)
+						->setStrategy($strategy)
+						->noInputRequired()
+						->buildContext();
 
-		$dispatcher->dispatch($context);
+		$this->getDispatcher()
+			 ->dispatch($context);
+		
 		return $context;
 	}
 
@@ -119,25 +122,14 @@ class MvcAction implements MvcActionInterface
 	 * if the mvc action returns a context it will override the context passed
 	 * in.
 	 *
-	 * @param	mixed	string|RequestUri $uri
-	 * @param	string	$strategy
-	 * @param	string	$method
-	 * @param	array	input
-	 * @return	AppContextInterface
+	 * @param	MvcContextInterface $context
+	 * @return	MvcContextInterface
 	 */
-	public function call($uri, $method, array $in, $strategy, $useUri = true)
+	public function call(MvcContextInterface $context)
 	{
-		$dispatcher = $this->getDispatcher();
+		$this->getDispatcher()
+			 ->dispatch($context);
 
-		$useUri = ($useUri === true) ? true : false;
-
-		$context = $dispatcher->clear()
-							  ->setStrategy($strategy)
-							  ->setUri($uri)
-							  ->defineInput($method, $in, $useUri)
-							  ->buildContext();
-
-		$dispatcher->dispatch($context);
 		return $context;
 	}
 
@@ -150,11 +142,12 @@ class MvcAction implements MvcActionInterface
 	{
 		$dispatcher = $this->getDispatcher();
 
-		$tmp = $dispatcher->clear()
-						 ->setStrategy($context->getStrategy())
-						 ->setRoute($routeKey)
-						 ->setInput($context->getInput())
-						 ->buildContext();
+		$tmp = $this->getContextBuilder()
+					->clear()
+					->setStrategy($context->getStrategy())
+					->setRoute($routeKey)
+					->setInput($context->getInput())
+					->buildContext();
 
 		$tmp->load($context->getAll());
 		$dispatcher->dispatch($tmp);
@@ -165,6 +158,8 @@ class MvcAction implements MvcActionInterface
 		if (! empty($view)) {
 			$context->setView($view);
 		}
+
+		return $context;
 	}
 
 	/**
