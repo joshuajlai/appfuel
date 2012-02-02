@@ -430,7 +430,7 @@ class MvcActionDispatcher implements MvcActionDispatcherInterface
 	/**
 	 * @return	RequestUriInterface
 	 */
-	protected function getUri()
+	public function getUri()
 	{
 		return $this->uri;
 	}
