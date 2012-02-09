@@ -6,15 +6,20 @@
  * @package     Appfuel
  * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel\Mvc;
 
 /**
- * The context builder hides the details for create context in different ways
- * behind this interface.
+ * 
  */
-interface ContextBuilderInterface
+interface MvcDispatcherInterface
 {
-
+	/**
+	 * Dispatch a request a context using the fluent interface
+	 *
+	 * @param	AppContextInterface $context
+	 * @return	AppContextInterface
+	 */
+	public function dispatch(MvcContextInterface $context);
 }
