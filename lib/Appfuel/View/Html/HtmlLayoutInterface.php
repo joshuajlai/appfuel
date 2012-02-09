@@ -10,7 +10,8 @@
  */
 namespace Appfuel\View\Html;
 
-use Appfuel\View\FileViewInterface;
+use Appfuel\View\ViewInterface,
+	Appfuel\View\FileViewInterface;
 
 /**
  * Interface to manage the html view
@@ -20,6 +21,7 @@ interface HtmlLayoutInterface extends FileViewInterface
 	public function getViewKey();
 	public function setViewKey($key);
 	public function getInlineJsContent();
+	public function isViewTemplate();
 	public function setView(ViewInterface $view);
 	public function getView();
 }

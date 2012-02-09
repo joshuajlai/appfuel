@@ -31,18 +31,11 @@ class InterceptFilterTest extends BaseTestCase
 	protected $contextInterface = null;
 
 	/**
-	 * Interface used to create mock objects
-	 * @var string
-	 */
-	protected $builderInterface = null;
-
-	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
 		$this->contextInterface = 'Appfuel\Kernel\Mvc\MvcContextInterface';
-		$this->builderInterface = 'Appfuel\Kernel\Mvc\ContextBuilderInterface';
 	
 		$this->filter = new InterceptFilter();	
 	}
@@ -108,7 +101,7 @@ class InterceptFilterTest extends BaseTestCase
 	 */
 	public function testGetSetIsCallbackClosure()
 	{
-		$callback = function ($context, $builder) {};
+		$callback = function ($context) {};
 
 		$this->assertSame($this->filter, $this->filter->setCallback($callback));
 		$this->assertSame($callback, $this->filter->getCallback());
@@ -120,7 +113,7 @@ class InterceptFilterTest extends BaseTestCase
 	 * 
 	 * @return	null
 	 */
-	public function filter($context, $builder)
+	public function filter($context)
 	{
 
 	}
@@ -166,9 +159,8 @@ class InterceptFilterTest extends BaseTestCase
 	public function testApplyNoCallback()
 	{
 		$context = $this->getMock($this->contextInterface);
-		$builder = $this->getMock($this->builderInterface);
 		
-		$result = $this->filter->apply($context, $builder);
+		$result = $this->filter->apply($context);
 		$this->assertNull($result);
 		$this->assertFalse($this->filter->isBreakChain());	
 		$this->assertFalse($this->filter->isReplaceContext());
@@ -181,14 +173,13 @@ class InterceptFilterTest extends BaseTestCase
 	public function testApplyClosureNoReturnValue()
 	{
 		$context = $this->getMock($this->contextInterface);
-		$builder = $this->getMock($this->builderInterface);
 	
-		$callback = function($context, $builder) {
+		$callback = function($context) {
 			return null;
 		};
 
 		$this->filter->setCallback($callback);
-		$result = $this->filter->apply($context, $builder);
+		$result = $this->filter->apply($context);
 
 		$this->assertNull($result);
 		$this->assertFalse($this->filter->isBreakChain());	
@@ -202,13 +193,12 @@ class InterceptFilterTest extends BaseTestCase
 	public function testApplyClosureWithIsNextReturnTrue()
 	{
 		$context = $this->getMock($this->contextInterface);
-		$builder = $this->getMock($this->builderInterface);
 	
-		$callback = function ($context, $builder) {
+		$callback = function ($context) {
 			return array('is-break-chain' => true);
 		};
 		$this->filter->setCallback($callback);
-		$this->assertNull($this->filter->apply($context, $builder));
+		$this->assertNull($this->filter->apply($context));
 		$this->assertTrue($this->filter->isBreakChain());	
 		$this->assertFalse($this->filter->isReplaceContext());
 	}
@@ -216,11 +206,10 @@ class InterceptFilterTest extends BaseTestCase
 	public function testApplyReplaceContextBreakChain()
 	{
 		$context = $this->getMock($this->contextInterface);
-		$builder = $this->getMock($this->builderInterface);
 
 		$replacement = $this->getMock($this->contextInterface);
 		$this->assertNotSame($context, $replacement);	
-		$callback = function ($context, $builder) use ($replacement) {
+		$callback = function ($context) use ($replacement) {
 			return array(
 				'is-break-chain'  => true,
 				'replace-context' => $replacement
@@ -228,7 +217,7 @@ class InterceptFilterTest extends BaseTestCase
 		};	
 
 		$this->filter->setCallback($callback);
-		$this->assertNull($this->filter->apply($context, $builder));
+		$this->assertNull($this->filter->apply($context));
 		$this->assertTrue($this->filter->isBreakChain());	
 		$this->assertTrue($this->filter->isReplaceContext());
 		

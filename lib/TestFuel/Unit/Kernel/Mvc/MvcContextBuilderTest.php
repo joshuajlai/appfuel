@@ -505,7 +505,7 @@ class MvcContextBuilderTest extends ControllerTestCase
 	 * @depends	testCreateInput
 	 * @return	null
 	 */
-	public function testDefineInputAsWithGetParams()
+	public function testDefineInputWithGetParams()
 	{
 		$params = array(
 			'get' => array('param1' => 'value1'),
@@ -701,211 +701,168 @@ class MvcContextBuilderTest extends ControllerTestCase
 	}
 
 	/**
-	 * When no configuration has been defined though the builders fluent 
-	 * interface then it will look for a uri string in the sever super global
-	 * $_SERVER['REQUEST_URI']
-	 *
+	 * @depends	testCreateInput
+	 * @return	null
+	 */
+	public function testDefineInputFromDefaultsRequestMethodNotDefined()
+	{
+		$_SERVER['REQUEST_METHOD'] = null;
+		$this->assertSame(
+			$this->builder,
+			$this->builder->defineInputFromDefaults(false)
+		);
+		$input = $this->builder->getInput();
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('cli', $input->getMethod());
+	}
+
+	/**
+	 * @depends	testCreateInput
+	 * @return	null
+	 */
+	public function testDefineInputFromDefaultsRequestMethodNotString()
+	{
+		$_SERVER['REQUEST_METHOD'] = array(1,2,3);
+		$this->assertSame(
+			$this->builder,
+			$this->builder->defineInputFromDefaults(false)
+		);
+		$input = $this->builder->getInput();
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('cli', $input->getMethod());
+	}
+
+	/**
+	 * @depends	testCreateInput
+	 * @return	null
+	 */
+	public function testDefineUriForInputSource()
+	{
+		$_SERVER['QUERY_STRING'] = 'routekey=my-route&param1=value1';
+		$this->assertSame(
+			$this->builder,
+			$this->builder->defineUriForInputSource()
+		);
+
+		$input = $this->builder->getInput();
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('get', $input->getMethod());
+		$this->assertEquals('value1', $input->get('get', 'param1'));
+	}
+
+	/**
+	 * @depends	testCreateInput
+	 * @return	null
+	 */
+	public function testNoInputRequired()
+	{
+		$this->assertSame(
+			$this->builder,
+			$this->builder->noInputRequired()
+		);		
+		$input = $this->builder->getInput();
+		$this->assertInstanceOf('Appfuel\Kernel\Mvc\AppInput', $input);
+		$this->assertEquals('get', $input->getMethod());
+	}
+
+	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testAddAclCode()
+	{
+		$code1 = 'my-admin';
+		$code2 = 'your-admin';
+		$code3 = 'our-admin';
+			
+		$this->assertSame($this->builder, $this->builder->addAclCode($code1));
+		
+		$expected = array($code1);
+		$this->assertEquals($expected, $this->builder->getAclCodes());
+		
+		$this->assertSame($this->builder, $this->builder->addAclCode($code2));
+		
+		$expected[] = $code2;
+		$this->assertEquals($expected, $this->builder->getAclCodes());
+			
+		$this->assertSame($this->builder, $this->builder->addAclCode($code3));
+		
+		$expected[] = $code3;
+		$this->assertEquals($expected, $this->builder->getAclCodes());
+	}
+
+	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testLoadAclCodesWhenEmpty()
+	{
+		$list = array('my-admin', 'your-admin', 'our-admin');
+		$this->assertEquals(array(), $this->builder->getAclCodes());
+		$this->assertSame($this->builder, $this->builder->loadAclCodes($list));
+		$this->assertEquals($list, $this->builder->getAclCodes());
+	}
+
+	/**
+	 * @depends testLoadAclCodesWhenEmpty	
+	 * @return	null
+	 */
+	public function testLoadAclCodesWhenNotEmpty()
+	{
+		$list1 = array('my-admin', 'your-admin', 'our-admin');
+		$list2 = array('guest', 'staff', 'publisher');
+		$this->assertSame($this->builder, $this->builder->loadAclCodes($list1));
+		$this->assertSame($this->builder, $this->builder->loadAclCodes($list2));
+
+		$expected = array_merge($list1, $list2);
+		$this->assertSame($expected, $this->builder->getAclCodes());
+	}
+
+	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testSetAclCodesWhenEmpty()
+	{
+		$list = array('my-admin', 'your-admin', 'our-admin');
+		$this->assertEquals(array(), $this->builder->getAclCodes());
+		$this->assertSame($this->builder, $this->builder->setAclCodes($list));
+		$this->assertEquals($list, $this->builder->getAclCodes());
+	}
+
+	/**
+	 * @depends testLoadAclCodesWhenEmpty	
+	 * @return	null
+	 */
+	public function testSetAclCodesWhenNotEmpty()
+	{
+		$list1 = array('my-admin', 'your-admin', 'our-admin');
+		$list2 = array('guest', 'staff', 'publisher');
+		$this->assertSame($this->builder, $this->builder->setAclCodes($list1));
+		$this->assertSame($this->builder, $this->builder->setAclCodes($list2));
+
+		$this->assertSame($list2, $this->builder->getAclCodes());
+	}
+
+	/**
+	 * @dataProvider	provideAllStringsIncludingCastable
 	 * @depends			testInitialState
 	 * @return			null
 	 */
-	public function testBuildWithNoConfiguration()
+	public function testSetViewCastableStrings($str)
 	{
-		$route = 'my-route';
-		$this->setupSuperGlobals('get', 'my-route/param1/value1');
-		$this->builder->setRouteKey($route)
-					  ->setStrategy('ajax');
-		$context = $this->builder->build();
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\MvcContext',
-			$context
-		);
-		
-		$input = $context->getInput();
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppInput',
-			$input
-		);
-		$this->assertEquals('get', $input->getMethod());
-		$expected = array('param1' => 'value1');
-		$this->assertEquals($expected, $input->getAll('get'));
-		$this->assertEquals($_POST, $input->getAll('post'));
-		$this->assertEquals($_FILES, $input->getAll('files'));
-		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
-		$this->assertEquals($strategy, $context->getStrategy());
-		$this->assertEquals($route, $context->getRoute());
+		$this->assertSame($this->builder, $this->builder->setView($str));
+		$this->assertEquals((string)$str, $this->builder->getView());
 	}
 
 	/**
-	 *
-	 * @dataProvider	provideValidContextStrategies
-	 * @depends	testInterface
-	 * @return	null
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideNoCastableStrings
+	 * @depends				testInitialState
+	 * @return				null
 	 */
-	public function estBuildWithUseUriString($strategy)
+	public function testSetViewNotCastableStrings($str)
 	{
-		$this->setupSuperGlobals('get', 'my-route/param1/value1');
-		$route   = 'my-route';
-		$context = $this->builder->setRoute($route)
-								 ->setStrategy($strategy)
-								 ->useUriString('other-route/paramZ/valueY')
-								 ->build();
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\MvcContext',
-			$context
-		);
-		
-		$input = $context->getInput();
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppInput',
-			$input
-		);
-		$this->assertEquals('get', $input->getMethod());
-		
-		/* notice the params set to REQUEST_URI is ignored */
-		$expected = array('paramZ' => 'valueY');
-		$this->assertEquals($expected, $input->getAll('get'));
-		$this->assertEquals($_POST, $input->getAll('post'));
-		$this->assertEquals($_FILES, $input->getAll('files'));
-		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
-		$this->assertEquals($strategy, $context->getStrategy());
-		$this->assertEquals($route, $context->getRoute());
-
-	}
-
-	/**
-	 * @dataProvider	provideValidContextStrategies
-	 * @depends			testInterface
-	 * @return			null
-	 */
-	public function estBuildWithUseSetUri($strategy)
-	{
-		$this->setupSuperGlobals('post', 'my-route/param1/value1');
-		
-		$uri = $this->getMock('Appfuel\Kernel\Mvc\RequestUriInterface');
-		$params = array('paramXX' => 'valueYY');
-		$uri->expects($this->once())
-			->method('getParams')
-			->will($this->returnValue($params));
-
-		$route   = 'my-route';
-		$context = $this->builder->setRoute($route)
-								 ->setStrategy($strategy)
-								 ->setUri($uri)
-								 ->build();
-
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\MvcContext',
-			$context
-		);
-		
-		$input = $context->getInput();
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppInput',
-			$input
-		);
-		$this->assertEquals('post', $input->getMethod());
-		$this->assertEquals($params, $input->getAll('get'));
-		$this->assertEquals($_POST, $input->getAll('post'));
-		$this->assertEquals($_FILES, $input->getAll('files'));
-		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
-		$this->assertEquals($strategy, $context->getStrategy());
-		$this->assertEquals($route, $context->getRoute());
-	}
-
-	/**
-	 * @dataProvider	provideValidContextStrategies
-	 * @depends			testInterface
-	 * @return			null
-	 */
-	public function estBuildWithSetInput($strategy)
-	{
-		$input = $this->getMock('Appfuel\Kernel\Mvc\AppInputInterface');
-
-		$route   = 'my-route';
-		$context = $this->builder->setRoute($route)
-								 ->setStrategy($strategy)
-								 ->setInput($input)
-								 ->build();
-
-		$this->assertSame($input, $context->getInput());
-		$this->assertEquals($strategy, $context->getStrategy());
-		$this->assertEquals($route, $context->getRoute());
-	}
-
-
-	/**
-	 * This is the same as using build with no configurations
-	 *
-	 * @dataProvider	provideValidContextStrategies
-	 * @depends			testInterface
-	 * @return			null
-	 */
-	public function estBuildWithBuildInputFromDefaults($strategy)
-	{
-		$this->setupSuperGlobals('get', 'my-route/param1/value1');
-		$route   = 'my-route';
-		$context = $this->builder->setRoute($route)
-								 ->setStrategy($strategy)
-								 ->buildInputFromDefaults()
-								 ->build();
-
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\MvcContext',
-			$context
-		);
-		
-		$input = $context->getInput();
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppInput',
-			$input
-		);
-		$this->assertEquals('get', $input->getMethod());
-		$expected = array('param1' => 'value1');
-		$this->assertEquals($expected, $input->getAll('get'));
-		$this->assertEquals($_POST, $input->getAll('post'));
-		$this->assertEquals($_FILES, $input->getAll('files'));
-		$this->assertEquals($_COOKIE, $input->getAll('cookie'));
-		$this->assertEquals($strategy, $context->getStrategy());
-		$this->assertEquals($route, $context->getRoute());
-	}
-
-	/**
-	 * @dataProvider	provideValidContextStrategies
-	 * @depends			testInterface
-	 * @return			null
-	 */
-	public function estBuildWithDefineInputAs($strategy)
-	{
-		$params  = array(
-			'get'		=> array('my-get'	 => 'value1'),
-			'post'		=> array('my-post'	 => 'value2'),
-			'files'		=> array('my-file'	 => 'value3'),
-			'cookie'	=> array('my-cookie' => 'value4'),
-			'argv'		=> array('my-argv'   => 'value5')
-		);
-		$route   = 'my-route';
-		$context = $this->builder->setRoute($route)
-								 ->setStrategy($strategy)
-								 ->defineInputAs('cli', $params)
-								 ->build();
-		
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\MvcContextInterface',
-			$context
-		);
-		
-		$input = $context->getInput();
-		$this->assertInstanceOf(
-			'Appfuel\Kernel\Mvc\AppInput',
-			$input
-		);
-		$this->assertEquals('cli', $input->getMethod());
-		$this->assertEquals($params['get'],		$input->getAll('get'));
-		$this->assertEquals($params['post'],	$input->getAll('post'));
-		$this->assertEquals($params['files'],	$input->getAll('files'));
-		$this->assertEquals($params['cookie'],	$input->getAll('cookie'));
-		$this->assertEquals($params['argv'],	$input->getAll('argv'));
-		$this->assertEquals($strategy, $context->getStrategy());
-		$this->assertEquals($route, $context->getRoute());
+		$this->builder->setView($str);
 	}
 }

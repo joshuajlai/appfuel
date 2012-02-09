@@ -22,148 +22,464 @@ class MvcRouteDetailTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testInterfaceAndDefaults()
+	public function testEmptyDetail()
 	{
-		$key = 'my-route';
-		$detail = new MvcRouteDetail($key);
+		$detail = new MvcRouteDetail(array());
 		$this->assertInstanceOf(
 			'Appfuel\Kernel\Mvc\MvcRouteDetailInterface',
 			$detail
 		);
-		$this->assertEquals($key, $detail->getRouteKey());
-		$this->assertTrue($detail->isPublic());
-		$this->assertFalse($detail->isInternal());
-		$this->assertEquals(array(), $detail->getInterceptingFilters());
+
+		$this->assertFalse($detail->isPublicAccess());
+		$this->assertFalse($detail->isInternalOnlyAccess());
+		$this->assertFalse($detail->isAccessAllowed('some-code'));
+
+		$this->assertFalse($detail->isSkipPreFilters());
+		$this->assertFalse($detail->isPreFilters());
+		$this->assertEquals(array(), $detail->getPreFilters());
+		$this->assertFalse($detail->isExcludedPreFilters());
+		$this->assertEquals(array(), $detail->getExcludedPreFilters());
+
+		$this->assertFalse($detail->isSkipPostFilters());
+		$this->assertFalse($detail->isPostFilters());
+		$this->assertEquals(array(), $detail->getPostFilters());
+		$this->assertFalse($detail->isExcludedPostFilters());
+		$this->assertEquals(array(), $detail->getExcludedPostFilters());
+
+		$this->assertFalse($detail->isViewDetail());
 	}
 
 	/**
-	 * @depends	testInterfaceAndDefaults
-	 * @return	null
+	 * @depends	testEmptyDetail
+	 * @return null
 	 */
-	public function testPrivateRouteDetail()
+	public function testPublicAccess()
 	{
-		$key = 'my-route';
-		$isPublic = false;
-		$detail = new MvcRouteDetail($key, $isPublic);
-		$this->assertEquals($key, $detail->getRouteKey());
-		$this->assertFalse($detail->isPublic());
+		$data = array('is-public' => true);
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isPublicAccess());
+
+		$data = array('is-public' => false);
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isPublicAccess());
+
+		/*
+		 * Anything thats not strict bool true is false
+		 */
+		$data = array('is-public' => 'true');
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isPublicAccess());
 	}
 
 	/**
-	 * @depends	testInterfaceAndDefaults
-	 * @return	null
+	 * @depends	testEmptyDetail
+	 * @return null
 	 */
-	public function testInternalRouteDetail()
+	public function testInternalAccess()
 	{
-		$key = 'my-route';
-		$isPublic = null;
-		$isInternal = true;
-		$detail = new MvcRouteDetail($key, $isPublic, $isInternal);
-		$this->assertEquals($key, $detail->getRouteKey());
-		$this->assertTrue($detail->isPublic());
-		$this->assertTrue($detail->isInternal());
+		$data = array('is-internal' => true);
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isInternalOnlyAccess());
+
+		$data = array('is-internal' => false);
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isInternalOnlyAccess());
+
+		/*
+		 * Anything thats not strict bool true is false
+		 */
+		$data = array('is-internal' => 'true');
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isInternalOnlyAccess());
 	}
 
 	/**
-	 * @depends	testInterfaceAndDefaults
-	 * @return	null
+	 * @depends	testEmptyDetail
+	 * @return null
 	 */
-	public function testPrivateRouteWithAclCodes()
+	public function testAclAccessOneStringNotPublic()
 	{
-		$key = 'my-route';
-		$isPublic = false;
-		$isInternal = null;
+		$data = array('acl-access' => 'my-admin');
+		$detail = new MvcRouteDetail($data);
 
-		$codes = array('my-code', 'your-code', 'our-code');
-		$detail = new MvcRouteDetail($key, $isPublic, $isInternal, $codes);
-		$this->assertEquals($key, $detail->getRouteKey());
-		$this->assertFalse($detail->isPublic());
-		$this->assertFalse($detail->isInternal());
-		$this->assertTrue($detail->isAllowed($codes[0]));
-		$this->assertTrue($detail->isAllowed($codes[1]));
-		$this->assertTrue($detail->isAllowed($codes[2]));
-		$this->assertFalse($detail->isAllowed('does-not-exist'));
+		$this->assertFalse($detail->isPublicAccess());	
+		$this->assertTrue($detail->isAccessAllowed('my-admin'));
+		$this->assertFalse($detail->isAccessAllowed('my-staff'));
 	}
 
 	/**
-	 * @depends	testInterfaceAndDefaults
-	 * @return	null
+	 * @depends	testEmptyDetail
+	 * @return null
 	 */
-	public function testPrivateRouteWithInterceptingFilters()
+	public function testAclAccessOneStringPublicRoute()
 	{
-		$key = 'my-route';
-		$isPublic = false;
-		$isInternal = false;
-		$filters = array('Filter\FilterC', 'Filter\FilterB', 'Filter\FilterA');
-		$detail = new MvcRouteDetail($key,$isPublic,$isInternal,null,$filters);
-
-		$this->assertEquals($key, $detail->getRouteKey());
-		$this->assertFalse($detail->isPublic());
-		$this->assertFalse($detail->isInternal());
-		$this->assertFalse($detail->isAllowed('does-not-exist'));
-		$this->assertEquals($filters, $detail->getInterceptingFilters());
-	}
-
-	/**
-	 * @depends	testInterfaceAndDefaults
-	 * @return	null
-	 */
-	public function testDetailAll()
-	{
-		$key = 'my-route';
-		$isPublic = false;
-		$isInternal = false;
-		$codes = array('my-code', 'your-code', 'our-code');
-		$filters = array('Filter\FilterC', 'Filter\FilterB', 'Filter\FilterA');
-		$detail = new MvcRouteDetail(
-			$key,
-			$isPublic,
-			$isInternal,
-			$codes,
-			$filters
+		$data = array(
+			'is-public'  => true,
+			'acl-access' => 'my-admin'
 		);
-		$this->assertEquals($key, $detail->getRouteKey());
-		$this->assertFalse($detail->isPublic());
-		$this->assertFalse($detail->isInternal());
-		$this->assertTrue($detail->isAllowed($codes[0]));
-		$this->assertTrue($detail->isAllowed($codes[1]));
-		$this->assertTrue($detail->isAllowed($codes[2]));
-		$this->assertFalse($detail->isAllowed('does-not-exist'));
-		$this->assertEquals($filters, $detail->getInterceptingFilters());
+		$detail = new MvcRouteDetail($data);
+
+		$this->assertTrue($detail->isPublicAccess());	
+		$this->assertTrue($detail->isAccessAllowed('my-admin'));
+		
+		/* true because we are a public route */
+		$this->assertTrue($detail->isAccessAllowed('my-staff'));
+	}
+
+	/**
+	 * @depends	testEmptyDetail
+	 * @return null
+	 */
+	public function testAclAccessEmptyString()
+	{
+		$data = array('acl-access' => '');
+		$detail = new MvcRouteDetail($data);
+
+		$this->assertFalse($detail->isAccessAllowed('my-admin'));
+		
+		/* empty string is not a valid acl code */
+		$this->assertFalse($detail->isAccessAllowed(''));
+		
+	}
+
+	/**
+	 * @depends	testEmptyDetail
+	 * @return null
+	 */
+	public function testAclAccessEmpty()
+	{
+		$data = array('acl-access' => array());
+		$detail = new MvcRouteDetail($data);
+
+		$this->assertFalse($detail->isAccessAllowed('my-admin'));
+		
+		/* empty string is not a valid acl code */
+		$this->assertFalse($detail->isAccessAllowed(array()));
+		$this->assertFalse($detail->isAccessAllowed(array()));
+	}
+
+	/**
+	 * @depends	testEmptyDetail
+	 * @return null
+	 */
+	public function testAclAccessManyCodes()
+	{
+		$data = array(
+			'acl-access' => array('admin', 'publisher', 'editor')
+		);
+		$detail = new MvcRouteDetail($data);
+		
+		$this->assertTrue($detail->isAccessAllowed('admin'));
+		$this->assertTrue($detail->isAccessAllowed('publisher'));
+		$this->assertTrue($detail->isAccessAllowed('editor'));
+		$this->assertFalse($detail->isAccessAllowed('guest'));
+
+		$this->assertTrue($detail->isAccessAllowed($data['acl-access']));
+
+		$list = array('guest', 'me', 'you');
+		$this->assertFalse($detail->isAccessAllowed($list));
+
+
+		$list = array('guest', 'guest', 'me', 'me', 'you');
+		$this->assertFalse($detail->isAccessAllowed($list));
+		
+		$list = array('guest', 'me', 'you', 'admin');
+		$this->assertTrue($detail->isAccessAllowed($list));
+	
+	}
+
+	/**
+	 * @depends	testEmptyDetail
+	 * @return	null
+	 */
+	public function testSkipPreFilters()
+	{
+		$data = array(
+			'intercept' => array('is-skip-pre' => true)
+		);
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isSkipPreFilters());
+
+		$data = array(
+			'intercept' => array('is-skip-pre' => false)
+		);
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isSkipPreFilters());
+
+		/* has to be strict bool true */
+		$data = array(
+			'intercept' => array('is-skip-pre' => 'true')
+		);
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isSkipPreFilters());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testPreFiltersSingleString()
+	{
+		$data = array(
+			'intercept' => array(
+				'include-pre' => 'my-filter-class-name'
+			)
+		);	
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isPreFilters());
+		$this->assertFalse($detail->isExcludedPreFilters());
+	
+		$expected = array('my-filter-class-name');
+		$this->assertEquals($expected, $detail->getPreFilters());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testPreFiltersManyFilters()
+	{
+		$data = array(
+			'intercept' => array(
+				'include-pre' => array('my-filter','your-filter')
+			)
+		);	
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isPreFilters());
+		$this->assertFalse($detail->isExcludedPreFilters());
+		
+		$expected = $data['intercept']['include-pre'];
+		$this->assertEquals($expected, $detail->getPreFilters());
 	}
 
 	/**
 	 * @expectedException	InvalidArgumentException
-	 * @dataProvider		provideInvalidStrings
-	 * @depends				testInterfaceAndDefaults
+	 * @depends				testEmptyDetail
 	 * @return				null
 	 */
-	public function testRouteKeyNotString_Failure($key)
+	public function testPreFilterInvalidObject_Failure()
 	{
-		$detail = new MvcRouteDetail($key);
+		$data = array(
+			'intercept' => array(
+				'include-pre' => new StdClass()
+			)
+		);	
+		$detail = new MvcRouteDetail($data);
 	}
 
 	/**
 	 * @expectedException	InvalidArgumentException
-	 * @dataProvider		provideInvalidStrings
-	 * @depends				testInterfaceAndDefaults
+	 * @depends				testEmptyDetail
 	 * @return				null
 	 */
-	public function testRouteKeyBadAclCode_Failure($code)
+	public function testPreFilterInvalidBool_Failure()
 	{
-		$codes = array('code1', $code, 'code2');
-		$detail = new MvcRouteDetail('my-route', false, false, $codes);
+		$data = array(
+			'intercept' => array(
+				'include-pre' => true
+			)
+		);	
+		$detail = new MvcRouteDetail($data);
 	}
 
 	/**
 	 * @expectedException	InvalidArgumentException
-	 * @dataProvider		provideInvalidStrings
-	 * @depends				testInterfaceAndDefaults
+	 * @depends				testEmptyDetail
 	 * @return				null
 	 */
-	public function testRouteKeyBadFilter_Failure($filter)
+	public function testPreFilterInvalidInt_Failure()
 	{
-		$filters = array('filter1', $filter, 'fillter2');
-		$detail = new MvcRouteDetail('my-route', false, false, null, $filters);
-	}	
+		$data = array(
+			'intercept' => array(
+				'include-pre' => 12345
+			)
+		);	
+		$detail = new MvcRouteDetail($data);
+	}
+
+    /**
+     * @return  null
+     */
+    public function testPreFiltersExcludeSingleString()
+    {
+        $data = array(
+            'intercept' => array(
+                'exclude-pre' => 'my-filter-class-name'
+            )
+        );
+        $detail = new MvcRouteDetail($data);
+        $this->assertFalse($detail->isPreFilters());
+        $this->assertTrue($detail->isExcludedPreFilters());
+
+        $expected = array('my-filter-class-name');
+        $this->assertEquals($expected, $detail->getExcludedPreFilters());
+    }
+
+	/**
+	 * @return	null
+	 */
+	public function testPreFiltersExcludedManyFilters()
+	{
+		$data = array(
+			'intercept' => array(
+				'exclude-pre' => array('my-filter','your-filter')
+			)
+		);	
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isPreFilters());
+		$this->assertTrue($detail->isExcludedPreFilters());
+		
+		$expected = $data['intercept']['exclude-pre'];
+		$this->assertEquals($expected, $detail->getExcludedPreFilters());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testPostFiltersSingleString()
+	{
+		$data = array(
+			'intercept' => array(
+				'include-post' => 'my-filter-class-name'
+			)
+		);	
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isPostFilters());
+		$this->assertFalse($detail->isExcludedPostFilters());
+	
+		$expected = array('my-filter-class-name');
+		$this->assertEquals($expected, $detail->getPostFilters());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testPostManyFilters()
+	{
+		$data = array(
+			'intercept' => array(
+				'include-post' => array('my-filter','your-filter')
+			)
+		);	
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isPostFilters());
+		$this->assertFalse($detail->isExcludedPostFilters());
+		
+		$expected = $data['intercept']['include-post'];
+		$this->assertEquals($expected, $detail->getPostFilters());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testExcludedPostFiltersSingleString()
+	{
+		$data = array(
+			'intercept' => array(
+				'exclude-post' => 'my-filter-class-name'
+			)
+		);	
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isPostFilters());
+		$this->assertTrue($detail->isExcludedPostFilters());
+	
+		$expected = array('my-filter-class-name');
+		$this->assertEquals($expected, $detail->getExcludedPostFilters());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testExludedPostManyFilters()
+	{
+		$data = array(
+			'intercept' => array(
+				'exclude-post' => array('my-filter','your-filter')
+			)
+		);	
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isPostFilters());
+		$this->assertTrue($detail->isExcludedPostFilters());
+		
+		$expected = $data['intercept']['exclude-post'];
+		$this->assertEquals($expected, $detail->getExcludedPostFilters());
+	}
+
+	/**
+	 * @depends	testEmptyDetail
+	 * @return	null
+	 */
+	public function testSkipPostFilters()
+	{
+		$data = array(
+			'intercept' => array('is-skip-post' => true)
+		);
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isSkipPostFilters());
+
+		$data = array(
+			'intercept' => array('is-skip-post' => false)
+		);
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isSkipPostFilters());
+
+		/* has to be strict bool true */
+		$data = array(
+			'intercept' => array('is-skip-post' => 'true')
+		);
+		$detail = new MvcRouteDetail($data);
+		$this->assertFalse($detail->isSkipPostFilters());
+	}
+
+	/**
+	 * @depends	testEmptyDetail
+	 * @return	null
+	 */
+	public function testViewEmptyDetail()
+	{
+		$data = array('view-detail' => array());
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isViewDetail());
+	
+		$view = $detail->getViewDetail();
+		$this->assertTrue($view->isView());
+		$this->assertEquals('general', $view->getStrategy());
+		$this->assertEquals(array(), $view->getParams());
+		$this->assertNull($view->getMethod());
+	}
+
+	/**
+	 * @depends	testEmptyDetail
+	 * @return	null
+	 */
+	public function testViewDetailFullData()
+	{
+		$data = array(
+			'view-detail' => array(
+				'is-view'  => false,
+				'strategy' => 'my-strategy',
+				'params'   => array('a', 'b'),
+				'method'   => 'my_method'
+			)
+		);
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isViewDetail());
+	
+		$view = $detail->getViewDetail();
+		$this->assertFalse($view->isView());
+		$this->assertEquals('my-strategy', $view->getStrategy());
+		$this->assertEquals(array('a', 'b'), $view->getParams());
+		$this->assertEquals('my_method', $view->getMethod());
+	}
+
+	/**
+	 * @depends	testEmptyDetail
+	 * @return	null
+	 */
+	public function testViewDetailCorrectInterface()
+	{
+		$view = $this->getMock('Appfuel\Kernel\Mvc\MvcViewDetailInterface');
+		$data = array('view-detail' => $view);
+		$detail = new MvcRouteDetail($data);
+		$this->assertTrue($detail->isViewDetail());
+		$this->assertSame($view, $detail->getViewDetail());	
+	}
 }

@@ -11,12 +11,6 @@
 namespace Appfuel\Kernel\Mvc;
 
 /**
- * Used to hold details specific about a route. This object is 
- * implemented in the action namespace. When a route key is mapped by the
- * dispatcher is resolves this action namespace and whhen building a context the
- * dispatcher will look in namespace for a class called 'RouteDetail'.
- * The deails include the route key used, is the route public, what acl code
- * are allowed access and what intercepting filters to use.
  */
 interface MvcRouteDetailInterface
 {
@@ -24,7 +18,12 @@ interface MvcRouteDetailInterface
 	 * Flag used to detemine if any acl checks need to be applied
 	 * @return	bool
 	 */
-	public function isPublic();
+	public function isPublicAccess();
+	
+	/**
+	 * @return bool
+	 */
+	public function isInternalOnlyAccess();
 
 	/**
 	 * Determine is a given acl code is allowed to dispatch this route. 
@@ -32,11 +31,65 @@ interface MvcRouteDetailInterface
 	 * @param	string	$code
 	 * @return	bool
 	 */
-	public function isAllowed($code);
+	public function isAccessAllowed($code);
 
 	/**
-	 * List of intercepting filters to be used specifically for this route
+	 * @return	bool
+	 */
+	public function isSkipPreFilters();
+
+	/**
+	 * @return	bool
+	 */
+	public function isPreFilters();
+
+	/**
 	 * @return	array
 	 */
-	public function getInterceptingFilters();
+	public function getPreFilters();
+
+	/**
+	 * @return	bool
+	 */
+	public function isExcludedPreFilters();
+
+	/**
+	 * @return	array
+	 */
+	public function getExcludedPreFilters();
+
+	/**
+	 * @return	bool
+	 */
+	public function isPostFilters();
+
+	/**
+	 * @return	array
+	 */
+	public function getPostFilters();
+
+	/**
+	 * @return	bool
+	 */
+	public function isExcludedPostFilters();
+
+	/**
+	 * @return array
+	 */
+	public function getExcludedPostFilters();
+
+	/**
+	 * @return	bool
+	 */
+	public function isSkipPostFilters();
+
+	/**
+	 * @return	bool
+	 */
+	public function isViewDetail();
+
+	/**
+	 * @return	array
+	 */
+	public function getViewDetail();
 }

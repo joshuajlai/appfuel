@@ -22,8 +22,7 @@ interface InterceptFilterInterface
 	 * @param	ContextBuilderInterface $builder
 	 * @return	null
 	 */
-	public function apply(MvcContextInterface $context, 
-						  ContextBuilderInterface $builder);
+	public function apply(MvcContextInterface $context);
 
     /**
      * @return  InterceptFilterInterface

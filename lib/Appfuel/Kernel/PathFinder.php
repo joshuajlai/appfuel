@@ -180,4 +180,32 @@ class PathFinder implements PathFinderInterface
 
 		return $result;
 	}
+
+	/**
+	 * @param	string $path
+	 * @return	bool
+	 */
+	public function fileExists($path = null)
+	{
+		$full = $this->getPath($path);
+		if (file_exists($full)) {
+			return true;
+		}
+		
+		return false;
+	}
+
+	public function requireFile($path, $throwException = true, $msg = '')
+	{
+		$full = $this->getPath($path);
+		if (file_exists($full)) {
+			return require $full;
+		}
+
+		if (false === $throwException) {
+			return false;
+		}
+
+		throw new RunTimeException("file not found at -($full)");
+	}
 }

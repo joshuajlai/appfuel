@@ -56,7 +56,6 @@
 	<file>../lib/TestFuel/Unit/View/Html/Tag/BodyTagTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/HtmlTagTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Tag/HtmlTagFactoryTest.php</file>
-	<file>../lib/TestFuel/Unit/View/Html/HtmlPageTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/HtmlViewTemplateTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteDetailTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcContextTest.php</file>
@@ -66,11 +65,19 @@
 	<file>../lib/TestFuel/Unit/App/Resource/JsListTest.php</file>
 	<file>../lib/TestFuel/Unit/App/Resource/CssListTest.php</file>
 	<file>../lib/TestFuel/Unit/App/Resource/AssetListTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcContextBuilderTest.php</file>
 -->
 
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcContextBuilderTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteManagerTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcViewDetailTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteDetailTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteHandlerTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcViewBuilderTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptChainTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/HtmlPageDetailTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/HtmlPageTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/HtmlPageBuilderTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

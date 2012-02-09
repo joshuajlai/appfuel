@@ -83,6 +83,7 @@ class ViewTemplate implements ViewInterface
 		$this->compositor = $compositor;
 		return $this;
 	}
+
     /**
      * Determines if template has been added
      *
@@ -266,54 +267,6 @@ class ViewTemplate implements ViewInterface
 		}
 
 		return $this->assign($key, array_replace_recursive($target, $value));
-	}
-
-	/**
-	 * @param	string	$key
-	 * @param	mixed	$value
-	 * @return	ViewTemplate
-	 */
-	public function assignIntoArray($key, $value, $isPrepend = false)
-	{
-		$target = $this->get($key, '__af_not_found__');
-		if ('__af_not_found__' === $target) {
-			if (! is_array($value)) {
-				$value = array($value);
-			}
-	
-			return $this->assign($key, $value);
-		}
-		else if (! is_array($target)) {
-			return $this;
-		}
-
-		if (true === $isPrepend) {
-			array_unshift($target, $value);
-		}
-		else {
-			$target[] = $value;
-		}
-
-		return $this->assign($key, $target);
-	}
-
-	public function assignIntoAssocArray($key, $arrayKey, $value)
-	{
-		if (! is_scalar($arrayKey)) {
-			$err = 'array key must be a valid php array key';
-			throw new InvalidArgumentException($err);
-		}
-
-		$target = $this->get($key, '__af_not_found__');
-		if ('__af_not_found__' === $target) {
-			return $this->assign($key, array($arrayKey => $value));
-		}
-		else if (! is_array($target)) {
-			return $this;
-		}
-
-		$target[$arrayKey] = $value;
-		return $this->assign($key, $target);
 	}
 
 	/**

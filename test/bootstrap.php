@@ -17,7 +17,7 @@ if (! file_exists($file)) {
 }
 require_once $file;
 
-$init = new KernelInitializer($base, 'console');
+$init = new KernelInitializer($base);
 $init->initialize('test');
 unset($file);
 unset($base);

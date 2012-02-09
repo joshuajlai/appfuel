@@ -36,12 +36,6 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	protected $htmlTag = null;
 	
 	/**
-	 * Key used to add and get the view template
-	 * @var string
-	 */
-	protected $contentKey = 'content';
-
-	/**
 	 * Single style tag that will hold on the inline sytle content for the 
 	 * page. The framework can just keep adding content blocks to this tag
 	 * instead of adding new style tags
@@ -83,27 +77,101 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	 * @param	HtmlTagFactory		 $factory
 	 * @return	HtmlPage
 	 */
-	public function __construct($view = null,
-								$htmlDocFile = null,
-								HtmlTagFactoryInterface $factory = null)
+	public function __construct($view, HtmlTagFactoryInterface $factory = null)
 	{
-		if (null !== $view) {
-			$this->setView($view);
-		}
-		
 		if (null === $factory) {
 			$factory = new HtmlTagFactory();
 		}
+
+		$this->setView($view);
 		$this->setHtmlTag($factory->createHtmlTag());
 		$this->setInlineStyleTag($factory->createStyleTag());
 		$this->setInlineScriptTag($factory->createScriptTag());
 		$this->setTagFactory($factory);
+	}
 
-		if (null === $htmlDocFile) {
-			$htmlDocFile = 'appfuel/html/tpl/common/htmldoc.phtml';
+	/**
+	 * @return	
+	 */
+	public function getTagFactory()
+	{
+		return $this->tagFactory;
+	}
+
+	/**
+	 * @return	ViewTemplateInterface
+	 */
+	public function getHtmlDoc()
+	{
+		return $this->getTemplate('htmldoc');
+	}
+
+	/**
+	 * @param	ViewInterface $doc
+	 * @return	HtmlPageInterface
+	 */
+	public function setHtmlDoc($doc)
+	{
+		if (is_string($doc)) {
+			$template = new FileViewTemplate($doc);
 		}
-		$htmlDoc = new FileViewTemplate($htmlDocFile);
-		$this->addTemplate('htmldoc', $htmlDoc);
+		else if ($doc instanceof ViewInterface) {
+			$template = $doc;
+		}
+		else {
+			$err  = 'html doc must be string (tpl path) or object that ';
+			$err .= 'implments the Appfuel\View\ViewInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->addTemplate('htmldoc', $doc);
+		return $this;
+	}
+
+	/**	
+	 * @return	ViewInterface | string
+	 */
+	public function getView()
+	{
+		return $this->getTemplate('content');
+	}
+
+	/**
+	 * @return	ViewInterface
+	 */
+	public function getJsTemplate()
+	{
+		return $this->getTemplate('inlinejs');
+	}
+
+	/**
+	 * @param	mixed string|ViewInterface $js
+	 * @return	HtmlPage
+	 */
+	public function setJsTemplate($js)
+	{
+		if (is_string($js)) {
+			$template = new FileViewTemplate($js);
+		}
+		else if ($js instanceof ViewInterface) {
+			$template = $js;
+		}
+		else {
+			$err  = 'inline js template must be a string (tpl path) or an ';
+			$err .= 'object that implments Appfuel\View\ViewInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->addTemplate('inlinejs', $template);
+		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isJsTemplate()
+	{
+		return $this->isTemplate('inlinejs');
 	}
 
 	/**
@@ -476,83 +544,83 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	}
 
 	/**
-	 * @param	ViewInterface $view
+	 * Delegate to the view
+	 * 
+	 * @return	int
+	 */
+	public function assignCount()
+	{
+		return $this->getView()
+					->assignCount();
+	}
+
+	/**
+	 * Delegate load to the view's load
+	 * 
+	 * @param	array	$list
 	 * @return	HtmlPage
 	 */
-	public function setView($view)
+	public function load(array $list)
 	{
-		$key = $this->getContentKey();
-		if ($view instanceof ViewInterface) {
-			return $this->addTemplate($key, $view);
-		}
-		else if (is_string($view) || 
-				(is_object($view) && is_callable(array($view, '__toString')))){
-			$this->view = (string) $view;
-			$this->removeTemplate($key);
-			return $this;
-		}
+		$this->getView()
+			 ->load($list);
 
 		return $this;
 	}
 
-	/**	
-	 * @return	ViewInterface | string
-	 */
-	public function getView()
-	{
-		$key = $this->getContentKey();
-		if ($this->isTemplate($key)) {
-			return $this->getTemplate($key);
-		}
-
-		return $this->view;
-	}
-
 	/**
+	 * Delegate to the view
+	 *
 	 * @param	string	$label
 	 * @param	mixed	$value
 	 * @return	HtmlPage
 	 */
 	public function assign($name, $value)
 	{
-		$key = $this->getContentKey();
-		if ($this->isTemplate($key)) {
-			$name = "{$key}.{$name}";
-			return $this->assignTo($name, $value);
-		}
-		
-		return parent::assign($name, $value);
+		$this->getView()
+			 ->assign($name, $value);
+
+		return $this;
 	}
 
 	/**
+	 * Delegate to the view
+	 *
+	 * @param	string	$label
+	 * @param	array	$value
+	 * @return	HtmlPage
+	 */
+	public function assignMerge($key, array $value)
+	{
+		$this->getView()
+			 ->assignMerge($key, $value);
+
+		return $this;
+	}
+	
+	/**
+	 * Delegate to the view
+	 *
 	 * @param	string	$name
 	 * @param	mixed	$default
 	 * @return	mixed
 	 */
 	public function get($name, $default = null)
 	{
-		$key = $this->getContentKey();
-		if ($this->isTemplate($key)) {
-			return $this->getTemplate($key)
-						->get($name, $default);
-		}
-
-		return parent::get($name, $default);
+		return $this->getView()
+					->get($name, $default);
 	}
 
 	/**
+	 * Delegate to the view
+	 *
 	 * @param	string	$name
 	 * @return	bool
 	 */
 	public function isAssigned($name)
 	{
-		$key = $this->getContentKey();
-		if ($this->isTemplate($key)) {
-			return $this->getTemplate($key)
-						->isAssigned($name);
-		}
-		
-		return parent::isAssigned($name);
+		return $this->getView()
+					->isAssigned($name);
 	}
 
 	/**
@@ -560,7 +628,8 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	 */
 	public function build()
 	{
-		$template = $this->getTemplate('htmldoc');
+		$template = $this->getHtmlDoc();
+
 		$html = $this->getHtmlTag();
 		$head = $html->getHead();
 		$body = $html->getBody();
@@ -602,28 +671,6 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	}
 
 	/**
-	 * @return	string
-	 */
-	public function getContentKey()
-	{
-		return $this->contentKey;
-	}
-
-	/**
-	 * @param	string	$key
-	 * @return	HtmlPage
-	 */
-	public function setContentKey($key)
-	{
-		if (! is_string($key) || ! ($key = trim($key))) {
-			$err = 'content key must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->contentKey = $key;
-	}
-
-	/**
 	 * @param	HtmlTagFactoryInterface	$factory
 	 * @return	null
 	 */
@@ -632,8 +679,25 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 		$this->tagFactory = $factory;
 	}
 
-	protected function getTagFactory()
+	/**
+	 * @param	ViewInterface $view
+	 * @return	HtmlPage
+	 */
+	protected function setView($view)
 	{
-		return $this->tagFactory;
+		if (is_string($view)) {
+			$template = new FileViewTemplate($view);
+		}
+		else if ($view instanceof ViewInterface) {
+			$template = $view;
+		}
+		else {
+			$err  = 'page view must be a string (tpl path) or an object that ';
+			$err .= 'implments Appfuel\View\ViewInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->addTemplate('content', $template);
+		return $this;
 	}
 }

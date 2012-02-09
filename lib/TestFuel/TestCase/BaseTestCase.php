@@ -104,7 +104,6 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	public function restoreKernelRegistry()
 	{
 		KernelRegistry::setParams(TestRegistry::getKernelParams());
-		KernelRegistry::setRouteMap(TestRegistry::getKernelRouteMap());
 		KernelRegistry::setDomainMap(TestRegistry::getKernelDomainMap());
 	}
 

@@ -13,10 +13,8 @@ namespace Appfuel\Kernel\Mvc;
 use LogicException,
 	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Kernel\KernelRegistry,
+	Appfuel\Kernel\MvcRouteManager,
 	Appfuel\View\Html\FileViewTemplate,
-	Appfuel\View\Html\HtmlPage,
-	Appfuel\View\Html\HtmlPageInterface,
 	Appfuel\View\Html\HtmlViewInterface,
     Appfuel\ClassLoader\StandardAutoLoader,
     Appfuel\ClassLoader\AutoLoaderInterface;
@@ -27,17 +25,11 @@ use LogicException,
 class MvcContextBuilder implements MvcContextBuilderInterface
 {
 	/**
-	 * The autoloader is used to determine if the class exists. 
-	 * @var AutoLoaderInterface
+	 * Used to build and configure html pages
+	 *
+	 * @var MvcViewBuilderInterface
 	 */
-	protected $loader = null;
-
-	/**
-	 * The strategy is used to determine how to build the view, currently
-	 * four strategies exist: html-page, html, ajax, console
-	 * @var string
-	 */
-	protected $strategy = null;
+	protected $viewBuilder = null;
 
 	/**
 	 * The route key points to the action namespace used to create the 
@@ -45,6 +37,12 @@ class MvcContextBuilder implements MvcContextBuilderInterface
 	 * @var string
 	 */
 	protected $routeKey = null;
+
+	/**
+	 * Holds information for context building specific to that route
+	 * @var string
+	 */
+	protected $routeDetail = null;
 
     /**
 	 * The uri is designed to hold the route key and optionally get parameters
@@ -75,54 +73,32 @@ class MvcContextBuilder implements MvcContextBuilderInterface
      * @param   string  $controllerClass
      * @return  MvcActionBuilder
      */
-    public function __construct(AutoLoaderInterface $loader = null)
+    public function __construct(MvcViewBuilderInterface $builder = null)
     {
-        if (null === $loader) {
-            $loader = new StandardAutoLoader(AF_LIB_PATH);
+        if (null === $builder) {
+            $builder = new MvcViewBuilder();
         }
-        $this->setClassLoader($loader);
+        $this->setViewBuilder($builder);
+
     }
 
 	/**
 	 * @return	AutoLoaderInterface
 	 */
-	public function getClassLoader()
+	public function getViewBuilder()
 	{
-		return $this->loader;
+		return $this->viewBuilder;
 	}
 
 	/**
 	 * @param	AutoLoaderInterface $loader
 	 * @return	MvcActionBuilder
 	 */
-	public function setClassLoader(AutoLoaderInterface $loader)
+	public function setViewBuilder(MvcViewBuilderInterface $builder)
 	{
-		$this->loader = $loader;
+		$this->viewBuilder = $builder;
 		return $this;
 	}
-
-    /**
-     * @param   string  $strategy 
-     * @return  MvcActionBuilder
-     */
-    public function setStrategy($strategy)
-    { 
-       if (! is_string($strategy)) {
-            $err = 'mvc action strategy must be a string';
-            throw new InvalidArgumentException($err);
-        }
-
-        $this->strategy = $strategy;
-        return $this;
-    }
-
-    /**
-     * @return  string
-     */
-    public function getStrategy()
-    {  
-        return $this->strategy;
-    }
 
     /**
      * @param   string $key
@@ -136,6 +112,13 @@ class MvcContextBuilder implements MvcContextBuilderInterface
         }
 
         $this->routeKey = $key;
+
+		$detail = MvcRouteManager::getRouteDetail($key);
+		if (! $detail) {
+			$err = "could not resolve route detail for -($key)";
+			throw new RunTimeException($err);
+		}
+		$this->routeDetail = $detail;
         return $this;
     }
 
@@ -146,6 +129,46 @@ class MvcContextBuilder implements MvcContextBuilderInterface
     {  
         return $this->routeKey;
     }
+
+	/**
+	 * @return	MvcRouteDetailInterface
+	 */
+	public function getRouteDetail()
+	{
+		return $this->routeDetail;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isRoute()
+	{
+		return $this->routeDetail instanceof MvcRouteDetailInterface;
+	}
+
+	/**
+	 * @return	MvcContextBuilder
+	 */
+	public function loadRoute()
+	{
+		$uri = $this->getUri();
+		if (! $uri instanceof RequestUriInterface) {
+			$err = 'can not load a route with out setting the uri';
+			throw new RunTimeException($err);
+		}
+
+		$key = $uri->getRouteKey();
+		$this->setRouteKey($key);
+		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isUri()
+	{
+		return $this->uri instanceof RequestUriInterface;
+	}
 
     /**
      * @return  RequestUriInterface
@@ -207,6 +230,14 @@ class MvcContextBuilder implements MvcContextBuilderInterface
         return new RequestUri($uriString);
     }
 
+	/**
+	 * @return	bool
+	 */
+	public function isInput()
+	{
+		return $this->input instanceof AppInputInterface;
+	}
+
     /**
      * @return  AppInputInterface
      */
@@ -250,29 +281,20 @@ class MvcContextBuilder implements MvcContextBuilderInterface
             $method = $_SERVER['REQUEST_METHOD'];
         }
 
+		/*
+		 * This should not happen but if it does the input should not fail
+		 */
         if (empty($method) || ! is_string($method)) {
-            $err = 'request method is empty or not a string';
-            throw new RunTimeException($err);
+			$method = 'cli';
         }
 
         if ($useUri) {
             $uri = $this->getUri();
             if (! $uri instanceof RequestUriInterface) {
-                if (isset($_SERVER['REQUEST_URI'])) {
-                    $uri = $this->useServerRequestUri()
-                                ->getUri();
-                }
-                else {
-                    $err  = 'Default get params come from the request uri.';
-                    $err .= 'we can not build the request uri without a uri ';
-                    $err .= 'string. Since no uri was given we looked for ';
-                    $err .= 'the uri string in $_SERVER[REQUEST_URI] and ';
-                    $err .= 'found it was not set.Please manually set super ';
-                    $err .= 'global or use builder to manually configure uri ';
-                    $err .= 'with method setUri';
-                    throw new RunTimeException($err);
-                }
+				$uri = $this->useServerRequestUri()
+                            ->getUri();
             }
+
             $getParams = $uri->getParams();
         } else {
             $getParams = $_GET;
@@ -308,9 +330,8 @@ class MvcContextBuilder implements MvcContextBuilderInterface
         if (true === $useUri) {
             $uri = $this->getUri();
             if (! ($uri instanceof RequestUriInterface)) {
-                $err  = "defineInput failed: uri is required for its get ";
-                $err .= "params, but has not been set";
-                throw new RunTimeException($err);
+				$uri = $this->useServerRequestUri()
+							->getUri();
             }
             $getParams = $uri->getParams();
             if (array_key_exists('get', $params)) {
@@ -330,7 +351,11 @@ class MvcContextBuilder implements MvcContextBuilderInterface
      */
     public function defineUriForInputSource()
     {
-        return $this->defineInput('get', array(), true);
+        $method = 'get';
+        if (PHP_SAPI === 'cli') {
+            $method = 'cli';
+        }
+        return $this->defineInput($method, array(), true);
     }
 
     /**
@@ -339,8 +364,7 @@ class MvcContextBuilder implements MvcContextBuilderInterface
     public function noInputRequired()
     {
 		$method = 'get';
-		$strategy = $this->getStrategy();
-		if ('console' === $strategy) {
+		if (PHP_SAPI === 'cli') {
 			$method = 'cli';
 		}
 
@@ -371,7 +395,7 @@ class MvcContextBuilder implements MvcContextBuilderInterface
      * @param   array   $list
      * @return  MvcActionBuilder
      */
-    public function addAclCodes(array $list)
+    public function loadAclCodes(array $list)
     {
         foreach ($list as $code) {
             $this->addAclCode($code);
@@ -387,7 +411,7 @@ class MvcContextBuilder implements MvcContextBuilderInterface
 	public function setAclCodes(array $list)
 	{
 		$this->aclCodes = array();
-		return $this->addAclCodes($list);
+		return $this->loadAclCodes($list);
 	}
 
 	/**
@@ -412,217 +436,8 @@ class MvcContextBuilder implements MvcContextBuilderInterface
 	 */
 	public function setView($view)
 	{
-		if (! is_string($view) && 
-			! (is_object($view) && is_callable(array($view, '__toString')))) {
-			$err  = 'view must be a string or an object that ';
-			$err .= 'implments __toString';
-			throw new InvalidArgumentException($err);
-		}
-
 		$this->view = $view;
 		return $this;
-	}
-
-	/**
-	 * @param	string	$routeKey
-	 * @param	string	$namespace
-	 * @return	MvcRouteDetailInterface
-	 */
-	public function createRouteDetail($routeKey, $namespace)
-	{
-        $class    = "$namespace\\RouteDetail";
-        $isDetail = $this->getClassLoader()
-					   ->loadClass($class);
-
-		if (! $isDetail) {
-			$err  = "a concrete implementation of the route detail must be ";
-			$err .= "available at -($class)";
-			throw new RunTimeException($err);
-		}
-		$detail = new $class();
-
-        if (! $detail instanceof MvcRouteDetailInterface) {
-			$err  = 'route detail must implement -(Appfuel\Kernel\Mvc';
-			$err .= '\RouteDetailInterface';
-            throw new RunTimeException($err);
-        }
-		
-		if ($routeKey !== $detail->getRouteKey()) {
-			$err  = 'route detail created does not have the same route key ';
-			$err .= 'as the one given to the MvcActionBuilder';
-			throw new RunTimeException($err);
-		}
-
-		return $detail;
-	}
-
-	/**
-	 * 
-	 * @param	string	$namespace
-	 * @param	string	$strategy
-	 * @return	
-	 */
-	public function createView($namespace, $strategy)
-	{
-		switch ($strategy) {
-			case 'html-page' :
-				$view = $this->buildHtmlPage($namespace);
-				break;
-			case 'html':
-				$view = $this->buildHtmlSection($namespace);
-				break;
-			case 'ajax':
-				$view = $this->buildAjaxView($namespace);
-				break;
-			case 'console':
-				$view = $this->buildConsoleView($namespace);
-
-			default:
-				$view = '';
-		}
-		
-		return $view;
-	}
-
-	/**
-	 * @param	string	$namespace
-	 * @return	HtmlViewInterface
-	 */
-	public function createHtmlView($namespace)
-	{
-		$class  = "$namespace\HtmlView";
-	    $isView = $this->getClassLoader()
-					   ->loadClass($class);
-
-		if (! $isView) {
-			$err  = "a concrete implementation of HtmlViewInterface  must ";
-			$err .= "be available at -($class)";
-			throw new LogicException($err);
-		}
-
-		$htmlView = new $class();
-		if (! ($htmlView instanceof HtmlViewInterface)) {
-			$err  = 'html view does not implement Appfuel\View\Html\HtmlView';
-			$err .= 'Interface';
-			throw new LogicException($err);
-		}
-
-		return $htmlView;
-	}
-
-	/**
-	 * @param	HtmlViewInterface $view
-	 * @return	HtmlViewInterface | HtmlLayoutInterface
-	 */
-	public function createHtmlLayout(HtmlViewInterface $view)
-	{
-	    /*
-         * if this view belongs to an html layout then create the layout
-         * set the view in the layout and replace the view with the layout
-         */
-        $layoutClass = $view->getLayoutClass();
-        if (! is_string($layoutClass) || empty($layoutClass)) {
-			return $view;
-		}
-            
-		$layout = new $layoutClass();
-        if (! ($layout instanceof HtmlLayoutInterface)) {
-			$err  = 'html layout does not implement Appfuel\View\Html\Html';
-            $err .= 'LayoutInterface';
-            throw new LogicException($err);
-		}
-
-        $layout->setView($view);
-		return $layout;
-	}
-
-	/**
-	 * @param	string|ViewTemplateInterface
-	 * @param	string	$class
-	 * @return	HtmlPageInterface
-	 */
-	public function createHtmlPage($view, $class = null)
-	{
-		if (null === $class) {
-			return new HtmlPage($view);
-		}
-
-	    if (is_string($pageClass) && ! empty($pageClass)) {
-            $page = new $pageClass($view);
-            if (! ($page instanceof HtmlPageInterface)) {
-                $err  = 'html doc does not implement Appfuel\View\Html\Html';
-                $err .= 'PageInterface';
-                throw new RunTimeException($err);
-            }
-
-			return $page;
-        }
-			
-		$err = 'class must be a non empty string';
-		throw new InvalidArgumentException($err);
-	}
-
-	/**
-	 * @param	string	$file		path to the config data
-	 * @param	HtmlPageInterface	
-	 * @return	null
-	 */
-	public function configureHtmlPage($file, HtmlPageInterface $page)
-	{
-		$configurer = $this->createHtmlPageConfigurer();
-		if (file_exists($filePath)) {
-			return false;
-		}
-		
-		$data = require $filePath;
-		if (! is_array($config)) {
-			$err = 'html page configuration must be an array';
-			throw new RunTimeException($err);
-		}
-		$configurer->configure($data, $page);
-		return true;
-	}
-
-	public function createHtmlPageConfigurer()
-	{
-		return new HtmlPageConfigurer();
-	}
-
-	/**
-	 * @param	string	$namespace
-	 * @return	HtmlPageInterface
-	 */
-	public function buildHtmlPage($namespace)
-	{
-		$htmlView = $this->createHtmlView($namespace);
-		$pathFinder = $htmlView->getViewCompositor()
-							   ->getPathFinder();
-
-		/* used to create the html page class */
-		$pageClass  = $htmlView->getHtmlPageClass();
-		$pageConfigFile = $htmlView->getPageConfigurationFile();
- 
-		/*
-		 * if the view has a layout it will be create here and the view
-		 * will set into the layout and layout will be handed back. When
-		 * no view exists just the layout is returned
-		 */
-		$htmlView = $this->createHtmlLayout($htmlView);
-
-        $jsContent = null;
-        if ($htmlView->isInlineJsTemplate()) {
-			$jsContent = $htmlView->buildInlineJsTemplate();
-        }
-
-		$page = $this->createHtmlPage($htmlView, $pageClass); 
-
-		if ($page->isJs() && is_string($jsContent) && !empty($jsContent)) {
-			$page->addToInlineScript($jsContent, 'prepend');
-		}
-
-		$this->configureHtmlPage($pathFinder->getPath($pageConfigFile), $page);
-
-		return $page;
 	}
 
 	/**	
@@ -630,32 +445,52 @@ class MvcContextBuilder implements MvcContextBuilderInterface
 	 */
 	public function build()
 	{
-		$strategy = $this->getStrategy();
-		if (! is_string($strategy)) {
-			$strategy = '';
+		if (! $this->isRoute()) {
+			$this->loadRoute();
 		}
 
-		$route = $this->getRouteKey();
-		if (null === $route) {
-			$uri   = $this->getUri();
-			$route = $uri->getRouteKey();
+		$key = $this->getRouteKey();
+		$detail = $this->getRouteDetail();
+		if (! $detail instanceof MvcRouteDetailInterface) {
+			$err  = "could not build context unable to obtain routing info ";
+			$err .= "for -($key)";
+			throw new RunTimeException($err);	
+		} 
+
+		$input = $this->getInput();
+		if (! $this->isInput()) {
+			$err = "input must set before building context: -(route is $key)";
+			throw new RunTimeException($err);
+		}
+		
+		$view = $this->getView();
+		if (null === $view) {
+			$viewBuilder = $this->getViewBuilder();
+			$view = $viewBuilder->buildView($detail->getViewDetail());
 		}
 
-		$namespace = $this->getActionNamespace($route);
-		if (false === $namespace) {
-            $err .= "namespace -($namespace) was not found for route -($route)";
-            throw new RunTimeException($err);
-        }
+		$this->clear()
+		return $this->createContext($key, $detail, $input, $view);
+	}
 
-		$detail = $this->createRouteDetail($route, $namespace);
-		$view   = $this->createView($namespace, $strategy);
+	/**
+	 * @return	null
+	 */
+	public function clear()
+	{
+		$this->routeKey = null;
+		$this->routeDetail = null;
+		$this->uri = null;
+		$this->input = null;
+		$this->aclCodes = array();
+		$this->view = null;
 	}
 
     /**
      * @return  string | false when not mapped
      */
-	protected function getActionNameSpace($routeKey)
+	protected function getRouteDetail($key)
 	{
-		return KernelRegistry::getActionNamespace($routeKey);
+		return MvcRouteManager::getRouteDetail($key);
 	}
 }

@@ -24,13 +24,6 @@ use InvalidArgumentException,
 class MvcContext extends Dictionary implements MvcContextInterface
 {
 	/**
-	 * The strategy used in this context. The mvc action be working with
-	 * console, ajax or html
-	 * @var string
-	 */
-	protected $strategy = null;
-
-	/**
 	 * Actual route key used in user request
 	 * @var string
 	 */
@@ -61,7 +54,7 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 * will be converted into a string for the output engine.
 	 * @var mixed
 	 */
-	protected $view = null;
+	protected $view = '';
 
 	/**
 	 * The exit code is used by the framework to provide an exit status code
@@ -74,15 +67,19 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 * @param	AppInputInterface	$input
 	 * @return	AppContext
 	 */
-	public function __construct($strategy,
-								$routeKey, 
+	public function __construct($routeKey, 
 								MvcRouteDetailInterface $routeDetail,
-								AppInputInterface $input)
+								AppInputInterface $input,
+								$view = null)
 	{
 		$this->setStrategy($strategy);
 		$this->setRouteKey($routeKey);
 		$this->setRouteDetail($routeDetail);
 		$this->setInput($input);
+
+		if (null !== $view) {
+			$this->setView($view);
+		}
 	}
 
 	/**
@@ -102,11 +99,12 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	}
 
 	/**
-	 * @return	string
+	 * @return	bool
 	 */
-	public function getStrategy()
+	public function isSkipPreFilters()
 	{
-		return $this->strategy;
+		return $this->getRouteDetail()
+					->isSkipPreFilters();
 	}
 
 	/**
@@ -118,11 +116,39 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	}
 
 	/**
+	 * @param	mixed	$view
+	 * @return	bool
+	 */
+	public function isValidView($view)
+	{
+        if (is_scalar($view) ||
+            (is_object($view) && is_callable(array($view, '__toString')))) {
+			return true;
+		}
+	
+		return false;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isContextView()
+	{
+		return $this->isValidView($this->view);
+	}
+
+	/**
 	 * @param	ViewTemplateInterface $template
 	 * @return	AppContext
 	 */
 	public function setView($view)
 	{
+        if (! $this->isValidView($view)) {
+            $err  = 'view must be a scalar value or an object that ';
+            $err .= 'implements __toString';
+            throw new InvalidArgumentException($err);
+        }
+
 		$this->view = $view;
 		return $this;
 	}
@@ -170,6 +196,33 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	}
 
 	/**
+	 * @return	bool
+	 */
+	public function isPublicAccess()
+	{
+		return $this->getRouteDetail()
+					->isPublicAccess();
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isInternalOnlyAccess()
+	{
+		return $this->getRouteDetail()
+					->isInternalOnlyAccess();
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isValidContext()
+	{
+		$detail = $this->getRouteDetail();
+		return $detail->isAccessAllowed($this->getAclCodes());
+	}
+
+	/**
 	 * @return	int
 	 */
 	public function getExitCode()
@@ -208,19 +261,6 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	}
 
 	/**
-	 * @param	string	$strategy
-	 * @return	null
-	 */
-	protected function setStrategy($strategy)
-	{
-        if (empty($strategy) || ! is_string($strategy)) {
-            $err = 'strategy must be a non empty string';
-            throw new InvalidArgumentException($err);
-        }
-		$this->strategy = $strategy;
-	}
-
-	/**
 	 * @param	string	$key
 	 * @return	null
 	 */
@@ -238,8 +278,8 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 * @param	string	$strategy
 	 * @return	null
 	 */
-	protected function setRouteDetail(MvcRouteDetailInterface $route)
+	protected function setRouteDetail(MvcRouteDetailInterface $detail)
 	{
-		$this->routeDetail = $route;
+		$this->routeDetail = $detail;
 	}
 }

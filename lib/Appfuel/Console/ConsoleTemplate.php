@@ -16,7 +16,7 @@ use Appfuel\View\ViewTemplate,
 /**
  * Template used to generate generic html documents
  */
-class ConsoleViewTemplate extends ViewTemplate implements ConsoleViewInterface
+class ConsoleTemplate extends ViewTemplate
 {
     /**
      * @param   array   $data   load data into the template (optional)

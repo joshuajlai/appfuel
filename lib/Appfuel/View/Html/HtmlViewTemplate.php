@@ -18,54 +18,17 @@ use InvalidArgumentException,
 /**
  * Template used to generate generic html documents
  */
-class HtmlViewTemplate extends FileViewTemplate implements HtmlViewInterface
+class HtmlViewTemplate extends FileViewTemplate
 {
-	/**
-	 * Used to create an alternate implementation of HtmlPageInterface
-	 * @var string	
-	 */
-	protected $htmlPageClass = null;
-
-	/**
-	 * Location of the html doc template file
-	 * @var string
-	 */
-	protected $htmlDocTpl = 'appfuel/html/tpl/doc/htmldoc.phtml';
-
-	/**
-	 * Used by the page builder to create an alternate html tag factory for
-	 * the HtmlPageInterface
-	 * @var	string
-	 */
-	protected $tagFactoryClass = null;
-
-	/**
-	 * The class your html view belongs to this is optional
-	 * @var string
-	 */
-	protected $layoutClass = null;
-
-	/**
-	 * Key used to assign the inline javascript template
-	 * @var string
-	 */
-	protected $inlineJsKey = 'initjs';
-
 	/**
 	 * @param	string	$viewTplFile
 	 * @param	string	$jsTpl
 	 * @return	HtmlViewTemplate
 	 */
-	public function __construct($viewTplFile, 
-								$jsTpl = null, 
-								PathFinderInterface $pathFinder = null)
+	public function __construct($tpl, PathFinderInterface $pathFinder = null)
 	{
-		parent::__construct($viewTplFile, $pathFinder);
-
+		parent::__construct($tpl, $pathFinder);
 		
-		if (null !== $jsTpl) {
-			$this->setInlineJsTemplate($jsTpl);
-		}
 	}
 
 	/**

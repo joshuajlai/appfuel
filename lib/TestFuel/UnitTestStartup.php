@@ -34,12 +34,10 @@ class UnitTestStartup extends StartupTaskAbstract
         ini_set('error_diplay', 'on');
 		
 		$params  = KernelRegistry::getParams(); 
-		$routes  = KernelRegistry::getRouteMap();
 		$domains = KernelRegistry::getDomainMap();
 		$state  = new KernelState();
 		TestRegistry::setKernelState($state);
 		TestRegistry::setKernelParams($params);
-		TestRegistry::setKernelRouteMap($routes);
 		TestRegistry::setKernelDomainMap($domains);	
 
 		$this->setStatus('appfuel unittest: initialized');

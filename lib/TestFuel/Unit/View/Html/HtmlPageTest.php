@@ -88,6 +88,9 @@ class HtmlPageTest extends BaseTestCase
 			'Appfuel\View\Html\Tag\GenericTagInterface',
 			$body
 		);
+
+		$this->assertSame($this->view, $this->page->getView());
+		$this->assertSame($this->view, $this->page->getTemplate('content'));
 	}
 
 	/**
@@ -549,18 +552,8 @@ class HtmlPageTest extends BaseTestCase
 	 */
 	public function testViewTemplateAssignIsAssign()
 	{
-		$view = new ViewTemplate();
-		$this->assertSame($this->page, $this->page->setView($view));
-		$this->assertSame($view, $this->page->getView());
-
-		/* when a view template is assigned all page assigns get 
-		 * routed into the view template via the content key. you
-		 * can get the content key with getContentKey
-		 */
-		$key = $this->page->getContentKey();
-		$this->assertTrue($this->page->isTemplate($key));
-		$this->assertSame($view, $this->page->getTemplate($key));
-
+		$view = $this->page->getTemplate('content');
+		
 		$this->assertSame(
 			$this->page,
 			$this->page->assign('foo', 'bar')
@@ -569,16 +562,5 @@ class HtmlPageTest extends BaseTestCase
 		$this->assertTrue($view->isAssigned('foo'));	
 		$this->assertEquals('bar', $this->page->get('foo'));
 		$this->assertEquals('bar', $view->get('foo'));
-	}
-
-	public function testViewAsString()
-	{
-		$view = '<div>some manual view content</div>';
-		$this->assertSame($this->page, $this->page->setView($view));
-		$this->assertEquals($view, $this->page->getView());
-
-		$this->assertSame($this->page, $this->page->assign('foo', 'bar'));
-		$this->assertTrue($this->page->isAssigned('foo'));
-		$this->assertEquals('bar', $this->page->get('foo'));
 	}
 }

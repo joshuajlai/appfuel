@@ -41,21 +41,13 @@ class AppInput implements AppInputInterface
 	 * @param	string	$rm			request method
      * @return	Request
      */
-    public function __construct($method, array $params = array())
+    public function __construct($method = null, array $params = array())
     {
-		$err = 'Failed to instantiate request: ';
-		if (empty($method) || ! is_string($method)) {
-			 $err .= "method must be a non empty string";
-			throw new InvalidArgumentException($err);
+		if (null === $method || ! is_string($method)) {
+			$method = '';
 		}
+		$this->method = $method;
 	
-		$method = strtolower($method);
-		if (! in_array($method, array('get', 'post', 'cli'))) {
-			 $err .= "method must be one of -(get|post|cli)";
-			throw new InvalidArgumentException($err);
-		}
-        $this->method = $method;
-
 		/*
 		 * Ensure each type exists as an array. because searching the
 		 * params uses functions the work on arrays
@@ -90,7 +82,7 @@ class AppInput implements AppInputInterface
      */
     public function isPost()
     {
-        return 'post' === $this->method;
+        return 'post' === strtolower($this->method);
     }
 
     /**
@@ -98,7 +90,7 @@ class AppInput implements AppInputInterface
      */
     public function isGet()
     {
-        return 'get' === $this->method;
+        return 'get' === strtolower($this->method);
     }
 
 	/**
@@ -106,7 +98,7 @@ class AppInput implements AppInputInterface
 	 */
 	public function isCli()
 	{
-		return 'cli' === $this->method;
+		return 'cli' === strtolower($this->method);
 	}
 
     /**

@@ -170,8 +170,7 @@ class InterceptFilter implements InterceptFilterInterface
 	 * @param	ContextBuilderInterface $builder
 	 * @return	null
 	 */
-	public function apply(MvcContextInterface $context, 
-						  ContextBuilderInterface $builder)
+	public function apply(MvcContextInterface $context)
 	{
 		if (! $this->isCallback()) {
 			return;
@@ -179,10 +178,10 @@ class InterceptFilter implements InterceptFilterInterface
 
 		$filter = $this->getCallback();
 		if ($filter instanceof Closure) {
-			$result = $filter($context, $builder);
+			$result = $filter($context);
 		}
 		else {
-			$result = call_user_func($filter, $context, $builder);
+			$result = call_user_func($filter, $context);
 		}
 
 		$this->continueToNextFilter();
@@ -196,5 +195,13 @@ class InterceptFilter implements InterceptFilterInterface
 			$result[$key] instanceof MvcContextInterface) {
 			$this->setContextToReplace($result[$key]);
 		}
+	}
+
+	/**
+	 * @return	MvcContextBuilder
+	 */
+	protected function createContextBuilder()
+	{
+		return new MvcContextBuilder();
 	}
 }

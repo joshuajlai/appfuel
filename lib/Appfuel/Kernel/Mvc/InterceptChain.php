@@ -21,34 +21,9 @@ use Closure,
 class InterceptChain implements InterceptChainInterface
 {
 	/**
-	 * The chain will pass a context builder into each filter's apply method 
-	 * allowing them to create new context re routing the request to a new
-	 * mvc action
-	 * @var	ContextBuilderInterface
-	 */
-	protected $builder = null;
-
-	/**
 	 * List of filters to be run
 	 */
 	protected $filters = array();
-
-	/**
-	 * @param	ContextBuilderInterface		$builder
-	 * @return	InterceptChain
-	 */
-	public function __construct(ContextBuilderInterface $builder)
-	{
-		$this->builder = $builder;
-	}
-
-	/**
-	 * @return	ContextBuilderInterface
-	 */
-	public function getContextBuilder()
-	{
-		return $this->builder;	
-	}
 
 	/**
 	 * @return	array
@@ -110,6 +85,32 @@ class InterceptChain implements InterceptChainInterface
 	}
 
 	/**
+	 * Foreach class in the list check all the filters and remove any that
+	 * have the same class name
+	 *
+	 * @param	array	$filters
+	 * @return	null
+	 */
+	public function removeFilters(array $filters)
+	{
+		foreach ($filters as $class) {
+			if (! is_string($class) || empty($class)) {
+				$err = 'class to remove must be a non empty string';
+				throw new InvalidArgumentException($err);
+			}
+
+			foreach ($this->filters as $index => $filter) {
+				if ($class === get_class($filter)) {
+					unset($this->filters[$index]);
+				}
+			}
+		}
+
+		/* re index values */
+		$this->filters = array_values($this->filters);
+	}
+
+	/**
 	 * @return	InterceptChain
 	 */
 	public function clearFilters()
@@ -136,7 +137,6 @@ class InterceptChain implements InterceptChainInterface
 			return $context;
 		}
 
-		$builder = $this->getContextBuilder();
 		$filters = $this->getFilters();
 		foreach ($filters as $filter) {
 			$filter->apply($context, $builder);

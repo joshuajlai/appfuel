@@ -24,7 +24,8 @@ return array(
 		'include-path-action'	=> 'replace',
 		'error-reporting'	=> 'all, strict',
 		'startup-tasks'		=> array(),
-		'intercepting-filters'	=> array(),
+		'pre-filters'		=> array(),
+		'post-filters'		=> array(),
 	),
 	
 	'test' => array(

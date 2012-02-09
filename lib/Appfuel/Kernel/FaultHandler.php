@@ -11,10 +11,10 @@
 namespace Appfuel\Kernel;
 
 use Exception,
-	RunTimeException,
 	Appfuel\Log\Logger,
 	Appfuel\Log\LoggerInterface,
-	Appfuel\Kernel\OutputInterface;
+	Appfuel\Http\HttpOutput,
+	Appfuel\Http\HttpResponse;
 
 /**
  * The fault handler uses the Appfuel Logger with a SysLogAdapter to 
@@ -29,20 +29,12 @@ class FaultHandler implements FaultHandlerInterface
 	protected $logger = null;
 
 	/**
-	 * Used to ouput the error message 
-	 * @var	 OutputEngineInterface
-	 */
-	protected $output = null;
-
-	/**
 	 * @param	LoggerInterface			$logger
 	 * @param	OutputEngineInterface	$engine
 	 * @return	FaultHandler
 	 */
-	public function __construct(OutputInterface  $output,
-								LoggerInterface  $logger = null)
+	public function __construct(LoggerInterface  $logger = null)
 	{
-		$this->output = $output;
 		if (null === $logger) {
 			$logger = new Logger();
 		}
@@ -57,14 +49,6 @@ class FaultHandler implements FaultHandlerInterface
 		return $this->logger;
 	}
 
-	/**	
-	 * @return	OutputInterface
-	 */
-	public function getOutputEngine()
-	{
-		return $this->output;
-	}
-	
 	/**
 	 * @param	Exception	$e
 	 * @return	null
@@ -72,7 +56,6 @@ class FaultHandler implements FaultHandlerInterface
 	public function handleException(Exception $e)
 	{
 		$logger  = $this->getLogger();
-		$display = $this->getOutputEngine();
 		$msg  = $e->getMessage();
 		$file = $e->getFile();
 		$line = $e->getLine();
@@ -82,9 +65,10 @@ class FaultHandler implements FaultHandlerInterface
 		$logger->log($text, LOG_ERR);
 		
 		if (empty($code)|| ! is_int($code)) {
-			$code = 9500;
+			$code = 500;
 		}
-		$display->renderError($text, $code);
+
+		$this->renderError($text, $code);
 		exit($code);
 	}
 
@@ -100,7 +84,6 @@ class FaultHandler implements FaultHandlerInterface
 	{
 		$code    = 500;
 		$logger  = $this->getLogger();
-		$display = $this->getOutputEngine();
 
 		$text = "$level: $msg in $file:$line";
 		$logger->log($text, LOG_ERR);
@@ -109,7 +92,27 @@ class FaultHandler implements FaultHandlerInterface
 			return false;
 		}
 
-		$display->renderError($text, $code);
+		
+		$this->renderError($text, $code);
 		exit($code);
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function renderError($text, $code)
+	{
+        if (PHP_SAPI === 'cli') {
+			fwrite(STDERR, (string)$text . PHP_EOL);
+			return;
+        }
+		
+        $this->sendHttpOutput($text, $code);
+	}
+
+	protected function sendHttpOutput($text, $code = 500)
+	{
+		$output = new HttpOutput();
+		$output->render(new HttpResponse($text, $code));
 	}
 }

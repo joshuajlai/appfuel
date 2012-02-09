@@ -8,12 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Console;
+namespace TestFuel\Functional\View\Html;
 
-use Appfuel\View\ViewInterface;
+use Appfuel\View\Html\HtmlPage,
+	Appfuel\View\Html\HtmlPageInterface;
 
 /**
+ * Used to in unit tests to test code that dynamically builds page classes
+ * from a string
  */
-interface ConsoleViewInterface extends ViewInterface
-{
-}
+class ExtendedPage extends HtmlPage
+{}

@@ -33,40 +33,23 @@ class MvcAction implements MvcActionInterface
 	protected $contextBuilder = null;
 
 	/**
-	 * The route key this action is mapped to
-	 * @var string
-	 */
-	protected $route = null;
-
-	/**
 	 * @param	string	$route
 	 * @return	MvcAction
 	 */
-	public function __construct($route, 
-								MvcActionDispatcherInterface $dispatcher = null,
-								MvcContextBuilder $contextBuilder = null)
+	public function __construct(MvcDispatcherInterface $dispatcher = null,
+								MvcContextBuilderInterface $builder = null)
 	{
-		$this->setRoute($route);
-
 		if (null === $dispatcher) {
-			$dispatcher = new MvcActionDispatcher();
+			$dispatcher = new MvcDispatcher();
 		}
 		$this->setDispatcher($disp);
 
-		if (null === $contextBuilder) {
+		if (null === $builder) {
 			$contextBuilder = new MvcContextBuilder();
 		}
 		$this->setContextBuilder($contextBuilder);
 	}
 
-	/**
-	 * @return	string
-	 */
-	public function getRoute()
-	{
-		return $this->route;
-	}
-	
 	/**
 	 * @param	MvcActionDispatcher
 	 * @return	null
@@ -100,15 +83,14 @@ class MvcAction implements MvcActionInterface
 	 * @param	string	$strategy
 	 * @return	null
 	 */
-	public function callWithNoInputs($route, $strategy)
+	public function callWithNoInputs($route)
 	{
 
 		$context = $this->getContextBuilder()
 						->clear()
 						->setRoute($route)
-						->setStrategy($strategy)
 						->noInputRequired()
-						->buildContext();
+						->build();
 
 		$this->getDispatcher()
 			 ->dispatch($context);
@@ -138,7 +120,7 @@ class MvcAction implements MvcActionInterface
 	 * @param	MvcContextInterface $old
 	 * @return	MvcContextInterface
 	 */
-	public function callUseContext($routeKey, MvcContextInterface $context)
+	public function callAsContext($routeKey, MvcContextInterface $context)
 	{
 		$dispatcher = $this->getDispatcher();
 
@@ -166,7 +148,7 @@ class MvcAction implements MvcActionInterface
 	 * @param	MvcActionDispatcherInterface $dispatcher
 	 * @return	null
 	 */
-	protected function setDispatcher(MvcActionDispatcherInterface $dispatcher)
+	protected function setDispatcher(MvcDispatcherInterface $dispatcher)
 	{
 		$this->dispatcher = $dispatcher;
 	}

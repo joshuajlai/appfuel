@@ -10,55 +10,47 @@
  */
 namespace Appfuel\View\Html;
 
-use InvalidArgumentException,
+use RunTimeException,
+	InvalidArgumentException,
+	Appfuel\View\ViewInterface,
+	Appfuel\View\FileViewTemplate,
 	Appfuel\Kernel\PathFinder,
-	Appfuel\View\Html\Resource\HtmlResourceManager,
-	Appfuel\View\Html\Tag\HtmlTagFactory,
+	Appfuel\Kernel\PathFinderInterface,
 	Appfuel\View\Html\Tag\HtmlTagFactoryInterface;
 
-
 /**
- * Template used to generate generic html documents
+ * Builds and configures an html page using an HtmlPageDetailInterface
  */
 class HtmlPageBuilder implements HtmlPageBuilderInterface
 {
 	/**
-	 * @var	HtmlTagFactoryInterface
+	 * Used to locate supporting files not in the include path 
+	 * @var PathFinderInterface
 	 */
-	protected $tagFactory = null;
+	protected $finder = null;
 
 	/**
-	 * @var	PathFinder
+	 * @var HtmlPageConfigurationInterface 
 	 */
-	protected $pathFinder = null;
+	protected $configuration = null;
 
 	/**
-	 * Defaults to the appfuel template file 
-	 *
-	 * @param	string				$file		relative path to template file
-	 * @param	PathFinderInterface $pathFinder	resolves the relative path
-	 * @return	HtmlDocTemplate
+	 * @param	PathFinderInterface		$finder
+	 * @return	HtmlPageBuilder
 	 */
-	public function __construct(HtmlTagFactoryInterface $tagFactory = null,
-								PathFinder $pathFinder = null)
+	public function __construct(PathFinderInterface $finder = null,
+								HtmlPageConfigurationInterface $config = null)
 	{
-		if (null === $tagFactory) {
-			$tagFactory = new HtmlTagFactory();
+		if (null === $finder) {
+			$finder = new PathFinder('ui');
 		}
-		$this->tagFactory = $tagFactory;
-		
-		if (null === $pathFinder) {
-			$pathFinder = new PathFinder(ResourceManager::getResourceDir());
-		}
-		$this->pathFinder = $pathFinder;
-	}
+		$this->finder = $finder;
 
-	/**
-	 * @return	TagFactoryInterface
-	 */
-	public function getTagFactory()
-	{
-		return $this->tagFactory;
+		if (null === $config) {
+			$config = new HtmlPageConfiguration();
+		}
+
+		$this->configuration = $config;
 	}
 
 	/**
@@ -66,221 +58,184 @@ class HtmlPageBuilder implements HtmlPageBuilderInterface
 	 */
 	public function getPathFinder()
 	{
-		return $this->pathFinder;
+		return $this->finder;
 	}
 
 	/**
-	 * @return	string
+	 * @return	HtmlPageConfigurationInterface
 	 */
-	public function configurePage(HtmlPageInterface $page, array $data)
+	public function getPageConfiguration()
 	{
-		if (isset($data['html-head']) && is_array($data['html-head'])) {
-			$this->configurePageHead($page, $data['html-head']);
-		}
-
-		if (isset($data['html-body']) && is_array($data['html-body'])) {
-			$this->configurePageHead($page, $data['html-body']);
-		}
+		return $this->configuration;
 	}
 
 	/**
-	 * @param	HtmlPageInterface $page	
-	 * @param	array	$data
-	 * @return	null
-	 */
-	public function configurePageHead(HtmlPageInterface $page, array $data)
-	{
-		/* check for title */
-		if (isset($data['title'])) {
-			$title = $data['title'];
-			$sep   = null;
-			$text  = '';
-			if (is_string($title)) {
-				$text = $title;
-			}
-			else if (is_array($title)) {
-				if (isset($title['sep'])) {
-					$sep = $title['sep'];
-				}
-
-				if (isset($title['text'])) {
-					$text = $title['text'];
-				}
-			}
-			$page->setHeadTitle($title, $sep);
-		}
-
-		/* check for base tag */
-		if (isset($data['base'])) {
-			$base = $data['base'];
-			$href = null;
-			$target = null;
-
-			if (is_string($base)) {
-				$href = $base;
-			}
-			else if (is_array($base)) {
-				if (isset($base['href'])) {
-					$href = $base['href'];
-				}
-
-				if (isset($base['target'])) {
-					$target = $base['target'];
-				}
-				$page->setBase($href, $target);
-			}
-		}
-
-		/* check for meta tags */
-		if (isset($data['meta']) && is_array($data['meta'])) {
-			$metalist = $data['meta'];
-			foreach ($metalist as $meta) {
-				if ($meta instanceof GenericTagInterface) {
-					$page->addHeadMetaTag($meta);
-				}
-				else if (is_array($meta)) {
-					$name	 = null;
-					$content = null;
-					$equiv	 = null;
-					$charset = null;
-					if (isset($meta['name'])) {
-						$name = $meta['name'];
-					}
-
-					if (isset($meta['content'])) {
-						$content = $meta['content'];
-					}
-
-					if (isset($meta['http-equiv'])) {
-						$equiv = $meta['http-equiv'];
-					}
-					
-					if (isset($meta['charset'])) {
-						$charset = $meta['charset'];
-					}
-
-					$page->addHeadMeta($name, $content, $equiv, $charset);
-				}
-			}
-		}
-
-		/* check for css files */
-		if (isset($data['css-files']) && is_array($data['css-files'])) {
-			$csslist = $data['css-files'];
-			foreach ($csslist as $css) {
-				if ($css instanceof GenericTagInterface) {
-					$page->addCssTag($css);
-					continue;
-				}
-
-				$src  = null;
-				$rel  = null;
-				$type = null; 
-				if (is_string($css) && ! empty($src)) {
-					$src = $css;
-				}
-				else if (is_array($css)) {
-					if (isset($css['src'])) {
-						$src = $css['src'];
-					}
-
-					if (isset($css['rel'])) {
-						$rel = $css['rel'];
-					}
-
-					if (isset($css['type'])) {
-						$type = $css['type'];
-					}
-				}
-				$page->addCssLink($src, $rel, $type);
-			}
-		}
-	}
-
-	/**
-	 * @param	HtmlPageInterface $page	
-	 * @param	array	$data
-	 * @return	null
-	 */
-	public function configurePageBody(HtmlPageInterface $page, array $data)
-	{
-
-	}
-
-	/**
-	 * @throws	InvalidArgumentException
-	 * @throws	RunTimeException
-	 * @param	string	$filePath
-	 * @return	array
-	 */
-	public function getConfiguration($filePath)
-	{
-		if (! is_string($filePath) || empty($filePath)) {
-			$err = 'file path to configuration must be a non empty array';
-			throw new InvalidArgumentException($err);
-		}
-
-		$finder = $this->getPathFinder();
-		$fullPath = $finder->getPath($filePath);
-		if (! file_exists($fullPath)) {
-			$err = "page config file could not be found at -($fullPath)";
-			throw new RunTimeException($err);
-		}
-
-		return require $fullPath;
-	}
-	
-	/**
-	 * @throws	RunTimeException
-	 * @param	HtmlViewInterface	$view
+	 * @param	HtmlPageDetailInterface $detail
 	 * @return	HtmlPageInterface
 	 */
-	public function buildPage(HtmlViewInterface $view)
+	public function buildPage(HtmlPageDetailInterface $detail)
 	{
-		$htmlDocTpl = $view->getHtmlDocTpl();
-		if (empty($htmlDocTpl) || ! is_string($htmlDocTpl)) {
-			$htmlDocTpl = null;
-		}
-
 		$tagFactory = null;
-		$tagFactoryClass = $view->getTagFactoryClass();
-		if (is_string($tagFactoryClass) && ! empty($tagFactoryClass)) {
-			$tagFactory = new $tagFactoryClass();
+		if ($detail->isTagFactory()) {
+			$tagFactory = $this->createTagFactory($detail);
 		}
 
-		$filePath = $view->getPathConfigurationFile();
-		if (! is_string($filePath) || empty($filePath)) {
-			$filePath = 'appfuel/html/doc/default.php';
+		if (! $detail->isViewTemplate()) {
+			$err  = 'view template is required and missing from ';
+			$err .= 'the html page detail';
+			throw new RunTimeException($err);
 		}
-		$config = $this->getConfiguration($filePath);
+		$view = $this->createViewTemplate($detail);
+		
+		if ($detail->isLayoutTemplate()) {
+			$layout = $this->createLayoutTemplate($detail, $view);
+			$view = $layout;
+		}
+		$page = $this->createHtmlPage($detail, $view, $tagFactory);
 
-		$htmlPageClass = $view->getHtmlPageClass();
-		if (is_string($htmlPageClass) && !empty($htmlPageClass)) {
-			$page = new $htmlPageClass($view, $htmlDocTpl, $tagFactory);
-			if (! ($page instanceof HtmlPageInterface)) {
-				$err  = 'custom html page class must implment Appfuel\View';
-				$err .= '\Html\HtmlPageInterface';
-				throw new RunTimeException($err);
-			}
-		}
-		else {
-			$page = $this->createPage($view, $htmlDocTpl, $tagFactory);
+		$jsTemplate = null;
+		if ($detail->isInlineJsTemplate()) {
+			$page->setInlineJsTemplate($detail->getInlineJsTemplate());
 		}
 
-		$this->configurePage($page, $config);
+		if ($detail->isHtmlConfig()) {
+			$this->configureHtmlPage($detail, $page);
+		}
+
 		return $page;
 	}
 
 	/**
-	 * @param	mixed	string|object|ViewInterface $view
-	 * @param	string	$docfile
-	 * @param	HtmlTagFactoryInterface	$factory
+	 * @param	HtmlPageDetailInterface	 $detail
+	 * @return	HtmlTagFactoryInterface
+	 */
+	public function createTagFactory(HtmlPageDetailInterface $detail)
+	{
+		$factory = $detail->getTagFactory();
+		if (is_string($factory)) {
+			$factory = new $factory();
+		}
+		else if (! $factory instanceof HtmlTagFactoryInterface) {
+			$err  = 'tag factory was defined in the html page detail ';
+			$err .= 'but does not implment Appfuel\View\Html\Tag\Tag';
+			$err .= 'FactoryInterface';
+			throw new RunTimeException($err);
+		}
+
+		return $factory;
+	}
+
+	/**
+	 * @param	HtmlPageDetailInterface $detail
+	 * @return	ViewInterface
+	 */
+	public function createViewTemplate(HtmlPageDetailInterface $detail)
+	{
+		$view = $detail->getViewTemplate();
+		if (is_string($view)) {
+			$view = new FileViewTemplate($view);
+		}
+		else if (! $view instanceof ViewInterface) {
+			$err  = 'view template must be a string (path to tpl) or an ';
+			$err .= 'object that implments Appfuel\View\ViewInterface';
+			throw new RunTimeException($err);
+		}
+		
+		return $view;
+	}
+
+	/**
+	 * @param	HtmlPageDetailInterface $detail
+	 * @param	ViewInterface $view
+	 * @return	HtmlLayoutInterface 
+	 */
+	public function createLayoutTemplate(HtmlPageDetailInterface $detail,
+										 ViewInterface $view)
+	{
+		$layout = null;
+		$tmp    = $detail->getLayoutTemplate();
+		if (is_string($tmp)) {
+			$layout = new $tmp();
+		}
+		else if (is_object($tmp)) {
+			$layout = $tmp;
+		}
+
+		if (! $layout instanceof HtmlLayoutInterface) {
+				$err  = 'layout class or object in the html page detail ';
+				$err .= 'does not implment the Appfuel\View\Html\HtmlLayout';
+				$err .= 'Interface';
+				throw new RunTimeException($err);
+		}
+				
+		if (! $layout->isViewTemplate()) {
+			$layout->setView($view);
+		}
+
+		return $layout;
+	}
+
+	/**
+	 * @param	$view
+	 * @param	HtmlTagFactoryInterface $factory
 	 * @return	HtmlPage
 	 */
-	public function createHmtlPage($view, 
-								   $docFile = null,
-									HtmlTagFactoryInterface $factory = null)
+	public function createHtmlPage(HtmlPageDetailInterface $detail, 
+							   ViewInterface $view, 
+							   HtmlTagFactoryInterface $factory = null)
 	{
-		return new HtmlPage($view, $docFile, $factory);
+		if ($detail->isHtmlPageClass()) {
+			$pageClass = $detail->getHtmlPageClass();
+			$page = new $pageClass($view, $factory);
+			if (! $page instanceof HtmlPageInterface) {
+				$err  = 'page class must implment Appfuel\View\Html\HtmlPage';
+				$err .= 'Interface';
+				throw new RunTimeException($err);
+			}
+		}
+		else {
+			$page = new HtmlPage($view, $factory);
+		}
+
+		return $page;
 	}
+
+	/**
+	 * @param	HtmlPageDetailInterface $detail
+	 * @param	HtmlPageInterface		$page
+	 * @return	null
+	 */
+	public function configure(HtmlPageDetailInterface $detail, 
+							  HtmlPageInterface $page)
+	{
+		$data = $detail->getHtmlConfig();
+		if (is_string($data)) {
+			$data = $this->getConfigurationData($data);
+		}
+		else if (! is_array($data)) {
+			$err  = 'html config was definded in the html page detail but ';
+			$err .= 'was not a string (path to config) or an array';
+			throw new RunTimeException($err);
+		}
+
+		$configuration = $this->getPageConfiguration();
+		$configuration->apply($data, $page);
+	}
+
+    /**
+     * @throws  InvalidArgumentException
+     * @throws  RunTimeException
+     * @param   string  $filePath
+     * @return  array
+     */
+    public function getConfigurationData($path)
+    {
+        if (! is_string($path) || empty($path)) {
+            $err = 'file path to configuration must be a non empty array';
+            throw new InvalidArgumentException($err);
+        }
+
+        return $this->getPathFinder()
+					->requireFile($path);
+    }
 }

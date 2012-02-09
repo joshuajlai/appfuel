@@ -185,8 +185,7 @@ class StandardAutoLoader implements AutoLoaderInterface
 
 	/**
 	 * @param	string
-	 * @return	null	when file is not found 
-	 *			false	when class or interface exists
+	 * @return	false	when file is not found 
 	 *			true	when class file is found and loaded
 	 */
 	public function loadClass($class)
@@ -198,7 +197,7 @@ class StandardAutoLoader implements AutoLoaderInterface
 		$parser = $this->getParser();
 		$path   = $parser->parse($class);
 		if (false === $path) {
-			return null;
+			return false;
 		}
 				
 		foreach ($this->pathList as $root) {
@@ -214,5 +213,7 @@ class StandardAutoLoader implements AutoLoaderInterface
 			require $file;
 			return true;
 		}
+
+		return false;
 	}
 }

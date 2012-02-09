@@ -18,13 +18,6 @@ use InvalidArgumentException;
 class KernelRegistry
 {
 	/**
-	 * Strategy used to dertermine the type of output is used. Appfuel 
-	 * has the following: console, html, ajax (api soon to come)
-	 * @var string
-	 */
-	static protected $appStrategy = null;
-
-	/**
 	 * List of kernal global kernal parameters used during intialization
 	 * @var Dictionary
 	 */
@@ -41,36 +34,6 @@ class KernelRegistry
 	 * @var array
 	 */
 	static protected $routes = array();
-
-	/**
-	 * @return	string
-	 */
-	static public function getAppStrategy()
-	{
-		return self::$appStrategy;
-	}
-
-	/**
-	 * @param	string	$name
-	 * @return	null
-	 */
-	static public function setAppStrategy($name)
-	{
-		if (empty($name) || ! is_string($name) || ! ($name = trim($name))) {
-			$err = 'Application strategy mustt be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-		
-		$name  = strtolower($name);
-		$valid = array('console', 'html', 'html-page', 'ajax');
-		if (! in_array($name, $valid, true)) {
-			$err = "Application strategy must be ";
-			$err .= "-(console|html|html-page|ajax)";
-			throw new InvalidArgumentException($err);
-		}
-
-		self::$appStrategy = $name;
-	}
 
 	/**
 	 * @return	array
@@ -232,61 +195,6 @@ class KernelRegistry
 	}
 
 	/**
-	 * @param	array	$map
-	 * @return	null
-	 */
-	static public function setRouteMap(array $map)
-	{
-		if (! empty($map) && $map === array_values($map)) {
-			throw new InvalidArgumentException(
-				"route map must be an associative arrays"
-			);
-		}
-
-		foreach ($map as $key => $class) {
-			self::addRoute($key, $class);
-		}
-	}
-	
-	/**
-	 * @return	array
-	 */
-	static public function getRouteMap()
-	{
-		return	self::$routes;
-	}
-
-	/**
-	 * @return null
-	 */
-	static public function clearRouteMap()
-	{
-		self::$routes = array();
-	}
-
-	/**
-	 * @param	string	$key
-	 * @param	string	$class
-	 * @return	null
-	 */
-	static public function addRoute($key, $actionNamespace)
-	{
-		if (! is_string($key)) {
-			throw new InvalidArgumentException(
-				"key must be a non empty string"
-			);
-		}
-
-		if (! self::isValidString($actionNamespace)) {
-			throw new InvalidArgumentException(
-				"action namespace must be a non empty string"
-			);
-		}
-
-		self::$routes[$key] = $actionNamespace;
-	}
-
-	/**
 	 * @param	string	$key	domain key
 	 * @return	string
 	 */
@@ -306,7 +214,6 @@ class KernelRegistry
 	{
 		self::clearParams();
 		self::clearDomainMap();
-		self::clearRouteMap();
 	}
 
 	/** 

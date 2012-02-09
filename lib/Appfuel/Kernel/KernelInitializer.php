@@ -13,6 +13,7 @@ namespace Appfuel\Kernel;
 use RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Kernel\Mvc\MvcFront,
+	Appfuel\Kernel\Mvc\MvcRouteManager,
 	Appfuel\Kernel\Mvc\MvcActionDispatcherInterface,
 	Appfuel\Kernel\Mvc\Filter\FilterManagerInterface,
 	Appfuel\Kernel\Startup\StartupTaskInterface,
@@ -57,7 +58,7 @@ class KernelInitializer
 	 *
 	 * @return	KernalInitializer
 	 */
-	public function __construct($base, $strategy, $lib = null)
+	public function __construct($base, $lib = null)
 	{
 		$err = 'Initialization error: ';
 		if (defined('AF_BASE_PATH')) {
@@ -93,8 +94,6 @@ class KernelInitializer
 		$this->setConfigPath("$base/app");
 		$this->initDependencyLoader();
 		$this->initKernelDependencies();
-		
-		KernelRegistry::setAppStrategy($strategy);
 	}
 
 	/**
@@ -298,7 +297,7 @@ class KernelInitializer
 
 		$isFaultDisabled = ($isFaultDisabled === true) ? true : false;
 		if (false === $isFaultDisabled) {
-			$handler = new FaultHandler(new KernelOutput());
+			$handler = new FaultHandler();
 			set_error_handler(array($handler, 'handleError'));
 			set_exception_handler(array($handler, 'handleException'));
 			$report .= 'fault handling';
@@ -394,9 +393,9 @@ class KernelInitializer
 		}
 
 		$max = count($map);
-		KernelRegistry::setRouteMap($map);
+		MvcRouteManager::setRouteMap($map);
 		$result = "route map intiailized with $max routes";
-		self::$status['kernal:routes'] = $result;
+		self::$status['mvc route manager:routes'] = $result;
 		return $this;
 	}
 
@@ -534,11 +533,33 @@ class KernelInitializer
 	 * @param	OutputInterface $output
 	 * @return	MvcFront
 	 */
-	public function createFront(MvcActionDispatcherInterface $dispatch = null,
-								FilterManagerInterface $filterManager = null,
-								OutputInterface $output = null)
+	public function buildFront(MvcDispatcherInterface $dispatcher = null,
+								InterceptChainInterface $preChain = null,
+								InterceptChainInterface $postChain = null)
 	{
-		return new MvcFront($dispatch, $filterManager, $output);
+		$preList = KernelRegistry::getParam('pre-filters', array());
+		if (null === $preChain) {
+			$preChain = new InterceptChain();
+		}
+		
+		if (is_array($preList) && ! empty($preList)) {
+			$preChain->loadFilters($preList);
+		}
+
+		$postList = KernelRegistry::getParam('post-filters', array());
+		if (null === $postChain) {
+			$postChain = new InterceptChain();
+		}
+		
+		if (is_array($postList) && ! empty($postList)) {
+			$postChain->loadFilters($postList);
+		}
+
+		if (null === $dispatcher) {
+			$dispatcher = new MvcDispatcher();
+		}
+
+		return new MvcFront($dispatcher, $preChain, $postChain);
 	}
 
 	/**

@@ -115,7 +115,7 @@ class KernelOutput implements OutputInterface
 	{
 		$output = $this->getConsoleOutput();
 		if ($data instanceof MvcContextInteface) {
-			$text =(string) $data->getView();;
+			$text =(string) $data->getView();
 		}
 		else {
 			$text = $data;
