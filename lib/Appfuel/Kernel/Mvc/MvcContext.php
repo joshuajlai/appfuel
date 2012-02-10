@@ -121,6 +121,16 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	}
 
 	/**
+	 * @return	string
+	 */
+	public function getViewStrategy()
+	{
+		return $this->getRouteDetail()
+					->getViewDetail()
+					->getStrategy();
+	}
+
+	/**
 	 * @return	ViewTemplateInterface
 	 */
 	public function getView()
