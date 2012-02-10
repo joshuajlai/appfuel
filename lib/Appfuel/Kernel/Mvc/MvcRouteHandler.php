@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use InvalidArgumentException;
+use LogicException,
+	InvalidArgumentException;
 
 /**
  */
@@ -145,7 +146,7 @@ class MvcRouteHandler implements MvcRouteHandlerInterface
 		if (false === $namespace) {
 			$err  = "namespace not found -($masterKey) make sure route map ";
 			$err .= "is loaded into the MvcRouteManager";
-			throw new LogicException($master);
+			throw new LogicException($err);
 		}
 
 		$this->setMasterKey($masterKey);

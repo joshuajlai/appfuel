@@ -42,7 +42,7 @@ class HtmlPageBuilder implements HtmlPageBuilderInterface
 								HtmlPageConfigurationInterface $config = null)
 	{
 		if (null === $finder) {
-			$finder = new PathFinder('ui');
+			$finder = new PathFinder('resource');
 		}
 		$this->finder = $finder;
 

@@ -29,7 +29,7 @@ class FileViewTemplate extends ViewTemplate implements FileViewInterface
 	 * Directory used to hold clientside resources
 	 * @var string
 	 */
-	static protected $resourceDir = 'ui';
+	static protected $resourceDir = 'resource';
 
     /**
      * Relative path to a file template
