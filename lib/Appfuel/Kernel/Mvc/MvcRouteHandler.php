@@ -141,10 +141,18 @@ class MvcRouteHandler implements MvcRouteHandlerInterface
 									  array $masterConfig = null, 
 									  array $aliases = null)
 	{
+		$namespace = MvcRouteManager::getNamespace($masterKey);
+		if (false === $namespace) {
+			$err  = "namespace not found -($masterKey) make sure route map ";
+			$err .= "is loaded into the MvcRouteManager";
+			throw new LogicException($master);
+		}
+
 		$this->setMasterKey($masterKey);
 		if (null === $masterConfig) {
 			$masterConfig = array();
 		}
+		$masterConfig['namespace'] = $namespace;
 
 		/*
 		 * merge the default config array so that we can use a completed 
@@ -176,10 +184,12 @@ class MvcRouteHandler implements MvcRouteHandlerInterface
 
 			if (is_array($data)) {
 				if (empty($data)) {
-					$detail = $this->createRouteDetail(array());
+					$data['namespace'] = $namespace;
+					$detail = $this->createRouteDetail($data);
 				}
 				else if (isset($data['is-inherit']) && 
 						 false === $data['is-inherit']) {
+					$data['namespace'] = $namespace;
 					$detail = $this->createRouteDetail($data);
 				}
 				else {

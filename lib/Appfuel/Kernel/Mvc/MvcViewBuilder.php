@@ -100,32 +100,45 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 	 * @param	MvcViewDetailInterface	$detail
 	 * @return	ViewInterface | empty string
 	 */
-	public function buildView(MvcViewDetailInterface $detail)
+	public function buildView(MvcRouteDetailInterface $detail)
 	{
-		$strategy = $detail->getViewStrategy();
-		$params = $detail->getViewParams();
-		$method = $detail->getBuildMethod();
+		$viewDetail = $detail->getViewDetail();
+		if (! $viewDetail->isView()) {
+			return '';
+		}
 
-		if (! $method) {
-			$view = $this->buildAppView($strategy, $params);
+		$namespace  = $detail->getNamespace();
+		$strategy = $viewDetail->getStrategy();
+		$params   = $viewDetail->getParams();
+		$method   = $viewDetail->getMethod();
+		$class    = $viewDetail->getViewClass();
+
+		if ($viewDetail->isViewClass()) {
+			return new $class();
 		}
-		else if (is_string($method) && is_callable(array($this, $method))) {
-			
-			$view = $this->$method($strategy, $params);
+
+		
+		if (is_string($method) && is_callable(array($this, $method))) {
+			return $this->$method($strategy, $params);
 		}
-		else if (is_callable($method)) {
-			$view = call_user_func($method, $strategy, $params);
+
+		if (is_callable($method)) {
+			return call_user_func($method, $strategy, $params);
 		}
-		else {
-			$err = "view build failed: method not found -($method)";
+
+		if (null !== $method) {
+			$name = 'unkown';
+			if (is_string($method)) {
+				$name = $method;
+			}
+			else if (is_array($method) && isset($method[1])) {
+				$name = $method[1];
+			}
+			$err = "view build failed: method not found -($name)";
 			throw new RunTimeException($err);
 		}
 		
-		if (! $this->isValidView($view)) {
-            $err  = 'view must implement Appfuel\View\ViewInterface';
-            throw new RunTimeException($err);
-        }
-	
+		$view = $this->buildAppView($strategy, $params);
 		return $view;
 	}
 
@@ -234,14 +247,5 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 	public function createViewTemplate()
 	{
 		return new ViewTemplate();
-	}
-
-	/**
-	 * @param	mixed	$template
-	 * @return	bool
-	 */
-	public function isValidView($template)
-	{
-		return $template instanceof ViewInterface;
 	}
 }

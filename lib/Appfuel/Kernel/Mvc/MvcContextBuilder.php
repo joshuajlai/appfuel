@@ -13,7 +13,7 @@ namespace Appfuel\Kernel\Mvc;
 use LogicException,
 	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Kernel\MvcRouteManager,
+	Appfuel\Kernel\Mvc\MvcRouteManager,
 	Appfuel\View\Html\FileViewTemplate,
 	Appfuel\View\Html\HtmlViewInterface,
     Appfuel\ClassLoader\StandardAutoLoader,
@@ -466,11 +466,11 @@ class MvcContextBuilder implements MvcContextBuilderInterface
 		$view = $this->getView();
 		if (null === $view) {
 			$viewBuilder = $this->getViewBuilder();
-			$view = $viewBuilder->buildView($detail->getViewDetail());
+			$view = $viewBuilder->buildView($detail);
 		}
 
-		$this->clear()
-		return $this->createContext($key, $detail, $input, $view);
+		$this->clear();
+		return new MvcContext($key, $detail, $input, $view);
 	}
 
 	/**
@@ -484,13 +484,5 @@ class MvcContextBuilder implements MvcContextBuilderInterface
 		$this->input = null;
 		$this->aclCodes = array();
 		$this->view = null;
-	}
-
-    /**
-     * @return  string | false when not mapped
-     */
-	protected function getRouteDetail($key)
-	{
-		return MvcRouteManager::getRouteDetail($key);
 	}
 }

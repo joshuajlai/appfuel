@@ -11,8 +11,7 @@
 namespace Appfuel\Kernel\Mvc;
 
 use InvalidArgumentException,
-	Appfuel\DataStructure\Dictionary,
-	Appfuel\DomainStructure\DictionaryInterface;
+	Appfuel\DataStructure\Dictionary;
 
 /**
  * The app context holds the input (get, post, argv etc..), handles errors and 
@@ -72,7 +71,6 @@ class MvcContext extends Dictionary implements MvcContextInterface
 								AppInputInterface $input,
 								$view = null)
 	{
-		$this->setStrategy($strategy);
 		$this->setRouteKey($routeKey);
 		$this->setRouteDetail($routeDetail);
 		$this->setInput($input);
@@ -96,6 +94,21 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	public function getRouteDetail()
 	{
 		return $this->routeDetail;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getNamespace()
+	{
+		return $this->getRouteDetail()
+					->getNamespace();
+	}
+
+	public function getActionClass()
+	{
+		return $this->getRouteDetail()
+					->getActionClass();
 	}
 
 	/**
@@ -214,9 +227,9 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	}
 
 	/**
-	 * @return bool
+	 * @return	bool
 	 */
-	public function isValidContext()
+	public function isAccessAllowed()
 	{
 		$detail = $this->getRouteDetail();
 		return $detail->isAccessAllowed($this->getAclCodes());

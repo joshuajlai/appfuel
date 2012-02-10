@@ -24,6 +24,25 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected $isPublic = false;
 
 	/**
+	 * Namepsace of the mvc action
+	 * @var string
+	 */
+	protected $namespace = '';
+
+	/**
+	 * Class name of the mvc action used by the dispatching system
+	 * @var string
+	 */
+	protected $actionName = 'Controller';
+
+	/**
+	 * Fully qualified namespace of the mvc action. By default this is the
+	 * combination of namespace and actionName 
+	 * @var string
+	 */
+	protected $actionClass = '';
+
+	/**
 	 * Flag used to detemine if the controller used by this route is internal.
 	 * Internal routes can not be executed by the front controller and thus
 	 * inaccessible from the outside
@@ -36,6 +55,13 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 * @var	array
 	 */
 	protected $aclCodes = array();
+
+	/**
+	 * Used when isPublic is false but you want anyone who as acl access to
+	 * pass through
+	 * @var bool
+	 */
+	protected $isIgnoreAcl = false;
 
 	/**
 	 * List of intercepting filters used by the front controller for 
@@ -72,13 +98,17 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		}
 
 		if (isset($data['is-internal']) && true === $data['is-internal']) {
-			$this->isInternal = true;;
+			$this->isInternal = true;
 		}
 
 		if (isset($data['acl-access'])) {
 			$this->setAclCodes($data['acl-access']);
 		}
-		
+	
+		if (isset($data['is-ignore-acl']) && true === $data['is-ignore-acl']) {
+			$this->isIgnoreAcl = true;
+		}
+	
 		if (isset($data['intercept'])) {
 			$this->setInterceptingFilters($data['intercept']);
 		}
@@ -97,6 +127,22 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		if (isset($data['params']) && is_array($data['params'])) {
 			$params = $data['params'];
 		}
+
+		if (isset($data['namespace'])) {
+			$this->setNamespace($data['namespace']);
+		}
+
+		if (isset($data['action-name'])) {
+			$this->setActionName($data['action-name']);
+		}
+
+		if (isset($data['action-class'])) {
+			$class = $data['action-class'];
+		}
+		else {
+			$class = "{$this->getNamespace()}\\{$this->getActionName()}";
+		}
+		$this->setActionClass($class);
 
 		parent::__construct($params);
 	}
@@ -118,15 +164,23 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	}
 
 	/**
+	 * @return bool
+	 */
+	public function isIgnoreAcl()
+	{
+		return $this->isIgnoreAcl;
+	}
+
+	/**
 	 * @param	string	$code
 	 * @return	bool
 	 */
 	public function isAccessAllowed($codes)
 	{
-		if ($this->isPublicAccess()) {
+		if ($this->isPublicAccess() || $this->isIgnoreAcl()) {
 			return true;
 		}
-
+		
 		if (is_string($codes)) {
 			$codes = array($codes);
 		}
@@ -164,7 +218,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	{
 		$list = $this->filters['pre']['include'];
 		return is_array($list) && ! empty($list); 
-			   
 	}
 
 	/**
@@ -248,6 +301,30 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	public function isViewDetail()
 	{
 		return $this->viewDetail instanceof MvcViewDetailInterface;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getNamespace()
+	{
+		return $this->namespace;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getActionName()
+	{
+		return $this->actionName;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getActionClass()
+	{
+		return $this->actionClass;
 	}
 
 	/**
@@ -355,7 +432,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		$this->viewDetail = $detail;
 	}
 
-
 	/**
 	 * @param	array	$data
 	 * @return	MvcViewDetail
@@ -363,5 +439,48 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected function createViewDetail(array $data)
 	{
 		return new MvcViewDetail($data);
+	}
+
+	/**
+	 * @param	string	$ns
+	 * @return	null
+	 */
+	protected function setNamespace($ns)
+	{
+		if (! is_string($ns)) {
+			$err = 'namespace must be a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->namespace = $ns;
+	}
+
+	/**
+	 * @param	string	$ns
+	 * @return	null
+	 */
+	protected function setActionName($className)
+	{
+		if (! is_string($className)) {
+			$err = 'action class name must be a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->actionName = $className;
+	}
+
+	/**
+	 * @param	string	$ns
+	 * @return	null
+	 */
+	protected function setActionClass($qualifiedNs)
+	{
+		if (! is_string($qualifiedNs) || empty($qualifiedNs)) {
+			$err  = 'the fully qualified namespace of an mvc action ';
+			$err .= 'must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->actionClass = $qualifiedNs;
 	}
 }

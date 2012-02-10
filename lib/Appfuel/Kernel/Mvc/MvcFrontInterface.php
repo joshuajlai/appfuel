@@ -16,113 +16,38 @@ namespace Appfuel\Kernel\Mvc;
  * run post filters and output the results.
  */
 interface MvcFrontInterface
-{
-    /**
-     * @return  MvcActionDispatcherInterface
-     */
-    public function getDispatcher();
-
+{	
 	/**
-	 * @return	Mvc\FilerManagerInterface
+	 * @return	MvcActionDispatcherInterface
 	 */
-	public function getFilterManager();
-
-    /**
-     * @param   string  $strategy   ajax|html|console
-     * @return  MvcFrontInterface
-     */
-    public function setStrategy($strategy);
-
-    /**
-     * @param   string  $route
-     * @return  MvcFrontInterface
-     */
-    public function setRoute($route);
-	
-    /**
-     * @param   array   $codes
-     * @return  MvcFrontInterface
-     */
-    public function addAclCodes(array $codes);
-
-    /**
-     * @param   string  $code
-     * @return  MvcFrontInterface
-     */
-    public function addAclCode($code);
-
-    /**
-     * @return  OutputInterface
-     */
-    public function getOutputEngine();
-
-    /**
-     * @param   mixed   string|RequestUriInterface
-     * @return  MvcFrontInterface
-     */
-    public function setUri($uri);
-
-    /**
-     * @return  MvcFrontInterface
-     */
-    public function useServerRequestUri();
+	public function getDispatcher();
 
 	/**
-	 * @param	string	$method	 get|post|cli
-	 * @param	array	$params
-	 * @param	bool	$useUri  use the uri for get parameters 
-	 * @return	MvcFrontInterface
+	 * @return	InterceptChainInterface
 	 */
-    public function defineInput($method, array $params, $useUri = true);
-
-    /**
-     * @param   bool    $useUri 
-     * @return  MvcFrontInterface
-     */
-    public function defineInputFromSuperGlobals($useUri = true);
-
-    /**
-     * @return  MvcFrontInterface
-     */
-    public function useUriForInputSource();
-
-    /**
-     * @return  MvcFront
-     */
-    public function noInputRequired();
-
-    /**
-	 * This method should set the strategy to 'console', set the uri to the
-	 * parameter passed in and use inputs defined by super globals
-	 *
-     * @param   string  $route
-     * @param   string|RequestUriInterface
-     * @return  int		this is the context exit code (http status code)
-     */
-    public function runConsoleUri($uri);
-
-    /**
-     * This will dispatch a route with the console strategy and define its
-     * inputs from the super global which means $_SERVER['argv']
-     *
-     * @param   string  $route
-     * @return  int 
-     */
-    public function runConsoleRoute($route);
+	public function getPreChain();
 
 	/**
+	 * @return	InterceptChainInterface
+	 */
+	public function getPostChain();
+
+	/**
+	 *  
+	 * @param	string	$strategy	console|ajax|htmlpage
 	 * @return	int
 	 */
-	public function runAjax();
+	public function run(MvcContextInterface $context);
 
 	/**
-	 * @return	int
+	 * @param	MvcContextInterface		$context
+	 * @return	MvcContextInterface
 	 */
-	public function runHtml();
-	
+	public function runPreFilters(MvcContextInterface $context);
+
 	/**
-	 * @param	string	$strategy
-	 * @return	int
+	 * @param	MvcContextInterface		$context
+	 * @return	MvcContextInterface
 	 */
-	public function run(MvcActionDispatcherInterface $dispatcher);	
+	public function runPostFilters(MvcContextInterface $context);
 }

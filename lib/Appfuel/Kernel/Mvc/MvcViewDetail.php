@@ -10,6 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
+use InvalidArgumentException;
+
 /**
  * Value object used to describe how to build a view interface
  */
@@ -43,6 +45,13 @@ class MvcViewDetail implements MvcViewDetailInterface
 	protected $method = null;
 
 	/**
+	 * Appfuel will create this class instead of trying to build one of its
+	 * own
+	 * @var string
+	 */
+	protected $viewClass = null;
+
+	/**
 	 * @param	array	$data
 	 * @return	MvcRouteDetail
 	 */
@@ -64,6 +73,16 @@ class MvcViewDetail implements MvcViewDetailInterface
 		if (isset($data['method']) && 
 			(is_string($data['method']) || is_callable($data['method']))) {
 			$this->method = $data['method'];
+		}
+
+		if (isset($data['view-class'])) {
+			$class = $data['view-class'];
+			if (! is_string($class) && ! empty($class)) {
+				$err = 'view class must be a non empty string';
+				throw new InvalidArgumentException($err);
+			}
+
+			$this->viewClass = $data['view-class'];
 		}
 	}
 
@@ -97,5 +116,21 @@ class MvcViewDetail implements MvcViewDetailInterface
 	public function getMethod()
 	{
 		return $this->method;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getViewClass()
+	{
+		return $this->viewClass;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isViewClass()
+	{
+		return is_string($this->viewClass) && ! empty($this->viewClass);
 	}
 }

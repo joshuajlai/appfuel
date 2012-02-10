@@ -15,21 +15,9 @@ namespace Appfuel\Kernel\Mvc;
 interface MvcActionInterface
 {
 	/**
-	 * @return	string
-	 */
-	public function getRoute();
-
-	/**
 	 * @return	MvcActionDispatcherInterface
 	 */
 	public function getDispatcher();
-
-	/**
-	 * Used to determine acl controll
-	 * 
-	 * @param	array	$codes
-	 */
-	public function isContextAllowed(array $codes);
 
 	/**
 	 * @param	AppContextInterface		$context

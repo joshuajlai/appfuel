@@ -42,7 +42,7 @@ class MvcAction implements MvcActionInterface
 		if (null === $dispatcher) {
 			$dispatcher = new MvcDispatcher();
 		}
-		$this->setDispatcher($disp);
+		$this->setDispatcher($dispatcher);
 
 		if (null === $builder) {
 			$contextBuilder = new MvcContextBuilder();
@@ -152,6 +152,16 @@ class MvcAction implements MvcActionInterface
 	{
 		$this->dispatcher = $dispatcher;
 	}
+
+	/**
+	 * @param	MvcActionDispatcherInterface $dispatcher
+	 * @return	null
+	 */
+	protected function setContextBuilder(MvcContextBuilderInterface $builder)
+	{
+		$this->contextBuilder = $builder;
+	}
+
 
 	/**
 	 * @param	string	$route

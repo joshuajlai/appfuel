@@ -94,24 +94,13 @@ abstract class DomainModel implements DomainModelInterface
 		$prefix = substr($name, 0, 3);
 		$member = substr($name, 3);
 		$member{0} = strtolower($member{0});
-
-		/* 
-		 * ignore members that do not exist when strict marshalling is 
-		 * disabled
-		 */
-		if (! property_exists($this, $member)) {
-			if (! $this->_isStrictMarshalling()) {
-				return $this;
-			}
-			throw new RunTimeException("member does not exist, $member)");
-		}
-
+		
 		if ('set' === $prefix) {
 			$this->_markDirty($member);
 			$this->$member = $args[0];
 			return $this;
 		}
-
+		
 		if ('get' === $prefix) {
 			return $this->$member;
 		}

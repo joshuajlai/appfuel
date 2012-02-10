@@ -13,32 +13,64 @@ namespace Appfuel\Kernel\Mvc;
 use Appfuel\DataStructure\DictionaryInterface;
 
 /**
- * This interface is a dictionary used to hold any application specific info
- * that might be assigned before the action controller processing has occured.
- * It is also required to hold the AppInputInterface to the action controllers
- * can retrieve any user input.
+ * The app context holds the input (get, post, argv etc..), handles errors and 
+ * is a dictionary that can hold hold key value pairs allowing custom objects
+ * specific to the application to be added without having to extends the 
+ * context. The context is passed into each intercepting filter and then into
+ * the action controllers process method.
  */
 interface MvcContextInterface extends DictionaryInterface
 {
 	/**
-	 * @return	string
+	 * @param	string	$strategy	console|ajax|html
+	 * @param	AppInputInterface	$input
+	 * @return	AppContext
 	 */
-	public function getStrategy();
+	public function __construct($routeKey, 
+								MvcRouteDetailInterface $routeDetail,
+								AppInputInterface $input,
+								$view = null);
 
 	/**
 	 * @return	string
+	 */
+	public function getRouteKey();
+
+	/**
+	 * @return	RouteDetailInterface
 	 */
 	public function getRouteDetail();
 
 	/**
-	 * List of codes used for role based access control
+	 * @return	ViewTemplateInterface
+	 */
+	public function getView();
+
+	/**
+	 * @param	mixed	$view
+	 * @return	bool
+	 */
+	public function isValidView($view);
+
+	/**
+	 * @return	bool
+	 */
+	public function isContextView();
+
+	/**
+	 * @param	ViewTemplateInterface $template
+	 * @return	AppContext
+	 */
+	public function setView($view);
+
+	/**
 	 * @return	array
 	 */
 	public function getAclCodes();
 
 	/**
 	 * @param	string	$code
-	 * @return	ContextInterface
+	 * @return	AppContext
 	 */
 	public function addAclCode($code);
 
@@ -49,20 +81,19 @@ interface MvcContextInterface extends DictionaryInterface
 	public function isAclCode($code);
 
 	/**
-	 * @return	AppInputInterface
+	 * @return	bool
 	 */
-	public function getInput();
+	public function isPublicAccess();
 
 	/**
-	 * @return	ViewTemplateInterface
+	 * @return	bool
 	 */
-	public function getView();
-	
-	/**
-	 * @param	ViewTemplateInterface
-	 * @return	AppContextInterface
-	 */
-	public function setView($view);
+	public function isInternalOnlyAccess();
+
+    /**
+     * @return  bool
+     */
+    public function isAccessAllowed();
 
 	/**
 	 * @return	int
@@ -70,8 +101,13 @@ interface MvcContextInterface extends DictionaryInterface
 	public function getExitCode();
 	
 	/**
-	 * @param	int $code
-	 * @return	AppContextInterface
+	 * @param	int	$code
+	 * @return	AppContext
 	 */
 	public function setExitCode($code);
+
+	/**
+	 * @return	ContextInputInterface
+	 */
+	public function getInput();
 }

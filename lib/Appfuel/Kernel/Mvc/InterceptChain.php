@@ -139,7 +139,7 @@ class InterceptChain implements InterceptChainInterface
 
 		$filters = $this->getFilters();
 		foreach ($filters as $filter) {
-			$filter->apply($context, $builder);
+			$filter->apply($context);
 			if ($filter->isReplaceContext()) {
 				$context = $filter->getContextToReplace();
 			}

@@ -115,7 +115,7 @@ class MvcFront implements MvcFrontInterface
 	 */
 	public function runPreFilters(MvcContextInterface $context)
 	{
-		$detail = $context->getDetail();
+		$detail = $context->getRouteDetail();
 		$chain  = $this->getPreChain();
 
 		if ($detail->isExcludedPreFilters()) {
@@ -135,7 +135,7 @@ class MvcFront implements MvcFrontInterface
 	 */
 	public function runPostFilters(MvcContextInterface $context)
 	{
-		$detail = $context->getDetail();
+		$detail = $context->getRouteDetail();
 		$chain  = $this->getPostChain();
 
 		if ($detail->isExcludedPostFilters()) {

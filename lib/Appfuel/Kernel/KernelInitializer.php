@@ -14,8 +14,11 @@ use RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Kernel\Mvc\MvcFront,
 	Appfuel\Kernel\Mvc\MvcRouteManager,
-	Appfuel\Kernel\Mvc\MvcActionDispatcherInterface,
-	Appfuel\Kernel\Mvc\Filter\FilterManagerInterface,
+	Appfuel\Kernel\Mvc\InterceptChain,
+	Appfuel\Kernel\Mvc\InterceptChainInterface,
+	Appfuel\Kernel\Mvc\MvcDispatcher,
+	Appfuel\Kernel\Mvc\MvcDispatcherInterface,
+	Appfuel\Kernel\Mvc\MvcContextBuilder,
 	Appfuel\Kernel\Startup\StartupTaskInterface,
 	Appfuel\ClassLoader\DependencyLoader,
 	Appfuel\ClassLoader\StandardAutoLoader,
@@ -132,6 +135,8 @@ class KernelInitializer
 
 		$this->initRouteMap($route)
 			 ->runStartupTasks();
+
+		return $this;
 	}
 
 	/**
@@ -153,6 +158,7 @@ class KernelInitializer
 			$data = $file;
 		}
 
+
 		if (null === $section) {
 			$section = 'main';
 		}
@@ -162,7 +168,7 @@ class KernelInitializer
 		}
 
 		if (! isset($data[$section]) || !is_array($data[$section])) {
-			$err = "Could not find config with key -($key)";
+			$err = "Could not find config with key -($section)";
 			throw new InvalidArgumentException($err);
 		}
 		$config = $data[$section];
@@ -181,6 +187,7 @@ class KernelInitializer
 				}
 			}
 		}
+
 		$max  = count($config);
 		KernelRegistry::setParams($config);
 		self::$status['kernal:config'] = "config intialized with $max items";

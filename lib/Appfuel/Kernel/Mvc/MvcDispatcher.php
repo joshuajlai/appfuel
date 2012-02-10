@@ -26,8 +26,7 @@ class MvcDispatcher implements MvcDispatcherInterface
 	 */
 	public function dispatch(MvcContextInterface $context)
 	{
-        $class = "{$context->getNamespace()}\\Action";
-        
+        $class = $context->getActionClass();
 		$action = new $class();
         if (! ($action instanceof MvcActionInterface)) {
             $err  = 'mvc action does not implement Appfuel\Kernel\Mvc\Mvc';
@@ -43,6 +42,6 @@ class MvcDispatcher implements MvcDispatcherInterface
 			throw new RunTimeException($err);
 		}
 
-		return $action->process($context);
+		$action->process($context);
 	}
 }
