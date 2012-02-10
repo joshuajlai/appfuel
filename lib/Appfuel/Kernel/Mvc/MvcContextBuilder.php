@@ -484,5 +484,6 @@ class MvcContextBuilder implements MvcContextBuilderInterface
 		$this->input = null;
 		$this->aclCodes = array();
 		$this->view = null;
+		return $this;
 	}
 }

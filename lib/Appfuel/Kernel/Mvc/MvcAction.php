@@ -125,11 +125,9 @@ class MvcAction implements MvcActionInterface
 		$dispatcher = $this->getDispatcher();
 
 		$tmp = $this->getContextBuilder()
-					->clear()
-					->setStrategy($context->getStrategy())
-					->setRoute($routeKey)
+					->setRouteKey($routeKey)
 					->setInput($context->getInput())
-					->buildContext();
+					->build();
 
 		$tmp->load($context->getAll());
 		$dispatcher->dispatch($tmp);
