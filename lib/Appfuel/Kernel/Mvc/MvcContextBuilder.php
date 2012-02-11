@@ -206,7 +206,8 @@ class MvcContextBuilder implements MvcContextBuilderInterface
     public function useServerRequestUri()
     {
         if (isset($_SERVER['QUERY_STRING']) &&
-            is_string($_SERVER['QUERY_STRING'])) {
+            is_string($_SERVER['QUERY_STRING']) &&
+            ! empty($_SERVER['QUERY_STRING'])) {
             $uri = '?' . $_SERVER['QUERY_STRING'];
         }
         else if (isset($_SERVER['REQUEST_URI'])) {
