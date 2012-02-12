@@ -75,7 +75,7 @@ class HtmlPageBuilderTest extends BaseTestCase
 			$finder
 		);
 
-		$this->assertEquals('ui', $finder->getRelativeRootPath());
+		$this->assertEquals('resource', $finder->getRelativeRootPath());
 
 		$config = $this->builder->getPageConfiguration();
 		$this->assertInstanceOf(

@@ -12,6 +12,7 @@ namespace TestFuel\Unit\Kernel\Mvc;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Kernel\Mvc\MvcRouteManager,
 	Appfuel\Kernel\Mvc\MvcRouteDetail,
 	Appfuel\Kernel\Mvc\MvcRouteHandler;
 
@@ -32,8 +33,11 @@ class MvcRouteHandlerTest extends BaseTestCase
 	 */
 	public function setUp()
 	{
-		$this->masterKey = 'master-key';
-		$this->handler = new MvcRouteHandler($this->masterKey);
+		$route = 'welcome';
+		$ns = 'TestFuel\Functional\Action\Welcome';
+		MvcRouteManager::addRoute('welcome', $ns);
+		$this->masterKey = $route;
+		$this->handler = new MvcRouteHandler($route);
 	}
 
 	/**
@@ -170,7 +174,7 @@ class MvcRouteHandlerTest extends BaseTestCase
 
 	public function testAliasPointToAnotherAlias()
 	{
-		$key = 'my-key';
+		$key = 'welcome';
 		$aliases = array(
 			'alias-b' => array(
 				'is-inherit'  => false,
