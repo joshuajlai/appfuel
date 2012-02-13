@@ -78,7 +78,7 @@ class FileFinderTest extends BaseTestCase
 
 		$this->assertTrue(defined('AF_BASE_PATH'));
 		$this->assertEquals(AF_BASE_PATH, $finder->getBasePath());
-		$this->assertEquals('', $finder->getRelativeRootPath());
+		$this->assertEquals('', $finder->getRootPath());
 	}
 	
 	/**
@@ -91,7 +91,7 @@ class FileFinderTest extends BaseTestCase
 		$finder = new FileFinder($path, false);
 
 		$this->assertNull($finder->getBasePath());
-		$this->assertEquals($path, $finder->getRelativeRootPath());
+		$this->assertEquals($path, $finder->getRootPath());
 	}
 
 	/**
@@ -103,7 +103,7 @@ class FileFinderTest extends BaseTestCase
 		$finder = new FileFinder(null, false);
 		
 		$this->assertNull($finder->getBasePath());
-		$this->assertEquals('', $finder->getRelativeRootPath());
+		$this->assertEquals('', $finder->getRootPath());
 	}
 
 	/**
@@ -115,13 +115,13 @@ class FileFinderTest extends BaseTestCase
 		$finder = $this->getFinder();
 		
 		$root = 'resource/appfuel/sql';
-		$this->assertNotEquals($root, $finder->getRelativeRootPath());
-		$this->assertSame($finder, $finder->setRelativeRootPath($root));
-		$this->assertEquals($root, $finder->getRelativeRootPath());
+		$this->assertNotEquals($root, $finder->getRootPath());
+		$this->assertSame($finder, $finder->setRootPath($root));
+		$this->assertEquals($root, $finder->getRootPath());
 
 		$root = '';
-		$this->assertSame($finder, $finder->setRelativeRootPath($root));
-		$this->assertEquals($root, $finder->getRelativeRootPath());
+		$this->assertSame($finder, $finder->setRootPath($root));
+		$this->assertEquals($root, $finder->getRootPath());
 	}
 
 	/**
@@ -133,14 +133,14 @@ class FileFinderTest extends BaseTestCase
 		$finder = $this->getFinder();
 		
 		$root = 'resource/appfuel/sql/';
-		$this->assertSame($finder, $finder->setRelativeRootPath($root));
+		$this->assertSame($finder, $finder->setRootPath($root));
 		
 		$expected = ltrim($root, '/');
-		$this->assertEquals($expected, $finder->getRelativeRootPath());
+		$this->assertEquals($expected, $finder->getRootPath());
 
 		$root = '/';
-		$this->assertSame($finder, $finder->setRelativeRootPath($root));
-		$this->assertEquals($root, $finder->getRelativeRootPath());
+		$this->assertSame($finder, $finder->setRootPath($root));
+		$this->assertEquals($root, $finder->getRootPath());
 	}
 
 	/**
@@ -149,10 +149,10 @@ class FileFinderTest extends BaseTestCase
 	 * @depends				testSetRelativePath
 	 * @return				null
 	 */
-	public function testSetRelativeRootPathNotString_Failure($path)
+	public function testSetRootPathNotString_Failure($path)
 	{
 		$finder = $this->getFinder();
-		$finder->setRelativeRootPath($path);
+		$finder->setRootPath($path);
 	}
 
 	/**
@@ -165,7 +165,7 @@ class FileFinderTest extends BaseTestCase
 		$path = AF_BASE_PATH . '/resource/appfuel/sql';
 		
 		$finder = $this->getFinder();
-		$finder->setRelativeRootPath($path);	
+		$finder->setRootPath($path);	
 	}
 
 	/**
@@ -178,7 +178,7 @@ class FileFinderTest extends BaseTestCase
 	public function testGetPathNoNoBasePathRelativeRoot()
 	{
 		$finder = new FileFinder(null, false);
-		$this->assertEquals('', $finder->getRelativeRootPath());
+		$this->assertEquals('', $finder->getRootPath());
 		$this->assertFalse($finder->isBasePath());
 		
 		$this->assertEquals('', $finder->getPath());
@@ -213,7 +213,7 @@ class FileFinderTest extends BaseTestCase
 		$this->assertEquals($expected, $finder->getPath($path));
 
 		$relativeRoot = 'resource/appfuel/sql';
-		$finder->setRelativeRootPath($relativeRoot);
+		$finder->setRootPath($relativeRoot);
 		
 		$expected = "{$basePath}/{$relativeRoot}/{$filePath}";
 		$this->assertEquals($expected, $finder->getPath($path));
@@ -242,11 +242,39 @@ class FileFinderTest extends BaseTestCase
 		$myPath   = '/test/path/file.php';
 		$finder   = $this->getFinder();
 		$basePath = $finder->getBasePath();
-		$finder->setRelativeRootPath($root);
+		$finder->setRootPath($root);
 
 		$expected = "$basePath/$root{$myPath}";
 		$result = $finder->getPath($myPath);
 		$this->assertEquals($expected, $finder->getPath($myPath));
 	}
+
+	/**
+	 * @depends		testSetRelativePath
+	 * @return		null
+	 */
+	public function testGetPathRelativeRootIsForwardSlash()
+	{
+		$finder = new FileFinder('/', false);
+		$this->assertEquals('/', $finder->getRootPath());
+		$this->assertEquals('/', $finder->getPath());
+
+		$this->assertEquals('/my/path', $finder->getPath('my/path'));
+	}
+
+	/**
+	 * @depends		testSetRelativePath
+	 * @return		null
+	 */
+	public function testGetPathNoBasePathRootIsEmpty()
+	{
+		$finder = new FileFinder('', false);
+		$this->assertEquals('', $finder->getRootPath());
+		$this->assertEquals('', $finder->getPath());
+
+		$this->assertEquals('my/path', $finder->getPath('my/path'));
+	}
+
+
 
 }

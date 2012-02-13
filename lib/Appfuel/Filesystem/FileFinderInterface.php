@@ -28,14 +28,14 @@ interface FileFinderInterface
 	/**
 	 * @return	string
 	 */
-	public function getRelativeRootPath();
+	public function getRootPath();
 
 	/**
 	 * @throws  RunTimeException
 	 * @throws	InvalidArgumentException
 	 * @return	PathFinder
 	 */
-	public function setRelativeRootPath($path);
+	public function setRootPath($path);
 
 	/**
 	 * Returns an absolute path to with the specified path appended to it
@@ -108,6 +108,4 @@ interface FileFinderInterface
 	 * @return	mixed | false on failure
 	 */
 	public function includeOnceFile($path);
-
-
 }

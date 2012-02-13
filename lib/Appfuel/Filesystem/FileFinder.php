@@ -33,7 +33,7 @@ class FileFinder implements FileFinderInterface
 	 * acts as the root path for method getPath when no path bath it is the
 	 * root path.
 	 */
-	protected $relativeRoot = '';
+	protected $root = '';
 
     /**
      *  
@@ -41,22 +41,21 @@ class FileFinder implements FileFinderInterface
      * @param   bool    $isBasePath
      * @return  File
      */
-    public function __construct($path = '', $isBasePath = true)
+    public function __construct($path = null, $isBasePath = true)
     {
-		if (! defined('AF_BASE_PATH') && true === $isBasePath) {
-			$err = "base path constant must be set AF_BASE_PATH";
-			throw new LogicException($err);
+		if (true === $isBasePath) {
+			if (! defined('AF_BASE_PATH')) {
+				$err = "base path constant must be set AF_BASE_PATH";
+				throw new LogicException($err);
+			}
+			$this->setBasePath(AF_BASE_PATH);
 		}
 
 		/* set only a string that is not empty since the default relative
 		 * root is empty
 		 */
-		if (is_string($path) && ($path = trim($path))) {
-			$this->setRelativeRootPath($path);
-		}
-
-		if (true === $isBasePath) {
-			$this->setBasePath(AF_BASE_PATH);
+		if (is_string($path)) {
+			$this->setRootPath($path);
 		}
     }
 
@@ -83,9 +82,9 @@ class FileFinder implements FileFinderInterface
 	/**
 	 * @return	string
 	 */
-	public function getRelativeRootPath()
+	public function getRootPath()
 	{
-		return $this->relativeRoot;
+		return $this->root;
 	}
 
 	/**
@@ -93,25 +92,26 @@ class FileFinder implements FileFinderInterface
 	 * @throws	InvalidArgumentException
 	 * @return	PathFinder
 	 */
-	public function setRelativeRootPath($path)
+	public function setRootPath($path)
 	{	
-		if (! is_string($path)) {
-			$err = "relative root path must be a string";
+		if (! is_string($path) && 
+			! (is_object($path) && is_callable(array($path, '__toString')))) {
+			$err  = "the root path must be a string or an object that ";
+			$err .= "implements __toString";
 			throw new InvalidArgumentException($err);
 		}
+		$path =(string) $path;
 
-		$basePath = $this->getBasePath();
-		if (! empty($basePath)) {
+		if ($this->isBasePath()) {
+			$basePath = $this->getBasePath();
 			$found = strpos($path, $basePath);
 			if (false !== $found) {
-				$err  = "relative root can not contain base path when the ";
-				$err .= "base path is exists";
+				$err  = "root path can not contain base when it already exists";
 				throw new RunTimeException($err);
 			}
 		}
 
-		/* remove the forward slash at the end, if it exists */
-		$this->relativeRoot = $path;
+		$this->root = $path;
 		return $this;
 	}
 
@@ -162,6 +162,10 @@ class FileFinder implements FileFinderInterface
 		return false;
 	}
 
+	/**
+	 * @param	string $path
+	 * @return	bool
+	 */
 	public function isWriteable($path = null)
 	{
 		if (is_writable($this->getPath($path))) {
@@ -310,7 +314,7 @@ class FileFinder implements FileFinderInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->basePath = rtrim($path, "/");
+		$this->basePath = $path;
 	}
 
 	/**
@@ -319,18 +323,18 @@ class FileFinder implements FileFinderInterface
 	 * 
 	 * @return	string
 	 */
-	protected function resolveRootPath()
+	public function resolveRootPath()
 	{
-		$root = rtrim($this->getRelativeRootPath(), "/");
-		$base = $this->getBasePath();
+		$root = $this->getRootPath();
+		$base = rtrim($this->getBasePath(), " \n\t/");
+		
+		/* 
+		 * if there is no base path we must preserve the absoluste path
+		 */
 		if (! $this->isBasePath()) {
-			return rtrim($root, "/");
+			return ('/' === $root) ? $root : rtrim($root, " \n\t/");
 		}
 
-		if (empty($root)) {
-			return $base;
-		} 
-		
-		return "$base/$root";
+		return rtrim("$base/$root", " \n\t/");
 	}
 }
