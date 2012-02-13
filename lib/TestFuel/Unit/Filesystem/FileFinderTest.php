@@ -110,7 +110,7 @@ class FileFinderTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testSetRelativePath()
+	public function testSetRootPath()
 	{
 		$finder = $this->getFinder();
 		
@@ -128,7 +128,7 @@ class FileFinderTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testSetRelativePathEndingWithForwardSlash()
+	public function testSetRootPathEndingWithForwardSlash()
 	{
 		$finder = $this->getFinder();
 		
@@ -143,10 +143,16 @@ class FileFinderTest extends BaseTestCase
 		$this->assertEquals($root, $finder->getRootPath());
 	}
 
+	public function testGetResolvedRootPathNoBasePathNotRoot()
+	{
+		$finder = new FileFinder(null, false);
+		$this->assertEquals('', $finder->getResolvedRootPath());
+	}
+
 	/**
 	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideNonStrings
-	 * @depends				testSetRelativePath
+	 * @depends				testSetRootPath
 	 * @return				null
 	 */
 	public function testSetRootPathNotString_Failure($path)
@@ -157,10 +163,10 @@ class FileFinderTest extends BaseTestCase
 
 	/**
 	 * @expectedException	RunTimeException
-	 * @depends				testSetRelativePath
+	 * @depends				testSetRootPath
 	 * @return				null
 	 */
-	public function testSetRelativeRootWithBasePathWhenEnabled_Failure()
+	public function testSetRootPathWithBasePathWhenEnabled_Failure()
 	{
 		$path = AF_BASE_PATH . '/resource/appfuel/sql';
 		
@@ -189,7 +195,7 @@ class FileFinderTest extends BaseTestCase
 
 	/**
 	 * @dataProvider		provideNonStrings
-	 * @depends				testSetRelativePath
+	 * @depends				testSetRootPath
 	 * @return				null
 	 */
 	public function testGetPathInvalidString($path)
@@ -199,7 +205,7 @@ class FileFinderTest extends BaseTestCase
 	}
 
 	/**
-	 * @depends		testSetRelativePath
+	 * @depends		testSetRootPath
 	 * @return		null
 	 */
 	public function testGetPathSplFileInfo()
@@ -220,7 +226,7 @@ class FileFinderTest extends BaseTestCase
 	}
 
 	/**
-	 * @depends		testSetRelativePath
+	 * @depends		testSetRootPath
 	 * @return		null
 	 */
 	public function testGetPathRelativeRootOnly()
@@ -233,7 +239,7 @@ class FileFinderTest extends BaseTestCase
 	}
 
 	/**
-	 * @depends		testSetRelativePath
+	 * @depends		testSetRootPath
 	 * @return		null
 	 */
 	public function testGetPathWithForwardSlash()
@@ -250,7 +256,7 @@ class FileFinderTest extends BaseTestCase
 	}
 
 	/**
-	 * @depends		testSetRelativePath
+	 * @depends		testSetRootPath
 	 * @return		null
 	 */
 	public function testGetPathRelativeRootIsForwardSlash()
@@ -263,7 +269,7 @@ class FileFinderTest extends BaseTestCase
 	}
 
 	/**
-	 * @depends		testSetRelativePath
+	 * @depends		testSetRootPath
 	 * @return		null
 	 */
 	public function testGetPathNoBasePathRootIsEmpty()
@@ -274,7 +280,4 @@ class FileFinderTest extends BaseTestCase
 
 		$this->assertEquals('my/path', $finder->getPath('my/path'));
 	}
-
-
-
 }
