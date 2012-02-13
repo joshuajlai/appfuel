@@ -110,11 +110,7 @@ class FileFinder implements FileFinderInterface
 			}
 		}
 
-		/* remove the forward slash at the end if it exists */
-		$len = strlen($path);
-		if ($len > 0 && '/' === $path{$len-1}) {
-			$path = substr($path, 0, $len-1);
-		}
+		/* remove the forward slash at the end, if it exists */
 		$this->relativeRoot = $path;
 		return $this;
 	}
@@ -141,15 +137,16 @@ class FileFinder implements FileFinderInterface
 		if (empty($path)) {
 			return $root;
 		}
-
-		if ('/' === $path{0}) {
-			$result = "{$root}{$path}";
-		}
-		else {
-			$result = "{$root}/{$path}";
+		else if (empty($root)) {
+			return $path;
 		}
 
-		return $result;
+		$path = ltrim($path, "/");
+		if ('/' === $root) {
+			return "/{$path}";
+		}
+
+		return "$root/$path";
 	}
 
 	/**
@@ -313,7 +310,7 @@ class FileFinder implements FileFinderInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->basePath = $path;
+		$this->basePath = rtrim($path, "/");
 	}
 
 	/**
@@ -324,23 +321,16 @@ class FileFinder implements FileFinderInterface
 	 */
 	protected function resolveRootPath()
 	{
-		$root = $this->getRelativeRootPath();
+		$root = rtrim($this->getRelativeRootPath(), "/");
 		$base = $this->getBasePath();
 		if (! $this->isBasePath()) {
-			return $root;
+			return rtrim($root, "/");
 		}
 
 		if (empty($root)) {
 			return $base;
 		} 
-			
-		if ('/' === $root{0}) {
-			$root = "{$base}{$root}";
-		}
-		else {
-			$root = "{$base}/{$root}";
-		}
-
-		return $root;
+		
+		return "$base/$root";
 	}
 }

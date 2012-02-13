@@ -125,6 +125,25 @@ class FileFinderTest extends BaseTestCase
 	}
 
 	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testSetRelativePathEndingWithForwardSlash()
+	{
+		$finder = $this->getFinder();
+		
+		$root = 'resource/appfuel/sql/';
+		$this->assertSame($finder, $finder->setRelativeRootPath($root));
+		
+		$expected = ltrim($root, '/');
+		$this->assertEquals($expected, $finder->getRelativeRootPath());
+
+		$root = '/';
+		$this->assertSame($finder, $finder->setRelativeRootPath($root));
+		$this->assertEquals($root, $finder->getRelativeRootPath());
+	}
+
+	/**
 	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideNonStrings
 	 * @depends				testSetRelativePath
