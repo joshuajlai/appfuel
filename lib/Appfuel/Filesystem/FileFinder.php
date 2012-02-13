@@ -116,10 +116,31 @@ class FileFinder implements FileFinderInterface
 	}
 
 	/**
-	 * Returns an absolute path to with the specified path appended to it
+	 * Checks for the forward slash on the relative root so you don't end
+	 * up the a path that has double slashes.
+	 * 
+	 * @return	string
+	 */
+	public function getResolvedRootPath()
+	{
+		$root = $this->getRootPath();
+		/* 
+		 * if there is no base path we must preserve the absoluste path
+		 */
+		if (! $this->isBasePath()) {
+			return ('/' === $root) ? $root : rtrim($root, " \n\t/");
+		}
+
+		$base = rtrim($this->getBasePath(), " \n\t/");
+		return rtrim("$base/$root", " \n\t/");
+	}
+
+	/**
+	 * Creates an absolute path by resolving base path (when it exists) root
+	 * path and the path passed in as a parameter
 	 * 
 	 * @param	string	$path	relative path 
-	 * @return	string
+	 * @return	string | false when param is invalid
 	 */
 	public function getPath($path = null)
 	{
@@ -133,7 +154,7 @@ class FileFinder implements FileFinderInterface
 		}
 			
 		$path =(string) $path;
-		$root = $this->resolveRootPath();
+		$root = $this->getResolvedRootPath();
 		if (empty($path)) {
 			return $root;
 		}
@@ -141,7 +162,7 @@ class FileFinder implements FileFinderInterface
 			return $path;
 		}
 
-		$path = ltrim($path, "/");
+		$path = ltrim($path, " \n\t/");
 		if ('/' === $root) {
 			return "/{$path}";
 		}
@@ -181,7 +202,7 @@ class FileFinder implements FileFinderInterface
 	 */
 	public function isReadable($path = null)
 	{
-		if (is_writable($this->getPath($path))) {
+		if (is_readable($this->getPath($path))) {
 			return true;
 		}
 
@@ -315,26 +336,5 @@ class FileFinder implements FileFinderInterface
 		}
 
 		$this->basePath = $path;
-	}
-
-	/**
-	 * Checks for the forward slash on the relative root so you don't end
-	 * up the a path that has double slashes.
-	 * 
-	 * @return	string
-	 */
-	public function resolveRootPath()
-	{
-		$root = $this->getRootPath();
-		$base = rtrim($this->getBasePath(), " \n\t/");
-		
-		/* 
-		 * if there is no base path we must preserve the absoluste path
-		 */
-		if (! $this->isBasePath()) {
-			return ('/' === $root) ? $root : rtrim($root, " \n\t/");
-		}
-
-		return rtrim("$base/$root", " \n\t/");
 	}
 }
