@@ -170,13 +170,22 @@ class FileFinder implements FileFinderInterface
 		return "$root/$path";
 	}
 
+	public function fileExists($fullPath)
+	{
+		if (file_exists($fullPath)) {
+			return true;
+		}
+
+		false;
+	}
+
 	/**
 	 * @param	string $path
 	 * @return	bool
 	 */
-	public function fileExists($path = null)
+	public function pathExists($path = null)
 	{
-		if (file_exists($this->getPath($path))) {
+		if ($this->fileExists($this->getPath($path))) {
 			return true;
 		}
 		

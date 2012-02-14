@@ -9,7 +9,7 @@
  * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\Kernel\PathFinder,
+use Appfuel\Kernel\ConfigBuilder,
 	Appfuel\Kernel\KernelInitializer,
 	Appfuel\Kernel\KernelRegistry;
 
@@ -31,6 +31,26 @@ $config = array('main' => array(
 $init  = new KernelInitializer($base);
 $init->initialize('main', $config);
 
-$finder = new PathFinder('app/config');
-echo "\n", print_r($finder->getPath('master/common.php'),1), "\n";exit;
+$args = $_SERVER['argv'];
+if (count($args) < 2 || ! isset($args[1])) {
+	fwrite(STDERR, "must the env name -(eg. local|dev|qa|prod)\n");
+	exit;
+}
+$env = $args[1];
+if (! is_string($env) || empty($env)) {
+	fwrite(STDERR, "env must be a non empty string");
+	exit;
+}
 
+$builder = new ConfigBuilder($env);
+
+try {
+	$builder->generateConfigFile();
+} catch (Exception $e) {
+	fwrite(STDERR, 'config build failure: '. $e->getMessage);
+	exit;
+}
+
+$path = "$base/app/config/app-config.php";
+fwrite(STDOUT, "generated config file at -($path)");
+exit(0);

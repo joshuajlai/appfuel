@@ -109,10 +109,17 @@ interface FileFinderInterface
 	public function getPath($path = null);
 
 	/**
+	 * Resolve the path into an absolute and then check its existence
 	 * @param	string $path
 	 * @return	bool
 	 */
-	public function fileExists($path = null);
+	public function pathExists($path = null);
+
+	/**
+	 * @param	string $path
+	 * @return	bool
+	 */
+	public function fileExists($full);
 
 	/**
 	 * @param	string $path
@@ -143,32 +150,4 @@ interface FileFinderInterface
 	 * @return	bool
 	 */
 	public function isLink($path = null);
-
-	/**
-	 * @param	string	$path
-	 * @param	bool	$throw
-	 * @param	string	$msg
-	 * @return	bool
-	 */
-	public function requireFile($path, $throw = true, $msg = '');
-
-	/**
-	 * @param	string	$path
-	 * @param	bool	$throw
-	 * @param	string	$msg
-	 * @return	bool
-	 */
-	public function requireOnceFile($path, $isThrow = true, $msg = '');
-
-	/**
-	 * @param	string
-	 * @return	mixed | false on failure
-	 */
-	public function includeFile($path);
-	
-	/**
-	 * @param	string
-	 * @return	mixed | false on failure
-	 */
-	public function includeOnceFile($path);
 }

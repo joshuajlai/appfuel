@@ -7,6 +7,7 @@
 <testsuites>
 	<testsuite name="Appfuel Tests">
 	<file>../lib/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/ConfigBuilderTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteManagerTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcViewDetailTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteDetailTest.php</file>
