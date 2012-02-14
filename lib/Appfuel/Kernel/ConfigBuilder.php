@@ -180,7 +180,9 @@ class ConfigBuilder implements ConfigBuilderInterface
 	public function generateConfigFile()
 	{
 		$data = $this->mergeConfigurations();
-		
+		$env = $this->getCurrentEnv();
+		$data['env'] = $env;
+	
 		$content = "<?php \n /* generated config file */ \n return ";
 		$content .= $this->printArray($data);
 		$content .= "?>";
