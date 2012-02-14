@@ -122,6 +122,74 @@ class Dictionary implements DictionaryInterface
         return $isType;
     }
 
+	public function merge($data)
+	{
+		if ($data instanceof DictionaryInterface) {
+			$data = $data->getAll();
+		}
+		else if (! is_array($data)) {
+			$err  = 'dictionary can only merge an array or another Appfuel';
+			$err .= 'DataStructure\DictionaryInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		foreach ($data as $key => $value) {
+			if (! $this->exists($key)) {
+				$this->add($key, $value);
+			}
+			
+			$item = $this->data[$key];
+			if ($item instanceof DictionaryInterface) {
+				if (is_array($value) && $value instanceof DictionaryInterface){
+					$item->merge($value);
+				}
+				else {
+					$this->add($key, $value);
+				}
+				continue;
+			}
+		
+			if (! is_array($item) || ! is_array($value)) {
+				$this->add($key, $value);
+				continue;
+			}
+
+			/* item is an array and value is not */
+			$this->arrayMerge($value, $item);
+		}
+
+	}
+
+	protected function arrayMerge(array $merge, array $src)
+	{
+		foreach ($merge as $key => $value) {
+			if (! array_key_exists($key, $src)) {
+				$src[$key] = $value;
+				continue;
+			}
+
+			$item = $src[$key];
+			if (is_array($value) && is_array($item)) {
+
+				/* merge the unique values togather for indexed arrays*/
+				if ($value === array_values($value)) {
+					foreach ($value as $arrItem) {
+						$src[$key][] = $arraItem;
+					}
+					$src[$key] = array_unique($src[$key]);
+				}
+				/* recurse through assosiative arrays */
+				else {
+					$src[$key] = $this->arrayMerge($value, $item);
+				}
+			}
+			else {
+				$src[$key] = $value;
+				continue;
+			}
+		}
+	}
+
 	/**
 	 * @param	string	$key
 	 * @param	type	$type	name of class to test for

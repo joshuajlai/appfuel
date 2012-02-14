@@ -6,6 +6,18 @@
 		 convertErrorsToExceptions="true">
 <testsuites>
 	<testsuite name="Appfuel Tests">
+	<file>../lib/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/ConfigBuilderTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteManagerTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcViewDetailTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteDetailTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteHandlerTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcViewBuilderTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
+	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/HtmlPageDetailTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/HtmlPageTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/HtmlPageBuilderTest.php</file>
 <!--		
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Console</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Http</directory>
@@ -67,17 +79,6 @@
 	<file>../lib/TestFuel/Unit/App/Resource/AssetListTest.php</file>
 	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcContextBuilderTest.php</file>
 -->
-
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteManagerTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcViewDetailTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteDetailTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteHandlerTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/MvcViewBuilderTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
-	<file>../lib/TestFuel/Unit/View/Html/HtmlPageDetailTest.php</file>
-	<file>../lib/TestFuel/Unit/View/Html/HtmlPageTest.php</file>
-	<file>../lib/TestFuel/Unit/View/Html/HtmlPageBuilderTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>
