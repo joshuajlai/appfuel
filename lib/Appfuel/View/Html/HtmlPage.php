@@ -124,7 +124,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->addTemplate('htmldoc', $doc);
+		$this->addTemplate('htmldoc', $template);
 		return $this;
 	}
 
@@ -633,15 +633,16 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 		$html = $this->getHtmlTag();
 		$head = $html->getHead();
 		$body = $html->getBody();
-		
-		$template->assign('html-attrs', $htmlTag->getAttributeString());
+	
+		$template->assign('html-attrs', $html->getAttributeString());
+
 		
 		$template->assign('head-attrs', $head->getAttributeString());
 		$template->assign('head-title', $head->getTitle());
 		if ($head->isBase()) {
 			$template->assign('head-base', $head->getBase());
 		}
-
+		
 		if ($head->isMeta()) {
 			$template->assign('head-meta', $head->getMeta());
 		}
@@ -666,7 +667,6 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 			$this->addScriptTag($this->getInlineScriptTag());
 			$template->assign('body-js', $this->getScriptTags());
 		}
-
 		return $template->build();
 	}
 

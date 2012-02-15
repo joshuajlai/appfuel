@@ -113,11 +113,14 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 		$method   = $viewDetail->getMethod();
 		$class    = $viewDetail->getViewClass();
 
+
+		/*
+		 * override the view by just instantiating the view class given
+		 */
 		if ($viewDetail->isViewClass()) {
 			return new $class();
 		}
 
-		
 		if (is_string($method) && is_callable(array($this, $method))) {
 			return $this->$method($strategy, $params);
 		}
@@ -138,6 +141,16 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 			throw new RunTimeException($err);
 		}
 		
+		/*
+		 * Do not need a template, just use this raw string
+		 */
+		if ($viewDetail->isRawView()) {
+			return $viewDetail->getRawView();
+		}
+
+		/*
+		 * no overrides use strategy given to build default view
+		 */
 		$view = $this->buildAppView($strategy, $params);
 		return $view;
 	}
@@ -176,6 +189,17 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 		}
 
 		return $view;
+	}
+
+	/**
+	 * @param	array	$params
+	 * @return	HtmlPageInterface
+	 */
+	public function buildHtmlPage(array $params)
+	{
+		$builder = $this->getHtmlPageBuilder();
+		$detail  = $builder->createHtmlPageDetail($params);	
+		return $builder->buildPage($detail);
 	}
 
 	/**

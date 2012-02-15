@@ -3,12 +3,13 @@
 <head<?php $this->render('head-attrs', '');?>>
 <?php 
 	$this->render('head-base','');
-	$this->render('head-title','');
+	$this->renderEOL();
+	$this->render('head-title',''); 
+	$this->renderEOL();
 	$this->render('head-meta', '', PHP_EOL);
-	$this->render('head-css',  '', '');
-?>
+	$this->renderEOL();
+	$this->render('head-css',  '', '');?>
 </head>
-
 <body<?php $this->render('body-attrs', ''); ?>>
 <?php $this->render('body-markup', ''); ?>
 <?php $this->render('body-js', '', '');?>

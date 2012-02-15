@@ -73,8 +73,18 @@ class HtmlPageBuilder implements HtmlPageBuilderInterface
 	 * @param	HtmlPageDetailInterface $detail
 	 * @return	HtmlPageInterface
 	 */
-	public function buildPage(HtmlPageDetailInterface $detail)
+	public function buildPage($detail)
 	{
+		if (is_array($detail)) {
+			$detail = $this->createHtmlPageDetail($detail);
+		}
+		else if (! $detail instanceof HtmlPageDetailInterface) {
+			$err  = 'failed to build page: $detail must be an array or an ';
+			$err .= 'object that implements Appfuel\View\Html\HtmlPage';
+			$err .= 'DetailInterface';
+			throw new InvalidArgumentException($err);
+		}
+
 		$tagFactory = null;
 		if ($detail->isTagFactory()) {
 			$tagFactory = $this->createTagFactory($detail);
@@ -98,8 +108,12 @@ class HtmlPageBuilder implements HtmlPageBuilderInterface
 			$page->setInlineJsTemplate($detail->getInlineJsTemplate());
 		}
 
+		if ($detail->isHtmlDoc()) {
+			$page->setHtmlDoc($detail->getHtmlDoc());
+		}	
+
 		if ($detail->isHtmlConfig()) {
-			$this->configureHtmlPage($detail, $page);
+			$this->configure($detail, $page);
 		}
 
 		return $page;
@@ -198,6 +212,15 @@ class HtmlPageBuilder implements HtmlPageBuilderInterface
 		}
 
 		return $page;
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	HtmlPageDetail
+	 */
+	public function createHtmlPageDetail(array $data)
+	{
+		return new HtmlPageDetail($data);
 	}
 
 	/**

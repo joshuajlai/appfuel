@@ -15,7 +15,7 @@ return array(
 
 	'html-head' => array(
 		'title' => array('text' => 'Appfuel Framework', 'sep' => ' '),
-		'base'  => array('href' => $pkg->getBaseUrl()),
+		'base'  => array('href' => 'some-url.com'),
 		'meta'  => array(
 			array(
 				'content'	 => 'text/html', 
@@ -28,6 +28,5 @@ return array(
 			)
 		),
 	),
-	'html-body' => array(
-	)
+	'html-body' => array()
 );

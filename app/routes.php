@@ -1,7 +1,6 @@
 <?php
 
 return array(
-	''					=> 'Appfuel\Action\Welcome',
-	'welcome'			=> 'Appfuel\Action\Welcome',
-	'alias-welcome'		=> 'Appfuel\Action\Welcome',
+	''			=> 'AfApp\Action\Welcome',
+	'welcome'	=> 'AfApp\Action\Welcome',
 );
