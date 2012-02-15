@@ -94,7 +94,7 @@ class KernelInitializer
 			throw new RunTimeException($err);
 		}
 
-		$this->setConfigPath("$base/app");
+		$this->setConfigPath("$base/app/config");
 		$this->initDependencyLoader();
 		$this->initKernelDependencies();
 	}
