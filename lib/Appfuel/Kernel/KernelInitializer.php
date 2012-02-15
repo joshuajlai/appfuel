@@ -94,7 +94,7 @@ class KernelInitializer
 			throw new RunTimeException($err);
 		}
 
-		$this->setConfigPath("$base/app/config");
+		$this->setConfigPath("$base/app");
 		$this->initDependencyLoader();
 		$this->initKernelDependencies();
 	}
@@ -152,7 +152,7 @@ class KernelInitializer
 	public function initConfig($file = null, $section = null)
 	{
 		if (null === $file || is_string($file)) {
-			$data = $this->getData('config', $file);
+			$data = $this->getData('config/config', $file);
 		}
 		else if (! empty($file) && is_array($file)) {
 			$data = $file;
