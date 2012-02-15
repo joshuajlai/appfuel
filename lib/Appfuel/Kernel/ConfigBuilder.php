@@ -161,7 +161,7 @@ class ConfigBuilder implements ConfigBuilderInterface
 		$reader  = $this->getFileReader();
 		
 		$isThrow = true;
-		return $reader->requireFile('prod.php', $isThrow);
+		return $reader->requireFile('production.php', $isThrow);
 	}
 
 	/**
@@ -179,15 +179,20 @@ class ConfigBuilder implements ConfigBuilderInterface
 	 */
 	public function generateConfigFile()
 	{
-		$data = $this->mergeConfigurations();
 		$env = $this->getCurrentEnv();
-		$data['env'] = $env;
+		if ('production' === $env) {
+			$data = $this->getProductionData();
+			$data['common']['env'] = 'production';
+		}
+		$data = $this->mergeConfigurations();
+		$data['common']['env'] = $env;
 	
 		$content = "<?php \n /* generated config file */ \n return ";
 		$content .= $this->printArray($data);
-		$content .= "?>";
+		$content .= "\n?>";
+
 		$writer = $this->getFileWriter();
-		return $writer->putContent($content, 'app-config.php');
+		return $writer->putContent($content, 'config.php');
 	}
 
 	/**
