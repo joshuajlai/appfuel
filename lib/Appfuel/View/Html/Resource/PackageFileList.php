@@ -60,7 +60,7 @@ class PackageFileList implements PackageFileListInterface
 	{
 		if (! is_string($type) || empty($type)) {
 			$err = 'file type must be a none empty string';
-			throw new InvalidArgumentException($type);
+			throw new InvalidArgumentException($err);
 		}
 
 		if (! is_string($file) || empty($file)) {
@@ -106,6 +106,8 @@ class PackageFileList implements PackageFileListInterface
 					$this->add($type, $file);
 			}
 		}
+
+		return $this;
 	}
 
 	/**
