@@ -1,0 +1,26 @@
+{
+	"name":	"kernel-mvc",
+	"desc":	"module implementation of the mvc pattern in javascript",
+	"version":	"0.0.1",
+	"build-strategy": "af-builder",
+
+	"files":{
+		"js": [
+			"src/mvc-front.js",
+			"src/mvc-dispatcher.js",
+			"src/mvc-context.js",
+			"src/mvc-router.js"
+		],
+	},
+
+	"tests": [
+		"test/mvc-front-test.js"
+	],
+
+	"depends": [
+		"wd/html/pkg/core",
+		"yui3/anim/anim.js"
+	],
+
+	"build-detail":{}
+}
