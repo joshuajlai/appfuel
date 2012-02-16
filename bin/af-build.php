@@ -33,7 +33,7 @@ $init->initialize('main', $config);
 
 $args = $_SERVER['argv'];
 if (count($args) < 2 || ! isset($args[1])) {
-	fwrite(STDERR, "must the env name -(eg. local|dev|qa|prod)\n");
+	fwrite(STDERR, "must the env name -(eg. local|dev|qa|production)\n");
 	exit;
 }
 $env = $args[1];
@@ -47,10 +47,10 @@ $builder = new ConfigBuilder($env);
 try {
 	$builder->generateConfigFile();
 } catch (Exception $e) {
-	fwrite(STDERR, 'config build failure: '. $e->getMessage);
+	fwrite(STDERR, 'config build failure: '. $e->getMessage());
 	exit;
 }
 
-$path = "$base/app/config/app-config.php";
+$path = "$base/app/config/config.php\n";
 fwrite(STDOUT, "generated config file at -($path)");
 exit(0);
