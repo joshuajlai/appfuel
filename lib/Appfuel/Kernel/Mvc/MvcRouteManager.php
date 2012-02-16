@@ -210,9 +210,14 @@ class MvcRouteManager
     static public function createRouteHandler($key)
     {
         $namespace = self::getNamespace($key);
+		/*
+		 * 404 is used as the error code because the fault handler will
+		 * catch this and use a 404 http reponse for any thing that is not
+		 * commandline and exit with 404 for commandline
+		 */
 		if (false === $namespace) {
 			$err = "could not resolve namespace for route key -($key)";
-			throw new RunTimeException($err);
+			throw new RunTimeException($err, 404);
 		}
 
         $class  = "$namespace\\RouteHandler";
