@@ -34,7 +34,6 @@ class RouteHandler extends MvcRouteHandler
 			'view-detail' => array(
 				'is-view'  => true,
 				'strategy' => 'html-page',
-				'raw' => 'this is my page',
 				'params'   => array(
 					'html-doc'	    => $docTpl,
 					'html-config'   => $config,
