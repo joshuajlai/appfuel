@@ -2,6 +2,4 @@
 *.swo
 *~
 www
-codegen/*
-ui/yui2
-ui/yui3
+app/config/config.php
