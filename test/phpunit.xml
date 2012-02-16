@@ -18,6 +18,7 @@
 	<file>../lib/TestFuel/Unit/View/Html/HtmlPageDetailTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/HtmlPageTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/HtmlPageBuilderTest.php</file>
+	<file>../lib/TestFuel/Unit/View/Html/Resource/PackageFileListTest.php</file>
 <!--		
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Console</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Http</directory>

@@ -1,8 +1,6 @@
 {
 	"name":	"kernel-mvc",
 	"desc":	"module implementation of the mvc pattern in javascript",
-	"version":	"0.0.1",
-	"build-strategy": "af-builder",
 
 	"files":{
 		"js": [
@@ -17,10 +15,14 @@
 		"test/mvc-front-test.js"
 	],
 
-	"depends": [
-		"wd/html/pkg/core",
-		"yui3/anim/anim.js"
-	],
-
-	"build-detail":{}
+	"depends": {
+		"wd": {
+			"path":"wd/html/pkg",
+			"packages": ["pkg1", "pkg2"],
+		},
+		"yui3": {
+			"path": "yui3/packages",
+			"packages": []
+		}
+	},
 }
