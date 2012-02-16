@@ -9,7 +9,8 @@ return array(
 		'default-timezone'		=> 'America/Los_Angeles',
 		'display-errors'		=> 'on',
 		'error-reporting'		=> 'all, strict',
-		'db' => array(),
+		'db'					=> array(),
+		'env'					=> 'production',
 	),
 
 	'main' => array(

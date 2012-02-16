@@ -182,10 +182,8 @@ class ConfigBuilder implements ConfigBuilderInterface
 		$env = $this->getCurrentEnv();
 		if ('production' === $env) {
 			$data = $this->getProductionData();
-			$data['common']['env'] = 'production';
 		}
 		$data = $this->mergeConfigurations();
-		$data['common']['env'] = $env;
 	
 		$content = "<?php \n /* generated config file */ \n return ";
 		$content .= $this->printArray($data);
