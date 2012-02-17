@@ -11,18 +11,10 @@
 		],
 	},
 
-	"tests": [
-		"test/mvc-front-test.js"
-	],
-
-	"depends": {
-		"wd": {
-			"path":"wd/html/pkg",
-			"packages": ["pkg1", "pkg2"],
-		},
-		"yui3": {
-			"path": "yui3/packages",
-			"packages": []
-		}
+	"tests": {
+		"js": ["test/js/mvc-front-test.js"],
+		"css": ["test/css/files.css"]
 	},
+
+	"depends": ["some/package/name", "other/package/name"]
 }
