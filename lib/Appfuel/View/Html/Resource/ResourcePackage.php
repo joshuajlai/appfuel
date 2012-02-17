@@ -10,9 +10,12 @@
  */
 namespace Appfuel\View\Html;
 
-use InvalidArgumentException;
+use InvalidArgumentException,
+	Appfuel\Filesystem\FileReader,
+	Appfuel\Filesystem\FileReaderInterface;
 
 /**
+ * 
  */
 class ResourcePackage implements ResourcePackageInterface
 {
@@ -22,14 +25,26 @@ class ResourcePackage implements ResourcePackageInterface
 	protected $manifest = null;
 
 	/**
+	 * @var FileReaderInterface
+	 */
+	protected $reader = null;
+
+	/**
+	 * @var string
+	 */
+	protected $version = '';
+
+	/**
 	 * @param	string|ViewInterface $view	
 	 * @param	string				 $htmlDocFile	path to phtml file
 	 * @param	HtmlTagFactory		 $factory
 	 * @return	HtmlPage
 	 */
-	public function __construct(ManifestInterface $manifest)
+	public function __construct(ManifestInterface $manifest,
+								FileReaderInterface $reader)
 	{
 		$this->manifest = $manifest;
+		$this->reader = $reader;
 	}
 
 	/**
@@ -38,6 +53,14 @@ class ResourcePackage implements ResourcePackageInterface
 	public function getManifest()
 	{
 		return $this->manifest;
+	}
+
+	/**
+	 * @return	FileReaderInterface
+	 */
+	public function getReader()
+	{
+		return $this->reader;
 	}
 
 }

@@ -1,0 +1,27 @@
+{
+	"name": "js-example",
+	"desc": "js module used to test resource building"
+	"files": {
+		"js": [
+			"src/js/file1.js",
+			"src/js/file2.js",
+			"src/js/file3.js"
+		],
+		"css": [
+			"src/css/file4.css",
+			"src/css/file5.css"
+		],
+
+		"asset": [
+			"src/asset/blog-icon.png",
+			"src/asset/warning-icon.png"
+		]
+	},
+
+	"tests": {
+		"js":  ["test/mytest.js"],
+		"css": ["test/mycss.css"],
+		"html":["test/myhtml.html"],
+		"phtml":["aftest:html/common/tpl/sometpl.phtml"]
+	}
+}
