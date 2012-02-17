@@ -287,14 +287,14 @@ class KernelInitializer
 		$isErrorDisabled = ($isErrorDisabled === true) ? true : false;
 		$report = '';
 		if (false === $isErrorDisabled) {
-			$display = KernelRegistry::getParam('display-error', 'on');
+			$display = KernelRegistry::getParam('display-errors', 'off');
 			if (null !== $display) {
 				$errorDisplay = new Error\ErrorDisplay();
 				$errorDisplay->set($display);
 				$report .= 'display error ';
 			}
 
-			$level	 = KernelRegistry::getParam('error-level', 'all,strict');
+			$level = KernelRegistry::getParam('error-level', 'all,strict');
 			if (null !== $level) {
 				$errorReporting = new Error\ErrorLevel();
 				$errorReporting->setLevel($level);

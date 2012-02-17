@@ -82,17 +82,14 @@ class FaultHandler implements FaultHandlerInterface
 	 */
 	public function handleError($level, $msg, $file, $line, $context)
 	{
-		$code    = 500;
-		$logger  = $this->getLogger();
-
-		$text = "$level: $msg in $file:$line";
-		$logger->log($text, LOG_ERR);
-	
+		$code   = 500;
+		$logger = $this->getLogger();
+		$text   = "$level: $msg in $file:$line";
 		if (! (error_reporting() & $level)) {
 			return false;
 		}
 
-		
+		$logger->log($text, LOG_ERR);		
 		$this->renderError($text, $code);
 		exit($code);
 	}
@@ -110,6 +107,11 @@ class FaultHandler implements FaultHandlerInterface
         $this->sendHttpOutput($text, $code);
 	}
 
+	/**
+	 * @param	string	$text
+	 * @param	int		$code
+	 * @return	null
+	 */
 	protected function sendHttpOutput($text, $code = 500)
 	{
 		$output = new HttpOutput();
