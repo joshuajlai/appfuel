@@ -22,6 +22,53 @@ use StdClass,
 class ResourceVendorTest extends BaseTestCase
 {
 	/**
+	 * @return	array
+	 */
+	public function provideInvalidArrayKeys()
+	{
+		return array(
+			array(1234),
+			array(0),
+			array(1),
+			array(1.23),
+			array(true),
+			array(false)
+		);
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function provideValidVersions()
+	{
+		return array(
+			array(0,		'0'),
+			array(1,		'1'),
+			array(-1,		'-1'),
+			array(1234,		'1234'),
+			array(-1234,	'-1234'),
+			array(1.2,		'1.2'),
+			array(0.0,		'0.0'),
+			array(-0.1,		'-0.1'),
+			array('0.0.123', '0.0.123'),
+			array('1.1rc',	'1.1rc'),
+			array(true,		'1'),
+			array(false,	'')
+		);
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function provideInvalidVersions()
+	{
+		return array(
+			array(array(1,2,3)),
+			array(new StdClass()),
+		);
+	}
+
+	/**
 	 * @return null
 	 */
 	public function testInitialState()
@@ -129,6 +176,80 @@ class ResourceVendorTest extends BaseTestCase
         $data = array('build-path' => '');
         $vendor = new ResourceVendor($data);
     }
+
+	/**
+	 * @dataProvider	provideValidVersions
+	 * @return			null
+	 */
+	public function testVersion($version, $expected)
+	{
+		$data = array('version' => $version);
+        $vendor = new ResourceVendor($data);
+	
+		$this->assertEquals($expected, $vendor->getVersion());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidVersions
+	 * @return				null
+	 */
+	public function testInvalidVersion_Failure($version)
+	{
+		$data = array('version' => $version);
+		$vendor = new ResourceVendor($data);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @return				null
+	 */
+	public function testSetPackagesIndexArray()
+	{
+		$data = array('packages' => array('pkg1', 'pkg2', 'pkg3'));
+		$vendor = new ResourceVendor($data);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidStrings
+	 * @return				null
+	 */
+	public function testSetPackagesInvalidPath($path)
+	{
+		$data = array('packages' => array('key1' => $path, ''=>'pkg2'));
+		$vendor = new ResourceVendor($data);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidArrayKeys
+	 * @return				null
+	 */
+	public function testSetPackagesInvalidKey($key)
+	{
+		$data = array('packages' => array($key => 'path', ''=>'pkg2'));
+		$vendor = new ResourceVendor($data);
+	}
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @return				null
+	 */
+	public function testSetPackagesEmptyKey()
+	{
+		$data = array('packages' => array('pkg'=>'pkg1', ''=>'pkg2'));
+		$vendor = new ResourceVendor($data);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @return				null
+	 */
+	public function testSetPackagesEmptyPath()
+	{
+		$data = array('packages' => array('pkg'=>'', 'pkg2'=>'pkg2'));
+		$vendor = new ResourceVendor($data);
+	}
 
 
 }
