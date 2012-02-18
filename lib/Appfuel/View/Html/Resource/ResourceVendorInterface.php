@@ -41,14 +41,7 @@ interface ResourceVendorInterface
     public function getVersion();
 
 	/**
-	 * @return	string
-	 */
-	public function getAllPackageNames();
-
-	public function getAllPackageDirs();
-
-	/**
 	 * @return array
 	 */
-	public function getPackageList();
+	public function getPackages();
 }

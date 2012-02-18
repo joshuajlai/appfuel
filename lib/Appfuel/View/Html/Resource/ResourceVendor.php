@@ -46,9 +46,9 @@ class ResourceVendor implements ResourceVendorInterface
 	protected $version = null;
 
 	/**
-	 * @var PackageFileListInterface
+	 * @var array 
 	 */
-	protected $packages = null; 
+	protected $packages = array(); 
 	
 	/**
 	 * @param	string|ViewInterface $view	
@@ -74,12 +74,12 @@ class ResourceVendor implements ResourceVendorInterface
 			$this->setBuildPath($data['build-path']);
 		}
 
-		if (! isset($data['version'])) {
+		if (isset($data['version'])) {
 			$this->setVersion($data['version']);
 		}
 
-		if (isset($data['pkg-list'])) {
-			$this->setPackageList($data['pkg-list']);
+		if (isset($data['packages'])) {
+			$this->setPackages($data['packages']);
 		}
 
 		if (isset($data['depends'])) {
@@ -128,22 +128,9 @@ class ResourceVendor implements ResourceVendorInterface
     }
 
 	/**
-	 * @return	string
-	 */
-	public function getAllPackageNames()
-	{
-		return array_keys($this->packages);
-	}
-
-	public function getAllPackageDirs()
-	{
-		return array_values($this->packages);
-	}
-
-	/**
 	 * @return array
 	 */
-	public function getPackageList()
+	public function getPackages()
 	{
 		return $this->packages;
 	}
@@ -268,13 +255,5 @@ class ResourceVendor implements ResourceVendorInterface
 		}
 
 		$this->depends = $list;
-	}
-
-	/**
-	 * @return	PackageFileList
-	 */
-	protected function createPackageFileList()
-	{
-		return new PackageFileList();
 	}
 }

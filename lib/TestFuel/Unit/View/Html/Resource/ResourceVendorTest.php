@@ -49,7 +49,86 @@ class ResourceVendorTest extends BaseTestCase
 		$this->assertEquals($data['desc'], $vendor->getVendorDescription());
 		$this->assertEquals($data['pkg-path'], $vendor->getPackagePath());
 		$this->assertEquals($data['build-path'], $vendor->getBuildPath());
-
+		$this->assertEquals($data['packages'], $vendor->getPackages());
 	}
+
+	/**
+	 * @return null
+	 */
+	public function testEmptyVendor()
+	{
+		$vendor = new ResourceVendor(array());
+		$this->assertNull($vendor->getVendorName());
+		$this->assertNull($vendor->getVendorDescription());
+		$this->assertNull($vendor->getPackagePath());
+		$this->assertNull($vendor->getBuildPath());
+		$this->assertEquals(array(), $vendor->getPackages());
+		
+	}
+
+    /**
+     * @expectedException   InvalidArgumentException
+     * @dataProvider        provideInvalidStrings
+     * @return              null
+     */
+    public function testInvalidPackageName_Failure($name)
+    {  
+        $data = array('name' => $name);
+        $vendor = new ResourceVendor($data);
+    }
+
+    /**
+     * @expectedException   InvalidArgumentException
+     * @dataProvider        provideInvalidStrings
+     * @return              null
+     */
+    public function testDescriptionInvalidString_Failure($desc)
+    {
+        $data = array('desc' => $desc);
+        $vendor = new ResourceVendor($data);
+    }
+
+    /**
+     * @expectedException   InvalidArgumentException
+     * @dataProvider        provideInvalidStrings
+     * @return              null
+     */
+    public function testPackagePathInvalidString_Failure($path)
+    {
+        $data = array('pkg-path' => $path);
+        $vendor = new ResourceVendor($data);
+    }
+
+    /**
+     * @expectedException   InvalidArgumentException
+     * @return              null
+     */
+    public function testPackagePathEmptyString_Failure()
+    {
+        $data = array('pkg-path' => '');
+        $vendor = new ResourceVendor($data);
+    }
+
+    /**
+     * @expectedException   InvalidArgumentException
+     * @dataProvider        provideInvalidStrings
+     * @return              null
+     */
+    public function testBuildPathInvalidString_Failure($path)
+    {
+        $data = array('build-path' => $path);
+        $vendor = new ResourceVendor($data);
+    }
+
+    /**
+     * @expectedException   InvalidArgumentException
+     * @return              null
+     */
+    public function testBuildPathEmptyString_Failure()
+    {
+        $data = array('build-path' => '');
+        $vendor = new ResourceVendor($data);
+    }
+
 
 }
