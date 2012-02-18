@@ -1,0 +1,11 @@
+{
+	"name": "aftest",
+	"pkg-path": "resource/aftest/html/pkg",
+	"build-path": "resource/aftest/html/build",
+	"version": "0.0.1",
+	"packages" {
+		"example-js" : "example-pkg",
+		"mvc-module":  "kernel/mvc"
+	},
+	"depends": []
+}

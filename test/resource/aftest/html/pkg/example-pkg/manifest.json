@@ -1,6 +1,7 @@
 {
 	"name": "js-example",
-	"desc": "js module used to test resource building"
+	"desc": "js module used to test resource building",
+	"dir" : "example-pkg",
 	"files": {
 		"js": [
 			"src/js/file1.js",

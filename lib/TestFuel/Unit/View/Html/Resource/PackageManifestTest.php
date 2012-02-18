@@ -21,38 +21,6 @@ use StdClass,
  */
 class PackageManifestTest extends BaseTestCase
 {
-    /**
-     * @return  array
-     */
-    public function provideInvalidString()
-    {
-        return array(
-            array(12345),
-            array(1.234),
-            array(true),
-            array(false),
-            array(array(1,2,3)),
-            array(new StdClass())
-        );
-    }
-
-    /**
-     * @return  array
-     */
-    public function provideInvalidArray()
-    {
-        return array(
-            array(12345),
-            array(1.234),
-            array(true),
-            array(false),
-            array(''),
-			array('this is a string'),
-            array(new StdClass())
-        );
-    }
-
-
 	/**
 	 * @return null
 	 */
@@ -61,6 +29,7 @@ class PackageManifestTest extends BaseTestCase
 		$data = array(
 			'name'  => 'my package',
 			'desc'  => 'my description',
+			'dir'   => 'my/dir',
 			'files' => array(
 				'js'  => array('src/filea.js', 'src/fileb.js'),
 				'css' => array('src/filec.js', 'src/filed.js'),
@@ -86,6 +55,7 @@ class PackageManifestTest extends BaseTestCase
 
 		$this->assertEquals($data['name'], $manifest->getPackageName());
 		$this->assertEquals($data['desc'], $manifest->getPackageDescription());
+		$this->assertEquals($data['dir'], $manifest->getPackageDir());
 
 		$this->assertEquals($data['files']['js'],  $manifest->getFiles('js'));
 		$this->assertEquals($data['files']['css'], $manifest->getFiles('css'));
@@ -103,18 +73,19 @@ class PackageManifestTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testDependenciesOnlyName()
+	public function testEmptyManifest()
 	{
 		$manifest = new PackageManifest(array());
 		$this->assertNull($manifest->getPackageName());
 		$this->assertNull($manifest->getPackageDescription());
+		$this->assertNull($manifest->getPackageDir());
 		$this->assertEquals(array(), $manifest->getAllFiles());
 		$this->assertEquals(array(), $manifest->getAllTestFiles());
 	}
 
 	/**
 	 * @expectedException	InvalidArgumentException
-	 * @dataProvider		provideInvalidString
+	 * @dataProvider		provideInvalidStrings
 	 * @return				null
 	 */
 	public function testInvalidPackageName_Failure($name)
@@ -125,12 +96,23 @@ class PackageManifestTest extends BaseTestCase
 
 	/**
 	 * @expectedException	InvalidArgumentException
-	 * @dataProvider		provideInvalidString
+	 * @dataProvider		provideInvalidStrings
 	 * @return				null
 	 */
 	public function testDescriptionInvalidString_Failure($desc)
 	{
 		$data = array('desc' => $desc);
+		$manifest = new PackageManifest($data);
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidStrings
+	 * @return				null
+	 */
+	public function testDirectorynInvalidString_Failure($dir)
+	{
+		$data = array('dir' => $dir);
 		$manifest = new PackageManifest($data);
 	}
 
@@ -178,7 +160,7 @@ class PackageManifestTest extends BaseTestCase
 
 	/**
 	 * @expectedException	InvalidArgumentException
-	 * @dataProvider		provideInvalidString
+	 * @dataProvider		provideInvalidStrings
 	 * @return				null
 	 */
 	public function testSetDependsNotString($file)

@@ -245,27 +245,34 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		return $provider->provideStrictInvalidStrings($includeNull);
 	}
 
-	/**
-	 * @return	array
-	 */
-	public function provideInvalidStrings()
-	{
-		$provider = $this->getStringProvider();
-		$includeNull = false;
-		return $provider->provideStrictInvalidStrings($includeNull);
-	}
+    /**
+     * @return  array
+     */
+    public function provideInvalidStrings()
+    {
+        return array(
+            array(12345),
+            array(1.234),
+            array(true),
+            array(false),
+            array(array(1,2,3)),
+            array(new StdClass())
+        );
+    }
 
-	/**
-	 * @return	array
-	 */
-	public function provideInvalidArray()
-	{
-		return array(
-			array(new StdClass()),
-			array(12345),
-			array(1.234),
-			array(false),
-			array(true)
-		);
-	}
+    /**
+     * @return  array
+     */
+    public function provideInvalidArray()
+    {  
+        return array(
+            array(12345),
+            array(1.234),
+            array(true),
+            array(false),
+            array(''),
+            array('this is a string'),
+            array(new StdClass())
+        );
+    }
 }

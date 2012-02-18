@@ -23,6 +23,12 @@ class PackageManifest implements PackageManifestInterface
 	protected $name = null;
 
 	/**
+	 * Relative path to this package's dir from the package list dir
+	 * @var string
+	 */
+	protected $dir = null;
+
+	/**
 	 * @var string
 	 */
 	protected $desc = null;
@@ -56,6 +62,10 @@ class PackageManifest implements PackageManifestInterface
 
 		if (isset($data['desc'])) {
 			$this->setPackageDescription($data['desc']);
+		}
+		
+		if (isset($data['dir'])) {
+			$this->setPackageDir($data['dir']);
 		}
 
 		if (! isset($data['files'])) {
@@ -102,6 +112,14 @@ class PackageManifest implements PackageManifestInterface
 		return $this->desc;
 	}
 	
+	/**
+	 * @return	string
+	 */
+	public function getPackageDir()
+	{
+		return $this->dir;
+	}
+
 	/**
 	 * @return	string
 	 */
@@ -171,6 +189,19 @@ class PackageManifest implements PackageManifestInterface
 		}
 
 		$this->desc = $desc;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setPackageDir($dir)
+	{
+		if (! is_string($dir) || empty($dir)) {
+			$err = 'package dir must be a none empty string';
+			throw new InvalidArgumentException($err);
+		}
+		$this->dir = $dir;
 	}
 
 	/**

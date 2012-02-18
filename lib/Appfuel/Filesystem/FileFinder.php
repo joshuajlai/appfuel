@@ -10,8 +10,7 @@
  */
 namespace Appfuel\Filesystem;
 
-use SplFileInfo,
-	RunTimeException,
+use RunTimeException,
 	InvalidArgumentException;
 
 /**

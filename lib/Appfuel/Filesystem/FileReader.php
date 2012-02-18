@@ -108,12 +108,19 @@ class FileReader implements FileReaderInterface
 
 		$finder = $this->getFileFinder();
 		$full   = $finder->getPath($path);
-		if (! $finder->fileExists($path)) {
+		if (! $finder->fileExists($full)) {
 			return false;
 		}
 
-
-		return file_get_contents($path, null, null, $offset, $max);
+		/*
+		 * file_get_contents will return an empty string if the last param is
+		 * null
+		 */
+		if (null === $max) {
+			return file_get_contents($full, false, null, $offset);
+		}
+		
+		return file_get_contents($full, false, null, $offset, $max);
 	}
 
 	/**

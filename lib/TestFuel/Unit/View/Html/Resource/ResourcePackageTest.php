@@ -12,6 +12,7 @@ namespace TestFuel\Unit\View\Html\Resource;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileReader,
 	Appfuel\View\Html\Resource\PackageManifest,
 	Appfuel\View\Html\Resource\ResourcePackage;
@@ -21,30 +22,20 @@ use StdClass,
  * The resource package uses the manifest and file reader to gather the 
  * contents of the files stored in the manifest
  */
-class PackageFileListTest extends BaseTestCase
+class ResourcePackageTest extends BaseTestCase
 {
 	/**
 	 * System under test
-	 * @var PackageFileList
+	 * @var ResourcePackage
 	 */
-	protected $resourcePackage = null;
+	protected $pkg = null;
 	
-	/**
-	 * @var PackageManifest
-	 */
-	protected $manifest = null;
-
-	/**
-	 * @var FileReader
-	 */
-	protected $reader = null;
-
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->list = new PackageFileList();
+		$this->pkg = new ResourcePackage();
 	}
 
 	/**
@@ -58,9 +49,9 @@ class PackageFileListTest extends BaseTestCase
 	/**
 	 * @return	PackageFileList
 	 */
-	public function getPackageFileList()
+	public function getResourcePackage()
 	{
-		return $this->list;
+		return $this->pkg;
 	}
 
 	/**
@@ -83,265 +74,157 @@ class PackageFileListTest extends BaseTestCase
 	 */
 	public function testInitialState()
 	{
-		$list = $this->getPackageFileList();
+		$pkg = $this->getResourcePackage();
 		$this->assertInstanceOf(
-			'Appfuel\View\Html\Resource\PackageFileListInterface',
-			$list
+			'Appfuel\View\Html\Resource\ResourcePackageInterface',
+			$pkg
 		);
-
-		$this->assertEquals(array(), $list->getAll());
-		$this->assertEquals(array(), $list->getTypes());
-
-		/* common types don't exist yet */
-		$this->assertFalse($list->get('js'));
-		$this->assertFalse($list->get('css'));
+		$this->assertFalse($pkg->isManifest());
+		$this->assertFalse($pkg->isFileReader());
+		$this->assertNull($pkg->getFileReader());
+		$this->assertNull($pkg->getManifest());
+		$this->assertEquals('resource', $pkg->getResourceDir());
+		$this->assertEquals('', $pkg->getVersion());
 	}
 
 	/**
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testGetAdd()
+	public function testGetSetResourceDir()
 	{
-		$type = 'js';
-		$file1 = 'src/my-file1.js';
-		$file2 = 'src/my-file2.js';
-		$file3 = 'src/my-file3.js';
+		$dir = 'mydir';
+		$pkg = $this->getResourcePackage();
+		$this->assertSame($pkg, $pkg->setResourceDir($dir));
+		$this->assertEquals($dir, $pkg->getResourceDir());
 
-		$list = $this->getPackageFileList();
-		$this->assertEquals(false, $list->get('js'));
-		$this->assertSame($list, $list->add($type, $file1));
+		$dir = 'test/resource';
+		$this->assertSame($pkg, $pkg->setResourceDir($dir));
+		$this->assertEquals($dir, $pkg->getResourceDir());
 	
-		$expected = array($file1);
-		$this->assertEquals($expected, $list->get('js'));
-		
-		/* duplicates are ignored */
-		$this->assertSame($list, $list->add($type, $file1));
-		$this->assertSame($list, $list->add($type, $file1));
-		$this->assertSame($list, $list->add($type, $file1));
-
-		$this->assertEquals($expected, $list->get('js'));
-		
-		$this->assertSame($list, $list->add($type, $file2));
-		$this->assertSame($list, $list->add($type, $file3));
-			
-		$expected[] = $file2;
-		$expected[] = $file3;
-		$this->assertEquals($expected, $list->get('js'));
-	
-		$expected = array($type => $expected);
-		$this->assertEquals($expected, $list->getAll());
-	}
-
-	/**
-	 * @depends	testGetAdd
-	 * @return	null
-	 */
-	public function testAddMultipleTypes()
-	{
-		$type1 = 'js';
-		$file1 = 'src/myfile.js';
-		$file2 = 'src/yourfile.js';
-
-		$type2 = 'css';
-		$file3 = 'src/myfile.css';
-		$file4 = 'src/yourfile.css';
-
-		$list = $this->getPackageFileList();
-		$list->add($type1, $file1)
-			 ->add($type1, $file2)
-			 ->add($type2, $file3)
-			 ->add($type2, $file4);	
-
-		$expected = array(
-			'js'  => array($file1, $file2),
-			'css' => array($file3, $file4)
-		);
-
-		$this->assertEquals($expected['js'], $list->get('js'));
-		$this->assertEquals($expected['css'], $list->get('css'));
-		$this->assertEquals($expected, $list->getAll());	
+		$dir = '';
+		$this->assertSame($pkg, $pkg->setResourceDir($dir));
+		$this->assertEquals($dir, $pkg->getResourceDir());
 	}
 
 	/**
 	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideInvalidString
-	 * @depends				testGetAdd
+	 * @depends				testInitialState
 	 * @return				null
 	 */
-	public function testAddTypeInvalidString_Failure($type)
+	public function testSetResourceDirInvalidStr_Failure($dir)
 	{
-		$list = $this->getPackageFileList();
-		$list->add($type, 'my/file');
-	}
-
-    /**
-     * @expectedException   InvalidArgumentException
-     * @depends             testGetAdd
-     * @return              null
-     */
-	public function testAddTypeEmptyString()
-	{
-		$list = $this->getPackageFileList();
-		$list->add('', 'my/file');
-	}
-
-    /**
-     * @depends testInitialState
-     * @return  null
-     */
-	public function testLoadWhenEmpty()
-	{
-		$list = $this->getPackageFileList();
-		$this->assertFalse($list->get('js'));
-		
-		$files = array('js' => array('my/file.js', 'your/file.js'));
-		$this->assertSame($list, $list->load($files));
-	
-		$this->assertEquals($files, $list->getAll());	
+		$pkg = $this->getResourcePackage();
+		$pkg->setResourceDir($dir);	
 	}
 
 	/**
-     * @depends testLoadWhenEmpty
-     * @return  null
-     */
-	public function testLoadWhenEmptyMultileTypes()
-	{
-		$list = $this->getPackageFileList();
-		$this->assertFalse($list->get('js'));
-		$this->assertFalse($list->get('css'));
-		
-		$files = array(
-			'js'  => array('my/file.js', 'your/file.js'),
-			'css' => array('my/other.css', 'my/more.css')
-		);
-		$this->assertSame($list, $list->load($files));
-	
-		$this->assertEquals($files, $list->getAll());	
-	}
-
-	/**
-     * @depends testLoadWhenEmpty
-     * @return  null
-     */
-	public function testLoadWhenEmptyListItemIsString()
-	{
-		$list = $this->getPackageFileList();
-		$this->assertFalse($list->get('js'));
-		$this->assertFalse($list->get('css'));
-		
-		$files = array(
-			'js'  => 'my/file.js',
-			'css' => 'my/other.css',
-		);
-		$this->assertSame($list, $list->load($files));
-
-		/* will add the single file to the array */	
-		$expected = array(
-			'js'  => array('my/file.js'),
-			'css' => array('my/other.css')
-		);
-		$this->assertEquals($expected, $list->getAll());	
-	}
-
-	/**
-	 * @depends	testLoadWhenEmpty
+	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testLoadWithMoreThanOneCall()
+	public function testSetVersion()
 	{
-		$list = $this->getPackageFileList();
-		$this->assertFalse($list->get('js'));
-		$this->assertFalse($list->get('css'));
-		
-		$files1 = array(
-			'js'  => array('my/file.js', 'your/file.js'),
-			'css' => array('my/other.css', 'my/more.css')
-		);
+		$version = 'my-version-string';
+		$pkg = $this->getResourcePackage();
+		$this->assertSame($pkg, $pkg->setVersion($version));
+		$this->assertEquals($version, $pkg->getVersion());
 
-		$files2 = array(
-			'js'  => array('my/file.js', 'your/file.js'),
-			'css' => array('my/other.css', 'my/more.css')
-		);
+	
+		$version = '';
+		$this->assertSame($pkg, $pkg->setVersion($version));
+		$this->assertEquals($version, $pkg->getVersion());
+	}
 
-		$this->assertSame($list, $list->load($files1));
-		$this->assertEquals($files1, $list->getAll());
+	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testSetVersionInt()
+	{
+		$version = 1;
+		$pkg = $this->getResourcePackage();
+		$this->assertSame($pkg, $pkg->setVersion($version));
+		$this->assertEquals((string)$version, $pkg->getVersion());
 
-		$this->assertSame($list, $list->load($files2));
+		$version = 0;
+		$this->assertSame($pkg, $pkg->setVersion($version));
+		$this->assertEquals((string)$version, $pkg->getVersion());
 
-		$expected = array_merge($files1, $files2);
-		$this->assertEquals($expected, $list->getAll());
+		$version = -123;
+		$this->assertSame($pkg, $pkg->setVersion($version));
+		$this->assertEquals((string)$version, $pkg->getVersion());
+
+		$version = 123456;
+		$this->assertSame($pkg, $pkg->setVersion($version));
+		$this->assertEquals((string)$version, $pkg->getVersion());
+	}
+
+	/**
+	 * @depends	testInitialState
+	 * @return	null
+	 */
+	public function testSetVersionFloat()
+	{
+		$version = 0.123;
+		$pkg = $this->getResourcePackage();
+		$this->assertSame($pkg, $pkg->setVersion($version));
+		$this->assertEquals('0.123', $pkg->getVersion());
+
+		$version = 123.123;
+		$pkg = $this->getResourcePackage();
+		$this->assertSame($pkg, $pkg->setVersion($version));
+		$this->assertEquals('123.123', $pkg->getVersion());
 	}
 
 	/**
 	 * @expectedException	InvalidArgumentException
-     * @depends				testLoadWhenEmpty
-     * @return				null
-     */
-	public function testLoadNotAssociativeArray()
+	 * @depends				testInitialState
+	 * @return				null
+	 */
+	public function testSetVersionArray_Failure()
 	{
-		$list = $this->getPackageFileList();
-		$files = array('my/file.js','my/other.css');
-
-		$list->load($files);
+		$pkg = $this->getResourcePackage();
+		$pkg->setVersion(array(1,2,3));	
 	}
 
 	/**
-	 * @depends	testInitialState
-	 * @return	null
+	 * @expectedException	InvalidArgumentException
+	 * @depends				testInitialState
+	 * @return				null
 	 */
-	public function testClearAll()
+	public function testSetVersionObject_Failuret()
 	{
-		$list = $this->getPackageFileList();
-		$files = array(
-			'js'  => 'my/file.js',
-			'css' => 'my/other.css',
-		);
-
-		$list->load($files);
-		$this->assertSame($list, $list->clear());
-		$this->assertEquals(array(), $list->getAll());
+		$pkg = $this->getResourcePackage();
+		$pkg->setVersion(new StdClass());	
 	}
 
 	/**
-	 * @depends	testInitialState
-	 * @return	null
+	 * @depends				testInitialState
+	 * @return				null
 	 */
-	public function testSetWhenEmpty()
+	public function testReader()
 	{
-		$list = $this->getPackageFileList();
-		
-		$files = array(
-			'js'  => array('my/file.js', 'your/file.js'),
-			'css' => array('my/other.css', 'my/more.css')
-		);
-
-		$this->assertSame($list, $list->set($files));
-		$this->assertEquals($files, $list->getAll());
+		$pkg = $this->getResourcePackage();
+		$reader = $this->getMock('Appfuel\Filesystem\FileReaderInterface');
+		$this->assertFalse($pkg->isFileReader());
+		$this->assertSame($pkg, $pkg->setFileReader($reader));
+		$this->assertSame($reader, $pkg->getFileReader());
+		$this->assertTrue($pkg->isFileReader());	
 	}
 
 	/**
-	 * @depends	testLoadWhenEmpty
-	 * @return	null
+	 * @depends				testInitialState
+	 * @return				null
 	 */
-	public function testSetWithMoreThanOneCall()
+	public function testManifest()
 	{
-		$list = $this->getPackageFileList();
-		
-		$files1 = array(
-			'js'  => array('my/file.js', 'your/file.js'),
-			'css' => array('my/other.css', 'my/more.css')
-		);
-
-		$files2 = array(
-			'js'  => array('my/file.js', 'your/file.js'),
-			'css' => array('my/other.css', 'my/more.css')
-		);
-
-		$this->assertSame($list, $list->set($files1));
-		$this->assertEquals($files1, $list->getAll());
-
-		$this->assertSame($list, $list->set($files2));
-		$this->assertEquals($files2, $list->getAll());
+		$pkg = $this->getResourcePackage();
+		$interface = 'Appfuel\View\Html\Resource\PackageManifestInterface';
+		$manifest = $this->getMock($interface);
+		$this->assertFalse($pkg->isManifest());
+		$this->assertSame($pkg, $pkg->setManifest($manifest));
+		$this->assertSame($manifest, $pkg->getManifest());
+		$this->assertTrue($pkg->isManifest());	
 	}
 }
