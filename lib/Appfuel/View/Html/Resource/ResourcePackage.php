@@ -107,7 +107,7 @@ class ResourcePackage implements ResourcePackageInterface
 	/**
 	 * @return	array
 	 */
-	public function getFilePaths($typem, $isAbsolute = false)
+	public function getFilePaths($type, $isAbsolute = false)
 	{
 		$manifest = $this->getManifest();
 		$vendor   = $this->getVendor();
@@ -129,7 +129,7 @@ class ResourcePackage implements ResourcePackageInterface
 			
 		$max = count($files);
 		for ($i=0; $i < $max; $i++) {
-			$files[$i] = "{$base}{$pkgPath}/{$pkgDir}/{$files[$i]}";
+			$files[$i] = "{$basePath}{$pkgPath}/{$pkgDir}/{$files[$i]}";
 		}	
 		
 		return $files;

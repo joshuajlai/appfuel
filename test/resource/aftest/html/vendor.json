@@ -4,8 +4,9 @@
 	"build-path": "resource/aftest/html/build",
 	"version": "0.0.1",
 	"packages" {
-		"example-js" : "example-pkg",
-		"mvc-module":  "kernel/mvc"
+		"js-example" : "example-pkg",
+		"kernel-core": "kernel/core",
+		"kernel-mvc" : "kernel/mvc",
 	},
 	"depends": []
 }

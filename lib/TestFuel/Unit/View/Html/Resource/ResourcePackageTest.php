@@ -14,6 +14,7 @@ use StdClass,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileReader,
+	Appfuel\View\Html\Resource\ResourceVendor,
 	Appfuel\View\Html\Resource\PackageManifest,
 	Appfuel\View\Html\Resource\ResourcePackage;
 
@@ -29,13 +30,64 @@ class ResourcePackageTest extends BaseTestCase
 	 * @var ResourcePackage
 	 */
 	protected $pkg = null;
-	
+
+	/**
+	 * @var PackageManifest
+	 */
+	protected $manifest = null;
+
+	/**
+	 * @var ResourceVendor
+	 */
+	protected $vendor = null;
+
+	/**
+	 * @var FileReader
+	 */	
+	protected $reader = null;
+
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->pkg = new ResourcePackage();
+		$vendor = array(
+			'name'		=> 'aftest',
+			'pkg-path'  => 'test/resource/aftest/html/pkg',
+			'build-path'=> 'test/resource/aftest/build',
+			'version'   => '0.0.1',
+			'packages'  => array(
+				'js-example'  => 'example-pkg',
+			)
+		);
+		$this->vendor = new ResourceVendor($vendor);
+
+		$manifest = array(
+			'name' => 'js-example',
+			'desc' => 'functional test module for appfuels build system',
+			'dir'  => 'example-pkg',
+			'files' => array(
+				'js' => array(
+					"src/js/file1.js",
+					"src/js/file2.js",
+					"src/js/file3.js"),
+				'css' => array("src/css/file4.css","src/css/file5.css"),
+				'asset' => array(
+					"src/asset/blog-icon.png",
+					"src/asset/warning-icon.png"
+				),
+			),
+		);
+		$this->manifest = new PackageManifest($manifest);
+
+		$finder = new FileFinder();
+		$this->reader = new FileReader($finder);
+
+		$this->pkg = new ResourcePackage(
+			$this->vendor,
+			$this->manifest,
+			$this->reader
+		);
 	}
 
 	/**
@@ -43,7 +95,10 @@ class ResourcePackageTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		$this->list = null;
+		$this->vendor   = null;
+		$this->manifest = null;
+		$this->reader   = null;
+		$this->pkg      = null;
 	}
 
 	/**
@@ -52,21 +107,6 @@ class ResourcePackageTest extends BaseTestCase
 	public function getResourcePackage()
 	{
 		return $this->pkg;
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideInvalidString()
-	{
-		return array(
-			array(12345),
-			array(1.234),
-			array(true),
-			array(false),
-			array(array(1,2,3)),
-			array(new StdClass())
-		);
 	}
 
 	/**
@@ -79,152 +119,9 @@ class ResourcePackageTest extends BaseTestCase
 			'Appfuel\View\Html\Resource\ResourcePackageInterface',
 			$pkg
 		);
-		$this->assertFalse($pkg->isManifest());
-		$this->assertFalse($pkg->isFileReader());
-		$this->assertNull($pkg->getFileReader());
-		$this->assertNull($pkg->getManifest());
-		$this->assertEquals('resource', $pkg->getResourceDir());
-		$this->assertEquals('', $pkg->getVersion());
-	}
 
-	/**
-	 * @depends	testInitialState
-	 * @return	null
-	 */
-	public function testGetSetResourceDir()
-	{
-		$dir = 'mydir';
-		$pkg = $this->getResourcePackage();
-		$this->assertSame($pkg, $pkg->setResourceDir($dir));
-		$this->assertEquals($dir, $pkg->getResourceDir());
-
-		$dir = 'test/resource';
-		$this->assertSame($pkg, $pkg->setResourceDir($dir));
-		$this->assertEquals($dir, $pkg->getResourceDir());
-	
-		$dir = '';
-		$this->assertSame($pkg, $pkg->setResourceDir($dir));
-		$this->assertEquals($dir, $pkg->getResourceDir());
-	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @dataProvider		provideInvalidString
-	 * @depends				testInitialState
-	 * @return				null
-	 */
-	public function testSetResourceDirInvalidStr_Failure($dir)
-	{
-		$pkg = $this->getResourcePackage();
-		$pkg->setResourceDir($dir);	
-	}
-
-	/**
-	 * @depends	testInitialState
-	 * @return	null
-	 */
-	public function testSetVersion()
-	{
-		$version = 'my-version-string';
-		$pkg = $this->getResourcePackage();
-		$this->assertSame($pkg, $pkg->setVersion($version));
-		$this->assertEquals($version, $pkg->getVersion());
-
-	
-		$version = '';
-		$this->assertSame($pkg, $pkg->setVersion($version));
-		$this->assertEquals($version, $pkg->getVersion());
-	}
-
-	/**
-	 * @depends	testInitialState
-	 * @return	null
-	 */
-	public function testSetVersionInt()
-	{
-		$version = 1;
-		$pkg = $this->getResourcePackage();
-		$this->assertSame($pkg, $pkg->setVersion($version));
-		$this->assertEquals((string)$version, $pkg->getVersion());
-
-		$version = 0;
-		$this->assertSame($pkg, $pkg->setVersion($version));
-		$this->assertEquals((string)$version, $pkg->getVersion());
-
-		$version = -123;
-		$this->assertSame($pkg, $pkg->setVersion($version));
-		$this->assertEquals((string)$version, $pkg->getVersion());
-
-		$version = 123456;
-		$this->assertSame($pkg, $pkg->setVersion($version));
-		$this->assertEquals((string)$version, $pkg->getVersion());
-	}
-
-	/**
-	 * @depends	testInitialState
-	 * @return	null
-	 */
-	public function testSetVersionFloat()
-	{
-		$version = 0.123;
-		$pkg = $this->getResourcePackage();
-		$this->assertSame($pkg, $pkg->setVersion($version));
-		$this->assertEquals('0.123', $pkg->getVersion());
-
-		$version = 123.123;
-		$pkg = $this->getResourcePackage();
-		$this->assertSame($pkg, $pkg->setVersion($version));
-		$this->assertEquals('123.123', $pkg->getVersion());
-	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @depends				testInitialState
-	 * @return				null
-	 */
-	public function testSetVersionArray_Failure()
-	{
-		$pkg = $this->getResourcePackage();
-		$pkg->setVersion(array(1,2,3));	
-	}
-
-	/**
-	 * @expectedException	InvalidArgumentException
-	 * @depends				testInitialState
-	 * @return				null
-	 */
-	public function testSetVersionObject_Failuret()
-	{
-		$pkg = $this->getResourcePackage();
-		$pkg->setVersion(new StdClass());	
-	}
-
-	/**
-	 * @depends				testInitialState
-	 * @return				null
-	 */
-	public function testReader()
-	{
-		$pkg = $this->getResourcePackage();
-		$reader = $this->getMock('Appfuel\Filesystem\FileReaderInterface');
-		$this->assertFalse($pkg->isFileReader());
-		$this->assertSame($pkg, $pkg->setFileReader($reader));
-		$this->assertSame($reader, $pkg->getFileReader());
-		$this->assertTrue($pkg->isFileReader());	
-	}
-
-	/**
-	 * @depends				testInitialState
-	 * @return				null
-	 */
-	public function testManifest()
-	{
-		$pkg = $this->getResourcePackage();
-		$interface = 'Appfuel\View\Html\Resource\PackageManifestInterface';
-		$manifest = $this->getMock($interface);
-		$this->assertFalse($pkg->isManifest());
-		$this->assertSame($pkg, $pkg->setManifest($manifest));
-		$this->assertSame($manifest, $pkg->getManifest());
-		$this->assertTrue($pkg->isManifest());	
+		$this->assertSame($this->vendor, $pkg->getVendor());
+		$this->assertSame($this->manifest, $pkg->getManifest());
+		$this->assertSame($this->reader, $pkg->getFileReader());
 	}
 }
