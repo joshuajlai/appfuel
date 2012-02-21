@@ -28,6 +28,11 @@ class PackageManifest implements PackageManifestInterface
 	protected $desc = null;
 
 	/**
+	 * @var string
+	 */
+	protected $packageDir = null;
+
+	/**
 	 * Relative path from the package dir to the package files
 	 * @var string
 	 */
@@ -62,13 +67,18 @@ class PackageManifest implements PackageManifestInterface
 	 */
 	public function __construct(array $data)
 	{
-		if (isset($data['name'])) {
-			$this->setPackageName($data['name']);
+		if (! isset($data['name'])) {
+			$err = 'package name not found an must exist';
+			throw new InvalidArgumentException($err);
 		}
+		$this->setPackageName($data['name']);
 
 		if (isset($data['desc'])) {
 			$this->setPackageDescription($data['desc']);
 		}
+	
+		$pkgDir = isset($data['dir']) ? $data['dir'] : $this->getPackageName();	
+		$this->setPackageDirectory($pkgDir);
 		
 		if (! isset($data['files'])) {
 			$this->setResourceFiles($this->createPackageFileList());
@@ -112,6 +122,14 @@ class PackageManifest implements PackageManifestInterface
 	public function getPackageDescription()
 	{
 		return $this->desc;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getPackageDirectory()
+	{
+		return $this->pkgDir;
 	}
 	
 	/**
@@ -219,6 +237,20 @@ class PackageManifest implements PackageManifestInterface
 		}
 
 		$this->desc = $desc;
+	}
+
+	/**
+	 * @param	string	$dir
+	 * @return	null
+	 */
+	protected function setPackageDirectory($dir)
+	{
+		if (! is_string($dir)) {
+			$err = 'package directory must be a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->pkgDir = $dir;
 	}
 
 	/**

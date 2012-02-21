@@ -25,14 +25,15 @@ class PackageManifestTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testEmptyAndInterface()
+	public function testNameAndInterface()
 	{
-		$manifest = new PackageManifest(array());
+		$data = array('name' => 'example_pkg');
+		$manifest = new PackageManifest($data);
 		$this->assertInstanceOf(
 			'Appfuel\View\Html\Resource\PackageManifestInterface',
 			$manifest
 		);
-		$this->assertNull($manifest->getPackageName());
+		$this->assertEquals($data['name'], $manifest->getPackageName());
 		$this->assertNull($manifest->getPackageDescription());
 		$this->assertEquals('src', $manifest->getFilePath());
 		$this->assertEquals('tests', $manifest->getTestPath());
@@ -43,15 +44,6 @@ class PackageManifestTest extends BaseTestCase
 		$this->assertEquals(array(), $manifest->getDependencies());
 	}
 
-	/**
-	 * @return null
-	 */
-	public function testName()
-	{
-		$data = array('name' => 'my package');
-		$manifest = new PackageManifest($data);
-		$this->assertEquals($data['name'], $manifest->getPackageName());
-	}
 
 	/**
 	 * @expectedException	InvalidArgumentException
@@ -79,16 +71,16 @@ class PackageManifestTest extends BaseTestCase
 	 */
 	public function testDescription()
 	{
-		$data = array('desc' => 'my package description');
+		$data = array('name' => 'pkg', 'desc' => 'my package description');
 		$manifest = new PackageManifest($data);
 		$this->assertEquals($data['desc'], $manifest->getPackageDescription());
 	
 		/* empty description is allowed */	
-		$data = array('desc' => '');
+		$data = array('name' => 'pkg', 'desc' => '');
 		$manifest = new PackageManifest($data);
 		$this->assertEquals($data['desc'], $manifest->getPackageDescription());
 
-		$data = array('desc' => null);
+		$data = array('name' => 'pkg', 'desc' => null);
 		$manifest = new PackageManifest($data);
 		$this->assertEquals($data['desc'], $manifest->getPackageDescription());
 	}
@@ -100,16 +92,55 @@ class PackageManifestTest extends BaseTestCase
 	 */
 	public function testDescriptionInvalidString_Failure($desc)
 	{
-		$data = array('desc' => $desc);
+		$data = array('name' => 'pkg', 'desc' => $desc);
 		$manifest = new PackageManifest($data);
 	}
 
+	/**
+	 * When no directory is given then the package name is assumed to be the
+	 * directory name
+	 *
+	 * @return null
+	 */
+	public function testNoPacakgeDir()
+	{
+		$data = array('name' => 'pkg');
+		$manifest = new PackageManifest($data);
+		$this->assertEquals(
+			$manifest->getPackageName(), 
+			$manifest->getPackageDirectory()
+		);
+	}
+
+	/**
+	 * @return	null
+	 */	
+	public function testPackageDir()
+	{
+		$data = array('name' => 'pkg', 'dir' => 'my/dir');
+		$manifest = new PackageManifest($data);
+		$this->assertEquals('my/dir', $manifest->getPackageDirectory());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @dataProvider		provideInvalidStrings
+	 * @return				null
+	 */
+	public function testPackageDirInvalidString_Failure($dir)
+	{
+		$data = array('name' => 'pkg', 'dir' => $dir);
+		$manifest = new PackageManifest($data);
+	
+	}
+	
 	/**
 	 * @return	null
 	 */
 	public function testFileWithOneTypeNoPath()
 	{
 		$data = array(
+			'name' => 'pkg',
 			'files' => array(
 				'js' => array('file1', 'file2', 'file3')
 			)
@@ -123,9 +154,10 @@ class PackageManifestTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testFilesWithManyTypes()
+	public function testFilessWithManyTypes()
 	{
 		$data = array(
+			'name' => 'pkg',
 			'files' => array(
 				'js' => array('file1', 'file2', 'file3'),
 				'css' => array('file4', 'file5'),
@@ -151,6 +183,7 @@ class PackageManifestTest extends BaseTestCase
 	public function testFilesWithManyTypesWithPath()
 	{
 		$data = array(
+			'name' => 'pkg',
 			'files' => array(
 				'path' => 'my/path',
 				'js' => array('file1', 'file2', 'file3'),
@@ -180,6 +213,7 @@ class PackageManifestTest extends BaseTestCase
 	public function testFileWithPathOnly()
 	{
 		$data = array(
+			'name' => 'pkg',
 			'files' => array(
 				'path' => 'my/path'
 			)
@@ -195,7 +229,7 @@ class PackageManifestTest extends BaseTestCase
 	 */
 	public function testEmptyFileNoFilePath()
 	{
-		$data = array('files' => array());
+		$data = array('name' => 'pkg', 'files' => array());
 		$manifest = new PackageManifest($data);
 		$this->assertEquals('src', $manifest->getFilePath());
 	}
@@ -207,7 +241,7 @@ class PackageManifestTest extends BaseTestCase
 	 */
 	public function testSetFileInvalidArray_Failure($files)
 	{
-		$data = array('files' => $files);
+		$data = array('name' => 'pkg', 'files' => $files);
 		$manifest = new PackageManifest($data);
 	}
 
@@ -218,7 +252,7 @@ class PackageManifestTest extends BaseTestCase
 	 */
 	public function testSetTestsInvalidArray_Failure($files)
 	{
-		$data = array('tests' => $files);
+		$data = array('name' => 'pkg', 'tests' => $files);
 		$manifest = new PackageManifest($data);
 	}
 
@@ -228,6 +262,7 @@ class PackageManifestTest extends BaseTestCase
 	public function testTestsWithOneTypeNoPath()
 	{
 		$data = array(
+			'name' => 'pkg',
 			'tests' => array(
 				'js' => array('file1', 'file2', 'file3')
 			)
@@ -247,6 +282,7 @@ class PackageManifestTest extends BaseTestCase
     public function testTestFilesWithManyTypesWithPath()
     {
         $data = array(
+			'name' => 'pkg',
             'tests' => array(
                 'path' => 'my/path',
                 'js' => array('file1', 'file2', 'file3'),
@@ -280,7 +316,10 @@ class PackageManifestTest extends BaseTestCase
 	 */
 	public function testSetDependsAssocArray_Failure()
 	{
-		$data = array('depends' => array('my'=> array('package1','package2')));
+		$data = array(
+			'name' => 'pkg',	
+			'depends' => array('my'=> array('package1','package2'))
+		);
 		$manifest = new PackageManifest($data);
 	}
 
@@ -290,7 +329,10 @@ class PackageManifestTest extends BaseTestCase
 	 */
 	public function testSetDependsEmptyString_Failure()
 	{
-		$data = array('depends' => array('my/package', 'your/package', ''));
+		$data = array(
+			'name' => 'pkg',
+			'depends' => array('my/package', 'your/package', '')
+		);
 		$manifest = new PackageManifest($data);
 	}
 
@@ -301,7 +343,10 @@ class PackageManifestTest extends BaseTestCase
 	 */
 	public function testSetDependsNotString($file)
 	{
-		$data = array('depends' => array('my/package', 'your/package', $file));
+		$data = array(
+			'name' => 'pkg',
+			'depends' => array('my/package', 'your/package', $file)
+		);
 		$manifest = new PackageManifest($data);
 	}
 }

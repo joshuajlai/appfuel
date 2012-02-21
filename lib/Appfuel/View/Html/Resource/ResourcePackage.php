@@ -11,6 +11,7 @@
 namespace Appfuel\View\Html\Resource;
 
 use LogicException,
+	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileReader,
@@ -21,6 +22,30 @@ use LogicException,
  */
 class ResourcePackage implements ResourcePackageInterface
 {
+	/**
+	 * Absolute path to the root of the application
+	 * @var string
+	 */
+	protected $basePath = null;
+
+	/**
+	 * Relative path from the base path to the package dir
+	 * @var string
+	 */
+	protected $pkgPath = null;
+
+	/**
+	 * Relative path from the package dir to the files dir
+	 * @var string
+	 */
+	protected $filePath = null;
+
+	/**
+	 * Relative path fromt he package dir to the test dir
+	 * @var string
+	 */
+	protected $testPath = null;
+
 	/**
 	 * @var ResourceVendorInterface
 	 */
@@ -47,6 +72,12 @@ class ResourcePackage implements ResourcePackageInterface
 		$this->vendor   = $vendor;
 		$this->manifest = $manifest;
 		$this->reader   = $reader;
+		$this->pkgPath   = $vendor->getPackagePath();
+		$this->filePath = $manifest->getFilePath();
+		$this->testPath  = $manifest->getTestPath();
+
+		$this->basePath = $reader->getFileFinder()
+								 ->getBasePath();
 	}
 
 	/**
@@ -114,42 +145,115 @@ class ResourcePackage implements ResourcePackageInterface
 	}
 
 	/**
+	 * @return	string
+	 */
+	public function getBasePath()
+	{
+		return $this->basePath;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getPackagePath()
+	{
+		return $this->pkgPath;
+	}
+
+	/**
+	 * @return	return	string
+	 */
+	public function getFilePath()
+	{
+		return $this->filePath;
+	}
+
+	/**
+	 * @return	return	string
+	 */
+	public function getTestPath()
+	{
+		return $this->testPath;
+	}
+
+	/**
 	 * @param	string	$type
 	 * @param	bool	$isAbsolute
 	 * @return	array
 	 */
-	public function getFilePaths($type, $isAbsolute = false, $isTest = false)
+	public function getPaths($type, $isAbsolute = false, array $exclude = null)
 	{
 		$manifest = $this->getManifest();
-		$vendor   = $this->getVendor();
-		$finder   = $this->getFileReader()
-						 ->getFileFinder();
-
-		if (false === $isTest) {
-			$files = $manifest->getFiles($type);
-		}
-		else {
-			$files = $manifest->getTestFiles($type);
-		}
+		$files	  = $manifest->getFiles($type);
 
 		if (false === $files) {
 			return false;
 		}
+
+		if (! empty($exclude)) {
+			$files = array_diff($files, $exclude);
+		}
 			
-		$basePath = '';
+		$base = '';
 		if (true === $isAbsolute) {
-			$basePath = $finder->getBasePath() . '/';
+			$base = $this->getBasePath() . '/';
 		}
 
-		$pkgPath  = $vendor->getPackagePath();
-		$pkgDir   = $manifest->getPackageDir();
+		$pkgPath  = "{$this->getPackagePath()}/{$this->getFilePath()}";
 			
 		$max = count($files);
 		for ($i=0; $i < $max; $i++) {
-			$files[$i] = "{$basePath}{$pkgPath}/{$pkgDir}/{$files[$i]}";
-		}	
+			$files[$i] = "{$base}{$pkgPath}/{$files[$i]}";
+		}
 		
 		return $files;
+	}
+
+	/**
+	 * @param	string	$type
+	 * @param	bool	$isAbsolute
+	 * @param	array	$exclude
+	 * @return	array
+	 */
+	public function getTestPaths($type, 
+								 $isAbsolute = false,	
+								 array $exclude = null) 
+	{
+		$manifest = $this->getManifest();
+		$files	  = $manifest->getTestFiles($type);
+
+		if (false === $files) {
+			return false;
+		}
+
+		if (! empty($exclude)) {
+			$files = array_diff($files, $exclude);
+		}
+
+		$base = '';
+		if (true === $isAbsolute) {
+			$base = $this->getBasePath() . '/';
+		}
+
+		$pkgPath = "{$this->getPackagePath()}/{$this->getTestPath()}";
+			
+		$max = count($files);
+		for ($i=0; $i < $max; $i++) {
+			$files[$i] = "{$base}{$pkgPath}/{$files[$i]}";
+		}
+	
+		return $files;
+	}
+
+	public function getFileData($path)
+	{
+		$manifest = $this->getManifest();
+		$reader   = $this->getFileReader();
+
+		$pkgPath  = $vendor->getPackagePath();
+		$pkgDir   = $manifest->getFileDir();
+
+		$file = "{$vendor->getPackagePath()}/{$manfiest->getFileDir()}/$path";
 	}
 
 	/**
@@ -157,13 +261,13 @@ class ResourcePackage implements ResourcePackageInterface
 	 * @param	array	$exclude
 	 * @return	string
 	 */
-	public function getData($type, $callback = null, $sep = PHP_EOL)
+	public function getData($type, array $callback = null, $sep = PHP_EOL)
 	{
 		if (null === $sep || ! is_string($sep)) {
 			$sep = PHP_EOL;
 		}
 
-		$files = $this->getFilePaths($type, true);
+		$files = $this->getPaths($type, true);
 		if (false === $files) {
 			return false;
 		}

@@ -67,6 +67,7 @@ class ResourcePackageTest extends BaseTestCase
 			'desc' => 'functional test module for appfuels build system',
 			'dir'  => 'example-pkg',
 			'files' => array(
+				'path' => 'example-pkg',
 				'js' => array(
 					"src/js/file1.js",
 					"src/js/file2.js",

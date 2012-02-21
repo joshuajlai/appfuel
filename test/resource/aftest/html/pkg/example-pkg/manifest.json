@@ -1,6 +1,7 @@
 {
 	"name": "js-example",
 	"desc": "js module used to test resource building",
+	"dir": "example-pkg",
 	"files": {
 		"path": "src",
 		"files": {
@@ -22,7 +23,7 @@
 	},
 
 	"tests": {
-		"path": "test",
+		"path": "example-pkg/test",
 		"files": {
 			"js":  ["mytest.js"],
 			"css": ["mycss.css"],
