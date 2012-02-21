@@ -20,9 +20,9 @@
 	<file>../lib/TestFuel/Unit/View/Html/HtmlPageBuilderTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Resource/PackageFileListTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Resource/PackageManifestTest.php</file>
+<!--		
 	<file>../lib/TestFuel/Unit/View/Html/Resource/ResourceVendorTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/Resource/ResourcePackageTest.php</file>
-<!--		
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Console</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Http</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/DataStructure</directory>

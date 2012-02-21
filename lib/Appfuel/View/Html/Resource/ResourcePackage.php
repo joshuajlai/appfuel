@@ -107,14 +107,31 @@ class ResourcePackage implements ResourcePackageInterface
 	/**
 	 * @return	array
 	 */
-	public function getFilePaths($type, $isAbsolute = false)
+	public function getDependencies()
+	{
+		return $this->getManifest()
+					->getDependencies();
+	}
+
+	/**
+	 * @param	string	$type
+	 * @param	bool	$isAbsolute
+	 * @return	array
+	 */
+	public function getFilePaths($type, $isAbsolute = false, $isTest = false)
 	{
 		$manifest = $this->getManifest();
 		$vendor   = $this->getVendor();
 		$finder   = $this->getFileReader()
 						 ->getFileFinder();
 
-		$files = $manifest->getFiles($type, true);
+		if (false === $isTest) {
+			$files = $manifest->getFiles($type);
+		}
+		else {
+			$files = $manifest->getTestFiles($type);
+		}
+
 		if (false === $files) {
 			return false;
 		}
@@ -133,5 +150,41 @@ class ResourcePackage implements ResourcePackageInterface
 		}	
 		
 		return $files;
+	}
+
+	/**
+	 * @param	string	$type
+	 * @param	array	$exclude
+	 * @return	string
+	 */
+	public function getData($type, $callback = null, $sep = PHP_EOL)
+	{
+		if (null === $sep || ! is_string($sep)) {
+			$sep = PHP_EOL;
+		}
+
+		$files = $this->getFilePaths($type, true);
+		if (false === $files) {
+			return false;
+		}
+
+		$data = '';
+		$isRelative = false;
+		$reader = $this->getFileReader();
+		foreach ($files as $path) {
+			$tmp = $reader->getContent($path, $isRelative);
+			if (false === $tmp) {
+				$err = "could not read file into a string at -($path)";
+				throw new RunTimeException($err);
+			}
+			
+			if (is_callable($callback)) {
+				$tmp = call_user_func($callback, $path, $tmp);
+			}
+
+			$data .= $tmp . $sep;
+		}
+
+		return $data;	
 	}
 }

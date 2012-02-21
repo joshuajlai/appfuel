@@ -21,66 +21,36 @@ use StdClass,
  */
 class PackageManifestTest extends BaseTestCase
 {
-	/**
-	 * @return null
-	 */
-	public function testInitialState()
-	{
-		$data = array(
-			'name'  => 'my package',
-			'desc'  => 'my description',
-			'dir'   => 'my/dir',
-			'files' => array(
-				'js'  => array('src/filea.js', 'src/fileb.js'),
-				'css' => array('src/filec.js', 'src/filed.js'),
-				'img' => array('asset/image.png', 'asset/my.gif')
-			),
-			'tests' => array(
-				'html'  => array('test/file.html', 'test/other.html'),
-				'phtml' => array('test/other.phtml'),
-				'js'    => array('test/filtest.js'),
-			),
-			'depends' => array(
-				'my/package',
-				'your/package',
-				'our/package'
-			)
-		);
-		
-		$manifest = new PackageManifest($data);
-		$this->assertInstanceOf(
-			'Appfuel\View\Html\Resource\PackageManifestInterface',
-			$manifest
-		);
-
-		$this->assertEquals($data['name'], $manifest->getPackageName());
-		$this->assertEquals($data['desc'], $manifest->getPackageDescription());
-		$this->assertEquals($data['dir'], $manifest->getPackageDir());
-
-		$this->assertEquals($data['files']['js'],  $manifest->getFiles('js'));
-		$this->assertEquals($data['files']['css'], $manifest->getFiles('css'));
-		$this->assertEquals($data['files']['img'], $manifest->getFiles('img'));
-		$this->assertEquals($data['files'], $manifest->getAllFiles());
-	
-		$this->assertEquals(
-			$data['tests']['html'],  
-			$manifest->getTestFiles('html')
-		);
-		$this->assertEquals($data['tests'], $manifest->getAllTestFiles());
-		$this->assertEquals($data['depends'], $manifest->getDependencies());
-	}
 
 	/**
 	 * @return	null
 	 */
-	public function testEmptyManifest()
+	public function testEmptyAndInterface()
 	{
 		$manifest = new PackageManifest(array());
+		$this->assertInstanceOf(
+			'Appfuel\View\Html\Resource\PackageManifestInterface',
+			$manifest
+		);
 		$this->assertNull($manifest->getPackageName());
 		$this->assertNull($manifest->getPackageDescription());
-		$this->assertNull($manifest->getPackageDir());
-		$this->assertEquals(array(), $manifest->getAllFiles());
-		$this->assertEquals(array(), $manifest->getAllTestFiles());
+		$this->assertEquals('src', $manifest->getFilePath());
+		$this->assertEquals('tests', $manifest->getTestPath());
+	
+		/* since none were defined all will return false */
+		$this->assertFalse($manifest->getFiles('js'));
+		$this->assertFalse($manifest->getTestFiles('js'));
+		$this->assertEquals(array(), $manifest->getDependencies());
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testName()
+	{
+		$data = array('name' => 'my package');
+		$manifest = new PackageManifest($data);
+		$this->assertEquals($data['name'], $manifest->getPackageName());
 	}
 
 	/**
@@ -96,6 +66,35 @@ class PackageManifestTest extends BaseTestCase
 
 	/**
 	 * @expectedException	InvalidArgumentException
+	 * @return	null
+	 */	
+	public function testInvalidPackageNameEmptyString_Failure()
+	{
+		$data = array('name' => '');
+		$manifest = new PackageManifest($data);
+	}
+
+	/**
+	 * @return null
+	 */
+	public function testDescription()
+	{
+		$data = array('desc' => 'my package description');
+		$manifest = new PackageManifest($data);
+		$this->assertEquals($data['desc'], $manifest->getPackageDescription());
+	
+		/* empty description is allowed */	
+		$data = array('desc' => '');
+		$manifest = new PackageManifest($data);
+		$this->assertEquals($data['desc'], $manifest->getPackageDescription());
+
+		$data = array('desc' => null);
+		$manifest = new PackageManifest($data);
+		$this->assertEquals($data['desc'], $manifest->getPackageDescription());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
 	 * @dataProvider		provideInvalidStrings
 	 * @return				null
 	 */
@@ -106,14 +105,99 @@ class PackageManifestTest extends BaseTestCase
 	}
 
 	/**
+	 * @return	null
+	 */
+	public function testFileWithOneTypeNoPath()
+	{
+		$data = array(
+			'files' => array(
+				'js' => array('file1', 'file2', 'file3')
+			)
+		);
+		$manifest = new PackageManifest($data);
+		$this->assertEquals('src', $manifest->getFilePath());
+		$this->assertEquals(array('js'), $manifest->getFileTypes());
+		$this->assertEquals($data['files']['js'], $manifest->getFiles('js'));
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testFilesWithManyTypes()
+	{
+		$data = array(
+			'files' => array(
+				'js' => array('file1', 'file2', 'file3'),
+				'css' => array('file4', 'file5'),
+				'asset' => array('file6', 'file7'),
+			)
+		);
+		$manifest = new PackageManifest($data);
+
+		$expected = array('js', 'css', 'asset');
+		$this->assertEquals('src', $manifest->getFilePath());
+		$this->assertEquals($expected, $manifest->getFileTypes());
+		$this->assertEquals($data['files']['js'], $manifest->getFiles('js'));
+		$this->assertEquals($data['files']['css'], $manifest->getFiles('css'));
+		$this->assertEquals(
+			$data['files']['asset'], 
+			$manifest->getFiles('asset')
+		);
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testFilesWithManyTypesWithPath()
+	{
+		$data = array(
+			'files' => array(
+				'path' => 'my/path',
+				'js' => array('file1', 'file2', 'file3'),
+				'css' => array('file4', 'file5'),
+				'asset' => array('file6', 'file7'),
+			)
+		);
+		$manifest = new PackageManifest($data);
+
+		$expected = array('js', 'css', 'asset');
+		$this->assertEquals('my/path', $manifest->getFilePath());
+		$this->assertEquals($expected, $manifest->getFileTypes());
+		$this->assertEquals($data['files']['js'], $manifest->getFiles('js'));
+		$this->assertEquals($data['files']['css'], $manifest->getFiles('css'));
+		$this->assertEquals(
+			$data['files']['asset'], 
+			$manifest->getFiles('asset')
+		);
+	}
+
+	/**
+	 * If you specify files you must have some file typs
+	 * 
 	 * @expectedException	InvalidArgumentException
-	 * @dataProvider		provideInvalidStrings
+	 * @return	null
+	 */
+	public function testFileWithPathOnly()
+	{
+		$data = array(
+			'files' => array(
+				'path' => 'my/path'
+			)
+		);
+		$manifest = new PackageManifest($data);
+	}
+
+	/**
+	 * Files must be an associative array of type=>array(file,list)
+	 *
+	 * @expectedException	InvalidArgumentException
 	 * @return				null
 	 */
-	public function testDirectorynInvalidString_Failure($dir)
+	public function testEmptyFileNoFilePath()
 	{
-		$data = array('dir' => $dir);
+		$data = array('files' => array());
 		$manifest = new PackageManifest($data);
+		$this->assertEquals('src', $manifest->getFilePath());
 	}
 
 	/**
@@ -137,6 +221,58 @@ class PackageManifestTest extends BaseTestCase
 		$data = array('tests' => $files);
 		$manifest = new PackageManifest($data);
 	}
+
+	/**
+	 * @return	null
+	 */
+	public function testTestsWithOneTypeNoPath()
+	{
+		$data = array(
+			'tests' => array(
+				'js' => array('file1', 'file2', 'file3')
+			)
+		);
+		$manifest = new PackageManifest($data);
+		$this->assertEquals('tests', $manifest->getTestPath());
+		$this->assertEquals(array('js'), $manifest->getTestFileTypes());
+		$this->assertEquals(
+			$data['tests']['js'], 
+			$manifest->getTestFiles('js')
+		);
+	}
+
+    /**
+     * @return  null
+     */
+    public function testTestFilesWithManyTypesWithPath()
+    {
+        $data = array(
+            'tests' => array(
+                'path' => 'my/path',
+                'js' => array('file1', 'file2', 'file3'),
+                'css' => array('file4', 'file5'),
+                'asset' => array('file6', 'file7'),
+            )
+        );
+        $manifest = new PackageManifest($data);
+
+        $expected = array('js', 'css', 'asset');
+        $this->assertEquals('my/path', $manifest->getTestPath());
+        $this->assertEquals($expected, $manifest->getTestFileTypes());
+        $this->assertEquals(
+			$data['tests']['js'], 
+			$manifest->getTestFiles('js')
+		);
+
+        $this->assertEquals(
+			$data['tests']['css'], 
+			$manifest->getTestFiles('css')
+		);
+        $this->assertEquals(
+            $data['tests']['asset'],
+            $manifest->getTestFiles('asset')
+        );
+    }
 
 	/**
 	 * @expectedException	InvalidArgumentException

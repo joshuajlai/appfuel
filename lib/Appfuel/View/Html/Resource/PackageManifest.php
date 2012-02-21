@@ -23,20 +23,26 @@ class PackageManifest implements PackageManifestInterface
 	protected $name = null;
 
 	/**
-	 * Relative path to this package's dir from the package list dir
-	 * @var string
-	 */
-	protected $dir = null;
-
-	/**
 	 * @var string
 	 */
 	protected $desc = null;
 
 	/**
+	 * Relative path from the package dir to the package files
+	 * @var string
+	 */
+	protected $filePath = 'src';
+
+	/**
 	 * @var PackageFileListInterface
 	 */
 	protected $files = null; 
+
+	/**
+	 * Relative path from the package dir to the test files
+	 * @var string 
+	 */
+	protected $testPath = 'tests';
 	
 	/**
 	 * @var PackageFileListInterface
@@ -64,26 +70,22 @@ class PackageManifest implements PackageManifestInterface
 			$this->setPackageDescription($data['desc']);
 		}
 		
-		if (isset($data['dir'])) {
-			$this->setPackageDir($data['dir']);
-		}
-
 		if (! isset($data['files'])) {
-			$this->setFileList($this->createPackageFileList());
+			$this->setResourceFiles($this->createPackageFileList());
 		}
 		else if (is_array($data['files'])) {
-			$this->setFiles($data['files']);
+			$this->setResourceFiles($data['files']);
 		}
 		else {
-			$err = 'files must be an associative array';
+			$err = 'resource must be an associative array';
 			throw new InvalidArgumentException($err);
 		}
 
 		if (! isset($data['tests'])) {
-			$this->setTestList($this->createPackageFileList());
+			$this->setResourceTests($this->createPackageFileList());
 		}
 		else if (is_array($data['tests'])) {
-			$this->setTests($data['tests']);
+			$this->setResourceTests($data['tests']);
 		}
 		else {
 			$err = 'tests must be an associative array';
@@ -115,9 +117,18 @@ class PackageManifest implements PackageManifestInterface
 	/**
 	 * @return	string
 	 */
-	public function getPackageDir()
+	public function getFilePath()
 	{
-		return $this->dir;
+		return $this->filePath;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getFileTypes()
+	{
+		return $this->getResourceFiles()
+					->getTypes();
 	}
 
 	/**
@@ -125,26 +136,35 @@ class PackageManifest implements PackageManifestInterface
 	 */
 	public function getAllFiles()
 	{
-		return $this->getFileList()
+		return $this->getResourceFiles()
 					->getAll();
 	}
 
 	/**
-	 * @return	array | false when type does not exist
+	 * @params	string $type 
+	 * @return	array|false
 	 */
 	public function getFiles($type)
 	{
-		return $this->getFileList()
+		return $this->getResourceFiles()
 					->get($type);
 	}
 
 	/**
-	 * @return	array | false when type does not exist
+	 * @return	string
 	 */
-	public function getTestFiles($type)
+	public function getTestPath()
 	{
-		return $this->getTestList()
-					->get($type);
+		return $this->testPath;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getTestFileTypes()
+	{
+		return $this->getResourceTestFiles()
+					->getTypes();
 	}
 
 	/**
@@ -152,8 +172,18 @@ class PackageManifest implements PackageManifestInterface
 	 */
 	public function getAllTestFiles()
 	{
-		return $this->getTestList()
+		return $this->getResourceTestFiles()
 					->getAll();
+	}
+
+	/**
+	 * @param	string	$type
+	 * @return	array|false
+	 */
+	public function getTestFiles($type)
+	{
+		return $this->getResourceTestFiles()
+					->get($type);
 	}
 
 	/**
@@ -192,72 +222,113 @@ class PackageManifest implements PackageManifestInterface
 	}
 
 	/**
-	 * @param	string	$name
-	 * @return	null
-	 */
-	protected function setPackageDir($dir)
-	{
-		if (! is_string($dir) || empty($dir)) {
-			$err = 'package dir must be a none empty string';
-			throw new InvalidArgumentException($err);
-		}
-		$this->dir = $dir;
-	}
-
-	/**
 	 * @param	array	$list
 	 * @return	null
 	 */	
-	protected function setFiles(array $files)
+	protected function setResourceFiles($files)
 	{
+		if ($files instanceof PackageFileListInterface) {
+			$this->files = $files;
+			return;
+		}
+		else if (! is_array($files)) {
+			$err  = 'files must be an array or an object that implments ';
+			$err .= 'Appfuel\View\Html\Resource\PackageFileListInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		if (isset($files['path'])) {
+			$path = $files['path'];
+			if (! is_string($path)) {
+				$err = 'path to resource files must be a string';
+				throw new InvalidArgumentException($err);
+			}
+			$this->setFilePath($path);
+			unset($files['path']);
+		}
+		else {
+			$this->setFilePath('src');
+		}
+
 		$list = $this->createPackageFileList();
 		$list->set($files);
-		$this->setFileList($list);
+		$this->files = $list;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setFilePath($dir)
+	{
+		if (! is_string($dir)) {
+			$err = 'package file dir must be a string';
+			throw new InvalidArgumentException($err);
+		}
+		$this->filePath = $dir;
 	}
 
 	/**
 	 * @return	PackageFileListInterface
 	 */
-	protected function getFileList()
+	protected function getResourceFiles()
 	{
 		return $this->files;
 	}
 
 	/**
-	 * @param	PackageFileListInterface	$list
+	 * @param	string	$name
 	 * @return	null
 	 */
-	protected function setFileList(PackageFileListInterface $list)
+	protected function setTestPath($dir)
 	{
-		$this->files = $list;
+		if (! is_string($dir)) {
+			$err = 'package dir must be a string';
+			throw new InvalidArgumentException($err);
+		}
+		$this->testPath = $dir;
 	}
-
+		
 	/**
 	 * @return	PackageFileListInterface
 	 */
-	protected function getTestList()
+	protected function getResourceTestFiles()
 	{
 		return $this->tests;
-	}
-
-	/**
-	 * @param	PackageFileListInterface	$list
-	 * @return	null
-	 */
-	protected function setTestList(PackageFileListInterface $list)
-	{
-		$this->tests = $list;
 	}
 
 	/**
 	 * @param	array	$list
 	 * @return	null
 	 */	
-	protected function setTests(array $files)
+	protected function setResourceTests($files)
 	{
+		if ($files instanceof PackageFileListInterface) {
+			$this->tests = $files;
+			return;
+		}
+		else if (! is_array($files)) {
+			$err  = 'tests must be an array or an object that implements ';
+			$err .= 'Appfuel\View\Html\Resource\PackageFileListInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		if (isset($files['path'])) {
+			$path = $files['path'];
+			if (! is_string($path)) {
+				$err = 'path to test files must be a string';
+				throw new InvalidArgumentException($err);
+			}
+			$this->setTestPath($path);
+			unset($files['path']);
+		}
+		else {
+			$this->setTestPath('tests');
+		}
+
 		$list = $this->createPackageFileList();
 		$list->set($files);
-		$this->setTestList($list);
+		$this->tests = $list;
 	}
 
 	/**

@@ -123,5 +123,7 @@ class ResourcePackageTest extends BaseTestCase
 		$this->assertSame($this->vendor, $pkg->getVendor());
 		$this->assertSame($this->manifest, $pkg->getManifest());
 		$this->assertSame($this->reader, $pkg->getFileReader());
+
+		echo "\n", print_r($pkg->getData('js'),1), "\n";exit;
 	}
 }
