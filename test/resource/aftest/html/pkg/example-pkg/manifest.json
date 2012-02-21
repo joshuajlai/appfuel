@@ -3,7 +3,7 @@
 	"desc": "js module used to test resource building",
 	"dir": "example-pkg",
 	"files": {
-		"path": "src",
+		"dir": "my/other/dir",
 		"files": {
 			"js": [
 				"js/file1.js",
@@ -23,7 +23,7 @@
 	},
 
 	"tests": {
-		"path": "example-pkg/test",
+		"dir": "example-pkg/test",
 		"files": {
 			"js":  ["mytest.js"],
 			"css": ["mycss.css"],

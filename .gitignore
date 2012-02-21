@@ -1,4 +1,6 @@
 app/config/config.php
+resource/yui/yui3
+resource/yui/yui2
 *.swp
 *.swo
 *~

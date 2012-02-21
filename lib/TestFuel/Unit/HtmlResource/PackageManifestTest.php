@@ -8,12 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\View\Html\Resource;
+namespace TestFuel\Unit\HtmlResource;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\View\Html\Resource\PackageManifest;
-
+	Appfuel\HtmlResource\PackageManifest;
 
 /**
  * The package manifest holds meta data, file list, tests and dependencies
@@ -30,7 +29,7 @@ class PackageManifestTest extends BaseTestCase
 		$data = array('name' => 'example_pkg');
 		$manifest = new PackageManifest($data);
 		$this->assertInstanceOf(
-			'Appfuel\View\Html\Resource\PackageManifestInterface',
+			'Appfuel\HtmlResource\PackageManifestInterface',
 			$manifest
 		);
 		$this->assertEquals($data['name'], $manifest->getPackageName());

@@ -8,15 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\View\Html\Resource;
+namespace TestFuel\Unit\HtmlResource;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileReader,
-	Appfuel\View\Html\Resource\ResourceVendor,
-	Appfuel\View\Html\Resource\PackageManifest,
-	Appfuel\View\Html\Resource\ResourcePackage;
+	Appfuel\HtmlResource\ResourceVendor,
+	Appfuel\HtmlResource\PackageManifest,
+	Appfuel\HtmlResource\ResourcePackage;
 
 
 /**
@@ -117,7 +117,7 @@ class ResourcePackageTest extends BaseTestCase
 	{
 		$pkg = $this->getResourcePackage();
 		$this->assertInstanceOf(
-			'Appfuel\View\Html\Resource\ResourcePackageInterface',
+			'Appfuel\HtmlResource\ResourcePackageInterface',
 			$pkg
 		);
 
