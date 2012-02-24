@@ -211,6 +211,14 @@ class FileCompositor extends BaseCompositor implements FileCompositorInterface
         echo json_encode($this->get($key));
     }
 
+	/**
+	 * @return	null
+	 */
+	public function renderEOL()
+	{
+		echo PHP_EOL;
+	}
+
     /**
      * @param   string  $label
      * @return  bool

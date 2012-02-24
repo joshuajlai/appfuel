@@ -42,7 +42,7 @@ interface HtmlPageBuilderInterface
 	 * @param	HtmlPageDetailInterface $detail
 	 * @return	HtmlPageInterface
 	 */
-	public function buildPage(HtmlPageDetailInterface $detail);
+	public function buildPage($detail);
 
     /**
      * @param   HtmlTagFactoryInterface $factory

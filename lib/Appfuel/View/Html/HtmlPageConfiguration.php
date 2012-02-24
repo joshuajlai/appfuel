@@ -26,12 +26,29 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 */
 	public function apply(array $config, HtmlPageInterface $page)
 	{
-
+		if (isset($config['html-head']) && is_array($config['html-head'])) {
+			$this->applyHead($config['html-head'], $page);
+		}
 	}
 
 	public function applyHtmlDoc($doc, HtmlPageInterface $page)
 	{
 
+	}
+
+	public function applyHead(array $config, HtmlPageInterface $page)
+	{
+		if (isset($config['title'])) {
+			$this->applyTitle($config['title'], $page);
+		}
+	
+		if (isset($config['base'])) {
+			$this->applyBase($config['base'], $page);
+		}
+
+		if (isset($config['meta'])) {
+			$this->applyMeta($config['meta'], $page);
+		}
 	}
 
 	/**
@@ -41,8 +58,9 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 */
 	public function applyTitle($config, HtmlPageInterface $page)
 	{
-        $sep   = null;
-        $text  = '';
+        $sep    = null;
+        $text   = '';
+		$action = 'replace';
         if (is_string($config)) {
             $text = $config;
         }
@@ -54,9 +72,20 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
             if (isset($config['text'])) {
                 $text = $config['text'];
             }
+
+			if (isset($config['action'])) {
+				$action = $config['action'];
+			}
         }
-            
-		$page->setHeadTitle($title, $sep);
+
+        $title = $page->getHtmlTag()
+					  ->getHead()
+					  ->getTitle();
+		$title->addContent($text, $action);
+
+		if (null !== $sep) {
+			$title->setContentSeparator($sep);
+		}
 	}
 
 	/**
@@ -73,7 +102,7 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
             $href = $config;
         }
         else if (is_array($config)) {
-			if (isset($base['href'])) {
+			if (isset($config['href'])) {
                 $href = $config['href'];
             }
 
@@ -81,8 +110,28 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
                 $target = $config['target'];
             }
         }
-        
-		$page->setBase($href, $target);
+
+		if (null !== $href || null !== $target) {
+			$page->setHeadBase($href, $target);
+		}
+	}
+
+	/**
+	 * @param	array	$list
+	 * @param	HtmlPageInterface $page
+	 * @return	null
+	 */
+	public function applyMeta(array $list, HtmlPageInterface $page)
+	{
+		
+		foreach ($list as $data) {
+			$name    = isset($data['name']) ? $data['name'] : null;
+			$content = isset($data['content']) ? $data['content']: null;
+			$equiv   = isset($data['http-equiv']) ? $data['http-equiv'] : null;
+			$charset = isset($data['charset']) ? $data['charset'] : null;
+			$page->addHeadMeta($name, $content, $equiv, $charset);	
+		}
+		
 	}
 
 	/**
