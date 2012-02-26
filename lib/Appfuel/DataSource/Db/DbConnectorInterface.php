@@ -10,6 +10,7 @@
  */
 namespace Appfuel\DataSource\Db;
 
+
 /**
  * The connector holds master/slave(optional) connection objects and hides
  * the details when you get a master or a slave through getConnection. However,

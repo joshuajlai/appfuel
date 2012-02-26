@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit backupGlobals="false" 
+		 bootstrap="bootstrap.php" 
+		 colors="true"
+		 convertErrorsToExceptions="true">
+<testsuites>
+	<testsuite name="Appfuel Tests">
+	<file>../lib/TestFuel/Unit/DataSource/Db/DbRegistryTest.php</file>
+	</testsuite>
+</testsuites>
+</phpunit>
