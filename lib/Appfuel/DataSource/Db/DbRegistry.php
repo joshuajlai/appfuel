@@ -111,7 +111,7 @@ class DbRegistry
 		}
 
 		foreach ($list as $key => $params) {
-			self::addConnectionParam($key, $params);
+			self::addConnectionParams($key, $params);
 		}
 	}
 

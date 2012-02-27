@@ -21,17 +21,29 @@ namespace Appfuel\DataSource\Db;
 interface DbConnInterface
 {
 	/**
+	 * Database server port used when one is not supplied
+	 * 
+	 * @return	int
+	 */
+	public function getDefaultPort();
+
+	/**
+	 * @param	int	$nbr
+	 * @return	DbConnInterface
+	 */
+	public function setDefaultPort($nbr);
+
+	/**
 	 * Value object used to connected to the database server. I recommend 
 	 * passing this through the constructor, but this not enforced. 
 	 *
-	 * @return	ConnectionDetailInterface
+	 * @return	Appfuel\DataStructure\DictionaryInterface
 	 */
-	public function getConnectionDetail();
+	public function getConnectionParams();
 	
 	/**
-	 * Vendor specific database driver. This is initialized and set with
-	 * ConnectionInterface::loadDriver()
-	 *
+	 * Vendor specific database handle used to connect with
+	 * 
 	 * @return	mixed
 	 */
 	public function getDriver();
@@ -47,7 +59,17 @@ interface DbConnInterface
 	 * @throws	RunTimeException
 	 * @return	DbConnectionInterface
 	 */
-	public function loadDriver();
+	public function createDriver();
+
+	/**
+	 * 1) Since this is a general interface we can not type hint on the 
+	 *    database handle. You must check for the correct type of db handle.
+	 *    i) when handle check fails throw an InvalidArgumentException
+	 *
+	 * @param	mixed
+	 * @return	DbConnInterface
+	 */
+	public function setDriver($handle);
 
 	/**
 	 * Determines is the vendor database driver is set. Each adapter should
@@ -96,9 +118,9 @@ interface DbConnInterface
 	 * A vendor specific object used to run queries based on the 
 	 * DbRequestInterface
 	 *
-	 * @return	DbQueryInterface
+	 * @return	DbAdapterInterface
 	 */	
-	public function createDbQuery();
+	public function createDbAdapter();
 
 	/**
 	 * Flag used to determine if a connection error has occured

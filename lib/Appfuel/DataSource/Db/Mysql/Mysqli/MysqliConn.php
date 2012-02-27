@@ -63,7 +63,7 @@ class MysqliConn implements DbConnInterface
 	 */
 	public function __construct($conn)
 	{
-		if (is_array($connParams)) {
+		if (is_array($conn)) {
 			$conn = new Dictionary($conn);
 		}
 		else if (! ($conn instanceof DictionaryInterface)) {
@@ -117,8 +117,13 @@ class MysqliConn implements DbConnInterface
 	 * @param	MysqliDriver	$mysqli
 	 * @return	MysqliConn
 	 */
-	public function setDriver(MysqliDriver $mysqli)
+	public function setDriver($mysqli)
 	{
+		if (! $mysqli instanceof MysqliDriver) {
+			$err = 'driver must be a mysqli object';
+			throw new InvalidArgumentException($mysqli);
+		}
+
 		$this->driver = $mysqli;
 		return $this;
 	}
@@ -181,7 +186,7 @@ class MysqliConn implements DbConnInterface
 			$params->get('pass'),
 			$params->get('name'),
 			$params->getOption('port', $this->getDefaultPort()),
-			$params->getOption('socket', null),
+			$params->getOption('socket', null)
 		);
 	
 		if (! $isConnected) {
@@ -223,7 +228,7 @@ class MysqliConn implements DbConnInterface
 		}
 
 		foreach ($flags as $flag) {
-			$result |= $flag
+			$result |= $flag;
 		}
 
 		return $result;

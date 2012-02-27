@@ -34,6 +34,11 @@ class DbRegistryTest extends BaseTestCase
 	protected $bkConns = array();
 
 	/**
+	 * @var string
+	 */
+	protected $dInterface = 'Appfuel\DataStructure\DictionaryInterface';
+
+	/**
 	 * @return	null
 	 */
 	public function setUp()
@@ -52,6 +57,14 @@ class DbRegistryTest extends BaseTestCase
 		else {
 			DbRegistry::clearConnectionParams();
 		}
+	}
+
+	/**
+	 * @return	DictionaryInterface
+	 */
+	public function getMockDictionary()
+	{
+		return $this->getMock('Appfuel\DataStructure\DictionaryInterface');
 	}
 
 	/**
@@ -106,7 +119,7 @@ class DbRegistryTest extends BaseTestCase
 	public function testAddGetIsConnectionParamAsDictionary()
 	{
 		$key = 'local-appfuel-unittest';
-		$params = $this->getMock('Appfuel\DataStructure\DictionaryInterface');
+		$params = $this->getMockDictionary();
 		
 		$this->assertEquals(array(), DbRegistry::getAllConnectionParams());
 		$this->assertNull(DbRegistry::addConnectionParams($key, $params));
@@ -118,7 +131,7 @@ class DbRegistryTest extends BaseTestCase
 		$this->assertEquals($expected, DbRegistry::getAllConnectionParams());
 
 		$key2 = 'qa-appfuel-unittest';
-		$params2 = $this->getMock('Appfuel\DataStructure\DictionaryInterface');
+		$params2 = $this->getMockDictionary();
 		$this->assertNull(DbRegistry::addConnectionParams($key2, $params2));
 		$this->assertTrue(DbRegistry::isConnectionParams($key2));
 		
@@ -177,6 +190,9 @@ class DbRegistryTest extends BaseTestCase
 		$this->assertEquals($expected, DbRegistry::getAllConnectionParams());	
 	}
 
+	/**
+	 * @return null
+	 */
 	public function testClearConnectionParams()
 	{
 		$key1 = 'param1';
@@ -200,7 +216,74 @@ class DbRegistryTest extends BaseTestCase
 		$this->assertEquals($expected, DbRegistry::getAllConnectionParams());
 		$this->assertNull(DbRegistry::clearConnectionParams());
 		$this->assertEquals(array(), DbRegistry::getAllConnectionParams());
-
 	}
 
+	/**
+	 * @return	null
+	 */
+	public function testLoadConnectionParamsNoExistingParams()
+	{
+		$list = array(
+			'param1' => $this->getMockDictionary(),
+			'param2' => array('host'=>'myhost', 'user'=>'me', 'pass'=>'pass'),
+			'param3' => $this->getMockDictionary(),
+		);
+
+		$this->assertEquals(array(), DbRegistry::getAllConnectionParams());
+		$this->assertNull(DbRegistry::loadConnectionParams($list));
+
+		$expected = array(
+			'param1' => $list['param1'],
+			'param2' => new Dictionary($list['param2']),
+			'param3' => $list['param3']
+		);
+		$this->assertEquals($expected, DbRegistry::getAllConnectionParams());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testLoadConnectionParamsExistingParams()
+	{
+		$list1 = array(
+			'param1' => $this->getMockDictionary(),
+			'param2' => $this->getMockDictionary(),
+			'param3' => $this->getMockDictionary(),
+		);
+		$list2 = array(
+			'param4' => $this->getMockDictionary(),
+			'param5' => $this->getMockDictionary(),
+			'param6' => $this->getMockDictionary(),
+		);
+		$this->assertEquals(array(), DbRegistry::getAllConnectionParams());
+		DbRegistry::loadConnectionParams($list1);
+		DbRegistry::loadConnectionParams($list2);
+
+		$expected = array_merge($list1, $list2);
+		$this->assertEquals($expected, DbRegistry::getAllConnectionParams());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testSetConnectionParams()
+	{
+		$list = array(
+			'param1' => $this->getMockDictionary(),
+			'param2' => $this->getMockDictionary(),
+			'param3' => $this->getMockDictionary(),
+		);
+		$this->assertEquals(array(), DbRegistry::getAllConnectionParams());
+
+		$this->assertNull(DbRegistry::setConnectionParams($list));
+		$this->assertEquals($list, DbRegistry::getAllConnectionParams());
+
+		$list2 = array(
+			'param4' => $this->getMockDictionary(),
+			'param5' => $this->getMockDictionary(),
+			'param6' => $this->getMockDictionary(),
+		);
+		$this->assertNull(DbRegistry::setConnectionParams($list2));
+		$this->assertEquals($list2, DbRegistry::getAllConnectionParams());
+	}
 }
