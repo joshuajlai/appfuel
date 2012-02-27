@@ -78,7 +78,7 @@ class DbRegistry
 	 * @param	mixed	array | DictionaryInterface	 $params
 	 * @return	null
 	 */
-	static public function addConnectionParam($key, $params)
+	static public function addConnectionParams($key, $params)
 	{
 		if (! is_string($key)) {
 			$err = 'connection parameter key must be a string';
@@ -88,7 +88,7 @@ class DbRegistry
         if (is_array($params)) {
             $params = new Dictionary($params);
         }
-        else if (! ($conn instanceof DictionaryInterface)) {
+        else if (! ($params instanceof DictionaryInterface)) {
             $err  = 'db connection parameters must be either an array ';
             $err .= 'or an object that implements Appfuel\DataStructure';
             $err .= '\DictionaryInterface';
