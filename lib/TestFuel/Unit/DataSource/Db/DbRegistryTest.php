@@ -39,11 +39,18 @@ class DbRegistryTest extends BaseTestCase
 	protected $dInterface = 'Appfuel\DataStructure\DictionaryInterface';
 
 	/**
+	 * @var string
+	 */
+	protected $cInterface = 'Appfuel\DataSource\Db\DbConnectorInterface';
+
+	/**
 	 * @return	null
 	 */
 	public function setUp()
 	{
 		$this->bkParams = DbRegistry::getAllConnectionParams();
+		$this->bkConns  = DbRegistry::getAllConnectors();
+		DbRegistry::clear();
 	}
 
 	/**
@@ -57,6 +64,13 @@ class DbRegistryTest extends BaseTestCase
 		else {
 			DbRegistry::clearConnectionParams();
 		}
+
+		if (! empty($this->bkConns)) {
+			DbRegistry::setConnectors($this->bkConns);
+		}
+		else {
+			DbRegistry::clearConnectors();
+		}
 	}
 
 	/**
@@ -64,7 +78,15 @@ class DbRegistryTest extends BaseTestCase
 	 */
 	public function getMockDictionary()
 	{
-		return $this->getMock('Appfuel\DataStructure\DictionaryInterface');
+		return $this->getMock($this->dInterface);
+	}
+
+	/**
+	 * @return DbConnectorInterface
+	 */
+	public function getMockConnector()
+	{
+		return $this->getMock($this->cInterface);
 	}
 
 	/**
@@ -285,5 +307,176 @@ class DbRegistryTest extends BaseTestCase
 		);
 		$this->assertNull(DbRegistry::setConnectionParams($list2));
 		$this->assertEquals($list2, DbRegistry::getAllConnectionParams());
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testIsAddGetConnector()
+	{
+		$key1  = 'my-conn';
+		$conn1 = $this->getMockConnector();
+		$this->assertEquals(array(), DbRegistry::getAllConnectors());
+		$this->assertFalse(DbRegistry::isConnector($key1));
+		$this->assertNull(DbRegistry::addConnector($key1, $conn1));
+		$this->assertTrue(DbRegistry::isConnector($key1));
+		$this->assertSame($conn1, DbRegistry::getConnector($key1));
+
+		$key2  = 'second-conn';
+		$conn2 = $this->getMockConnector();
+		$this->assertFalse(DbRegistry::isConnector($key2));
+		$this->assertNull(DbRegistry::addConnector($key2, $conn2));
+		$this->assertTrue(DbRegistry::isConnector($key2));
+		$this->assertSame($conn2, DbRegistry::getConnector($key2));
+
+		$expected = array(
+			$key1 => $conn1,
+			$key2 => $conn2
+		);
+		$this->assertEquals($expected, DbRegistry::getAllConnectors());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @return				null
+	 */
+	public function testIsAddConnectorInvalidKeyInt()
+	{
+		DbRegistry::addConnector(12345, $this->getMockConnector());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @return				null
+	 */
+	public function testIsAddConnectorInvalidKeyArray()
+	{
+		DbRegistry::addConnector(array(1,2,3), $this->getMockConnector());
+	}
+
+	/**
+	 * @expectedException	InvalidArgumentException
+	 * @return				null
+	 */
+	public function testIsAddConnectorInvalidKeyObject()
+	{
+		DbRegistry::addConnector(new StdClass(), $this->getMockConnector());
+	}
+
+	/**
+	 * Load appends to the list and does not override the list
+	 * @return	null
+	 */
+	public function testLoadConnectors()
+	{
+		$list = array(
+			'key1' => $this->getMockConnector(),
+			'key2' => $this->getMockConnector(),
+			'key3' => $this->getMockConnector()
+		);
+
+		$this->assertEquals(array(), DbRegistry::getAllConnectors());
+		$this->assertNull(DbRegistry::loadConnectors($list));
+		$this->assertTrue(DbRegistry::isConnector('key1'));
+		$this->assertSame($list['key1'], DbRegistry::getConnector('key1'));
+
+		$this->assertTrue(DbRegistry::isConnector('key2'));
+		$this->assertSame($list['key2'], DbRegistry::getConnector('key2'));
+
+		$this->assertTrue(DbRegistry::isConnector('key3'));
+		$this->assertSame($list['key3'], DbRegistry::getConnector('key3'));
+		$this->assertEquals($list, DbRegistry::getAllConnectors());
+
+		/* add another list */
+		$list2 = array(
+			'key4' => $this->getMockConnector(),
+			'key5' => $this->getMockConnector(),
+		);
+		$this->assertNull(DbRegistry::loadConnectors($list2));
+		$this->assertTrue(DbRegistry::isConnector('key4'));
+		$this->assertSame($list2['key4'], DbRegistry::getConnector('key4'));
+
+		$this->assertTrue(DbRegistry::isConnector('key5'));
+		$this->assertSame($list2['key5'], DbRegistry::getConnector('key5'));
+
+		$expected = array_merge($list, $list2);
+		$this->assertEquals($expected, DbRegistry::getAllConnectors());
+	}
+
+	public function testSetConnectors()
+	{
+		$list = array(
+			'key1' => $this->getMockConnector(),
+			'key2' => $this->getMockConnector(),
+			'key3' => $this->getMockConnector()
+		);
+		$this->assertEquals(array(), DbRegistry::getAllConnectors());
+		$this->assertNull(DbRegistry::setConnectors($list));
+		$this->assertNull(DbRegistry::loadConnectors($list));
+		$this->assertTrue(DbRegistry::isConnector('key1'));
+		$this->assertSame($list['key1'], DbRegistry::getConnector('key1'));
+
+		$this->assertTrue(DbRegistry::isConnector('key2'));
+		$this->assertSame($list['key2'], DbRegistry::getConnector('key2'));
+
+		$this->assertTrue(DbRegistry::isConnector('key3'));
+		$this->assertSame($list['key3'], DbRegistry::getConnector('key3'));
+		$this->assertEquals($list, DbRegistry::getAllConnectors());
+
+		/* set another list */
+		$list2 = array(
+			'key4' => $this->getMockConnector(),
+			'key5' => $this->getMockConnector(),
+		);
+		$this->assertNull(DbRegistry::setConnectors($list2));
+		$this->assertTrue(DbRegistry::isConnector('key4'));
+		$this->assertSame($list2['key4'], DbRegistry::getConnector('key4'));
+
+		$this->assertTrue(DbRegistry::isConnector('key5'));
+		$this->assertSame($list2['key5'], DbRegistry::getConnector('key5'));
+		$this->assertFalse(DbRegistry::isConnector('key1'));
+		$this->assertFalse(DbRegistry::isConnector('key2'));
+		$this->assertFalse(DbRegistry::isConnector('key3'));
+
+		$this->assertEquals($list2, DbRegistry::getAllConnectors());
+	}
+
+	public function testClearConnectors()
+	{
+		$list = array(
+			'key1' => $this->getMockConnector(),
+			'key2' => $this->getMockConnector(),
+			'key3' => $this->getMockConnector()
+		);
+		$this->assertEquals(array(), DbRegistry::getAllConnectors());
+		$this->assertNull(DbRegistry::setConnectors($list));
+		$this->assertNull(DbRegistry::loadConnectors($list));
+		$this->assertNull(DbRegistry::clearConnectors());
+		$this->assertFalse(DbRegistry::isConnector('key1'));
+		$this->assertFalse(DbRegistry::isConnector('key2'));
+		$this->assertFalse(DbRegistry::isConnector('key3'));
+
+		$this->assertEquals(array(), DbRegistry::getAllConnectors());
+	}
+
+	public function testClear()
+	{
+		$list = array(
+			'key1' => $this->getMockConnector(),
+			'key2' => $this->getMockConnector(),
+			'key3' => $this->getMockConnector()
+		);
+		DbRegistry::setConnectors($list);
+
+		$list2 = array(
+			'param1' => $this->getMockDictionary(),
+			'param2' => $this->getMockDictionary(),
+			'param3' => $this->getMockDictionary(),
+		);
+		DbRegistry::setConnectionParams($list2);
+		
+		$this->assertNull(DbRegistry::clear());
+		$this->assertEquals(array(), DbRegistry::getAllConnectors());
+		$this->assertEquals(array(), DbRegistry::getAllConnectionParams());
 	}
 }

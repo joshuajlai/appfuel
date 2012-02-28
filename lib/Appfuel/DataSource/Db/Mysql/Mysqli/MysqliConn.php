@@ -14,9 +14,7 @@ use RunTimeException,
 	InvalidArgumentException,
 	mysqli as MysqliDriver,
 	Appfuel\DataStructure\Dictionary,
-	Appfuel\DataStructure\DictionaryInterface,
-	Appfuel\DataSource\Db\DbConnInterface,
-	Appfuel\DataSource\Db\DbConnDetailInterface;
+	Appfuel\DataStructure\DictionaryInterface;
 
 /**
  * The primary responsibilty of the DbConnection is encapsulate vendor specific
@@ -25,7 +23,7 @@ use RunTimeException,
  * closing as well as finding errors are done throug delegation of the native
  * mysqi object which is created in the constructor
  */
-class MysqliConn implements DbConnInterface
+class MysqliConn implements MysqliConnInterface
 {
 	/**
 	 * Value object used to hold the connection details
@@ -232,6 +230,46 @@ class MysqliConn implements DbConnInterface
 		}
 
 		return $result;
+	}
+
+	/**
+	 * @param	array $params
+	 * @return	int
+	 */
+	public function setConnectionOptions(MysqliDriver $driver, array $data)
+	{
+		if (isset($data['connect-timeout'])) {
+			$seconds = $data['connect-timeout'];
+			if (! is_int($seconds) || $seconds < 0) {
+				$err = 'MYSQLI_OPT_CONNECT_TIMEOUT must be a postive integer';
+				throw new InvalidArgumentException($err);
+			}
+		
+			$driver->options(MYSQLI_OPT_CONNECT_TIMEOUT, $seconds);
+		}
+
+		if (isset($data['is-local-infile'])) {
+			$isLocal = (true === $data['is-local-infile']) ? true : false;
+			$driver->options(MYSQLI_OPT_LOCAL_INFILE, $isLocal);
+		}
+
+		if (isset($data['read-default-file'])) {
+			$file = $data['read-default-file'];
+			if (! is_string($file) || empty($file)) {
+				$err = 'MYSQLI_READ_DEFAULT_FILE must be a non empty string';
+				throw new InvalidArgumentException($err);
+			}
+			$driver->options(MYSQLI_READ_DEFAULT_FILE, $file);
+		}
+
+		if (isset($data['read-default-group'])) {
+			$group = $data['read-default-group'];
+			if (! is_string($group) || empty($group)) {
+				$err = 'MYSQLI_READ_DEFAULT_GROUP must be a non empty string';
+				throw new InvalidArgumentException($err);
+			}
+			$driver->options(MYSQLI_READ_DEFAULT_GROUP, $file);
+		}
 	}
 
 	/**

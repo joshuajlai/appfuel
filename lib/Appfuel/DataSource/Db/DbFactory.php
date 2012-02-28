@@ -24,6 +24,11 @@ class DbFactory implements DbFactoryInterface
 	 */
 	public function createConnection($class, $data)
 	{
+		if (! is_string($class) || empty($class)) {
+			$err = 'connection adapter class must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
 		$conn = new $class($data);
 		if (! $conn instanceof DbConnInterface) {
 			$inter = 'Appfuel\DataSource\Db\DbConnInterface';

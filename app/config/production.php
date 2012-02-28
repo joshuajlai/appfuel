@@ -28,7 +28,14 @@ return array(
 			AF_LIB_PATH 
 		),
 		'startup-tasks'	=> array(
+			'Appfuel\DataSource\Db\DbStartupTask',
 			'TestFuel\UnitTestStartup',
 		),
+        'db-scope' => array('af-local-tester'),
+        'db' => array(
+            'af-local-tester' => array(
+                'adapter' => 'Appfuel\DataSource\Db\Mysql\Mysqli\MysqliConn',
+            ),
+        ),
 	),
 );

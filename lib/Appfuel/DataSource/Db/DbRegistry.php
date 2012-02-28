@@ -37,7 +37,100 @@ class DbRegistry
 	 * List of DbConnectorInterfaces 
 	 * @var array
 	 */
-	static protected $connectors = array();
+	static protected $conns = array();
+
+	/**
+	 * @param	string	$key
+	 * @return	bool
+	 */
+	static public function isConnector($key)
+	{
+		if (is_string($key) && isset(self::$conns[$key])) {
+			return true;
+		}
+
+		return false;	
+	}
+
+	/**
+	 * @return	array
+	 */
+	static public function getAllConnectors()
+	{
+		return self::$conns;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	DictionaryInterface | false 
+	 */
+	static public function getConnector($key)
+	{
+		if (! self::isConnector($key)) {
+			return false;
+		}
+
+		return self::$conns[$key];
+	}
+
+	/**
+	 * @param	string	$key
+	 * @param	mixed	array | DictionaryInterface	 $params
+	 * @return	null
+	 */
+	static public function addConnector($key, DbConnectorInterface $conn)
+	{
+		if (! is_string($key)) {
+			$err = 'connector key must be a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		self::$conns[$key] = $conn;
+	}
+	
+	/**
+	 * @params	array	$list
+	 * @return	null
+	 */
+	static public function loadConnectors(array $list)
+	{
+		if ($list === array_values($list)) {
+			$err  = 'list of connectors must be an associative ';
+			$err .= 'of named connectors';
+			throw new InvalidArgumentException($err);
+		}
+
+		foreach ($list as $key => $connector) {
+			self::addConnector($key, $connector);
+		}
+	}
+
+	/**
+	 * @params	array	$list
+	 * @return	null
+	 */
+	static public function setConnectors(array $list)
+	{
+		self::clear();
+		self::loadConnectors($list);		
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function clearConnectors()
+	{
+		self::$conns = array();
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function clear()
+	{
+		self::clearConnectors();
+		self::clearConnectionParams();
+	}
 
 	/**
 	 * @param	string	$key

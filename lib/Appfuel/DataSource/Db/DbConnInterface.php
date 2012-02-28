@@ -20,6 +20,13 @@ namespace Appfuel\DataSource\Db;
  */
 interface DbConnInterface
 {
+
+    /**
+     * @param   mixed array | Appfuel\DataStructure\DictionaryInterface $params
+     * @return  DbConnInterface
+     */
+    public function __construct($params);
+
 	/**
 	 * Database server port used when one is not supplied
 	 * 
