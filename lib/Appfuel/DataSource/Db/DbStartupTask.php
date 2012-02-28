@@ -116,17 +116,19 @@ class DbStartupTask extends StartupTaskAbstract
 				$err = 'connector key must be a non empty string';
 				throw new InvalidArgumentException($err);
 			}
-			
+				
+			if (! isset($config['adapter'])) {
+				$err = 'missing config setting -(adapter)';
+				throw new InvalidArgumentException($err);
+			}
+		
 			/* save the connection parameters separately in the registry
 			 * so that connections setting can be reused without having to 
 			 * go back to the config file
 			 */
 			DbRegistry::addConnectionParams($key, $config);
-			
-			if (! isset($config['adapter'])) {
-				$err = 'missing config setting -(db-adapter)';
-				throw new InvalidArgumentException($err);
-			}
+		
+
 
 			$slave = null;
 			$adapterClass   = $config['adapter'];
@@ -181,5 +183,6 @@ class DbStartupTask extends StartupTaskAbstract
 			 */
 			DbRegistry::addConnector($key, $connector);
 		}
+
 	}
 }

@@ -60,6 +60,7 @@ class DbRegistryTest extends BaseTestCase
 	{
 		if (! empty($this->bkParams)) {
 			DbRegistry::setConnectionParams($this->bkParams);
+			$this->bkParams = array();
 		}
 		else {
 			DbRegistry::clearConnectionParams();
@@ -67,6 +68,7 @@ class DbRegistryTest extends BaseTestCase
 
 		if (! empty($this->bkConns)) {
 			DbRegistry::setConnectors($this->bkConns);
+			$this->bkConns = array();
 		}
 		else {
 			DbRegistry::clearConnectors();

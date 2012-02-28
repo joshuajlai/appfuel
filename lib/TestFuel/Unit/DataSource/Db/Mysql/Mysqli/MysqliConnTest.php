@@ -31,6 +31,44 @@ class MysqliConnTest extends BaseTestCase
 	 */
 	protected $params = null;
 
-	
+	/**
+	 * @return	null
+	 */
+	public function setUp()
+	{
+		$this->runDbStartupTask();
+		$this->params = DbRegistry::getConnectionParams('af-tester');
+		$this->conn = new MysqliConn($this->params);
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function tearDown()
+	{
+		$this->params = null;
+		$this->conn   = null;
+	}
+
+	/**	
+	 * @return	MysqliConnInterface
+	 */
+	public function getMysqliConnector()
+	{
+		return $this->conn;
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function testInitialState()
+	{
+		$conn = $this->getMysqliConnector();
+		$this->assertInstanceof('Appfuel\DataSource\Db\DbConnInterface',$conn);
+		$this->assertInstanceof(
+			'Appfuel\DataSource\Db\Mysql\Mysqli\MysqliConnInterface',
+			$conn
+		);
+	}
 
 }

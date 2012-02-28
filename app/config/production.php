@@ -31,9 +31,9 @@ return array(
 			'Appfuel\DataSource\Db\DbStartupTask',
 			'TestFuel\UnitTestStartup',
 		),
-        'db-scope' => array('af-local-tester'),
+        'db-scope' => array('af-tester'),
         'db' => array(
-            'af-local-tester' => array(
+            'af-tester' => array(
                 'adapter' => 'Appfuel\DataSource\Db\Mysql\Mysqli\MysqliConn',
             ),
         ),

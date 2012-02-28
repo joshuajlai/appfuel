@@ -10,7 +10,7 @@ return array(
 	),
 	'test' => array(
 		'db' => array(
-			'af-local-tester' => array(
+			'af-tester' => array(
 				'conn-params' => array(
 					'host' => 'localhost',
 					'user' => 'af_tester',

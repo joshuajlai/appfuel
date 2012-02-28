@@ -138,7 +138,7 @@ class DbRegistry
 	 */
 	static public function isConnectionParams($key)
 	{
-		if (is_string($key) || isset(self::$params[$key])) {
+		if (is_string($key) && isset(self::$params[$key])) {
 			return true;
 		}
 
