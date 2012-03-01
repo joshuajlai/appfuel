@@ -8,6 +8,8 @@
 	<testsuite name="Appfuel Tests">
 	<file>../lib/TestFuel/Unit/DataSource/Db/DbRegistryTest.php</file>
 	<file>../lib/TestFuel/Unit/DataSource/Db/DbFactoryTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/DbRequestTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/DbResponseTest.php</file>
 	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/MysqliConnTest.php</file>
 	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/MysqliQueryResultTest.php</file>
 	</testsuite>

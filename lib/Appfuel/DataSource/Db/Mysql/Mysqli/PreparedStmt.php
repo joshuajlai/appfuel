@@ -8,20 +8,19 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Db\Mysql\Mysqli;
+namespace Appfuel\DataSource\Db\Mysql\Mysqli;
 
 use mysqli_stmt,
 	mysqli_result,
 	Exception,
 	RunTimeException,
-	InvalidArgumentException,
-	Appfuel\DataSource\Db\DbError;
+	InvalidArgumentException;
 
 /**
  * Wraps the mysqli_stmt. There is some complex logic we don't want the 
  * adapter to know about
  */
-class PreparedStmt implements PreparedStmtInterface
+class PreparedStmt implements MysqliPreparedStmtInterface
 {
 	/**
 	 * Mysqli object used to interact with the database

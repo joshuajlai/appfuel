@@ -95,12 +95,13 @@ class MysqliConn implements MysqliConnInterface
 	 */
 	public function setDefaultPort($nbr)
 	{
-		if (! is_int($nbr) || $nbr < 0) {
+		if (! is_int($nbr) || $nbr < 1) {
 			$err = 'default port must be a int greater than 0';
 			throw new InvalidArgumentException($err);
 		}
 
 		$this->defaultPort = $nbr;
+		return $this;
 	}
 
 	/**
@@ -177,23 +178,21 @@ class MysqliConn implements MysqliConnInterface
 			$this->setConnectionOptions($options);
 		}
 
-		$isConnected = @mysqli_real_connect(
+		$this->isConnected = @mysqli_real_connect(
 			$driver,
 			$params->get('host'),
 			$params->get('user'),
 			$params->get('pass'),
 			$params->get('name'),
-			$params->getOption('port', $this->getDefaultPort()),
-			$params->getOption('socket', null)
+			$params->get('port', $this->getDefaultPort()),
+			$params->get('socket', null)
 		);
 	
-		if (! $isConnected) {
+		if (! $this->isConnected) {
 			$this->setError($driver->connect_errno, $driver->connect_error); 
-			$this->isConnected = false;
 			return false;
 		}
 
-		$this->isConnected = true;
 		return true; 
 	}
 
@@ -246,6 +245,15 @@ class MysqliConn implements MysqliConnInterface
 			}
 		
 			$driver->options(MYSQLI_OPT_CONNECT_TIMEOUT, $seconds);
+		}
+
+		if (isset($data['init-command'])) {
+			$cmd = $data['init-command'];
+			if (! is_string($cmd) || empty($cmd)) {
+				$err = 'MYSQLI_INIT_COMMAND must be an non empty string';
+				throw new InvalidArgumentException($err);
+			}
+			$driver->options(MYSQLI_INIT_COMMAND, $cmd);
 		}
 
 		if (isset($data['is-local-infile'])) {
