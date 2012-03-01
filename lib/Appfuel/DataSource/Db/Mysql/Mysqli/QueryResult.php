@@ -132,7 +132,7 @@ class QueryResult implements MysqliResultInterface
 		while ($row = $handle->fetch_array($type)) {
 			$response = $this->filterResult($row, $idx, $filter);
 			if ($response instanceof DictionaryInterface) {
-				$this->setErrorDictionary($error);
+				$this->setErrorDictionary($response);
 				return false;
 			}
 

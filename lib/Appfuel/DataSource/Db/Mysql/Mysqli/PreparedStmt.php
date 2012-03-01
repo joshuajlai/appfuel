@@ -14,7 +14,8 @@ use mysqli_stmt,
 	mysqli_result,
 	Exception,
 	RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+	Appfuel\Error\ErrorStackInterface;
 
 /**
  * Wraps the mysqli_stmt. There is some complex logic we don't want the 
@@ -79,12 +80,6 @@ class PreparedStmt implements MysqliPreparedStmtInterface
 	protected $isClosed = false;
 
 	/**
-	 * Flag used to determine that an error of some kind as occured
-	 * @var bool
-	 */
-	protected $isError = false;
-
-	/**
 	 * Flag used to determine if the resultset used is buffered
 	 * @var bool
 	 */
@@ -94,7 +89,7 @@ class PreparedStmt implements MysqliPreparedStmtInterface
 	 * Error object that holds the error code and message
 	 * @var Error
 	 */
-	protected $error = null;
+	protected $error = array();
 
 	/**
 	 * Used to hold the results of the the prepared statement
@@ -145,22 +140,18 @@ class PreparedStmt implements MysqliPreparedStmtInterface
 	 */
 	public function close()
 	{
-		$this->validateDriver('close');	
-		$driver = $this->getDriver();
-	
-		try {
-			$driver->close();
-			$this->driver = null;
+		if ($this->isClosed()) {
+			return true;
 		}
-		catch (Exception $e) {
-			$this->setError($e->getCode(), trim($e->getMessage()));
-			$this->isClosed = false;
-			$this->driver   = null;
-			return false;
+
+		if ($this->driver instanceof mysqli_stmt) {
+			$this->driver->close();
+			$this->driver = null;
+			$this->isClosed = true;
+			return true;
 		}
 		
-		$this->isClosed = true;
-		return true;
+		return false;
 	}
 
 	/**
@@ -168,7 +159,7 @@ class PreparedStmt implements MysqliPreparedStmtInterface
 	 */
 	public function isError()
 	{
-		return $this->isError;
+		return ! empty($this->error);
 	}
 	
 	/**
@@ -409,7 +400,7 @@ class PreparedStmt implements MysqliPreparedStmtInterface
 			return true;
 		}
 
-		$result = new Result($resultHandle);
+		$result = new PreparedResult($resultHandle);
 		$ok = $result->organizePreparedResults($driver);
 
 		$this->result			= $result;
@@ -506,7 +497,7 @@ class PreparedStmt implements MysqliPreparedStmtInterface
 	 * @param	mixed	$filter		callback or closure to filter rows
 	 * @return	array
 	 */
-	public function fetch($filter = null)
+	public function fetch(ErrorStackInterface $errorStack, $filter = null)
 	{		
 		if (! $this->isBoundResultset()) {
 			$this->setError(10004, 'can not fetch without bounded resultset');
@@ -516,11 +507,12 @@ class PreparedStmt implements MysqliPreparedStmtInterface
 		
 		$driver = $this->getDriver();
 		$result = $this->getResult();
-
-		$response = $result->fetchPreparedData($driver, $filter);
-		if ($response instanceof ErrorInterface) {
+		$response = $result->fetchPreparedData($driver, $errorStack, $filter);
+		
+		if ($errorStack->count() > 0) {
 			$this->isFetched = false;
 		}
+
 		$this->isFetched = true;
 		return $response;
 	}
@@ -590,12 +582,15 @@ class PreparedStmt implements MysqliPreparedStmtInterface
 	 * @param	int		$code		mysql specific code for error
 	 * @param	string	$text		mysql text for code
 	 * @param	string	$sqlState	Ansi sql portable error code
-	 * @return	Error
+	 * @return	null	
 	 */
 	protected function setError($code, $text = null, $sqlState = null)
 	{
-		$this->error   = new DbError($code, $text, $sqlState);
-		$this->isError = true;
+		$this->error   = array(
+			'error-nbr'  => $code,
+			'error-text' => $text,
+			'sql-state'  => $sqlState 
+		);
 	}
 
 	/**

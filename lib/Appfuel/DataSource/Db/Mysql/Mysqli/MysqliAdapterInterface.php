@@ -18,7 +18,7 @@ use RunTimeException,
 /**
  * The database adapter is 
  */
-interface  MysqliAdapterInterface
+interface MysqliAdapterInterface
 {
 	public function execute(MysqliDriver        $driver,
 							DbRequestInterface  $request,

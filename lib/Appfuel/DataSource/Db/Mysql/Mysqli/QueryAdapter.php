@@ -11,13 +11,15 @@
 namespace Appfuel\DataSource\Db\Mysql\Mysqli;
 
 use RunTimeException,
+	mysqli_result,
 	mysqli as MysqliDriver,
-	Appfuel\DataSource\Db\DbResponse,
-	Appfuel\DataSource\Db\DbAdapterInterface,
+	Appfuel\DataSource\Db\DbResponseInterface,
 	Appfuel\DataSource\Db\DbRequestInterface;
 
 /**
- * The database adapter is 
+ * This is the default request type which sends a regular database query to 
+ * the database server packages errors or result data (apply callbacks) into
+ * a DbResponse.
  */
 class QueryAdapter implements MysqliAdapterInterface
 {
@@ -35,7 +37,6 @@ class QueryAdapter implements MysqliAdapterInterface
         if (! $request->isResultBuffer()) {
             $mode = MYSQLI_USE_RESULT;
         }
-
         switch ($request->getResultType()) {
             /* column names as keys in the result */
             case 'name' :
@@ -58,28 +59,44 @@ class QueryAdapter implements MysqliAdapterInterface
         try {
             $resultHandle = $driver->query($sql, $mode);
         } catch (\Exception $e) {
-			$this->addError($e->getMessage(), $e->getCode());
-			return false;
+			$response->addError($e->getMessage(), $e->getCode());
+			return $response;
         }
 
         if (! ($resultHandle instanceof mysqli_result)) {
-			$this->addError("result not instanceof mysqli_result");
-			return false;
+			$class = get_class($this);
+			$response->addError("{$class} expected mysqli_result none given");
+
+			$text = "{$driver->error} {$driver->sqlstate}";
+			$response->addError($text, $driver->errno);
+			return $response;
 		}
             
 		$result = new QueryResult($resultHandle);
-        $data = $resultSet->fetchAllData($type, $filter);
-        
-        if (false === $data) {
-			$errText = "{$driver->error} {$driver->sqlstate}";
-			$errCode = $driver->errno;
-			$this->addError($errText, $errCode);
-			return false;
+        $data = $result->fetchAllData($type, $filter);
+		if ($result->isError()) {
+			$error = $result->getError();
+			$code  = 500;
+			$class = get_class($this);
+			$text  = "failed result fetch from {$class}: ";
+			if (isset($error['error-nbr'])) {
+				$code = $error['error-nbr'];
+			}
+
+			if (isset($error['error-nbr'])) {
+				$text .= $error['error-txt'];
+			}
+
+			if (isset($error['result-row-index'])) {
+				$text .= " at row index -({$error['result-row-index']})";
+			}
+			$response->addError($text, $code);
+			return $response;
         } else if (true === $data) {
             $data = null;
         }
 
-		$response->load($data);
-		return $response;;
+		$response->setResultSet($data);
+		return $response;
 	}
 }

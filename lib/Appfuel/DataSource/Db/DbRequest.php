@@ -78,8 +78,9 @@ class DbRequest implements DbRequestInterface
     protected $multiResultOptions = array();
 
 	/**
-	 * @param	string	$type	type of db operation is it read | write | both
-	 * @param	string	$sql	optionally set the sql string
+	 * @param	string	$sql		optionally set the sql string
+	 * @param	string  $type		type of query adapter to use
+	 * @param	string	$strategy	replication strategy if used
 	 * @return	QueryRequest
 	 */
 	public function __construct($sql = null, $type = null, $strategy = null)

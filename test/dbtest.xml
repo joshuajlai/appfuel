@@ -12,6 +12,9 @@
 	<file>../lib/TestFuel/Unit/DataSource/Db/DbResponseTest.php</file>
 	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/MysqliConnTest.php</file>
 	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/MysqliQueryResultTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/QueryAdapterTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/PreparedStmtTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/PreparedAdapterTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

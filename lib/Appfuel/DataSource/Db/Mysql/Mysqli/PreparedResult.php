@@ -14,6 +14,7 @@ use Closure,
 	mysqli_stmt,
 	mysqli_result,
 	RunTimeException,
+	Appfuel\Error\ErrorStackInterface,
 	Appfuel\DataStructure\DictionaryInterface;
 
 /**
@@ -77,7 +78,9 @@ class PreparedResult
 	 * @param	$filter		$null	callback or closure to filter a row
 	 * @return	mixed
 	 */
-	public function fetchPreparedData(mysqli_stmt $stmt, $filter = null)
+	public function fetchPreparedData(mysqli_stmt $stmt,
+									  ErrorStackInterface $errorStack, 
+									  $filter = null)
 	{
 		$data   = array();
 		$idx    = 0;
@@ -90,12 +93,15 @@ class PreparedResult
 						$this->columnData['names'],
 						$this->dereferenceColumnValues()
 					);
-
-					$response = $this->filterResult($row, $filter);
-
+					$response = $this->filterResult($row, $idx, $filter);
+					
 					if ($response instanceof DictionaryInterface) {
-						$this->setErrorDictionary($response);
-						return false;
+						$code = $response->get('error-nbr');
+						$text = $response->get('error-txt') . 
+								' -(' . 
+								$response->get('result-row-index') . ')';
+						$errorStack->addError($text, $code);
+						$response = null;
 					}
 
 					$data[] = $response;
@@ -108,16 +114,14 @@ class PreparedResult
 					break;
 
 				case false:
-					$this->createError(
-						$stmt->errno,
-						$stmt->error,
-						$stmt->sqlstate
-					);
+					$error = $stmt->error . ' ' . $stmt->sqlstate;
+					$errorStack->addError($error, $stmt->errorno);
 					return false;
 	
 				default:
 					$msg  = 'unknown return value mysqli_stmt::fetch';
-					return $this->createError(500, $msg);
+					$errorStack->addError(500, $msg);
+					return false;
 			}
 
 		} while ($isNext);

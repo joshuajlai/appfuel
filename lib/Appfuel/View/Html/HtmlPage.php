@@ -175,6 +175,22 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	}
 
 	/**
+	 * @return	bool
+	 */
+	public function loadJsTemplate()
+	{
+		$template = $this->getTemplate('inlinejs');
+		if (! $template) {
+			return false;
+		}
+
+		$this->getInlineScriptTag()
+			 ->addContent($template->build(), 'prepend');
+	
+		return true;
+	}
+
+	/**
 	 * @return	HtmlTagInterface
 	 */
 	public function getHtmlTag()
@@ -663,8 +679,14 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 		$template->assign('body-markup', $body->getContentString());
 
 		if ($this->isJs()) {
-			/* the inline script tag is the last tag in the body */
-			$this->addScriptTag($this->getInlineScriptTag());
+			
+			/* will load build that js template into a string and add it
+			 * as the first item in the inline script
+			 */			
+			$this->loadJsTemplate();
+	
+			/* add as the last script tag for the page */
+			$this->addScriptTag($this->getInlineScriptTag());			
 			$template->assign('body-js', $this->getScriptTags());
 		}
 		return $template->build();

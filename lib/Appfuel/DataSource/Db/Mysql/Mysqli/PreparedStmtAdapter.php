@@ -28,38 +28,53 @@ class PreparedStmtAdapter implements MysqliAdapterInterface
 							DbRequestInterface $request,
 							DbResponseInterface $response)
 	{
-        $stmt   = new PreparedStmt($driver->stmt_init());
-
-        if (! $stmt->prepare($request->getSql())) {
-            return $this->createResponse($stmt->getError());
+        $stmt = new PreparedStmt($driver->stmt_init());
+        $stmt->prepare($request->getSql());
+        if ($stmt->isError()) {
+			$error = $stmt->getError();
+			$response->addError($error['error-text'], $error['error-nbr']);
+			return $response;
         }
 
         /* normalize and bind parameters */
         if ($request->isValues()) {
-            if (! $stmt->organizeParams($request->getValues())) {
-                return $this->createResponse($stmt->getError());
+            $stmt->organizeParams($request->getValues());
+            if ($stmt->isError()) {
+				$error = $stmt->getError();
+				$response->addError($error['error-text'], $error['error-nbr']);
+				return $response;
             }
         }
 
-        if (! $stmt->execute()) {
-            return $this->createResponse($stmt->getError());
+        $stmt->execute();
+        if ($stmt->isError()) {
+			$error = $stmt->getError();
+			$response->addError($error['error-text'], $error['error-nbr']);
+			return $response;
         }
 
         $isOrganized = $stmt->organizeResults();
-        if (! $stmt->organizeResults()) {
-            return $this->createResponse($stmt->getError());
+        if ($stmt->isError()) {
+			$error = $stmt->getError();
+			$response->addError($error['error-text'], $error['error-nbr']);
+            return $response;
         }
 
         /* database executed the query successfully and 
          * no results are needed
          */
         if ($isOrganized && ! $stmt->isResultset()) {
-            return $this->createResponse();
+            return $response;
         }
 
         $stmt->storeResults();
-
-        $data = $stmt->fetch($request->getCallback());
-        return $this->createResponse($data);
+		$errorStack = $response->getErrorStack();
+        $data = $stmt->fetch($errorStack, $request->getCallback());
+        
+		if (is_array($data)) {
+			$response->setResultSet($data);
+		}
+		
+		return $response;
 	}
 }

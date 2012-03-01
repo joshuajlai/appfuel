@@ -73,6 +73,19 @@ class DbResponse implements DbResponseInterface
 	}
 
 	/**
+	 * @param	int		$code
+	 * @param	string	$msg
+	 * @return	DbResponse
+	 */
+	public function addError($msg, $code = 500)
+	{
+		$this->getErrorStack()
+			 ->addError($msg, $code);
+
+		return $this;
+	}
+
+	/**
 	 * @return	int | false on failure
 	 */
 	public function count()

@@ -11,7 +11,7 @@
 namespace Appfuel\DataSource\Db\Mysql\Mysqli;
 
 use mysqli_stmt,
-	mysqli_result,
+	Appfuel\Error\ErrorStackInterface;
 
 /**
  */
@@ -30,5 +30,7 @@ interface MysqliPreparedResultInterface extends MysqliResultInterface
 	 * @param	$filter		$null	callback or closure to filter a row
 	 * @return	mixed
 	 */
-	public function fetchPreparedData(mysqli_stmt $stmt, $filter = null);
+	public function fetchPreparedData(mysqli_stmt $stmt, 
+									  ErrorStackInterface $stack,
+									  $filter = null);
 }
