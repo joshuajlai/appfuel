@@ -139,7 +139,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	/**
 	 * @return	ViewInterface
 	 */
-	public function getJsTemplate()
+	public function getInlineJsTemplate()
 	{
 		return $this->getTemplate('inlinejs');
 	}
@@ -148,7 +148,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	 * @param	mixed string|ViewInterface $js
 	 * @return	HtmlPage
 	 */
-	public function setJsTemplate($js)
+	public function setInlineJsTemplate($js)
 	{
 		if (is_string($js)) {
 			$template = new FileViewTemplate($js);
@@ -169,7 +169,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	/**
 	 * @return	bool
 	 */
-	public function isJsTemplate()
+	public function isInlineJsTemplate()
 	{
 		return $this->isTemplate('inlinejs');
 	}
@@ -177,7 +177,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	/**
 	 * @return	bool
 	 */
-	public function loadJsTemplate()
+	public function loadInlineJsTemplate()
 	{
 		$template = $this->getTemplate('inlinejs');
 		if (! $template) {
@@ -683,7 +683,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 			/* will load build that js template into a string and add it
 			 * as the first item in the inline script
 			 */			
-			$this->loadJsTemplate();
+			$this->loadInlineJsTemplate();
 	
 			/* add as the last script tag for the page */
 			$this->addScriptTag($this->getInlineScriptTag());			
