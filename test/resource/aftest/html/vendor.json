@@ -8,5 +8,4 @@
 		"kernel-core": "kernel/core",
 		"kernel-mvc" : "kernel/mvc",
 	},
-	"depends": []
 }

@@ -34,6 +34,19 @@ class ErrorStack implements ErrorStackInterface, Countable, Iterator
 	}
 
 	/**
+	 * @param	ErrorStackInterface $stack
+	 * @return	ErrorStack
+	 */
+	public function mergeStack(ErrorStackInterface $stack)
+	{
+		foreach ($stack as $item) {
+			$this->addErrorItem($item);
+		}
+
+		return $this;
+	}
+
+	/**
 	 * @param	ErrorInterface	$error
 	 * @return	ErrorStack	
 	 */
