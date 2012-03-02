@@ -139,7 +139,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	/**
 	 * @return	ViewInterface
 	 */
-	public function getJsTemplate()
+	public function getInlineJsTemplate()
 	{
 		return $this->getTemplate('inlinejs');
 	}
@@ -148,7 +148,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	 * @param	mixed string|ViewInterface $js
 	 * @return	HtmlPage
 	 */
-	public function setJsTemplate($js)
+	public function setInlineJsTemplate($js)
 	{
 		if (is_string($js)) {
 			$template = new FileViewTemplate($js);
@@ -169,9 +169,25 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	/**
 	 * @return	bool
 	 */
-	public function isJsTemplate()
+	public function isInlineJsTemplate()
 	{
 		return $this->isTemplate('inlinejs');
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function loadInlineJsTemplate()
+	{
+		$template = $this->getTemplate('inlinejs');
+		if (! $template) {
+			return false;
+		}
+
+		$this->getInlineScriptTag()
+			 ->addContent($template->build(), 'prepend');
+	
+		return true;
 	}
 
 	/**
@@ -663,8 +679,14 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 		$template->assign('body-markup', $body->getContentString());
 
 		if ($this->isJs()) {
-			/* the inline script tag is the last tag in the body */
-			$this->addScriptTag($this->getInlineScriptTag());
+			
+			/* will load build that js template into a string and add it
+			 * as the first item in the inline script
+			 */			
+			$this->loadInlineJsTemplate();
+	
+			/* add as the last script tag for the page */
+			$this->addScriptTag($this->getInlineScriptTag());			
 			$template->assign('body-js', $this->getScriptTags());
 		}
 		return $template->build();
