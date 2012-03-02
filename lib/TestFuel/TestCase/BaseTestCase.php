@@ -14,6 +14,7 @@ use StdClass,
 	TestFuel\Provider\StringProvider,
 	Appfuel\Kernel\PathFinder,
 	Appfuel\Kernel\KernelRegistry,
+	Appfuel\DataSource\Db\DbStartupTask,
 	PHPUnit_Extensions_OutputTestCase;
 
 /**
@@ -130,6 +131,21 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
             }
         }
     }
+
+	/**
+	 * @return null
+	 */
+	public function runDbStartupTask()
+	{
+		$task = new DbStartupTask();
+		$keys = $task->getRegistryKeys();
+		$params = array();
+		foreach ($keys as $key => $default) {
+			$params[$key] = KernelRegistry::getParam($key, $default);
+		}
+
+		$task->execute($params);
+	}
 
     /**
      * Restore autoloader to its previous state
