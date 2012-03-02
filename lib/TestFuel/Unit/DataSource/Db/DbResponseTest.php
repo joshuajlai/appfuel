@@ -366,7 +366,7 @@ class DbResponseTest extends BaseTestCase
 	 */
 	public function testIteratorResponses()
 	{
-		$interface = 'Appfuel\Db\DbResponseInterface';
+		$interface = 'Appfuel\DataSource\Db\DbResponseInterface';
 		$response1 = $this->getMock($interface);
 		$response2 = $this->getMock($interface);
 		$response3 = $this->getMock($interface);
