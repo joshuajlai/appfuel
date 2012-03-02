@@ -12,6 +12,8 @@ namespace Appfuel\DataSource\Db\Mysql\Mysqli;
 
 use RunTimeException,
 	mysqli as MysqliDriver,
+	Appfuel\Error\ErrorItem,
+	Appfuel\DataSource\Db\DbResponse,
 	Appfuel\DataSource\Db\DbResponseInterface,
 	Appfuel\DataSource\Db\DbRequestInterface;
 
@@ -25,26 +27,28 @@ class MultiQueryAdapter implements MysqliAdapterInterface
 	 * @return	DbReponseInterface
 	 */
 	public function execute(MysqliDriver $driver,
-							DbRequestInterface $request,
-							DbResponseInterface $response)
+							DbRequestInterface  $request,
+							DbResponseInterface $mainResponse)
 	{
         $sql     = $request->getSql();
-        $options = $request->getResultOptions();
+        $options = $request->getMultiResultOptions();
 
         /* 
          * -1 key indicated the loop never ran and this most likely a 
          * syntax error. 
          */
         if (! $driver->multi_query($sql)) {
-            $error = new Error(-1, $drv->errno, $drv->error, $drv->sqlstate);
-            return $this->createResponse($error);
+			$error = $this->createErrorItem(-1, $driver);
+            $response->addError($error);
+            return $response;
         }
 
         /* index for each query, this is mapped to the result keys */
         $idx  = 0;
         $data = array();
-
         do {
+			$resultResponse = new DbResponse();
+
             /*
              * check for the existence of all available options
              */
@@ -62,33 +66,54 @@ class MultiQueryAdapter implements MysqliAdapterInterface
                 $callback = $options[$idx]['callback'];
             }
 
-            /*
-             * Returns a buffered result object or false if an error occured
-             */
             $driverResult = $driver->store_result();
             if (! $driverResult) {
-                $error = new Error(
-                    $resultKey,
-                    $drv->errno,
-                    $drv->error,
-                    $drv->sqlstate
-                );
-
-                $data[$resultKey] = $this->createResponse($error);
-                return $data;
+				$error = $this->createErrorItem($resultKey, $driver);
+				/*
+				 * Each query in a multi query has its own response but
+				 * we also want the main response to know about each error
+				 * so we give it a copy as well
+				 */
+				$resultResponse->addError($error);
+				$mainResponse->addError($error);
+                $data[$resultKey] = $resultResponse;
             }
+			else {
+				$result    = new QueryResult($driverResult);
+				$stack     = $resultResponse->getErrorStack();
+				$dbReturn  = $result->fetchAllData(
+					$stack,
+					MYSQLI_ASSOC, 
+					$callback
+				);
 
-            $result  = new Result($driverResult);
-            $fetched = $result->fetchAllData(MYSQLI_ASSOC, $callback);
-            $data[$resultKey]  = $this->createResponse($fetched);
+				/* 
+				 * merge a copy of the error items into the main response
+				 */
+				if ($stack->isError()) {
+					$mainResponse->getErrorStack()
+								 ->mergeStack($stack);
+				}
 
-            $isMore = $drv->more_results();
+				$resultResponse->setResultSet($dbReturn);
+				$data[$resultKey]  = $resultResponse;
+			}
+
+            $isMore = $driver->more_results();
             if ($isMore) {
-                $drv->next_result();
+                $driver->next_result();
                 $idx++;
             }
         } while ($isMore);
 
-        return $this->createResponse($data);
+		$mainResponse->setResultSet($data);
+        return $mainResponse;
+	}
+
+	public function createErrorItem($key, MysqliDriver $driver)
+	{
+		$text = "{$key}:{$driver->error}:{$driver->sqlstate}";
+		$code = $driver->errno;
+		return new ErrorItem($text, $code);
 	}
 }

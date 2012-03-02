@@ -14,6 +14,7 @@ use Closure,
 	Exception,
 	mysqli_stmt,
 	mysqli_result,
+	Appfuel\Error\ErrorStackInterface,
 	Appfuel\DataStructure\Dictionary,
 	Appfuel\DataStructure\DictionaryInterface;
 
@@ -102,17 +103,19 @@ class QueryResult implements MysqliResultInterface
 	 * @param	mixed	string | array | closure
 	 * @return	array
 	 */
-	public function fetchAllData($type = MYSQLI_ASSOC, $filter = null)
+	public function fetchAllData(ErrorStackInterface $errorStack,
+								 $type = MYSQLI_ASSOC, 
+								 $filter = null)
 	{
 		if (! $this->isHandle()) {
-			$this->setError(500, "Result handle is not available");
+			$errorStack->addError("Result handle is not available", 500);
 			return false;
 		}
 
 		if (! $this->isValidType($type)) {
 			$this->free();
 			$err = "fetchAllData failed: invalid result type -($type)";
-			$this->setError(500, $msg);
+			$errorStack->setError($msg, 500);
 			return false;
 		}
 		
@@ -121,51 +124,35 @@ class QueryResult implements MysqliResultInterface
 		 */
 		if (! is_callable($filter) && ! empty($filter)) {
 			$msg  = 'fetchAllData failed: invalid callback';
-			$this->seError(500, $msg);
+			$errorStack->seError($msg, 500);
 			return false;
 		}
 
+		$idx    = 0;
 		$handle = $this->getHandle();
-		$data = array();
-		$idx = 0;
-		$error = array();
+		$data   = array();
+		$error  = array();
 		while ($row = $handle->fetch_array($type)) {
-			$response = $this->filterResult($row, $idx, $filter);
-			if ($response instanceof DictionaryInterface) {
-				$this->setErrorDictionary($response);
-				return false;
+			if (! is_callable($filter)) {
+				$data[] = $row;
+				$idx++;
+				continue;
 			}
 
-			$data[] = $response;
+			try {
+				$data[] = call_user_func($filter, $row);
+			}
+			catch (Exception $e) {
+				$errText = $e->getMessage() . " -($idx)";
+				$errorStack->addError($errText, $e->getCode());
+				$data[] = false;
+			}
+
 			$idx++;
 		}
 		$this->free();
 
 		return $data;
-	}
-
-	/**
-	 * @param	mysqli_result	$handle
-	 * @param	mixed			$filter
-	 * @return	array
-	 */
-	public function filterResult(array $row, $index, $filter = null)
-	{
-		if (! is_callable($filter)) {
-			return $row;
-		}
-			
-		try {
-			$result = call_user_func($filter, $row);
-		} catch (Exception $e) {
-			$result = new Dictionary();
-			$result->add('error-nbr', $e->getCode())
-				   ->add('error-txt', $e->getMessage())
-				   ->add('result-row-index', $index)
-				   ->add('result-row', $row);
-		}
-		
-		return $result;
 	}
 
 	/**

@@ -15,6 +15,7 @@
 	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/QueryAdapterTest.php</file>
 	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/PreparedStmtTest.php</file>
 	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/PreparedAdapterTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/MultiQueryAdapterTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

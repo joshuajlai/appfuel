@@ -13,6 +13,7 @@ namespace TestFuel\Unit\DataSource\Db\Mysql\Mysqli;
 use StdClass,
 	Exception,
 	TestFuel\TestCase\BaseTestCase,
+	Appfuel\Error\ErrorStack,
 	Appfuel\DataSource\Db\DbRegistry,
 	Appfuel\DataSource\Db\Mysql\Mysqli\MysqliConn,
 	Appfuel\DataSource\Db\Mysql\Mysqli\QueryResult;
@@ -112,12 +113,14 @@ class MysqliQueryResultTest extends BaseTestCase
 		$this->assertSame($handle, $result->getHandle());
 		$this->assertTrue($result->isHandle());
 
-		$data = $result->fetchAllData(MYSQLI_ASSOC);
+		$errorStack = new ErrorStack();
+		$data = $result->fetchAllData($errorStack, MYSQLI_ASSOC);
 		$expected = array(
 			array('param_2' => 'code_a', 'result' => 'query issued'),
 			array('param_2' => 'code_b', 'result' => 'query 2 issued'),
 			array('param_2' => 'code_c', 'result' => 'query 3 issued'),
 		);
+		$this->assertEquals(0, $errorStack->count());
 		$this->assertEquals($expected, $data);
 		$this->assertFalse($result->isHandle());
 	}
@@ -134,12 +137,14 @@ class MysqliQueryResultTest extends BaseTestCase
 		$this->assertSame($handle, $result->getHandle());
 		$this->assertTrue($result->isHandle());
 
-		$data = $result->fetchAllData(MYSQLI_NUM);
+		$errorStack = new ErrorStack();
+		$data = $result->fetchAllData($errorStack, MYSQLI_NUM);
 		$expected = array(
 			array(0 => 'code_a', 1 => 'query issued'),
 			array(0 => 'code_b', 1 => 'query 2 issued'),
 			array(0 => 'code_c', 1 => 'query 3 issued'),
 		);
+		$this->assertEquals(0, $errorStack->count());
 		$this->assertEquals($expected, $data);
 		$this->assertFalse($result->isHandle());
 	}
@@ -156,7 +161,8 @@ class MysqliQueryResultTest extends BaseTestCase
 		$this->assertSame($handle, $result->getHandle());
 		$this->assertTrue($result->isHandle());
 
-		$data = $result->fetchAllData(MYSQLI_BOTH);
+		$errorStack = new ErrorStack();
+		$data = $result->fetchAllData($errorStack, MYSQLI_BOTH);
 		$expected = array(
 			array(
 				0 => 'code_a', 
@@ -177,6 +183,7 @@ class MysqliQueryResultTest extends BaseTestCase
 				'result' => 'query 3 issued'
 			),
 		);
+		$this->assertEquals(0, $errorStack->count());
 		$this->assertEquals($expected, $data);
 		$this->assertFalse($result->isHandle());
 	}
@@ -190,15 +197,18 @@ class MysqliQueryResultTest extends BaseTestCase
 		$sql    = $this->getSql();
 		$handle = $driver->query($sql, MYSQLI_USE_RESULT);
 		$result = new QueryResult($handle);
+		
 		$this->assertSame($handle, $result->getHandle());
 		$this->assertTrue($result->isHandle());
 
-		$data = $result->fetchAllData(MYSQLI_ASSOC);
+		$errorStack = new ErrorStack();
+		$data = $result->fetchAllData($errorStack, MYSQLI_ASSOC);
 		$expected = array(
 			array('param_2' => 'code_a', 'result' => 'query issued'),
 			array('param_2' => 'code_b', 'result' => 'query 2 issued'),
 			array('param_2' => 'code_c', 'result' => 'query 3 issued'),
 		);
+		$this->assertEquals(0, $errorStack->count());
 		$this->assertEquals($expected, $data);
 		$this->assertFalse($result->isHandle());
 	}
@@ -206,32 +216,27 @@ class MysqliQueryResultTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testFilterResultNoCallBack()
-	{
-		$handle = $this->getMockBuilder('mysqli_result')
-					   ->disableOriginalConstructor()
-					   ->getMock();
-		$result = new QueryResult($handle);
-		$idx    = 1;
-		$row    = array('param_2' => 'code_a', 'result' => 'query issued');
-		$this->assertSame($row, $result->filterResult($row, $idx));
-	}
-
-	/**
-	 * @return	null
-	 */
 	public function testFilterResultCallBack()
 	{
-		$handle = $this->getMockBuilder('mysqli_result')
-					   ->disableOriginalConstructor()
-					   ->getMock();
-
+		$driver = $this->getDriver();
+		$sql    = $this->getSql();
+		$handle = $driver->query($sql, MYSQLI_USE_RESULT);
 		$result = new QueryResult($handle);
-		$idx    = 1;
-		$row    = array('param_2' => 'code_a', 'result' => 'query issued');
+
+		$errorStack = new ErrorStack();
 		$expected = array(
-			'mapped_param' => 'code_a', 
-			'mapped_result' => 'query issued'
+			array(
+				'mapped_param' => 'code_a', 
+				'mapped_result' => 'query issued'
+			),
+			array(
+				'mapped_param' => 'code_b', 
+				'mapped_result' => 'query 2 issued'
+			),
+			array(
+				'mapped_param' => 'code_c', 
+				'mapped_result' => 'query 3 issued'
+			)
 		);
 
 		$func = function($row) {
@@ -241,7 +246,8 @@ class MysqliQueryResultTest extends BaseTestCase
 			);
 		};
 
-		$this->assertSame($expected, $result->filterResult($row, $idx, $func));
+		$data = $result->fetchAllData($errorStack, MYSQLI_ASSOC, $func);
+		$this->assertSame($expected, $data);
 	}
 
 	/**
@@ -249,28 +255,34 @@ class MysqliQueryResultTest extends BaseTestCase
 	 */
 	public function testFilterResultCallbackThrowsException()
 	{
-		$handle = $this->getMockBuilder('mysqli_result')
-					   ->disableOriginalConstructor()
-					   ->getMock();
-
+		$driver = $this->getDriver();
+		$sql    = $this->getSql();
+		$handle = $driver->query($sql, MYSQLI_USE_RESULT);
 		$result = new QueryResult($handle);
-		$idx    = 66;
-		$row    = array('param_2' => 'code_a', 'result' => 'query issued');
 
-		$func = function($row) {
-			throw new Exception('my error', 544);
+		$errorStack = new ErrorStack();
+		$result = new QueryResult($handle);
+
+		$errMsg = 'my error';
+		$func = function($row) use($errMsg) {
+			throw new Exception($errMsg, 544);
 		};
 
-		$response = $result->filterResult($row, $idx, $func);
-		$this->assertInstanceOf(
-			'Appfuel\DataStructure\Dictionary',
-			$response
-		);
-		$this->assertEquals(544, $response->get('error-nbr'));
-		$this->assertEquals('my error', $response->get('error-txt'));
-		$this->assertEquals(66, $response->get('result-row-index'));
-		$this->assertEquals($row, $response->get('result-row'));
+		$data = $result->fetchAllData($errorStack, MYSQLI_ASSOC, $func);
+		$this->assertEquals(3, $errorStack->count());
+
+		$expected = "{$errMsg} -(0)";
+		$error = $errorStack->current();
+		$this->assertEquals($expected, $error->getMessage());
+
+		$errorStack->next();
+		$expected = "{$errMsg} -(1)";
+		$error = $errorStack->current();
+		$this->assertEquals($expected, $error->getMessage());
+
+		$errorStack->next();
+		$expected = "{$errMsg} -(2)";
+		$error = $errorStack->current();
+		$this->assertEquals($expected, $error->getMessage());
 	}
-
-
 }

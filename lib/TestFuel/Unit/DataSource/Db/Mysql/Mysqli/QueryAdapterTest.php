@@ -112,7 +112,7 @@ class QueryAdapterTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testExecuteProfileA()
+	public function estExecuteProfileA()
 	{
 		$driver  = $this->getDriver();
 		$adapter = $this->getQueryAdapter();
@@ -142,7 +142,7 @@ class QueryAdapterTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testExecuteProfileB()
+	public function estExecuteProfileB()
 	{
 		$driver  = $this->getDriver();
 		$adapter = $this->getQueryAdapter();
@@ -174,7 +174,7 @@ class QueryAdapterTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testExecuteProfileC()
+	public function estExecuteProfileC()
 	{
 		$driver  = $this->getDriver();
 		$adapter = $this->getQueryAdapter();
@@ -221,7 +221,7 @@ class QueryAdapterTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testExecuteProfileD()
+	public function estExecuteProfileD()
 	{
 		$driver  = $this->getDriver();
 		$adapter = $this->getQueryAdapter();
@@ -260,7 +260,7 @@ class QueryAdapterTest extends BaseTestCase
 	 * @depends	testInitialState
 	 * @return	null
 	 */
-	public function testExecuteProfileE()
+	public function estExecuteProfileE()
 	{
 		$driver  = $this->getDriver();
 		$adapter = $this->getQueryAdapter();
@@ -308,7 +308,14 @@ class QueryAdapterTest extends BaseTestCase
 
 		$errMsg = "error as occured";
 		$func = function ($row) use ($errMsg) {
-			throw new Exception($errMsg, 99);
+			if ('code_b' === $row['param_2']) {
+				throw new Exception($errMsg, 99);
+			}
+
+			return array(
+				'new_param_2' => $row['param_2'],
+				'new_result'  => $row['result']
+			);
 		};
 		$request->setCallback($func);
 		$response = new DbResponse();
@@ -318,16 +325,15 @@ class QueryAdapterTest extends BaseTestCase
 		$this->assertTrue($response->isError());
 		
 		$stack = $response->getErrorStack();
+
 		$this->assertEquals(1, $stack->count());
 		$error = $stack->current();
 	
 		$class = get_class($adapter);
-		$expected  = "failed result fetch from {$class}: $errMsg";
-		$expected .= " at row index -(0)";
+		$expected  = "$errMsg -(1)";
 
+		$results = $response->getResultSet();
 		$this->assertEquals(99, $error->getCode());
 		$this->assertEquals($expected, $error->getMessage());
 	}
-
-
 }

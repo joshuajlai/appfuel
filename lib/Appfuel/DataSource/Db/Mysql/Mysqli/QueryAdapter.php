@@ -72,31 +72,17 @@ class QueryAdapter implements MysqliAdapterInterface
 			return $response;
 		}
             
-		$result = new QueryResult($resultHandle);
-        $data = $result->fetchAllData($type, $filter);
-		if ($result->isError()) {
-			$error = $result->getError();
-			$code  = 500;
-			$class = get_class($this);
-			$text  = "failed result fetch from {$class}: ";
-			if (isset($error['error-nbr'])) {
-				$code = $error['error-nbr'];
-			}
-
-			if (isset($error['error-nbr'])) {
-				$text .= $error['error-txt'];
-			}
-
-			if (isset($error['result-row-index'])) {
-				$text .= " at row index -({$error['result-row-index']})";
-			}
-			$response->addError($text, $code);
-			return $response;
-        } else if (true === $data) {
+		$result		= new QueryResult($resultHandle);
+		$errorStack = $response->getErrorStack();
+        $data		= $result->fetchAllData($errorStack, $type, $filter); 
+        if (true === $data) {
             $data = null;
         }
+	
+		if (is_array($data)) {
+			$response->setResultSet($data);
+		}
 
-		$response->setResultSet($data);
 		return $response;
 	}
 }

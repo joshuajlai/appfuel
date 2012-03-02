@@ -10,7 +10,8 @@
  */
 namespace Appfuel\DataSource\Db\Mysql\Mysqli;
 
-use mysqli_result;
+use mysqli_result,
+	Appfuel\Error\ErrorStackInterface;
 
 /**
  */
@@ -62,19 +63,9 @@ interface MysqliResultInterface
 	 * @param	mixed	string | array | closure
 	 * @return	array
 	 */
-	public function fetchAllData($type = MYSQLI_ASSOC, $filter = null);
-
-	/**
-	 * 1) If no callback is given return the original row
-	 * 2) Apply the filter callback return the filtered row
-	 *	  Catch any exceptions and put them into a DictionaryInterface and
-	 *	  return that dictionary
-	 * 
-	 * @param	mysqli_result	$handle
-	 * @param	mixed			$filter
-	 * @return	array
-	 */
-	public function filterResult(array $row, $index, $filter = null);
+	public function fetchAllData(ErrorStackInterface $errorStack,
+								 $type = MYSQLI_ASSOC, 
+								 $filter = null);
 
 	/**
 	 * Grabs just the column names frim the getFields call

@@ -13,6 +13,7 @@ namespace Appfuel\DataSource\Db\Mysql\Mysqli;
 use Closure,
 	mysqli_stmt,
 	mysqli_result,
+	Exception,
 	RunTimeException,
 	Appfuel\Error\ErrorStackInterface,
 	Appfuel\DataStructure\DictionaryInterface;
@@ -93,18 +94,18 @@ class PreparedResult
 						$this->columnData['names'],
 						$this->dereferenceColumnValues()
 					);
-					$response = $this->filterResult($row, $idx, $filter);
 					
-					if ($response instanceof DictionaryInterface) {
-						$code = $response->get('error-nbr');
-						$text = $response->get('error-txt') . 
-								' -(' . 
-								$response->get('result-row-index') . ')';
-						$errorStack->addError($text, $code);
-						$response = null;
+					if (is_callable($filter)) {
+						try {
+							$row = call_user_func($filter, $row);
+						} 
+						catch (Exception $e) {	
+							$errText = $e->getMessage() . " -($idx)";
+							$errorStack->addError($errText, $e->getCode());
+							$row = false;
+						}
 					}
-
-					$data[] = $response;
+					$data[] = $row;
 					$idx++;
 					$isNext = true;	
 				 break;
@@ -114,12 +115,12 @@ class PreparedResult
 					break;
 
 				case false:
-					$error = $stmt->error . ' ' . $stmt->sqlstate;
+					$error = $stmt->error . " -($idx) " . $stmt->sqlstate;
 					$errorStack->addError($error, $stmt->errorno);
 					return false;
 	
 				default:
-					$msg  = 'unknown return value mysqli_stmt::fetch';
+					$msg  = "unknown return value mysqli_stmt::fetch -($idx)";
 					$errorStack->addError(500, $msg);
 					return false;
 			}

@@ -12,6 +12,7 @@ namespace Appfuel\DataSource\Db;
 
 use InvalidArgumentException,
 	Appfuel\Error\ErrorStack,
+	Appfuel\Error\ErrorInterface,
 	Appfuel\Error\ErrorStackInterface;
 
 /**
@@ -22,6 +23,14 @@ use InvalidArgumentException,
  */
 class DbResponse implements DbResponseInterface
 {
+	/**
+	 * Used by insert update and delete operations that do not have any
+	 * result set
+	 *
+	 * @var bool
+	 */
+	protected $status = null;
+
 	/**
 	 * Holds the information requested from the database
 	 * @var array
@@ -44,6 +53,29 @@ class DbResponse implements DbResponseInterface
 			$stack = new ErrorStack();
 		}
 		$this->errorStack = $stack;
+	}
+
+	/**
+	 * @return	bool | null when not used
+	 */
+	public function getStatus()
+	{
+		return $this->status;
+	}
+
+	/**
+	 * @param	bool	$result
+	 * @return	DbResponse
+	 */
+	public function setStatus($result)
+	{
+		if (! is_bool($result)) {
+			$err = 'status must use a boolean value';
+			throw new InvalidArgumentException($result);
+		}
+
+		$this->status = $result;
+		return $response;
 	}
 
 	/**
@@ -79,8 +111,13 @@ class DbResponse implements DbResponseInterface
 	 */
 	public function addError($msg, $code = 500)
 	{
-		$this->getErrorStack()
-			 ->addError($msg, $code);
+		$stack = $this->getErrorStack();
+		if ($msg instanceof ErrorInterface) {
+			$stack->addErrorItem($msg);
+		}
+		else {
+			$stack->addError($msg, $code);
+		}
 
 		return $this;
 	}
@@ -171,6 +208,20 @@ class DbResponse implements DbResponseInterface
 		$this->results = $results;
 		return $this;
 	}
+
+	/**
+	 * @param	scalar	$key	
+	 * @return	mixed	array | DbResponseInterface | null
+	 */
+	public function getResult($key)
+	{	
+		if (is_scalar($key) && array_key_exists($key, $this->results)) {
+			return $this->results[$key];
+		}
+
+		return null;
+	}
+
 
 	/**
 	 * Add a single result to the resultset. When key is not includes then it
