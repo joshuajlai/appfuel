@@ -1,0 +1,7 @@
+{
+	"name": "app-chrome",
+	"desc": "list of stylesheets that make up the application chrome",
+	"src": {
+		"css": ["css/reset.css"]
+	}
+}

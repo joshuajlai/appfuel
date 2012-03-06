@@ -321,6 +321,20 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 		return $this;
 	}
 
+	public function addCssLinkTag(GenericTagInterface $tag)
+	{
+		if ('link' !== $tag->getTagName()) {
+			$err = 'can not add css tag: object must be link tag';
+            throw new InvalidArgumentException($err);
+        }
+
+		$this->getHtmlTag()
+			 ->getHead()
+			 ->addCssTag($tag);
+
+		return $this;
+	}
+
 	/**
 	 * @param	string	$content	
 	 * @param	string	$type

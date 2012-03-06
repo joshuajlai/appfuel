@@ -1,0 +1,2 @@
+var simple = "<?php $this->render('msg', 'default message');?>";
+console.log(simple);

@@ -27,7 +27,7 @@ interface HtmlPageConfigurationInterface
 	 * @param	HtmlPageInterface $page
 	 * @retunr	null
 	 */
-	public function applyHtmlDoc($data, HtmlPageInterface $page);
+	//public function applyHtmlDoc($data, HtmlPageInterface $page);
 
 	/**
 	 * @param	array	$data

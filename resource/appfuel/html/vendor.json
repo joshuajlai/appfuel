@@ -1,8 +1,6 @@
 {
-	"name":		"appfuel",
-	"version":	"0.0.1",
-	"package-list': [
-		
-	],
-
+	"name":	"appfuel",
+	"pkg-path": "",
+	"build-path": "build", 
+	"version": "0.0.1"
 }

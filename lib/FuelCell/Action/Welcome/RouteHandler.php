@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\FuelCell\Action\Welcome;
+namespace FuelCell\Action\Welcome;
 
 use Appfuel\Kernel\Mvc\MvcRouteHandler;
 
@@ -22,11 +22,8 @@ class RouteHandler extends MvcRouteHandler
      */
     public function __construct()
     {
-		$tplDir = 'appfuel/html/tpl';
-		$docTpl = "$tplDir/doc/htmldoc.phtml";
-		$config = "$tplDir/doc/default.php";
-		$view   = "$tplDir/view/welcome/welcome-view.phtml";
-
+		$pkgDir = 'fuelcell/html/';
+		$welcomeDir = "{$pkgDir}welcome/";
         $primary = array(
             'is-public'	  => true,
             'action-name' => 'WelcomeAction',
@@ -35,9 +32,10 @@ class RouteHandler extends MvcRouteHandler
 				'is-view'  => true,
 				'strategy' => 'html-page',
 				'params'   => array(
-					'html-doc'	    => $docTpl,
-					'html-config'   => $config,
-					'view-template' => $view,
+					'html-doc'			 => "{$pkgDir}doc/htmldoc.phtml",
+					'html-config'		 => "{$pkgDir}doc/default.php",
+					'view-template'		 => "{$welcomeDir}welcome-view.phtml",
+					'inline-js-template' => "{$welcomeDir}welcome-init.pjs"
 				),
 			),
         );   
