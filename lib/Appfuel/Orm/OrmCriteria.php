@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Orm\Repository;
+namespace Appfuel\Orm;
 
 use InvalidArgumentException,
 	Appfuel\Expr\ExprList,
@@ -21,7 +21,7 @@ use InvalidArgumentException,
  * the correct sql for the db request to pull domain information down from 
  * the database
  */
-class Criteria extends Dictionary implements CriteriaInterface
+class OrmCriteria extends Dictionary implements CriteriaInterface
 {
 	/**
 	 * List of named expressions. A named expression is an expression list 

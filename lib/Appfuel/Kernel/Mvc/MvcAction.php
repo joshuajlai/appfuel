@@ -37,7 +37,8 @@ class MvcAction implements MvcActionInterface
 	 * @return	MvcAction
 	 */
 	public function __construct(MvcDispatcherInterface $dispatcher = null,
-								MvcContextBuilderInterface $builder = null)
+								MvcContextBuilderInterface $builder = null,
+								array $params = null)
 	{
 		if (null === $dispatcher) {
 			$dispatcher = new MvcDispatcher();
@@ -48,6 +49,18 @@ class MvcAction implements MvcActionInterface
 			$contextBuilder = new MvcContextBuilder();
 		}
 		$this->setContextBuilder($contextBuilder);
+		$this->initialize($params);
+	}
+
+	/**
+	 * Used to intialize domain repositories needed by the mvc action
+	 *
+	 * @param	array	$params		null
+	 * @return	MvcAction
+	 */
+	public function initialize(array $params = null)
+	{	
+		return $this;
 	}
 
 	/**

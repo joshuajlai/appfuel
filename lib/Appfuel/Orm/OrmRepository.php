@@ -8,15 +8,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Orm\Repository;
+namespace Appfuel\Orm;
 
 use Appfuel\Orm\OrmFactoryInterface,
+	Appfuel\DataStructure\Dictionary;
 
 /**
  * The repository is facade for the orm systems. Developers use the repo to 
  * create, modify, delete or find domains in the database. 
  */
-abstract class OrmRepository implements RepositoryInterface
+class OrmRepository implements OrmRepositoryInterface
 {
 	/**
 	 * Criteria stores options in the form of key/value pair and named 
@@ -28,44 +29,33 @@ abstract class OrmRepository implements RepositoryInterface
 	protected $criteria = null;
 
 	/**
-	 * Adapter that performs concrete operations for database, flat files,
-	 * rest services or key value stores
-	 * @var	 AssemblerInterface
+	 * @var OrmDataSourceInterface
 	 */
-	protected $_asm = null;
+	protected $dataSource = null;
 
 	/**
 	 * @param	OrmFactoryInterface $factory
 	 * @return	OrmRepository
 	 */
-	public function __construct(OrmFactoryInterface $factory = null)
+	public function __construct($source)
 	{
-		if (null === $factory) {
-			$factory = $this->createOrmFactory();
-		}
-
-		$this->setAssembler($factory->createAssembler());
+		$this->setDataSource($source);
 	}
 
 	/**
-	 * @return	OrmFactoryInterface
+	 * @return mixed
 	 */
-	abstract protected function createOrmFactory();
-
-	/**
-	 * @return	AssemblerInterface
-	 */
-	protected function getAssembler()
+	public function getDataSource()
 	{
-		return $this->_asm;
+		return $this->dataSource;
 	}
 
 	/**
-	 * @param	AssmeblerInterface $asm
-	 * @return	null
+	 * @param	array	$data
+	 * @return	Dictionary
 	 */
-	protected function setAssembler(AssemblerInterface $asm)
+	public function createDictionary(array $data = null)
 	{
-		$this->asm = $asm;
+		return new Dictionary($data);
 	}
 }
