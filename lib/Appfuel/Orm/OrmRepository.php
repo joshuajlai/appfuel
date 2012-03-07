@@ -39,7 +39,7 @@ class OrmRepository implements OrmRepositoryInterface
 	 */
 	public function __construct($source)
 	{
-		$this->setDataSource($source);
+		$this->dataSource = $source;
 	}
 
 	/**
