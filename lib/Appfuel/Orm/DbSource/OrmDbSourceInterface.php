@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Orm\DbSource;
 
-use Appfuel\DataSource\Db\DbSourceInterface;
+use Appfuel\Orm\OrmCriteriaInterface,
+	Appfuel\DataSource\Db\DbSourceInterface;
 
 /**
  */
@@ -40,7 +41,9 @@ interface OrmDbSourceInterface extends DbSourceInterface
      * @param   array   $data
      * @return  string
      */
-    public function loadSql($key, array $data = null, $returnTemplate = false);
+    public function loadSql($key,
+							OrmCriteriaInterface $criteria = null,
+							$isBuild = true);
 
     /**
      * @param   string  $file

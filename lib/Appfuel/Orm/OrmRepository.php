@@ -37,9 +37,13 @@ class OrmRepository implements OrmRepositoryInterface
 	 * @param	OrmFactoryInterface $factory
 	 * @return	OrmRepository
 	 */
-	public function __construct($source)
+	public function __construct($source, OrmCriteriaInterface $crit = null)
 	{
 		$this->dataSource = $source;
+		if (null === $crit) {
+			$crit = $this->createCriteria();
+		}
+		$this->setCriteria($crit);
 	}
 
 	/**
@@ -48,6 +52,34 @@ class OrmRepository implements OrmRepositoryInterface
 	public function getDataSource()
 	{
 		return $this->dataSource;
+	}
+
+	/**
+	 * @return	OrmCriteriaInterface
+	 */
+	public function getCriteria()
+	{
+		return $this->criteria;
+	}
+
+	/**
+	 * @param	OrmCriteriaInterface $criteria
+	 * @return	OrmRepository
+	 */
+	public function setCriteria(OrmCriteriaInterface $criteria)
+	{
+		$this->criteria = $criteria;
+		return $this;
+	}
+
+	/**
+	 * @param	array	$list	
+	 * @param	array	$param
+	 * @return	OrmCriteria
+	 */
+	public function createCriteria(array $list = null, array $params = null)
+	{
+		return new OrmCriteria($list, $params);
 	}
 
 	/**

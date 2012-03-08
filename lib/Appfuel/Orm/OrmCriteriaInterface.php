@@ -12,14 +12,14 @@ namespace Appfuel\Orm;
 
 use Appfuel\Expr\ExprListInterface,
 	Appfuel\Orm\Domain\DomainExprInterface,
-	Appfuel\DataStructure\DictionaryInterface,
+	Appfuel\DataStructure\DictionaryInterface;
 
 /**
  * The criteria holds any information necessary for the sql factory to build
  * the correct sql for the db request to pull domain information down from 
  * the database
  */
-interface CriteriaInterface extends DictionaryInterface
+interface OrmCriteriaInterface extends DictionaryInterface
 {
 	/**
 	 * @return	array
@@ -38,7 +38,7 @@ interface CriteriaInterface extends DictionaryInterface
 	 * @param	string	$op
 	 * @return	Criteria
 	 */
-	public function addExpr($key, DomainExprInterface $expr, $op = 'and');
+	public function addExpr($key, $expr, $op = 'and');
 
 	/**
 	 * Return an expression list identified by key

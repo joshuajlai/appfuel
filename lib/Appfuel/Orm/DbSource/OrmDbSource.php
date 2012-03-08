@@ -13,6 +13,7 @@ namespace Appfuel\Orm\DbSource;
 use LogicException,
 	RunTimeException,
 	InvalidArgumentException,
+	Appfuel\Orm\OrmCriteriaInterface,
 	Appfuel\View\FileViewTemplate,
 	Appfuel\DataSource\Db\DbSource;
 
@@ -113,12 +114,15 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
         return $this;
     }
 
+
     /**
      * @param   string  $file
      * @param   array   $data
      * @return  string
      */
-    public function loadSql($key, array $data = null, $returnTemplate = false)
+    public function loadSql($key, 
+							OrmCriteriaInterface $criteria = null, 
+							$isBuild = true)
     {
         $path = $this->getSqlTemplatePath($key);
         if (! is_string($path) || empty($path)) {
@@ -127,11 +131,11 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
         }
 
         $template = $this->createSqlTemplate($path);
-        if (null !== $data) {
-            $template->load($data);
+        if (null !== $criteria) {
+            $template->assign('domain-criteria', $criteria);
         }
 
-        if (true === $returnTemplate) {
+        if (false === $isBuild) {
             return $template;
         }
 

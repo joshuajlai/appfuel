@@ -13,6 +13,7 @@ namespace Appfuel\Orm\DbSource;
 use LogicException,
 	RunTimeException,
 	InvalidArgumentException,
+	Appfuel\Orm\OrmCriteriaInterface,
 	Appfuel\View\Compositor\FileCompositor;
 
 /**
@@ -24,6 +25,11 @@ class SqlFileCompositor
 	 * @var bool
 	 */
 	protected $isAlias = false;
+
+	/**
+	 * @var bool
+	 */
+	protected $isPrepared = false;
 
 	/**
 	 * Collection of db table maps used to generate sql
@@ -55,6 +61,32 @@ class SqlFileCompositor
 	public function isAlias()
 	{
 		return $this->isAlias;
+	}
+
+	/**
+	 * @return	SqlFileCompositor
+	 */
+	public function enablePrepared()
+	{
+		$this->isPrepared = true;
+		return $this;
+	}
+
+	/**
+	 * @return	SqlFileCompositor
+	 */
+	public function disablePrepared()
+	{
+		$this->isPrepared = false;
+		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isPrepared()
+	{
+		return $this->isPrepared;
 	}
 
 	/**
@@ -197,6 +229,42 @@ class SqlFileCompositor
 		echo "SELECT ", $sqlWords, $columns, $nl;
 	}
 
+	public function renderWhere($key, $exprKey = 'where', $isStrict = true)
+	{
+		$criteria = $this->get($key);
+		if (! $criteria instanceof OrmCriteriaInterface) {
+			$err = "failed to render where: criteria not found -($key)";
+			throw new InvalidArgumentException($err);
+		}
+
+		if (! $criteria->isExprList($exprKey)) {
+			if (true === $isStrict) {
+				$err  = "expr list -($exprKey) was not found and required ";
+				$err .= "to render the where clause";
+				throw new LogicException($err);
+			}
+
+			return '';
+		}
+		$list = $criteria->getExprList($exprKey);
+		$result = '';
+		foreach ($list as $key => $exprData) {
+			$expr = current($exprData);
+			$column = $this->mapColumn($expr->getDomain(), $expr->getMember());
+			$value  = '?';
+			if (! $this->isPrepared()) {
+				$value = $expr->getValue();
+			}
+			$op = $expr->getOperator();
+			$result .= "{$column} {$op} {$value} ";
+			$relOp = next($exprData);
+			if ('and' === $relOp || 'or' === $relOp) {
+				$result .= strtoupper($relOp) . ' ';
+			}
+		}
+		echo "WHERE $result";
+	}
+
 	/**
 	 * @param	string	$key	
 	 * @param	string	$member
@@ -231,7 +299,7 @@ class SqlFileCompositor
 			throw new LogicException($err);
 		}
 
-		$table  = $map->getTableMap($key);
+		$table  = $this->getTableMap($key);
 		$column = $table->mapColumn($member);
 		if (false === $column) {
 			$err = "failed to map column: member -($member) does not exist";
