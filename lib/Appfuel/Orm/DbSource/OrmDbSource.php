@@ -20,6 +20,12 @@ use LogicException,
  */
 class OrmDbSource extends DbSource implements OrmDbSourceInterface
 {
+	/**
+	 * List of table maps to be injected into the sql template
+	 * @var DbMapInterface
+	 */
+	protected $map = null;
+
     /**
      * List of sql template files used by the datasource
      * @var array
@@ -30,12 +36,35 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
 	 * @param	array	$paths
 	 * @return	DbSource
 	 */
-	public function __construct(array $paths = null)
+	public function __construct(array $paths = null, 
+								DbMapInterface $map = null)
 	{
 		if (null !== $paths) {
 			$this->loadSqlTemplatePaths($paths);
 		}
+
+		if (null !== $map) {
+			$this->setDbMap($map);
+		}
 	}
+
+    /**
+     * @param   array   $list 
+     * @return  SqlCompositor
+     */
+    public function setDbMap(DbMapInterface $map)
+    {
+		$this->map = $map;
+        return $this;
+    }
+
+    /**
+     * @return  SqlFileCompositor
+     */
+    public function getDbMap()
+    {
+        return $this->map;
+    }
 
     /**
      * @param   array   $list
@@ -115,6 +144,6 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
      */
     public function createSqlTemplate($file)
     {
-        return new SqlTemplate($file);
+        return new SqlTemplate($file, $this->getDbMap());
     }
 }

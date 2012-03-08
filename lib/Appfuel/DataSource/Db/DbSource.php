@@ -180,9 +180,29 @@ class DbSource implements DbSourceInterface
 		return new DbResponse();
 	}
 
-	public function createRequest($sql, $type = null, $strategy = null)
+	/**
+	 * @param	string	$sql
+	 * @param	string	$type
+	 * @param	string	$stategy
+	 * @param	mixed	$values 
+	 * @return	DbRequest
+	 */
+	public function createRequest($sql,$type=null,$strategy=null,$values=null)
 	{
-		return new DbRequest($sql, $type, $strategy);
+		$request =  new DbRequest($sql, $type, $strategy);
+		if (null !== $values) {
+			if (is_scalar($values)) {
+				$values = array($values);
+			}
+			else if (! is_array($values)) {
+				$paramType = gettype($values);
+				$err = "values must be a scalar of an array -($paramType)";
+				throw new InvalidArgumentException($err);
+			}
+			$request->setValues($values);
+		}
+
+		return $request;
 	}
 
 	/**
