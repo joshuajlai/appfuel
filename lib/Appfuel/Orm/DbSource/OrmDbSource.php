@@ -13,9 +13,10 @@ namespace Appfuel\Orm\DbSource;
 use LogicException,
 	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Orm\OrmCriteriaInterface,
 	Appfuel\View\FileViewTemplate,
-	Appfuel\DataSource\Db\DbSource;
+	Appfuel\Orm\OrmCriteriaInterface,
+	Appfuel\DataSource\Db\DbSource,
+	Appfuel\DataSource\Db\DbResponseInterface;
 
 /**
  */
@@ -66,6 +67,14 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
     {
         return $this->map;
     }
+
+	/**
+	 * @return	bool
+	 */
+	public function isDbMap()
+	{
+		return $this->map instanceof DbMapInterface;
+	}
 
     /**
      * @param   array   $list
@@ -150,4 +159,94 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
     {
         return new SqlTemplate($file, $this->getDbMap());
     }
+
+	public function process($key, 
+							$type = 'Query', 
+							$strategy = 'read', 
+							$values = null, 
+							$callback = null, 
+							OrmCriteriaInterface $criteria = null)
+	{
+		if (null === $type) {
+			$type = 'Query';
+		}
+
+		if (null === $strategy) {
+			$strategy = 'read';
+		}
+
+		$sql = $this->loadSql($key, $criteria); 
+		$request = $this->createRequest($sql, $type, $strategy, $values);
+
+		if (null !== $callback) {
+			if (! is_callable($callback) && is_string($callback)) {
+				$callback = $this->createMapperCallback($callback);				
+			}
+			else if (! is_callable($callback)) {
+				$err  = 'callback can only be a string which is the name of ';
+				$err .= 'the table map key something that is callable';
+				throw new InvalidArgumentException($err);
+			}
+
+			$request->setCallback($callback);
+		}
+
+		return $this->getResultset($this->execute($request));
+		
+	}
+
+	/**
+	 * @param	DbTableMapInterface $map
+	 * @return	Closure
+	 */
+	public function createMapperCallback($key)
+	{
+		if (! is_string($key)) {
+			$err = 'table map key must be a non empty string';
+			throw new InvalidArgumentException($key);
+		}
+
+		if (! $this->isDbMap()) {
+			$err = 'can not create mapper callback when db map is not set';
+			throw new RunTimeException($err);
+		}
+		$dbMap = $this->getDbMap();
+
+		if (! $dbMap->isTableMap($key)) {
+			$err  = "could not create mapper callback table map not found ";
+			$err .= "-($key)";
+			throw new RunTimeException($er);
+		}
+
+		$map = $dbMap->getTableMap($key);
+        $callback = function($row) use($map) {
+            $result = array();
+            foreach ($row as $column => $value) {
+                $member = $map->mapMember($column);
+                $result[$member] = $value;
+            }
+            return $result;
+        };
+
+		return $callback;
+	}
+
+	/**
+	 * @throws	RunTimeException
+	 * @param	DbResponseInterface $response
+	 * @return	array
+	 */
+	public function getResultset(DbResponseInterface $response)
+	{
+        if ($response->isError()) {
+            $stack = $response->getErrorStack();
+			$msg = 'DbSource Error has occured: ';
+			foreach ($stack as $error) {
+				$msg .= "{$error->getMessage()} [{$error->getCode()}]: ";
+			}
+            throw new RunTimeException($msg, 500);
+        }
+
+        return $response->getResultSet();
+	}
 }
