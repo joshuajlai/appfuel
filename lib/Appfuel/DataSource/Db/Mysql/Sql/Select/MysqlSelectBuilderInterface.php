@@ -14,10 +14,18 @@ namespace Appfuel\DataSource\Db\Mysql\Sql\Select;
  */
 interface MysqlSelectBuilderInterface
 {
-	
+
+
 	public function build(array $data);
 
-	public function buildKeywords(array $data);
+	/**
+	 * 1) Use the MysqlSelectKeywordInterface to enable all valid keywords
+	 *    given in $words
+	 * 
+	 * @param	array	$data
+	 * @return	string
+	 */	
+	public function buildKeywords(array $words);
 
 	/**
 	 * @return	SelectKeywordsInterface

@@ -188,7 +188,7 @@ class SelectKeywordsTest extends BaseTestCase
 	public function testEnableAllDistinctDistinctRow($in, $out)
 	{
 		$keywords = $this->getSelectKeywords();
-		$this->assertNull($keywords->enableKeyword($in));
+		$this->assertTrue($keywords->enableKeyword($in));
 
 		$this->assertEquals($out, $keywords->getEnabledkeywords());
 	}
@@ -214,7 +214,7 @@ class SelectKeywordsTest extends BaseTestCase
 	{
 		$word = 'STRAIGHT_JOIN';
 		$keywords = $this->getSelectKeywords();
-		$this->assertNull($keywords->enableKeyword($word));
+		$this->assertTrue($keywords->enableKeyword($word));
 		
 		$expected = array($word);
 		$this->assertEquals($expected, $keywords->getEnabledkeywords());
@@ -228,7 +228,7 @@ class SelectKeywordsTest extends BaseTestCase
 	{
 		$word = 'HIGH_PRIORITY';
 		$keywords = $this->getSelectKeywords();
-		$this->assertNull($keywords->enableKeyword($word));
+		$this->assertTrue($keywords->enableKeyword($word));
 		
 		$expected = array($word);
 		$this->assertEquals($expected, $keywords->getEnabledkeywords());
@@ -242,7 +242,7 @@ class SelectKeywordsTest extends BaseTestCase
 	public function testBigSmallResult($in, $out)
 	{
 		$keywords = $this->getSelectKeywords();
-		$this->assertNull($keywords->enableKeyword($in));
+		$this->assertTrue($keywords->enableKeyword($in));
 
 		$this->assertEquals($out, $keywords->getEnabledkeywords());
 	}
@@ -268,7 +268,7 @@ class SelectKeywordsTest extends BaseTestCase
 	{
 		$word = 'sql_buffer_result';
 		$keywords = $this->getSelectKeywords();
-		$this->assertNull($keywords->enableKeyword($word));
+		$this->assertTrue($keywords->enableKeyword($word));
 		
 		$expected = array(strtoupper($word));
 		$this->assertEquals($expected, $keywords->getEnabledkeywords());
@@ -282,7 +282,7 @@ class SelectKeywordsTest extends BaseTestCase
 	public function testSqlCache($in, $out)
 	{
 		$keywords = $this->getSelectKeywords();
-		$this->assertNull($keywords->enableKeyword($in));
+		$this->assertTrue($keywords->enableKeyword($in));
 
 		$this->assertEquals($out, $keywords->getEnabledkeywords());
 	}
@@ -308,7 +308,7 @@ class SelectKeywordsTest extends BaseTestCase
 	{
 		$word = 'SQL_CALC_FOUND_ROWS';
 		$keywords = $this->getSelectKeywords();
-		$this->assertNull($keywords->enableKeyword($word));
+		$this->assertTrue($keywords->enableKeyword($word));
 		
 		$expected = array(strtoupper($word));
 		$this->assertEquals($expected, $keywords->getEnabledkeywords());
@@ -333,6 +333,18 @@ class SelectKeywordsTest extends BaseTestCase
 		$this->assertNull($keywords->enableKeywords($words));
 
 		$this->assertEquals($words, $keywords->getEnabledkeywords());
+	}
+
+	/**
+	 * @depends			testInitialState
+	 * @return			null
+	 */
+	public function testWordsThatDontExist()
+	{
+		$word = 'no_defined';
+		$keywords = $this->getSelectKeywords();
+		$this->assertFalse($keywords->enableKeyword($word));
+		$this->assertEquals(array(), $keywords->getEnabledkeywords());
 	}
 
 }

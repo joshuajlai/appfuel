@@ -107,52 +107,65 @@ class MysqlSelectKeywords implements MysqlSelectKeywordsInterface
 		}
 		$word = strtoupper($word);
 
+		$result = false;
 		switch ($word) {
 			case 'ALL':
 				$this->words['ALL']			= true;
 				$this->words['DISTINCT']	= false;
 				$this->words['DISTINCTROW'] = false;				
+				$result = true;
 				break;
 			case 'DISTINCT':
 				$this->words['ALL']			= false;
 				$this->words['DISTINCT']	= true;
 				$this->words['DISTINCTROW'] = false;				
+				$result = true;
 				break;
 			case 'DISTINCTROW':
 				$this->words['ALL']			= false;
 				$this->words['DISTINCT']	= false;
 				$this->words['DISTINCTROW'] = true;				
+				$result = true;
 				break;
 			case 'HIGH_PRIORITY':
 				$this->words['HIGH_PRIORITY'] = true;
+				$result = true;
 				break;
 			case 'STRAIGHT_JOIN':
 				$this->words['STRAIGHT_JOIN'] = true;
+				$result = true;
 				break;
 			case 'SQL_SMALL_RESULT':
 				$this->words['SQL_SMALL_RESULT'] = true;
 				$this->words['SQL_BIG_RESULT']   = false;
+				$result = true;
 				break;
 			case 'SQL_BIG_RESULT':
 				$this->words['SQL_SMALL_RESULT'] = false;
 				$this->words['SQL_BIG_RESULT']   = true;
+				$result = true;
 				break;
 			case 'SQL_BUFFER_RESULT':
 				$this->words['SQL_BUFFER_RESULT'] = true;
+				$result = true;
 				break;
 			case 'SQL_CACHE':
 				$this->words['SQL_CACHE']	 = true;
 				$this->words['SQL_NO_CACHE'] = false;
+				$result = true;
 				break;
 			case 'SQL_NO_CACHE':
 				$this->words['SQL_CACHE']	 = false;
 				$this->words['SQL_NO_CACHE'] = true;
+				$result = true;
 				break;
 			case 'SQL_CALC_FOUND_ROWS':
 				$this->words['SQL_CALC_FOUND_ROWS'] = true;
+				$result = true;
 				break;
 		}
 
+		return $result;
 	}
 
 	/**

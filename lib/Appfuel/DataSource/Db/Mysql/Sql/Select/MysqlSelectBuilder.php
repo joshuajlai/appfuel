@@ -50,16 +50,16 @@ class MysqlSelectBuilder implements MysqlSelectBuilderInterface
 	 * @param	string	$separator
 	 * @return	string
 	 */
-	public function buildKeywords(array $data, $separator = null)
+	public function buildKeywords(array $words, $separator = null)
 	{
 		$keywords = $this->getKeywords();
-		$keywords->enableKewords($data);
+		$keywords->enableKewords($words);
 
 		if (null !== $separator) {
 			$keywords->setSeparator($seperator);
 		}
 		$result = $keywords->build();
-		$keywords->clear();
+		$keywords->reset();
 
 		return $result;
 	}
