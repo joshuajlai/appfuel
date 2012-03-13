@@ -13,8 +13,9 @@ namespace Appfuel\DataSource\Db\Mysql\Mysqli;
 use RunTimeException,
 	mysqli as MysqliDriver,
 	Appfuel\DataSource\Db\DbResponse,
-	Appfuel\DataSource\Db\DbAdapterInterface,
-	Appfuel\DataSource\Db\DbRequestInterface;
+	Appfuel\DataSource\Db\DbHandlerInterface,
+	Appfuel\DataSource\Db\DbRequestInterface,
+	Appfuel\DataSource\Db\DbResponseInterface;
 
 /**
  * The database adapter is 
@@ -103,7 +104,7 @@ class MysqliHandler implements DbHandlerInterface
 			throw new RunTimeException($err);
 		}
 
-		$class = __NAMESPACE__ . "\{$className}";
+		$class = __NAMESPACE__ . "\\{$className}";
 		$adapter = new $class();
 		if (! $adapter instanceof MysqliAdapterInterface) {
 			$err  = "can not execute -($className) because it does not ";

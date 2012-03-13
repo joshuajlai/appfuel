@@ -14,7 +14,8 @@ use Exception,
 	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Console\ConsoleTemplate,
-	Appfuel\View\AjaxTemplate,
+	Appfuel\View\CsvTemplate,
+    Appfuel\View\AjaxTemplate,
 	Appfuel\View\ViewTemplate,
 	Appfuel\View\ViewInterface,
 	Appfuel\View\FileViewTemplate,
@@ -183,6 +184,10 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 				$view = $this->createViewTemplate();
 				break;
 
+            case 'csv':
+                $view = $this->createDefaultCsvTemplate();
+                break; 
+
 			default:
 				$err = "strategy -($strategy) not mapped";
 				throw new RunTimeException($err);
@@ -271,5 +276,15 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 	public function createViewTemplate()
 	{
 		return new ViewTemplate();
+	}
+
+	/**
+     * Create a standard view template with a csv compositor instead of 
+     * a file compositor.
+	 * @return	CsvTemplate
+	 */
+	public function createDefaultCsvTemplate()
+	{
+		return new CsvTemplate();
 	}
 }

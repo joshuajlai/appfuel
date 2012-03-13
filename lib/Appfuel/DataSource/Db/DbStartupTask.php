@@ -35,7 +35,7 @@ class DbStartupTask extends StartupTaskAbstract
 			$factory = new DbFactory();
 		}
 		$this->setFactory($factory);
-		$this->setRegistryKeys(array('db', 'db-scope'));
+		$this->setRegistryKeys(array('db'));
 	}
 
 	/**
@@ -78,28 +78,48 @@ class DbStartupTask extends StartupTaskAbstract
 			$err .= 'connector-key=>connector-config pairs';
 			throw new InvalidArgumentException($err);
 		}
-		
+	
+		if (! isset($db['connectors']) || ! is_array($db['connectors'])) {
+			$err = 'db connectors have been set but are not an array';
+			throw new InvalidArgumentException($err);
+		}
+		$connectors = $db['connectors'];
+
+		if (isset($db['default-connector'])) {
+			DbRegistry::setDefaultConnectorKey($db['default-connector']);
+		}
+
 		/*
 		 * used when many database connectors are defined in the
 		 * common section of a config but you want to confine your app to
 		 * a subset of those connectors
 		 */
-		if (isset($params['db-scope'])) {
-			$scope = $params['db-scope'];
-			if (is_string($scope) && isset($db[$scope])) {
-				$db = array($scope => $db[$scope]);
+		if (isset($db['use'])) {
+			$scope = $db['use'];
+			if (is_string($scope) && isset($connectors[$scope])) {
+				$connectors = array($scope => $connectors[$scope]);
 			}
 			else if (is_array($scope)) {
-				$tmp = array();
-				foreach ($db as $key => $data) {
-					if (in_array($key, $scope)) {
-						$tmp[$key] = $data;
+				if ($scope === array_values($scope)) {
+					$tmp = array();
+					foreach ($connectors as $key => $data) {
+						if (in_array($key, $scope)) {
+							$tmp[$key] = $data;
+						}
+					}
+					$connectors = $tmp;
+				} else {
+
+					if (isset($scope) && is_array($scope)) {
+						$tmp = array();
+						foreach ($connectors as $key => $data) {
+							if (in_array($key, $scope)) {
+								$tmp[$key] = $data;
+							}
+						}
+						$connectors = $tmp;
 					}
 				}
-				$db = $tmp;
-				unset($key);
-				unset($tmp);
-				unset($data);
 			}
 		}
 
@@ -111,7 +131,7 @@ class DbStartupTask extends StartupTaskAbstract
 		 * add them to the db registry to be used
 		 */
 		$factory = $this->getFactory();
-		foreach ($db as $key => $config) {
+		foreach ($connectors as $key => $config) {
 			if (! is_string($key) || empty($key)) {
 				$err = 'connector key must be a non empty string';
 				throw new InvalidArgumentException($err);
@@ -127,8 +147,6 @@ class DbStartupTask extends StartupTaskAbstract
 			 * go back to the config file
 			 */
 			DbRegistry::addConnectionParams($key, $config);
-		
-
 
 			$slave = null;
 			$adapterClass   = $config['adapter'];

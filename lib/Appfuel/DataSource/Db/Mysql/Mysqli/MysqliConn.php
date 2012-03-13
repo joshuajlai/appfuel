@@ -285,7 +285,7 @@ class MysqliConn implements MysqliConnInterface
 	 */
 	public function createDbAdapter()
 	{
-		return new MysqliAdapter($this->getDriver());
+		return new MysqliHandler($this->getDriver());
 	}
 
 	/**
