@@ -158,7 +158,8 @@ class ExprList implements ExprListInterface
 	public function valid()
 	{
 		$data = $this->current();
-		return is_array($data) && isset($data[0]) && isset($data[1]) &&
+		return is_array($data) && 
+			   2 === count($data) &&
 			   $data[0] instanceof ExprInterface  &&
 			   (in_array($data[1], array('and', 'or')) || is_null($data[1]));
 	}

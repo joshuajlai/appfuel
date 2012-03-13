@@ -8,10 +8,20 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Orm\Repository;
+namespace Appfuel\Orm;
 
 /**
  */
-interface AssemblerInterface
+interface OrmRepositoryInterface
 {
+    /**
+     * @return mixed
+     */
+    public function getDataSource();
+
+    /**
+     * @param   array   $data
+     * @return  Dictionary
+     */
+    public function createDictionary(array $data = null);
 }
