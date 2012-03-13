@@ -33,9 +33,13 @@ return array(
 		),
         'db-scope' => array('af-tester'),
         'db' => array(
-            'af-tester' => array(
-                'adapter' => 'Appfuel\DataSource\Db\Mysql\Mysqli\MysqliConn',
-            ),
-        ),
+			'use'		=> array('af-tester'),
+			'default-connector' => 'af-tester',
+			'connectors' => array(
+				'af-tester' => array(
+					'adapter' => 'Appfuel\DataSource\Db\Mysql\Mysqli\MysqliConn',
+				),
+			),
+		),
 	),
 );

@@ -10,13 +10,15 @@ return array(
 	),
 	'test' => array(
 		'db' => array(
-			'af-tester' => array(
-				'conn-params' => array(
-					'host' => 'localhost',
-					'user' => 'af_tester',
-					'pass' => 'w3bg33k3r',
-					'name' => 'af_unittest'
-				) 
+			'connectors' => array(
+				'af-tester' => array(
+					'conn-params' => array(
+						'host' => 'localhost',
+						'user' => 'af_tester',
+						'pass' => 'w3bg33k3r',
+						'name' => 'af_unittest'
+					) 
+				),
 			),
 		),
 	)
