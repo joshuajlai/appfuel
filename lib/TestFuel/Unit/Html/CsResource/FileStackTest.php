@@ -8,30 +8,30 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\HtmlResource;
+namespace TestFuel\Unit\Html\CsResource;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\HtmlResource\PackageFileList;
+	Appfuel\Html\CsResource\FileStack;
 
 
 /**
  * The package file list holds a list of files categories by file type
  */
-class PackageFileListTest extends BaseTestCase
+class FileStackTest extends BaseTestCase
 {
 	/**
 	 * System under test
-	 * @var PackageFileList
+	 * @var FileStack
 	 */
-	protected $list = null;
+	protected $stack = null;
 
 	/**
 	 * @return null
 	 */
 	public function setUp()
 	{
-		$this->list = new PackageFileList();
+		$this->stack = new FileStack();
 	}
 
 	/**
@@ -39,7 +39,7 @@ class PackageFileListTest extends BaseTestCase
 	 */
 	public function tearDown()
 	{
-		$this->list = null;
+		$this->stack = null;
 	}
 
 	/**
@@ -47,7 +47,7 @@ class PackageFileListTest extends BaseTestCase
 	 */
 	public function getPackageFileList()
 	{
-		return $this->list;
+		return $this->stack;
 	}
 
 	/**
@@ -72,7 +72,7 @@ class PackageFileListTest extends BaseTestCase
 	{
 		$list = $this->getPackageFileList();
 		$this->assertInstanceOf(
-			'Appfuel\HtmlResource\PackageFileListInterface',
+			'Appfuel\Html\CsResource\FileStackInterface',
 			$list
 		);
 

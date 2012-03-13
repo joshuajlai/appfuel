@@ -8,14 +8,14 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\HtmlResource;
+namespace Appfuel\Html\CsResource;
 
 use InvalidArgumentException;
 
 /**
  * Holds a list of files categorized by type
  */
-class PackageFileList implements PackageFileListInterface
+class FileStack implements FileStackInterface
 {
 	/**
 	 * @var array
@@ -74,7 +74,7 @@ class PackageFileList implements PackageFileListInterface
 		}
 
 		if (! in_array($file, $this->files[$type])) {
-			$this->files[$type][] = $file;
+			array_unshift($this->files[$type], $file);
 		}
 			
 		return $this;
