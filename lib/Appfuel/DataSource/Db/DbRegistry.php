@@ -28,6 +28,12 @@ use RunTimeException,
 class DbRegistry
 {
 	/**
+	 * The default connector key
+	 * @var string
+	 */
+	static protected $defaultKey = null;
+
+	/**
 	 * List of DictionaryInterfaces identified by a label
 	 * @var array
 	 */
@@ -38,6 +44,28 @@ class DbRegistry
 	 * @var array
 	 */
 	static protected $conns = array();
+
+	/**
+	 * @return	string
+	 */
+	static public function getDefaultConnectorKey()
+	{
+		return self::$defaultKey;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	null
+	 */
+	static public function setDefaultConnectorKey($key)
+	{
+		if (! is_string($key) || empty($key)) {
+			$err = 'default connector key must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		self::$defaultKey = $key;
+	}
 
 	/**
 	 * @param	string	$key

@@ -8,9 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Db;
+namespace Appfuel\DataSource\Db;
 
-use RunTimeException;
+use LogicException,
+	RunTimeException,
+	InvalidArgumentException,
+	Appfuel\View\FileViewTemplate;
 
 /**
  * The database handler is responsible for handling database requests without
@@ -21,6 +24,104 @@ use RunTimeException;
  */
 class DbSource implements DbSourceInterface
 {
+    /**
+     * List of sql template files used by the datasource
+     * @var array
+     */
+    protected $sqlFiles = array();
+
+	/**
+	 * @param	array	$paths
+	 * @return	DbSource
+	 */
+	public function __construct(array $paths = null)
+	{
+		if (null !== $paths) {
+			$this->loadSqlTemplatePaths($paths);
+		}
+	}
+
+    /**
+     * @param   array   $list
+     * @return  DSource
+     */
+    public function loadSqlTemplatePaths(array $list)
+    {
+        foreach ($list as $key => $path) {
+            $this->addSqlTemplatePath($key, $path);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param   string  $name
+     * @return  string | false when not found
+     */
+    public function getSqlTemplatePath($name)
+    {
+        if (! is_string($name) || ! isset($this->sqlFiles[$name])) {
+            return false;
+        }
+
+        return $this->sqlFiles[$name];
+    }
+
+    /**
+     * @param   string  $name   used to file the template path
+     * @param   stirng  $path   path to sql template
+     * @return  DbSource
+     */
+    public function addSqlTemplatePath($key, $path)
+    {
+        if (! is_string($key) || empty($key)) {
+            $err = 'sql template key must be a non empty string';
+            throw new InvalidArgumentException($err);
+        }
+
+        if (! is_string($path) || empty($path)) {
+            $err = 'sql template path must be a non empty string';
+            throw new InvalidArgumentException($err);
+        }
+
+        $this->sqlFiles[$key] = $path;
+        return $this;
+    }
+
+    /**
+     * @param   string  $file
+     * @param   array   $data
+     * @return  string
+     */
+    public function loadSql($key, array $data = null, $returnTemplate = false)
+    {
+        $path = $this->getSqlTemplatePath($key);
+        if (! is_string($path) || empty($path)) {
+            $err = "could not load sql template path found with key -($key)";
+            throw new RunTimeException($err);
+        }
+
+        $template = $this->createSqlTemplate($path);
+        if (null !== $data) {
+            $template->load($data);
+        }
+
+        if (true === $returnTemplate) {
+            return $template;
+        }
+
+        return $template->build();
+    }
+
+    /**
+     * @param   string  $file
+     * @return  FileViewTemplate
+     */
+    public function createSqlTemplate($file)
+    {
+        return new FileViewTemplate($file);
+    }
+
 	/**
 	 * Use the connection to create an adapter that will service the request.
 	 * Every request has a code that the connection object uses to determine
@@ -48,7 +149,7 @@ class DbSource implements DbSourceInterface
 		}
 
 		$conn = $connector->getConnection($request->getStrategy());
-		if (! $conn instanceof DbConnectionInterface) {
+		if (! $conn instanceof DbConnInterface) {
 			$err  = 'Database connector has not been correctly instatiated ';
 			$err .= 'connection object must implment an Appfuel\DataSource';
 			$err .= '\Db\DbConnInterface';
@@ -59,15 +160,15 @@ class DbSource implements DbSourceInterface
 			$conn->connect();
 		}
 
-		$adapter = $conn->createAdapter($request->getCode());
-		if (! $adapter instanceof DbAdapterInterface) {
-			$class = get_class($adapter);
+		$handler = $conn->createDbAdapter($request->getType());
+		if (! $handler instanceof DbHandlerInterface) {
+			$class = get_class($handler);
 			$err   = "database vendor adapter -($class) does not implement ";
 			$err  .= "Appfuel\DataSource\Db\DbAdapterInterface";
 			throw new LogicException($err);
 		}
 
-		return $adapter->execute($request, $response);
+		return $handler->execute($request, $response);
 	}
 
 	/**
@@ -77,6 +178,31 @@ class DbSource implements DbSourceInterface
 	public function createResponse()
 	{
 		return new DbResponse();
+	}
+
+	/**
+	 * @param	string	$sql
+	 * @param	string	$type
+	 * @param	string	$stategy
+	 * @param	mixed	$values 
+	 * @return	DbRequest
+	 */
+	public function createRequest($sql,$type=null,$strategy=null,$values=null)
+	{
+		$request =  new DbRequest($sql, $type, $strategy);
+		if (null !== $values) {
+			if (is_scalar($values)) {
+				$values = array($values);
+			}
+			else if (! is_array($values)) {
+				$paramType = gettype($values);
+				$err = "values must be a scalar of an array -($paramType)";
+				throw new InvalidArgumentException($err);
+			}
+			$request->setValues($values);
+		}
+
+		return $request;
 	}
 
 	/**
