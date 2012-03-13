@@ -465,7 +465,7 @@ class ViewTemplate implements ViewInterface
 		try {
 			$result = $this->build();
 		} catch (Exception $e) {
-			$result = '';
+			$result = "|<<| EXCEPTION CAUGHT IN VIEW: {$e->getMessage()} |>>|";
 		}
 
 		return $result;

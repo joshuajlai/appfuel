@@ -124,7 +124,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->addTemplate('htmldoc', $doc);
+		$this->addTemplate('htmldoc', $template);
 		return $this;
 	}
 
@@ -139,7 +139,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	/**
 	 * @return	ViewInterface
 	 */
-	public function getJsTemplate()
+	public function getInlineJsTemplate()
 	{
 		return $this->getTemplate('inlinejs');
 	}
@@ -148,7 +148,7 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	 * @param	mixed string|ViewInterface $js
 	 * @return	HtmlPage
 	 */
-	public function setJsTemplate($js)
+	public function setInlineJsTemplate($js)
 	{
 		if (is_string($js)) {
 			$template = new FileViewTemplate($js);
@@ -169,9 +169,25 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	/**
 	 * @return	bool
 	 */
-	public function isJsTemplate()
+	public function isInlineJsTemplate()
 	{
 		return $this->isTemplate('inlinejs');
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function loadInlineJsTemplate()
+	{
+		$template = $this->getTemplate('inlinejs');
+		if (! $template) {
+			return false;
+		}
+
+		$this->getInlineScriptTag()
+			 ->addContent($template->build(), 'prepend');
+	
+		return true;
 	}
 
 	/**
@@ -633,15 +649,16 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 		$html = $this->getHtmlTag();
 		$head = $html->getHead();
 		$body = $html->getBody();
-		
-		$template->assign('html-attrs', $htmlTag->getAttributeString());
+	
+		$template->assign('html-attrs', $html->getAttributeString());
+
 		
 		$template->assign('head-attrs', $head->getAttributeString());
 		$template->assign('head-title', $head->getTitle());
 		if ($head->isBase()) {
 			$template->assign('head-base', $head->getBase());
 		}
-
+		
 		if ($head->isMeta()) {
 			$template->assign('head-meta', $head->getMeta());
 		}
@@ -662,11 +679,16 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 		$template->assign('body-markup', $body->getContentString());
 
 		if ($this->isJs()) {
-			/* the inline script tag is the last tag in the body */
-			$this->addScriptTag($this->getInlineScriptTag());
+			
+			/* will load build that js template into a string and add it
+			 * as the first item in the inline script
+			 */			
+			$this->loadInlineJsTemplate();
+	
+			/* add as the last script tag for the page */
+			$this->addScriptTag($this->getInlineScriptTag());			
 			$template->assign('body-js', $this->getScriptTags());
 		}
-
 		return $template->build();
 	}
 

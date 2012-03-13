@@ -84,12 +84,15 @@ class FileReader implements FileReaderInterface
 	/**
 	 * @throws	InvalidArgumentException
 	 * @param	string	$path
+	 * @param	bool	$isRel	is path relative or absolute
 	 * @param	int		$offset
 	 * @param	int		$max
 	 * @return	string | false when does not exist
 	 */
-	public function getContentAsString($path, $offset = null, $max = null)
+	public function getContent($path, $isRel=true, $offset=null, $max=null)
 	{
+		$isRel = (false === $isRel) ? false : true;
+
 		$err = 'failed to get file contents: ';
 		if (null !== $offset && ! is_int($offset) || $offset < 0) {
 			$err .= 'offset must be a int that is greater than zero';
@@ -106,14 +109,26 @@ class FileReader implements FileReaderInterface
 			throw new InvalidArgumentException($err);
 		}
 
+		
+		$full   = $path;
 		$finder = $this->getFileFinder();
-		$full   = $finder->getPath($path);
-		if (! $finder->fileExists($path)) {
+		if (true === $isRel) {
+			$full = $finder->getPath($path);
+		}
+
+		if (! $finder->fileExists($full)) {
 			return false;
 		}
 
-
-		return file_get_contents($path, null, null, $offset, $max);
+		/*
+		 * file_get_contents will return an empty string if the last param is
+		 * null
+		 */
+		if (null === $max) {
+			return file_get_contents($full, false, null, $offset);
+		}
+		
+		return file_get_contents($full, false, null, $offset, $max);
 	}
 
 	/**

@@ -18,6 +18,12 @@
 	<file>../lib/TestFuel/Unit/View/Html/HtmlPageDetailTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/HtmlPageTest.php</file>
 	<file>../lib/TestFuel/Unit/View/Html/HtmlPageBuilderTest.php</file>
+	<file>../lib/TestFuel/Unit/HtmlResource/ResourceVendorTest.php</file>
+	<file>../lib/TestFuel/Unit/HtmlResource/PackageFileListTest.php</file>
+	<file>../lib/TestFuel/Unit/HtmlResource/PackageManifestTest.php</file>
+	<file>../lib/TestFuel/Unit/HtmlResource/ResourcePackageTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Sql/Select/MysqlSelectKeywordsTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Sql/Select/MysqlSelectBuilderTest.php</file>
 <!--		
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Console</directory>
 	<directory suffix="Test.php">../lib/TestFuel/Unit/Http</directory>

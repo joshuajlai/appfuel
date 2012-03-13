@@ -96,7 +96,7 @@ class DomainExpr extends BinaryExpr implements DomainExprInterface
 		preg_match_all($pattern, $expr, $match);
 
 		$err = "Failed to parse domain expression: ";
-		if (! array_key_exists('domain', $match)) {
+		if (! array_key_exists('domain', $match) || empty($match['domain'])) {
 			$err .= 'could not find domain';
 			throw new InvalidArgumentException($err);
 		}

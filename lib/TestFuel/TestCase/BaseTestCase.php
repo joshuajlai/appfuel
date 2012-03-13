@@ -14,6 +14,7 @@ use StdClass,
 	TestFuel\Provider\StringProvider,
 	Appfuel\Kernel\PathFinder,
 	Appfuel\Kernel\KernelRegistry,
+	Appfuel\DataSource\Db\DbStartupTask,
 	PHPUnit_Extensions_OutputTestCase;
 
 /**
@@ -131,6 +132,21 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
         }
     }
 
+	/**
+	 * @return null
+	 */
+	public function runDbStartupTask()
+	{
+		$task = new DbStartupTask();
+		$keys = $task->getRegistryKeys();
+		$params = array();
+		foreach ($keys as $key => $default) {
+			$params[$key] = KernelRegistry::getParam($key, $default);
+		}
+
+		$task->execute($params);
+	}
+
     /**
      * Restore autoloader to its previous state
      * 
@@ -245,27 +261,34 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 		return $provider->provideStrictInvalidStrings($includeNull);
 	}
 
-	/**
-	 * @return	array
-	 */
-	public function provideInvalidStrings()
-	{
-		$provider = $this->getStringProvider();
-		$includeNull = false;
-		return $provider->provideStrictInvalidStrings($includeNull);
-	}
+    /**
+     * @return  array
+     */
+    public function provideInvalidStrings()
+    {
+        return array(
+            array(12345),
+            array(1.234),
+            array(true),
+            array(false),
+            array(array(1,2,3)),
+            array(new StdClass())
+        );
+    }
 
-	/**
-	 * @return	array
-	 */
-	public function provideInvalidArray()
-	{
-		return array(
-			array(new StdClass()),
-			array(12345),
-			array(1.234),
-			array(false),
-			array(true)
-		);
-	}
+    /**
+     * @return  array
+     */
+    public function provideInvalidArray()
+    {  
+        return array(
+            array(12345),
+            array(1.234),
+            array(true),
+            array(false),
+            array(''),
+            array('this is a string'),
+            array(new StdClass())
+        );
+    }
 }

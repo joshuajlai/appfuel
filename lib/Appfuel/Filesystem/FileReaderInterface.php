@@ -32,7 +32,7 @@ interface FileReaderInterface
 	 * @param	string	$msg
 	 * @return	bool
 	 */
-	public function requireFile($path, $isThrow = true, $msg = '');
+	public function requireFile($path, $isThrow=true, $msg='');
 	
 	/**
 	 * @throws	InvalidArgumentException
@@ -41,7 +41,7 @@ interface FileReaderInterface
 	 * @param	int		$max
 	 * @return	string | false when does not exist
 	 */
-	public function getContentAsString($path, $offset = null, $max = null);
+	public function getContent($path, $isRel=true, $offset=null, $max=null);
 
 	/**
 	 * @throws	InvalidArgumentException
@@ -49,7 +49,7 @@ interface FileReaderInterface
 	 * @param	int		$flags = 0
 	 * @return	array | false when not found
 	 */
-	public function getContentAsArray($file, $flags = 0);
+	public function getContentAsArray($file, $flags=0);
 
 	/**
 	 * @param	string	$path
@@ -57,7 +57,7 @@ interface FileReaderInterface
 	 * @param	string	$msg
 	 * @return	bool
 	 */
-	public function requireOnceFile($path, $isThrow = true, $msg = '');
+	public function requireOnceFile($path, $isThrow=true, $msg='');
 
 	/**
 	 * @param	string
