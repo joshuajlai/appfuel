@@ -8,12 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Html\CsResource;
+namespace Appfuel\Html\Resource;
 
 use InvalidArgumentException;
 
 /**
- * Holds a list of files categorized by type
+ * Holds a list of files categorized by type. When a file is added it is always 
+ * prepended to the top of the stack. This is done because, in an html resource
+ * module files have dependencies and dependencies are always added before 
+ * their dependent files.
  */
 class FileStack implements FileStackInterface
 {
