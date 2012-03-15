@@ -26,6 +26,17 @@ class FileStack implements FileStackInterface
 	protected $files = array();
 
 	/**
+	 * @param	array	$files
+	 * @return	FileStack
+	 */
+	public function __construct(array $files = null)
+	{
+		if (null !== $files) {
+			$this->load($files);
+		}
+	}
+
+	/**
 	 * @return	array
 	 */
 	public function getAll()
