@@ -10,6 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
+use Appfuel\Orm\OrmRepositoryInterface;
+
 /**
  * The mvc action is the controller in mvc. The front controller always 
  * dispatches a context to be processed by the mvc action based on a 
@@ -31,6 +33,11 @@ class MvcAction implements MvcActionInterface
 	 * @var MvcContextBuilderInterface
 	 */
 	protected $contextBuilder = null;
+
+	/**
+	 * @var	array
+	 */
+	protected $repoList = array();
 
 	/**
 	 * @param	string	$route
@@ -60,7 +67,52 @@ class MvcAction implements MvcActionInterface
 	 */
 	public function initialize(array $params = null)
 	{	
+        if (! isset($params['domains']) || ! is_array($params['domains'])) {
+            return $this;
+        }
+
+        $domains = $params['domains'];
+        foreach ($domains as $key => $factoryClass) {
+            if (! is_string($factoryClass) || empty($factoryClass)) {
+                $err = 'domain repo factory class must be non empty string';
+                throw new InvalidArgumentException($err);
+            }
+
+            $factory = new $factoryClass();
+            $repo = $factory->createRepository($key);
+            $this->addRepository($key, $repo);
+        }
+
 		return $this;
+	}
+
+	public function isRepository($key)
+	{
+		if (! is_string($key) || ! isset($this->repoList[$key])) {
+			return false;
+		}
+
+		return $this->repoList[$key] instanceof OrmRepositoryInterface;
+	}
+
+	public function addRepository($key, OrmRepositoryInterface $repo)
+	{
+		if (! is_string($key) || empty($key)) {
+			$err = 'domain repository key must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->repoList[$key] = $repo;
+		return $this;
+	}
+
+	public function getRepository($key)
+	{
+		if (! $this->isRepository($key)) {
+			return false;
+		}
+
+		return $this->repoList[$key];
 	}
 
 	/**

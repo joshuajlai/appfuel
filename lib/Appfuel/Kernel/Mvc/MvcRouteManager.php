@@ -124,6 +124,12 @@ class MvcRouteManager
 		 * handler which uses the master route key
 		 */
 		$masterKey = $handler->getMasterKey();
+		if ($masterKey !== $key) {
+			$err  = "route handler key -($masterKey) does not match the ";
+			$err .= "requested route key -($key)";
+			throw new LogicException($err);
+		}
+
 		$aliases   = $handler->getAliases();
 		self::addToCache($masterKey, $handler);
 		foreach ($aliases as $alias) {
