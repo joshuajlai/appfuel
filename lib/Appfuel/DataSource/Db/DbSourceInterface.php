@@ -45,4 +45,13 @@ interface DbSourceInterface
 	 * @return	DbConnectorInterface | false 
 	 */
 	public function getConnector($key = null);
+
+    /**
+     * @param   string  $sql
+     * @param   string  $type
+     * @param   string  $stategy
+     * @param   mixed   $values 
+     * @return  DbRequest
+     */
+    public function createRequest($sql,$type=null,$strategy=null,$values=null);
 }

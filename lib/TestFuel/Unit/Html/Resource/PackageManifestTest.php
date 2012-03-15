@@ -96,10 +96,22 @@ class PackageManifestTest extends BaseTestCase
 	 */
 	public function testInitialState()
 	{
+		$data = $this->getPackageData();
 		$manifest = $this->getPackageManifest();
 		$this->assertInstanceOf(
 			'Appfuel\Html\Resource\PackageManifestInterface',
 			$manifest
+		);
+
+		$this->assertEquals($data['name'], $manifest->getPackageName());
+		$this->assertEquals(
+			$data['desc'], 
+			$manifest->getPackageDescription()
+		);
+
+		$this->assertEquals(
+			$data['src']['dir'],
+			$manifest->getSourceDirectory()
 		);
 	}
 }

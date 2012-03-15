@@ -44,6 +44,10 @@ class PackageManifest implements PackageManifestInterface
 	protected $srcDepends = array();
 
 	/**
+	 * Name of the file used when building
+	protected $srcBuildFile = null;
+
+	/**
 	 * Relative path from the package dir to the test files
 	 * @var string 
 	 */
