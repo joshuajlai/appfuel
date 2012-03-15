@@ -126,7 +126,7 @@ class SqlFileCompositor
 	 */
 	public function isTableMap($key)
 	{
-		if (! $this->isDbMap()) {
+		if (! $this->isDbMap($key)) {
 			return false;
 		}
 
