@@ -22,8 +22,10 @@ class RouteHandler extends MvcRouteHandler
      */
     public function __construct()
     {
-		$pkgDir = 'fuelcell/html/';
-		$welcomeDir = "{$pkgDir}welcome/";
+		$tpl     = "fuelcell/web/view/welcome/welcome-view.phtml";
+		$init    = "fuelcell/web/view/welcome/welcome-init.pjs";
+		$htmlDoc = 'appfuel/web/view/html-doc/doc.phtml';
+		$config  = 'appfuel/web/view/html-doc/default-config.php';
         $primary = array(
             'is-public'	  => true,
             'action-name' => 'WelcomeAction',
@@ -32,10 +34,10 @@ class RouteHandler extends MvcRouteHandler
 				'is-view'  => true,
 				'strategy' => 'html-page',
 				'params'   => array(
-					'html-doc'			 => "{$pkgDir}doc/htmldoc.phtml",
-					'html-config'		 => "{$pkgDir}doc/default.php",
-					'view-template'		 => "{$welcomeDir}welcome-view.phtml",
-					'inline-js-template' => "{$welcomeDir}welcome-init.pjs"
+					'html-doc'			 => $htmlDoc,
+					'html-config'		 => $config,
+					'view-template'		 => $tpl,
+					'inline-js-template' => $init
 				),
 			),
         );   

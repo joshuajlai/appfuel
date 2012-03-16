@@ -44,14 +44,16 @@ class PackageManifest implements PackageManifestInterface
 	protected $srcDepends = array();
 
 	/**
-	 * Name of the file used when building
+	 * Name of the file used when building js or css files
+	 * @var string
+	 */
 	protected $srcBuildFile = null;
 
 	/**
 	 * Relative path from the package dir to the test files
 	 * @var string 
 	 */
-	protected $testDir = 'tests';
+	protected $testDir = 'test';
 	
 	/**
 	 * @var FileStackInterface
@@ -83,27 +85,10 @@ class PackageManifest implements PackageManifestInterface
 			$err = 'every package must define a source: no src key found';
 			throw new InvalidArgumentException($err);
 		}
-		$src = $data['src'];
+		$this->initSource($data['src']);
 
-		if (isset($src['dir'])) {
-			$this->setSourceDirectory($src['dir']);
-		}	
-		
-		if (! isset($src['files'])) {
-			$err = 'every package must define its source files: none found';
-			throw new InvalidArgumentException($err);
-		}
-		$this->setSourceFiles($src['files']);
-
-		if (isset($src['depends']) && is_array($src['depends'])) {
-			$this->setSourceDependencies($src['depends']);
-		}
-
-		if (isset($data['tests']) && is_array($data['tests'])) {
-			$tests = $data['tests'];
-			if (isset($test['dir'])) {
-				$this->setTestDirectory($test['dir']);
-			}
+		if (isset($data['test']) && is_array($data['test'])) {
+			$this->initTest($data['test']);
 		}
 	}
 
@@ -129,6 +114,14 @@ class PackageManifest implements PackageManifestInterface
 	public function getSourceDirectory()
 	{
 		return $this->srcDir;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getSourceBuildFile()
+	{
+		return $this->srcBuildFile;	
 	}
 
 	/**
@@ -165,6 +158,14 @@ class PackageManifest implements PackageManifestInterface
 	public function getSourceDependencies()
 	{
 		return $this->srcDepends;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getTestBuildFile()
+	{
+		return $this->testBuildFile;
 	}
 
 	/**
@@ -212,6 +213,65 @@ class PackageManifest implements PackageManifestInterface
 	}
 
 	/**
+	 * @param	array	$src
+	 * @return	null
+	 */
+	protected function initSource(array $src)
+	{
+		if (isset($src['dir'])) {
+			$this->setSourceDirectory($src['dir']);
+		}	
+
+		if (isset($src['build-file'])) {
+			$buildFile = $src['build-file'];
+		}
+		else {
+			$buildFile = $this->getPackageName();
+		}
+		$this->setSourceBuildFile($buildFile);
+
+		if (! isset($src['files'])) {
+			$err = 'every package must define its source files: none found';
+			throw new InvalidArgumentException($err);
+		}
+		$this->setSourceFileStack($src['files']);
+
+		if (isset($src['depends']) && is_array($src['depends'])) {
+			$this->setSourceDependencies($src['depends']);
+		}
+	}
+
+	/**
+	 * @param	array	$test
+	 * @return test
+	 */
+	protected function initTest(array $test)
+	{
+		if (isset($test['dir'])) {
+			$this->setTestDirectory($test['dir']);
+		}
+
+		if (isset($test['build-file'])) {
+			$buildFile = $test['build-file'];
+		}
+		else {
+			$buildFile = $this->getPackageName() . '-test';
+		}
+		$this->setTestBuildFile($buildFile);
+
+		if (! isset($test['files'])) {
+			$err = 'when defined tests must have files: none found';
+			throw new InvalidArgumentException($err);
+		}
+		$this->setTestFileStack($test['files']);
+
+
+		if (isset($test['depends']) && is_array($test['depends'])) {
+			$this->setTestDependencies($test['depends']);
+		}
+	}
+
+	/**
 	 * @param	string	$name
 	 * @return	null
 	 */
@@ -239,6 +299,20 @@ class PackageManifest implements PackageManifestInterface
 	}
 
 	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setSourceBuildFile($name)
+	{
+		if (! is_string($name) || empty($name)) {
+			$err = 'build file must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->srcBuildFile = $name;
+	}
+
+	/**
 	 * @return	FileStack
 	 */
 	protected function getSourceFileStack()
@@ -250,7 +324,7 @@ class PackageManifest implements PackageManifestInterface
 	 * @param	array	$list
 	 * @return	null
 	 */	
-	protected function setSourceFiles($files)
+	protected function setSourceFileStack($files)
 	{
 		if ($files instanceof FileStackInterface) {
 			$this->sourceFiles = $files;
@@ -280,48 +354,6 @@ class PackageManifest implements PackageManifestInterface
 	}
 
 	/**
-	 * @param	string	$name
-	 * @return	null
-	 */
-	protected function setTestDirectory($dir)
-	{
-		if (! is_string($dir)) {
-			$err = 'package dir must be a string';
-			throw new InvalidArgumentException($err);
-		}
-		$this->testDir = $dir;
-	}
-		
-	/**
-	 * @return	PackageFileListInterface
-	 */
-	protected function getResourceTestFiles()
-	{
-		return $this->tests;
-	}
-
-	/**
-	 * @param	array	$list
-	 * @return	null
-	 */	
-	protected function setResourceTests($files)
-	{
-		if ($files instanceof FileStackInterface) {
-			$this->testFiles = $files;
-			return;
-		}
-		else if (! is_array($files)) {
-			$err  = 'tests must be an array or an object that implements ';
-			$err .= 'Appfuel\Html\Resource\FileStackInterface';
-			throw new InvalidArgumentException($err);
-		}
-
-		$list = $this->createFileStack($files);
-		$list->set($files);
-		$this->testFiles = $list;
-	}
-
-	/**
 	 * @param	array	$list
 	 * @return	null
 	 */
@@ -334,7 +366,74 @@ class PackageManifest implements PackageManifestInterface
 			}
 		}
 
-		$this->depends = $list;
+		$this->srcDepends = $list;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setTestBuildFile($name)
+	{
+		if (! is_string($name) || empty($name)) {
+			$err = 'test build file must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->testBuildFile = $name;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setTestDirectory($dir)
+	{
+		if (! is_string($dir)) {
+			$err = 'package dir must be a string';
+			throw new InvalidArgumentException($err);
+		}
+		$this->testDir = $dir;
+	}
+	
+	protected  function getTestFileStack()
+	{
+		return $this->testFiles;
+	}
+	
+	/**
+	 * @param	array	$list
+	 * @return	null
+	 */	
+	protected function setTestFileStack($files)
+	{
+		if ($files instanceof FileStackInterface) {
+			$this->testFiles = $files;
+			return;
+		}
+		else if (! is_array($files)) {
+			$err  = 'tests must be an array or an object that implements ';
+			$err .= 'Appfuel\Html\Resource\FileStackInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->testFiles = $this->createFileStack($files);
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	null
+	 */
+	protected function setTestDependencies(array $list)
+	{
+		foreach ($list as $vendor => $packages) {
+			if (! is_string($vendor) || empty($vendor)) {
+				$err = 'vendor name must be a non empty string';
+				throw new InvalidArgumentException($err);
+			}
+		}
+
+		$this->testDepends = $list;
 	}
 
 	/**

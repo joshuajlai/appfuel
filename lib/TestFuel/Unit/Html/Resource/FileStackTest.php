@@ -112,8 +112,8 @@ class FileStackTest extends BaseTestCase
 		$this->assertSame($list, $list->add($type, $file2));
 		$this->assertSame($list, $list->add($type, $file3));
 			
-		array_unshift($expected, $file2);
-		array_unshift($expected, $file3);
+		$expected[] = $file2;
+		$expected[] = $file3;
 		$this->assertEquals($expected, $list->get('js'));
 	
 		$expected = array($type => $expected);
@@ -141,8 +141,8 @@ class FileStackTest extends BaseTestCase
 			 ->add($type2, $file4);	
 
 		$expected = array(
-			'js'  => array($file2, $file1),
-			'css' => array($file4, $file3)
+			'js'  => array($file1, $file2),
+			'css' => array($file3, $file4)
 		);
 
 		$this->assertEquals($expected['js'], $list->get('js'));
@@ -185,8 +185,7 @@ class FileStackTest extends BaseTestCase
 		$files = array('js' => array('my/file.js', 'your/file.js'));
 		$this->assertSame($list, $list->load($files));
 	
-		$expected = array('js' => array('your/file.js', 'my/file.js'));	
-		$this->assertEquals($expected, $list->getAll());	
+		$this->assertEquals($files, $list->getAll());	
 	}
 
 	/**
@@ -204,12 +203,7 @@ class FileStackTest extends BaseTestCase
 			'css' => array('my/other.css', 'my/more.css')
 		);
 		$this->assertSame($list, $list->load($files));
-	
-		$expected = array(
-			'js'  => array('your/file.js', 'my/file.js'),
-			'css' => array('my/more.css', 'my/other.css')
-		);
-		$this->assertEquals($expected, $list->getAll());	
+		$this->assertEquals($files, $list->getAll());	
 	}
 
 	/**
@@ -256,26 +250,22 @@ class FileStackTest extends BaseTestCase
 			'css' => array('my/other2.css', 'my/more2.css')
 		);
 		$this->assertSame($list, $list->load($files1));
-
-		$expected = array(
-			'js'  => array('your/file1.js', 'my/file1.js'),
-			'css' => array('my/more1.css', 'my/other1.css')
-		);
-		$this->assertEquals($expected, $list->getAll());
+		$this->assertEquals($files1, $list->getAll());
+		
 		$this->assertSame($list, $list->load($files2));
 
 		$expected = array(
 			'js'  => array(
-				'your/file2.js', 
-				'my/file2.js', 
+				'my/file1.js', 
 				'your/file1.js',
-				'my/file1.js'
-			),
+				'my/file2.js', 
+				'your/file2.js'
+				),
 			'css' => array(
-				'my/more2.css',
-				'my/other2.css',
-				'my/more1.css', 
-				'my/other1.css'
+				'my/other1.css', 
+				'my/more1.css',
+				'my/other2.css', 
+				'my/more2.css'
 			)
 		);
 		$this->assertEquals($expected, $list->getAll());
@@ -325,14 +315,7 @@ class FileStackTest extends BaseTestCase
 		);
 
 		$this->assertSame($list, $list->set($files));
-
-		$expected = array(
-			'js'  => array('your/file.js', 'my/file.js'),
-			'css' => array('my/more.css', 'my/other.css')
-		);
-
-
-		$this->assertEquals($expected, $list->getAll());
+		$this->assertEquals($files, $list->getAll());
 	}
 
 	/**
@@ -348,23 +331,13 @@ class FileStackTest extends BaseTestCase
 			'css' => array('c.css', 'd.css')
 		);
 		$this->assertSame($list, $list->set($files1));
-
-		$expected = array(
-			'js'  => array('b.js', 'a.js'),
-			'css' => array('d.css', 'c.css')
-		);
-		$this->assertEquals($expected, $list->getAll());
+		$this->assertEquals($files1, $list->getAll());
 
 		$files2 = array(
 			'js'  => array('x.js', 'y.js'),
 			'css' => array('w.css', 'z.css')
 		);
 		$this->assertSame($list, $list->set($files2));
-
-		$expected = array(
-			'js'  => array('y.js', 'x.js'),
-			'css' => array('z.css', 'w.css')
-		);
-		$this->assertEquals($expected, $list->getAll());
+		$this->assertEquals($files2, $list->getAll());
 	}
 }

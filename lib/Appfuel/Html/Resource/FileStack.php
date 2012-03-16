@@ -88,7 +88,7 @@ class FileStack implements FileStackInterface
 		}
 
 		if (! in_array($file, $this->files[$type])) {
-			array_unshift($this->files[$type], $file);
+			$this->files[$type][] = $file;
 		}
 			
 		return $this;

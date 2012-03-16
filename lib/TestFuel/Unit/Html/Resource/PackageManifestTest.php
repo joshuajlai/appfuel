@@ -94,7 +94,7 @@ class PackageManifestTest extends BaseTestCase
 	/**
 	 * @return	null
 	 */
-	public function testInitialState()
+	public function testNameDescription()
 	{
 		$data = $this->getPackageData();
 		$manifest = $this->getPackageManifest();
@@ -108,10 +108,98 @@ class PackageManifestTest extends BaseTestCase
 			$data['desc'], 
 			$manifest->getPackageDescription()
 		);
+	}
+
+	/**
+	 * @return	null
+	 */	
+	public function testPackageSource()
+	{
+		$data = $this->getPackageData();
+		$manifest = $this->getPackageManifest();
 
 		$this->assertEquals(
 			$data['src']['dir'],
 			$manifest->getSourceDirectory()
 		);
+
+		$this->assertEquals(
+			$data['src']['build-file'],
+			$manifest->getSourceBuildFile()
+		);
+
+		$this->assertEquals(
+			$data['src']['files']['js'],
+			$manifest->getSourceFiles('js')
+		);
+
+		$this->assertEquals(
+			$data['src']['files']['css'],
+			$manifest->getSourceFiles('css')
+		);
+
+		$this->assertEquals(
+			$data['src']['files']['asset'],
+			$manifest->getSourceFiles('asset')
+		);
+
+		$this->assertEquals(
+			$data['src']['depends'],
+			$manifest->getSourceDependencies()
+		);
+	}
+
+	/**
+	 * @return	null
+	 */	
+	public function testPackageTest()
+	{
+		$data = $this->getPackageData();
+		$manifest = $this->getPackageManifest();
+		$this->assertEquals(
+			$data['test']['dir'],
+			$manifest->getTestDirectory()
+		);
+
+		$this->assertEquals(
+			$data['test']['build-file'],
+			$manifest->getTestBuildFile()
+		);
+
+		$this->assertEquals(
+			$data['test']['files']['js'],
+			$manifest->getTestFiles('js')
+		);
+
+		$this->assertEquals(
+			$data['test']['files']['html'],
+			$manifest->getTestFiles('html')
+		);
+
+		$this->assertEquals(
+			$data['test']['depends'],
+			$manifest->getTestDependencies()
+		);
+	}
+
+	public function provideInvalidNames()
+	{
+		return array(
+			array(1234),
+			array(true),
+			array(false),
+			array(new StdClass()),
+			array(array(1,2,3))
+		);
+	}
+
+	public function PackageName_Failure($name)
+	{
+		$data = array(
+			'name' => $name,
+			'src' => array('js' => array('a.js'))
+		);
+
+		$manifest = new PackageManifest($data);
 	}
 }
