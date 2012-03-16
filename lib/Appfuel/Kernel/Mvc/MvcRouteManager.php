@@ -120,7 +120,8 @@ class MvcRouteManager
             throw new RunTimeException($err);
         }
 
-		/* add every alias to the cache but have its entry point to the 
+		/* 
+         * add every alias to the cache but have its entry point to the 
 		 * handler which uses the master route key
 		 */
 		$isMaster  = false;
@@ -130,7 +131,6 @@ class MvcRouteManager
 			$isMaster = true;
 		}
 
-		$aliases   = $handler->getAliases();
 		self::addToCache($masterKey, $handler);
 		foreach ($aliases as $alias) {
 			if ($alias === $key) {
