@@ -132,6 +132,7 @@ class MvcRouteManager
 		}
 
 		self::addToCache($masterKey, $handler);
+		$aliases = $handler->getAliases();
 		foreach ($aliases as $alias) {
 			if ($alias === $key) {
 				$isAlias = true;
