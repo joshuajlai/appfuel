@@ -53,6 +53,66 @@ class DbMap implements DbMapInterface
 	}
 
 	/**
+	 * @param	string	$domain key
+	 * @return	array
+	 */
+	public function getAllColumns($key, $isAlias = true, $isDomain = false)
+	{
+		if (! is_string($key) || ! $this->isTableMap($key)) {
+			return false;
+		}
+
+		if (true === $isDomain) {
+			$columns = $this->getTableMap($key)
+							->getAllColumnsAsMembers($key, $isAlias);
+		}
+		else {
+			$columns = $this->getTableMap($key)
+							->getAllColumns($isAlias);
+		}
+
+		return $columns;
+	}
+
+	/**
+	 * @param	string	$domain key
+	 * @return	array
+	 */
+	public function mapColumn($key, $member, $isAlias = true, $isDomain = false)
+	{
+		if (! is_string($key) || ! $this->isTableMap($key)) {
+			return false;
+		}
+			
+		$column = $this->getTableMap($key)
+					   ->mapColumn($member, $isAlias);
+
+		if (true === $isDomain) {
+			$column .= " AS \"$key.$member\"";
+		}
+
+		return $column;
+	}
+
+	/**
+	 * @param	string	$domain key
+	 * @return	array
+	 */
+	public function getTableName($key)
+	{
+		if (! is_string($key) || ! $this->isTableMap($key)) {
+			return false;
+		}
+			
+		$map  = $this->getTableMap($key);
+		return array(
+			$map->getTableName(),
+			$map->getTableAlias()
+		);
+	}
+
+
+	/**
 	 * @param	array	$data
 	 * @return	DbTableMap
 	 */
