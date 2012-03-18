@@ -93,13 +93,19 @@ class DbTableMap implements DbTableMapInterface
 	 * @param	string	$member
 	 * @return	string | false when not found
 	 */
-	public function mapColumn($member)
+	public function mapColumn($member, $isAlias = true)
 	{
 		if (! is_string($member) || ! isset($this->columns[$member])) {
 			return false;
 		}
 
-		return $this->columns[$member];
+		$alias  = $this->getTableAlias();
+		$column = $this->columns[$member];
+		if (null !== $alias && true === $isAlias) {
+			$column = "$alias.$column";
+		}
+
+		return $column;
 	}
 
 	/**
@@ -118,10 +124,46 @@ class DbTableMap implements DbTableMapInterface
 	/**
 	 * @return	array
 	 */
-	public function getAllColumns()
+	public function getAllColumns($isAlias = true)
 	{
-		return array_values($this->columns);
+		$columns = array_values($this->columns);
+		$alias = $this->getTableAlias();
+		if (false === $isAlias || null === $alias) {
+			return $columns;
+		}
+		
+		foreach ($columns as $key => &$name) {
+			$name = "$alias.$name";
+		}
+
+		return $columns;
 	}
+
+	/**
+	 * @return	array
+	 */
+	public function getAllColumnsAsMembers($domainKey, $isAlias = true)
+	{
+		if (! is_string($domainKey) || empty($domainKey)) {
+			$err = 'domain key must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$columns = $this->getColumnMap();
+		$tAlias  = $this->getTableAlias();
+		$alias   = '';
+		if (null !== $alias) {
+			$alias = "$tAlias.";	
+		}
+		
+		$result = array();
+		foreach ($columns as $member => $column) {
+			$result[] = "{$alias}$column AS \"$domainKey.$member\"";
+		}
+
+		return $result;
+	}
+
 
 	/**
 	 * @return	array
