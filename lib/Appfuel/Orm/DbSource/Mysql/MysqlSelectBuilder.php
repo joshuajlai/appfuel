@@ -54,11 +54,11 @@ class MysqlSelectBuilder
 	protected $values = array(
 		'columns' => array(),
 		'joins'   => array(),
-		'where'   => null,
-		'group'   => null,
-		'having'  => null,
-		'order'   => null,
-		'limit'   => null,
+		'where'   => array(),
+		'group'   => array(),
+		'having'  => array(),
+		'order'   => array(),
+		'limit'   => array(),
 	);
 
 	/**
@@ -103,8 +103,8 @@ class MysqlSelectBuilder
 			$err = "db value must be a scalar or array value -($type) given";
 			throw new InvalidArgumentException($err);
 		}
-	
-		if (! is_string($type) || ! isset($this->values[$type])) {
+
+		if (! isset($this->values[$type])) {
 			$typeList = implode('| ', array_keys($this->values));
 			$err = "type must be a one of the following strings -($typeList)";
 			throw new InvalidArgumentException($err);
@@ -188,17 +188,18 @@ class MysqlSelectBuilder
 				$columns[] = $spec;
 			}
 			else if (is_array($spec) && 3 === count($spec)) {
-				$str = $spec[0];
-				$marker = $spec[1];
-				if (! is_string($marker) || false === strpos($marker, $str)) {
+				$str       = $spec[0];
+				$marker    = $spec[1];
+				$domainStr = $spec[2];
+				if (! is_string($marker) || false === strpos($str, $marker)) {
 					$err  = "marker to replace is not a string or is ";
 					$err .= "not found in -($str)";
 					throw new RunTimeException($err);
 				}
-				$column = $map->mapDomainStr($spec[2], $isAlias, false);
+				$column = $map->mapDomainStr($domainStr, $isAlias, false);
 				if (! $column) {
 					$err  = "failed to add db column: could not map ";
-					$err .= "-($domain) to a column";
+					$err .= "-($domainStr) to a column";
 					throw new RunTimeException($err);
 				}
 				$columns[] = str_replace($marker, $column, $str);
@@ -213,35 +214,10 @@ class MysqlSelectBuilder
 	 * @param	string	$domainKey
 	 * @return	SqlHelper
 	 */
-	public function setFromClause($key, DbMapInterface $map)
+	public function setFromClause($key, DbMapInterface $map, $isAlias = true)
 	{
-		$this->data['from'] = $this->getTableName($key, $map);
+		$this->data['from'] = $map->getTableName($key, $isAlias);
 		return $this;
-	}
-
-	/**
-	 * @param	string	$key
-	 * @return	string
-	 */
-	public function getTableName($key, DbMapInterface $map)
-	{
-		if (! is_string($key) || empty($key)) {
-			$err = 'domain key must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$table = $map->getTableName($key);
-		if (false === $table) {
-			$err = "could not map domain -($key) to a table";
-			throw new InvalidArgumentException($err);
-		}
-		$tableName = current($table);
-	
-		if (true === $this->isAlias()) {
-			$tableName .= ' AS ' . next($table);
-		}
-
-		return $tableName;
 	}
 
 	public function mapJoinColumn($domainStr, $key, DbMapInterface $map)
@@ -273,14 +249,14 @@ class MysqlSelectBuilder
 		foreach ($list as $key => $data) {
 			$stmt = 'LEFT JOIN ';
 			$onOp = '=';
-			$tableName = $this->getTableName($key);
+			$tableName = $map->getTableName($key, true);
 			if (is_string($data['type'])) {
 				$joinType = strtolower($data['type']);
 			}
 			if ('inner' === $joinType) {
 				$stmt = 'INNER JOIN ';	
 			}
-			$stmt .= $this->getTableName($key) . ' ON ';
+			$stmt .= $map->getTableName($key, true) . ' ON ';
 			
 			if (! isset($data['left']) || ! is_string($data['left'])) {
 				$err  = "could not load join -($key) key for left column ";
@@ -301,9 +277,12 @@ class MysqlSelectBuilder
 			}
 			$this->data['joins'][] = "$stmt $leftColumn $onOp $rightColumn";
 		}
+
+		return $this;
 	}
 
-	public function loadWhereExprs(ExprListInterface $list, DbMapInterface $map)
+	public function loadWhereExprs(ExprListInterface $list, 
+								   DbMapInterface $map)
 	{
 		$this->data['where'][] = $this->processExprList('where', $list, $map);
 		return $this;

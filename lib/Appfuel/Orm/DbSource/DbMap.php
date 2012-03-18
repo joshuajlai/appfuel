@@ -76,10 +76,10 @@ class DbMap implements DbMapInterface
 
 	public function mapDomainStr($str, $isAlias = true, $isDomain = true)
 	{
-		if (! is_string($str) || false === $pos = strpos('.', $str)) {
+		if (! is_string($str) || false === $pos = strpos($str, '.')) {
 			return false;
 		}
-
+		
 		$parts  = explode('.', $str);
 		$domain = current($parts);
 		$member = next($parts);
@@ -110,17 +110,21 @@ class DbMap implements DbMapInterface
 	 * @param	string	$domain key
 	 * @return	array
 	 */
-	public function getTableName($key)
+	public function getTableName($key, $isAlias = false)
 	{
 		if (! is_string($key) || ! $this->isTableMap($key)) {
 			return false;
 		}
 			
 		$map  = $this->getTableMap($key);
-		return array(
-			$map->getTableName(),
-			$map->getTableAlias()
-		);
+		$table = $map->getTableName();
+		if (true === $isAlias) {
+			$alias = $map->getTableAlias();
+			if (! empty($alias)) {
+				$table .= " AS $alias";
+			}
+		}
+		return $table;
 	}
 
 
