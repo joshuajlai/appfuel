@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Orm\DbSource;
+namespace Appfuel\Orm\DbSource\Mysql;
 
 use LogicException,
 	RunTimeException,
@@ -16,11 +16,11 @@ use LogicException,
 	Appfuel\View\ViewInterface,
 	Appfuel\Expr\ExprListInterface,
 	Appfuel\Orm\OrmCriteriaInterface,
-	Appfuel\View\Compositor\FileCompositor;
+	Appfuel\Orm\DbSource\DbMapInterface;
 
 /**
  */
-class SqlHelper
+class MysqlSelectBuilder
 {
 	/**
 	 * Used to store data before sql is assigned
@@ -40,17 +40,6 @@ class SqlHelper
 	/**
 	 * @var bool
 	 */
-	protected $template = null;
-
-	/**
-	 * Collection of db table maps used to generate sql
-	 * @var DbMapInterface
-	 */
-	protected $dbMap = null;
-	
-	/**
-	 * @var bool
-	 */
 	protected $isAlias = true;
 
 	/**
@@ -62,22 +51,23 @@ class SqlHelper
 	 * List of values used where isPrepared is true
 	 * @var array
 	 */
-	protected $values = array();
+	protected $values = array(
+		'columns' => array(),
+		'joins'   => array(),
+		'where'   => null,
+		'group'   => null,
+		'having'  => null,
+		'order'   => null,
+		'limit'   => null,
+	);
 
 	/**
-	 * @param	DbMapInterface	$map
-	 * @param	ViewInterface	$template
 	 * @param	enableAliases	$enableAliases
 	 * @param	isPrepared		$isPrepared
 	 * @return	SqlHelper
 	 */
-	public function __construct(DbMapInterface $map, 
-								ViewInterface  $template,
-								$enableAliases = true,
-								$isPrepared    = true)
+	public function __construct($enableAliases = true, $isPrepared = true)
 	{
-		$this->map = $map;
-		$this->template = $template;
 		if (false === $enableAliases) {
 			$this->isAlias = false;
 		}
@@ -87,22 +77,6 @@ class SqlHelper
 		}
 	}
 		
-	/**
-	 * @return	DbMapInterface
-	 */
-	public function getDbMap()
-	{
-		return $this->map;
-	}
-
-	/**
-	 * @return	ViewInterface
-	 */
-	public function getTemplate()
-	{
-		return $this->template;
-	}
-
 	/**
 	 * @return	bool
 	 */
@@ -123,39 +97,62 @@ class SqlHelper
 	 * @param	scalar	$value
 	 * @return	SqlHelper
 	 */
-	public function addValue($value)
+	public function addValue($type, $value)
 	{
 		if (! is_array($value) && ! is_scalar($value)) {
 			$err = "db value must be a scalar or array value -($type) given";
 			throw new InvalidArgumentException($err);
 		}
-		
+	
+		if (! is_string($type) || ! isset($this->values[$type])) {
+			$typeList = implode('| ', array_keys($this->values));
+			$err = "type must be a one of the following strings -($typeList)";
+			throw new InvalidArgumentException($err);
+		}
+	
 		if (is_array($value)) {
-			$this->values = array_merge($this->values, $value);
+			$this->values[$type] = array_merge($this->values[$type], $value);
 			return $this;
 		}
 
-		$this->values[] = $value;
+		$this->values[$type][] = $value;
 		return $this;
 	}
 
 	/**
 	 * @return	array
 	 */
-	public function getValues()
+	public function getValues($type = null)
 	{
-		return $this->values;
+		if (null === $type) {
+			return $this->values;
+		}
+
+		if (! is_string($type) || ! isset($this->values[$type])) {
+			return false;
+		}
+	
+		return $this->values[$type];
 	}
 
 	/**
-	 * @param	array $list
-	 * @return	SqlHelper
+	 * @param	array			$list	list of domains members to be mapped
+	 * @param	DbMapInterface	$map	db column to domain member map
+	 * @param	bool			$isAlias 
+	 * @param	bool			$isMapBack	will use the domain member name
+	 *							in the columns 'AS' this creates a natural 
+	 *							map back to the same domain keys
+	 * @return	MysqlSelectBuilder
 	 */
-	public function addColumns(array $list, $isMapBack = true)
+	public function addDomainColumns(array $list, 
+									DbMapInterface $map,
+									$isAlias = true,
+									$isMapBack = true)
 	{
+		$isAlias   = (false === $isAlias)   ? false : true;
+		$isMapBack = (false === $isMapBack) ? false : true;
+
 		$columns  = array();
-		$isAlias  = $this->isAlias();
-		$map	  = $this->getDbMap();
 		foreach ($list as $key => $spec) {
 			if (! is_string($key) || empty($key)) {
 				$err = 'domain key must be a non empty string';
@@ -177,7 +174,37 @@ class SqlHelper
 			}
 		}
 
-		$str = implode(', ', $columns);
+		$this->data['columns'][] = implode(', ', $columns);
+		return $this;
+	}
+
+	public function addDbColumns(array $list, 
+								 DbMapInterface $map,
+								 $isAlias = true)
+	{
+		$columns = array();
+		foreach ($list as $index => $spec) {
+			if (is_string($spec)) {
+				$columns[] = $spec;
+			}
+			else if (is_array($spec) && 3 === count($spec)) {
+				$str = $spec[0];
+				$marker = $spec[1];
+				if (! is_string($marker) || false === strpos($marker, $str)) {
+					$err  = "marker to replace is not a string or is ";
+					$err .= "not found in -($str)";
+					throw new RunTimeException($err);
+				}
+				$column = $map->mapDomainStr($spec[2], $isAlias, false);
+				if (! $column) {
+					$err  = "failed to add db column: could not map ";
+					$err .= "-($domain) to a column";
+					throw new RunTimeException($err);
+				}
+				$columns[] = str_replace($marker, $column, $str);
+			}
+		}
+
 		$this->data['columns'][] = implode(', ', $columns);
 		return $this;
 	}
@@ -186,9 +213,9 @@ class SqlHelper
 	 * @param	string	$domainKey
 	 * @return	SqlHelper
 	 */
-	public function setFromClause($key)
+	public function setFromClause($key, DbMapInterface $map)
 	{
-		$this->data['from'] = $this->getTableName($key);
+		$this->data['from'] = $this->getTableName($key, $map);
 		return $this;
 	}
 
@@ -196,14 +223,12 @@ class SqlHelper
 	 * @param	string	$key
 	 * @return	string
 	 */
-	public function getTableName($key)
+	public function getTableName($key, DbMapInterface $map)
 	{
 		if (! is_string($key) || empty($key)) {
 			$err = 'domain key must be a non empty string';
 			throw new InvalidArgumentException($err);
 		}
-
-		$map = $this->getDbMap();
 
 		$table = $map->getTableName($key);
 		if (false === $table) {
@@ -219,26 +244,20 @@ class SqlHelper
 		return $tableName;
 	}
 
-	public function mapJoinColumn($domainStr, $key, $map)
+	public function mapJoinColumn($domainStr, $key, DbMapInterface $map)
 	{
 		if (! is_string($domainStr) || empty($domainStr)) {
 			$err = 'domain to column map failed: must be a non empty string';
 			throw new InvalidArgumentException($err);
 		}
 
-		if (false !== $pos = strpos($domainStr, '.', 2)) {
-			$parts  = explode('.', $domainStr);
-			if (empty($parts)) {
-				$err  = "could not load join -($key): spliting domain ";
-				$err .= " -($domain) failed on '.'";
-				throw new RunTimeException($err);
-			}
-			$domain = current($parts);
-			$member = next($parts);
-			$column = $map->mapColumn($domain, $member, true);
+		$isAlias   = true;
+		if (false !== $pos = strpos($domainStr, '.')) {
+			$isMapBack = false;
+			$column = $map->mapDomainStr($domainStr, $isAlias, $isMapBack);
 		}
 		else {
-			$column = $map->mapColumn($key, $domainStr, true);
+			$column = $map->mapColumn($key, $domainStr, $isAlias);
 		}
 
 		return $column;
@@ -248,9 +267,8 @@ class SqlHelper
 	 * @param	array	$list
 	 * @return	SqlHelper
 	 */
-	public function loadJoins(array $list)
+	public function loadJoins(array $list, DbMapInterface $map)
 	{
-		$map	  = $this->getDbMap();
 		$joinType = 'inner';
 		foreach ($list as $key => $data) {
 			$stmt = 'LEFT JOIN ';
@@ -285,21 +303,22 @@ class SqlHelper
 		}
 	}
 
-	public function loadWhereExprs(ExprListInterface $list)
+	public function loadWhereExprs(ExprListInterface $list, DbMapInterface $map)
 	{
-		$map  = $this->getDbMap();
-		$this->data['where'][] = $this->processExprList($list, $map);
+		$this->data['where'][] = $this->processExprList('where', $list, $map);
 		return $this;
 	}
 
-	public function processExprList(ExprListInterface $list, $map)
+	public function processExprList($type, 
+									ExprListInterface $list, 
+									DbMapInterface $map)
 	{
 		$result = '';
         foreach ($list as $key => $data) {
             $expr = current($data);
             $column = $map->mapColumn($expr->getDomain(), $expr->getMember());
             if ($this->isPrepared()) {
-                $this->addValue($expr->getValue());
+                $this->addValue($type, $expr->getValue());
 				$value = '?';
             }
 			else {

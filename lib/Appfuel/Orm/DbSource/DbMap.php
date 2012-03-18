@@ -74,6 +74,18 @@ class DbMap implements DbMapInterface
 		return $columns;
 	}
 
+	public function mapDomainStr($str, $isAlias = true, $isDomain = true)
+	{
+		if (! is_string($str) || false === $pos = strpos('.', $str)) {
+			return false;
+		}
+
+		$parts  = explode('.', $str);
+		$domain = current($parts);
+		$member = next($parts);
+		return $this->mapColumn($domain, $member, $isAlias, $isDomain);
+	}
+
 	/**
 	 * @param	string	$domain key
 	 * @return	array
