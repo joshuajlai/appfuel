@@ -62,37 +62,41 @@ class MysqlSelectBuilder
 	);
 
 	/**
-	 * @param	enableAliases	$enableAliases
-	 * @param	isPrepared		$isPrepared
-	 * @return	SqlHelper
-	 */
-	public function __construct($enableAliases = true, $isPrepared = true)
+	 * @param	array	$spec
+	 * @return	string
+	 */	
+	public function build(array $spec, 
+						  DbMapInterface $map,
+						  $isAlias = true, 
+						  $isPrepared = true,
+						  $isMapBack = true)
 	{
-		if (false === $enableAliases) {
-			$this->isAlias = false;
+		$isAlias    = ($isAlias === false) ? false : true;
+		$isPrepared = ($isPrepared === false) ? false : true;
+		if (isset($spec['domain-columns'])) {
+			$isMapBack = ($isMapBack) ? false : true;
+			$this->addDomainColumns(
+				$spec['domain-columns'],
+				$map,
+				$isAlias,
+				$isMapBack
+			);
 		}
 
-		if (false === $isPrepared) {
-			$this->isPrepared = false;
+		if (isset($spec['db-columns'])) {
+			$this->addDbColumns($spec['db-columns'], $map, $isAlias);
 		}
-	}
-		
-	/**
-	 * @return	bool
-	 */
-	public function isAlias()
-	{
-		return $this->isAlias;
-	}
 
-	/**
-	 * @return	bool
-	 */
-	public function isPrepared()
-	{
-		return $this->isPrepared;
-	}
+		if (isset($spec['domain-from'])) {
+			$this->setDomainFrom($spec['domain-from'], $map, $isAlias);
+		}
+		else if (isset($spec['db-from'])) {
+			$this->setDbFrom($spec['db-from']);
+		}
 
+
+	}
+	
 	/**
 	 * @param	scalar	$value
 	 * @return	SqlHelper
@@ -222,7 +226,7 @@ class MysqlSelectBuilder
 	 * @param	bool	$isAlias
 	 * @return	MysqlSelectBuilder
 	 */
-	public function setFromClause($key, DbMapInterface $map, $isAlias = true)
+	public function setDomainFrom($key, DbMapInterface $map, $isAlias = true)
 	{
 		$this->data['from'] = $map->getTableName($key, $isAlias);
 		return $this;
@@ -302,12 +306,24 @@ class MysqlSelectBuilder
 	 * @return	MysqlSelectBuilder
 	 */
 	public function loadWhereExprs(ExprListInterface $list, 
-								   DbMapInterface $map)
+								   DbMapInterface $map,
+								   $isPrepared = true)
 	{
-		$this->data['where'][] = $this->processExprList('where', $list, $map);
+		$this->data['where'][] = $this->processExprList(
+			'where', 
+			$list, 
+			$map
+			$isPrepared
+		);
 		return $this;
 	}
 
+	/**
+	 * @param	array	$list	list of domain members to group by
+	 * @param	DbMapInterface $map
+	 * @param	bool	$isAlias
+	 * @return	MysqlSelectBuilder
+	 */
 	public function loadDomainGroupBy(array $list, 
 									  DbMapInterface $map,
 									  $isAlias = true)
@@ -323,6 +339,99 @@ class MysqlSelectBuilder
 	}
 
 	/**
+	 * @param	array	$list
+	 * @return	MysqlSelectBuilder
+	 */
+	public function loadDbGroupBy(array $list)
+	{
+		$this->data['group'][] = implode(', ', $list);
+		return $this;
+	}
+
+	/**
+	 * @param	array	$list
+	 * @param	DbMapInterface	$map
+	 * @param	bool	$isAlias
+	 * @return	MysqlSelectBuilder
+	 */
+	public function loadDomainOrderBy(array $list, 
+									  DbMapInterface $map,
+									  $isAlias = true)
+	{
+		$result = array();
+		$dir    = 'asc';
+		foreach ($list as $spec) {
+			if (is_string($spec)) {
+				$result[] = $spec;
+			}
+			else if (is_array($spec)) {
+				$domainStr = current($spec);
+				$tmp       = next($spec);
+				if (is_string($dir)) {
+					$tmp = strtolower($tmp);
+					if ('asc' === $tmp || 'desc' === $tmp) {
+						$dir = $tmp;
+					}
+				}
+				$column = $map->mapDomainStr($domainStr, $isAlias, false);
+				if (! $column) {
+					$err = "failed to load order: -($domainStr) not mapped";
+					throw new RunTimeException($err);
+				}
+				$result[] = "$column $dir";
+			}
+		}
+
+		$this->data['order'] = implode(', ', $result);
+		return $this;
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	MysqlSelectBuilder
+	 */
+	public function loadDbOrderBy(array $list)
+	{
+		$this->data['order'][] = implode(',', $list);
+		return $this;
+	}
+
+	/**
+	 * @param	int		$offset
+	 * @param	int		$max
+	 * @param	bool	$isPrepared
+	 * @return	MysqlSelectBuilder
+	 */
+	public function setLimit($offset, $max = null, $isPrepared = true)
+	{
+		if (! is_int($offset) || $offset < 0) {
+			$err = 'set limit failed: offset must be a positive int';
+			throw new InvalidArgumentException($err);
+		}
+
+		$value = array($offset);
+		
+		$limit  = "$offset";
+		if (true === $isPrepared) {
+			$limit = '?';
+			$this->addValue('limit', $offset);
+		}
+
+		if (is_int($max) && $max > 0) {
+			if (true === $isPrepared) {
+				$limit .= ", ?";
+				$this->addValue('limit', $max);
+			}
+			else {
+				$limit .= ", $max";
+			}
+		}
+
+		$this->data['limit'] = $limit;
+		return $this;
+	}
+
+	/**
 	 * @param	string	$type
 	 * @param	ExprListInterface $list
 	 * @param	DbMapInterface $map
@@ -330,13 +439,14 @@ class MysqlSelectBuilder
 	 */
 	public function processExprList($type, 
 									ExprListInterface $list, 
-									DbMapInterface $map)
+									DbMapInterface $map,
+									$isPrepared = true)
 	{
 		$result = '';
         foreach ($list as $key => $data) {
             $expr = current($data);
             $column = $map->mapColumn($expr->getDomain(), $expr->getMember());
-            if ($this->isPrepared()) {
+            if (true === $isPrepared) {
                 $this->addValue($type, $expr->getValue());
 				$value = '?';
             }
