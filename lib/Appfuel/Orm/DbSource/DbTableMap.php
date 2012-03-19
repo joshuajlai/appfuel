@@ -42,6 +42,13 @@ class DbTableMap implements DbTableMapInterface
      */
     protected $primaryKey = array();
 
+    /**
+     * Is Auto Increment
+     *
+     * @var bool
+     */
+    protected $isAutoIncrement = false;
+
 	/**
 	 * @param	array  $data
 	 * @return	DbMap
@@ -63,7 +70,11 @@ class DbTableMap implements DbTableMapInterface
         if (isset($data['primaryKey'])) {
             $this->setPrimaryKey($data['primaryKey']);
         }
-	}
+	
+        if (isset($data['isAutoIncrement'])) {
+            $this->setIsAutoIncrement($data['isAutoIncrement']);
+        }
+    }
 
 	/**
 	 * @return	string
@@ -242,5 +253,22 @@ class DbTableMap implements DbTableMapInterface
     public function getPrimaryKey()
     {
         return $this->primaryKey;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAutoIncrement()
+    {
+        return $this->isAutoIncrement;
+    }
+
+    /**
+     * @param   bool        $isAutoIncrement
+     * @return  null
+     */
+    public function setIsAutoIncrement($isAutoIncrement)
+    {
+        $this->isAutoIncrement = (bool) $isAutoIncrement;
     }
 }
