@@ -178,6 +178,12 @@ class MysqlSelectBuilder
 		return $this;
 	}
 
+	/**
+	 * @param	array	$list
+	 * @param	DbMapInterface	$map
+	 * @param	bool	$isAlias
+	 * @return	MysqlSelectBuilder
+	 */
 	public function addDbColumns(array $list, 
 								 DbMapInterface $map,
 								 $isAlias = true)
@@ -211,8 +217,10 @@ class MysqlSelectBuilder
 	}
 
 	/**
-	 * @param	string	$domainKey
-	 * @return	SqlHelper
+	 * @param	string	$key
+	 * @param	DbMapInterface $map
+	 * @param	bool	$isAlias
+	 * @return	MysqlSelectBuilder
 	 */
 	public function setFromClause($key, DbMapInterface $map, $isAlias = true)
 	{
@@ -220,6 +228,12 @@ class MysqlSelectBuilder
 		return $this;
 	}
 
+	
+	/**
+	 * @param	string	$domainStr
+	 * @param	DbMapInterface $map
+	 * @return	MysqlSelectBuilder
+	 */
 	public function mapJoinColumn($domainStr, $key, DbMapInterface $map)
 	{
 		if (! is_string($domainStr) || empty($domainStr)) {
@@ -240,8 +254,9 @@ class MysqlSelectBuilder
 	}
 	
 	/**
-	 * @param	array	$list
-	 * @return	SqlHelper
+	 * @param	array			$list
+	 * @param	DbMapInterface	$map
+	 * @return	MysqlSelectBuilder
 	 */
 	public function loadJoins(array $list, DbMapInterface $map)
 	{
@@ -281,6 +296,11 @@ class MysqlSelectBuilder
 		return $this;
 	}
 
+	/**
+	 * @param	ExprListInterface	$list
+	 * @param	DbMapInterface		$map
+	 * @return	MysqlSelectBuilder
+	 */
 	public function loadWhereExprs(ExprListInterface $list, 
 								   DbMapInterface $map)
 	{
@@ -288,6 +308,26 @@ class MysqlSelectBuilder
 		return $this;
 	}
 
+	public function loadDomainGroupBy(array $list, 
+									  DbMapInterface $map,
+									  $isAlias = true)
+	{
+		$result = array();
+		foreach ($list as $spec) {
+			if (is_string($spec)) {
+				$result[] = $map->mapDomainStr($spec, $isAlias, false);
+			}
+		}
+
+		$this->data['group'][] = implode(', ', $result);
+	}
+
+	/**
+	 * @param	string	$type
+	 * @param	ExprListInterface $list
+	 * @param	DbMapInterface $map
+	 * @return	MysqlSelectBuilder
+	 */
 	public function processExprList($type, 
 									ExprListInterface $list, 
 									DbMapInterface $map)
