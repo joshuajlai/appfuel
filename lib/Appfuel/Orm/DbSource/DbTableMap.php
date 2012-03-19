@@ -35,6 +35,13 @@ class DbTableMap implements DbTableMapInterface
 	 */
 	protected $alias = null;
 
+    /**
+     * Primary Key
+     * an array of domain members that represents the primary key
+     * @var array
+     */
+    protected $primaryKey = array();
+
 	/**
 	 * @param	array  $data
 	 * @return	DbMap
@@ -52,6 +59,10 @@ class DbTableMap implements DbTableMapInterface
 		if (isset($data['alias'])) {
 			$this->setTableAlias($data['alias']);
 		}
+
+        if (isset($data['primaryKey'])) {
+            $this->setPrimaryKey($data['primaryKey']);
+        }
 	}
 
 	/**
@@ -211,4 +222,25 @@ class DbTableMap implements DbTableMapInterface
 
 		$this->alias = $alias;
 	}
+
+    /**
+     * @param   array   $primaryKey
+     * @return  null
+     */
+    public function setPrimaryKey(array $primaryKey)
+    {
+        if (empty($primaryKey)) {
+            return;
+        }
+
+        $this->primaryKey = $primaryKey;
+    }
+
+    /**
+     * @return  array
+     */
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
+    }
 }
