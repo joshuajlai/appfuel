@@ -13,7 +13,7 @@ namespace Appfuel\Orm\DbSource\Mysql;
 use LogicException,
 	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\View\ViewInterface,
+	Appfuel\View\FileViewTemplate,
 	Appfuel\Expr\ExprListInterface,
 	Appfuel\Orm\OrmCriteriaInterface,
 	Appfuel\Orm\DbSource\DbMapInterface;
@@ -22,6 +22,11 @@ use LogicException,
  */
 class MysqlSelectBuilder
 {
+	/**
+	 * @var string
+	 */
+	protected $tpl = 'appfuel/sql/mysql/select.psql';
+
 	/**
 	 * Used to store data before sql is assigned
 	 * @var array
@@ -36,16 +41,6 @@ class MysqlSelectBuilder
 		'order'   => null,
 		'limit'   => null,
 	);
-
-	/**
-	 * @var bool
-	 */
-	protected $isAlias = true;
-
-	/**
-	 * @var bool
-	 */
-	protected $isPrepared = true;
 
 	/**
 	 * List of values used where isPrepared is true
@@ -74,7 +69,7 @@ class MysqlSelectBuilder
 		$isAlias    = ($isAlias === false) ? false : true;
 		$isPrepared = ($isPrepared === false) ? false : true;
 		if (isset($spec['domain-columns'])) {
-			$isMapBack = ($isMapBack) ? false : true;
+			$isMapBack = (false === $isMapBack) ? false : true;
 			$this->addDomainColumns(
 				$spec['domain-columns'],
 				$map,
@@ -94,8 +89,105 @@ class MysqlSelectBuilder
 			$this->setDbFrom($spec['db-from']);
 		}
 
+		if (isset($spec['domain-joins'])) {
+			$this->loadDomainJoins($spec['domain-joins'], $map);
+		}
 
+		if (isset($spec['db-joins'])) {
+			$this->loadDomainJoins($spec['db-joins'], $map);
+		}
+
+		if (isset($spec['domain-where'])) {
+			$this->loadDomainWhere(
+				$spec['domain-where'], 
+				$map, 
+				$isAlias,
+				$isPrepared
+			);
+		}
+
+		if (isset($spec['domain-group'])) {
+			$this->loadDomainGroupBy($spec['domain-group'], $map, $isAlias);
+		}
+			
+		if (isset($spec['db-group'])) {
+			$this->loadDbGroupBy($spec['db-group']);
+		}
+
+		if (isset($spec['domain-order'])) {
+			$this->loadDomainOrderBy($spec['domain-order'], $map, $isAlias);
+		}
+
+		if (isset($spec['db-order'])) {
+			$this->loadDbOrderBy($spec['db-order']);
+		}
+
+		if (isset($spec['limit'])) {
+			$limit = $spec['limit'];
+			if (is_array($limit)) {
+				$offset = current($limit);
+				$max    = next($limit);
+
+				/* when max is not set make sure its a null */
+				if (empty($max)) {
+					$max = null;
+				}
+			}
+			$this->setLimit($offset, $max, $isPrepared);
+		}		
+
+		$template = $this->createTemplate($this->getTplPath());
+		if (is_array($this->data['columns'])) {
+			$columns = implode(', ', $this->data['columns']);
+			$template->assign('columns', $columns);
+		}
+	
+		if (is_string($this->data['from'])) {
+			$template->assign('from', $this->data['from']);
+		}
+
+		if (is_array($this->data['joins'])) {
+			$joins = implode(PHP_EOL, $this->data['joins']);
+			$template->assign('joins', $joins);
+		}
+	
+		if (is_array($this->data['where'])) {
+			$where = implode(' AND ', $this->data['where']);
+			$template->assign('where', $where);
+		}
+
+		if (is_array($this->data['group'])) {
+			$group = implode(', ', $this->data['group']);
+			$template->assign('group', $group);
+		}
+		
+		if (is_array($this->data['order'])) {
+			$order = implode(', ', $this->data['order']);
+			$template->assign('order', $order);
+		}
+
+		if (is_string($this->data['limit'])) {
+			$template->assign('limit', $this->data['limit']);
+		}
+		
+		$result = $template->build();
+		if (true === $isPrepared) {
+			$result = array($result, $this->getPreparedValues());
+		}
+		
+		return $result;
 	}
+
+	public function getTplPath()
+	{
+		return $this->tpl;
+	}
+
+	public function createTemplate($tpl)
+	{
+		return new FileViewTemplate($tpl);
+	}
+
 	
 	/**
 	 * @param	scalar	$value
@@ -139,6 +231,18 @@ class MysqlSelectBuilder
 		return $this->values[$type];
 	}
 
+	public function getPreparedValues()
+	{
+		return array_merge(
+			$this->values['columns'],
+			$this->values['joins'],
+			$this->values['where'],
+			$this->values['group'],
+			$this->values['having'],
+			$this->values['limit']
+		);
+	}
+
 	/**
 	 * @param	array			$list	list of domains members to be mapped
 	 * @param	DbMapInterface	$map	db column to domain member map
@@ -148,26 +252,34 @@ class MysqlSelectBuilder
 	 *							map back to the same domain keys
 	 * @return	MysqlSelectBuilder
 	 */
-	public function addDomainColumns(array $list, 
+	public function addDomainColumns($spec, 
 									DbMapInterface $map,
 									$isAlias = true,
 									$isMapBack = true)
 	{
-		$isAlias   = (false === $isAlias)   ? false : true;
-		$isMapBack = (false === $isMapBack) ? false : true;
+		if (is_string($spec)) {
+			$columns = $map->getAllColumns($spec, $isAlias, $isMapBack);
+			$this->data['columns'][] = implode(',', $columns);
+			return $this;
+		}
+		else if (! is_array($spec)) {
+			$err  = "failed to add domain columns: specification must be a ";
+			$err .= "string or an array ";
+			throw new InvalidArgumentException($err);
+		}
 
 		$columns  = array();
-		foreach ($list as $key => $spec) {
+		foreach ($spec as $key => $data) {
 			if (! is_string($key) || empty($key)) {
 				$err = 'domain key must be a non empty string';
 				throw new InvalidArgumentException($err);
 			}
-			if (is_string($spec) && 'all' === strtolower($spec)) {
+			if (is_string($data) && 'all' === strtolower($data)) {
 				$tmp = $map->getAllColumns($key, $isAlias, $isMapBack);
 				$columns = array_merge($columns, $tmp);
 			}
-			else if (is_array($spec)) {
-				foreach ($spec as $member) {
+			else if (is_array($data)) {
+				foreach ($data as $member) {
 					$columns[] = $map->mapColumn(
 						$key, 
 						$member, 
@@ -232,6 +344,20 @@ class MysqlSelectBuilder
 		return $this;
 	}
 
+	/**
+	 * @param	string
+	 * @return	MysqlSelectBuilder
+	 */
+	public function setDbFrom($table)
+	{
+		if (! is_string($table) || empty($table)) {
+			$err = 'failed to set from: table must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->data['from'] = $table;
+		return $this;
+	}
 	
 	/**
 	 * @param	string	$domainStr
@@ -262,7 +388,7 @@ class MysqlSelectBuilder
 	 * @param	DbMapInterface	$map
 	 * @return	MysqlSelectBuilder
 	 */
-	public function loadJoins(array $list, DbMapInterface $map)
+	public function loadDomainJoins(array $list, DbMapInterface $map)
 	{
 		$joinType = 'inner';
 		foreach ($list as $key => $data) {
@@ -301,18 +427,37 @@ class MysqlSelectBuilder
 	}
 
 	/**
+	 * @param	array	$list
+	 * @return	MysqlSelectBuilder
+	 */
+	public function loadDbJoins(array $list)
+	{
+		foreach ($list as $join) {
+			if (! is_string($join) || empty($join)) {
+				$err = "manual join must be a non empty string";
+				throw new InvalidArgumentException($err);
+			}
+			$this->data['joins'][] = $joins;
+		}
+		
+		return $this;
+	}
+
+	/**
 	 * @param	ExprListInterface	$list
 	 * @param	DbMapInterface		$map
 	 * @return	MysqlSelectBuilder
 	 */
-	public function loadWhereExprs(ExprListInterface $list, 
-								   DbMapInterface $map,
-								   $isPrepared = true)
+	public function loadDomainWhere(ExprListInterface $list, 
+									DbMapInterface $map,
+									$isAlias = true,
+									$isPrepared = true)
 	{
 		$this->data['where'][] = $this->processExprList(
 			'where', 
 			$list, 
-			$map
+			$map,
+			$isAlias,
 			$isPrepared
 		);
 		return $this;
@@ -382,7 +527,7 @@ class MysqlSelectBuilder
 			}
 		}
 
-		$this->data['order'] = implode(', ', $result);
+		$this->data['order'][] = implode(', ', $result);
 		return $this;
 	}
 
@@ -404,27 +549,30 @@ class MysqlSelectBuilder
 	 */
 	public function setLimit($offset, $max = null, $isPrepared = true)
 	{
-		if (! is_int($offset) || $offset < 0) {
-			$err = 'set limit failed: offset must be a positive int';
-			throw new InvalidArgumentException($err);
-		}
+        if (! is_int($offset) || $offset < 0)  {
+            $err = "set limit failed: 1st param must be an positive int";
+            throw new InvalidArgumentException($err);
+        }
 
-		$value = array($offset);
-		
-		$limit  = "$offset";
-		if (true === $isPrepared) {
-			$limit = '?';
-			$this->addValue('limit', $offset);
-		}
-
-		if (is_int($max) && $max > 0) {
+		if (null === $max) {
+			$limit = $offset;
 			if (true === $isPrepared) {
-				$limit .= ", ?";
-				$this->addValue('limit', $max);
+				$limit = '?';
+				$this->addValue('limit', $offset);
 			}
-			else {
-				$limit .= ", $max";
-			}
+			$this->data['limit'] = $limit;
+			return $this;
+		}
+
+        if (! is_int($max) || $max < 0)  {
+            $err = "set limit failed: 2nd param must be an positive int";
+            throw new InvalidArgumentException($err);
+        }
+	
+		$limit = "$offset, $max";	
+		if (true === $isPrepared) {
+			$limit = "?, ?";
+			$this->addValue('limit', array($offset, $max));
 		}
 
 		$this->data['limit'] = $limit;
@@ -440,12 +588,17 @@ class MysqlSelectBuilder
 	public function processExprList($type, 
 									ExprListInterface $list, 
 									DbMapInterface $map,
+									$isAlias = true,
 									$isPrepared = true)
 	{
 		$result = '';
         foreach ($list as $key => $data) {
             $expr = current($data);
-            $column = $map->mapColumn($expr->getDomain(), $expr->getMember());
+            $column = $map->mapColumn(
+						$expr->getDomain(), 
+						$expr->getMember(),
+						$isAlias);
+
             if (true === $isPrepared) {
                 $this->addValue($type, $expr->getValue());
 				$value = '?';

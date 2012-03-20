@@ -40,6 +40,17 @@ class OrmCriteria extends Dictionary implements OrmCriteriaInterface
 	protected $exprs = array();
 
 	/**
+	 * Used to describe how much of the recordset to return
+	 * @var	mixed  array
+	 */
+	protected $limit = array();
+
+	/**
+	 * @var	array
+	 */ 
+	protected $order = array();
+
+	/**
 	 * @param	DictionaryInterface $options
 	 * @return	Criteria
 	 */
@@ -193,6 +204,40 @@ class OrmCriteria extends Dictionary implements OrmCriteriaInterface
     {
         return new DomainExpr($expr);
     }
+
+	/**
+	 * @return	array
+	 */
+	public function getLimit()
+	{
+		return $this->limit;
+	}
+
+	/**
+	 * @param	int	$offset
+	 * @param	int	$max
+	 * @return	OrmCriteria
+	 */
+	public function setLimit($offset, $max = null)
+	{
+		if (! is_int($offset) || $offset < 0)  {
+			$err = "set limit failed: 1st param must be an positive int";
+			throw new InvalidArgumentException($err);
+		}
+
+		$limit = array($offset);
+		
+		if (null !== $max) {
+			if (! is_int($max) || $max < 0)  {
+				$err = "set limit failed: 2nd param must be an positive int";
+				throw new InvalidArgumentException($err);
+			}
+			$limit[] = $max;
+		}
+
+		$this->limit = $limit;
+		return $this;
+	}
 
 	/**
 	 * @return	ExprList

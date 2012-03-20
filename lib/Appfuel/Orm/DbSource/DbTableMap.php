@@ -150,10 +150,10 @@ class DbTableMap implements DbTableMapInterface
 		}
 
 		$columns = $this->getColumnMap();
-		$tAlias  = $this->getTableAlias();
+		$tableAlias  = $this->getTableAlias();
 		$alias   = '';
-		if (null !== $alias) {
-			$alias = "$tAlias.";	
+		if (null !== $tableAlias) {
+			$alias = "$tableAlias.";	
 		}
 		
 		$result = array();
