@@ -262,7 +262,7 @@ class FileFinder implements FileFinderInterface
 	 * @param	string	$msg
 	 * @return	bool
 	 */
-	public function requireFile($path, $isThrow = true, $msg = '')
+	public function requireFile($path, $isThrow = true, $msg = '', $code = 404)
 	{
 		$full = $this->getPath($path);
 		if (file_exists($full)) {
@@ -277,7 +277,7 @@ class FileFinder implements FileFinderInterface
 		if (is_string($msg) && ! empty($msg)) {
 			$err = $msg;
 		}
-		throw new RunTimeException($err);
+		throw new RunTimeException($err, $code);
 	}
 
 	/**

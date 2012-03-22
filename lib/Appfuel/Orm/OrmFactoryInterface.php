@@ -12,7 +12,7 @@ namespace Appfuel\Orm;
 
 /**
  */
-interface OrmRepositoryFactoryInterface
+interface OrmFactoryInterface
 {
-	public function createRepository($domainName);
+	public function createRepository($source = 'db');
 }

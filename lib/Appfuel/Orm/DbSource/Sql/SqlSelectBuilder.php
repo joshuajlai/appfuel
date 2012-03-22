@@ -8,19 +8,19 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Orm\DbSource\Mysql;
+namespace Appfuel\Orm\DbSource\Sql;
 
 use LogicException,
 	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\View\FileViewTemplate,
 	Appfuel\Expr\ExprListInterface,
-	Appfuel\Orm\OrmCriteriaInterface,
-	Appfuel\Orm\DbSource\DbMapInterface;
+	Appfuel\Orm\DbSource\DbMapManager;
 
 /**
+ * Builds an sql string from an array specification.
  */
-class MysqlSelectBuilder
+class SqlSelectBuilder
 {
 	/**
 	 * @var string
@@ -32,14 +32,15 @@ class MysqlSelectBuilder
 	 * @var array
 	 */
 	protected $data = array(
-		'columns' => array(),
-		'from'    => null,
-		'joins'   => array(),
-		'where'   => null,
-		'group'   => null,
-		'having'  => null,
-		'order'   => null,
-		'limit'   => null,
+		'keywords'	=> array(),
+		'columns'	=> array(),
+		'from'		=> null,
+		'joins'		=> array(),
+		'where'		=> null,
+		'group'		=> null,
+		'having'	=> null,
+		'order'		=> null,
+		'limit'		=> null,
 	);
 
 	/**
@@ -57,57 +58,60 @@ class MysqlSelectBuilder
 	);
 
 	/**
+	 * @param	string	$tplFile
+	 * @return	SqlSelectBuilder
+	 */
+	public function __construct($tplFile = null)
+	{
+		if (null !== $tplFile) {
+			$this->setTplPath($tplFile);
+		}
+	}
+
+	/**
 	 * @param	array	$spec
 	 * @return	string
 	 */	
-	public function build(array $spec, 
-						  DbMapInterface $map,
-						  $isAlias = true, 
-						  $isPrepared = true,
-						  $isMapBack = true)
+	public function build(array $spec, $isPrepared = true)
 	{
-		$isAlias    = ($isAlias === false) ? false : true;
 		$isPrepared = ($isPrepared === false) ? false : true;
+		if (isset($spec['keywords'])) {
+			$this->addKeywords($spec['keywords']);
+		}
+
 		if (isset($spec['domain-columns'])) {
-			$isMapBack = (false === $isMapBack) ? false : true;
-			$this->addDomainColumns(
-				$spec['domain-columns'],
-				$map,
-				$isAlias,
-				$isMapBack
-			);
+			$this->addDomainColumns($spec['domain-columns']);
 		}
 
 		if (isset($spec['db-columns'])) {
-			$this->addDbColumns($spec['db-columns'], $map, $isAlias);
+			$this->addDbColumns($spec['db-columns']);
 		}
 
 		if (isset($spec['domain-from'])) {
-			$this->setDomainFrom($spec['domain-from'], $map, $isAlias);
+			$this->setDomainFrom($spec['domain-from']);
 		}
 		else if (isset($spec['db-from'])) {
 			$this->setDbFrom($spec['db-from']);
 		}
 
 		if (isset($spec['domain-joins'])) {
-			$this->loadDomainJoins($spec['domain-joins'], $map);
+			$this->loadDomainJoins($spec['domain-joins']);
 		}
 
 		if (isset($spec['db-joins'])) {
-			$this->loadDomainJoins($spec['db-joins'], $map);
+			$this->loadDomainJoins($spec['db-joins']);
 		}
 
 		if (isset($spec['domain-where'])) {
-			$this->loadDomainWhere(
-				$spec['domain-where'], 
-				$map, 
-				$isAlias,
-				$isPrepared
-			);
+			$this->loadDomainWhere($spec['domain-where'], $isPrepared);
+		}
+
+		if (isset($spec['domain-search'])) {
+			$this->loadDomainSearch($spec['domain-search'], $isPrepared);
 		}
 
 		if (isset($spec['domain-group'])) {
-			$this->loadDomainGroupBy($spec['domain-group'], $map, $isAlias);
+			$this->loadDomainGroupBy($spec['domain-group'], $isPrepared);
 		}
 			
 		if (isset($spec['db-group'])) {
@@ -115,7 +119,7 @@ class MysqlSelectBuilder
 		}
 
 		if (isset($spec['domain-order'])) {
-			$this->loadDomainOrderBy($spec['domain-order'], $map, $isAlias);
+			$this->loadDomainOrderBy($spec['domain-order']);
 		}
 
 		if (isset($spec['db-order'])) {
@@ -137,6 +141,11 @@ class MysqlSelectBuilder
 		}		
 
 		$template = $this->createTemplate($this->getTplPath());
+		if (is_array($this->data['keywords'])) {
+			$keywords = implode(' ', $this->data['keywords']);
+			$template->assign('keywords', $keywords);
+		}
+
 		if (is_array($this->data['columns'])) {
 			$columns = implode(', ', $this->data['columns']);
 			$template->assign('columns', $columns);
@@ -231,6 +240,9 @@ class MysqlSelectBuilder
 		return $this->values[$type];
 	}
 
+	/**
+	 * @return	array
+	 */
 	public function getPreparedValues()
 	{
 		return array_merge(
@@ -244,6 +256,24 @@ class MysqlSelectBuilder
 	}
 
 	/**
+	 * @param	array	$list
+	 * @return	SqlSelectBuilder
+	 */
+	public function addKeywords(array $list)
+	{
+		$result = array();
+		foreach ($list as $keyword) {
+			if (! is_string($keyword) || empty($keyword)) {
+				continue;
+			}
+			$result[] = $keyword;
+		}
+
+		$this->data['keywords'][] = implode(' ', $result);
+		return $this;
+	}
+
+	/**
 	 * @param	array			$list	list of domains members to be mapped
 	 * @param	DbMapInterface	$map	db column to domain member map
 	 * @param	bool			$isAlias 
@@ -252,13 +282,23 @@ class MysqlSelectBuilder
 	 *							map back to the same domain keys
 	 * @return	MysqlSelectBuilder
 	 */
-	public function addDomainColumns($spec, 
-									DbMapInterface $map,
-									$isAlias = true,
-									$isMapBack = true)
+	public function addDomainColumns($spec)
 	{
 		if (is_string($spec)) {
-			$columns = $map->getAllColumns($spec, $isAlias, $isMapBack);
+			$spec  = strtolower($spec);
+			$parts = explode(',', $spec, 2);
+			$key   = trim(current($parts));
+			$asKey = trim(next($parts));
+ 
+			$as = false;
+			if ('all-as-member' === $asKey) {
+				$as = 'member';
+			}
+			else if ('all-as-qualified' === $asKey) {
+				$as = 'qualified';
+			}
+
+			$columns = DbMapManager::getAllColumns($key, $as);
 			$this->data['columns'][] = implode(',', $columns);
 			return $this;
 		}
@@ -274,21 +314,47 @@ class MysqlSelectBuilder
 				$err = 'domain key must be a non empty string';
 				throw new InvalidArgumentException($err);
 			}
-			if (is_string($data) && 'all' === strtolower($data)) {
-				$tmp = $map->getAllColumns($key, $isAlias, $isMapBack);
-				if (! $tmp) {
-					$err = "could not may -($key)";
-					throw new RunTimeException($err);
+			if (is_string($data)) {
+				$all = strtolower($data);
+				$as  = false;
+				if ('all-as-member' === $all) {
+					$as = 'member';
 				}
-				$columns = array_merge($columns, $tmp);
+				else if ('all-as-qualified' === $all) {
+					$as = 'qualified';
+				}
+
+				$columns = array_merge(
+					$columns, 
+					DbMapManager::getAllColumns($key, $as)
+				);
 			}
 			else if (is_array($data)) {
-				foreach ($data as $member) {
-					$columns[] = $map->mapColumn(
+				foreach ($data as $memberStr) {
+					if (! is_string($memberStr)) {
+						$err  = "failed to add domain columns: domain member ";
+						$err .= "list must be a list of strings";
+						throw new InvalidArgumentException($err);
+					}
+					$parts    = explode(',', $memberStr, 3);
+					$member   = current($parts);
+					$asStr    = next($parts);
+					$asCustom = next($parts);
+					
+					$as = false;
+					if (is_string($asStr) && ! empty($asStr)) {
+						$as = trim($asStr);
+					}
+
+					$custom = null;
+					if (is_string($asCustom) && ! empty($asCustom)) {
+						$custom = trim($asCustom);
+					}					
+					$columns[] = DbMapManager::mapColumn(
 						$key, 
-						$member, 
-						$isAlias,
-						$isMapBack
+						trim($member), 
+						$as,
+						$custom
 					);
 				}
 			}
@@ -304,9 +370,7 @@ class MysqlSelectBuilder
 	 * @param	bool	$isAlias
 	 * @return	MysqlSelectBuilder
 	 */
-	public function addDbColumns(array $list, 
-								 DbMapInterface $map,
-								 $isAlias = true)
+	public function addDbColumns(array $list)
 	{
 		$columns = array();
 		foreach ($list as $index => $spec) {
@@ -322,12 +386,7 @@ class MysqlSelectBuilder
 					$err .= "not found in -($str)";
 					throw new RunTimeException($err);
 				}
-				$column = $map->mapDomainStr($domainStr, $isAlias, false);
-				if (! $column) {
-					$err  = "failed to add db column: could not map ";
-					$err .= "-($domainStr) to a column";
-					throw new RunTimeException($err);
-				}
+				$column = DbMapManager::mapDomainStr($domainStr, false);
 				$columns[] = str_replace($marker, $column, $str);
 			}
 		}
@@ -342,9 +401,9 @@ class MysqlSelectBuilder
 	 * @param	bool	$isAlias
 	 * @return	MysqlSelectBuilder
 	 */
-	public function setDomainFrom($key, DbMapInterface $map, $isAlias = true)
+	public function setDomainFrom($key)
 	{
-		$this->data['from'] = $map->getTableName($key, $isAlias);
+		$this->data['from'] = DbMapManager::getTableReference($key);
 		return $this;
 	}
 
@@ -368,7 +427,7 @@ class MysqlSelectBuilder
 	 * @param	DbMapInterface $map
 	 * @return	MysqlSelectBuilder
 	 */
-	public function mapJoinColumn($domainStr, $key, DbMapInterface $map)
+	public function mapJoinColumn($domainStr, $key)
 	{
 		if (! is_string($domainStr) || empty($domainStr)) {
 			$err = 'domain to column map failed: must be a non empty string';
@@ -377,10 +436,10 @@ class MysqlSelectBuilder
 		$isAlias   = true;
 		if (false !== $pos = strpos($domainStr, '.')) {
 			$isMapBack = false;
-			$column = $map->mapDomainStr($domainStr, $isAlias, $isMapBack);
+			$column = DbMapManager::mapDomainStr($domainStr);
 		}
 		else {
-			$column = $map->mapColumn($key, $domainStr, $isAlias);
+			$column = DbMapManager::mapColumn($key, $domainStr);
 		}
 
 		return $column;
@@ -391,20 +450,20 @@ class MysqlSelectBuilder
 	 * @param	DbMapInterface	$map
 	 * @return	MysqlSelectBuilder
 	 */
-	public function loadDomainJoins(array $list, DbMapInterface $map)
+	public function loadDomainJoins(array $list)
 	{
 		$joinType = 'inner';
 		foreach ($list as $key => $data) {
 			$stmt = 'LEFT JOIN ';
 			$onOp = '=';
-			$tableName = $map->getTableName($key, true);
+			$tableName = DbMapManager::getTableReference($key);
 			if (is_string($data['type'])) {
 				$joinType = strtolower($data['type']);
 			}
 			if ('inner' === $joinType) {
 				$stmt = 'INNER JOIN ';	
 			}
-			$stmt .= $map->getTableName($key, true) . ' ON ';
+			$stmt .= DbMapManager::getTableReference($key) . ' ON ';
 			
 			if (! isset($data['left']) || ! is_string($data['left'])) {
 				$err  = "could not load join -($key) key for left column ";
@@ -412,14 +471,14 @@ class MysqlSelectBuilder
 				throw new InvalidArgumentException($err);
 			}
 			
-			$leftColumn = $this->mapJoinColumn($data['left'], $key, $map);
+			$leftColumn = $this->mapJoinColumn($data['left'], $key);
 
 			if (! isset($data['right']) || ! is_string($data['right'])) {
 				$err  = "could not load join -($key) key for right column ";
 				$err .= "-(right) is not set or is not a string";
 				throw new InvalidArgumentException($err);
 			}
-			$rightColumn = $this->mapJoinColumn($data['right'], $key, $map);
+			$rightColumn = $this->mapJoinColumn($data['right'], $key);
 
 			if (isset($data['on-op']) && is_string($data['on-op'])) {
 				$onOp = $data['on-op'];
@@ -452,18 +511,75 @@ class MysqlSelectBuilder
 	 * @param	DbMapInterface		$map
 	 * @return	MysqlSelectBuilder
 	 */
-	public function loadDomainWhere(ExprListInterface $list, 
-									DbMapInterface $map,
-									$isAlias = true,
-									$isPrepared = true)
+	public function loadDomainWhere(ExprListInterface $list, $isPrepared = true)
 	{
 		$this->data['where'][] = $this->processExprList(
 			'where', 
 			$list, 
-			$map,
-			$isAlias,
 			$isPrepared
 		);
+		return $this;
+	}
+
+	public function loadDomainSearch(array $spec, $isPrepared)
+	{
+		if (! isset($spec['term']) || ! is_string($spec['term'])) {
+			$err  = "search term must be defined with key -(term) and must ";
+			$err .= "be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
+		$term = trim($spec['term']);
+		if (empty($term)) {
+			return $this;
+		}
+		$termList = explode(' ', $term, 20);
+	
+		$terms = array();
+		$termsIn = '';
+		foreach ($termList as $term) {
+			$terms[] = $term;
+			if (true === $isPrepared) {
+				$termsIn .= '?,';
+			}
+			else {
+				$termsIn .= "\"$term\",";
+			}
+		}
+		$termsIn = trim($termsIn, ",");	
+		if (! isset($spec['members']) || ! is_array($spec['members'])) {
+			$err  = "search domain members must be an array of fully  ";
+			$err .= "qualified domain members";
+			throw new InvalidArgumentException($err);
+		}
+
+		$targetList = $spec['members'];
+		$result = array();
+		foreach ($targetList as $domainStr) {
+			$column = DbMapManager::mapDomainStr($domainStr);
+			$str = '';
+			foreach ($terms as $term) {
+				if (true === $isPrepared) {
+					$str .= "($column LIKE ?) OR ";
+					$this->addValue('where', "%$term%");
+				}
+				else {
+					$str .= "($column LIKE \"%$term%\") OR ";
+
+				}
+			}
+			$str .= "($column IN($termsIn)) OR";
+			if (true === $isPrepared) {
+				$this->addValue('where', $terms);
+			}
+			$result[] = trim($str, "OR");
+		}
+
+		$expr = ''; 
+		if (! empty($this->data['where'])) {
+			$expr = ' AND ';
+		}
+		$expr .= ' (' . implode(' OR ', $result) . ')';
+		$this->data['where'][] = $expr;
 		return $this;
 	}
 
@@ -473,14 +589,12 @@ class MysqlSelectBuilder
 	 * @param	bool	$isAlias
 	 * @return	MysqlSelectBuilder
 	 */
-	public function loadDomainGroupBy(array $list, 
-									  DbMapInterface $map,
-									  $isAlias = true)
+	public function loadDomainGroupBy(array $list)
 	{
 		$result = array();
 		foreach ($list as $spec) {
 			if (is_string($spec)) {
-				$result[] = $map->mapDomainStr($spec, $isAlias, false);
+				$result[] = DbMapManager::mapDomainStr($spec);
 			}
 		}
 
@@ -503,9 +617,7 @@ class MysqlSelectBuilder
 	 * @param	bool	$isAlias
 	 * @return	MysqlSelectBuilder
 	 */
-	public function loadDomainOrderBy(array $list, 
-									  DbMapInterface $map,
-									  $isAlias = true)
+	public function loadDomainOrderBy(array $list)
 	{
 		$result = array();
 		$dir    = 'asc';
@@ -522,11 +634,7 @@ class MysqlSelectBuilder
 						$dir = $tmp;
 					}
 				}
-				$column = $map->mapDomainStr($domainStr, $isAlias, false);
-				if (! $column) {
-					$err = "failed to load order: -($domainStr) not mapped";
-					throw new RunTimeException($err);
-				}
+				$column = DbMapManager::mapDomainStr($domainStr);
 				$result[] = "$column $dir";
 			}
 		}
@@ -591,17 +699,14 @@ class MysqlSelectBuilder
 	 */
 	public function processExprList($type, 
 									ExprListInterface $list, 
-									DbMapInterface $map,
-									$isAlias = true,
 									$isPrepared = true)
 	{
 		$result = '';
         foreach ($list as $key => $data) {
             $expr = current($data);
-            $column = $map->mapColumn(
+            $column = DbMapManager::mapColumn(
 						$expr->getDomain(), 
-						$expr->getMember(),
-						$isAlias);
+						$expr->getMember());
 
             if (true === $isPrepared) {
                 $this->addValue($type, $expr->getValue());
@@ -620,5 +725,19 @@ class MysqlSelectBuilder
         }
 	
 		return $result;	
+	}
+
+	/**
+	 * @param	string	$path
+	 * @return	null
+	 */
+	protected function setTplPath($path)
+	{
+		if (! is_string($path) && ! empty($path)) {
+			$err = "tpl path must be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->tplPath = $path;
 	}
 }

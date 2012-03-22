@@ -67,12 +67,13 @@ class DbTableMap implements DbTableMapInterface
 			$this->setTableAlias($data['alias']);
 		}
 
-        if (isset($data['primaryKey'])) {
-            $this->setPrimaryKey($data['primaryKey']);
+        if (isset($data['primary-key'])) {
+            $this->setPrimaryKey($data['primary-key']);
         }
 	
-        if (isset($data['isAutoIncrement'])) {
-            $this->setIsAutoIncrement($data['isAutoIncrement']);
+        if (isset($data['is-auto-increment']) && 
+			true === $data['is-auto-increment']) {
+			$this->enableAutoIncrement();	
         }
     }
 
@@ -83,6 +84,23 @@ class DbTableMap implements DbTableMapInterface
 	{
 		return $this->table;
 	}
+
+    /**
+     * @return  array
+     */
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAutoIncrement()
+    {
+        return $this->isAutoIncrement;
+    }
+
 
 	/**
 	 * @return	array
@@ -104,19 +122,13 @@ class DbTableMap implements DbTableMapInterface
 	 * @param	string	$member
 	 * @return	string | false when not found
 	 */
-	public function mapColumn($member, $isAlias = true)
+	public function mapColumn($member)
 	{
 		if (! is_string($member) || ! isset($this->columns[$member])) {
 			return false;
 		}
 
-		$alias  = $this->getTableAlias();
-		$column = $this->columns[$member];
-		if (null !== $alias && true === $isAlias) {
-			$column = "$alias.$column";
-		}
-
-		return $column;
+		return $this->columns[$member];
 	}
 
 	/**
@@ -135,46 +147,10 @@ class DbTableMap implements DbTableMapInterface
 	/**
 	 * @return	array
 	 */
-	public function getAllColumns($isAlias = true)
+	public function getAllColumns()
 	{
-		$columns = array_values($this->columns);
-		$alias = $this->getTableAlias();
-		if (false === $isAlias || null === $alias) {
-			return $columns;
-		}
-		
-		foreach ($columns as $key => &$name) {
-			$name = "$alias.$name";
-		}
-
-		return $columns;
+		return array_values($this->columns);
 	}
-
-	/**
-	 * @return	array
-	 */
-	public function getAllColumnsAsMembers($domainKey, $isAlias = true)
-	{
-		if (! is_string($domainKey) || empty($domainKey)) {
-			$err = 'domain key must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$columns = $this->getColumnMap();
-		$tableAlias  = $this->getTableAlias();
-		$alias   = '';
-		if (null !== $tableAlias) {
-			$alias = "$tableAlias.";	
-		}
-		
-		$result = array();
-		foreach ($columns as $member => $column) {
-			$result[] = "{$alias}$column AS \"$domainKey.$member\"";
-		}
-
-		return $result;
-	}
-
 
 	/**
 	 * @return	array
@@ -210,7 +186,7 @@ class DbTableMap implements DbTableMapInterface
 	 * @param	string	$name
 	 * @return	null
 	 */
-	public function setTableName($name)
+	protected function setTableName($name)
 	{
 		if (! is_string($name) || empty($name)) {
 			$err = 'table name must be a none empty string';
@@ -224,7 +200,7 @@ class DbTableMap implements DbTableMapInterface
 	 * @param	string	$alias
 	 * @return	null
 	 */
-	public function setTableAlias($alias)
+	protected function setTableAlias($alias)
 	{
 		if (! is_string($alias)){
 			$err = 'table alias must be a non empty string';
@@ -238,37 +214,33 @@ class DbTableMap implements DbTableMapInterface
      * @param   array   $primaryKey
      * @return  null
      */
-    public function setPrimaryKey(array $primaryKey)
+    protected function setPrimaryKey($key)
     {
-        if (empty($primaryKey)) {
-            return;
-        }
+		if (is_string($key)) {
+			$key = array($key);
+		}
+		else if (! is_array($key)) {
+			$err  = 'primary key must be a string (for single key) or an ';
+			$err .= 'array of strings for compound keys';
+			throw new InvalidArgumentException($err);
+		}
 
-        $this->primaryKey = $primaryKey;
-    }
+		foreach ($key as $column) {
+			if (! is_string($column) || empty($column)) {
+				$err = "primary key must be a non empty string";
+				throw new InvalidArgumentException($err);
+			}
+		}
 
-    /**
-     * @return  array
-     */
-    public function getPrimaryKey()
-    {
-        return $this->primaryKey;
-    }
-
-    /**
-     * @return bool
-     */
-    public function isAutoIncrement()
-    {
-        return $this->isAutoIncrement;
+        $this->primaryKey = $key;
     }
 
     /**
      * @param   bool        $isAutoIncrement
      * @return  null
      */
-    public function setIsAutoIncrement($isAutoIncrement)
+    protected function enableAutoIncrement()
     {
-        $this->isAutoIncrement = (bool) $isAutoIncrement;
+        $this->isAutoIncrement = true;
     }
 }

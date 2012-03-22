@@ -73,6 +73,15 @@ class OrmRepository implements OrmRepositoryInterface
 	}
 
 	/**
+	 * @param	array	$data
+	 * @return	OrmSearchDetail
+	 */
+	public function createSearchDetail(array $data)
+	{
+		return new OrmSearchDetail($data);
+	}
+
+	/**
 	 * @param	array	$list	
 	 * @param	array	$param
 	 * @return	OrmCriteria

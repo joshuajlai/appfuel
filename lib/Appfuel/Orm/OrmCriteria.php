@@ -51,6 +51,11 @@ class OrmCriteria extends Dictionary implements OrmCriteriaInterface
 	protected $order = array();
 
 	/**
+	 * @var string
+	 */
+	protected $searchTerm = null;
+
+	/**
 	 * @param	DictionaryInterface $options
 	 * @return	Criteria
 	 */
@@ -206,6 +211,40 @@ class OrmCriteria extends Dictionary implements OrmCriteriaInterface
     }
 
 	/**
+	 * @param	string	$domainStr
+	 * @param	string	$dir
+	 * @return	OrmCriteria
+	 */
+	public function addOrder($domainStr, $dir = null)
+	{
+		if (! is_string($domainStr) || empty($domainStr)) {
+			$err = "order must be a none empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		$dir = 'asc';
+		if (is_string($dir) && 'desc' === strtolower($dir)) {
+			$dir = 'desc';
+		}
+
+		$this->order[$domainStr] = $dir;
+		return $this;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getOrderList()
+	{
+		$result = array();
+		foreach ($this->order as $domainStr => $dir) {
+			$result[] = array($domainStr, $dir);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * @return	array
 	 */
 	public function getLimit()
@@ -237,6 +276,35 @@ class OrmCriteria extends Dictionary implements OrmCriteriaInterface
 
 		$this->limit = $limit;
 		return $this;
+	}
+
+	/**
+	 * @param	string
+	 */
+	public function getSearchTerm()
+	{
+		return $this->searchTerm;
+	}
+
+	public function setSearchTerm($term, $urlDecode = true)
+	{
+		if (! is_string($term)) {
+			$err = "search term must be a string";
+			throw new InvalidArgumentException($err);
+		}
+
+		if (true === $urlDecode) {
+			$term = urldecode($term);
+		}
+		$this->searchTerm = trim($term);
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isSearchTerm()
+	{
+		return is_string($this->searchTerm);
 	}
 
 	/**

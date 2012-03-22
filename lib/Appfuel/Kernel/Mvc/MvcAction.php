@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use Appfuel\Orm\OrmRepositoryInterface;
+use Appfuel\Orm\OrmManager;
 
 /**
  * The mvc action is the controller in mvc. The front controller always 
@@ -35,11 +35,6 @@ class MvcAction implements MvcActionInterface
 	protected $contextBuilder = null;
 
 	/**
-	 * @var	array
-	 */
-	protected $repoList = array();
-
-	/**
 	 * @param	string	$route
 	 * @return	MvcAction
 	 */
@@ -60,59 +55,21 @@ class MvcAction implements MvcActionInterface
 	}
 
 	/**
-	 * Used to intialize domain repositories needed by the mvc action
-	 *
-	 * @param	array	$params		null
+	 * @param	array	$params	
 	 * @return	MvcAction
 	 */
-	public function initialize(array $params = null)
-	{	
-        if (! isset($params['domains']) || ! is_array($params['domains'])) {
-            return $this;
-        }
-
-        $domains = $params['domains'];
-        foreach ($domains as $key => $factoryClass) {
-            if (! is_string($factoryClass) || empty($factoryClass)) {
-                $err = 'domain repo factory class must be non empty string';
-                throw new InvalidArgumentException($err);
-            }
-
-            $factory = new $factoryClass();
-            $repo = $factory->createRepository($key);
-            $this->addRepository($key, $repo);
-        }
-
+	public function initialize($params)
+	{
 		return $this;
 	}
 
-	public function isRepository($key)
+	/**
+	 * @param	string	$key
+	 * @return	OrmRepositoryInterface
+	 */
+	public function getRepository($key, $source = 'db')
 	{
-		if (! is_string($key) || ! isset($this->repoList[$key])) {
-			return false;
-		}
-
-		return $this->repoList[$key] instanceof OrmRepositoryInterface;
-	}
-
-	public function addRepository($key, OrmRepositoryInterface $repo)
-	{
-		if (! is_string($key) || empty($key)) {
-			$err = 'domain repository key must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->repoList[$key] = $repo;
-		return $this;
-	}
-
-	public function getRepository($key)
-	{
-		if (! $this->isRepository($key)) {
-			return false;
-		}
-
-		return $this->repoList[$key];
+		return OrmManager::getRepository($key, $source);
 	}
 
 	/**
