@@ -115,7 +115,12 @@ class OrmManager
 
 		if (is_string($spec)) {
 			self::$map[$key] = $spec;
-		}
+		    /* 
+             * exit now since theres no children to process and namespace
+             * is already found
+             */
+            return;
+        }
 		else if (! is_array($spec)) {
 			$err  = "can not register domain for -($key): invalid ";
 			$err .= "specification must be a string or an array";
