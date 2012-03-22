@@ -236,7 +236,7 @@ class FileFinder implements FileFinderInterface
 	 */
 	public function isDir($path = null)
 	{
-		if (is_file($this->getPath($path))) {
+		if (is_dir($this->getPath($path))) {
 			return true;
 		}
 
