@@ -222,12 +222,13 @@ class OrmCriteria extends Dictionary implements OrmCriteriaInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$dir = 'asc';
 		if (is_string($dir) && 'desc' === strtolower($dir)) {
 			$dir = 'desc';
-		}
-
-		$this->order[$domainStr] = $dir;
+		} else {
+            $dir = 'asc';
+        }
+		
+        $this->order[$domainStr] = $dir;
 		return $this;
 	}
 
