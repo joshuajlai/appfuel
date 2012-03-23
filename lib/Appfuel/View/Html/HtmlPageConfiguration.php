@@ -11,7 +11,8 @@
 namespace Appfuel\View\Html;
 
 use RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+	Appfuel\View\Html\Tag\GenericTagInterface;
 
 /**
  * Builds and configures an html page using an HtmlPageDetailInterface
@@ -29,11 +30,10 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		if (isset($config['html-head']) && is_array($config['html-head'])) {
 			$this->applyHead($config['html-head'], $page);
 		}
-	}
 
-	public function applyHtmlDoc($doc, HtmlPageInterface $page)
-	{
-
+		if (isset($config['html-body']) && is_array($config['html-body'])) {
+			$this->applyBody($config['html-body'], $page);
+		}
 	}
 
 	public function applyHead(array $config, HtmlPageInterface $page)
@@ -49,6 +49,24 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		if (isset($config['meta'])) {
 			$this->applyMeta($config['meta'], $page);
 		}
+
+		if (isset($config['css-links']) && is_array($config['css-links'])) {
+			$this->applyCssFiles($config['css-links'], $page);
+		}
+	}
+	
+	/**
+	 * @param	array	$config
+	 * @param	HtmlPageInterface $page
+	 * @return	null
+	 */
+	public function applyBody(array $config, HtmlPageInterface $page)
+	{
+		if (isset($config['js-scripts']) && is_array($config['js-scripts'])) {
+			$this->applyJsFiles($config['js-scripts'], $page);
+		}
+
+
 	}
 
 	/**
@@ -139,9 +157,56 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 * @param	HtmlPageInterface
 	 * @return	null
 	 */
-	public function applyCssFiles(array $config, HtmlPageInterface $page)
+	public function applyCssFiles(array $data, HtmlPageInterface $page)
 	{
+		$css  = null;
+		$rel  = 'stylesheet';
+		$type = 'text/css';
+		foreach ($data as $idx => $file) {
+			if (is_string($file)) {
+				$css = $file;
+			}
+			else if (is_array($file)) {
+				if ($file === array_values($file)) {
+					$css  = current($file);
+					$rel  = next($file);
+					$type = next($file);
+				}
+				else {
+					if (isset($file['href'])) {
+						$css = $file['href'];
+					}
+			
+					if (isset($file['rel'])) {
+						$rel = $file['rel'];
+					}
 
+					if (isset($file['type'])) {
+						$type = $file['type'];
+					}
+				}
+			}
+			else if ($file instanceof GenericTagInterface) {
+				$page->addCssLinkTag($file);
+				continue;
+			}
+			else {
+				$err  = 'css file has been set but its format was not ';
+				$err .= 'recognized, css file can be a string, indexed array,';
+				$err .= 'associative array or an object that implements ';
+				$err .= 'Appfuel\View\Html\Tag\GenericTagInterface ';
+				$err .= "-($idx)";
+				throw new InvalidArgumentException($err);
+			}
+
+			if (! is_string($css) || empty($css)) {
+				$err  = "can not configure the html page: ";
+				$err .= "css file at index -($idx) must be a non empty string";
+				throw new InvalidArgumentException($err);
+			}
+
+			$page->addCssLink($css, $rel, $type);
+		}
 	}
 
 	/**
@@ -159,9 +224,16 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 * @param	HtmlPageInterface
 	 * @return	null
 	 */
-	public function applyJsFiles(array $config, HtmlPageInterface $page)
+	public function applyJsFiles(array $data, HtmlPageInterface $page)
 	{
+		foreach ($data as $index => $file) {
+			if (! is_string($file) || empty($file)) {
+				$err = "js file at -($index) must be a non empty string";
+				throw new InvalidArgumentException($err);
+			}
 
+			$page->addScript($file, "text/javascript");
+		}
 	}
 
 	/**

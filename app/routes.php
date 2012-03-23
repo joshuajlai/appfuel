@@ -1,6 +1,6 @@
 <?php
 
 return array(
-	''			=> 'Appfuel\FuelCell\Action\Welcome',
-	'welcome'	=> 'Appfuel\FuelCell\Action\Welcome',
+	''			=> 'FuelCell\Action\Welcome',
+	'welcome'	=> 'FuelCell\Action\Welcome',
 );

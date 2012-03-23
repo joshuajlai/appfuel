@@ -117,9 +117,10 @@ interface FileCompositorInterface extends ViewCompositorInterface
     public function count();
 
 	/**
-	 * @param	string $file
+	 * @param	string  $file
 	 * @param	array	$data
+	 * @param	bool	$isEcho
 	 * @return	string
 	 */
-	public function importTemplate($file, array $data = null);
+	public function import($file, array $data = null, $isEcho = false);
 }

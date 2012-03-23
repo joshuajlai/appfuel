@@ -40,6 +40,22 @@ class OrmCriteria extends Dictionary implements OrmCriteriaInterface
 	protected $exprs = array();
 
 	/**
+	 * Used to describe how much of the recordset to return
+	 * @var	mixed  array
+	 */
+	protected $limit = array();
+
+	/**
+	 * @var	array
+	 */ 
+	protected $order = array();
+
+	/**
+	 * @var string
+	 */
+	protected $searchTerm = null;
+
+	/**
 	 * @param	DictionaryInterface $options
 	 * @return	Criteria
 	 */
@@ -193,6 +209,103 @@ class OrmCriteria extends Dictionary implements OrmCriteriaInterface
     {
         return new DomainExpr($expr);
     }
+
+	/**
+	 * @param	string	$domainStr
+	 * @param	string	$dir
+	 * @return	OrmCriteria
+	 */
+	public function addOrder($domainStr, $dir = null)
+	{
+		if (! is_string($domainStr) || empty($domainStr)) {
+			$err = "order must be a none empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		$sortDir = 'asc';
+		if (is_string($dir) && 'desc' === strtolower($dir)) {
+			$sortDir = 'desc';
+		}
+		
+        $this->order[$domainStr] = $sortDir;
+		return $this;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getOrderList()
+	{
+		$result = array();
+		foreach ($this->order as $domainStr => $dir) {
+			$result[] = array($domainStr, $dir);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getLimit()
+	{
+		return $this->limit;
+	}
+
+	/**
+	 * @param	int	$offset
+	 * @param	int	$max
+	 * @return	OrmCriteria
+	 */
+	public function setLimit($offset, $max = null)
+	{
+		if (! is_int($offset) || $offset < 0)  {
+			$err = "set limit failed: 1st param must be an positive int";
+			throw new InvalidArgumentException($err);
+		}
+
+		$limit = array($offset);
+		
+		if (null !== $max) {
+			if (! is_int($max) || $max < 0)  {
+				$err = "set limit failed: 2nd param must be an positive int";
+				throw new InvalidArgumentException($err);
+			}
+			$limit[] = $max;
+		}
+
+		$this->limit = $limit;
+		return $this;
+	}
+
+	/**
+	 * @param	string
+	 */
+	public function getSearchTerm()
+	{
+		return $this->searchTerm;
+	}
+
+	public function setSearchTerm($term, $urlDecode = true)
+	{
+		if (! is_string($term)) {
+			$err = "search term must be a string";
+			throw new InvalidArgumentException($err);
+		}
+
+		if (true === $urlDecode) {
+			$term = urldecode($term);
+		}
+		$this->searchTerm = trim($term);
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isSearchTerm()
+	{
+		return is_string($this->searchTerm);
+	}
 
 	/**
 	 * @return	ExprList
