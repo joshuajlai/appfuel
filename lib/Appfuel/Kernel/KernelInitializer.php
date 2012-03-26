@@ -201,8 +201,7 @@ class KernelInitializer
 	public function initIncludePath()
 	{
 		$path   = KernelRegistry::getParam('include-path', array());
-		$action = KernelRegistry::getParam('include-action', 'replace');
-	
+		$action = KernelRegistry::getParam('include-path-action', 'replace');
 		if (empty($path)) {
 			$msg = 'include path not initialized';
 			self::$status['kernal:include-path'] = $msg;
