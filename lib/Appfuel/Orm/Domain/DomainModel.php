@@ -171,6 +171,11 @@ abstract class DomainModel implements DomainModelInterface
 			return $this;
 		}
 		
+        if ($data === array_values($data)) {
+		    $err = "Only associated arrays can be marshaled";
+		    throw new runTimeException($err);
+		}
+		
 		$isStrict = $this->_isStrictMarshalling();
 		$err = "Failed domain marshal:";
 		foreach ($data as $member => $value) {
