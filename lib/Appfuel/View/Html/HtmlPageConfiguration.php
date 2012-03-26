@@ -11,7 +11,8 @@
 namespace Appfuel\View\Html;
 
 use RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+	Appfuel\View\Html\Tag\GenericTagInterface;
 
 /**
  * Builds and configures an html page using an HtmlPageDetailInterface
@@ -26,11 +27,45 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 */
 	public function apply(array $config, HtmlPageInterface $page)
 	{
+		if (isset($config['html-head']) && is_array($config['html-head'])) {
+			$this->applyHead($config['html-head'], $page);
+		}
 
+		if (isset($config['html-body']) && is_array($config['html-body'])) {
+			$this->applyBody($config['html-body'], $page);
+		}
 	}
 
-	public function applyHtmlDoc($doc, HtmlPageInterface $page)
+	public function applyHead(array $config, HtmlPageInterface $page)
 	{
+		if (isset($config['title'])) {
+			$this->applyTitle($config['title'], $page);
+		}
+	
+		if (isset($config['base'])) {
+			$this->applyBase($config['base'], $page);
+		}
+
+		if (isset($config['meta'])) {
+			$this->applyMeta($config['meta'], $page);
+		}
+
+		if (isset($config['css-links']) && is_array($config['css-links'])) {
+			$this->applyCssFiles($config['css-links'], $page);
+		}
+	}
+	
+	/**
+	 * @param	array	$config
+	 * @param	HtmlPageInterface $page
+	 * @return	null
+	 */
+	public function applyBody(array $config, HtmlPageInterface $page)
+	{
+		if (isset($config['js-scripts']) && is_array($config['js-scripts'])) {
+			$this->applyJsFiles($config['js-scripts'], $page);
+		}
+
 
 	}
 
@@ -41,8 +76,9 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 */
 	public function applyTitle($config, HtmlPageInterface $page)
 	{
-        $sep   = null;
-        $text  = '';
+        $sep    = null;
+        $text   = '';
+		$action = 'replace';
         if (is_string($config)) {
             $text = $config;
         }
@@ -54,9 +90,20 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
             if (isset($config['text'])) {
                 $text = $config['text'];
             }
+
+			if (isset($config['action'])) {
+				$action = $config['action'];
+			}
         }
-            
-		$page->setHeadTitle($title, $sep);
+
+        $title = $page->getHtmlTag()
+					  ->getHead()
+					  ->getTitle();
+		$title->addContent($text, $action);
+
+		if (null !== $sep) {
+			$title->setContentSeparator($sep);
+		}
 	}
 
 	/**
@@ -73,7 +120,7 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
             $href = $config;
         }
         else if (is_array($config)) {
-			if (isset($base['href'])) {
+			if (isset($config['href'])) {
                 $href = $config['href'];
             }
 
@@ -81,8 +128,28 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
                 $target = $config['target'];
             }
         }
-        
-		$page->setBase($href, $target);
+
+		if (null !== $href || null !== $target) {
+			$page->setHeadBase($href, $target);
+		}
+	}
+
+	/**
+	 * @param	array	$list
+	 * @param	HtmlPageInterface $page
+	 * @return	null
+	 */
+	public function applyMeta(array $list, HtmlPageInterface $page)
+	{
+		
+		foreach ($list as $data) {
+			$name    = isset($data['name']) ? $data['name'] : null;
+			$content = isset($data['content']) ? $data['content']: null;
+			$equiv   = isset($data['http-equiv']) ? $data['http-equiv'] : null;
+			$charset = isset($data['charset']) ? $data['charset'] : null;
+			$page->addHeadMeta($name, $content, $equiv, $charset);	
+		}
+		
 	}
 
 	/**
@@ -90,9 +157,56 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 * @param	HtmlPageInterface
 	 * @return	null
 	 */
-	public function applyCssFiles(array $config, HtmlPageInterface $page)
+	public function applyCssFiles(array $data, HtmlPageInterface $page)
 	{
+		$css  = null;
+		$rel  = 'stylesheet';
+		$type = 'text/css';
+		foreach ($data as $idx => $file) {
+			if (is_string($file)) {
+				$css = $file;
+			}
+			else if (is_array($file)) {
+				if ($file === array_values($file)) {
+					$css  = current($file);
+					$rel  = next($file);
+					$type = next($file);
+				}
+				else {
+					if (isset($file['href'])) {
+						$css = $file['href'];
+					}
+			
+					if (isset($file['rel'])) {
+						$rel = $file['rel'];
+					}
 
+					if (isset($file['type'])) {
+						$type = $file['type'];
+					}
+				}
+			}
+			else if ($file instanceof GenericTagInterface) {
+				$page->addCssLinkTag($file);
+				continue;
+			}
+			else {
+				$err  = 'css file has been set but its format was not ';
+				$err .= 'recognized, css file can be a string, indexed array,';
+				$err .= 'associative array or an object that implements ';
+				$err .= 'Appfuel\View\Html\Tag\GenericTagInterface ';
+				$err .= "-($idx)";
+				throw new InvalidArgumentException($err);
+			}
+
+			if (! is_string($css) || empty($css)) {
+				$err  = "can not configure the html page: ";
+				$err .= "css file at index -($idx) must be a non empty string";
+				throw new InvalidArgumentException($err);
+			}
+
+			$page->addCssLink($css, $rel, $type);
+		}
 	}
 
 	/**
@@ -110,9 +224,16 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 * @param	HtmlPageInterface
 	 * @return	null
 	 */
-	public function applyJsFiles(array $config, HtmlPageInterface $page)
+	public function applyJsFiles(array $data, HtmlPageInterface $page)
 	{
+		foreach ($data as $index => $file) {
+			if (! is_string($file) || empty($file)) {
+				$err = "js file at -($index) must be a non empty string";
+				throw new InvalidArgumentException($err);
+			}
 
+			$page->addScript($file, "text/javascript");
+		}
 	}
 
 	/**

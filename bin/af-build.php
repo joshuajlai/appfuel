@@ -51,6 +51,6 @@ try {
 	exit;
 }
 
-$path = "$base/app/config/config.php\n";
-fwrite(STDOUT, "generated config file at -($path)");
+$path = "$base/app/config/config.php";
+fwrite(STDOUT, "generated config file: \n$path\n");
 exit(0);

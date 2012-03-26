@@ -211,6 +211,14 @@ class FileCompositor extends BaseCompositor implements FileCompositorInterface
         echo json_encode($this->get($key));
     }
 
+	/**
+	 * @return	null
+	 */
+	public function renderEOL()
+	{
+		echo PHP_EOL;
+	}
+
     /**
      * @param   string  $label
      * @return  bool
@@ -284,20 +292,28 @@ class FileCompositor extends BaseCompositor implements FileCompositorInterface
     }
 
 	/**
-	 * @param	string $file
+	 * @param	string	$file
 	 * @param	array	$data
+	 * @param	bool	$isEcho
 	 * @return	string
 	 */
-	public function importTemplate($file, array $data = null)
+	public function import($file, array $data = null, $isEcho = false)
 	{
 		if (null === $data) {
 			$data = array();
 		}
 		$formatter = new self($this->getPathFinder());
+
 		$formatter->load($data)
 				  ->setFile($file);
 
-		return $formatter->compose($data);
+		$result = $formatter->compose($data);
+		if (true === $isEcho) {
+			echo $result, PHP_EOL;
+			return;
+		}
+
+		return $result;
 	}
 
     /**

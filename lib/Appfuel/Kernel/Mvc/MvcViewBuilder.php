@@ -14,7 +14,8 @@ use Exception,
 	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Console\ConsoleTemplate,
-	Appfuel\View\AjaxTemplate,
+	Appfuel\View\CsvTemplate,
+    Appfuel\View\AjaxTemplate,
 	Appfuel\View\ViewTemplate,
 	Appfuel\View\ViewInterface,
 	Appfuel\View\FileViewTemplate,
@@ -113,11 +114,14 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 		$method   = $viewDetail->getMethod();
 		$class    = $viewDetail->getViewClass();
 
+
+		/*
+		 * override the view by just instantiating the view class given
+		 */
 		if ($viewDetail->isViewClass()) {
 			return new $class();
 		}
 
-		
 		if (is_string($method) && is_callable(array($this, $method))) {
 			return $this->$method($strategy, $params);
 		}
@@ -138,6 +142,16 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 			throw new RunTimeException($err);
 		}
 		
+		/*
+		 * Do not need a template, just use this raw string
+		 */
+		if ($viewDetail->isRawView()) {
+			return $viewDetail->getRawView();
+		}
+
+		/*
+		 * no overrides use strategy given to build default view
+		 */
 		$view = $this->buildAppView($strategy, $params);
 		return $view;
 	}
@@ -170,12 +184,27 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 				$view = $this->createViewTemplate();
 				break;
 
+            case 'csv':
+                $view = $this->createDefaultCsvTemplate();
+                break; 
+
 			default:
 				$err = "strategy -($strategy) not mapped";
 				throw new RunTimeException($err);
 		}
 
 		return $view;
+	}
+
+	/**
+	 * @param	array	$params
+	 * @return	HtmlPageInterface
+	 */
+	public function buildHtmlPage(array $params)
+	{
+		$builder = $this->getHtmlPageBuilder();
+		$detail  = $builder->createHtmlPageDetail($params);	
+		return $builder->buildPage($detail);
 	}
 
 	/**
@@ -247,5 +276,15 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 	public function createViewTemplate()
 	{
 		return new ViewTemplate();
+	}
+
+	/**
+     * Create a standard view template with a csv compositor instead of 
+     * a file compositor.
+	 * @return	CsvTemplate
+	 */
+	public function createDefaultCsvTemplate()
+	{
+		return new CsvTemplate();
 	}
 }

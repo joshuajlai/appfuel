@@ -1,0 +1,16 @@
+{
+	"name": "kernel",
+	"desc": "low level core functionality of appfuel",
+	"src" : {
+		"build-file": "af-kernel",
+		"files": {
+			"js" : [
+				"js/registry.js",
+				"js/initializer.js"
+			],
+		}
+		"depends" {
+			"yui3": ['yui', 'node', 'event']
+		}
+	},
+}

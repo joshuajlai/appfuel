@@ -1,0 +1,39 @@
+{
+	"name": "js-example",
+	"desc": "js module used to test resource building",
+	"dir": "example-pkg",
+	"files": {
+		"dir": "my/other/dir",
+		"files": {
+			"js": [
+				"js/file1.js",
+				"js/file2.js",
+				"js/file3.js"
+			],
+			"css": [
+				"css/file4.css",
+				"css/file5.css"
+			],
+
+			"asset": [
+				"asset/blog-icon.png",
+				"asset/warning-icon.png"
+			]
+		}
+	},
+
+	"tests": {
+		"dir": "example-pkg/test",
+		"files": {
+			"js":  ["mytest.js"],
+			"css": ["mycss.css"],
+			"html":["myhtml.html"],
+			"phtml":["aftest:html/common/tpl/sometpl.phtml"]
+		}
+	},
+
+	"dependency": {
+		'aftest': ['some/module'],
+		'yui':  ['some/module']
+	}
+}

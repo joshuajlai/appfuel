@@ -14,19 +14,15 @@ use StdClass,
 	TestFuel\Provider\StringProvider,
 	Appfuel\Kernel\PathFinder,
 	Appfuel\Kernel\KernelRegistry,
-	PHPUnit_Extensions_OutputTestCase;
+	Appfuel\DataSource\Db\DbStartupTask,
+	PHPUnit_Framework_TestCase;
 
 /**
  * All Appfuel test cases will extend this class which provides features like
  * path locations, backup/restore autoloader, backup/restore include paths. 
  */
-class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
+class BaseTestCase extends PHPUnit_Framework_TestCase
 {
-	/**
-	 * @var StringProvider
-	 */
-	protected $stringProvider = null;
-
 	/**
 	 * @var PathFinder
 	 */
@@ -40,17 +36,8 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
                                 $dataName = '')
     {
 		$this->pathFinder = new PathFinder('test');  
-		$this->stringProvider = new StringProvider();
         parent::__construct($name, $data, $dataName);
     }
-
-	/**
-	 * @return	StringProvider
-	 */
-	public function getStringProvider()
-	{
-		return $this->stringProvider;
-	}
 
 	/**
 	 * @return	PathFinder
@@ -64,6 +51,14 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	{
 		return $this->getPathFinder()
 					->getPath('files');
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getBasePath()
+	{
+		return AF_BASE_PATH;
 	}
 
 	/**
@@ -131,6 +126,21 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
         }
     }
 
+	/**
+	 * @return null
+	 */
+	public function runDbStartupTask()
+	{
+		$task = new DbStartupTask();
+		$keys = $task->getRegistryKeys();
+		$params = array();
+		foreach ($keys as $key => $default) {
+			$params[$key] = KernelRegistry::getParam($key, $default);
+		}
+
+		$task->execute($params);
+	}
+
     /**
      * Restore autoloader to its previous state
      * 
@@ -177,95 +187,5 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
 	{
         $state = TestRegistry::getKernelState();
         set_include_path($state->getIncludePath());
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideEmptyStrings()
-	{
-		$provider = $this->getStringProvider();
-		return $provider->provideEmptyStrings();
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideNonEmptyStrings()
-	{
-		$provider = $this->getStringProvider();
-		return $provider->provideNonEmptyStrings();
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideNonEmptyStringsNoNumbers()
-	{
-		$provider = $this->getStringProvider();
-		return $provider->provideNonEmptyStrings(false);
-	}
-
-	/**
-	 * @return	array
-	 */	
-	public function provideAllStringsIncludingCastable()
-	{
-		$provider = $this->getStringProvider();
-		return $provider->provideAllStrings();
-		
-	}
-
-	/**
-	 * @return	array
-	 */	
-	public function provideEmptyNonEmptyAndToString()
-	{
-		$provider = $this->getStringProvider();
-		return $provider->provideEmptyNonEmptyAndToString();
-		
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideNoCastableStrings()
-	{
-		return $this->getStringProvider()
-					->provideNoCastableStrings();
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideInvalidStringsIncludeNull()
-	{
-		$provider = $this->getStringProvider();
-		$includeNull = true;
-		return $provider->provideStrictInvalidStrings($includeNull);
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideInvalidStrings()
-	{
-		$provider = $this->getStringProvider();
-		$includeNull = false;
-		return $provider->provideStrictInvalidStrings($includeNull);
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideInvalidArray()
-	{
-		return array(
-			array(new StdClass()),
-			array(12345),
-			array(1.234),
-			array(false),
-			array(true)
-		);
 	}
 }

@@ -10,7 +10,7 @@
  */
 namespace Appfuel\Filesystem;
 
-use SplFileInfo,
+use DomainException,
 	RunTimeException,
 	InvalidArgumentException;
 
@@ -23,15 +23,13 @@ class FileFinder implements FileFinderInterface
 {
 	/**
 	 * Absolute path to top level directory of the application. This is found
-	 * in a constant set by the framework called AF_BASE_PATH, but can be
-	 * disabled.
+	 * in a constant set by the framework called AF_BASE_PATH
 	 * @var string
 	 */
 	protected $basePath = null;
 
 	/**
-	 * acts as the root path for method getPath when no path bath it is the
-	 * root path.
+	 * This is the relative point of concatenation used by getPath.
 	 */
 	protected $root = '';
 
@@ -45,8 +43,9 @@ class FileFinder implements FileFinderInterface
     {
 		if (true === $isBasePath) {
 			if (! defined('AF_BASE_PATH')) {
-				$err = "base path constant must be set AF_BASE_PATH";
-				throw new LogicException($err);
+				$err  = 'When the 2nd param $isBasePath is true then the ';
+				$err .= 'constant AF_BASE_PATH must be set ';
+				throw new DomainException($err);
 			}
 			$this->setBasePath(AF_BASE_PATH);
 		}
@@ -90,50 +89,16 @@ class FileFinder implements FileFinderInterface
 	/**
 	 * @throws  RunTimeException
 	 * @throws	InvalidArgumentException
-	 * @return	PathFinder
+	 * @return	FileFinder
 	 */
 	public function setRootPath($path)
-	{	
-		if (! is_string($path) && 
-			! (is_object($path) && is_callable(array($path, '__toString')))) {
-			$err  = "the root path must be a string or an object that ";
-			$err .= "implements __toString";
-			throw new InvalidArgumentException($err);
-		}
-		$path =(string) $path;
-
-		if ($this->isBasePath()) {
-			$basePath = $this->getBasePath();
-			$found = strpos($path, $basePath);
-			if (false !== $found) {
-				$err  = "root path can not contain base when it already exists";
-				throw new RunTimeException($err);
-			}
-		}
-
-		$this->root = $path;
+	{
+		$isRelative = $this->isBasePath();
+		$this->root = $this->validatePath($path, $isRelative);
 		return $this;
 	}
 
-	/**
-	 * Checks for the forward slash on the relative root so you don't end
-	 * up the a path that has double slashes.
-	 * 
-	 * @return	string
-	 */
-	public function getResolvedRootPath()
-	{
-		$root = $this->getRootPath();
-		/* 
-		 * if there is no base path we must preserve the absoluste path
-		 */
-		if (! $this->isBasePath()) {
-			return ('/' === $root) ? $root : rtrim($root, " \n\t/");
-		}
 
-		$base = rtrim($this->getBasePath(), " \n\t/");
-		return rtrim("$base/$root", " \n\t/");
-	}
 
 	/**
 	 * Creates an absolute path by resolving base path (when it exists) root
@@ -142,18 +107,17 @@ class FileFinder implements FileFinderInterface
 	 * @param	string	$path	relative path 
 	 * @return	string | false when param is invalid
 	 */
-	public function getPath($path = null)
+	public function getPath($path = null, $isRelative = true)
 	{
-		if (null === $path) {
-			$path = '';
+		$path = $this->validatePath($path, $isRelative);
+		
+		/*
+		 * use the path as is
+		 */
+		if (false === $isRelative) {
+			return $path;
 		}
 
-		if (! is_string($path) &&
-			! (is_object($path) && is_callable(array($path, '__toString')))) {
-			return false;
-		}
-			
-		$path =(string) $path;
 		$root = $this->getResolvedRootPath();
 		if (empty($path)) {
 			return $root;
@@ -162,33 +126,26 @@ class FileFinder implements FileFinderInterface
 			return $path;
 		}
 
-		$path = ltrim($path, " \n\t/");
-		if ('/' === $root) {
-			return "/{$path}";
+		$sep  = DIRECTORY_SEPARATOR;
+		$path = ltrim($path, "$sep");
+		if ($sep === $root) {
+			return "{$sep}{$path}";
 		}
 
-		return "$root/$path";
-	}
-
-	public function fileExists($fullPath)
-	{
-		if (file_exists($fullPath)) {
-			return true;
-		}
-
-		false;
+		return "$root{$sep}{$path}";
 	}
 
 	/**
-	 * @param	string $path
+	 * @param	string	$path
+	 * @param	bool	$isRelative
 	 * @return	bool
 	 */
-	public function pathExists($path = null)
+	public function fileExists($path = null, $isRelative = true)
 	{
-		if ($this->fileExists($this->getPath($path))) {
+		if (file_exists($this->getPath($path, $isRelative))) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -196,9 +153,9 @@ class FileFinder implements FileFinderInterface
 	 * @param	string $path
 	 * @return	bool
 	 */
-	public function isWriteable($path = null)
+	public function isWriteable($path = null, $isRelative = true)
 	{
-		if (is_writable($this->getPath($path))) {
+		if (is_writable($this->getPath($path, $isRelative))) {
 			return true;
 		}
 
@@ -209,9 +166,9 @@ class FileFinder implements FileFinderInterface
 	 * @param	string	$path
 	 * @return	bool
 	 */
-	public function isReadable($path = null)
+	public function isReadable($path = null, $isRelative = true)
 	{
-		if (is_readable($this->getPath($path))) {
+		if (is_readable($this->getPath($path, $isRelative))) {
 			return true;
 		}
 
@@ -222,9 +179,9 @@ class FileFinder implements FileFinderInterface
 	 * @param	string	$path
 	 * @return	bool
 	 */
-	public function isFile($path = null)
+	public function isFile($path = null, $isRelative = true)
 	{
-		if (is_file($this->getPath($path))) {
+		if (is_file($this->getPath($path, $isRelative))) {
 			return true;
 		}
 
@@ -235,9 +192,9 @@ class FileFinder implements FileFinderInterface
 	 * @param	string	$path
 	 * @return	bool
 	 */
-	public function isDir($path = null)
+	public function isDir($path = null, $isRelative = true)
 	{
-		if (is_file($this->getPath($path))) {
+		if (is_dir($this->getPath($path, $isRelative))) {
 			return true;
 		}
 
@@ -248,9 +205,9 @@ class FileFinder implements FileFinderInterface
 	 * @param	string	$path
 	 * @return	bool
 	 */
-	public function isLink($path = null)
+	public function isLink($path = null, $isRelative = true)
 	{
-		if (is_link($this->getPath($path))) {
+		if (is_link($this->getPath($path, $isRelative))) {
 			return true;
 		}
 
@@ -258,79 +215,79 @@ class FileFinder implements FileFinderInterface
 	}
 
 	/**
-	 * @param	string	$path
-	 * @param	bool	$throw
-	 * @param	string	$msg
-	 * @return	bool
+	 * Validate the path to determine it is safe and normalize the directory
+	 * separator to 
+	 *
+	 * @param	string	$path 
+	 * @param	bool	$isRelative
+	 * @return	string
 	 */
-	public function requireFile($path, $isThrow = true, $msg = '')
-	{
-		$full = $this->getPath($path);
-		if (file_exists($full)) {
-			return require $full;
+	protected function validatePath($path = null, $isRelative = true)
+	{	
+		if (true === $isRelative && null === $path) {
+			return '';
 		}
 
-		if (false === $isThrow) {
-			return false;
-		}
-		
-		$err = "file not found at -($full)";
-		if (is_string($msg) && ! empty($msg)) {
-			$err = $msg;
-		}
-		throw new RunTimeException($err);
-	}
-
-	/**
-	 * @param	string	$path
-	 * @param	bool	$throw
-	 * @param	string	$msg
-	 * @return	bool
-	 */
-	public function requireOnceFile($path, $isThrow = true, $msg = '')
-	{
-		$full = $this->getPath($path);
-		if (file_exists($full)) {
-			return require_once $full;
-		}
-
-		if (false === $isThrow) {
-			return false;
-		}
-		
-		$err = "file not found at -($full)";
-		if (is_string($msg) && ! empty($msg)) {
-			$err = $msg;
-		}
-		throw new RunTimeException($err);
-	}
-
-	/**
-	 * @param	string
-	 * @return	mixed
-	 */
-	public function includeFile($path)
-	{
-		$full = $this->getPath($path);
-		if (file_exists($full)) {
-			return include $full;
+		if (false === $isRelative && null === $path) {
+			$err = 'absolute path must not be null';
+			throw new DomainException($err);
 		}
 	
-		return false;
-	}
-
-	/**
-	 * @param	string
-	 * @return	mixed
-	 */
-	public function includeOnceFile($path)
-	{
-		$full = $this->getPath($path);
-		if (file_exists($full)) {
-			return include_once $full;
+		if (! $this->isStringable($path)) {
+			$err  = 'path must be null, string or an object that ';
+			$err .= 'implements __toString';
+			throw new DomainException($err);
 		}
-	
-		return false;
+
+		/*
+		 * ensure we convert any object to a string
+		 */
+		if (is_object($path)) {
+			$path = (string) $path;
+		}
+
+		$path = trim($path, " \n\t");
+		if ('' === $path) {	
+			if (false === $isRelative) {
+				$err = 'absolute path can not be empty';
+				throw new DomainException($err);
+			}
+			
+			return '';
+		}
+
+		/* root directory by itself is considered valid */
+		$sep = DIRECTORY_SEPARATOR;
+		if ($sep === $path) {
+			return $path;
+		}
+
+		/*
+		 * metadata that allows you to traverse up and down the path
+		 * like ../../mypath, is not allowed because its usage is more 
+		 * risk than its worth so finding it is considered malicious code
+		 */
+		if (false !== strpos($path, "..")) {
+			$err = 'directory path meta data such as ".." is not allowed';
+			throw new DomainException($err);
+		}
+
+		/**
+		 * convert unix style separator to DIRECTORY_SEPARATOR
+		 */
+		$path = str_replace('/', $sep, $path);
+
+		/*
+		 * Ensure relative paths are contained within their root path
+		 */
+		if (true === $isRelative && 
+			true === $this->isBasePath() &&
+			false !== strpos($path, $this->getBasePath())) { 
+			$err  = "path can not contain base path once it is defined";
+			throw new DomainException($err);
+		}
+
+		return $path;
 	}
 
 	/**
@@ -339,11 +296,43 @@ class FileFinder implements FileFinderInterface
 	 */
 	protected function setBasePath($path)
 	{
-		if (! is_string($path)) {
-			$err = 'base path must be a string';
-			throw new InvalidArgumentException($err);
+		$isRelative = false;
+		$sep  = DIRECTORY_SEPARATOR;
+		$this->basePath = rtrim($this->validatePath($path, $isRelative), $sep);
+	}
+
+	/**
+	 * @param	mixed	$path
+	 * @return	bool
+	 */
+	protected function isStringable($path)
+	{
+		if (is_string($path) ||
+			(is_object($path) && is_callable(array($path, '__toString')))) {
+			return true;
+		}
+	
+		return false;
+	}
+
+	/**
+	 * Checks for the forward slash on the relative root so you don't end
+	 * up the a path that has double slashes.
+	 * 
+	 * @return	string
+	 */
+	protected function getResolvedRootPath()
+	{
+		$sep  = DIRECTORY_SEPARATOR;
+		$root = $this->getRootPath();
+		/* 
+		 * when the base path is disabled we must preserve the absolute path
+		 */
+		if (! $this->isBasePath()) {
+			return ($sep === $root) ? $root : rtrim($root, $sep);
 		}
 
-		$this->basePath = $path;
+		$base = $this->getBasePath();
+		return rtrim("$base/$root", " \n\t$sep");
 	}
 }

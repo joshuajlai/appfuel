@@ -53,7 +53,7 @@ class FaultHandler implements FaultHandlerInterface
 	 * @param	Exception	$e
 	 * @return	null
 	 */
-	public function handleException(Exception $e)
+	public function handleException(Exception $e = null)
 	{
 		$logger  = $this->getLogger();
 		$msg  = $e->getMessage();

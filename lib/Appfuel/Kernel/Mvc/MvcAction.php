@@ -10,6 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
+use Appfuel\Orm\OrmManager;
+
 /**
  * The mvc action is the controller in mvc. The front controller always 
  * dispatches a context to be processed by the mvc action based on a 
@@ -37,7 +39,8 @@ class MvcAction implements MvcActionInterface
 	 * @return	MvcAction
 	 */
 	public function __construct(MvcDispatcherInterface $dispatcher = null,
-								MvcContextBuilderInterface $builder = null)
+								MvcContextBuilderInterface $builder = null,
+								array $params = null)
 	{
 		if (null === $dispatcher) {
 			$dispatcher = new MvcDispatcher();
@@ -45,9 +48,28 @@ class MvcAction implements MvcActionInterface
 		$this->setDispatcher($dispatcher);
 
 		if (null === $builder) {
-			$contextBuilder = new MvcContextBuilder();
+			$builder = new MvcContextBuilder();
 		}
-		$this->setContextBuilder($contextBuilder);
+		$this->setContextBuilder($builder);
+		$this->initialize($params);
+	}
+
+	/**
+	 * @param	array	$params	
+	 * @return	MvcAction
+	 */
+	public function initialize($params)
+	{
+		return $this;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	OrmRepositoryInterface
+	 */
+	public function getRepository($key, $source = 'db')
+	{
+		return OrmManager::getRepository($key, $source);
 	}
 
 	/**

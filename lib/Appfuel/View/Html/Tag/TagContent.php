@@ -99,8 +99,12 @@ class TagContent implements TagContentInterface
 	 * @param	string	$action		what to do with the content
 	 * @return	Tag
 	 */
-    public function add($data, $action = 'append')
+    public function add($data, $action = null)
     {
+		if (null === $action) {
+			$action = 'append';
+		}
+
 		if (!(is_scalar($data)  ||
 			is_object($data) && is_callable(array($data, '__toString')))) {
 			$err  = 'content must be scalar or an object that implements ';

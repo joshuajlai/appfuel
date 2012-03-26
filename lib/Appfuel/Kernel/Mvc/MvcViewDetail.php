@@ -52,6 +52,12 @@ class MvcViewDetail implements MvcViewDetailInterface
 	protected $viewClass = null;
 
 	/**
+	 * Used when the view is only a simple string
+	 * @var string
+	 */
+	protected $raw = null;
+
+	/**
 	 * @param	array	$data
 	 * @return	MvcRouteDetail
 	 */
@@ -83,6 +89,10 @@ class MvcViewDetail implements MvcViewDetailInterface
 			}
 
 			$this->viewClass = $data['view-class'];
+		}
+
+		if (isset($data['raw']) && is_string($data['raw'])) {
+			$this->raw = $data['raw'];
 		}
 	}
 
@@ -132,5 +142,21 @@ class MvcViewDetail implements MvcViewDetailInterface
 	public function isViewClass()
 	{
 		return is_string($this->viewClass) && ! empty($this->viewClass);
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isRawView()
+	{
+		return is_string($this->raw);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getRawView()
+	{
+		return $this->raw;
 	}
 }
