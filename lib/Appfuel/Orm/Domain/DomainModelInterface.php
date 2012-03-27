@@ -33,17 +33,17 @@ interface DomainModelInterface
      * an exception or not when the member does not exist
      * @return bool
      */
-    public function _isStrictMarshalling();
+    public function isStrictMarshalling();
 
     /**
      * @return  DomainModel
      */
-    public function _enableStrictMarshalling();
+    public function enableStrictMarshalling();
 
     /**
      * @return  DomainModel
      */
-    public function _disableStrictMarshalling();
+    public function disableStrictMarshalling();
 	
     /**
      * Marshal the datasource values into the domain members and updata the 
@@ -52,7 +52,7 @@ interface DomainModelInterface
      * @param   array   $data   member name names and values 
      * @return  DomainModel
      */
-    public function _marshal(array $data = null);
+    public function marshal(array $data = null);
 
 	/**
 	 * Used to indicate that a member attribute has changed 
@@ -60,7 +60,7 @@ interface DomainModelInterface
 	 * @param	string	$member		name of the domain attr thats changed
 	 * @return	bool
 	 */
-	public function _markDirty($member);
+	public function markDirty($member);
 
 	/**
 	 * Used to remove a single member or all members from being marked dirty.
@@ -69,31 +69,31 @@ interface DomainModelInterface
 	 * @param	string	$member	 domain attr to mark clean. 
 	 * @return	bool
 	 */
-	public function _markClean($member = null);
+	public function markClean($member = null);
 
 	/**
 	 * Used to indicate that the domain state is new
 	 * @return	null
 	 */
-	public function _markNew();
+	public function markNew();
 
 	/**
 	 * Used to indicate that the domain is in a state of deletion
 	 * 
 	 * @return	null
 	 */
-	public function _markDelete();
+	public function markDelete();
 
 	/**
 	 * Determines that state of the damain
 	 * 
 	 * @return	DomainState
 	 */
-	public function _getDomainState();
+	public function getDomainState();
 	
 	/**
 	 * @param	DomainState $state
 	 * @return	DomainModel
 	 */
-	public function _setDomainState(DomainStateInterface $state);
+	public function setDomainState(DomainStateInterface $state);
 }

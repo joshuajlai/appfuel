@@ -120,16 +120,34 @@ class MvcRouteManager
             throw new RunTimeException($err);
         }
 
-		/* add every alias to the cache but have its entry point to the 
+		/* 
+         * add every alias to the cache but have its entry point to the 
 		 * handler which uses the master route key
 		 */
+		$isMaster  = false;
+		$isAlias   = false;
 		$masterKey = $handler->getMasterKey();
-		$aliases   = $handler->getAliases();
+		if ($masterKey === $key) {
+			$isMaster = true;
+		}
+
 		self::addToCache($masterKey, $handler);
+		$aliases = $handler->getAliases();
 		foreach ($aliases as $alias) {
+			if ($alias === $key) {
+				$isAlias = true;
+			}
 			self::addToCache($alias, $masterKey);
 		}
-	
+			
+		if (! $isMaster && ! $isAlias) {
+			$aliasList = implode(',', $aliases);
+			$err  = "route handler key -($masterKey), aliases -($aliasList) ";
+			$err .= "keys do not match requested route key -($key)";
+			throw new LogicException($err);
+		}
+
+
 		return $handler->getRouteDetail($key);
 	}
 

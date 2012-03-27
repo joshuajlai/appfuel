@@ -43,6 +43,13 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected $actionClass = '';
 
 	/**
+	 * A list of parameters used to initialize the mvc action. Usually a list
+	 * of domain namespaces
+	 * @var array
+	 */
+	protected $actionInit = array();
+
+	/**
 	 * Flag used to detemine if the controller used by this route is internal.
 	 * Internal routes can not be executed by the front controller and thus
 	 * inaccessible from the outside
@@ -92,7 +99,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function __construct(array $data)
 	{
-		
 		if (isset($data['is-public']) && true === $data['is-public']) {
 			$this->isPublic = true;
 		}
@@ -143,6 +149,10 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 			$class = "{$this->getNamespace()}\\{$this->getActionName()}";
 		}
 		$this->setActionClass($class);
+
+		if (isset($data['action-init'])) {
+			$this->setActionInit($data['action-init']);
+		}
 
 		parent::__construct($params);
 	}
@@ -328,6 +338,14 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	}
 
 	/**
+	 * @return	array
+	 */
+	public function getActionInit()
+	{
+		return $this->actionInit;
+	}
+
+	/**
 	 * @param	mixed string | array
 	 * @return	null
 	 */
@@ -482,5 +500,14 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		}
 
 		$this->actionClass = $qualifiedNs;
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	null
+	 */
+	public function setActionInit(array $params)
+	{
+		$this->actionInit = $params;
 	}
 }

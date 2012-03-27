@@ -26,14 +26,22 @@ class MvcDispatcher implements MvcDispatcherInterface
 	 */
 	public function dispatch(MvcContextInterface $context)
 	{
-        $class = $context->getActionClass();
-		$action = new $class();
+        $detail  = $context->getRouteDetail();
+        $class   = $detail->getActionClass();
+        $init    = $detail->getActionInit();
+		if (empty($init)) {
+			$init = null;
+		}
+
+		$action = new $class(null, null, $init);
         if (! ($action instanceof MvcActionInterface)) {
             $err  = 'mvc action does not implement Appfuel\Kernel\Mvc\Mvc';
             $err .= 'ActionInterface';
             throw new LogicException($err);
         }
 
+		$detail = $context->getRouteDetail();
+		
 		/*
 		 * Any acl codes are checked againt the route detail's acl access
 		 */

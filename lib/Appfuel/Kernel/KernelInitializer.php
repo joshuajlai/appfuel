@@ -129,10 +129,6 @@ class KernelInitializer
 			 ->initAppfuelAutoLoader()
 			 ->initAppDependencies();
 
-		if ($this->isDomainMapEnabled()) {
-			$this->initDomainMap($domain);
-		}
-
 		$this->initRouteMap($route)
 			 ->runStartupTasks();
 
@@ -205,8 +201,7 @@ class KernelInitializer
 	public function initIncludePath()
 	{
 		$path   = KernelRegistry::getParam('include-path', array());
-		$action = KernelRegistry::getParam('include-action', 'replace');
-	
+		$action = KernelRegistry::getParam('include-path-action', 'replace');
 		if (empty($path)) {
 			$msg = 'include path not initialized';
 			self::$status['kernal:include-path'] = $msg;
@@ -354,32 +349,6 @@ class KernelInitializer
 	}
 
 	/**
-	 * The domain map is a decoupling of domain objects and their class names.
-	 * Keeping a map of domains keys => classname prevents developers to refer
-	 * to the domains by its key rather than its fully qualified domain 
-	 * classname. This feature is options and can be disabled with the call
-	 * KernelInitializer::disableDomainMap
-	 *
-	 * @param	null|string|array	$domains
-	 * @return	null
-	 */
-	public function initDomainMap($domains = null)
-	{
-		if (null === $domains || is_string($domains)) {
-			$map = $this->getData('domain', $domains);
-		}
-		else if (! empty($domains) && is_array($domains)) {
-			$map = $domains;
-		}
-
-		$max = count($map);
-		KernelRegistry::setDomainMap($map);
-
-		$result = "domain map intiailized with $max classes";
-		self::$status['kernal:domains'] = $result;
-	}
-
-	/**
 	 * A mapping of route keys to action controller namespaces is kept to 
 	 * simplify the uri's generated and used by the framework. This is not
 	 * optional and must used as part of the framework. In the uri the first
@@ -506,32 +475,6 @@ class KernelInitializer
 	public function setDependencyLoader(DependencyLoaderInterface $loader)
 	{
 		$this->loader = $loader;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isDomainMapEnabled()
-	{
-		return $this->isDomainMap;
-	}
-
-	/**
-	 * @return	KernelInitializer
-	 */
-	public function enableDomainMap()
-	{
-		$this->isDomainMap = true;
-		return $this;
-	}
-
-	/**
-	 * @return	KernelInitializer
-	 */
-	public function disableDomainMap()
-	{
-		$this->isDomainMap = false;
-		return $this;
 	}
 
 	/**

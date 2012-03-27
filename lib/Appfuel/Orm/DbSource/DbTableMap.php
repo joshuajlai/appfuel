@@ -35,6 +35,20 @@ class DbTableMap implements DbTableMapInterface
 	 */
 	protected $alias = null;
 
+    /**
+     * Primary Key
+     * an array of domain members that represents the primary key
+     * @var array
+     */
+    protected $primaryKey = array();
+
+    /**
+     * Is Auto Increment
+     *
+     * @var bool
+     */
+    protected $isAutoIncrement = false;
+
 	/**
 	 * @param	array  $data
 	 * @return	DbMap
@@ -52,7 +66,16 @@ class DbTableMap implements DbTableMapInterface
 		if (isset($data['alias'])) {
 			$this->setTableAlias($data['alias']);
 		}
-	}
+
+        if (isset($data['primary-key'])) {
+            $this->setPrimaryKey($data['primary-key']);
+        }
+	
+        if (isset($data['is-auto-increment']) && 
+			true === $data['is-auto-increment']) {
+			$this->enableAutoIncrement();	
+        }
+    }
 
 	/**
 	 * @return	string
@@ -61,6 +84,23 @@ class DbTableMap implements DbTableMapInterface
 	{
 		return $this->table;
 	}
+
+    /**
+     * @return  array
+     */
+    public function getPrimaryKey()
+    {
+        return $this->primaryKey;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isAutoIncrement()
+    {
+        return $this->isAutoIncrement;
+    }
+
 
 	/**
 	 * @return	array
@@ -146,7 +186,7 @@ class DbTableMap implements DbTableMapInterface
 	 * @param	string	$name
 	 * @return	null
 	 */
-	public function setTableName($name)
+	protected function setTableName($name)
 	{
 		if (! is_string($name) || empty($name)) {
 			$err = 'table name must be a none empty string';
@@ -160,7 +200,7 @@ class DbTableMap implements DbTableMapInterface
 	 * @param	string	$alias
 	 * @return	null
 	 */
-	public function setTableAlias($alias)
+	protected function setTableAlias($alias)
 	{
 		if (! is_string($alias)){
 			$err = 'table alias must be a non empty string';
@@ -169,4 +209,38 @@ class DbTableMap implements DbTableMapInterface
 
 		$this->alias = $alias;
 	}
+
+    /**
+     * @param   array   $primaryKey
+     * @return  null
+     */
+    protected function setPrimaryKey($key)
+    {
+		if (is_string($key)) {
+			$key = array($key);
+		}
+		else if (! is_array($key)) {
+			$err  = 'primary key must be a string (for single key) or an ';
+			$err .= 'array of strings for compound keys';
+			throw new InvalidArgumentException($err);
+		}
+
+		foreach ($key as $column) {
+			if (! is_string($column) || empty($column)) {
+				$err = "primary key must be a non empty string";
+				throw new InvalidArgumentException($err);
+			}
+		}
+
+        $this->primaryKey = $key;
+    }
+
+    /**
+     * @param   bool        $isAutoIncrement
+     * @return  null
+     */
+    protected function enableAutoIncrement()
+    {
+        $this->isAutoIncrement = true;
+    }
 }
