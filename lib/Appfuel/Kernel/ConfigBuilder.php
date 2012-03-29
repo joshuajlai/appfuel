@@ -149,7 +149,7 @@ class ConfigBuilder implements ConfigBuilderInterface
 		$envFile = "$env.php";
 		
 		$isThrow = true;
-		return $reader->requireFile($envFile, $isThrow);
+		return $reader->import($envFile, $isThrow);
 	}
 
 	/**
@@ -161,7 +161,7 @@ class ConfigBuilder implements ConfigBuilderInterface
 		$reader  = $this->getFileReader();
 		
 		$isThrow = true;
-		return $reader->requireFile('production.php', $isThrow);
+		return $reader->import('production.php', $isThrow);
 	}
 
 	/**
