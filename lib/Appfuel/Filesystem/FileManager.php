@@ -168,7 +168,7 @@ class FileManager implements FileManagerInterface
 	 * @param	int		$code
 	 * @return	bool
 	 */
-	public function require($path, $isThrow = false, $msg = '', $code = 404)
+	public function requirea($path, $isThrow = false, $msg = '', $code = 404)
 	{
 		return $this->getFileReader()
 					->require($path, $isThrow, $msg, $code);
@@ -239,7 +239,7 @@ class FileManager implements FileManagerInterface
 	 * @param	FileWriterInterface		$finder
 	 * @return	null
 	 */
-	protected function setFileReader(FileWriterInterface $writer)
+	protected function setFileWriter(FileWriterInterface $writer)
 	{
 		$this->writer = $writer;
 	}

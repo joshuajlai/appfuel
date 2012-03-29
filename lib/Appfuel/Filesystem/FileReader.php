@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -42,13 +42,19 @@ class FileReader implements FileReaderInterface
 		return $this->finder;
 	}
 
+	public function setFileFinder(FileFinderInterface $finder)
+	{
+		$this->finder = $finder;
+		return $this;
+	}
+
 	/**
 	 * @param	string	$path
 	 * @param	bool	$throw
 	 * @param	string	$msg
 	 * @return	bool
 	 */
-	public function require($path, $isThrow = false, $msg = null, $code = null)
+	public function import($path, $isThrow = false, $msg = null, $code = null)
 	{
 		$finder = $this->getFileFinder();
 		$absolutePath = $finder->getPath($path);
@@ -70,7 +76,7 @@ class FileReader implements FileReaderInterface
 	 * @param	int		$code
 	 * @return	bool
 	 */
-	public function requireOnce($path, $isThrow=false, $msg=null, $code=null)
+	public function importOnce($path, $isThrow=false, $msg=null, $code=null)
 	{
 		$finder = $this->getFileFinder();
 		$absolutePath = $finder->getPath($path);
@@ -92,16 +98,17 @@ class FileReader implements FileReaderInterface
 	 * @param	int		$options
 	 * @return	array | object
 	 */
-	public function decodeJsonAt($path, $isAssoc=false, $depth=null, $opt=null)
+	public function decodeJsonAt($path = null, $isAssoc = true, $depth = null)
 	{
-		$content = $finder->getContent($path);
+		$finder  = $this->getFileFinder();
+		$content = $this->getContent($path);
 		if (false === $content) {
 			return false;
 		}
 
-		$assoc = false;
-		if (true === $isAssoc) {
-			$accoc = true;
+		$assoc = true;
+		if (false === $isAssoc) {
+			$assoc = false;
 		}
 
 		if (null === $depth) {
@@ -112,15 +119,30 @@ class FileReader implements FileReaderInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		if (null === $opt) {
-			$opt = 0;
-		}
-		else if (! is_int($opt) || $opt < 0) {
-			$err = "json options must be a positive integer";
-			throw new InvalidArgumentException($err);
-		}
+		return json_decode($content, $assoc, $depth);
+	}
 
-		return json_decode($content, $assoc, $depth, $opt);		
+	/**
+	 * @return	string
+	 */
+	public function getLastJsonError()
+	{
+		switch (json_last_error()) {
+			case JSON_ERROR_DEPTH:
+				$result = 'maximum stack depth exceeded';
+				break;
+			case JSON_ERROR_CTRL_CHAR:
+				$result = 'unexpected control char found';
+				break;
+			case JSON_ERROR_SYNTAX:
+				$result = 'syntax error, malformed JSON';
+				break;
+			case JSON_ERROR_NONE:
+			default:
+				$result = false;
+		}
+	
+		return $result;	
 	}
 
 	/**
@@ -131,7 +153,7 @@ class FileReader implements FileReaderInterface
 	 * @param	int		$max
 	 * @return	string | false when does not exist
 	 */
-	public function getContent($path, $offset = null, $max = null)
+	public function getContent($path = null, $offset = null, $max = null)
 	{
 		$err = 'failed to get file contents: ';
 		if (null !== $offset && ! is_int($offset) || $offset < 0) {
@@ -149,7 +171,6 @@ class FileReader implements FileReaderInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		
 		$finder = $this->getFileFinder();
 		$full   = $finder->getPath($path);
 		if (! $finder->fileExists($full, false)) {

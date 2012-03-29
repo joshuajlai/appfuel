@@ -58,15 +58,13 @@ class FileWriter implements FileWriterInterface
 	/**
 	 * @param	string	$data
 	 * @param	string	$path
-	 * @param	string	$mode
-	 * @param	int		$length
-	 * @return	
+	 * @param	int	$flags
+	 * @return	int
 	 */
 	public function putContent($data, $path, $flags = 0)
 	{
 		$finder = $this->getFileFinder();
 		$full = $finder->getPath($path);
-
 		return file_put_contents($full, $data, $flags);
 	}
 }
