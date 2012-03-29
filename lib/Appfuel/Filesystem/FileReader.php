@@ -57,13 +57,13 @@ class FileReader implements FileReaderInterface
 	public function import($path, $isThrow = false, $msg = null, $code = null)
 	{
 		$finder = $this->getFileFinder();
-		$absolutePath = $finder->getPath($path);
-		if ($finder->fileExists($absolutePath, false)) {
+		$full   = $finder->getPath($path);
+		if ($finder->fileExists($full, false)) {
 			return require $full;
 		}
 
 		if (true === $isThrow) {
-			$this->throwException($absolutePath, $msg, $code);
+			$this->throwException($full, $msg, $code);
 		}
 		
 		return false;
@@ -79,13 +79,13 @@ class FileReader implements FileReaderInterface
 	public function importOnce($path, $isThrow=false, $msg=null, $code=null)
 	{
 		$finder = $this->getFileFinder();
-		$absolutePath = $finder->getPath($path);
-		if ($finder->fileExists($absolutePath, false)) {
-			return require_once $absolutePath;
+		$full   = $finder->getPath($path);
+		if ($finder->fileExists($full, false)) {
+			return require_once $full;
 		}
 
 		if (true === $isThrow) {
-			$this->throwException($absolutePath, $msg, $code);
+			$this->throwException($full, $msg, $code);
 		}
 		
 		return false;
