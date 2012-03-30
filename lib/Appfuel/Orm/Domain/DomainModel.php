@@ -251,10 +251,15 @@ abstract class DomainModel implements DomainModelInterface
 				"invalid markDirty ($member) does not exist"
 			);
 		}
-
-		$this->getDomainState()
-			 ->markDirty($member);
-
+		
+		$state = $this->getDomainState();
+        if (is_null($state)) {
+            throw new InvalidArgumentException(
+				"unknown domain state for ($member) in {$this->getDomainKey()}"
+			);
+        }
+        $state->markDirty($member);
+        
 		return $this;
 	}
 
