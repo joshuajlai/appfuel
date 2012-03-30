@@ -63,10 +63,10 @@ abstract class DomainModel implements DomainModelInterface
 		}
 		$this->domainKey = $key;
 
+		$this->setDomainState(new DomainState());
 		if ($id !== null) {
 			$this->setId($id);
 		}
-		$this->setDomainState(new DomainState());
 	}
 
 	/**
