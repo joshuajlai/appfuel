@@ -1,0 +1,12 @@
+{
+    "name": "mvc",
+    "description": "appfuel mvc functionalilty",
+    "src": {
+        "files": {
+            "js": ["js/front.js","js/controller.js", "js/domain.js"]
+        },
+		"use-pkg": {
+			"appfuel": ["kernel"]
+		}
+    }
+}

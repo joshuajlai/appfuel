@@ -24,12 +24,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected $isPublic = false;
 
 	/**
-	 * Namepsace of the mvc action
-	 * @var string
-	 */
-	protected $namespace = '';
-
-	/**
 	 * Class name of the mvc action used by the dispatching system
 	 * @var string
 	 */
@@ -142,21 +136,16 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 			$params = $data['params'];
 		}
 
-		if (isset($data['namespace'])) {
-			$this->setNamespace($data['namespace']);
+		if (! isset($data['action-name'])) {
+			$err  = "action name must be defined. This is the class name of ";
+			$err .= "mvc action used by this route. key is -(action-name)";
+			throw new InvalidArgumentException($err);
 		}
-
-		if (isset($data['action-name'])) {
-			$this->setActionName($data['action-name']);
-		}
+		$this->setActionName($data['action-name']);
 
 		if (isset($data['action-class'])) {
-			$class = $data['action-class'];
+			$this->setActionClass($class);
 		}
-		else {
-			$class = "{$this->getNamespace()}\\{$this->getActionName()}";
-		}
-		$this->setActionClass($class);
 
 		parent::__construct($params);
 	}
@@ -363,14 +352,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	}
 
 	/**
-	 * @return string
-	 */
-	public function getNamespace()
-	{
-		return $this->namespace;
-	}
-
-	/**
 	 * @return	string
 	 */
 	public function getActionName()
@@ -538,20 +519,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected function createViewDetail(array $data)
 	{
 		return new MvcViewDetail($data);
-	}
-
-	/**
-	 * @param	string	$ns
-	 * @return	null
-	 */
-	protected function setNamespace($ns)
-	{
-		if (! is_string($ns)) {
-			$err = 'namespace must be a string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->namespace = $ns;
 	}
 
 	/**

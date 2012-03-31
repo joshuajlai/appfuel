@@ -57,7 +57,7 @@ class RouteBuilder
 	 * @param	array	$data	
 	 * @return	null
 	 */
-	static public function buildRoutes(array $routes, $namespace)
+	static public function buildRoutes(array $routes)
 	{
 		if ($routes === array_values($routes)) {
             $err = "route list must be an associative array -(key=>config)";
@@ -85,7 +85,7 @@ class RouteBuilder
 		if (empty($routes)) {
 			return $list;
 		}
-		
+
 		foreach ($routes as $key => $data) {
 			if (! is_string($key)) {
 				$err = 'alias config invalid: route key must be a string';
@@ -98,12 +98,10 @@ class RouteBuilder
 
 			if (is_array($data)) {
 				if (empty($data)) {
-					$data['namespace'] = $namespace;
 					$detail = $self::createRouteDetail($data);
 				}
 				else if (isset($data['is-inherit']) && 
 						 false === $data['is-inherit']) {
-					$data['namespace'] = $namespace;
 					$detail = self::createRouteDetail($data);
 				}
 				else {

@@ -10,6 +10,8 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
+use RunTimeException,
+	Appfuel\View\ViewBuilder;
 /**
  * Create all object required to implement appfuels take on the mvc pattern
  */
@@ -135,6 +137,6 @@ class MvcFactory implements MvcFactoryInterface
 	 */
 	public function createViewBuilder()
 	{
-		return new MvcViewBuilder();
+		return new ViewBuilder();
 	}
 }
