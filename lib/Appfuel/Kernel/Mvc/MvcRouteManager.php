@@ -330,7 +330,7 @@ class MvcRouteManager
 		
 		$data = $reader->import($path, true);
 		$routes = RouteBuilder::buildRoutes($data, $namespace);
-		echo "<pre>", print_r($data, 1), "</pre>";exit;
+		echo "<pre>", print_r($routes, 1), "</pre>";exit;
 
         $handler = new $class();
 

@@ -81,11 +81,11 @@ class RouteBuilder
 		$main       = self::merge($default, $main);
 		$mainRoute  = self::createRouteDetail($main);
 
+		$list = array($mainKey => $mainRoute);
 		if (empty($routes)) {
-			return array($mainKey => $mainRoute);
+			return $list;
 		}
 		
-		$list = array();
 		foreach ($routes as $key => $data) {
 			if (! is_string($key)) {
 				$err = 'alias config invalid: route key must be a string';
