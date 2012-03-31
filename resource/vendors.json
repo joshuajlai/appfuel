@@ -1,0 +1,30 @@
+{
+	"yui3" : {
+		"version": "3.4.1",
+		"path": "/wd/code/yui3/build",
+		"tree-path": "/wd/code/yui3/src/loader/js/yui3.json",
+		"layers": {
+			"fw-global": {
+				"filename": "global-framwork",
+				"define": {
+					"yui3": [
+					"base", "node", "event", "event-hover", 
+					"node-event-simulate", "array-extras", "array-sort", 
+					"recordset-base", "datasource-io", "datasource-jsonschema",
+					"io-base", "json", "plugin", "view", "module-storage-lite",
+					"widget"]
+				}
+			}
+		}
+	},
+	"appfuel" : {
+		"version": "0.0.1",
+		"path": "resource/appfuel/web",
+		"layers": {
+			"app-global": {
+				"type": "js",
+				"include" : ["kernel", "mvc"]
+			}
+		}
+	}
+}

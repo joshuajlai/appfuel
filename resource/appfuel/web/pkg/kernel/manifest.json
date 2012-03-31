@@ -1,16 +1,17 @@
 {
-	"name": "kernel",
-	"desc": "low level core functionality of appfuel",
-	"src" : {
-		"build-file": "af-kernel",
-		"files": {
-			"js" : [
-				"js/registry.js",
-				"js/initializer.js"
-			],
+    "name": "kernel",
+    "desc": "appfuel core functionalilty",
+	"relative-path": "pkg/kernel",
+    "src": {
+		"filename": "appfuel-kernel",
+        "files": {
+            "js": ["js/kernel.js","js/ajax.js"]
+        },
+		"import-layer": {
+			"yui3": ["fw-global"]
+		},
+		"import-pkg": {
+			"appfuel": ["mvc"]
 		}
-		"depends" {
-			"yui3": ['yui', 'node', 'event']
-		}
-	},
+    }
 }

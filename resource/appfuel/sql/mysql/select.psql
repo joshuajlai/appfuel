@@ -1,0 +1,34 @@
+<?php 
+	$keywords = $this->get('keywords');
+	if (! is_string($keywords)) {
+		$keywords = '';
+	}
+	$columns = $this->get('columns');
+	$from    = $this->get('from');
+	$joins   = $this->get('joins');
+	$where   = $this->get('where');
+	$groupBy = $this->get('group');
+	$having  = $this->get('having');
+	$order   = $this->get('order');
+	$limit   = $this->get('limit');
+?>
+SELECT	<?php echo $keywords, ' ', $columns; ?> 
+FROM	<?= $from; ?> 
+<?php if (is_string($joins) && ! empty($joins)) {
+	echo $joins;
+}?> 
+<?php if (is_string($where) && ! empty($where)): ?> 
+WHERE	<?= $where; ?> 
+<?php endif; ?> 
+<?php if (is_string($groupBy) && ! empty($groupBy)): ?>
+GROUP BY	<?= $groupBy; ?> 
+<?php endif; ?>
+<?php if (is_string($having) && ! empty($having)): ?>
+HAVING		<?= $having; ?> 
+<?php endif; ?>
+<?php if (is_string($order) && ! empty($order)): ?>
+ORDER BY	<?= $order; ?> 
+<?php endif; ?>
+<?php if (is_string($limit) && ! empty($limit)): ?>
+LIMIT	<?= $limit; ?> 
+<?php endif; ?>
