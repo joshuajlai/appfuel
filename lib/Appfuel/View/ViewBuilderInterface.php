@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernel\Mvc;
+namespace Appfuel\View;
 
 use Appfuel\View\AjaxTemplate,
 	Appfuel\View\ViewTemplate,
@@ -24,7 +24,7 @@ use Appfuel\View\AjaxTemplate,
 /**
  * Used to build action controllers
  */
-interface MvcViewBuilderInterface
+interface ViewBuilderInterface
 {
     /**
      * @return  AutoLoaderInterface
