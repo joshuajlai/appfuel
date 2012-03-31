@@ -4,12 +4,12 @@
 	"relative-path": "app-view/test",
 	"html": {
 		"doc": "appfuel/web/app-view/doc/html.phtml",
-		"config":"appfuel/web/app-view/doc/default.php",
+		"config":"appfuel/web/app-view/doc/default.php"
 	},
     "src": {
       "files": {
             "tpl": ["my-file.phtml"],
-            "pjs": ["init.js"],
+            "pjs": ["init.js"]
         },
 		"import-layer": {
 			"yui3": ["fw-global"]

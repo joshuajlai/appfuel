@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -87,9 +87,35 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	);
 
 	/**
-	 * @var	array
+	 * Determines if the view is considered when processing the mvc action.
+	 * @var	bool
 	 */
-	protected $viewDetail = null;
+	protected $isView = true;
+
+	/**
+	 * Determines if the framework needs to compose the view from the view data
+	 * @var bool
+	 */
+	protected $isManualView = false;
+
+	/**
+	 * This string will represent the complete view
+	 * @var string 
+	 */	
+	protected $rawView = null;
+
+	/**
+	 * Name of the view package which represents the view for this route.
+	 * View packages are generally html pages
+	 * @var string
+	 */
+	protected $viewPkg = null;
+
+	/**
+	 * Holds custom parameters needed for manually build views or view data
+	 * @var array
+	 */
+	protected $viewParams = array();
 
 	/**
 	 * @param	array	$data
@@ -121,14 +147,25 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 			$this->setStartup($data['startup']);
 		}
 
-		if (isset($data['view-detail'])) {
-			$viewDetail = $data['view-detail'];
-			if (is_array($viewDetail)) {
-				$this->loadViewDetail($viewDetail);
-			}
-			else if ($viewDetail Instanceof MvcViewDetailInterface) {
-				$this->setViewDetail($viewDetail);
-			}
+		if (isset($data['is-view']) && false === $data['is-view']) {
+			$this->disableView();
+		}
+
+		if (isset($data['is-manual-view']) && 
+			true === $data['is-manual-view']) {
+			$this->enableManualView();
+		}
+
+		if (isset($data['raw-view'])) {
+			$this->setRawView($data['raw-view']);
+		}
+
+		if (isset($data['view-pkg'])) {
+			$this->setViewPackage($data['view-pkg']);
+		}
+
+		if (isset($data['view-params'])) {
+			$this->setViewParams($data['view-params']);
 		}
 
 		$params = array();
@@ -336,19 +373,59 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	}
 
 	/**
-	 * @return	array
+	 * @return	bool
 	 */
-	public function getViewDetail()
+	public function isView()
 	{
-		return $this->viewDetail;
+		return $this->isView;
 	}
 
 	/**
 	 * @return	bool
 	 */
-	public function isViewDetail()
+	public function isManualView()
 	{
-		return $this->viewDetail instanceof MvcViewDetailInterface;
+		return $this->isManualView;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isRawView()
+	{
+		return is_string($this->rawView);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getRawView()
+	{
+		return $this->rawView;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isViewPackage()
+	{
+		return is_string($this->viewPkg) && ! empty($this->viewPkg);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getViewPackage()
+	{
+		return $this->viewPkg;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getViewParams()
+	{
+		return $this->viewParams;	
 	}
 
 	/**
@@ -495,30 +572,58 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	}
 
 	/**
-	 * @param	array	$data
 	 * @return	null
 	 */
-	protected function loadViewDetail(array $data)
+	protected function disableView()
 	{
-		$this->setViewDetail($this->createViewDetail($data));
+		$this->isView = false;
 	}
 
 	/**
-	 * @param	MvcViewDetailInterface $detail
 	 * @return	null
 	 */
-	protected function setViewDetail(MvcViewDetailInterface $detail)
+	protected function enableManualView()
 	{
-		$this->viewDetail = $detail;
+		$this->isManualView = true;
 	}
 
 	/**
-	 * @param	array	$data
-	 * @return	MvcViewDetail
+	 * @param	string | object $view
+	 * @return	null
 	 */
-	protected function createViewDetail(array $data)
+	protected function setRawView($view)
 	{
-		return new MvcViewDetail($data);
+		if (! is_string($view) && 
+			! (is_object($view) && is_callable(array($view, '__toString')))) {
+			$err  = "raw view must be a string or an object that implements ";
+			$err .= "__toString";
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->rawView =(string) $view;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setViewPackage($name)
+	{
+		if (! is_string($name) || empty($name)) {
+			$err = "package name must be non empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->viewPkg = $name;
+	}
+	
+	/**
+	 * @param	array $params
+	 * @return	null
+	 */
+	protected function setViewParams(array $params)
+	{
+		$this->viewParams = $params;
 	}
 
 	/**

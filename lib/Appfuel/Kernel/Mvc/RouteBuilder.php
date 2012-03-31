@@ -38,10 +38,11 @@ class RouteBuilder
 			'include-post'  => array(),
 			'exclude-post'  => array(),
 		),
-		'is-view'    => true,
-		'view-raw'   => null,
-		'compositor' => null,
-		'view-pkg'   => null,
+		'is-view'		   => true,
+		'is-manual-view'   => false,
+		'raw-view'		   => null,
+		'view-pkg'		   => null,
+		'view-params'	   => array()
 	);
 
 	/**

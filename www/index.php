@@ -4,14 +4,16 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 use Appfuel\Http\HttpOutput,
     Appfuel\Http\HttpResponse,
     Appfuel\Kernel\KernelInitializer,
-    Appfuel\Kernel\Mvc\MvcContextBuilder;
+    Appfuel\Kernel\Mvc\MvcContextBuilder,
+	Appfuel\Kernel\Mvc\MvcFactoryInterface,
+	Appfuel\Kernel\Mvc\MvcRouteDetailInterface;
 
 $base = realpath(dirname(__FILE__) . '/../');
 $file = "{$base}/lib/Appfuel/Kernel/KernelInitializer.php";
@@ -21,7 +23,7 @@ if (! file_exists($file)) {
 require_once $file;
 
 $init    = new KernelInitializer($base);
-$factory = $init->initialize('legacy')
+$factory = $init->initialize('main')
                 ->createMvcFactory();
 
 if (! $factory instanceof MvcFactoryInterface) {
@@ -39,8 +41,8 @@ if (! $route instanceof MvcRouteDetailInterface) {
 $init->runStartupTasks($route);
 
 $input  = $factory->createInputFromSuperGlobals($uri);
-$viewDetail  = $route->getViewDetail();
 echo "<pre>", print_r($route, 1), "</pre>";exit;
+$viewDetail  = $route->getViewDetail();
 
 $view = $factory->createViewBuilder()
                 ->buildView();

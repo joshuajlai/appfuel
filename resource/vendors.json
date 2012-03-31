@@ -2,7 +2,7 @@
 	"yui3" : {
 		"version": "3.4.1",
 		"path": "/wd/code/yui3/build",
-		"tree-path": "/wd/code/yui3/src/loader/js/yui3.json",
+		"tree-path": "/Users/rsb/dev/php/yui3/src/loader/js/yui3.json",
 		"layers": {
 			"fw-global": {
 				"filename": "global-framwork",
