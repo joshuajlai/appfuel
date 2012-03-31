@@ -20,35 +20,47 @@ if (! file_exists($file)) {
 }
 require_once $file;
 
-$init = new KernelInitializer($base);
+$init    = new KernelInitializer($base);
+$factory = $init->initialize('legacy')
+                ->createMvcFactory();
 
-/**
- * @todo its not the initializers job to build a front controller
- */
-$front = $init->initialize('main')
-              ->buildFront();
+if (! $factory instanceof MvcFactoryInterface) {
+    $err = "mvc factory must implment Appfuel\Kernel\Mvc\MvcFactoryInterface";
+    throw new LogicException($err);
+}
 
-/**
- * @todo should not have to manually create the context builder
- */
-$useUri  = true;
-$builder = new MvcContextBuilder();
+$uri   = $factory->createUriFromServerSuperGlobal();
+$key   = $uri->getRouteKey();
+$route = $factory->createRouteDetail($key);
+if (! $route instanceof MvcRouteDetailInterface) {
+    $err = "could not resolve route detail for -({$key})";
+    throw new LogicException($err);
+}
+$init->runStartupTasks($route);
 
-$context = $builder->useServerRequestUri()
-                   ->defineInputFromDefaults($useUri)
-                   ->build();
+$input  = $factory->createInputFromSuperGlobals($uri);
+$viewDetail  = $route->getViewDetail();
+echo "<pre>", print_r($route, 1), "</pre>";exit;
+
+$view = $factory->createViewBuilder()
+                ->buildView();
+$context = $factory->createContext($key, $input);
 
 $context = $front->run($context);
 
-$view    = $context->getView();
+$view = $context->getView();
+$builder = new ViewBuilder();
+$content = $builder->buildView($context->getViewDetail());
 $code    = $context->getExitCode();
 $headers = $context->get('http-headers', array());
 if (! is_array($headers) || empty($headers)) {
     $headers = null;
 }
 
-$response = new HttpResponse($view, $code, null, $headers);
+$response = new HttpResponse($content, $code, null, $headers);
 $output   = new HttpOutput();
 $output->render($response);
 
 exit($code);
+
+
