@@ -6,16 +6,13 @@
  * @package     Appfuel
  * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\HtmlResource;
+namespace Appfuel\Kernel\Mvc;
 
 /**
+ * Create all object required to implement appfuels take on the mvc pattern
  */
-interface PackageManifestInterface
-{
-	/**
-	 * @return	string
-	 */
-	public function getPackageName();
+interface MvcFactoryInterface
+{	
 }

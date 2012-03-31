@@ -12,7 +12,10 @@ namespace Appfuel\Kernel\Mvc;
 
 use LogicException,
 	RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+	Appfuel\Filesystem\FileFinder,
+	Appfuel\Filesystem\FileReader,
+	Appfuel\ClassLoader\NamespaceParser;
 
 /**
  */
@@ -31,6 +34,24 @@ class MvcRouteManager
 	 */
 	static protected $cache = array();
 
+	/**
+	 * Route key of the route dispatched by the front controller
+	 * @var string
+	 */
+	static protected $currentKey = null;
+
+	/**
+	 * Used to read in the route details configuration
+	 * @var FileReaderInterface
+	 */
+	static protected $reader = null;
+
+	/**
+	 * Name of the file that holds an array of file details 
+	 * @var string
+	 */
+	static protected $routeDetailFilename = 'route-details.php';
+
     /**
      * @return  array
      */
@@ -46,6 +67,37 @@ class MvcRouteManager
     {
         self::$map = array();
     }
+
+	/**
+	 * @param	string	$key
+	 * @return	null
+	 */
+	static public function setCurrentRouteKey($key)
+	{
+		if (false === self::getNamespace($key)) {
+			$err  = "can not set current route key with a route that has not ";
+			$err .= "been mapped";
+			throw new LogicException($err);
+		}
+
+		self::$currentKey = $key;
+	}
+
+	/**
+	 * @return	string
+	 */
+	static public function getCurrentRouteKey()
+	{
+		return self::$currentKey;
+	}
+
+	/**
+	 * @return	MvcRouteDetailInterface
+	 */
+	static public function getCurrentRoute()
+	{
+		return self::getRouteDetail(self::getCurrentRouteKey());
+	}
 
     /**
      * @param   string  $key
@@ -221,13 +273,48 @@ class MvcRouteManager
 		self::$cache = array();
 	}
 
+	/**
+	 * @return	string
+	 */
+	static public function getRouteDetailFilename()
+	{
+		return self::$routeDetailFilename;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	static public function setRouteDetailFilename($name)
+	{
+		if (! is_string($name) || empty($name)) {
+			$err = 'route detail filename must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		if (false === strpos($name, ".php")) {
+			$err  = "route detail must be php file no -(.php) extension found ";
+			$err .= "-($name)";
+			throw new InvalidArgumentException($err);
+		}
+
+		self::$routeDetailFilename = $name;
+	}
+
     /**
      * @param   string  $key
      * @return  MvcRouteHandlerInterface
      */
     static public function createRouteHandler($key)
     {
+		$reader = self::$reader;
+		if (! $reader) {
+			$finder = new FileFinder(AF_LIB_PATH, false);
+			$reader = new FileReader($finder);
+			self::$reader = $reader;
+		}
         $namespace = self::getNamespace($key);
+
 		/*
 		 * 404 is used as the error code because the fault handler will
 		 * catch this and use a 404 http reponse for any thing that is not
@@ -237,8 +324,14 @@ class MvcRouteManager
 			$err = "could not resolve namespace for route key -($key)";
 			throw new RunTimeException($err, 404);
 		}
+		$path = NamespaceParser::parseNs($namespace);
+		$file = self::getRouteDetailFilename();
+		$path = "$path/$file";
+		
+		$data = $reader->import($path, true);
+		$routes = RouteBuilder::buildRoutes($data, $namespace);
+		echo "<pre>", print_r($data, 1), "</pre>";exit;
 
-        $class  = "$namespace\\RouteHandler";
         $handler = new $class();
 
         return $handler;

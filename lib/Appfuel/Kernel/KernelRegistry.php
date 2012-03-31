@@ -112,6 +112,29 @@ class KernelRegistry
 
 		return true;
 	}
+	
+	/**
+	 * Collect all the parameters in the list. List is an associative array
+	 * of key => default. When key is not found default used. When default
+	 * is 'af-exclude-not-found' then the key is omitted.
+	 *
+	 * @param	array	$list
+	 * @return	array
+	 */
+	static public function collectParams(array $list)
+	{
+		$result = array();
+		foreach ($list as $key => $default) {
+			$param = self::getParam($key, $default);
+			if ('af-exclude-not-found' === $param) {
+				continue;
+			}
+			$result[$key] = $param;
+		}
+
+		return $result;
+	}
+
 
 	/**
 	 * @param	array	$map

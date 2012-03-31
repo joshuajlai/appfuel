@@ -13,12 +13,15 @@ namespace Appfuel\Kernel;
 use RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Kernel\Mvc\MvcFront,
+	Appfuel\Kernel\Mvc\MvcFactory,
 	Appfuel\Kernel\Mvc\MvcRouteManager,
+	Appfuel\Kernel\Mvc\MvcRouteDetailInterface,
 	Appfuel\Kernel\Mvc\InterceptChain,
 	Appfuel\Kernel\Mvc\InterceptChainInterface,
 	Appfuel\Kernel\Mvc\MvcDispatcher,
 	Appfuel\Kernel\Mvc\MvcDispatcherInterface,
 	Appfuel\Kernel\Mvc\MvcContextBuilder,
+	Appfuel\Kernel\Startup\StartupManager,
 	Appfuel\Kernel\Startup\StartupTaskInterface,
 	Appfuel\ClassLoader\DependencyLoader,
 	Appfuel\ClassLoader\StandardAutoLoader,
@@ -129,8 +132,7 @@ class KernelInitializer
 			 ->initAppfuelAutoLoader()
 			 ->initAppDependencies();
 
-		$this->initRouteMap($route)
-			 ->runStartupTasks();
+		$this->initRouteMap($route);
 
 		return $this;
 	}
@@ -383,36 +385,33 @@ class KernelInitializer
 	 *  
 	 * @return	null
      */
-	public function runStartupTasks()
+	public function runStartupTasks(MvcRouteDetailInterface $route = null)
 	{
-		$err   = 'startup task init failure: '; 
-		$tasks = KernelRegistry::getParam('startup-tasks', array());
-		if (empty($tasks) || ! is_array($tasks)) {
+		$manager = new StartupManager();
+		$tasks   = $manager->getTasksFromRegistry();
+		if (null === $route) {
+			$manager->runTasks($tasks);
 			return $this;
 		}
 
-		foreach ($tasks as $taskClass) {
-			$task = new $taskClass();
-			if (! ($task instanceof StartupTaskInterface)) {
-				$err .= "task -($taskClass) does not implement Appfuel\Kernal";
-				$err .= "\StartupTaskInterface";
-				throw new RunTimeException($err);
-			}
-			$keys = $task->getRegistryKeys();
-			$params = array();
-			foreach ($keys as $key => $default) {
-				$value = KernelRegistry::getParam($key, $default);
-				$params[$key] = $value;
-			}
-			$task->execute($params);
-			$statusResult = $task->getStatus();
-			if (empty($statusResult) || ! is_string($statusResult)) {
-				$statusResult = 'status not reported';
-			}
-
-			self::$status[$taskClass] = $statusResult;
+		$routeTasks = $route->getStartupTasks();
+		if ($route->isIgnoreConfigStartupTasks()) {
+			$manager->runTasks($routeTasks);
+			return $this;
 		}
-	
+
+		if ($route->isExcludedStartupTasks()) {
+			$tasks = array_diff($tasks, $route->getExcludedStartupTasks());
+		}
+
+		if ($route->isPrependStartupTasks()) {
+			$tasks = array_merge($routeTasks, $tasks);
+		}
+		else {
+			$tasks = array_merge($tasks, $routeTasks);
+		}
+
+		$manager->runTasks($tasks);
 		return $this;
 	}
 
@@ -512,6 +511,13 @@ class KernelInitializer
 		return new MvcFront($dispatcher, $preChain, $postChain);
 	}
 
+	/**
+	 * @return	MvcFactory
+	 */
+	public function createMvcFactory()
+	{
+		return new MvcFactory();
+	}
 	/**
 	 * @param	string	$path	absolute path to config file
 	 * @return	null

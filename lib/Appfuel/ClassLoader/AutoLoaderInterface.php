@@ -18,17 +18,6 @@ namespace Appfuel\ClassLoader;
 interface AutoLoaderInterface
 {
 	/**
-	 * @return	NamespaceParserInterface
-	 */
-	public function getParser();
-
-	/**
-	 * @param	NamespaceParserInterface $parser
-	 * @return	StandardAutoLoader
-	 */
-	public function setParser(NamespaceParserInterface $parser);
-
-	/**
 	 * @return	bool
 	 */
 	public function isIncludePathEnabled();

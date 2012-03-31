@@ -43,13 +43,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected $actionClass = '';
 
 	/**
-	 * A list of parameters used to initialize the mvc action. Usually a list
-	 * of domain namespaces
-	 * @var array
-	 */
-	protected $actionInit = array();
-
-	/**
 	 * Flag used to detemine if the controller used by this route is internal.
 	 * Internal routes can not be executed by the front controller and thus
 	 * inaccessible from the outside
@@ -69,6 +62,17 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 * @var bool
 	 */
 	protected $isIgnoreAcl = false;
+
+	/**
+	 * List of startup tasks to exclude or include
+	 * @var array
+	 */
+	protected $startup = array(
+		'is-prepend' => false,
+		'is-ignore-config' => false,
+		'exclude' => array(),
+		'include' => array()
+	);
 
 	/**
 	 * List of intercepting filters used by the front controller for 
@@ -118,6 +122,10 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		if (isset($data['intercept'])) {
 			$this->setInterceptingFilters($data['intercept']);
 		}
+	
+		if (isset($data['startup'])) {
+			$this->setStartup($data['startup']);
+		}
 
 		if (isset($data['view-detail'])) {
 			$viewDetail = $data['view-detail'];
@@ -149,10 +157,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 			$class = "{$this->getNamespace()}\\{$this->getActionName()}";
 		}
 		$this->setActionClass($class);
-
-		if (isset($data['action-init'])) {
-			$this->setActionInit($data['action-init']);
-		}
 
 		parent::__construct($params);
 	}
@@ -298,6 +302,51 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	}
 
 	/**
+	 * @return	bool
+	 */
+	public function isIgnoreConfigStartupTasks()
+	{
+		return $this->startup['is-ignore-config'];
+	}
+
+	public function isPrependStartupTasks()
+	{
+		return $this->startup['is-prepend'];
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isStartupTasks()
+	{
+		return ! empty($this->startup['include']);
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getStartupTasks()
+	{
+		return $this->startup['include'];
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isExcludedStartupTasks()
+	{
+		return ! empty($this->startup['exclude']);
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getExcludedStartupTasks()
+	{
+		return $this->startup['exclude'];
+	}
+
+	/**
 	 * @return	array
 	 */
 	public function getViewDetail()
@@ -335,14 +384,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	public function getActionClass()
 	{
 		return $this->actionClass;
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getActionInit()
-	{
-		return $this->actionInit;
 	}
 
 	/**
@@ -402,6 +443,46 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		if (isset($data['exclude-post'])) {
 			$post = $this->filterData($data['exclude-post'], 'exclude-post');
 			$this->filters['post']['exclude'] = $post;
+		}
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	null
+	 */
+	protected function setStartup(array $data)
+	{
+		if (isset($data['include']) && is_array($data['include'])) {
+			$list = $data['include'];
+			foreach ($list as $task) {
+				if (! is_string($task) || empty($task)) {
+					$err = 'startup task to include must be a non empty string';
+					throw new InvalidArgumentException($err);
+				}
+			}
+
+			$this->startup['include'] = $list;
+		}
+
+		if (isset($data['exclude']) && is_array($data['exclude'])) {
+			$list = $data['exclude'];
+			foreach ($list as $task) {
+				if (! is_string($task) || empty($task)) {
+					$err = 'startup task to exclude must be a non empty string';
+					throw new InvalidArgumentException($err);
+				}
+			}
+
+			$this->startup['exclude'] = $list;
+		}
+
+		if (isset($data['is-ignore-config']) &&
+			true === $data['is-ignore-config']) {
+			$this->startup['is-ignore-config'] = true;
+		}
+
+		if (isset($data['is-prepend']) && true === $data['is-prepend']) {
+			$this->startup['is-prepend'] = true;
 		}
 	}
 
@@ -500,14 +581,5 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		}
 
 		$this->actionClass = $qualifiedNs;
-	}
-
-	/**
-	 * @param	array	$list
-	 * @return	null
-	 */
-	public function setActionInit(array $params)
-	{
-		$this->actionInit = $params;
 	}
 }

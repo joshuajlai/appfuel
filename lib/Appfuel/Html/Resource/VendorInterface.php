@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\HtmlResource;
+namespace Appfuel\Html\Resource;
 
 /**
- * Value object used to describe the vendor information and package list
+ * Value object used to describe the vendor information
  */
 interface ResourceVendorInterface
 {
@@ -23,17 +23,7 @@ interface ResourceVendorInterface
 	/**
 	 * @return	string
 	 */
-	public function getVendorDescription();
-	
-	/**
-	 * @return	string
-	 */
 	public function getPackagePath();
-
-	/**
-	 * @return	string
-	 */
-	public function getBuildPath();
 
     /**
      * @return  string
@@ -41,7 +31,8 @@ interface ResourceVendorInterface
     public function getVersion();
 
 	/**
-	 * @return array
+	 * @return	string
 	 */
-	public function getPackages();
+	public function getPackageTreePath();
+
 }

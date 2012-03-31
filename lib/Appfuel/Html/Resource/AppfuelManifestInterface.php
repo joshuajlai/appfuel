@@ -13,7 +13,7 @@ namespace Appfuel\Html\Resource;
 /**
  * A value object used to describe the manifest.json in the package directory
  */
-interface PackageManifestInterface
+interface AppfuelManifestInterface
 {
 	/**
 	 * @return	string
@@ -33,47 +33,16 @@ interface PackageManifestInterface
 	/**
 	 * @return	array
 	 */
-	public function getSourceTypes();
+	public function getFileTypes();
 
 	/**
 	 * @return	string
 	 */
-	public function getAllSourceFiles();
+	public function getAllFiles();
 
 	/**
 	 * @params	string $type 
 	 * @return	array|false
 	 */
-	public function getSourceFiles($type);
-
-	/**
-	 * @return	array
-	 */
-	public function getSourceDependencies();
-
-	/**
-	 * @return	string
-	 */
-	public function getTestDirectory();
-
-	/**
-	 * @return	array
-	 */
-	public function getTestFileTypes();
-
-	/**
-	 * @return	array
-	 */
-	public function getAllTestFiles();
-
-	/**
-	 * @param	string	$type
-	 * @return	array|false
-	 */
-	public function getTestFiles($type);
-
-	/**
-	 * @return	array
-	 */
-	public function getTestDependencies();
+	public function getFiles($type);
 }

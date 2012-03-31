@@ -26,30 +26,38 @@ class MvcDispatcher implements MvcDispatcherInterface
 	 */
 	public function dispatch(MvcContextInterface $context)
 	{
-        $detail  = $context->getRouteDetail();
-        $class   = $detail->getActionClass();
-        $init    = $detail->getActionInit();
-		if (empty($init)) {
-			$init = null;
+		$detail  = $this->getRouteDetail($context->getRouteKey());
+		if (! $detail instanceof MvcRouteDetailInterface) {
+			$err  = "failed to dispatch: route -({$context->getRouteKey()}) ";
+			$err .= "not found ";
+			throw new RunTimeException($err, 404);
 		}
 
-		$action = new $class(null, null, $init);
+        $class  = $detail->getActionClass();
+		$action = new $class();
         if (! ($action instanceof MvcActionInterface)) {
             $err  = 'mvc action does not implement Appfuel\Kernel\Mvc\Mvc';
             $err .= 'ActionInterface';
             throw new LogicException($err);
         }
 
-		$detail = $context->getRouteDetail();
-		
 		/*
 		 * Any acl codes are checked againt the route detail's acl access
 		 */
-		if (! $context->isAccessAllowed()) {
+		if (! $detail->isAccessAllowed($context->getAclCodes())) {
 			$err = 'user request is not allowed: insufficient permissions';
 			throw new RunTimeException($err);
 		}
 
 		$action->process($context);
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	MvcRouteDetailInterface
+	 */
+	public function getRouteDetail($key)
+	{
+		return MvcRouteManager::getRouteDetail($key);
 	}
 }

@@ -29,12 +29,6 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	protected $routeKey = null;
 
 	/**
-	 * The route value object associated with this context
-	 * @var MvcRouteDetailInterface
-	 */
-	protected $routeDetail = null;
-
-	/**
 	 * Holds most of the user input given to the application. Used by the
 	 * Front controller and all action controllers
 	 * @var	AppInputInterface
@@ -66,15 +60,10 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 * @param	AppInputInterface	$input
 	 * @return	AppContext
 	 */
-	public function __construct($routeKey, 
-								MvcRouteDetailInterface $routeDetail,
-								AppInputInterface $input,
-								$view = null)
+	public function __construct($key, AppInputInterface $input, $view = null)
 	{
-		$this->setRouteKey($routeKey);
-		$this->setRouteDetail($routeDetail);
+		$this->setRouteKey($key);
 		$this->setInput($input);
-
 		if (null !== $view) {
 			$this->setView($view);
 		}
@@ -86,48 +75,6 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	public function getRouteKey()
 	{
 		return $this->routeKey;
-	}
-
-	/**
-	 * @return	RouteDetailInterface
-	 */
-	public function getRouteDetail()
-	{
-		return $this->routeDetail;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getNamespace()
-	{
-		return $this->getRouteDetail()
-					->getNamespace();
-	}
-
-	public function getActionClass()
-	{
-		return $this->getRouteDetail()
-					->getActionClass();
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isSkipPreFilters()
-	{
-		return $this->getRouteDetail()
-					->isSkipPreFilters();
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getViewStrategy()
-	{
-		return $this->getRouteDetail()
-					->getViewDetail()
-					->getStrategy();
 	}
 
 	/**
@@ -219,33 +166,6 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	}
 
 	/**
-	 * @return	bool
-	 */
-	public function isPublicAccess()
-	{
-		return $this->getRouteDetail()
-					->isPublicAccess();
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isInternalOnlyAccess()
-	{
-		return $this->getRouteDetail()
-					->isInternalOnlyAccess();
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isAccessAllowed()
-	{
-		$detail = $this->getRouteDetail();
-		return $detail->isAccessAllowed($this->getAclCodes());
-	}
-
-	/**
 	 * @return	int
 	 */
 	public function getExitCode()
@@ -295,14 +215,5 @@ class MvcContext extends Dictionary implements MvcContextInterface
 		}
 
 		$this->routeKey = $key;
-	}
-
-	/**
-	 * @param	string	$strategy
-	 * @return	null
-	 */
-	protected function setRouteDetail(MvcRouteDetailInterface $detail)
-	{
-		$this->routeDetail = $detail;
 	}
 }

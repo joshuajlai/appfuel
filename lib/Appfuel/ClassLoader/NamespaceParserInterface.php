@@ -16,20 +16,10 @@ namespace Appfuel\ClassLoader;
 interface NamespaceParserInterface
 {
 	/**
-	 * @param	string
-	 */
-	public function getExtension();
-
-	/**
-	 * @param	string
-	 */
-	public function setExtension($ext);
-
-	/**
 	 * Resolve php namespace first otherwise resolve as pear name 
 	 *
 	 * @param	string	$string	
 	 * @return	string
 	 */	
-	public function parse($class, $isExtension = true);
+	static public function parse($class, $isExtension = true);
 }
