@@ -26,27 +26,5 @@ use Appfuel\View\AjaxTemplate,
  */
 interface ViewBuilderInterface
 {
-    /**
-     * @return  AutoLoaderInterface
-     */
-    public function getClassLoader();
-
-    /**
-     * @param   AutoLoaderInterface $loader
-     * @return  MvcActionBuilder
-     */
-    public function setClassLoader(AutoLoaderInterface $loader);
-
-    /**
-     * @return  HtmlPageBuilderInterface
-     */
-    public function getHtmlPageBuilder();
-
-    /**
-     * @param   HtmlPageBuilderInterface
-     * @return  MvcContextBuilder
-     */
-    //public function setHtmlPageBuilder(HtmlPageBuilderInterface $builder);
-
 
 }

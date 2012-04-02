@@ -1,21 +1,22 @@
 {
     "name": "my-test",
+    "type": "app-view",
     "desc": "test view used to test the resource building",
 	"relative-path": "app-view/test",
-	"html": {
-		"doc": "appfuel/web/app-view/doc/html.phtml",
-		"config":"appfuel/web/app-view/doc/default.php"
+	"html-page": "appfuel:default-html",
+	"js-init": "src/init.pjs",
+	"markup": "src/my-test.phtml",
+	"layers": {
+		"yui3": ["fw-global"],
+		"appfuel": ["app-global"]
 	},
-    "src": {
-      "files": {
-            "tpl": ["my-file.phtml"],
-            "pjs": ["init.js"]
-        },
-		"import-layer": {
-			"yui3": ["fw-global"]
-		},
-		"import-pkg": {
-			"appfuel": ["mvc"]
+	"required": {
+		"appfuel": ["pkg:mvc"]
+	},
+	"src" : {
+		"files": {
+			"js" : ["myjs.js"]
 		}
-    }
+	}
+
 }

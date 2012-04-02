@@ -1,5 +1,6 @@
 {
     "name": "kernel",
+	"type": "pkg",
     "desc": "appfuel core functionalilty",
 	"relative-path": "pkg/kernel",
     "src": {

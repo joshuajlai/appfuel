@@ -107,6 +107,14 @@ class Yui3Manifest implements Yui3ManifestInterface
 	}
 
 	/**
+	 * @return	bool
+	 */	
+	public function hasNoDependencies()
+	{
+		return ! ($this->isUse() || $this->isRequire());
+	}
+
+	/**
 	 * @return	array
 	 */
 	public function getRequire()

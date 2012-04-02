@@ -4,21 +4,116 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Html;
+namespace Appfuel\Html;
 
-use RunTimeException,
+use LogicException,
+	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\View\Html\Tag\GenericTagInterface;
+	Appfuel\Filesystem\FileFinder,
+	Appfuel\Filesystem\FileReader,
+	Appfuel\Html\Resource\PkgName,
+	Appfuel\Html\Resource\FileStack,
+	Appfuel\Html\Resource\Yui3FileStack,
+	Appfuel\Html\Resource\Yui3Manifest,
+	Appfuel\Html\Resource\FileStackInterface,
+	Appfuel\Html\Resource\AppfuelManifest,
+	Appfuel\Html\Resource\AppViewManifest,
+	Appfuel\Html\Resource\ResourceTree,
+	Appfuel\Html\Tag\GenericTagInterface;
 
 /**
  * Builds and configures an html page using an HtmlPageDetailInterface
  */
 class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 {
+
+	public function loadResourceTree()
+	{
+		$reader = new FileReader(new FileFinder('app'));
+		$data   = $reader->decodeJsonAt('resource-tree.json');
+		ResourceTree::setTree($data);
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isResourceTree()
+	{
+		return ResourceTree::isTree();
+	}
+
+	public function applyView($pkg, HtmlPageInterface $page)
+	{
+		if (! is_string($pkg) || empty($pkg)) {
+			$err = "view package must be an non empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		$pkgName  = new PkgName($pkg);
+		$vendor   = $pkgName->getVendor();
+		$viewName = $pkgName->getName();
+		if (! $this->isResourceTree()) {
+			$this->loadResourceTree();
+		}
+
+		$pkg = ResourceTree::getPackageByType($vendor, 'app-view', $viewName);
+		$manifest = new AppViewManifest($pkg);
+		$chrome = new PkgName($manifest->getHtmlPage(), $vendor);
+
+		$config = ResourceTree::getPackageByType(
+			$chrome->getVendor(), 
+			'chrome',
+			$chrome->getName()
+		); 
+		$stack = new Yui3FileStack();
+		$this->yui3Resolve('widget', $stack);
+		$stack->sortByPriority();
+		echo "<pre>", print_r($stack, 1), "</pre>";exit;
+	}
+
+	/**
+	 * @param	array	$pkgList
+	 * @param	FileStackInterface $stack
+	 * @return	FileStackInterface
+	 */
+	public function yui3Resolve($pkgName, FileStackInterface $stack)
+	{
+		$pkg = ResourceTree::getPackage('yui3', $pkgName);
+		$manifest = new Yui3Manifest($pkg);
+		$name = $manifest->getPackageName();
+		$type  = 'js';
+		if ($manifest->isCss()) {
+			$type = 'css';
+		}
+
+		if ($manifest->hasNoDependencies()) {
+			$stack->add($type, $name);
+		} else if ($manifest->isUse()) {
+			$list = $manifest->getUse();
+			foreach ($list as $yuiName) {
+				$this->yui3Resolve($yuiName, $stack);
+			}
+		}
+		else if ($manifest->isRequire()) {
+			$list = $manifest->getRequire();
+			foreach ($list as $yuiName) {
+				$this->yui3Resolve($yuiName, $stack);
+			}
+			$stack->add($type, $name);
+		}
+
+		if ($manifest->isAfter()) {
+			$afterList = $manifest->getAfter();
+			foreach ($afterList as $afterName) {
+				$stack->addAfter($type, $name,  $afterName);
+			}
+		}
+	}
+
 
 	/**
 	 * @param	array	$config

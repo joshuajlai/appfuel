@@ -10,6 +10,9 @@
  */
 use Appfuel\Http\HttpOutput,
     Appfuel\Http\HttpResponse,
+	Appfuel\View\ViewData,
+	Appfuel\Html\HtmlPage,
+	Appfuel\Html\HtmlPageConfiguration,
     Appfuel\Kernel\KernelInitializer,
     Appfuel\Kernel\Mvc\MvcContextBuilder,
 	Appfuel\Kernel\Mvc\MvcFactoryInterface,
@@ -31,28 +34,51 @@ if (! $factory instanceof MvcFactoryInterface) {
     throw new LogicException($err);
 }
 
-$uri   = $factory->createUriFromServerSuperGlobal();
-$key   = $uri->getRouteKey();
+/*
+ * parse view format out of the route key: takes the form route-key.format
+ * ex) my-route-key.json 
+ */
+$uri    = $factory->createUriFromServerSuperGlobal();
+$key    = $uri->getRouteKey();
+$parts  = explode('.', $key);
+$key    = current($parts);
+$format = strtolower(next($parts));
+if (empty($format)) {
+	$format = 'html';
+}
+
+$input = $factory->createInputFromSuperGlobals($uri);
 $route = $factory->createRouteDetail($key);
 if (! $route instanceof MvcRouteDetailInterface) {
     $err = "could not resolve route detail for -({$key})";
     throw new LogicException($err);
 }
+
 $init->runStartupTasks($route);
-
-$input  = $factory->createInputFromSuperGlobals($uri);
-echo "<pre>", print_r($route, 1), "</pre>";exit;
-$viewDetail  = $route->getViewDetail();
-
-$view = $factory->createViewBuilder()
-                ->buildView();
 $context = $factory->createContext($key, $input);
 
+if ($route->isView() && ! $route->isManualView()) {
+	$context->setViewFormat($format);
+	if ('html' === $format) {
+		$htmlPage = new HtmlPage();
+		if ($route->isViewPackage()) {
+			$config = new HtmlPageConfiguration();
+			$config->applyView($route->getViewPackage(), $htmlPage);
+			echo "<pre>", print_r($htmlPage, 1), "</pre>";exit;
+			
+		}	
+		echo "<pre>", print_r($route->isViewPackage(), 1), "</pre>";exit;
+		$context->setHtmlPage($htmlPage);
+	}
+	else {
+		$context->setViewData(new ViewData());
+	}
+echo "<pre>", print_r($context, 1), "</pre>";exit;	
+}
+
+$front   = $factory->createFrontController();
 $context = $front->run($context);
 
-$view = $context->getView();
-$builder = new ViewBuilder();
-$content = $builder->buildView($context->getViewDetail());
 $code    = $context->getExitCode();
 $headers = $context->get('http-headers', array());
 if (! is_array($headers) || empty($headers)) {

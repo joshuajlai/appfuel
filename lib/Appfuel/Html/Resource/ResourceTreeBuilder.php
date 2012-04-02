@@ -144,8 +144,10 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
         $packages = array();
         $topDir   = new RecursiveDirectoryIterator($finder->getPath($path));
         $fileReader->setFileFinder(new FileFinder(null, false));
+
+		$supportedTypes = array('chrome', 'app-view', 'ui-kit', 'pkg');
         foreach (new RecursiveIteratorIterator($topDir) as $file) {
-            if ('manifest.json' !== $file->getFileName()) {
+            if ('json' !== $file->getExtension()) {
                 continue;
             }
 
@@ -167,11 +169,22 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
             }
             $name = $data['name'];
 
-            if (isset($packages[$name])) {
+			if (! isset($data['type']) ||
+				! is_string($data['type']) || 
+				! in_array($data['type'], $supportedTypes, true)) {
+				$types = implode(',', $supportedTypes);
+				$err  = "appfuel resource -($name) json must have a type ";
+				$err .= "property as -($types) ";
+				throw new RunTimeException($err);				
+			}
+			$type = $data['type'];
+
+            if (isset($packages[$type][$name])) {
                 $err = "can not build tree -($name) is already defined";
                 throw new RunTimeException($err);
             }
-            $packages[$name] = $data;
+
+            $packages[$type][$name] = $data;
         }
 
         return $packages;

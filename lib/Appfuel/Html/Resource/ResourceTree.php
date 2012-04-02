@@ -139,6 +139,46 @@ class ResourceTree
 	}
 
 	/**
+	 * @param	string	$vendor
+	 * @param	string	$type
+	 * @return	bool
+	 */
+	static public function isPackageType($vendor, $type)
+	{
+		if (! is_string($type) ||
+			! self::isVendor($vendor) ||
+			! isset(self::$tree[$vendor]['packages'][$type])) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param	string	$vendor
+	 * @param	string	$type
+	 * @param	string	$name
+	 * @return	array | false
+	 */
+	static public function getPackageByType($vendor, $type, $name)
+	{
+		if (! self::isPackageType($vendor, $type) ||
+			! isset(self::$tree[$vendor]['packages'][$type][$name])) {
+			return false;
+		}
+
+		return self::$tree[$vendor]['packages'][$type][$name];
+	}
+
+	/**
+	 * @return	bool
+	 */
+	static public function isTree()
+	{
+		return count(self::$tree) > 0;
+	}
+
+	/**
 	 * @return	array
 	 */
 	static public function getTree()

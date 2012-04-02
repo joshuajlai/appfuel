@@ -6,14 +6,13 @@
 		"layers": {
 			"fw-global": {
 				"filename": "global-framwork",
-				"define": {
-					"yui3": [
+				"pkg": [
 					"base", "node", "event", "event-hover", 
 					"node-event-simulate", "array-extras", "array-sort", 
 					"recordset-base", "datasource-io", "datasource-jsonschema",
 					"io-base", "json", "plugin", "view", "module-storage-lite",
-					"widget"]
-				}
+					"widget"
+				]
 			}
 		}
 	},

@@ -26,6 +26,12 @@ class FileStack implements FileStackInterface
 	protected $files = array();
 
 	/**
+	 * List of files to be resorted
+	 * @var array
+	 */
+	protected $after = array();
+
+	/**
 	 * @param	array	$files
 	 * @return	FileStack
 	 */
@@ -92,6 +98,62 @@ class FileStack implements FileStackInterface
 		}
 			
 		return $this;
+	}
+
+	/**
+	 * @param	string	$type
+	 * @param	string	$file
+	 * @param	string	$afterFile
+	 * @return	FileStack
+	 */
+	public function addAfter($type, $file, $afterFile)
+	{
+		if (! is_string($type) || empty($type)) {
+			$err = 'file type must be a none empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		if (! is_string($file) || 
+			empty($file) ||
+			! is_string($afterFile) ||
+			empty($afterFile)) {
+			$err = 'file path must be a none empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->after[$type][$file] = $afterFile;
+		return $this;
+	}
+
+	/**
+	 * @param	string	$type
+	 * @return	array
+	 */
+	public function getAfter($type)
+	{
+		if (! is_string($type) || empty($type)) {
+			return false;
+		}
+
+		return $this->after[$type];
+	}
+
+	public function resolveAfter($type)
+	{
+		$afterList = $this->getAfter($type);
+		$list = $this->get($type);
+		foreach ($afterList as $name => $after) {
+			$namePos  = array_search($name, $list, true);
+			$afterPos = array_search($after, $list, true);
+			if (false === $afterPos || 
+				false === $namePos  ||
+				$namePos >= $afterPos) {
+				continue;
+			}
+			$tmp  = array_splice($list, $namePos, 1);
+			array_splice($list, $afterPos, 0, $tmp);
+		}
+		$this->files[$type] = $list;
 	}
 
 	/**

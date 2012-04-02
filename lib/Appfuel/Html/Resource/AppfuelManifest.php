@@ -21,6 +21,11 @@ class AppfuelManifest implements AppfuelManifestInterface
 	 * @var string
 	 */
 	protected $name = null;
+	
+	/**
+	 * @var string
+	 */
+	protected $type = null;
 
 	/**
 	 * @var string
@@ -45,12 +50,10 @@ class AppfuelManifest implements AppfuelManifestInterface
 	protected $files = null; 
 
 	/**
+	 * List of appfuel packages to import
 	 * @var array
 	 */
-	protected $import = array(
-		'layer' => array(),
-		'pkg'   => array(),
-	);
+	protected $requiredPkgs = array();
 
 	/**
 	 * @param	array $data	
@@ -64,25 +67,31 @@ class AppfuelManifest implements AppfuelManifestInterface
 		}
 		$this->setPackageName($data['name']);
 
+		if (! isset($data['type'])) {
+			$err = 'package type must be defined but was not found';
+			throw new InvalidArgumentException($err);
+		}
+		$this->setPackageType($data['type']);
+
 		if (isset($data['desc'])) {
 			$this->setPackageDescription($data['desc']);
 		}
 
-		if (! isset($data['relative-path'])) {
-			$err = "relative path to the this package's directory must be set";
-			throw new InvalidArgumentException($err);
+		if (isset($data['relative-path'])) {
+			$this->setRelativePath($data['relative-path']);
 		}
-		$this->setRelativePath($data['relative-path']);
 	
-		if (! isset($data['src']) || ! is_array($data['src'])) {
-			$err = 'every package must define a source: no src key found';
-			throw new InvalidArgumentException($err);
+		if (isset($data['src']) && is_array($data['src'])) {
+			$this->initSource($data['src']);
 		}
-		$this->initSource($data['src']);
 
 		$this->srcPath = $this->relativePath;
 		if (! empty($this->srcDir)) {
 			$this->srcPath .= "/{$this->srcDir}";
+		}
+
+		if (isset($data['required'])) {
+			$this->setRequiredPackages($data['required']);
 		}
 	}
 
@@ -92,6 +101,14 @@ class AppfuelManifest implements AppfuelManifestInterface
 	public function getPackageName()
 	{
 		return $this->name;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getPackageType()
+	{
+		return $this->type;
 	}
 
 	/**
@@ -157,17 +174,9 @@ class AppfuelManifest implements AppfuelManifestInterface
 	/**
 	 * @return	array
 	 */
-	public function getImportLayers()
+	public function getRequiredPackages()
 	{
-		return $this->import['layer'];
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getImportPackages()
-	{
-		return $this->import['pkg'];
+		return $this->requiredPkgs;
 	}
 
 	/**
@@ -185,14 +194,6 @@ class AppfuelManifest implements AppfuelManifestInterface
 			throw new InvalidArgumentException($err);
 		}
 		$this->setSourceFileStack($src['files']);
-
-		if (isset($src['import-layer'])) {
-			$this->setImport('layer', $src['import-layer']);
-		}
-
-		if (isset($src['import-pkg'])) {
-			$this->setImport('pkg', $src['import-pkg']);
-		}
 	}
 
 	/**
@@ -206,6 +207,20 @@ class AppfuelManifest implements AppfuelManifestInterface
 			throw new InvalidArgumentException($err);
 		}
 		$this->name = $name;
+	}
+
+	/**
+	 * @param	string	$type
+	 * @return	null
+	 */
+	protected function setPackageType($type)
+	{
+		if (! is_string($type) || empty($type)) {
+			$err = 'package type must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->type = $type;
 	}
 
 	/**
@@ -234,20 +249,6 @@ class AppfuelManifest implements AppfuelManifestInterface
 		}
 
 		$this->relativePath = $path;
-	}
-
-	/**
-	 * @param	string	$name
-	 * @return	null
-	 */
-	protected function setFilename($name)
-	{
-		if (! is_string($name) || empty($name)) {
-			$err = 'build file must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->filename = $name;
 	}
 
 	/**
@@ -295,13 +296,8 @@ class AppfuelManifest implements AppfuelManifestInterface
 	 * @param	array	$list
 	 * @return	null
 	 */
-	protected function setImport($type, array $list)
+	protected function setRequiredPackages($list)
 	{
-		if ('pkg' !== $type && 'layer' !== $type) {
-			$err = "failed to set import: invalid type";
-			throw new InvalidArgumentException($err);
-		}
-
 		foreach ($list as $vendor => $data) {
 			if (! is_string($vendor) || empty($vendor)) {
 				$err = 'vendor name must be a non empty string';
@@ -309,7 +305,7 @@ class AppfuelManifest implements AppfuelManifestInterface
 			}
 		}
 
-		$this->import[$type] = $list;
+		$this->requiredPkgs = $list;
 	}
 
 	/**

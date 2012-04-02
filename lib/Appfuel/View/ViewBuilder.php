@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernel\Mvc;
+namespace Appfuel\View;
 
 use Exception,
 	RunTimeException,
@@ -19,83 +19,25 @@ use Exception,
 	Appfuel\View\ViewTemplate,
 	Appfuel\View\ViewInterface,
 	Appfuel\View\FileViewTemplate,
-	Appfuel\View\Html\HtmlTemplate,
-    Appfuel\View\Html\HtmlPageBuilder,
-    Appfuel\View\Html\HtmlPageBuilderInterface,
+	Appfuel\View\Html\HtmlPage,
 	Appfuel\ClassLoader\StandardAutoLoader,
 	Appfuel\ClassLoader\AutoLoaderInterface;
 
 /**
  */
-class MvcViewBuilder implements MvcViewBuilderInterface
+class ViewBuilder implements ViewBuilderInterface
 {
-    /**
-     * The autoloader is used to determine if the class exists. 
-     * @var AutoLoaderInterface
-     */
-    protected $loader = null;
+	public function createViewData($format, array $params = null)
+	{
+		if ('html' === strtolower($format)) {
+			$data = new HtmlPage();
+		}
+		else {
+			$data = new ViewData();
+		}
 
-    /**
-     * Used to build and configure html pages
-     *
-     * @var HtmlPageBuilderInterface
-     */
-    protected $pageBuilder = null;
-
-    /**
-     * @param   string  $controllerClass
-     * @return  MvcActionBuilder
-     */
-    public function __construct(AutoLoaderInterface $loader = null,
-                                HtmlPageBuilderInterface $builder = null)
-    {
-        if (null === $loader) {
-            $loader = new StandardAutoLoader(AF_LIB_PATH);
-        }
-        $this->setClassLoader($loader);
-
-        if (null === $builder) {
-            $builder = new HtmlPageBuilder();
-        }
-        $this->setHtmlPageBuilder($builder);
-    }
-
-
-    /**
-     * @return  AutoLoaderInterface
-     */
-    public function getClassLoader()
-    {
-        return $this->loader;
-    }
-
-    /**
-     * @param   AutoLoaderInterface $loader
-     * @return  MvcActionBuilder
-     */
-    public function setClassLoader(AutoLoaderInterface $loader)
-    {
-        $this->loader = $loader;
-        return $this;
-    }
-
-    /**
-     * @return  HtmlPageBuilderInterface
-     */
-    public function getHtmlPageBuilder()
-    {
-        return $this->pageBuilder;
-    }
-
-    /**
-     * @param   HtmlPageBuilderInterface
-     * @return  MvcContextBuilder
-     */
-    public function setHtmlPageBuilder(HtmlPageBuilderInterface $builder)
-    {
-        $this->pageBuilder = $builder;
-        return $this;
-    }
+		return $data;
+	}
 
 	/**
 	 * @param	MvcViewDetailInterface	$detail
@@ -196,55 +138,6 @@ class MvcViewBuilder implements MvcViewBuilderInterface
 		return $view;
 	}
 
-	/**
-	 * @param	array	$params
-	 * @return	HtmlPageInterface
-	 */
-	public function buildHtmlPage(array $params)
-	{
-		$builder = $this->getHtmlPageBuilder();
-		$detail  = $builder->createHtmlPageDetail($params);	
-		return $builder->buildPage($detail);
-	}
-
-	/**
-	 * @param	array	$data
-	 * @return	mixed
-	 */
-	public function buildCustomView($strategy, array $data)
-	{
-		if (! isset($data['custom-class'])) {
-			$err = 'custom key -(custom-class) not found';
-			throw new InvalidArgumentException($err);
-		}
-		
-		$class = $data['custom-class'];
-		if (! is_string($class) || empty($class)) {
-			$err = 'view class was given but was not a string or empty';
-			throw new InvalidArgumentException($err);
-		}
-        
-		if (! $this->isExtendedView($class)) {
-			$err = "view class -($class) can not be found";
-			throw new RunTimeException($err);
-		}
-
-		return new $class();
-	}
-
-	/**
-	 * @param	string	$class
-	 * @return	bool
-	 */
-	public function isExtendedView($class)
-	{
-		if (! is_string($class) || empty($class)) {
-			return false;
-		}
-
-		return $this->getClassLoader()
-					->loadClass($class);
-	}
 
 	/**
 	 * @return	ConsoleTemplate

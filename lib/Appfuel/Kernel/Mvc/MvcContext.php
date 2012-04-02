@@ -11,6 +11,8 @@
 namespace Appfuel\Kernel\Mvc;
 
 use InvalidArgumentException,
+	Appfuel\Html\HtmlPageInterface,
+	Appfuel\View\ViewDataInterface,
 	Appfuel\DataStructure\Dictionary;
 
 /**
@@ -43,11 +45,28 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	protected $aclCodes = array();
 
 	/**
-	 * The mvc actions make assignments into the the view template which
-	 * will be converted into a string for the output engine.
+	 * Used when the view view is manually composed by the mvc action
 	 * @var mixed
 	 */
 	protected $view = '';
+
+	/**
+	 * Used to hold view assignments when lets appfuel compose the view
+	 * @var ViewDataInterface
+	 */
+	protected $viewData = null;
+
+	/**
+	 * View data assignments used to compose the html document
+	 * @var HtmlPageInterface
+	 */
+	protected $htmlPage = null;
+
+	/**
+	 * View format as determined by encoded route information. ex) route.json
+	 * @var string
+	 */
+	protected $format = null;
 
 	/**
 	 * The exit code is used by the framework to provide an exit status code
@@ -60,13 +79,10 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 * @param	AppInputInterface	$input
 	 * @return	AppContext
 	 */
-	public function __construct($key, AppInputInterface $input, $view = null)
+	public function __construct($key, AppInputInterface $input)
 	{
 		$this->setRouteKey($key);
 		$this->setInput($input);
-		if (null !== $view) {
-			$this->setView($view);
-		}
 	}
 
 	/**
@@ -78,7 +94,30 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	}
 
 	/**
-	 * @return	ViewTemplateInterface
+	 * @return	string
+	 */
+	public function getViewFormat()
+	{
+		return $this->format;
+	}
+
+	/**
+	 * @param	string	$format
+	 * @return	MvcContext
+	 */
+	public function setViewFormat($format)
+	{
+		if (! is_string($format) || empty($format)) {
+			$err = 'view format must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->format = $format;
+		return $this;
+	}
+
+	/**
+	 * @return	
 	 */
 	public function getView()
 	{
@@ -121,6 +160,50 @@ class MvcContext extends Dictionary implements MvcContextInterface
 
 		$this->view = $view;
 		return $this;
+	}
+
+	/**
+	 * @return	ViewDataInterface
+	 */
+	public function getViewData()
+	{
+		return $this->viewData;
+	}
+
+	/**
+	 * @param	ViewDataInterface $data
+	 * @return	MvcContext
+	 */
+	public function setViewData(ViewDataInterface $data)
+	{
+		$this->viewData = $data;
+		return $this;
+	}
+
+	/**
+	 * @return	HtmlPageInterface | null
+	 */
+	public function getHtmlPage()
+	{
+		return $this->htmlPage;
+	}
+
+	/**
+	 * @param	HtmlPageInterface	$page
+	 * @return	MvcContext
+	 */
+	public function setHtmlPage(HtmlPageInterface $page)
+	{
+		$this->htmlPage = $page;
+		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isHtmlPage()
+	{
+		return $this->htmlPage instanceof HtmlPageInterface;
 	}
 
 	/**

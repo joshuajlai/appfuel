@@ -4,26 +4,25 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Html;
+namespace Appfuel\Html;
 
 use InvalidArgumentException,
-	Appfuel\View\ViewTemplate,
-	Appfuel\View\ViewInterface,
-	Appfuel\View\FileViewTemplate,
-	Appfuel\View\Html\Tag\HtmlTagFactory,
-	Appfuel\View\Html\Tag\HeadTagInterface,
-	Appfuel\View\Html\Tag\HtmlTagInterface,
-	Appfuel\View\Html\Tag\GenericTagInterface,
-	Appfuel\View\Html\Tag\HtmlTagFactoryInterface;
+	Appfuel\View\ViewData,
+	Appfuel\View\ViewDataInterface,
+	Appfuel\Html\Tag\HtmlTagFactory,
+	Appfuel\Html\Tag\HeadTagInterface,
+	Appfuel\Html\Tag\HtmlTagInterface,
+	Appfuel\Html\Tag\GenericTagInterface,
+	Appfuel\Html\Tag\HtmlTagFactoryInterface;
 
 /**
  * Template used to generate generic html documents
  */
-class HtmlPage extends ViewTemplate implements HtmlPageInterface
+class HtmlPage extends ViewData implements HtmlPageInterface
 {
 	/**
 	 * @var TagFactoryInterface
@@ -72,18 +71,23 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	protected $isCss = true;
 
 	/**
+	 * Content used in the body tag
+	 * @var string
+	 */
+	protected $view = '';
+
+	/**
 	 * @param	string|ViewInterface $view	
 	 * @param	string				 $htmlDocFile	path to phtml file
 	 * @param	HtmlTagFactory		 $factory
 	 * @return	HtmlPage
 	 */
-	public function __construct($view, HtmlTagFactoryInterface $factory = null)
+	public function __construct(HtmlTagFactoryInterface $factory = null)
 	{
 		if (null === $factory) {
 			$factory = new HtmlTagFactory();
 		}
 
-		$this->setView($view);
 		$this->setHtmlTag($factory->createHtmlTag());
 		$this->setInlineStyleTag($factory->createStyleTag());
 		$this->setInlineScriptTag($factory->createScriptTag());
@@ -96,98 +100,6 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	public function getTagFactory()
 	{
 		return $this->tagFactory;
-	}
-
-	/**
-	 * @return	ViewTemplateInterface
-	 */
-	public function getHtmlDoc()
-	{
-		return $this->getTemplate('htmldoc');
-	}
-
-	/**
-	 * @param	ViewInterface $doc
-	 * @return	HtmlPageInterface
-	 */
-	public function setHtmlDoc($doc)
-	{
-		if (is_string($doc)) {
-			$template = new FileViewTemplate($doc);
-		}
-		else if ($doc instanceof ViewInterface) {
-			$template = $doc;
-		}
-		else {
-			$err  = 'html doc must be string (tpl path) or object that ';
-			$err .= 'implments the Appfuel\View\ViewInterface';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->addTemplate('htmldoc', $template);
-		return $this;
-	}
-
-	/**	
-	 * @return	ViewInterface | string
-	 */
-	public function getView()
-	{
-		return $this->getTemplate('content');
-	}
-
-	/**
-	 * @return	ViewInterface
-	 */
-	public function getInlineJsTemplate()
-	{
-		return $this->getTemplate('inlinejs');
-	}
-
-	/**
-	 * @param	mixed string|ViewInterface $js
-	 * @return	HtmlPage
-	 */
-	public function setInlineJsTemplate($js)
-	{
-		if (is_string($js)) {
-			$template = new FileViewTemplate($js);
-		}
-		else if ($js instanceof ViewInterface) {
-			$template = $js;
-		}
-		else {
-			$err  = 'inline js template must be a string (tpl path) or an ';
-			$err .= 'object that implments Appfuel\View\ViewInterface';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->addTemplate('inlinejs', $template);
-		return $this;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isInlineJsTemplate()
-	{
-		return $this->isTemplate('inlinejs');
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function loadInlineJsTemplate()
-	{
-		$template = $this->getTemplate('inlinejs');
-		if (! $template) {
-			return false;
-		}
-
-		$this->getInlineScriptTag()
-			 ->addContent($template->build(), 'prepend');
-	
-		return true;
 	}
 
 	/**
@@ -465,30 +377,6 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	}
 
 	/**
-	 * @param	string	$content
-	 * @return	HtmlPage
-	 */
-	public function addContent($content, $action = 'append')
-	{
-		$this->getHtmlTag()
-			 ->getBody()
-			 ->addContent($content, $action);
-
-		return $this;
-	}
-
-	/**
-	 * @param	int	$index	
-	 * @return	mixed
-	 */
-	public function getContent($index = null)
-	{
-		return $this->getHtmlTag()
-					->getBody()
-					->getContent($index);
-	}
-
-	/**
 	 * @param	string|TagInterface	$src
 	 * @return	HtmlPage
 	 */
@@ -572,133 +460,66 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 		return $this->getInlineScriptTag()
 					->getContent($index);
 	}
-
-	/**
-	 * Delegate to the view
-	 * 
-	 * @return	int
-	 */
-	public function assignCount()
-	{
-		return $this->getView()
-					->assignCount();
-	}
-
-	/**
-	 * Delegate load to the view's load
-	 * 
-	 * @param	array	$list
-	 * @return	HtmlPage
-	 */
-	public function load(array $list)
-	{
-		$this->getView()
-			 ->load($list);
-
-		return $this;
-	}
-
-	/**
-	 * Delegate to the view
-	 *
-	 * @param	string	$label
-	 * @param	mixed	$value
-	 * @return	HtmlPage
-	 */
-	public function assign($name, $value)
-	{
-		$this->getView()
-			 ->assign($name, $value);
-
-		return $this;
-	}
-
-	/**
-	 * Delegate to the view
-	 *
-	 * @param	string	$label
-	 * @param	array	$value
-	 * @return	HtmlPage
-	 */
-	public function assignMerge($key, array $value)
-	{
-		$this->getView()
-			 ->assignMerge($key, $value);
-
-		return $this;
-	}
 	
 	/**
-	 * Delegate to the view
-	 *
-	 * @param	string	$name
-	 * @param	mixed	$default
-	 * @return	mixed
+	 * @return	string
 	 */
-	public function get($name, $default = null)
+	public function getView()
 	{
-		return $this->getView()
-					->get($name, $default);
+		return $this->view;
 	}
 
 	/**
-	 * Delegate to the view
-	 *
-	 * @param	string	$name
-	 * @return	bool
+	 * @param	string	$data
+	 * @return	HtmlPage
 	 */
-	public function isAssigned($name)
+	public function setView($data)
 	{
-		return $this->getView()
-					->isAssigned($name);
+		if (! is_string($data) || 
+			! (is_object($data) && is_callable(array($data, '__toString')))) {
+			$err  = 'view must be a string or an object that implments ';
+			$err .= '__toString';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->view =(string) $data;
+		return $this;
 	}
+
 
 	/**
 	 * @return	string
 	 */
 	public function build()
 	{
-		$template = $this->getHtmlDoc();
-
+		$ns   = 'doc';
 		$html = $this->getHtmlTag();
 		$head = $html->getHead();
 		$body = $html->getBody();
-	
-		$template->assign('html-attrs', $html->getAttributeString());
-
-		
-		$template->assign('head-attrs', $head->getAttributeString());
-		$template->assign('head-title', $head->getTitle());
+		$this->assign('html-attrs', $html->getAttributeString(), $ns);
+		$this->assign('head-attrs', $head->getAttributeString(), $ns);
+		$this->assign('head-title', $head->getTitle(), $ns);
 		if ($head->isBase()) {
-			$template->assign('head-base', $head->getBase());
+			$this->assign('head-base', $head->getBase(), $ns);
 		}
 		
 		if ($head->isMeta()) {
-			$template->assign('head-meta', $head->getMeta());
+			$this->assign('head-meta', $head->getMeta(), $ns);
 		}
 		
 		if ($this->isCss()) {
 			/* the inline style tag is the last css tag in the head */
 			$head->addCssTag($this->getInlineStyleTag());			
-			$template->assign('head-css', $head->getCssTags());
+			$this->assign('head-css', $head->getCssTags(), $ns);
 		}
 
-		$template->assign('body-attrs', $body->getAttributeString());
+		$this->assign('body-attrs', $body->getAttributeString());
 
-		$view = $this->getView();
-		if ($view instanceof ViewInterface) {
-			$view = $view->build();
-		}
-		$body->addContent($view, 'prepend');
+		$body->addContent((string)$this->getView(), 'prepend');
 		$template->assign('body-markup', $body->getContentString());
 
 		if ($this->isJs()) {
 			
-			/* will load build that js template into a string and add it
-			 * as the first item in the inline script
-			 */			
-			$this->loadInlineJsTemplate();
-	
 			/* add as the last script tag for the page */
 			$this->addScriptTag($this->getInlineScriptTag());			
 			$template->assign('body-js', $this->getScriptTags());
@@ -713,27 +534,5 @@ class HtmlPage extends ViewTemplate implements HtmlPageInterface
 	protected function setTagFactory(HtmlTagFactoryInterface $factory)
 	{
 		$this->tagFactory = $factory;
-	}
-
-	/**
-	 * @param	ViewInterface $view
-	 * @return	HtmlPage
-	 */
-	protected function setView($view)
-	{
-		if (is_string($view)) {
-			$template = new FileViewTemplate($view);
-		}
-		else if ($view instanceof ViewInterface) {
-			$template = $view;
-		}
-		else {
-			$err  = 'page view must be a string (tpl path) or an object that ';
-			$err .= 'implments Appfuel\View\ViewInterface';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->addTemplate('content', $template);
-		return $this;
 	}
 }
