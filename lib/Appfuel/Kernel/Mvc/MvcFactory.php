@@ -11,7 +11,8 @@
 namespace Appfuel\Kernel\Mvc;
 
 use RunTimeException,
-	Appfuel\View\ViewBuilder;
+	Appfuel\View\ViewBuilder,
+	Appfuel\Kernel\KernelRegistry;
 /**
  * Create all object required to implement appfuels take on the mvc pattern
  */
@@ -133,10 +134,62 @@ class MvcFactory implements MvcFactoryInterface
 	}
 
 	/**
+	 * @param	string	$key
+	 * @return	MvcContext
+	 */
+	public function createEmptyContext($key)
+	{
+		return $this->createContext($key, $this->createEmptyInput());
+	}
+
+	/**
 	 * @return	MvcViewBuilderInterface
 	 */
 	public function createViewBuilder()
 	{
 		return new ViewBuilder();
+	}
+
+	/**
+	 * @param	MvcDispatcherInterface $dispatcher
+	 * @param	InterceptChainInterface $preChain
+	 * @param	InterceptChainInterface $postChain
+	 * @return	MvcFront
+	 */
+	public function createFront(MvcDispatcherInterface $dispatcher = null,
+								InterceptChainInterface $preChain  = null,
+								InterceptChainInterface $postChain = null)
+	{
+		$preList = KernelRegistry::getParam('pre-filters', array());
+		if (null === $preChain) {
+			$preChain = new InterceptChain();
+		}
+
+		if (is_array($preList) && ! empty($preList)) {
+			$preChain->loadFilters($preList);
+		}
+
+		$postList = KernelRegistry::getParam('post-filters', array());
+		if (null === $postChain) {
+			$postChain = new InterceptChain();
+		}
+
+		if (is_array($postList) && ! empty($postList)) {
+			$postChain->loadFilters($postList);
+		}
+
+		if (null === $dispatcher) {
+			$dispatcher = new MvcDispatcher();
+		}
+
+		return new MvcFront($dispatcher, $preChain, $postChain);
+	}
+
+	/**
+	 * @return	MvcDispatcher
+	 */
+	public function createDispatcher()
+	{
+		return new MvcDispatcher();
 	}
 }

@@ -19,6 +19,7 @@ use LogicException,
 	Appfuel\Html\Resource\FileStack,
 	Appfuel\Html\Resource\Yui3FileStack,
 	Appfuel\Html\Resource\Yui3Manifest,
+	Appfuel\Html\Resource\Yui\Yui3ResourceAdapter,
 	Appfuel\Html\Resource\FileStackInterface,
 	Appfuel\Html\Resource\AppfuelManifest,
 	Appfuel\Html\Resource\AppViewManifest,
@@ -69,51 +70,13 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 			'chrome',
 			$chrome->getName()
 		); 
-		$stack = new Yui3FileStack();
-		$this->yui3Resolve('widget', $stack);
-		$stack->sortByPriority();
-		echo "<pre>", print_r($stack, 1), "</pre>";exit;
+		$adapter = new Yui3ResourceAdapter();
+		$layer   = $adapter->buildLayer('fw-global');
+		$files   = $layer->getAllJsSourcePaths();
+		foreach ($files as $file) {
+			$page->addScript($file);
+		}	
 	}
-
-	/**
-	 * @param	array	$pkgList
-	 * @param	FileStackInterface $stack
-	 * @return	FileStackInterface
-	 */
-	public function yui3Resolve($pkgName, FileStackInterface $stack)
-	{
-		$pkg = ResourceTree::getPackage('yui3', $pkgName);
-		$manifest = new Yui3Manifest($pkg);
-		$name = $manifest->getPackageName();
-		$type  = 'js';
-		if ($manifest->isCss()) {
-			$type = 'css';
-		}
-
-		if ($manifest->hasNoDependencies()) {
-			$stack->add($type, $name);
-		} else if ($manifest->isUse()) {
-			$list = $manifest->getUse();
-			foreach ($list as $yuiName) {
-				$this->yui3Resolve($yuiName, $stack);
-			}
-		}
-		else if ($manifest->isRequire()) {
-			$list = $manifest->getRequire();
-			foreach ($list as $yuiName) {
-				$this->yui3Resolve($yuiName, $stack);
-			}
-			$stack->add($type, $name);
-		}
-
-		if ($manifest->isAfter()) {
-			$afterList = $manifest->getAfter();
-			foreach ($afterList as $afterName) {
-				$stack->addAfter($type, $name,  $afterName);
-			}
-		}
-	}
-
 
 	/**
 	 * @param	array	$config

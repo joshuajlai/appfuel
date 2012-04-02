@@ -8,14 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Html\Resource;
+namespace Appfuel\Html\Resource\Yui;
 
-use InvalidArgumentException;
+use InvalidArgumentException,
+	Appfuel\Html\Resource\FileStack;
 
 /**
  * Adds sorting based on yui3 after property
  */
-class Yui3FileStack extends FileStack
+class Yui3FileStack extends FileStack implements Yui3FileStackInterface
 {
 	/**
 	 * List of files to be resorted

@@ -29,38 +29,21 @@ class MvcAction implements MvcActionInterface
 	protected $dispatcher = null;
 
 	/**
-	 * Used to build a context the dispatcher needs to call another action
-	 * @var MvcContextBuilderInterface
+	 * @var MvcFactoryInterface
 	 */
-	protected $contextBuilder = null;
+	protected $factory = null;
 
 	/**
-	 * @param	string	$route
+	 * @param	MvcFactoryInterface	$factory
 	 * @return	MvcAction
 	 */
-	public function __construct(MvcDispatcherInterface $dispatcher = null,
-								MvcContextBuilderInterface $builder = null,
-								array $params = null)
+	public function __construct(MvcFactoryInterface $factory = null)
 	{
-		if (null === $dispatcher) {
-			$dispatcher = new MvcDispatcher();
+		if (null === $factory) {
+			$factory = new MvcFactory();
 		}
-		$this->setDispatcher($dispatcher);
-
-		if (null === $builder) {
-			$builder = new MvcContextBuilder();
-		}
-		$this->setContextBuilder($builder);
-		$this->initialize($params);
-	}
-
-	/**
-	 * @param	array	$params	
-	 * @return	MvcAction
-	 */
-	public function initialize($params)
-	{
-		return $this;
+		$this->setMvcFactory($factory);
+		$this->setDispatcher($factory->createDispatcher());
 	}
 
 	/**
@@ -84,9 +67,9 @@ class MvcAction implements MvcActionInterface
 	/**
 	 * @return 	MvcContextBuilder
 	 */
-	public function getContextBuilder()
+	public function getMvcFactory()
 	{
-		return $this->contextBuilder;
+		return $this->factory;
 	}
 
 	/**
@@ -105,15 +88,10 @@ class MvcAction implements MvcActionInterface
 	 * @param	string	$strategy
 	 * @return	null
 	 */
-	public function callWithNoInputs($route)
+	public function callEmpty($route)
 	{
-
-		$context = $this->getContextBuilder()
-						->clear()
-						->setRoute($route)
-						->noInputRequired()
-						->build();
-
+		$context = $this->getMvcFactory()
+						->createEmptyContext();
 		$this->getDispatcher()
 			 ->dispatch($context);
 		
@@ -145,11 +123,9 @@ class MvcAction implements MvcActionInterface
 	public function callAsContext($routeKey, MvcContextInterface $context)
 	{
 		$dispatcher = $this->getDispatcher();
-
-		$tmp = $this->getContextBuilder()
-					->setRouteKey($routeKey)
-					->setInput($context->getInput())
-					->build();
+		
+		$tmp = $this->getMvcFactory()
+					->createContext($routeKey, $context->getInput());
 
 		$tmp->load($context->getAll());
 		$dispatcher->dispatch($tmp);
@@ -177,18 +153,8 @@ class MvcAction implements MvcActionInterface
 	 * @param	MvcActionDispatcherInterface $dispatcher
 	 * @return	null
 	 */
-	protected function setContextBuilder(MvcContextBuilderInterface $builder)
+	protected function setMvcFactory(MvcFactoryInterface $factory)
 	{
-		$this->contextBuilder = $builder;
-	}
-
-
-	/**
-	 * @param	string	$route
-	 * @return	null
-	 */
-	protected function setRoute($route)
-	{
-		$this->route = $route;
+		$this->factory = $factory;
 	}
 }

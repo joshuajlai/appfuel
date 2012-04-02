@@ -10,7 +10,7 @@
  */
 return array(
 	'build-test' => array(
-		'is-public'   => false,
+		'is-public'   => true,
 		'action-name' => 'MyAction',
 		'startup'     => array(
 			'exclude' => array(

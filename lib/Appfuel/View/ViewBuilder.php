@@ -19,15 +19,78 @@ use Exception,
 	Appfuel\View\ViewTemplate,
 	Appfuel\View\ViewInterface,
 	Appfuel\View\FileViewTemplate,
-	Appfuel\View\Html\HtmlPage,
-	Appfuel\ClassLoader\StandardAutoLoader,
-	Appfuel\ClassLoader\AutoLoaderInterface;
+	Appfuel\Html\HtmlPage,
+	Appfuel\Html\HtmlPageConfiguration,
+	Appfuel\Html\Tag\HtmlTagFactory,
+	Appfuel\Html\Tag\HtmlTagFactoryInterface,
+	Appfuel\Kernel\Mvc\MvcContextInterface,
+	Appfuel\Kernel\Mvc\MvcRouteDetailInterface;
 
 /**
  */
 class ViewBuilder implements ViewBuilderInterface
 {
-	public function createViewData($format, array $params = null)
+	/**
+	 * @param	MvcContextInterface		$context
+	 * @param	MvcRouteDetailInterface $detail
+	 * @return	null
+	 */
+	public function setupView(MvcContextInterface $context,
+							  MvcRouteDetailInterface $route,
+							 $format)
+	{
+		if ($route->isView() && ! $route->isManualView()) {
+			$context->setViewFormat($format);
+			if ('html' === $format) {
+				$htmlPage = $this->createHtmlPage();
+				if ($route->isViewPackage()) {
+					$config = $this->createHtmlPageConfiguration();
+					$config->applyView($route->getViewPackage(), $htmlPage);
+				}
+
+				$context->setViewData($this->createViewData());  
+				$context->setHtmlPage($htmlPage);
+			}
+			else {
+				$context->setViewData($this->createViewData());
+			}
+		}
+	}
+
+	/**
+	 * @param	HtmlTagFactoryInterface $factory
+	 * @return	HtmlPage
+	 */
+	public function createHtmlPage(HtmlTagFactoryInterface $factory = null)
+	{
+		if (null === $factory) {
+			$factory = $this->createHtmlTagFactory();
+		}
+		return new HtmlPage();
+	}
+
+	/**
+	 * @return	HtmlTagFactory
+	 */
+	public function createHtmlTagFactory()
+	{
+		return new HtmlTagFactory();
+	}
+
+	/**
+	 * @return	HtmlPageConfiguration
+	 */
+	public function createHtmlPageConfiguration()
+	{
+		return new HtmlPageConfiguration();
+	}
+
+	/**
+	 * @param	string	$format
+	 * @param	array	$params
+	 * @return	ViewData
+	 */
+	public function createViewData($format = null, array $params = null)
 	{
 		if ('html' === strtolower($format)) {
 			$data = new HtmlPage();

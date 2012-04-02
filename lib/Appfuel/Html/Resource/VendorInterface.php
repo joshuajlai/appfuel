@@ -13,7 +13,7 @@ namespace Appfuel\Html\Resource;
 /**
  * Value object used to describe the vendor information
  */
-interface ResourceVendorInterface
+interface VendorInterface
 {
 	/**
 	 * @return	string

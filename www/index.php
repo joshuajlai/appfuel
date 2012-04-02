@@ -55,29 +55,15 @@ if (! $route instanceof MvcRouteDetailInterface) {
 }
 
 $init->runStartupTasks($route);
-$context = $factory->createContext($key, $input);
+$context	 = $factory->createContext($key, $input);
+$viewBuilder = $factory->createViewBuilder();
+$viewBuilder->setupView($context, $route, $format);
 
-if ($route->isView() && ! $route->isManualView()) {
-	$context->setViewFormat($format);
-	if ('html' === $format) {
-		$htmlPage = new HtmlPage();
-		if ($route->isViewPackage()) {
-			$config = new HtmlPageConfiguration();
-			$config->applyView($route->getViewPackage(), $htmlPage);
-			echo "<pre>", print_r($htmlPage, 1), "</pre>";exit;
-			
-		}	
-		echo "<pre>", print_r($route->isViewPackage(), 1), "</pre>";exit;
-		$context->setHtmlPage($htmlPage);
-	}
-	else {
-		$context->setViewData(new ViewData());
-	}
-echo "<pre>", print_r($context, 1), "</pre>";exit;	
-}
-
-$front   = $factory->createFrontController();
+$front   = $factory->createFront();
 $context = $front->run($context);
+
+$content = $viewBuilder->composeView($context, $routeDetail);
+echo "<pre>", print_r($context, 1), "</pre>";exit;	
 
 $code    = $context->getExitCode();
 $headers = $context->get('http-headers', array());
