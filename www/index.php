@@ -62,8 +62,8 @@ $viewBuilder->setupView($context, $route, $format);
 $front   = $factory->createFront();
 $context = $front->run($context);
 
-$content = $viewBuilder->composeView($context, $routeDetail);
-echo "<pre>", print_r($context, 1), "</pre>";exit;	
+$content = $viewBuilder->composeView($context, $route);
+echo "<pre>", print_r($content, 1), "</pre>";exit;	
 
 $code    = $context->getExitCode();
 $headers = $context->get('http-headers', array());

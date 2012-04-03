@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Compositor;
+namespace Appfuel\View;
 
 use RunTimeException,
 	InvalidArgumentException;
@@ -18,36 +18,8 @@ use RunTimeException,
  * means the $this in the template file is this object. This format interface
  * will be used in the .phtml files 
  */
-interface FileCompositorInterface extends ViewCompositorInterface
+interface FileCompositorInterface
 {
-	/**
-	 * Not used by .phtml files but needs to be public. Enforce through 
-	 * policy and code review.
-	 *
-	 * @return	string
-	 */
-	public function getFile();
-
-	/**
-	 * Not used by .phtml  files but needs to be public. Enforce through 
-	 * policy and code review.
-	 *
-	 * @throws	InvalidArgumentException	when path is a non empty string
-	 * @param	string
-	 * @return	FileCompositorInterface
-	 */
-	public function setFile($path);
-
-	/**
-	 * The path relative to the base path that is appended to the base path
-	 * and prepended to the file path to produce the absolute path of the file
-	 *
-	 * @param	string	$path
-	 * @param	bool	$isBase
-	 * @return	FileCompositorInterface
-	 */ 
-	public function setRelativeRootPath($path, $isBase = true);
-
     /**
      * Load a list of key/value pairs into template file
      * 
@@ -119,8 +91,8 @@ interface FileCompositorInterface extends ViewCompositorInterface
 	/**
 	 * @param	string  $file
 	 * @param	array	$data
-	 * @param	bool	$isEcho
+	 * @param	bool	$isRender
 	 * @return	string
 	 */
-	public function import($file, array $data = null, $isEcho = false);
+	public function import($file, array $data = null, $isRender = false);
 }

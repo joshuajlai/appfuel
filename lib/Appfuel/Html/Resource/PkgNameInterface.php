@@ -8,14 +8,21 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\View\Html\Resource;
+namespace Appfuel\Html\Resource;
+
+use InvalidArgumentException;
 
 /**
  */
-interface PackageManifestInterface
+interface PkgNameInterface
 {
 	/**
 	 * @return	string
 	 */
-	public function getPackageName();
+	public function getVendor();
+
+	/**
+	 * @return	array
+	 */
+	public function getName();
 }

@@ -7,7 +7,10 @@
 			"fw-global": {
 				"filename": "global-framwork",
 				"pkg": [
-					"base"
+					"base", "node", "event", "event-hover", 
+					"node-event-simulate", "array-extras", "arraysort", 
+					"recordset-base", "datasource-io", "datasource-jsonschema",
+					"io-base", "json", "plugin", "view", "widget"
 				]
 			}
 		}

@@ -45,22 +45,10 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	protected $aclCodes = array();
 
 	/**
-	 * Used when the view view is manually composed by the mvc action
+	 * Used to hold a string or object that implements __toString
 	 * @var mixed
 	 */
 	protected $view = '';
-
-	/**
-	 * Used to hold view assignments when lets appfuel compose the view
-	 * @var ViewDataInterface
-	 */
-	protected $viewData = null;
-
-	/**
-	 * View data assignments used to compose the html document
-	 * @var HtmlPageInterface
-	 */
-	protected $htmlPage = null;
 
 	/**
 	 * View format as determined by encoded route information. ex) route.json
@@ -160,50 +148,6 @@ class MvcContext extends Dictionary implements MvcContextInterface
 
 		$this->view = $view;
 		return $this;
-	}
-
-	/**
-	 * @return	ViewDataInterface
-	 */
-	public function getViewData()
-	{
-		return $this->viewData;
-	}
-
-	/**
-	 * @param	ViewDataInterface $data
-	 * @return	MvcContext
-	 */
-	public function setViewData(ViewDataInterface $data)
-	{
-		$this->viewData = $data;
-		return $this;
-	}
-
-	/**
-	 * @return	HtmlPageInterface | null
-	 */
-	public function getHtmlPage()
-	{
-		return $this->htmlPage;
-	}
-
-	/**
-	 * @param	HtmlPageInterface	$page
-	 * @return	MvcContext
-	 */
-	public function setHtmlPage(HtmlPageInterface $page)
-	{
-		$this->htmlPage = $page;
-		return $this;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isHtmlPage()
-	{
-		return $this->htmlPage instanceof HtmlPageInterface;
 	}
 
 	/**

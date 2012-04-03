@@ -21,8 +21,7 @@ class MyAction extends MvcAction
 	 */
 	public function process(MvcContextInterface $context)
 	{
-		$view = $context->getViewData();
-		$view->assign('foo', 'bar', 'my-view');
-		echo "<pre>", print_r($view, 1), "</pre>";exit;
+		$view = $context->getView();
+		$view->assign('foo', 'bar');
 	}
 }

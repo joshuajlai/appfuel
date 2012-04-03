@@ -18,6 +18,7 @@ use Exception,
     Appfuel\View\AjaxTemplate,
 	Appfuel\View\ViewTemplate,
 	Appfuel\View\ViewInterface,
+	Appfuel\View\ViewCompositor,
 	Appfuel\View\FileViewTemplate,
 	Appfuel\Html\HtmlPage,
 	Appfuel\Html\HtmlPageConfiguration,
@@ -30,6 +31,12 @@ use Exception,
  */
 class ViewBuilder implements ViewBuilderInterface
 {
+	/**
+	 * List of supported formats that can be composed into a view
+	 * @var array
+	 */
+	protected $validFormats = array('json', 'html', 'text', 'csv');
+
 	/**
 	 * @param	MvcContextInterface		$context
 	 * @param	MvcRouteDetailInterface $detail
@@ -48,13 +55,68 @@ class ViewBuilder implements ViewBuilderInterface
 					$config->applyView($route->getViewPackage(), $htmlPage);
 				}
 
-				$context->setViewData($this->createViewData());  
-				$context->setHtmlPage($htmlPage);
+				$context->setView($htmlPage);
 			}
 			else {
-				$context->setViewData($this->createViewData());
+				$context->setView(new ViewTemplate());
 			}
 		}
+	}
+
+	/**
+	 * @param	MvcContextInterface $context
+	 * @param	MvcRouteDetailInterface $route
+	 * @return	string
+	 */
+	public function composeView(MvcContextInterface $context,
+								MvcRouteDetailInterface $route)
+	{
+		if (! $route->isView()) {
+			return '';
+		}
+
+		if ($route->isManualView()) {
+			return $context->getView();
+		}
+		
+		$format = $context->getViewFormat();
+		if (! $this->isFormatSupported($format)) {
+			$err = 'could not compose view: format not found';
+			throw new DomainException($err, 404);
+		}
+
+		$data = $context->getView();
+		$compositor = $this->createViewCompositor('file');
+	}
+
+	/**
+	 * @param	ViewDataInterface $data
+	 * @return	string
+	 */
+	public function createViewCompositor($format)
+	{
+		if (! is_string($format) || empty($format)) {
+			$err = "compositor strategy must be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
+		$class = 'Appfuel\View\Compositor\\' . ucfirst($format) . 'Compositor';
+		//$obj = new $class();
+		$file = 'appfuel/web/app-view/test/mytest.phtml';
+		$data = array('foo' => 'bar');
+		echo "<pre>", print_r(ViewCompositor::composeFile($file, $data), 1), "</pre>";exit;
+	}
+
+	/**
+	 * @param	string	$format
+	 * @return	bool
+	 */
+	public function isFormatSupported($format)
+	{
+		if (is_string($format) && in_array($format,$this->validFormats,true)) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

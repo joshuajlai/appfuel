@@ -14,7 +14,7 @@ use InvalidArgumentException;
 
 /**
  */
-class PkgName
+class PkgName implements PkgNameInterface
 {
 	/**
 	 * @var string
