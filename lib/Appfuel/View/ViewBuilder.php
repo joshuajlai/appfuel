@@ -10,7 +10,7 @@
  */
 namespace Appfuel\View;
 
-use Exception,
+use DomainException,
 	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Console\ConsoleTemplate,
@@ -32,12 +32,6 @@ use Exception,
 class ViewBuilder implements ViewBuilderInterface
 {
 	/**
-	 * List of supported formats that can be composed into a view
-	 * @var array
-	 */
-	protected $validFormats = array('json', 'html', 'text', 'csv');
-
-	/**
 	 * @param	MvcContextInterface		$context
 	 * @param	MvcRouteDetailInterface $detail
 	 * @return	null
@@ -48,75 +42,30 @@ class ViewBuilder implements ViewBuilderInterface
 	{
 		if ($route->isView() && ! $route->isManualView()) {
 			$context->setViewFormat($format);
+			$view = $this->createTemplate($format);
+			$context->setView($view);
 			if ('html' === $format) {
-				$htmlPage = $this->createHtmlPage();
 				if ($route->isViewPackage()) {
-					$config = $this->createHtmlPageConfiguration();
-					$config->applyView($route->getViewPackage(), $htmlPage);
+					$config = $this->createHtmlPageConfiguration(AF_BASE_URL);
+					$config->applyView($route->getViewPackage(), $view);
 				}
-
-				$context->setView($htmlPage);
-			}
-			else {
-				$context->setView(new ViewTemplate());
 			}
 		}
 	}
 
-	/**
-	 * @param	MvcContextInterface $context
-	 * @param	MvcRouteDetailInterface $route
-	 * @return	string
-	 */
-	public function composeView(MvcContextInterface $context,
-								MvcRouteDetailInterface $route)
+	public function createTemplate($format)
 	{
-		if (! $route->isView()) {
-			return '';
+		switch ($format) {
+			case 'html': $template = $this->createHtmlPage();	  break;
+			case 'csv' : $template = $this->createCsvTemplate();  break;
+			case 'json': $template = $this->createAjaxTemplate(); break;
+			case 'text': $template = $this->createTextTemplate(); break;
+			default: 
+				$err = "could not find template for format -($format)";
+				throw new DomainException($err, 404);
 		}
 
-		if ($route->isManualView()) {
-			return $context->getView();
-		}
-		
-		$format = $context->getViewFormat();
-		if (! $this->isFormatSupported($format)) {
-			$err = 'could not compose view: format not found';
-			throw new DomainException($err, 404);
-		}
-
-		$data = $context->getView();
-		$compositor = $this->createViewCompositor('file');
-	}
-
-	/**
-	 * @param	ViewDataInterface $data
-	 * @return	string
-	 */
-	public function createViewCompositor($format)
-	{
-		if (! is_string($format) || empty($format)) {
-			$err = "compositor strategy must be a non empty string";
-			throw new InvalidArgumentException($err);
-		}
-		$class = 'Appfuel\View\Compositor\\' . ucfirst($format) . 'Compositor';
-		//$obj = new $class();
-		$file = 'appfuel/web/app-view/test/mytest.phtml';
-		$data = array('foo' => 'bar');
-		echo "<pre>", print_r(ViewCompositor::composeFile($file, $data), 1), "</pre>";exit;
-	}
-
-	/**
-	 * @param	string	$format
-	 * @return	bool
-	 */
-	public function isFormatSupported($format)
-	{
-		if (is_string($format) && in_array($format,$this->validFormats,true)) {
-			return true;
-		}
-
-		return false;
+		return $template;
 	}
 
 	/**
@@ -142,9 +91,9 @@ class ViewBuilder implements ViewBuilderInterface
 	/**
 	 * @return	HtmlPageConfiguration
 	 */
-	public function createHtmlPageConfiguration()
+	public function createHtmlPageConfiguration($url)
 	{
-		return new HtmlPageConfiguration();
+		return new HtmlPageConfiguration($url);
 	}
 
 	/**
@@ -224,68 +173,11 @@ class ViewBuilder implements ViewBuilderInterface
 	}
 
 	/**
-	 * @param	string	$strategy
-	 * @param	array	$params
-	 * @return	ViewInterface
-	 */
-	public function buildAppView($strategy, array $params)
-	{
-		switch($strategy) {
-			case 'html-page':
-				$view = $this->buildHtmlPage($params);
-				break;
-
-			case 'html': 
-				$view = $this->createDefaultHtmlTemplate();
-				break;
-
-			case 'ajax':
-				$view = $this->createDefaultAjaxTemplate();
-				break;
-	
-			case 'console':
-				$view = $this->createDefaultConsoleTemplate();
-				break;
-
-			case 'general':
-				$view = $this->createViewTemplate();
-				break;
-
-            case 'csv':
-                $view = $this->createDefaultCsvTemplate();
-                break; 
-
-			default:
-				$err = "strategy -($strategy) not mapped";
-				throw new RunTimeException($err);
-		}
-
-		return $view;
-	}
-
-
-	/**
-	 * @return	ConsoleTemplate
-	 */
-	public function createDefaultConsoleTemplate()
-	{
-		return new ConsoleTemplate();
-	}
-
-	/**
 	 * @return	AjaxTemplate
 	 */
-	public function createDefaultAjaxTemplate()
+	public function createAjaxTemplate()
 	{
 		return new AjaxTemplate();
-	}
-
-	/**
-	 * @return	HtmlTemplate
-	 */
-	public function createDefaultHtmlTemplate()
-	{
-		return new HtmlTemplate();
 	}
 
 	/**
@@ -301,7 +193,7 @@ class ViewBuilder implements ViewBuilderInterface
      * a file compositor.
 	 * @return	CsvTemplate
 	 */
-	public function createDefaultCsvTemplate()
+	public function createCsvTemplate()
 	{
 		return new CsvTemplate();
 	}

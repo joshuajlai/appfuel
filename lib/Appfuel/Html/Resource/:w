@@ -1,0 +1,144 @@
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @license		http://www.apache.org/licenses/LICENSE-2.0
+ */
+namespace Appfuel\Html\Resource;
+
+use DomainException;
+
+/**
+ * Adds sorting based on yui3 after property
+ */
+class AppfuelResourceAdapter
+{
+	/**
+	 * @param	string
+	 * @return	array
+	 */
+	public function getLayerData($name)
+	{
+		return ResourceTree::getLayer('appfuel', $name);
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	ResourceLayer
+	 */
+	public function buildLayer($name)
+	{
+		$data  = $this->getLayerData($name);
+		$stack = $this->createFileStack();
+		if (! isset($data['pkg']) || ! is_array($data['pkg'])) {
+			$err = "could not build layer: no -(pkg) defined";
+			throw new DomainException($err);
+		}
+		$list = $data['pkg'];
+		if (! isset($data['filename'])) {
+			$err = "could not build layer -($name): -(filename) not defined";
+			throw new DomainException($err);
+		}
+		
+		$vendor = $this->createVendor();
+		$layer  = $this->createLayer($name, $this->createVendor());
+		$layer->setFilename($data['filename']);
+
+		$this->resolve('pkg.mvc', 'appfuel', $vendor->getPackagePath(), $stack);
+		foreach ($list as $pkg) {
+			$this->resolve($pkg, $vendor->getVendorName(), $stack);
+		}
+		$layer->setFilestack($stack);
+
+		return $layer;
+	}
+
+	/**
+	 * @param	string	$pkgName
+	 * @param	Yui3StackInterface $stack
+	 * @return	null
+	 */
+	public function resolve($pkgName, $vendor, $path, FileStackInterface $stack)
+	{
+		echo "<pre>", print_r($path, 1), "</pre>";exit;
+        $pkgName = new PkgName($pkgName, $vendor);
+		$pkg = ResourceTree::findPackage($pkgName);
+		if (false === $pkg) {
+			$err = "can not resolve dependecies -($pkgName) not found";
+			throw new DomainException($err);
+		}
+        $manifest = $this->createManifest($pkg);
+        if ($manifest->isRequiredPackages()) {
+            $list = $manifest->getRequiredPackages();
+            foreach ($list as $requiredName) {
+                $this->resolve($requiredName, $vendor, $stack);
+            }
+        }
+		
+		$js  = $manifest->getFiles('js');
+		echo "<pre>", print_r($vendor, 1), "</pre>";exit;
+		if (! $js) {
+			$js = array();
+		}	
+		$css = $manifest->getFiles('css');
+		if (! $css) {
+			$css = array();
+		}
+
+		$stack->load(array('js' => $js, 'css' => $css));
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	Yui3Manifest
+	 */
+	public function createManifest(array $data)
+	{
+		$type = $data['type'];
+		switch ($data['type']) {
+			case 'app-view': 
+			case 'ui-kit':
+				$manifest = new AppViewManifest($data);
+				break;
+			default :
+				$manifest = new AppfuelManifest($data);
+		}
+
+		return $manifest;
+	}
+
+	/**
+	 * @return	Yui3FileStack
+	 */
+	public function createFileStack()
+	{
+		return new FileStack();
+	}
+
+	/**
+	 * @return	VendorInterface
+	 */
+	public function createVendor()
+	{
+		$vendor = 'appfuel';
+		return new Vendor(array(
+			'name'    => $vendor,
+			'version' => ResourceTree::getVersion($vendor),
+			'path'    => ResourceTree::getPath($vendor)
+		));
+	}
+
+	/**
+	 * @param	$name	
+	 * @param	$vendor
+	 * @return	VendorInterface
+	 */
+	public function createLayer($name, $vendor)
+	{
+		return new AppfuelLayer($name, $vendor);
+	}
+}

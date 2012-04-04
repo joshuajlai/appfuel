@@ -31,6 +31,77 @@ use LogicException,
  */
 class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 {
+	/**
+	 * @param	string	
+	 */
+	protected $resourceUrl = '';
+
+	/**
+	 * This package name will be used when one 
+	 * @param	string
+	 */
+	protected $htmlPkgName = null;
+
+	/**
+	 * @param	string	$url
+	 * @return	HtmlPageConfiguration
+	 */
+	public function __construct($url = null, $default = null)
+	{
+		if (null !== $url) {
+			$this->setResourceUrl($url);
+		}
+
+		if (null === $default) {
+			$default = 'appfuel:chrome:default-html';
+		}
+		$this->setDefaultHtmlPkgName($default);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getResourceUrl()
+	{
+		return $this->resourceUrl;
+	}
+
+	/**
+	 * @param	string	$url
+	 * @return	HtmlPageConfiguration
+	 */
+	public function setResourceUrl($url)
+	{
+		if (! is_string($url)) {
+			$err = 'resource url must be a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->resourceUrl = $url;
+		return $this;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getDefaultHtmlPkgName()
+	{
+		return $this->htmlPkgName;
+	}
+
+	/**
+	 * @param	string	$pkg
+	 * @return	HtmlPageConfiguration
+	 */
+	public function setDefaultHtmlPkgName($pkg)
+	{
+		if (! $pkg instanceof PkgNameInterface) {
+			$pkg = new PkgName($pkg);
+		}
+
+		$this->htmlPkgName = $pkg;
+		return $this;
+	}
 
 	public function loadResourceTree()
 	{
@@ -61,21 +132,45 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 			$this->loadResourceTree();
 		}
 
-		$pkg = ResourceTree::getPackageByType($vendor, 'app-view', $viewName);
-		$manifest = new AppViewManifest($pkg);
-		$chrome = new PkgName($manifest->getHtmlPage(), $vendor);
+		$pkg = ResourceTree::getAppView($vendor, $viewName);
+		if (! $pkg) {
+			$err = "could not find app-view for -($vendor, $viewName)";
+			throw new RunTimeException($err, 404);
+		}
+		
+		$htmlPkgName = $pkg->getHtmlPage();
+		if (! $htmlPkgName) {
+			$htmlPkgName = $this->getDefaultHtmlPkgName();
+		}
+		else {
+			$htmlPkgName = new PkgName($htmlPkgName, $vendor);
+		}
 
-		$config = ResourceTree::getPackageByType(
-			$chrome->getVendor(), 
-			'chrome',
-			$chrome->getName()
-		); 
-		$adapter = new Yui3ResourceAdapter();
-		$layer   = $adapter->buildLayer('fw-global');
-		$files   = $layer->getAllJsSourcePaths();
-		foreach ($files as $file) {
-			$page->addScript($file);
-		}	
+		$url  = $this->getResourceUrl();
+		$data = ResourceTree::findPackage($htmlPkgName);
+		$js   = array();
+		$css  = array();
+
+		$layers = array();
+		if (isset($data['layers']) && is_array($data['layers'])) {
+			foreach ($data['layers'] as $vendor => $pkgs) {
+				$adapter = ResourceTree::createAdapter($vendor); 
+				if (! is_array($pkgs)) {
+					continue;
+				}
+				foreach ($pkgs as $layerName) {
+					$layer = $adapter->buildLayer($layerName);
+					$js  = array_merge($js,  $layer->getAllJsSourcePaths());
+					$css = array_merge($css, $layer->getAllCssSourcePaths());
+					$layers[$layerName] = $layer;
+				}
+			}
+		}
+		foreach ($js as $file) {
+			$fileUrl = "$url/$file";
+			$page->addScript($fileUrl);
+		}
+	
 	}
 
 	/**

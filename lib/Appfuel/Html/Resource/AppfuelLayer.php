@@ -4,20 +4,18 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Html\Resource\Yui;
+namespace Appfuel\Html\Resource;
 
 use DomainException,
-	InvalidArgumentException,
-	Appfuel\Html\Resource\VendorInterface,
-	Appfuel\Html\Resource\FileStackInterface;
+	InvalidArgumentException;
 
 /**
  */
-class Yui3Layer 
+class AppfuelLayer 
 {
 	/**
 	 * @var string
@@ -145,12 +143,6 @@ class Yui3Layer
 	 */
 	public function setFileStack(FileStackInterface $stack)
 	{
-		if (! $stack instanceof Yui3FileStackInterface) {
-			$err  = 'yui3 layer requires a file stack that implements ';
-			$err .= __NAMESPACE__ . '\Yui3FileStackInterface';
-			throw new DomainException($err);
-		}
-
 		$this->stack = $stack;
 		return $this;
 	}
@@ -184,13 +176,8 @@ class Yui3Layer
 		if (empty($list)) {
 			return array();
 		}
-
-		$result = array();
-		foreach ($list as $name) {
-			$result[] = "$srcPath/$name/$name.$type";
-		}
-
-		return $result;
+		
+		return $list;
 	}
 
 	/**

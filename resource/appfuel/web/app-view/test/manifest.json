@@ -3,16 +3,14 @@
     "type": "app-view",
     "desc": "test view used to test the resource building",
 	"relative-path": "app-view/test",
-	"html-page": "appfuel:default-html",
+	"html-page": "appfuel:chrome.default-html",
 	"js-init": "src/init.pjs",
 	"markup": "src/my-test.phtml",
 	"layers": {
 		"yui3": ["fw-global"],
 		"appfuel": ["app-global"]
 	},
-	"required": {
-		"appfuel": ["pkg:mvc"]
-	},
+	"required": ["appfuel:pkg.kernel"],
 	"src" : {
 		"files": {
 			"js" : ["myjs.js"]

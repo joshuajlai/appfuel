@@ -15,7 +15,7 @@ use InvalidArgumentException;
 /**
  * A value object used to describe the manifest.json in the package directory
  */
-class AppViewManifest extends AppfuelManifest
+class AppViewManifest extends AppfuelManifest implements AppViewInterface
 {
 	/**
 	 * Name of the chrome package used to configure the html page

@@ -18,7 +18,7 @@ use RunTimeException,
  * The file view template uses a FileCompositorInterface to compose a phtml
  * file into string. A 
  */
-class FileTemplate extends ViewTemplate implements FileTemplateInterface
+class FileTemplate extends ViewTemplate implements TemplateInterface
 {
     /**
      * Relative path to a file template
@@ -144,6 +144,7 @@ class FileTemplate extends ViewTemplate implements FileTemplateInterface
 			$result = ViewCompositor::composePackage($name, $data);
 		}
 		else {
+			$file   = $this->getFile();
 			$result = ViewCompositor::composeFile($file, $data);
 		}
 

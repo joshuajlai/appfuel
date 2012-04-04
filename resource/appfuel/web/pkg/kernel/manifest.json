@@ -7,12 +7,6 @@
 		"filename": "appfuel-kernel",
         "files": {
             "js": ["js/kernel.js","js/ajax.js"]
-        },
-		"import-layer": {
-			"yui3": ["fw-global"]
-		},
-		"import-pkg": {
-			"appfuel": ["mvc"]
-		}
+        }
     }
 }

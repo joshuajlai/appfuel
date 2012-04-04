@@ -54,17 +54,16 @@ if (! $route instanceof MvcRouteDetailInterface) {
     throw new LogicException($err);
 }
 
+$context = $factory->createContext($key, $input);
 $init->runStartupTasks($route);
-$context	 = $factory->createContext($key, $input);
+
 $viewBuilder = $factory->createViewBuilder();
 $viewBuilder->setupView($context, $route, $format);
 
 $front   = $factory->createFront();
 $context = $front->run($context);
 
-$content = $viewBuilder->composeView($context, $route);
-echo "<pre>", print_r($content, 1), "</pre>";exit;	
-
+$content =(string) $context->getView();
 $code    = $context->getExitCode();
 $headers = $context->get('http-headers', array());
 if (! is_array($headers) || empty($headers)) {

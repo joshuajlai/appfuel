@@ -10,11 +10,11 @@
  */
 namespace Appfuel\Html;
 
-use Appfuel\View\ViewDataInterface;
+use Appfuel\View\TemplateInterface;
 
 /**
  * Template used to generate generic html documents
  */
-interface HtmlPageInterface extends ViewDataInterface
+interface HtmlPageInterface extends TemplateInterface
 {
 }

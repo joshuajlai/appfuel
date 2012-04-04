@@ -5,7 +5,9 @@ return array(
 		'display-errors' => 'on',
 	),
 	'main' => array(
-		'startup-tasks'		=> array(),
+		'startup-tasks'		=> array(
+			'Appfuel\Kernel\Startup\UrlStartup'
+		),
 		'post-filters'		=> array(),
 	),
 	'test' => array(

@@ -20,8 +20,8 @@
 		"path": "resource/appfuel/web",
 		"layers": {
 			"app-global": {
-				"type": "js",
-				"include" : ["kernel", "mvc"]
+				"filename": "global-app",
+				"pkg" : ["pkg.kernel", "pkg.mvc"]
 			}
 		}
 	}

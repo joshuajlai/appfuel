@@ -56,6 +56,11 @@ class AppfuelManifest implements AppfuelManifestInterface
 	protected $requiredPkgs = array();
 
 	/**
+	 * @var string
+	 */
+	protected $filePath = null;
+
+	/**
 	 * @param	array $data	
 	 * @return	PackageManifest
 	 */
@@ -165,10 +170,23 @@ class AppfuelManifest implements AppfuelManifestInterface
 	 * @params	string $type 
 	 * @return	array|false
 	 */
-	public function getFiles($type)
+	public function getFiles($type, $path = null)
 	{
+		$srcPath = $this->getSourcePath();
+		if (is_string($path) && ! empty($path)) {
+			$srcPath = "$path/$srcPath";
+		}
+		
 		return $this->getSourceFileStack()
-					->get($type);
+					->get($type, $srcPath);
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isRequiredPackages()
+	{
+		return ! empty($this->requiredPkgs);
 	}
 
 	/**
@@ -298,13 +316,6 @@ class AppfuelManifest implements AppfuelManifestInterface
 	 */
 	protected function setRequiredPackages($list)
 	{
-		foreach ($list as $vendor => $data) {
-			if (! is_string($vendor) || empty($vendor)) {
-				$err = 'vendor name must be a non empty string';
-				throw new InvalidArgumentException($err);
-			}
-		}
-
 		$this->requiredPkgs = $list;
 	}
 

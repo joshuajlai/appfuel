@@ -11,8 +11,8 @@
 namespace Appfuel\Html;
 
 use InvalidArgumentException,
-	Appfuel\View\ViewData,
-	Appfuel\View\ViewDataInterface,
+	Appfuel\View\FileTemplate,
+	Appfuel\View\ViewInterface,
 	Appfuel\Html\Tag\HtmlTagFactory,
 	Appfuel\Html\Tag\HeadTagInterface,
 	Appfuel\Html\Tag\HtmlTagInterface,
@@ -22,7 +22,7 @@ use InvalidArgumentException,
 /**
  * Template used to generate generic html documents
  */
-class HtmlPage extends ViewData implements HtmlPageInterface
+class HtmlPage extends FileTemplate implements HtmlPageInterface
 {
 	/**
 	 * @var TagFactoryInterface
@@ -82,16 +82,58 @@ class HtmlPage extends ViewData implements HtmlPageInterface
 	 * @param	HtmlTagFactory		 $factory
 	 * @return	HtmlPage
 	 */
-	public function __construct(HtmlTagFactoryInterface $factory = null)
+	public function __construct($file=null, HtmlTagFactoryInterface $fact=null)
 	{
-		if (null === $factory) {
-			$factory = new HtmlTagFactory();
+		if (null === $file) {
+			$file = 'appfuel/web/chrome/htmldoc.phtml';
+		}
+		parent::__construct($file, false);
+
+		if (null === $fact) {
+			$fact = new HtmlTagFactory();
 		}
 
-		$this->setHtmlTag($factory->createHtmlTag());
-		$this->setInlineStyleTag($factory->createStyleTag());
-		$this->setInlineScriptTag($factory->createScriptTag());
-		$this->setTagFactory($factory);
+		$this->setHtmlTag($fact->createHtmlTag());
+		$this->setInlineStyleTag($fact->createStyleTag());
+		$this->setInlineScriptTag($fact->createScriptTag());
+		$this->setTagFactory($fact);
+	}
+
+	/**
+	 * @return	ViewInterface
+	 */
+	public function getView()
+	{
+		return $this->getTemplate('content');
+	}
+
+	/**
+	 * @return	HtmlPage
+	 */
+	public function setView(ViewInterface $view)
+	{
+		$this->addTemplate('content', $view);
+		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isView()
+	{
+		return $this->isTemplate('content');
+	}
+
+	/**
+	 * @param	string	$name
+	 * @param	string	$default
+	 * @return	HtmlPage
+	 */
+	public function setViewPkg($name, $default = null)
+	{
+		$view = $this->createFileTemplate($name, true, $default);
+		$this->addTemplate('content', $view);
+		return $this;
 	}
 
 	/**
@@ -233,6 +275,10 @@ class HtmlPage extends ViewData implements HtmlPageInterface
 		return $this;
 	}
 
+	/**
+	 * @param	GenericTagInterface $tag
+	 * @return	HtmlPage
+	 */
 	public function addCssLinkTag(GenericTagInterface $tag)
 	{
 		if ('link' !== $tag->getTagName()) {
@@ -464,67 +510,50 @@ class HtmlPage extends ViewData implements HtmlPageInterface
 	/**
 	 * @return	string
 	 */
-	public function getView()
-	{
-		return $this->view;
-	}
-
-	/**
-	 * @param	string	$data
-	 * @return	HtmlPage
-	 */
-	public function setView($data)
-	{
-		if (! is_string($data) || 
-			! (is_object($data) && is_callable(array($data, '__toString')))) {
-			$err  = 'view must be a string or an object that implments ';
-			$err .= '__toString';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->view =(string) $data;
-		return $this;
-	}
-
-
-	/**
-	 * @return	string
-	 */
 	public function build()
 	{
-		$ns   = 'doc';
 		$html = $this->getHtmlTag();
 		$head = $html->getHead();
 		$body = $html->getBody();
-		$this->assign('html-attrs', $html->getAttributeString(), $ns);
-		$this->assign('head-attrs', $head->getAttributeString(), $ns);
-		$this->assign('head-title', $head->getTitle(), $ns);
+		
+		$data = array(
+			'html-attrs' => $html->getAttributeString(),
+			'head-attrs' => $head->getAttributeString(),
+			'head-title' => $head->getTitle(),
+			'body-attrs' => $body->getAttributeString(),
+		);
+		
 		if ($head->isBase()) {
-			$this->assign('head-base', $head->getBase(), $ns);
+			$data['head-base'] = $head->getBase();
 		}
 		
 		if ($head->isMeta()) {
-			$this->assign('head-meta', $head->getMeta(), $ns);
+			$data['head-meta'] = $head->getMeta();
 		}
 		
 		if ($this->isCss()) {
 			/* the inline style tag is the last css tag in the head */
 			$head->addCssTag($this->getInlineStyleTag());			
-			$this->assign('head-css', $head->getCssTags(), $ns);
+			$data['head-css'] = $head->getCssTags();
 		}
 
-		$this->assign('body-attrs', $body->getAttributeString());
+		if ($this->isView()) {
+			$view    = $this->getView();
+			$content = $view->build();
+			$body->addContent($content, 'prepend');
+		}
 
-		$body->addContent((string)$this->getView(), 'prepend');
-		$template->assign('body-markup', $body->getContentString());
+		$data['body-markup'] = $body->getContentString();
 
 		if ($this->isJs()) {
 			
 			/* add as the last script tag for the page */
 			$this->addScriptTag($this->getInlineScriptTag());			
-			$template->assign('body-js', $this->getScriptTags());
+			$data['body-js'] = $this->getScriptTags();
 		}
-		return $template->build();
+	
+		$this->setAssignments($data);
+		return parent::build();
 	}
 
 	/**
@@ -535,4 +564,15 @@ class HtmlPage extends ViewData implements HtmlPageInterface
 	{
 		$this->tagFactory = $factory;
 	}
+
+	/**
+	 * @param	string	$name
+	 * @param	bool	$isPkg
+	 * @param	string	$vendor
+	 * @return	FileTemplate
+	 */
+	protected function createFileTemplate($name, $isPkg = false, $vendor = null)
+	{
+		return new FileTemplate($name, $isPkg, $vendor);
+	}	
 }

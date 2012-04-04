@@ -35,25 +35,25 @@ interface TemplateInterface extends ViewInterface
 	/**
 	 * @return	PkgNameInterface
 	 */
-	public function getViewPkgName()
+	public function getViewPkgName();
 
 	/**
 	 * @param	PkgNameInterface $name
 	 * @return	FileTemplate
 	 */
-	public function setViewPkgName(PkgNameInterface $name)
+	public function setViewPkgName(PkgNameInterface $name);
 
 	/**
 	 * @param	string	$name
 	 * @param	string	$defaultVendor
 	 * @return	PkgName
 	 */
-	public function createViewPkgName($name, $defaultVendor = null)
+	public function createViewPkgName($name, $defaultVendor = null);
 
 	/**
 	 * @return	bool
 	 */
-	public function isViewPackage()
+	public function isViewPackage();
 
 	/**
 	 * @param	string	$name 

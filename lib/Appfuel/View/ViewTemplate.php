@@ -49,14 +49,6 @@ class ViewTemplate implements ViewInterface
 		}
 	}
 
-	/**
-	 * @return	string
-	 */
-	public function getFormat()
-	{
-		return $this->format;
-	}
-
     /**
      * Determines if template has been added
      *
@@ -185,6 +177,33 @@ class ViewTemplate implements ViewInterface
 	public function assignCount()
 	{
 		return count($this->assign);
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	ViewTemplate
+	 */
+	public function setAssignments(array $data)
+	{
+		$this->clear();
+		$this->load($data);
+		return $this;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getAssignments()
+	{
+		return $this->getAll();
+	}
+
+	/**
+	 * @return	ViewTemplate
+	 */
+	public function clear()
+	{
+		$this->assign = array();
 	}
 
 	/**

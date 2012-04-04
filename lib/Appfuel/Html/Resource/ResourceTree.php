@@ -11,7 +11,8 @@
 namespace Appfuel\Html\Resource;
 
 use DomainException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+	Appfuel\Html\Resource\Yui\Yui3ResourceAdapter;
 
 /**
  * Pulls info about vendors, packages, and layers out of the resource tree
@@ -139,6 +140,25 @@ class ResourceTree
 	}
 
 	/**
+	 * @param	PkgNameInterface $pkgName
+	 * @return	array
+	 */
+	static public function findPackage(PkgNameInterface $pkgName)
+	{
+		$vendor = $pkgName->getVendor();
+		$name   = $pkgName->getName();
+		$type   = $pkgName->getType();
+		if ($type) {
+			$result = self::getPackageByType($vendor, $type, $name);
+		}
+		else {
+			$result = self::getPackage($vendor, $name);
+		}
+
+		return $result;
+	}
+
+	/**
 	 * @param	string	$vendor
 	 * @param	string	$type
 	 * @return	bool
@@ -152,6 +172,26 @@ class ResourceTree
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param	string	$vendor
+	 * @param	string	$name
+	 * @return	AppViewManifest
+	 */
+	static public function getAppView($vendor, $name)
+	{
+		if (! self::isPackageType($vendor, 'app-view') || 
+			! isset(self::$tree[$vendor]['packages']['app-view'][$name])) {
+			return false;
+		}
+
+		$pkg = self::$tree[$vendor]['packages']['app-view'][$name];
+		if (empty($pkg)) {
+			return false;
+		}
+
+		return new AppViewManifest($pkg);
 	}
 
 	/**
@@ -215,5 +255,18 @@ class ResourceTree
 		}
 
 		self::$sep = $char;
+	}
+
+	/**
+	 * @param	string	$vendor
+	 * @return	ResourceAdapterInterface
+	 */
+	static public function createAdapter($vendor)
+	{
+		if ('yui3' === $vendor) {
+			return new Yui3ResourceAdapter();
+		}
+
+		return new AppfuelResourceAdapter();
 	}
 }
