@@ -53,6 +53,49 @@ class ViewBuilder implements ViewBuilderInterface
 		}
 	}
 
+	/**
+	 * Uses the route detail to detemine if the view is disabled, also
+	 * checks the data type of the view. Eventhough, ViewInterface implements
+	 * __toString, it has the possibility of throwing exceptions which in
+	 * __toString leaves a nasty little error that says simply, you can
+	 * not throw exceptions in __toString. To avoid this we run build instead
+	 *
+	 * @param	MvcContextInterface $context
+	 * @param	MvcRouteDetailInterface $route
+	 * @return	string
+	 */
+	public function composeView(MvcContextInterface $context, 
+								MvcRouteDetailInterface $route)
+	{
+		if (! $route->isView()) {
+			return '';
+		}
+
+		$view = $context->getView();
+		if (is_string($view)) {
+			$result = $view;
+		}
+		else if ($view instanceof ViewInterface) {
+			$result = $view->build();
+		}
+		else if (is_callable(array($view, '__toString'))) {
+			$result =(string) $view;
+		}
+		else {
+			$err  = "view must be a string or an object the implements ";
+			$err .= "Appfuel\View\ViewInterface or an object thtat implemnts ";
+			$err .= "__toString";
+			throw new DomainException($err);
+		}
+
+		return $result;
+	} 
+
+	/**
+	 * @throws	DomainException
+	 * @param	string	$format
+	 * @return	ViewInterface
+	 */
 	public function createTemplate($format)
 	{
 		switch ($format) {

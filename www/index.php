@@ -62,9 +62,8 @@ $viewBuilder->setupView($context, $route, $format);
 
 $front   = $factory->createFront();
 $context = $front->run($context);
+$content = $viewBuilder->composeView($context, $route, $format);
 
-$content =(string) $context->getView()
-						   ->build();
 $code    = $context->getExitCode();
 $headers = $context->get('http-headers', array());
 if (! is_array($headers) || empty($headers)) {
@@ -76,5 +75,3 @@ $output   = new HttpOutput();
 $output->render($response);
 
 exit($code);
-
-
