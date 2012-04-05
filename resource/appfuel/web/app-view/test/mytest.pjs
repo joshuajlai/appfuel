@@ -1,0 +1,1 @@
+console.log("i am an init pjs: <?= $this->render('foo')?>");

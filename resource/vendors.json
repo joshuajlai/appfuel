@@ -1,7 +1,7 @@
 {
 	"yui3" : {
 		"version": "3.4.1",
-		"path": "resource/yui3",
+		"path": "yui3",
 		"tree-path": "/Users/rsb/dev/php/yui3/src/loader/js/yui3.json",
 		"layers": {
 			"fw-global": {
@@ -17,7 +17,7 @@
 	},
 	"appfuel" : {
 		"version": "0.0.1",
-		"path": "resource/appfuel/web",
+		"path": "appfuel/web",
 		"layers": {
 			"app-global": {
 				"filename": "global-app",

@@ -98,8 +98,6 @@ class FileFinder implements FileFinderInterface
 		return $this;
 	}
 
-
-
 	/**
 	 * Creates an absolute path by resolving base path (when it exists) root
 	 * path and the path passed in as a parameter

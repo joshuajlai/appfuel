@@ -138,7 +138,7 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
             $isBasePath = false;
         }
 
-        $finder = new FileFinder(null, $isBasePath);
+        $finder = new FileFinder('resource', $isBasePath);
         $fileReader = new FileReader($finder);
 
         $packages = array();

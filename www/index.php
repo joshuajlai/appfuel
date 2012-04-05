@@ -63,7 +63,8 @@ $viewBuilder->setupView($context, $route, $format);
 $front   = $factory->createFront();
 $context = $front->run($context);
 
-$content =(string) $context->getView();
+$content =(string) $context->getView()
+						   ->build();
 $code    = $context->getExitCode();
 $headers = $context->get('http-headers', array());
 if (! is_array($headers) || empty($headers)) {

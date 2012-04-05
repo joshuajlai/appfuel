@@ -12,7 +12,8 @@ namespace Appfuel\View;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Html\Resource\PkgName;
+	Appfuel\Html\Resource\PkgName,
+	Appfuel\Html\Resource\PkgNameInterface;
 
 /**
  * The file view template uses a FileCompositorInterface to compose a phtml

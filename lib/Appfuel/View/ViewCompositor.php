@@ -13,6 +13,10 @@ namespace Appfuel\View;
 use DomainException,
 	RunTimeException,
 	InvalidArgumentException,
+	Appfuel\Html\Resource\ResourceTree,
+	Appfuel\Html\Resource\PkgName,
+	Appfuel\Html\Resource\PkgNameInterface,
+	Appfuel\Html\Resource\AppViewManifest,
 	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileFinderInterface;
 
@@ -31,6 +35,7 @@ class ViewCompositor implements ViewCompositorInterface
 	 */
 	static private $finder = null;
 
+	
 	/**
 	 * @param	string	$file	
 	 * @param	string	$data
@@ -54,6 +59,50 @@ class ViewCompositor implements ViewCompositorInterface
 		return $compositor->compose($absolute, $data);		
 	}
 
+	/**
+	 * @param	string	$file	
+	 * @param	string	$data
+	 * @return	string
+	 */
+	static public function composePackage($name, array $data, $isInit = false)
+	{
+		if (is_string($name)) {
+			$name = new PkgName($name);
+		}
+		else if (! $name instanceof PkgNameInterface) {
+			$err  = 'package name must be a string of an object that ';
+			$err .= 'implements Appfuel\Html\Resource\PkgNameInterface';
+			throw new InvalidArgumentException($err);
+		}
+
+		$detail     = ResourceTree::findPackage($name);
+		$manifest   = new AppViewManifest($detail);
+		$vendorPath = ResourceTree::getPath($name->getVendor());
+		$path       = "$vendorPath/{$manifest->getMarkupFile()}";
+
+		$finder = self::loadFileFinder();
+		$absolute = $finder->getPath($path);
+		if (! $finder->fileExists($absolute, false)) {
+			$err = "template file not found at -($absolute)";
+			throw new DomainException($err, 404);
+		}
+
+		$compositor = self::loadFileCompositor();
+		$view = $compositor->compose($absolute, $data);
+		
+		if ($manifest->isJsInitFile()) {
+			$path = "$vendorPath/{$manifest->getJsInitFile()}";
+			$absolute = $finder->getPath($path);
+			if (! $finder->fileExists($absolute, false)) {
+				$err = "template file not found at -($absolute)";
+				throw new DomainException($err, 404);
+			}
+			$init = $compositor->compose($absolute, $data);
+			return array($view, $init);
+		}
+
+		return $view;
+	}
 	/**
 	 * @param	array	$data	
 	 * @param	int		$options

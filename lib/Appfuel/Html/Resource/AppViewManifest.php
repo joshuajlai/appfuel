@@ -130,7 +130,8 @@ class AppViewManifest extends AppfuelManifest implements AppViewInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->markup = $file;
+		$path = $this->getSourcePath();
+		$this->markup = "$path/$file";
 	}
 
 	/**
@@ -144,7 +145,8 @@ class AppViewManifest extends AppfuelManifest implements AppViewInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->jsInit = $file;
+		$path = $this->getSourcePath();
+		$this->jsInit = "$path/$file";
 	}
 
 	/**

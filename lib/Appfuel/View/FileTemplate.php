@@ -12,7 +12,8 @@ namespace Appfuel\View;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Html\Resource\PkgName;
+	Appfuel\Html\Resource\PkgName,
+	Appfuel\Html\Resource\PkgNameInterface;
 
 /**
  * The file view template uses a FileCompositorInterface to compose a phtml
@@ -43,7 +44,10 @@ class FileTemplate extends ViewTemplate implements TemplateInterface
 	 */
 	public function __construct($file, $isPkg = false, $default = null)
 	{
-		if (true === $isPkg) {
+		if ($file instanceof PkgNameInterface) {
+			$this->setViewPkgName($file);
+		}
+		else if (true === $isPkg) {
 			$this->setPackage($file, $default);
 		}
 		else {
@@ -138,6 +142,7 @@ class FileTemplate extends ViewTemplate implements TemplateInterface
 	 */
     public function build()
 	{
+		
 		$data = $this->getAll();
 		if ($this->isViewPackage()) {
 			$name   = $this->getViewPkgName();

@@ -126,6 +126,8 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		}
 
 		$pkgName  = new PkgName($pkg);
+		$page->setViewPkg($pkgName);
+
 		$vendor   = $pkgName->getVendor();
 		$viewName = $pkgName->getName();
 		if (! $this->isResourceTree()) {
@@ -148,9 +150,9 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 
 		$url  = $this->getResourceUrl();
 		$data = ResourceTree::findPackage($htmlPkgName);
-		$js   = array();
-		$css  = array();
-
+		$js    = array();
+		$css   = array();
+		$theme = array();
 		$layers = array();
 		if (isset($data['layers']) && is_array($data['layers'])) {
 			foreach ($data['layers'] as $vendor => $pkgs) {
@@ -167,7 +169,7 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 			}
 		}
 		foreach ($js as $file) {
-			$fileUrl = "$url/$file";
+			$fileUrl = "$url/resource/$file";
 			$page->addScript($fileUrl);
 		}
 	

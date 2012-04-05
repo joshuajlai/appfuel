@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Html;
 
-use InvalidArgumentException,
+use DomainException,
+	InvalidArgumentException,
 	Appfuel\View\FileTemplate,
 	Appfuel\View\ViewInterface,
 	Appfuel\Html\Tag\HtmlTagFactory,
@@ -20,7 +21,11 @@ use InvalidArgumentException,
 	Appfuel\Html\Tag\HtmlTagFactoryInterface;
 
 /**
- * Template used to generate generic html documents
+ * The html page is a template object with an interface used to add various 
+ * elements to it. Its main concern is with the html tag, the head tag, and
+ * the body tag. You can add attributes, script tags, link tags, title, meta
+ * etc.. It also has one special feature that any assigments don't go into the
+ * the document template but the view template
  */
 class HtmlPage extends FileTemplate implements HtmlPageInterface
 {
@@ -537,23 +542,65 @@ class HtmlPage extends FileTemplate implements HtmlPageInterface
 			$data['head-css'] = $head->getCssTags();
 		}
 
-		if ($this->isView()) {
-			$view    = $this->getView();
-			$content = $view->build();
-			$body->addContent($content, 'prepend');
-		}
-
-		$data['body-markup'] = $body->getContentString();
+		$data['body-markup'] = $this->buildView($body);
 
 		if ($this->isJs()) {
-			
-			/* add as the last script tag for the page */
-			$this->addScriptTag($this->getInlineScriptTag());			
+			/* make sure the inline script tag is the last tag */
+			$this->addScriptTag($this->getInlineScriptTag());	
 			$data['body-js'] = $this->getScriptTags();
 		}
-	
+
+		/*
+		 * All assignments in the html page are actually for the view content
+		 * template. We need to clear those out since the view has them by now,
+		 * and replace them with the data needed for the html doc
+		 */	
 		$this->setAssignments($data);
 		return parent::build();
+	}
+
+	/**
+	 * Move all assignments into the view. Build the view into a string, note
+	 * that when the view has dynamically generated javascript a.k.a (pjs) 
+	 * view composition (build) will return an array of two strings, content,
+	 * and js in that order. Content is assigned to the body tag and js is 
+	 * assigned as content to the inline script tag. We finally turn the
+	 * body tag content into a string and return it.
+	 *
+	 * @throws	DomainException
+	 * @param	HtmlTagInterface	$body
+	 * @return	string
+	 */
+	protected function buildView(GenericTagInterface $body)
+	{	
+		if (! $this->isView()) {
+			return '';
+		}
+	
+		if ('body' !== $body->getTagName()) {
+			$err = 'build view will only accept an html body tag';
+			throw new DomainException($err);
+		}
+		
+		$view = $this->getView();
+		$view->load($this->getAll());
+		$result  = $view->build();
+			
+		$content = '';
+		$initJs  = null;
+		if (is_array($result)) {
+			$content = current($result);
+			$initJs  = next($result);
+			if ($this->isJs() && is_string($initJs)) {
+				$this->addToInlineScript($initJs, 'append');				
+			}
+		}
+		else if (is_string($result)) {
+			$content = $result;
+		}
+			
+		$body->addContent($content, 'prepend');
+		return $body->getContentString();
 	}
 
 	/**
