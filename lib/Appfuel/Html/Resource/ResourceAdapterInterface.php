@@ -10,19 +10,8 @@
  */
 namespace Appfuel\Html\Resource;
 
-use InvalidArgumentException;
-
 /**
  */
-interface PkgNameInterface
+interface ResourceAdapterInterface
 {
-	/**
-	 * @return	string
-	 */
-	public function getVendor();
-
-	/**
-	 * @return	array
-	 */
-	public function getName();
 }

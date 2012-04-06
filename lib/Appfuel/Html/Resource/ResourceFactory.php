@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -21,9 +21,9 @@ class ResourceFactory implements ResourceFactoryInterface
 	 * @param	string	$vendor 
 	 * @return	ResourceAdapterInterface
 	 */
-	public function createAdapter()
+	public function createResourceAdapter()
 	{
-		return new ResourceAdapter();
+		return new AppfuelAdapter();
 	}
 
 	/**
@@ -41,7 +41,7 @@ class ResourceFactory implements ResourceFactoryInterface
 	 */
 	public function createLayer($name, VendorInterface $vendor)
 	{
-		return new ResourceLayer($name, $vendor);
+		return new AppfuelLayer($name, $vendor);
 	}
 
 	/**
@@ -57,7 +57,7 @@ class ResourceFactory implements ResourceFactoryInterface
 	 * @param	array	$data
 	 * @return	AppfuelManifestInterface
 	 */
-	public function createManifest(array $data)
+	public function createPkg(array $data, $vendor = null)
 	{
 		if (! isset($data['type'])) {
 			$err = 'manifest must have a type property';
@@ -66,21 +66,23 @@ class ResourceFactory implements ResourceFactoryInterface
 		$type = $data['type'];
 		
 		switch ($type) {
-			case 'app-view':
-			case 'ui-kit':
-				$manifest = new ViewManifest($data);
-				break;
-			case 'chrome':
-				$manifest = new ChromeManifest($data);
-				break;
 			case 'pkg':
-				$manifest = new PkgManifest($data);
+				$pkg = new Pkg($data, $vendor);
+				break;
+			case 'view':
+				$pkg = new ViewPkg($data, $vendor);
+				break;
+			case 'page':
+				$pkg = new PagePkg($data, $vendor);
+				break;
+			case 'htmldoc':
+				$pkg = new HtmlDocPkg($data, $vendor);
 				break;
 			default:
-				$err = "invalid manifest: no strategy for -($type)";
+				$err = "invalid pkg: no pkg strategy for -($type)";
 				throw new DomainException($err);
 		}
 
-		return $manifest;
+		return $pkg;
 	}
 }

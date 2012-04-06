@@ -10,39 +10,35 @@
  */
 namespace Appfuel\Html\Resource;
 
+use DomainException,
+	InvalidArgumentException;
+
 /**
- * A value object used to describe the manifest.json in the package directory
  */
-interface PkgManifestInterface
+interface PagePkgInterface extends PkgInterface
 {
 	/**
 	 * @return	string
 	 */
-	public function getName();
+	public function getHtmlDocName();
 
 	/**
 	 * @return	string
 	 */
-	public function getDescription();
+	public function getMarkupFile();
 
 	/**
 	 * @return	string
 	 */
-	public function getSourceDirectory();
+	public function getJsInitFile();
 
 	/**
-	 * @return	array
+	 * @return	bool
 	 */
-	public function getFileTypes();
+	public function isJsInitFile();
 
 	/**
 	 * @return	string
 	 */
-	public function getAllFiles();
-
-	/**
-	 * @params	string $type 
-	 * @return	array|false
-	 */
-	public function getFiles($type);
+	public function getLayers();
 }

@@ -10,19 +10,15 @@
  */
 namespace Appfuel\Html\Resource;
 
-use InvalidArgumentException;
+use DomainException,
+	InvalidArgumentException;
 
 /**
  */
-interface PkgNameInterface
+interface HtmlDocPkgInterface extends PagePkgInterface
 {
 	/**
 	 * @return	string
 	 */
-	public function getVendor();
-
-	/**
-	 * @return	array
-	 */
-	public function getName();
+	public function getHtmlConfig();
 }

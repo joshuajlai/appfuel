@@ -7,6 +7,11 @@
 <testsuites>
 	<testsuite name="Appfuel Tests">
 	<file>../lib/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
+	<file>../lib/TestFuel/Unit/Html/Resource/PkgTest.php</file>
+	<file>../lib/TestFuel/Unit/Html/Resource/ViewPkgTest.php</file>
+	<file>../lib/TestFuel/Unit/Html/Resource/PagePkgTest.php</file>
+	<file>../lib/TestFuel/Unit/Html/Resource/HtmlDocPkgTest.php</file>
+	<file>../lib/TestFuel/Unit/Html/Resource/ResourceFactoryTest.php</file>
 	</testsuite>
 </testsuites>
 </phpunit>

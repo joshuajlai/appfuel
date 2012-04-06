@@ -274,13 +274,4 @@ class ResourceTree
 
 		return new AppfuelResourceAdapter();
 	}
-
-	/**
-	 * @param	
-	 * @return	null
-	 */
-	static public function addAdapter($adapter)
-	{
-
-	}
 }

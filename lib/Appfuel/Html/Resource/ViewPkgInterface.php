@@ -13,16 +13,18 @@ namespace Appfuel\Html\Resource;
 use InvalidArgumentException;
 
 /**
+ * A view is a package that has a markup file. The markup file
+ * contains the html structure of the view.
  */
-interface PkgNameInterface
+interface ViewPkgInterface extends PkgInterface
 {
 	/**
 	 * @return	string
 	 */
-	public function getVendor();
+	public function getMarkupFile($path = null);
 
 	/**
-	 * @return	array
+	 * @return	string
 	 */
-	public function getName();
+	public function isJsView();
 }

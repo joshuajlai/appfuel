@@ -4,18 +4,19 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Html\Resource;
 
-use InvalidArgumentException;
+use DomainException,
+	InvalidArgumentException;
 
 /**
- * A value object used to describe the manifest.json in the package directory
+ * A value object used to describe the manifest.json in the pkg directory
  */
-class PkgManifest implements PkgManifestInterface
+class Pkg implements PkgInterface
 {
 	/**
 	 * @var string
@@ -28,6 +29,12 @@ class PkgManifest implements PkgManifestInterface
 	protected $type = null;
 
 	/**
+	 * Used to validate that the type of package is the expected one
+	 * @var string
+	 */
+	protected $validType = 'pkg';
+
+	/**
 	 * @var string
 	 */
 	protected $desc = null;
@@ -36,7 +43,7 @@ class PkgManifest implements PkgManifestInterface
 	 * Relative path from the package directory to the root of this package
 	 * @var string
 	 */	
-	protected $relativePath = null;
+	protected $path = null;
 
 	/**
 	 * Relative path from the package dir to the package files
@@ -53,52 +60,55 @@ class PkgManifest implements PkgManifestInterface
 	 * List of appfuel packages to import
 	 * @var array
 	 */
-	protected $requiredPkgs = array();
+	protected $required = array();
 
 	/**
 	 * @param	array $data	
 	 * @return	PackageManifest
 	 */
-	public function __construct(array $data)
+	public function __construct(array $data, $vendor = null)
 	{
 		if (! isset($data['name'])) {
 			$err = 'package name not found an must exist';
-			throw new InvalidArgumentException($err);
+			throw new DomainException($err);
 		}
-		$this->setPackageName($data['name']);
+		$this->setName($data['name']);
 
 		if (! isset($data['type'])) {
 			$err = 'package type must be defined but was not found';
-			throw new InvalidArgumentException($err);
+			throw new DomainException($err);
 		}
-		$this->setPackageType($data['type']);
+		$this->setType($data['type']);
 
 		if (isset($data['desc'])) {
-			$this->setPackageDescription($data['desc']);
+			$this->setDescription($data['desc']);
 		}
 
-		if (isset($data['relative-path'])) {
-			$this->setRelativePath($data['relative-path']);
+		if (isset($data['path'])) {
+			$this->setPath($data['path']);
+		}
+		else {
+			$this->setPath($data['name']);
 		}
 	
 		if (isset($data['src']) && is_array($data['src'])) {
 			$this->initSource($data['src']);
 		}
 
-		$this->srcPath = $this->relativePath;
+		$this->srcPath = $this->path;
 		if (! empty($this->srcDir)) {
 			$this->srcPath .= "/{$this->srcDir}";
 		}
 
-		if (isset($data['required'])) {
-			$this->setRequiredPackages($data['required']);
+		if (isset($data['require'])) {
+			$this->setRequiredPackages($data['require'], $vendor);
 		}
 	}
 
 	/**
 	 * @return	string
 	 */
-	public function getPackageName()
+	public function getName()
 	{
 		return $this->name;
 	}
@@ -106,15 +116,24 @@ class PkgManifest implements PkgManifestInterface
 	/**
 	 * @return	string
 	 */
-	public function getPackageType()
+	public function getType()
 	{
 		return $this->type;
 	}
 
 	/**
+	 * @param	string	$type
+	 * @return	bool
+	 */
+	public function isType($type)
+	{
+		return ($type === $this->getType()) ? true : false;
+	}
+
+	/**
 	 * @return	string
 	 */
-	public function getPackageDescription()
+	public function getDescription()
 	{
 		return $this->desc;
 	}
@@ -122,9 +141,9 @@ class PkgManifest implements PkgManifestInterface
 	/**
 	 * @return	string
 	 */
-	public function getRelativePath()
+	public function getPath()
 	{
-		return $this->relativePath;
+		return $this->path;
 	}
 
 	/**
@@ -181,7 +200,7 @@ class PkgManifest implements PkgManifestInterface
 	 */
 	public function isRequiredPackages()
 	{
-		return ! empty($this->requiredPkgs);
+		return ! empty($this->required);
 	}
 
 	/**
@@ -189,7 +208,7 @@ class PkgManifest implements PkgManifestInterface
 	 */
 	public function getRequiredPackages()
 	{
-		return $this->requiredPkgs;
+		return $this->required;
 	}
 
 	/**
@@ -213,7 +232,7 @@ class PkgManifest implements PkgManifestInterface
 	 * @param	string	$name
 	 * @return	null
 	 */
-	protected function setPackageName($name)
+	protected function setName($name)
 	{
 		if (! is_string($name) || empty($name)) {
 			$err = 'package name must be a none empty string';
@@ -223,14 +242,42 @@ class PkgManifest implements PkgManifestInterface
 	}
 
 	/**
+	 * @return	string
+	 */
+	protected function getValidType()
+	{
+		return $this->validType;	
+	}
+
+	/**
 	 * @param	string	$type
 	 * @return	null
 	 */
-	protected function setPackageType($type)
+	protected function setValidType($type)
+	{
+		if (! is_string($type)) {
+			$err = 'valid type must be a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->validType = $type;
+	}
+
+	/**
+	 * @param	string	$type
+	 * @return	null
+	 */
+	protected function setType($type)
 	{
 		if (! is_string($type) || empty($type)) {
 			$err = 'package type must be a non empty string';
 			throw new InvalidArgumentException($err);
+		}
+
+		if ($this->getValidType() !== $type) {
+			$err  = "pkg type must be -({$this->getValidType()}) -($type) ";
+			$err .= "given";
+			throw new DomainException($err);
 		}
 
 		$this->type = $type;
@@ -240,7 +287,7 @@ class PkgManifest implements PkgManifestInterface
 	 * @param	string	$name
 	 * @return	null
 	 */
-	protected function setPackageDescription($desc)
+	protected function setDescription($desc)
 	{
 		if (! is_string($desc)) {
 			$err = 'package description must be a string';
@@ -254,14 +301,14 @@ class PkgManifest implements PkgManifestInterface
 	 * @param	string	
 	 * @return	null
 	 */
-	protected function setRelativePath($path)
+	protected function setPath($path)
 	{
 		if (! is_string($path) || empty($path)) {
 			$err = "relative path must be a non empty string";
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->relativePath = $path;
+		$this->path = $path;
 	}
 
 	/**
@@ -309,9 +356,16 @@ class PkgManifest implements PkgManifestInterface
 	 * @param	array	$list
 	 * @return	null
 	 */
-	protected function setRequiredPackages($list)
+	protected function setRequiredPackages(array $list, $vendor = null)
 	{
-		$this->requiredPkgs = $list;
+		$names = array();
+		foreach ($list as $str) {
+			if (false === strpos($str, '.')) {
+				$str = "pkg.$str";
+			}
+			$names[] = new PkgName($str, $vendor);
+		}	
+		$this->required = $names;
 	}
 
 	/**
