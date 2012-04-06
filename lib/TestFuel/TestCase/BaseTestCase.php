@@ -11,9 +11,11 @@
 namespace TestFuel\TestCase;
 
 use StdClass,
+	RunTimeException,
 	TestFuel\Provider\StringProvider,
 	Appfuel\Kernel\PathFinder,
 	Appfuel\Kernel\KernelRegistry,
+	Appfuel\Kernel\KernelStateInterface,
 	Appfuel\DataSource\Db\DbStartupTask,
 	PHPUnit_Framework_TestCase;
 
@@ -110,6 +112,11 @@ class BaseTestCase extends PHPUnit_Framework_TestCase
     public function restoreKernelState()
     {
         $state = TestRegistry::getKernelState();
+		if (! $state instanceof KernelStateInterface) {
+			$err  = 'kernel state has not been set in the test registry ';
+			$err .= 'it is likely that the UnitTestStartup has not been run';
+			throw new RunTimeException($err);
+		}
         error_reporting($state->getErrorReporting());
         date_default_timezone_set($state->getDefaultTimezone());
         ini_set('error_display', $state->getDisplayError());

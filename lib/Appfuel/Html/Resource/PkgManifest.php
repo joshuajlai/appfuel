@@ -15,7 +15,7 @@ use InvalidArgumentException;
 /**
  * A value object used to describe the manifest.json in the package directory
  */
-class AppfuelManifest implements AppfuelManifestInterface
+class PkgManifest implements PkgManifestInterface
 {
 	/**
 	 * @var string
@@ -54,11 +54,6 @@ class AppfuelManifest implements AppfuelManifestInterface
 	 * @var array
 	 */
 	protected $requiredPkgs = array();
-
-	/**
-	 * @var string
-	 */
-	protected $filePath = null;
 
 	/**
 	 * @param	array $data	

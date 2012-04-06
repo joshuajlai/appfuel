@@ -22,7 +22,6 @@ return array(
 	'test' => array(
 		'include-path-action'	=> 'append',
 		'include-path'			=> array(
-			'/usr/local/php/share/pear',
 			AF_BASE_PATH . '/test',
 			AF_BASE_PATH . '/test/classes',
 			AF_LIB_PATH 

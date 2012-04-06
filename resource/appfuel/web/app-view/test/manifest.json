@@ -7,7 +7,7 @@
 	"js-init": "mytest.pjs",
 	"markup": "mytest.phtml",
 	"layers": {
-		"yui3": ["fw-global"],
+		"yui3": ["yui-test"],
 		"appfuel": ["app-global"]
 	},
 	"required": ["appfuel:pkg.kernel"],

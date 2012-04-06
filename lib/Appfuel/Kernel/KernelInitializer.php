@@ -174,15 +174,15 @@ class KernelInitializer
 		if (isset($data['common']) && is_array($data['common'])) {
 			$common = $data['common'];
 			foreach ($common as $key => $value) {
-				if (! isset($config[$key]) || ! is_array($config[$key])) {
+				if (! array_key_exists($key, $config)) {
 					$config[$key] = $value;
+					continue;
 				}
-				else {
-					$config[$key] = array_merge(
-						$value,
-						$config[$key]
-					);
+
+				if (is_array($config[$key]) && is_array($value)) {
+					$config[$key] = array_merge($value, $config[$key]);
 				}
+
 			}
 		}
 

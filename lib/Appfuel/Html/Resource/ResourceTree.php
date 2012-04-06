@@ -22,6 +22,11 @@ class ResourceTree
 	/**
 	 * @var array
 	 */
+	static protected $adapters = array();
+
+	/**
+	 * @var array
+	 */
 	static protected $tree = array();
 
 	/**
@@ -268,5 +273,14 @@ class ResourceTree
 		}
 
 		return new AppfuelResourceAdapter();
+	}
+
+	/**
+	 * @param	
+	 * @return	null
+	 */
+	static public function addAdapter($adapter)
+	{
+
 	}
 }
