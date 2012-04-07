@@ -12,6 +12,7 @@ namespace Appfuel\Html\Resource\Yui;
 
 use DomainException,
 	InvalidArgumentException,
+	Appfuel\Html\Resource\PkgName,
 	Appfuel\Html\Resource\VendorInterface,
 	Appfuel\Html\Resource\FileStackInterface;
 
@@ -34,6 +35,8 @@ class Yui3Layer
 	 * @var string
 	 */
 	protected $filename = null;
+
+	protected $pkgList = array();
 
 	/**
 	 * @param	array $data	
@@ -106,6 +109,28 @@ class Yui3Layer
 		$this->filename = $name;
 		return $this;
 	}
+
+    /**
+     * @return  array
+     */
+    public function getPackages()
+    {
+        return $this->pkgList;
+    }
+
+    public function setPackages(array $list)
+    {
+        $result = array();
+        $vendorName = $this->getVendor()
+                           ->getVendorName();
+
+        $result = array();
+        foreach ($list as $name) {
+            $result[] = new PkgName($name, $vendorName);
+        }
+        $this->pkgList = $result;
+        return  $this;
+    }
 
 	/**
 	 * @return	bool

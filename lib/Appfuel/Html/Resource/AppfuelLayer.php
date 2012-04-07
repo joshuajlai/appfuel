@@ -15,7 +15,7 @@ use DomainException,
 
 /**
  */
-class ResourceLayer 
+class AppfuelLayer implements ResourceLayerInterface 
 {
 	/**
 	 * @var string
@@ -32,6 +32,11 @@ class ResourceLayer
 	 * @var string
 	 */
 	protected $filename = null;
+
+	/**
+	 * @var array
+	 */
+	protected $pkgList = array();
 
 	/**
 	 * @param	array $data	
@@ -88,6 +93,28 @@ class ResourceLayer
 	public function getFilename()
 	{
 		return $this->filename;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getPackages()
+	{
+		return $this->pkgList;
+	}
+
+	public function setPackages(array $list)
+	{
+		$result = array();
+		$vendorName = $this->getVendor()
+						   ->getVendorName();
+
+		$result = array();
+		foreach ($list as $name) {
+			$result[] = new PkgName($name, $vendorName);
+		}
+		$this->pkgList = $result;
+		return	$this;
 	}
 
 	/**

@@ -1,11 +1,7 @@
 {
 	"name": "default-html",
-	"type": "chrome",
-	"tpl": "chrome/htmldoc.phtml",
-	"layers": {
-		"yui3": ["fw-global"],
-		"appfuel": ["app-global"]
-	},
+	"type": "htmldoc",
+	"tpl": "htmldoc/doc.phtml",
 	"html": {
 		"attrs": {
 			"lang": "eng",

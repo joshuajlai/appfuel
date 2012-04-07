@@ -19,6 +19,7 @@ use LogicException,
 	Appfuel\Html\Resource\FileStack,
 	Appfuel\Html\Resource\Yui3FileStack,
 	Appfuel\Html\Resource\Yui3Manifest,
+	Appfuel\Html\Resource\ResourceTreeManager,
 	Appfuel\Html\Resource\Yui\Yui3ResourceAdapter,
 	Appfuel\Html\Resource\FileStackInterface,
 	Appfuel\Html\Resource\AppfuelManifest,
@@ -103,76 +104,20 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		return $this;
 	}
 
-	public function loadResourceTree()
-	{
-		$reader = new FileReader(new FileFinder('app'));
-		$data   = $reader->decodeJsonAt('resource-tree.json');
-		ResourceTree::setTree($data);
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isResourceTree()
-	{
-		return ResourceTree::isTree();
-	}
-
 	public function applyView($pkg, HtmlPageInterface $page)
 	{
 		if (! is_string($pkg) || empty($pkg)) {
 			$err = "view package must be an non empty string";
 			throw new InvalidArgumentException($err);
 		}
-
-		$pkgName  = new PkgName($pkg);
-		$page->setViewPkg($pkgName);
-
-		$vendor   = $pkgName->getVendor();
-		$viewName = $pkgName->getName();
-		if (! $this->isResourceTree()) {
-			$this->loadResourceTree();
-		}
-
-		$pkg = ResourceTree::getAppView($vendor, $viewName);
-		if (! $pkg) {
-			$err = "could not find app-view for -($vendor, $viewName)";
-			throw new RunTimeException($err, 404);
-		}
-		
-		$htmlPkgName = $pkg->getHtmlPage();
-		if (! $htmlPkgName) {
-			$htmlPkgName = $this->getDefaultHtmlPkgName();
-		}
-		else {
-			$htmlPkgName = new PkgName($htmlPkgName, $vendor);
-		}
-
-		$url  = $this->getResourceUrl();
-		$data = ResourceTree::findPackage($htmlPkgName);
-		$js    = array();
-		$css   = array();
-		$theme = array();
-		$layers = array();
-		if (isset($data['layers']) && is_array($data['layers'])) {
-			foreach ($data['layers'] as $vendor => $pkgs) {
-				$adapter = ResourceTree::createAdapter($vendor); 
-				if (! is_array($pkgs)) {
-					continue;
-				}
-				foreach ($pkgs as $layerName) {
-					$layer = $adapter->buildLayer($layerName);
-					$js  = array_merge($js,  $layer->getAllJsSourcePaths());
-					$css = array_merge($css, $layer->getAllCssSourcePaths());
-					$layers[$layerName] = $layer;
-				}
-			}
-		}
+		$page->setViewPkg($pkg);
+		$stack = ResourceTreeManager::resolvePage($pkg, 'appfuel');
+		$url   = $this->getResourceUrl();
+		$js    = $stack->get('js', "$url/resource");
 		foreach ($js as $file) {
 			$fileUrl = "$url/resource/$file";
 			$page->addScript($fileUrl);
 		}
-	
 	}
 
 	/**

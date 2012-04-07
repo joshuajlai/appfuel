@@ -90,7 +90,7 @@ class HtmlPage extends FileTemplate implements HtmlPageInterface
 	public function __construct($file=null, HtmlTagFactoryInterface $fact=null)
 	{
 		if (null === $file) {
-			$file = 'appfuel/web/chrome/htmldoc.phtml';
+			$file = 'appfuel/web/htmldoc/doc.phtml';
 		}
 		parent::__construct($file, false);
 

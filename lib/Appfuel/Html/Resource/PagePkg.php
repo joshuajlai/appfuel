@@ -28,7 +28,7 @@ class PagePkg extends Pkg implements PagePkgInterface
 	 * Name of the html document this page belongs to 
 	 * @var string
 	 */
-	protected $htmlDocName = null;
+	protected $htmldocName = null;
 	
 	/**
 	 * Template file used for the page markup
@@ -186,6 +186,11 @@ class PagePkg extends Pkg implements PagePkgInterface
 	{
         $names = array();
         foreach ($layers as $str) {
+			if (! is_string($str) || empty($str)) {
+				$err = 'layer names must be non empty strings';
+				throw new DomainException($err);
+			}
+
             if (false === strpos($str, '.')) {
                 $str = "layer.$str";
             }

@@ -98,7 +98,7 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
                 $err .= "or path to package dir not found";
                 throw new RunTimeException($err);
             }
-            $tree[$key]['packages'] = $list;
+            $tree[$key]['list'] = $list;
         }
 
 		return $tree;
@@ -145,7 +145,6 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
         $topDir   = new RecursiveDirectoryIterator($finder->getPath($path));
         $fileReader->setFileFinder(new FileFinder(null, false));
 
-		$supportedTypes = array('chrome', 'app-view', 'ui-kit', 'pkg');
         foreach (new RecursiveIteratorIterator($topDir) as $file) {
             if ('json' !== $file->getExtension()) {
                 continue;
@@ -160,24 +159,31 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
                 throw new RunTimeException($err);
             }
 
-            if (! isset($data['name']) ||
-                ! is_string($data['name']) ||
-                empty($data['name'])) {
-                $err  = "'package name must be defined in the manifest.json ";
-                $err .= "-(name not in {$file->getPathInfo()->getFileName()})";
+            if (! isset($data['name'])) {
+				$err = 'every resource pkg must have a -(name) property ';
+				$err = 'defined: none found';
+				throw new DomainException($err);
+			}
+            $name = $data['name'];
+			
+            if (! is_string($name) || empty($name)) {
+                $err  = "property -(name) must be a none empty string ";
+                $err .= "-({$file->getPathInfo()->getFileName()})";
                 throw new RunTimeException($err);
             }
-            $name = $data['name'];
 
-			if (! isset($data['type']) ||
-				! is_string($data['type']) || 
-				! in_array($data['type'], $supportedTypes, true)) {
-				$types = implode(',', $supportedTypes);
-				$err  = "appfuel resource -($name) json must have a type ";
-				$err .= "property as -($types) ";
-				throw new RunTimeException($err);				
+			if (! isset($data['type'])) {
+				$err  = 'every resource pkg must have a -(type) property ';
+				$err .= 'defined: none found';
+				throw new DomainException($err);
 			}
 			$type = $data['type'];
+
+			if (! is_string($type) || empty($type)) {
+				$err  = "appfuel resource -($name) json must have a type ";
+				$err .= "property as which is a non empty string ";
+				throw new DomainException($err);				
+			}
 
             if (isset($packages[$type][$name])) {
                 $err = "can not build tree -($name) is already defined";

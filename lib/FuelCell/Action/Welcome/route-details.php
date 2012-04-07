@@ -27,7 +27,7 @@ return array(
 			'foo' => 'bar',
 		),
 
-		'view-pkg' => "appfuel:app-view.my-test",
+		'view-pkg' => "appfuel:page.my-test",
 	),
 	'test-a' => null,
 	'test-b' => 'build-test',

@@ -22,18 +22,48 @@ class ResourceTree
 	/**
 	 * @var array
 	 */
-	static protected $adapters = array();
+	static protected $tree = array();
 
 	/**
+	 * list of vendor objects
 	 * @var array
 	 */
-	static protected $tree = array();
+	static protected $vendors = array();
+
+
+	/**
+	 * @param	string	$name
+	 * @return	VendorInterface
+	 */
+	static public function getVendor($name)
+	{
+		if (! isset(self::$vendors[$name])) {
+			return false;
+		}
+
+		return self::$vendors[$name];
+	}
+
+	/**
+	 * @param	string	$name
+	 * @param	VendorInteface	$vendor
+	 * @return	null
+	 */
+	static public function setVendor($name, VendorInterface $vendor)
+	{
+		if (! is_string($name) || empty($name)) {
+			$err = 'vendor name must be a non empty string';
+			throw new InvalidArgumentException($err);
+		}
+
+		self::$vendors[$name] = $vendor;
+	}
 
 	/**
 	 * @param	string	$key
 	 * @return	bool
 	 */
-	static public function isVendor($key)
+	static public function isVendorInTree($key)
 	{
 		if (is_string($key) && isset(self::$tree[$key])) {
 			return true;
@@ -48,7 +78,7 @@ class ResourceTree
 	 */
 	static public function getVersion($vendor)
 	{
-		if (! self::isVendor($vendor) || 
+		if (! self::isVendorInTree($vendor) || 
 			! isset(self::$tree[$vendor]['version'])) {
 			return false;
 		}
@@ -62,7 +92,8 @@ class ResourceTree
 	 */
 	static public function getPath($vendor)
 	{
-		if (! self::isVendor($vendor) || !isset(self::$tree[$vendor]['path'])) {
+		if (! self::isVendorInTree($vendor) || 
+			! isset(self::$tree[$vendor]['path'])) {
 			return false;
 		}
 
@@ -77,7 +108,7 @@ class ResourceTree
 	static public function isLayer($vendor, $name)
 	{
 		if (! is_string($name) || 
-			! self::isVendor($vendor) || 
+			! self::isVendorInTree($vendor) || 
 			! isset(self::$tree[$vendor]['layers']) ||
 			! isset(self::$tree[$vendor]['layers'][$name])) {
 			return false;
@@ -108,6 +139,16 @@ class ResourceTree
 		return $result;
 	}
 
+	static public function setLayer($vendor, $name, $layer)
+	{
+        if (! self::isVendorInTree($vendor)) {
+            $err = 'can not set layer for vendor that does not exist';
+            throw new DomainException($err);
+        }
+
+        self::$tree[$vendor]['layers'][$name] = $layer;	
+	}
+
 	/**
 	 * @param	string	$vendor
 	 * @param	string	$name
@@ -116,9 +157,9 @@ class ResourceTree
 	static public function isPackage($vendor, $name)
 	{
 		if (! is_string($name) || 
-			! self::isVendor($vendor) || 
-			! isset(self::$tree[$vendor]['packages']) ||
-			! isset(self::$tree[$vendor]['packages'][$name])) {
+			! self::isVendorInTree($vendor) || 
+			! isset(self::$tree[$vendor]['list']) ||
+			! isset(self::$tree[$vendor]['list'][$name])) {
 			return false;
 		}
 
@@ -136,8 +177,8 @@ class ResourceTree
 			return false;
 		}
 
-		$result = self::$tree[$vendor]['packages'][$name];
-		if (! isset($result['name'])) {
+		$result = self::$tree[$vendor]['list'][$name];
+		if (is_array($result) && ! isset($result['name'])) {
 			$result['name'] = $name;
 		}
 		
@@ -145,23 +186,21 @@ class ResourceTree
 	}
 
 	/**
-	 * @param	PkgNameInterface $pkgName
-	 * @return	array
+	 * @param	string	$vendor
+	 * @param	string	$name
+	 * @param	mixed	$pkg
 	 */
-	static public function findPackage(PkgNameInterface $pkgName)
+	static public function setPackage($vendor, $name, $pkg)
 	{
-		$vendor = $pkgName->getVendor();
-		$name   = $pkgName->getName();
-		$type   = $pkgName->getType();
-		if ($type) {
-			$result = self::getPackageByType($vendor, $type, $name);
-		}
-		else {
-			$result = self::getPackage($vendor, $name);
+		if (! self::isPackage($vendor, $name)) {
+			$err  = "could not set pkg vendor or pkg not found ";
+			$err .= "-($vendor, $name)";
+			throw new RunTimeException($err);
 		}
 
-		return $result;
+		self::$tree[$vendor]['list'][$name] = $pkg;
 	}
+
 
 	/**
 	 * @param	string	$vendor
@@ -171,32 +210,12 @@ class ResourceTree
 	static public function isPackageType($vendor, $type)
 	{
 		if (! is_string($type) ||
-			! self::isVendor($vendor) ||
-			! isset(self::$tree[$vendor]['packages'][$type])) {
+			! self::isVendorInTree($vendor) ||
+			! isset(self::$tree[$vendor]['list'][$type])) {
 			return false;
 		}
 
 		return true;
-	}
-
-	/**
-	 * @param	string	$vendor
-	 * @param	string	$name
-	 * @return	AppViewManifest
-	 */
-	static public function getAppView($vendor, $name)
-	{
-		if (! self::isPackageType($vendor, 'app-view') || 
-			! isset(self::$tree[$vendor]['packages']['app-view'][$name])) {
-			return false;
-		}
-
-		$pkg = self::$tree[$vendor]['packages']['app-view'][$name];
-		if (empty($pkg)) {
-			return false;
-		}
-
-		return new AppViewManifest($pkg);
 	}
 
 	/**
@@ -208,11 +227,30 @@ class ResourceTree
 	static public function getPackageByType($vendor, $type, $name)
 	{
 		if (! self::isPackageType($vendor, $type) ||
-			! isset(self::$tree[$vendor]['packages'][$type][$name])) {
+			! isset(self::$tree[$vendor]['list'][$type][$name])) {
 			return false;
 		}
 
-		return self::$tree[$vendor]['packages'][$type][$name];
+		return self::$tree[$vendor]['list'][$type][$name];
+	}
+
+	/**
+	 * @param	string	$vendor
+	 * @param	string	$type
+	 * @param	string	$name
+	 * @param	mixed	$type
+	 * @return	array | false
+	 */
+	static public function setPackageByType($vendor, $type, $name, $pkg)
+	{
+		if (! self::isPackageType($vendor, $type) ||
+			! isset(self::$tree[$vendor]['list'][$type][$name])) {
+			$err  = "could not set pkg vendor, type or pkg not found ";
+			$err .= "-($vendor, $type, $name)";
+			throw new RunTimeException($err);	
+		}
+
+		self::$tree[$vendor]['list'][$type][$name] = $pkg;
 	}
 
 	/**

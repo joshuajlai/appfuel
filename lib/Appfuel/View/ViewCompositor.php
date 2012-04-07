@@ -13,10 +13,10 @@ namespace Appfuel\View;
 use DomainException,
 	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Html\Resource\ResourceTree,
 	Appfuel\Html\Resource\PkgName,
 	Appfuel\Html\Resource\PkgNameInterface,
 	Appfuel\Html\Resource\AppViewManifest,
+	Appfuel\Html\Resource\ResourceTreeManager,
 	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileFinderInterface;
 
@@ -75,10 +75,13 @@ class ViewCompositor implements ViewCompositorInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		$detail     = ResourceTree::findPackage($name);
-		$manifest   = new AppViewManifest($detail);
-		$vendorPath = ResourceTree::getPath($name->getVendor());
-		$path       = "$vendorPath/{$manifest->getMarkupFile()}";
+		$pkg = ResourceTreeManager::getPkg($name);
+		if (! $pkg) {
+			$err = "could not compose pkg -({$name->getName()}) not found";
+			throw new DomainException($err);
+		}
+		$vPath = ResourceTreeManager::getVendorPath($name->getVendor());
+		$path  = "$vPath/{$pkg->getMarkupFile()}";
 
 		$finder = self::loadFileFinder();
 		$absolute = $finder->getPath($path);
@@ -90,8 +93,8 @@ class ViewCompositor implements ViewCompositorInterface
 		$compositor = self::loadFileCompositor();
 		$view = $compositor->compose($absolute, $data);
 		
-		if ($manifest->isJsInitFile()) {
-			$path = "$vendorPath/{$manifest->getJsInitFile()}";
+		if ($pkg->isJsInitFile()) {
+			$path = "$vPath/{$pkg->getJsInitFile()}";
 			$absolute = $finder->getPath($path);
 			if (! $finder->fileExists($absolute, false)) {
 				$err = "template file not found at -($absolute)";

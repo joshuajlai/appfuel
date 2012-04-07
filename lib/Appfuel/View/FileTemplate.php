@@ -48,7 +48,7 @@ class FileTemplate extends ViewTemplate implements TemplateInterface
 			$this->setViewPkgName($file);
 		}
 		else if (true === $isPkg) {
-			$this->setPackage($file, $default);
+			$this->setViewPackage($file, $default);
 		}
 		else {
 			$this->setFile($file);

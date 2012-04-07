@@ -35,6 +35,15 @@ class ResourceFactory implements ResourceFactoryInterface
 	}
 
 	/**
+	 * @param	array	$data
+	 * @return	VendorInterface
+	 */
+	public function createVendor(array $data)
+	{
+		return new Vendor($data);
+	}
+
+	/**
 	 * @param	string	$name
 	 * @param	VendorInterface $vendor
 	 * @return	ResourceLayerInterface
@@ -42,15 +51,6 @@ class ResourceFactory implements ResourceFactoryInterface
 	public function createLayer($name, VendorInterface $vendor)
 	{
 		return new AppfuelLayer($name, $vendor);
-	}
-
-	/**
-	 * @param	array	$data
-	 * @return	VendorInterface
-	 */
-	public function createVendor(array $data)
-	{
-		return new Vendor($data);
 	}
 
 	/**
@@ -84,5 +84,15 @@ class ResourceFactory implements ResourceFactoryInterface
 		}
 
 		return $pkg;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @param	string	$vendor
+	 * @return	PkgName
+	 */
+	public function createPkgName($name, $vendor = null)
+	{
+		return new PkgName($name, $vendor);
 	}
 }

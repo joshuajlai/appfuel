@@ -41,6 +41,7 @@ class HtmlDocPkg extends PagePkg implements HtmlDocPkgInterface
 		$htmldoc = 'htmldoc.' . $this->getName();
 		$this->setHtmlDocName($htmldoc, $vendor);
 
+		$config = array();
 		if (isset($data['html'])) {
 			$config = $data['html'];
 		}

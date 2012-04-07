@@ -12,6 +12,10 @@
 					"recordset-base", "datasource-io", "datasource-jsonschema",
 					"io-base", "json", "plugin", "view", "widget"
 				]
+			},
+			"unittest": {
+				"filename": "yui3-unittest",
+				"pkg": ["test"]
 			}
 		}
 	},
