@@ -2,11 +2,11 @@
     "name": "kernel",
 	"type": "pkg",
     "desc": "appfuel core functionalilty",
-	"relative-path": "pkg/kernel",
+	"path": "pkg/kernel",
     "src": {
-		"filename": "appfuel-kernel",
         "files": {
-            "js": ["js/kernel.js","js/ajax.js"]
+            "js": ["js/kernel.js","js/ajax.js"],
+			"css": ["css/chrome.css"]
         }
     }
 }

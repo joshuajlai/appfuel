@@ -59,7 +59,7 @@ class FileStack implements FileStackInterface
 	public function get($type, $path = null)
 	{
 		if (! is_string($type) || ! isset($this->files[$type])) {
-			return false;
+			return array();
 		}
 
 		$files = $this->files[$type];
@@ -103,7 +103,7 @@ class FileStack implements FileStackInterface
 
 	/**
 	 * @param	array	$list
-	 * @return	PackageFileList
+	 * @return	FileStack
 	 */
 	public function load(array $list)
 	{
@@ -125,6 +125,26 @@ class FileStack implements FileStackInterface
 
 			foreach ($files as $file) {
 					$this->add($type, $file);
+			}
+		}
+
+		return $this;
+	}
+
+	/**
+	 * @param	FileStackInterface $stack
+	 * @return	FileStack
+	 */
+	public function loadStack(FileStackInterface $stack)
+	{
+		$types = $stack->getTypes();
+		foreach ($types as $type) {
+			$files = $stack->get($type);
+			if (empty($files)) {
+				continue;
+			}
+			foreach ($files as $file) {
+				$this->add($type, $file);
 			}
 		}
 

@@ -51,12 +51,6 @@ class ResourceTreeManager
 	static protected $factories = array();
 
 	/**
-	 * @var array
-	 */
-	static protected $cache = array();
-
-
-	/**
 	 * @return	bool
 	 */
 	static public function isTree()
@@ -88,14 +82,10 @@ class ResourceTreeManager
 	}
 
 	/**
-	 * @param	string	$vendor
-	 * @return	ResourceFactoryInterface
+	 * @param	string|PkgNameInterface	$page
+	 * @param	string	$defaultVendor
+	 * @return	FileStack
 	 */
-	static public function getFactory($vendor)
-	{
-
-	}
-
 	static public function resolvePage($page, $defaultVendor = null)
 	{
 		if (null === $defaultVendor) {
@@ -113,7 +103,6 @@ class ResourceTreeManager
 		foreach ($layers as $layerName) {
 			$layer      = self::getPkg($layerName);
 			$vendor     = $layer->getVendor();
-			$path       = $vendor->getPackagePath();
 			$vendorName = $vendor->getVendorName();
 			$factory    = self::loadFactory($vendorName); 
 
@@ -123,38 +112,76 @@ class ResourceTreeManager
 			$pkgs    = $layer->getPackages();
 			foreach ($pkgs as $pkgName) {
 				if ('yui3' === $vendorName) {
-					self::resolveYui($pkgName, $path, $stack);
+					self::resolveYui($pkgName, $stack);
 					$stack->sortByPriority();
 				}
 				else {
-					self::resolve($pkgName, $path, $stack);
+					self::resolve($pkgName, $stack);
 				}
-
-				$files = array(
+				
+				$resultStack->load(array(
 					'js'  => $layer->getAllJsSourcePaths(),
 					'css' => $layer->getAllCssSourcePaths()
-				);
-				$resultStack->load($files);
+				));
 			}
 		}
+
+		if ($pagePkg->isRequiredPackages()) {
+			$list = $pagePkg->getRequiredPackages();
+			foreach ($list as $pkgName) {
+				$vendorName = $pkgName->getVendor();
+				$factory    = self::loadFactory($vendorName);
+				$stack      = $factory->createFileStack();
+				if ('yui3' === $vendorName) {
+					self::resolveYui($pkgName, $stack);
+				}
+				else {
+					self::resolve($pkgName, $stack);
+				}
+
+				$resultStack->loadStack($stack);
+			}
+		}
+
+		$path = self::getVendorPath($pageName->getVendor());
+		
+		$resultStack->load(array(
+			'js'  => $pagePkg->getFiles('js', $path),
+			'css' => $pagePkg->getFiles('css', $path)
+		));
 
 		return $resultStack;
 	}
 
+	/**
+	 * Resolve appfuel dependencies adding each packages files to the
+	 * file stack
+	 *
+	 * @param	PkgNameInterface	$pkgName
+	 * @param	string				$path
+	 * @param	FileStackInterface	$stack
+	 * @return	null
+	 */
 	static public function resolve(PkgNameInterface $pkgName, 
-								   $path, 
 								   FileStackInterface $stack)
 	{
 		$pkg = self::getPkg($pkgName);
-       if (false === $pkg) {
+		if (false === $pkg) {
             $err = "can not resolve dependecies -({$pkgName->getName()}) ";
             throw new DomainException($err);
         }
 
+		$path = self::getVendorPath($pkgName->getVendor());
+		if (false === $path) {
+			$err = "can not resolve the package path for vendor ";
+			$err = "-({$pkgName->getVendor()}, {$pkgName->getName()})";
+			throw new DomainException($err);
+		}
+
         if ($pkg->isRequiredPackages()) {
             $list = $pkg->getRequiredPackages();
             foreach ($list as $reqPkgName) {
-                $this->resolve($reqPkgName, $path, $stack);
+                self::resolve($reqPkgName, $stack);
             }
         }
 
@@ -162,7 +189,8 @@ class ResourceTreeManager
         if (! $js) {
             $js = array();
         }
-        $css = $pkg->getFiles('css');
+
+        $css = $pkg->getFiles('css', $path);
         if (! $css) {
             $css = array();
         }
@@ -170,8 +198,16 @@ class ResourceTreeManager
         $stack->load(array('js' => $js, 'css' => $css));
 	}
 
+	/**
+	 * Resolve appfuel dependencies adding each packages files to the
+	 * file stack
+	 *
+	 * @param	PkgNameInterface	$pkgName
+	 * @param	string				$path
+	 * @param	FileStackInterface	$stack
+	 * @return	null
+	 */
 	static public function resolveYui(PkgNameInterface $pkgName,
-									  $path,
 									  Yui3FileStackInterface $stack)
 	{
 		$pkg  = self::getPkg($pkgName);
@@ -179,6 +215,14 @@ class ResourceTreeManager
             $err = "can not resolve dependecies -({$pkgName->getName()}) ";
             throw new DomainException($err);
 		}
+
+		$path = self::getVendorPath($pkgName->getVendor());
+		if (false === $path) {
+			$err = "can not resolve the package path for vendor ";
+			$err = "-({$pkgName->getVendor()}, {$pkgName->getName()})";
+			throw new DomainException($err);
+		}
+
         $name = $pkg->getName();
         $type  = 'js';
         if ($pkg->isCss()) {
@@ -190,13 +234,13 @@ class ResourceTreeManager
         } else if ($pkg->isUse()) {
             $list = $pkg->getUse();
             foreach ($list as $yuiName) {
-                self::resolveYui($yuiName, $path, $stack);
+                self::resolveYui($yuiName, $stack);
             }
         }
         else if ($pkg->isRequire()) {
             $list = $pkg->getRequire();
             foreach ($list as $yuiName) {
-                self::resolveYui($yuiName, $path, $stack);
+                self::resolveYui($yuiName, $stack);
             }
             $stack->add($type, $name);
         }
@@ -272,9 +316,20 @@ class ResourceTreeManager
 		return $pkg;
 	}
 
+	/**
+	 * @return	string
+	 */
 	static public function getVendorPath($vendor)
 	{
 		return ResourceTree::getPath($vendor);
+	}
+
+	/**
+	 * @return	bool
+	 */
+	static public function isVendor($name)
+	{
+		return ResourceTree::isVendorInTree($name);
 	}
 
 	/**

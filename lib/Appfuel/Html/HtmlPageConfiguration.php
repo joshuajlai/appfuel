@@ -114,9 +114,14 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		$stack = ResourceTreeManager::resolvePage($pkg, 'appfuel');
 		$url   = $this->getResourceUrl();
 		$js    = $stack->get('js', "$url/resource");
+
 		foreach ($js as $file) {
-			$fileUrl = "$url/resource/$file";
-			$page->addScript($fileUrl);
+			$page->addScript($file);
+		}
+
+		$css = $stack->get('css', "$url/resource");
+		foreach ($css as $file) {
+			$page->addCssLink($file);
 		}
 	}
 

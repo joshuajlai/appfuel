@@ -7,14 +7,14 @@
 	"init": "mytest.pjs",
 	"markup": "mytest.phtml",
 	"layers": [
-		"yui3:layer.fw-global",
+		"yui3:layer.unittest",
 		"appfuel:layer.app-global"
 	],
-	"required": ["appfuel:pkg.kernel"],
+	"require": ["appfuel:pkg.mvc"],
 	"src" : {
 		"dir" : "",
 		"files": {
-			"js" : ["myjs.js"]
+			"js" : ["page.js"]
 		}
 	}
 
