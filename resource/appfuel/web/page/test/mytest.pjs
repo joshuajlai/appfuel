@@ -1,1 +1,18 @@
-console.log("i am an init pjs: <?= $this->render('foo')?>");
+YUI().use('node', 'console', 'test', function(Y) {
+	var suite = new Y.Test.Suite("TestSuite Name");
+	suite.add(new Y.Test.Case({
+		name: "TestCase Name",
+		testOne: function () {
+			Y.assert(5==5, "should be true");
+		}
+	}));
+
+	Y.Test.Runner.add(suite);
+
+	var yconsole = new Y.Console({
+		newestOnTop: false
+	});
+	yconsole.render("#log");
+
+	Y.Test.Runner.run();
+});

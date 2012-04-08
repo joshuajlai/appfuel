@@ -51,46 +51,66 @@ class ResourceTreeManager
 	static protected $factories = array();
 
 	/**
-	 * @return	bool
+	 * @param	PkgNameInterface	$name
+	 * @param	FileStackInterface	$result
+	 * @return	null
 	 */
-	static public function isTree()
+	static public function loadLayer(PkgNameInterface   $name, 
+									 FileStackInterface $result)
 	{
-		return ResourceTree::isTree();
+		$layer      = self::getPkg($name);
+		$vendor     = $layer->getVendor();
+		$vendorName = $vendor->getVendorName();
+		$factory    = self::loadFactory($vendorName); 
+		
+		$stack = $factory->createFileStack();
+		$layer->setFileStack($stack);
+	
+		$list = $layer->getPackages();
+		foreach ($list as $pkgName) {
+			if ('yui3' === $vendorName) {
+				self::resolveYui($pkgName, $stack);
+				$stack->sortByPriority();
+			}
+			else {
+				self::resolve($pkgName, $stack);
+			}
+			
+			$result->load(array(
+				'js'  => $layer->getAllJsSourcePaths(),
+				'css' => $layer->getAllCssSourcePaths()
+			));
+		}
 	}
 
 	/**
+	 * @param	PkgNameInterface $name
+	 * @param	FileStackInterface $result
 	 * @return	null
 	 */
-	static public function loadTree()
+	static public function loadPkg(PkgNameInterface $name,
+								   FileStackInterface $result)
 	{
-		$file   = self::getTreeFile();
-		$finder = self::loadFileFinder();
-		$finder->setRootPath($file);
-		$reader = new FileReader($finder);
-		$data   = $reader->decodeJsonAt();
-		if (empty($data)) {
-			$err  = "could not load resource tree or tree is empty ";
-			$err .= "-({$finder->getPath()})";
-			throw new RunTimeException($err);
+		$vendorName = $name->getVendor();
+		$factory    = self::loadFactory($vendorName);
+		$stack      = $factory->createFileStack();
+		if ('yui3' === $vendorName) {
+			self::resolveYui($name, $stack);
 		}
-		ResourceTree::setTree($data);
-
-		/*
-		 * we want to reuse the finder so set the root back to the base path
-		 */
-		$finder->setRootPath('');
+		else {
+			self::resolve($name, $stack);
+		}
+				
+		$result->loadStack($stack);
 	}
 
 	/**
 	 * @param	string|PkgNameInterface	$page
 	 * @param	string	$defaultVendor
-	 * @return	FileStack
+	 * @return	HtmlDocPkg
 	 */
-	static public function resolvePage($page, $defaultVendor = null)
+	static public function resolvePage($page, FileStackInterface $result)
 	{
-		if (null === $defaultVendor) {
-			$defaultVendor = self::getDefaultVendor();
-		}
 		if (! self::isTree()) {
 			self::loadTree();
 		}
@@ -98,59 +118,21 @@ class ResourceTreeManager
 		$pagePkg  = self::getPkg($pageName);
 
 		$layers = $pagePkg->getLayers();
-		$resultStack  = new FileStack();
-		
 		foreach ($layers as $layerName) {
-			$layer      = self::getPkg($layerName);
-			$vendor     = $layer->getVendor();
-			$vendorName = $vendor->getVendorName();
-			$factory    = self::loadFactory($vendorName); 
-
-			$stack = $factory->createFileStack();
-			$layer->setFileStack($stack);
-			
-			$pkgs    = $layer->getPackages();
-			foreach ($pkgs as $pkgName) {
-				if ('yui3' === $vendorName) {
-					self::resolveYui($pkgName, $stack);
-					$stack->sortByPriority();
-				}
-				else {
-					self::resolve($pkgName, $stack);
-				}
-				
-				$resultStack->load(array(
-					'js'  => $layer->getAllJsSourcePaths(),
-					'css' => $layer->getAllCssSourcePaths()
-				));
-			}
+			self::loadLayer($layerName, $result);
 		}
 
-		if ($pagePkg->isRequiredPackages()) {
-			$list = $pagePkg->getRequiredPackages();
-			foreach ($list as $pkgName) {
-				$vendorName = $pkgName->getVendor();
-				$factory    = self::loadFactory($vendorName);
-				$stack      = $factory->createFileStack();
-				if ('yui3' === $vendorName) {
-					self::resolveYui($pkgName, $stack);
-				}
-				else {
-					self::resolve($pkgName, $stack);
-				}
-
-				$resultStack->loadStack($stack);
-			}
-		}
-
+		$stack = new FileStack();
+		self::resolve($pageName, $stack);
 		$path = self::getVendorPath($pageName->getVendor());
-		
-		$resultStack->load(array(
+		$result->loadStack($stack);	
+		$result->load(array(
 			'js'  => $pagePkg->getFiles('js', $path),
 			'css' => $pagePkg->getFiles('css', $path)
 		));
 
-		return $resultStack;
+		$htmlName = $pagePkg->getHtmlDocName();
+		return self::getPkg($pagePkg->getHtmlDocName());
 	}
 
 	/**
@@ -194,7 +176,7 @@ class ResourceTreeManager
         if (! $css) {
             $css = array();
         }
-
+	
         $stack->load(array('js' => $js, 'css' => $css));
 	}
 
@@ -463,5 +445,36 @@ class ResourceTreeManager
 		}
 
 		self::$treeFile;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	static public function isTree()
+	{
+		return ResourceTree::isTree();
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function loadTree()
+	{
+		$file   = self::getTreeFile();
+		$finder = self::loadFileFinder();
+		$finder->setRootPath($file);
+		$reader = new FileReader($finder);
+		$data   = $reader->decodeJsonAt();
+		if (empty($data)) {
+			$err  = "could not load resource tree or tree is empty ";
+			$err .= "-({$finder->getPath()})";
+			throw new RunTimeException($err);
+		}
+		ResourceTree::setTree($data);
+
+		/*
+		 * we want to reuse the finder so set the root back to the base path
+		 */
+		$finder->setRootPath('');
 	}
 }

@@ -38,12 +38,6 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	protected $resourceUrl = '';
 
 	/**
-	 * This package name will be used when one 
-	 * @param	string
-	 */
-	protected $htmlPkgName = null;
-
-	/**
 	 * @param	string	$url
 	 * @return	HtmlPageConfiguration
 	 */
@@ -52,11 +46,6 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		if (null !== $url) {
 			$this->setResourceUrl($url);
 		}
-
-		if (null === $default) {
-			$default = 'appfuel:chrome:default-html';
-		}
-		$this->setDefaultHtmlPkgName($default);
 	}
 
 	/**
@@ -83,27 +72,10 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	}
 
 	/**
-	 * @return string
+	 * @param	string	$pkg	name of the page view to be configured
+	 * @param	HtmlPageInterface $page
+	 * @return	null
 	 */
-	public function getDefaultHtmlPkgName()
-	{
-		return $this->htmlPkgName;
-	}
-
-	/**
-	 * @param	string	$pkg
-	 * @return	HtmlPageConfiguration
-	 */
-	public function setDefaultHtmlPkgName($pkg)
-	{
-		if (! $pkg instanceof PkgNameInterface) {
-			$pkg = new PkgName($pkg);
-		}
-
-		$this->htmlPkgName = $pkg;
-		return $this;
-	}
-
 	public function applyView($pkg, HtmlPageInterface $page)
 	{
 		if (! is_string($pkg) || empty($pkg)) {
@@ -111,7 +83,10 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 			throw new InvalidArgumentException($err);
 		}
 		$page->setViewPkg($pkg);
-		$stack = ResourceTreeManager::resolvePage($pkg, 'appfuel');
+
+		$stack = new FileStack();
+		$htmlPkg = ResourceTreeManager::resolvePage($pkg, $stack);
+
 		$url   = $this->getResourceUrl();
 		$js    = $stack->get('js', "$url/resource");
 
@@ -123,6 +98,9 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		foreach ($css as $file) {
 			$page->addCssLink($file);
 		}
+
+		$config = $htmlPkg->getHtmlConfig();
+		$this->apply($config, $page);
 	}
 
 	/**
@@ -132,17 +110,30 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 */
 	public function apply(array $config, HtmlPageInterface $page)
 	{
-		if (isset($config['html-head']) && is_array($config['html-head'])) {
-			$this->applyHead($config['html-head'], $page);
+		if (isset($config['attrs']) && is_array($config['attrs'])) {
+			foreach ($config['attrs'] as $name => $value) {
+				$page->addHtmlAttribute($name, $value);
+			}
 		}
 
-		if (isset($config['html-body']) && is_array($config['html-body'])) {
-			$this->applyBody($config['html-body'], $page);
+		if (isset($config['head']) && is_array($config['head'])) {
+			$this->applyHead($config['head'], $page);
+		}
+
+		if (isset($config['body']) && is_array($config['body'])) {
+			$this->applyBody($config['body'], $page);
 		}
 	}
 
 	public function applyHead(array $config, HtmlPageInterface $page)
 	{
+
+		if (isset($config['attrs']) && is_array($config['attrs'])) {
+			foreach ($config['attrs'] as $name => $value) {
+				$page->addHeadAttribute($name, $value);
+			}
+		}
+
 		if (isset($config['title'])) {
 			$this->applyTitle($config['title'], $page);
 		}
@@ -167,6 +158,12 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 */
 	public function applyBody(array $config, HtmlPageInterface $page)
 	{
+		if (isset($config['attrs']) && is_array($config['attrs'])) {
+			foreach ($config['attrs'] as $name => $value) {
+				$page->addBodyAttribute($name, $value);
+			}
+		}
+
 		if (isset($config['js-scripts']) && is_array($config['js-scripts'])) {
 			$this->applyJsFiles($config['js-scripts'], $page);
 		}

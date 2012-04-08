@@ -15,7 +15,7 @@
 			},
 			"unittest": {
 				"filename": "yui3-unittest",
-				"pkg": ["test"]
+				"pkg": ["node", "console", "test"]
 			}
 		}
 	},

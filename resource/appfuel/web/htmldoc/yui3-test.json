@@ -1,16 +1,12 @@
 {
-	"name": "default-html",
+	"name": "yui3-test",
 	"type": "htmldoc",
 	"markup": "htmldoc/doc.phtml",
 	"html": {
-		"attrs": {
-			"lang": "eng",
-			"manifest": "my-file"
-		},
+		"attrs": {"lang": "eng"},
 		"head": {
 			"attrs": {"id":"head-id"},
-			"title": "this is the default title",
-			"base": {"href": "base-url.com"},
+			"title": "yui test page",
 			"meta": [
 				{
 					"content":"text/html",
@@ -21,13 +17,10 @@
 					"name": "framework",
 					"content": "appfuel"
 				}
-			],
-			"links": ["url1","url2"],
-			"scripts": ["url1", "url2"],
-
-			"body": {
-				"scripts":["url1", "url2"]
-			}
+			]
+		},
+		"body": {
+			"attrs": {"class": "yui3-skin-sam"}
 		}
 	}
 }
