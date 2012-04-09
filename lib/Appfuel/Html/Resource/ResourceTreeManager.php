@@ -51,6 +51,46 @@ class ResourceTreeManager
 	static protected $factories = array();
 
 	/**
+	 * @return	array
+	 */
+	static public function getAllLayerNames()
+	{
+		$keys = ResourceTree::getAllVendorKeys();
+		$list = array();
+		foreach ($keys as $vendor) {
+			$names = ResourceTree::getAllLayerNames($vendor);
+			if (empty($names)) {
+				continue;
+			}
+			foreach ($names as $name) {
+				$list[] = new PkgName("$vendor:layer.$name");
+			}
+		}
+
+		return $list;
+	}
+
+	/**
+	 * @return	array
+	 */
+	static public function getAllPageNames()
+	{
+		$keys = ResourceTree::getAllVendorKeys();
+		$list = array();
+		foreach ($keys as $vendor) {
+			$names = ResourceTree::getAllPageNames($vendor);
+			if (empty($names)) {
+				continue;
+			}
+			foreach ($names as $name) {
+				$list[] = new PkgName("$vendor:page.$name");
+			}
+		}
+
+
+	}
+
+	/**
 	 * @param	PkgNameInterface	$name
 	 * @param	FileStackInterface	$result
 	 * @return	null
@@ -81,6 +121,8 @@ class ResourceTreeManager
 				'css' => $layer->getAllCssSourcePaths()
 			));
 		}
+
+		return $layer;
 	}
 
 	/**
@@ -114,6 +156,7 @@ class ResourceTreeManager
 		if (! self::isTree()) {
 			self::loadTree();
 		}
+		self::getAllLayerNames();
 		$pageName = self::createPkgName($page);
 		$pagePkg  = self::getPkg($pageName);
 

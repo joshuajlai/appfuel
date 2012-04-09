@@ -207,20 +207,25 @@ class AppfuelLayer implements ResourceLayerInterface
 		return $list;
 	}
 
+	public function getBuildDir()
+	{
+		$vendor   = $this->getVendor();
+		$name     = $vendor->getVendorName(); 
+		$version  = $vendor->getVersion();
+		return "build/$name/$version";
+	}
+
 	/**
 	 * @return	string
 	 */
-	protected function getFilePath()
+	public function getBuildFile()
 	{
 		if (! $this->isFilename()) {
 			$err = "can not get layer file path before setting the filename";
 			throw new DomainException($err);
 		}
 
-		$vendor   = $this->getVendor();
-		$name     = $vendor->getVendorName(); 
-		$version  = $vendor->getVersion();
-		$filename = $this->getFilename();
-		return "resource/build/$name/$version/layer/$filename";
+		$dir = $this->getBuildDir();
+		return "$dir/{$this->getFilename()}";
 	}
 }

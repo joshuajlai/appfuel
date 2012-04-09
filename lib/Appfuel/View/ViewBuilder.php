@@ -102,7 +102,7 @@ class ViewBuilder implements ViewBuilderInterface
 			case 'html': $template = $this->createHtmlPage();	  break;
 			case 'csv' : $template = $this->createCsvTemplate();  break;
 			case 'json': $template = $this->createAjaxTemplate(); break;
-			case 'text': $template = $this->createTextTemplate(); break;
+			case 'text': $template = $this->createViewTemplate(); break;
 			default: 
 				$err = "could not find template for format -($format)";
 				throw new DomainException($err, 404);
@@ -137,82 +137,6 @@ class ViewBuilder implements ViewBuilderInterface
 	public function createHtmlPageConfiguration($url)
 	{
 		return new HtmlPageConfiguration($url);
-	}
-
-	/**
-	 * @param	string	$format
-	 * @param	array	$params
-	 * @return	ViewData
-	 */
-	public function createViewData($format = null, array $params = null)
-	{
-		if ('html' === strtolower($format)) {
-			$data = new HtmlPage();
-		}
-		else {
-			$data = new ViewData();
-		}
-
-		return $data;
-	}
-
-	/**
-	 * @param	MvcViewDetailInterface	$detail
-	 * @return	ViewInterface | empty string
-	 */
-	public function buildView(MvcRouteDetailInterface $detail)
-	{
-		$viewDetail = $detail->getViewDetail();
-		if (! $viewDetail->isView()) {
-			return '';
-		}
-
-		$namespace  = $detail->getNamespace();
-		$strategy = $viewDetail->getStrategy();
-		$params   = $viewDetail->getParams();
-		$method   = $viewDetail->getMethod();
-		$class    = $viewDetail->getViewClass();
-
-
-		/*
-		 * override the view by just instantiating the view class given
-		 */
-		if ($viewDetail->isViewClass()) {
-			return new $class();
-		}
-
-		if (is_string($method) && is_callable(array($this, $method))) {
-			return $this->$method($strategy, $params);
-		}
-
-		if (is_callable($method)) {
-			return call_user_func($method, $strategy, $params);
-		}
-
-		if (null !== $method) {
-			$name = 'unkown';
-			if (is_string($method)) {
-				$name = $method;
-			}
-			else if (is_array($method) && isset($method[1])) {
-				$name = $method[1];
-			}
-			$err = "view build failed: method not found -($name)";
-			throw new RunTimeException($err);
-		}
-		
-		/*
-		 * Do not need a template, just use this raw string
-		 */
-		if ($viewDetail->isRawView()) {
-			return $viewDetail->getRawView();
-		}
-
-		/*
-		 * no overrides use strategy given to build default view
-		 */
-		$view = $this->buildAppView($strategy, $params);
-		return $view;
 	}
 
 	/**

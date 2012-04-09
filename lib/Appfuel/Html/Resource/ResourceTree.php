@@ -32,6 +32,14 @@ class ResourceTree
 
 
 	/**
+	 * @return	array
+	 */
+	static public function getAllVendorKeys()
+	{
+		return array_keys(self::$tree);
+	}
+
+	/**
 	 * @param	string	$name
 	 * @return	VendorInterface
 	 */
@@ -115,6 +123,40 @@ class ResourceTree
 		}
 
 		return true;
+	}
+
+	/**
+	 * @param	string	$vendor
+	 * @return	array | false
+	 */
+	static public function getAllPageNames($vendor)
+	{
+		if (! self::isVendorInTree($vendor)) {
+			return false;
+		}
+
+		if (! isset(self::$tree[$vendor]['list']['page'])) {
+			return false;
+		}
+
+		return array_keys(self::$tree[$vendor]['list']['page']);
+	}
+
+	/**
+	 * @param	string	$vendor
+	 * @return	array | false
+	 */
+	static public function getAllLayerNames($vendor)
+	{
+		if (! self::isVendorInTree($vendor)) {
+			return false;
+		}
+
+		if (! isset(self::$tree[$vendor]['layers'])) {
+			return false;
+		}
+
+		return array_keys(self::$tree[$vendor]['layers']);
 	}
 
 	/**

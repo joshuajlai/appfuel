@@ -67,4 +67,22 @@ class FileWriter implements FileWriterInterface
 		$full = $finder->getPath($path);
 		return file_put_contents($full, $data, $flags);
 	}
+
+	/**
+	 * @param	string	$path 
+	 * @param	int		$mode
+	 * @param	bool	$isRecursive
+	 * @return	
+	 */
+	public function mkdir($path, $mode = null, $isRecursive = null)
+	{
+		$recursive = false;
+		if (true === $isRecursive) {
+			$recursive = true;
+		}
+
+		$finder = $this->getFileFinder();
+		$full   = $finder->getPath($path);
+		return mkdir($full, $mode, $recursive);
+	}
 }

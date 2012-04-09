@@ -218,20 +218,25 @@ class Yui3Layer
 		return $result;
 	}
 
-	/**
-	 * @return	string
-	 */
-	protected function getFilePath()
-	{
-		if (! $this->isFilename()) {
-			$err = "can not get layer file path before setting the filename";
-			throw new DomainException($err);
-		}
+    public function getBuildDir()
+    {
+        $vendor   = $this->getVendor();
+        $name     = $vendor->getVendorName();
+        $version  = $vendor->getVersion();
+        return "build/$name/$version";
+    }
 
-		$vendor   = $this->getVendor();
-		$name     = $vendor->getVendorName(); 
-		$version  = $vendor->getVersion();
-		$filename = $this->getFilename();
-		return "resource/build/$name/$version/layer/$filename";
-	}
+    /**
+     * @return  string
+     */
+    public function getBuildFile()
+    {
+        if (! $this->isFilename()) {
+            $err = "can not get layer file path before setting the filename";
+            throw new DomainException($err);
+        }
+
+        $dir = $this->getBuildDir();
+        return "$dir/{$this->getFilename()}";
+    }
 }
