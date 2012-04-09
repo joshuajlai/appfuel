@@ -70,47 +70,10 @@ $viewBuilder->setupView($context, $route, $format);
 $front   = $factory->createFront();
 $context = $front->run($context);
 $content = $viewBuilder->composeView($context, $route, $format);
+$code    = $content->getExitCode();
+if ($code >= 200 || $code < 300) {
+	$code = 0;
+}
 
 fwrite(STDOUT, $content);
 exit($context->getExitCode());
-
-ResourceTreeManager::loadTree();
-
-$name    = new PkgName("yui3:layer.fw-global");
-$stack   = new FileStack();
-$content = new ContentStack();
-$layer   = ResourceTreeManager::loadLayer($name, $stack);
-
-$buildDir     = $layer->getBuildDir();
-$buildFile    = $layer->getBuildFile();
-$jsBuildFile  = "$buildFile.js";
-$cssBuildFile = "$buildFile..css";
-
-$finder = new FileFinder('resource');
-$reader = new FileReader($finder);
-
-$jsList = $stack->get('js');
-foreach ($jsList as $file) {
-	$text = $reader->getContent($file);
-	if (false === $text) {
-		$err = "could not read contents of file -($file)";
-		throw new RunTimeException($err);
-	}
-	$content->add($text);	
-}
-
-$result = '';
-foreach ($content as $data) {
-	$result .= $data . PHP_EOL;
-}
-
-$writer = new FileWriter($finder);
-if (! $finder->isDir($buildDir)) {
-	if (! $writer->mkdir($buildDir, 0755, true)) {
-		$err = "could not create dir at -({$finder->getPath($buildDir)})";
-		throw new RunTimeException($err);
-	}
-}
-$ok = $writer->putContent($result, $jsBuildFile);
-echo "\n", print_r($ok,1), "\n";exit;
-exit(0);
