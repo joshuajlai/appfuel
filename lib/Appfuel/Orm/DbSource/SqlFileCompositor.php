@@ -13,8 +13,8 @@ namespace Appfuel\Orm\DbSource;
 use LogicException,
 	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Orm\OrmCriteriaInterface,
-	Appfuel\View\Compositor\FileCompositor;
+	Appfuel\View\FileCompositor,
+	Appfuel\Orm\OrmCriteriaInterface;
 
 /**
  */
