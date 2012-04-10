@@ -63,6 +63,7 @@ class SqlTemplate extends FileTemplate
 
 		$data = $this->getAll();
         $compositor = new SqlFileCompositor();
+		$compositor->setDbMap($this->getDbMap());
 		return $compositor->compose($absolute, $data);
     }
 
