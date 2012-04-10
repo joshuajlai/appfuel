@@ -140,20 +140,38 @@ class AppfuelLayer implements ResourceLayerInterface
 		return is_string($this->filename) && ! empty($this->filename);
 	}
 
+    /**
+     * @return bool
+     */
+    public function isCss()
+    {
+        return $this->getFileStack()
+                    ->isType('css');
+    }
+
+    /**
+     * @return bool
+     */
+    public function isJs()
+    {
+        return $this->getFileStack()
+                    ->isType('js');
+    }
+
 	/**
 	 * @return	string
 	 */
-	public function getCssFilePath()
+	public function getCssFile()
 	{
-		return $this->getFilePath() . '.css';
+		return $this->getBuildFile() . '.css';
 	}
 
 	/**
 	 * @return	string
 	 */
-	public function getJsFilePath()
+	public function getJsFile()
 	{
-		return $this->getFilePath() . '.js';
+		return $this->getBuildFile() . '.js';
 	}
 
 	/**

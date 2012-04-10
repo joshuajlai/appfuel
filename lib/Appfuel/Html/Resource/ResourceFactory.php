@@ -78,6 +78,9 @@ class ResourceFactory implements ResourceFactoryInterface
 			case 'htmldoc':
 				$pkg = new HtmlDocPkg($data, $vendor);
 				break;
+			case 'theme':
+				$pkg = new ThemePkg($data, $vendor);
+				break;
 			default:
 				$err = "invalid pkg: no pkg strategy for -($type)";
 				throw new DomainException($err);

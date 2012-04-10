@@ -152,7 +152,7 @@ class ViewCompositor implements ViewCompositorInterface
 			return '';
 		}
 
-		return  self::composeArray(array_values($data), $sep);
+		return  self::composeArray(array_values($data), $sep) . PHP_EOL;
 	}
 	
 	/**

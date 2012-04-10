@@ -69,6 +69,20 @@ class FileWriter implements FileWriterInterface
 	}
 
 	/**
+	 * @param	string	$src
+	 * @param	string	$dest
+	 * @return	bool
+	 */
+	public function copy($src, $dest)
+	{
+		$finder   = $this->getFileFinder();
+		$fullSrc  = $finder->getPath($src);
+		$fullDest = $finder->getPath($dest);
+
+		return copy($fullSrc, $fullDest);
+	}
+
+	/**
 	 * @param	string	$path 
 	 * @param	int		$mode
 	 * @param	bool	$isRecursive

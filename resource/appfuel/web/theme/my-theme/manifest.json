@@ -1,0 +1,13 @@
+{
+    "name": "my-theme",
+	"type": "theme",
+    "desc": "test theme while building theme pkgs",
+	"path": "theme/my-theme",
+    "src": {
+		"dir": "",
+        "files": {
+			"css": ["file-a.css", "file-b.css"],
+			"assets":["image-a.png", "image-b.png"]
+        }
+    }
+}

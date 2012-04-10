@@ -87,7 +87,7 @@ class ResourceTreeManager
 			}
 		}
 
-
+		return $list;
 	}
 
 	/**
@@ -125,6 +125,21 @@ class ResourceTreeManager
 		return $layer;
 	}
 
+	static public function createPageLayer(PkgNameInterface $pkgName)
+	{
+		$vendorName = $pkgName->getVendor();
+		$vendor     = self::loadVendor($vendorName);
+		$factory    = self::loadFactory($vendorName);
+		$layer		= $factory->createLayer($pkgName->getName(), $vendor);
+		$stack      = $factory->createFileStack(); 
+
+		self::resolve($pkgName, $stack);
+		$layer->setFileStack($stack);
+		$layer->setFilename($pkgName->getName());
+
+		return $layer;
+	}
+
 	/**
 	 * @param	PkgNameInterface $name
 	 * @param	FileStackInterface $result
@@ -156,7 +171,7 @@ class ResourceTreeManager
 		if (! self::isTree()) {
 			self::loadTree();
 		}
-		self::getAllLayerNames();
+
 		$pageName = self::createPkgName($page);
 		$pagePkg  = self::getPkg($pageName);
 
@@ -164,7 +179,6 @@ class ResourceTreeManager
 		foreach ($layers as $layerName) {
 			self::loadLayer($layerName, $result);
 		}
-
 		$stack = new FileStack();
 		self::resolve($pageName, $stack);
 		$path = self::getVendorPath($pageName->getVendor());
@@ -174,8 +188,66 @@ class ResourceTreeManager
 			'css' => $pagePkg->getFiles('css', $path)
 		));
 
-		$htmlName = $pagePkg->getHtmlDocName();
-		return self::getPkg($pagePkg->getHtmlDocName());
+		$htmlPkg = self::getPkg($pagePkg->getHtmlDocName());
+		$themeName = $pagePkg->getThemeName();
+		if (! $themeName) {
+			return $htmlPkg;
+		}
+
+		$theme   = self::getPkg($themeName);
+		$cssList = $theme->getCssFiles($path); 
+	
+		$result->load(array('css' => $cssList));	
+		return $htmlPkg;
+	}
+
+	static public function resolveBuildPage($page, FileStackInterface $result)
+	{
+		if (! self::isTree()) {
+			self::loadTree();
+		}
+
+		$pageName = self::createPkgName($page);
+		$pagePkg  = self::getPkg($pageName);
+		$layers   = $pagePkg->getLayers();
+
+		foreach ($layers as $layerName) {
+			$factory = self::loadFactory($layerName->getVendor());
+			$stack   = $factory->createFileStack();
+			$layer   = self::loadLayer($layerName, $stack);
+			if ($layer->isJs()) {
+				$result->add('js', $layer->getJsFile());
+			}
+	
+			if ($layer->isCss()) {
+				$result->add('css', $layer->getCssFile());
+			}
+		}
+		
+		$layer = self::createPageLayer($pageName);
+
+		if ($layer->isJs()) {
+			$result->add('js', $layer->getJsFile());
+		}
+			
+		if ($layer->isCss()) {
+			$result->add('css', $layer->getCssFile());
+		}
+		
+		$htmlPkg = self::getPkg($pagePkg->getHtmlDocName());
+		$themePkgName = $pagePkg->getThemeName();
+		if (! $themePkgName) {
+			return $htmlPkg;
+		}
+		$themeName    = $themePkgName->getName();
+		$vendorName   = $pageName->getVendor();
+		$vendor       = self::loadVendor($vendorName);
+		$version      = $vendor->getVersion();
+		$themeFile    = "build/$vendorName/$version/theme" . 
+						"/$themeName/$themeName.css";	
+			
+		$result->add('css', $themeFile);
+		return $htmlPkg;
 	}
 
 	/**

@@ -70,7 +70,7 @@ $viewBuilder->setupView($context, $route, $format);
 $front   = $factory->createFront();
 $context = $front->run($context);
 $content = $viewBuilder->composeView($context, $route, $format);
-$code    = $content->getExitCode();
+$code    = $context->getExitCode();
 if ($code >= 200 || $code < 300) {
 	$code = 0;
 }

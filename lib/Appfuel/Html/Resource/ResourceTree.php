@@ -45,7 +45,7 @@ class ResourceTree
 	 */
 	static public function getVendor($name)
 	{
-		if (! isset(self::$vendors[$name])) {
+		if (! is_string($name) || ! isset(self::$vendors[$name])) {
 			return false;
 		}
 

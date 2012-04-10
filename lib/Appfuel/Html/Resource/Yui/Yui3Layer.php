@@ -14,11 +14,12 @@ use DomainException,
 	InvalidArgumentException,
 	Appfuel\Html\Resource\PkgName,
 	Appfuel\Html\Resource\VendorInterface,
-	Appfuel\Html\Resource\FileStackInterface;
+	Appfuel\Html\Resource\FileStackInterface,
+	Appfuel\Html\Resource\ResourceLayerInterface;
 
 /**
  */
-class Yui3Layer 
+class Yui3Layer implements ResourceLayerInterface
 {
 	/**
 	 * @var string
@@ -141,20 +142,38 @@ class Yui3Layer
 	}
 
 	/**
-	 * @return	string
+	 * @return bool
 	 */
-	public function getCssFilePath()
+	public function isCss()
 	{
-		return $this->getFilePath() . '.css';
+		return $this->getFileStack()
+					->isType('css');
 	}
 
 	/**
-	 * @return	string
+	 * @return bool
 	 */
-	public function getJsFilePath()
+	public function isJs()
 	{
-		return $this->getFilePath() . '.js';
+		return $this->getFileStack()
+					->isType('js');
 	}
+
+    /**
+     * @return  string
+     */
+    public function getCssFile()
+    {
+        return $this->getBuildFile() . '.css';
+    }
+
+    /**
+     * @return  string
+     */
+    public function getJsFile()
+    {
+        return $this->getBuildFile() . '.js';
+    }
 
 	/**
 	 * @return	YuiFileStackInterface

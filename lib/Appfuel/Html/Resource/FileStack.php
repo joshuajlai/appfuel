@@ -74,6 +74,47 @@ class FileStack implements FileStackInterface
 
 	/**
 	 * @param	string	$type
+	 * @param	array	$list
+	 * @return	array
+	 */
+	public function diff($type, array $list)
+	{
+		if (! $this->isType($type)) {
+			return $list;
+		}
+
+		return array_diff($list, $this->files[$type]);
+	}
+
+	/**
+	 * @param	string	$type
+	 * @return	bool
+	 */
+	public function isType($type)
+	{
+		if (! is_string($type) || ! isset($this->files[$type])) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param	string	$type
+	 * @param	string	$file
+	 * @return	bool
+	 */
+	public function isFile($type, $file)
+	{
+		if (! is_string($file) || empty($file) || ! $this->isType($type)) {
+			return false;
+		}
+
+		return in_array($file, $this->files[$type], true);
+	}
+
+	/**
+	 * @param	string	$type
 	 * @param	string	$file
 	 * @return	PackageFileList
 	 */

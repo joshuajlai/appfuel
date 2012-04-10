@@ -26,9 +26,15 @@ class PagePkg extends Pkg implements PagePkgInterface
 
 	/**
 	 * Name of the html document this page belongs to 
-	 * @var string
+	 * @var PkgNameInterface
 	 */
 	protected $htmldocName = null;
+
+	/**
+	 * Name of the theme package for this page
+	 * @var PkgNameInterface
+	 */
+	protected $themeName = null;
 	
 	/**
 	 * Template file used for the page markup
@@ -62,6 +68,10 @@ class PagePkg extends Pkg implements PagePkgInterface
 		}
 		$this->setHtmlDocName($docName, $vendor);
 
+		if (isset($data['theme'])) {
+			$this->setThemeName($data['theme'], $vendor);
+		}
+
 		if (! isset($data['markup'])) {
 			$err  = "all html page views must declare a markup file using key ";
 			$err .= "-(markup): none found";
@@ -79,11 +89,27 @@ class PagePkg extends Pkg implements PagePkgInterface
 	}
 
 	/**
-	 * @return	string
+	 * @return	PkgNameInterface
 	 */
 	public function getHtmlDocName()
 	{
 		return $this->htmldocName;
+	}
+
+	/**
+	 * @return	PkgNameInterface
+	 */
+	public function getThemeName()
+	{
+		return $this->themeName;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isTheme()
+	{
+		return $this->themeName instanceof PkgNameInterface;
 	}
 
 	/**
@@ -125,18 +151,33 @@ class PagePkg extends Pkg implements PagePkgInterface
 	protected function setHtmlDocName($name, $vendor = null)
 	{
 		if (is_string($name)) {
-			$docName = new PkgName($name, $vendor);
+			$name = new PkgName($name, $vendor);
 		}
-		else if ($name instanceof PkgNameInterface) {
-			$docName = $name;
-		}
-		else {
+		else if (! $name instanceof PkgNameInterface) {
 			$err  = 'name must be a string or an object that implements ';
 			$err .= 'Appfuel\Html\Resource\PkgNameInterface';
 			throw new DomainException($err);
 		}
 
-		$this->htmldocName = $docName;
+		$this->htmldocName = $name;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setThemeName($name, $vendor = null)
+	{
+		if (is_string($name)) {
+			$name = new PkgName($name, $vendor);
+		}
+		else if (! $name instanceof PkgNameInterface) {
+			$err  = 'name must be a string or an object that implements ';
+			$err .= 'Appfuel\Html\Resource\PkgNameInterface';
+			throw new DomainException($err);
+		}
+
+		$this->themeName = $name;
 	}
 
 	/**

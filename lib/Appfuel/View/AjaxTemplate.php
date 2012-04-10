@@ -45,7 +45,7 @@ class AjaxTemplate extends ViewTemplate implements AjaxInterface
 	public function setStatusCode($code)
 	{
 		if (! is_scalar($code)) {
-			$err = "Json status code must be a scalar value"
+			$err = "Json status code must be a scalar value";
 			throw new InvalidArgumentException($err);
 		}
 

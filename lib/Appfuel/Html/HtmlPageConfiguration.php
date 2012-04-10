@@ -85,8 +85,8 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		$page->setViewPkg($pkg);
 
 		$stack = new FileStack();
-		$htmlPkg = ResourceTreeManager::resolvePage($pkg, $stack);
-
+		//$htmlPkg = ResourceTreeManager::resolvePage($pkg, $stack);
+		$htmlPkg = ResourceTreeManager::resolveBuildPage($pkg, $stack);
 		$url   = $this->getResourceUrl();
 		$js    = $stack->get('js', "$url/resource");
 
