@@ -34,13 +34,15 @@ class BuildLayer extends MvcAction
 	public function process(MvcContextInterface $context)
 	{
 		$input = $context->getInput();
+		$view  = $context->getView();
 
 		if (! ResourceTreeManager::isTree()) {
 			ResourceTreeManager::loadTree();
 		}
 
-		if (true ===(bool) $input->get('get', 'all', false)) {
+		if ('_not_found_' !== $input->get('get', 'all', '_not_found_')) {
 			$this->buildAllPages();
+			$view->assign('result', 'build completed');
 			return;
 		}
 
@@ -50,7 +52,6 @@ class BuildLayer extends MvcAction
 			$this->buildPage($pkgName);
 		}
 
-		$view = $context->getView();
 		$view->assign('result', 'build completed');
 	}
 
