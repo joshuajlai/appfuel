@@ -20,6 +20,12 @@ use Closure,
 class InterceptFilter implements InterceptFilterInterface
 {
 	/**
+	 * Used to create the context
+	 * @var MvcFactoryInterface
+	 */
+	protected $mvcFactory = null;
+
+	/**
 	 * Used by the filter chain to determine if it should continue to the 
 	 * next filter
 	 * @var bool
@@ -46,11 +52,25 @@ class InterceptFilter implements InterceptFilterInterface
 	 * @param	string	$type
 	 * @return	InterceptFilter
 	 */
-	public function __construct($callback = null)
+	public function __construct($callback = null, 
+								MvcFactoryInterface $factory = null)
 	{
 		if (null !== $callback) {
 			$this->setCallback($callback);
 		}
+
+		if (null === $factory) {
+			$factory = new MvcFactory();
+		}
+		$this->factory = $factory;
+	}
+
+	/**
+	 * @return	MvcFactoryInterface
+	 */
+	public function getMvcFactory()
+	{
+		return $this->mvcFactory;
 	}
 
 	/**
@@ -200,8 +220,9 @@ class InterceptFilter implements InterceptFilterInterface
 	/**
 	 * @return	MvcContextBuilder
 	 */
-	protected function createContextBuilder()
+	public function createEmptyContext($routeKey)
 	{
-		return new MvcContextBuilder();
+		return $this->getMvcFactory()
+					->createEmptyContext($routeKey);
 	}
 }
