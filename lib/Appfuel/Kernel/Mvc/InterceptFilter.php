@@ -70,7 +70,7 @@ class InterceptFilter implements InterceptFilterInterface
 	 */
 	public function getMvcFactory()
 	{
-		return $this->mvcFactory;
+		return $this->factory;
 	}
 
 	/**
