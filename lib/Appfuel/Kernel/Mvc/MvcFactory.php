@@ -76,8 +76,8 @@ class MvcFactory implements MvcFactoryInterface
 			$method   = 'cli';
 			$argvData = $_SERVER['argv'];
 		}
-		else if (isset($_SERVER['REQUEST_URI']) &&
-				'post' === strtolower($_SERVER['REQUEST_URI'])) {
+		else if (isset($_SERVER['REQUEST_METHOD']) &&
+				'post' === strtolower($_SERVER['REQUEST_METHOD'])) {
 				$method = 'post';
 		}
 
