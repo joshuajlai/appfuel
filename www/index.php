@@ -10,11 +10,7 @@
  */
 use Appfuel\Http\HttpOutput,
     Appfuel\Http\HttpResponse,
-	Appfuel\View\ViewData,
-	Appfuel\Html\HtmlPage,
-	Appfuel\Html\HtmlPageConfiguration,
     Appfuel\Kernel\KernelInitializer,
-    Appfuel\Kernel\Mvc\MvcContextBuilder,
 	Appfuel\Kernel\Mvc\MvcFactoryInterface,
 	Appfuel\Kernel\Mvc\MvcRouteDetailInterface;
 
