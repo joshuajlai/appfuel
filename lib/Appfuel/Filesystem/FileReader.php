@@ -230,6 +230,6 @@ class FileReader implements FileReaderInterface
 		}
 
 
-		throw new RunTimeException($err, $code);
+		throw new RunTimeException($err, $eCode);
 	}
 }
