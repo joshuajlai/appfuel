@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -28,22 +28,6 @@ class ResourceTest extends BaseTestCase
 		$this->assertInstanceof(
 			'Appfuel\Html\Resource\ResourceFactoryInterface', 
 			$factory
-		);
-
-		return $factory;
-	}
-
-	/**
-	 * @test
-	 * @depends	createFactory
-	 * @return	ResourceFactory
-	 */
-	public function createResourceAdapter(ResourceFactory $factory)
-	{
-		$adapter = $factory->createResourceAdapter();
-		$this->assertInstanceOf(
-			'Appfuel\Html\Resource\AppfuelAdapter',
-			$adapter
 		);
 
 		return $factory;
