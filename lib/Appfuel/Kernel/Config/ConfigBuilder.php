@@ -244,6 +244,4 @@ class ConfigBuilder implements ConfigBuilderInterface
 
 		return $body;
 	}
-
-
 }

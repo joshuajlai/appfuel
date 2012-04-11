@@ -1,0 +1,21 @@
+Configuration in appfuel is broken down into two categories: PHP configuration
+and User configuration. All configuration in appfuel follow these rules:
+a)	Config data can be stored in files located at app/config 		
+b)	Config data can also be passed in manually as an array
+c)	Once obtained config data is kept in a configuration registry.
+d)	A config handler will run all config strategies known as tasks.
+e)	A config task is a class that encapsulates the logic needed to apply
+	its particular configuration.
+f)	A config task defines the keys it uses in the registry.
+g)	The PHP configuration strategy names are kept in the handler
+h)	The user configuration strategy names are kept in the config data,
+	stored as a list of class names which are the fully qualified class
+	names of the strategies the handler will run
+i)	The handler runs through all php strategies then all user strategies
+j)	The handler will collect data from the registry as specified by keys
+    defined in the strategy.
+k)  The handler will also pass in the route detail and the context
+l)	After processing, the handler will ask the strategy for its status,
+	storing a list of strategy status messages which may be used in debugging
+
+
