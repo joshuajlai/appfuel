@@ -92,7 +92,7 @@ class MvcFactory implements MvcFactoryInterface
 			'get'     => $getData,
 			'post'    => $_POST,
 			'files'   => $_FILES,
-			'cookies' => $_COOKIE,
+			'cookie' => $_COOKIE,
 			'session' => (isset($_SESSION)) ? $_SESSION : array(),
 			'argv'    => $argvData,
 		);
