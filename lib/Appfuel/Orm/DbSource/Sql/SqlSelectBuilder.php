@@ -13,7 +13,7 @@ namespace Appfuel\Orm\DbSource\Sql;
 use LogicException,
 	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\View\FileViewTemplate,
+	Appfuel\View\FileTemplate,
 	Appfuel\Expr\ExprListInterface,
 	Appfuel\Orm\DbSource\DbMapManager;
 
@@ -194,7 +194,7 @@ class SqlSelectBuilder
 
 	public function createTemplate($tpl)
 	{
-		return new FileViewTemplate($tpl);
+		return new FileTemplate($tpl);
 	}
 
 	
