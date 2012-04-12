@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Html\Resource;
 
-use DomainException,
+use RuntimeException,
+    DomainException,
 	InvalidArgumentException,
 	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileReader,
