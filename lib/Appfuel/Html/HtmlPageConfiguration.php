@@ -37,15 +37,24 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 */
 	protected $resourceUrl = '';
 
+    /**
+     * @param   bool
+     */
+    protected $isBuild = true;
+
 	/**
 	 * @param	string	$url
 	 * @return	HtmlPageConfiguration
 	 */
-	public function __construct($url = null, $default = null)
+	public function __construct($url = null, $isBuild = true, $default = null)
 	{
 		if (null !== $url) {
 			$this->setResourceUrl($url);
 		}
+        
+        if ($isBuild) {
+            $this->enableBuild();
+        }
 	}
 
 	/**
@@ -71,6 +80,30 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		return $this;
 	}
 
+    /**
+     * @return  HtmlPageConfiguration
+     */
+    public function enableBuild()
+    {
+        $this->isBuild = true;
+    }
+
+    /**
+     * @return  HtmlPageConfiguration
+     */
+    public function disableBuild()
+    {
+        $this->isBuild = false;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isBuild()
+    {
+        return $this->isBuild;
+    }
+
 	/**
 	 * @param	string	$pkg	name of the page view to be configured
 	 * @param	HtmlPageInterface $page
@@ -85,8 +118,11 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		$page->setViewPkg($pkg);
 
 		$stack = new FileStack();
-		//$htmlPkg = ResourceTreeManager::resolvePage($pkg, $stack);
-		$htmlPkg = ResourceTreeManager::resolveBuildPage($pkg, $stack);
+        if ($this->isBuild()) {
+            $htmlPkg = ResourceTreeManager::resolveBuildPage($pkg, $stack);
+		} else {
+            $htmlPkg = ResourceTreeManager::resolvePage($pkg, $stack);
+        }
 		$url   = $this->getResourceUrl();
 		$js    = $stack->get('js', "$url/resource");
 
