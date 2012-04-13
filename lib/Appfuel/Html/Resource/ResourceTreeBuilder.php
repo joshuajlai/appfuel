@@ -119,7 +119,7 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
         $fileReader = new FileReader($finder);
 		
         $data = $fileReader->decodeJsonAt($path, true);
-        if (null === $data) {
+        if (! $data) {
             $err  = "could not decode package tree at -($path): ";
             $err .= "{$fileReader->getLastJsonError()}";
             throw new RunTimeException($err);

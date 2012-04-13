@@ -184,6 +184,7 @@ class ResourceTreeManager
 		foreach ($layers as $layerName) {
 			self::loadLayer($layerName, $result);
 		}
+
 		$stack = new FileStack();
 		self::resolve($pageName, $stack);
 		$path = self::getVendorPath($pageName->getVendor());

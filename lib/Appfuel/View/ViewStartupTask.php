@@ -28,7 +28,7 @@ class ViewStartupTask extends StartupTaskAbstract
 	 */
 	public function __construct()
 	{
-		$this->setRegistryKeys(array('resource-manager', 'url'));
+		$this->setRegistryKeys(array('clientside' => array()));
 	}
 	
     /**
@@ -37,45 +37,41 @@ class ViewStartupTask extends StartupTaskAbstract
 	 */
 	public function execute(array $params = null)
 	{
-        if (! isset($params['resource-manager'])) {
-            throw new InvalidArgumentException(
-                'Missing key for resource start up -(resource-manager)'
-            );
-        }
-
-        $resourceParams = $params['resource-manager'];
-        if (! isset($resourceParams['url'])) {
-            throw new InvalidArgumentException(
-                'Missing key for resource start up -(url)'
-            );
-        }
-        
-        $isRelative = false;
-        if (isset($resourceParams['is-relative'])) {
-            $isRelative = $resourceParams['is-relative'];
-        }
-       
-        $url = $resourceParams['url'];
-        if (empty($url)) {
-            throw new InvalidArgumentException(
-                'Resource url cannot be an empty string'
-            );
-        }
-
-        $scheme = 'http://';
+		$this->validateTaskKeys($params, "view build failure:");
+        $data = $params['clientside'];
+   
+		$scheme = 'http://';
         if (isset($_SERVER['HTTPS'])) {
-            $isSsl  = $params['url']['protocol'] === 'https' &&
-                      $_SERVER['HTTPS'] === 'on';
-            if ($isSsl) {
-                $scheme = 'https://';
-            }
-        }
+			$scheme = 'https://';
+        } 
+      
+        $isCdn = false;
+        if (isset($data['is-cdn']) && true === $data['is-cdn']) {
+			if (! isset($data['cdn-url']) || 
+				! is_string($data['cdn-url']) ||
+				! empty($data['cdn-url'])) {
+				$err = "cdn url is enbled but is not a string or is empty";
+				throw new DomainException($err);
+			}			
+			
+			$url = $data['cdn-url'];
+        
+		}
+		else if (isset($_SERVER['HTTP_HOST']))  {
+			$url = $_SERVER['HTTP_HOST'];
+		}
+		else {
+			$err  = "could not create a url for client side resources ";
+			$err .= "cdn was not set and HTTP_HOST is not in the server ";
+			$err .= "super global";
+			throw new DomainException($err);
+		}
+       
         $url = $scheme . $url;
 
-
         $isBuild = true;
-        if (isset($resourceParams['is-build'])) {
-            $isBuild = $resourceParams['is-build'];
+        if (isset($data['is-build']) && false === $data['is-build']) {
+            $isBuild = false;
         }
         
         if (! defined('AF_RESOURCE_URL')) {
