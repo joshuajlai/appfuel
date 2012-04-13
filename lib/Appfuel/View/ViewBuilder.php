@@ -46,7 +46,7 @@ class ViewBuilder implements ViewBuilderInterface
 			$context->setView($view);
 			if ('html' === $format) {
 				if ($route->isViewPackage()) {
-					$config = $this->createHtmlPageConfiguration(
+                    $config = $this->createHtmlPageConfiguration(
                         AF_RESOURCE_URL, AF_IS_RESOURCE_BUILD
                     );
 					$config->applyView($route->getViewPackage(), $view);
@@ -136,9 +136,9 @@ class ViewBuilder implements ViewBuilderInterface
 	/**
 	 * @return	HtmlPageConfiguration
 	 */
-	public function createHtmlPageConfiguration($url)
+	public function createHtmlPageConfiguration($url, $isBuild)
 	{
-		return new HtmlPageConfiguration($url);
+		return new HtmlPageConfiguration($url, $isBuild);
 	}
 
 	/**

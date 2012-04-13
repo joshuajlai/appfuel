@@ -52,8 +52,8 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 			$this->setResourceUrl($url);
 		}
         
-        if ($isBuild) {
-            $this->enableBuild();
+        if (! $isBuild) {
+            $this->disableBuild();
         }
 	}
 
