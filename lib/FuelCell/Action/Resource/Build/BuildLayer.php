@@ -90,9 +90,9 @@ class BuildLayer extends MvcAction
 		$cssBuildFile = "$buildFile.css";
 
 		$finder = new FileFinder('resource');
+		$writer = new FileWriter($finder);
 		$reader = new FileReader($finder);
-
-		$path    = $vendor->getPackagePath();	
+		$path   = $vendor->getPackagePath();	
 		
 
 		if ($layer->isJs()) {
@@ -108,7 +108,6 @@ class BuildLayer extends MvcAction
 				$pageStack->add('js', $file);
 			}
 	
-			$writer = new FileWriter($finder);
 			if (! $finder->isDir($buildDir)) {
 				if (! $writer->mkdir($buildDir, 0755, true)) {
 					$path = $finder->getPath($buildDir);
@@ -145,7 +144,6 @@ class BuildLayer extends MvcAction
 				foreach ($content as $data) {
 					$result .= $data . PHP_EOL;
 				}
-
 				$writer->putContent($result, $cssBuildFile);
 			}
 		}
