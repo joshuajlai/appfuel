@@ -15,7 +15,7 @@ use DomainException;
 /**
  * Calls ini_set on the key value pairs in the config registry
  */
-class PHPIniStartup extends StartupTaskAbstract 
+class PHPIniTask extends StartupTaskAbstract 
 {
 	/**
 	 * Set keys used to find the ini settings in the registry

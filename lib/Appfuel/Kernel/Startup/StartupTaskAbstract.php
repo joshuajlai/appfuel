@@ -100,4 +100,17 @@ abstract class StartupTaskAbstract implements StartupTaskInterface
 
 		$this->keys[$label] = $default;
 	}
-}	
+
+    /**
+     * @param   array   $params
+     * @param   MvcRouteDetailInterface $route
+     * @param   MvcContextInterface $context
+     * @return  null
+     */
+    public function executeRouteContext(array $params = null,
+                                        MvcRouteDetailInterface $route,
+                                        MvcContextInterface $context)
+    {
+        return $this->execute($params);
+    }
+}
