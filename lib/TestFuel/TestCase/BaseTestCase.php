@@ -13,7 +13,7 @@ namespace TestFuel\TestCase;
 use StdClass,
 	RunTimeException,
 	TestFuel\Provider\StringProvider,
-	Appfuel\Kernel\PathFinder,
+	Appfuel\Filesystem\FileFinder,
 	Appfuel\Kernel\KernelRegistry,
 	Appfuel\Kernel\KernelStateInterface,
 	Appfuel\DataSource\Db\DbStartupTask,
@@ -28,7 +28,7 @@ class BaseTestCase extends PHPUnit_Framework_TestCase
 	/**
 	 * @var PathFinder
 	 */
-	protected $pathFinder = null;
+	protected $fileFinder = null;
 
     /**
      * @return  BaseTestCase
@@ -37,21 +37,21 @@ class BaseTestCase extends PHPUnit_Framework_TestCase
                                 array $data = array(),
                                 $dataName = '')
     {
-		$this->pathFinder = new PathFinder('test');  
+		$this->pathFinder = new FileFinder('test');  
         parent::__construct($name, $data, $dataName);
     }
 
 	/**
 	 * @return	PathFinder
 	 */
-	public function getPathFinder()
+	public function getFileFinder()
 	{
-		return $this->pathFinder;
+		return $this->fileFinder;
 	}
 
 	public function getTestFilesPath()
 	{
-		return $this->getPathFinder()
+		return $this->getFileFinder()
 					->getPath('files');
 	}
 

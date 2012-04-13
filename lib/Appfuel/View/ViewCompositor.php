@@ -127,11 +127,13 @@ class ViewCompositor implements ViewCompositorInterface
 	 */
 	static public function composeCsv(array $data) 
 	{
-		$stream = fopen('php://tmp', 'r+');
-
-		fputcsv($stream, $data, ',', '"');
+		$stream = fopen('php://temp', 'r+');
+	
+        foreach ($data as $row) {
+            fputcsv($stream, $row, ',', '"');
+        }
 		rewind($stream);
-		$result = fgets($stream);
+		$result = stream_get_contents($stream);
 
 		fclose($stream);
 		

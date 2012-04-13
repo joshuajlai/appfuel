@@ -93,7 +93,7 @@ abstract class StartupTaskAbstract implements StartupTaskInterface
 	 */
 	public function addRegistryKey($label, $default = null)
 	{
-		if (empty($label) || !is_string($label) || !($label = trim($label))) {
+		if (! is_string($label) || empty($label)) {
 			$err = 'label must be a non empty string';
 			throw new InvalidArgumentException($err);
 		}

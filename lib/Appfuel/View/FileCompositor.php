@@ -239,7 +239,7 @@ class FileCompositor implements FileCompositorInterface
 	 * @param	string	$default
 	 * @return	FileTemplate
 	 */
-	private function createFileTempate($file, $isPkg = false, $default = null)
+	private function createFileTemplate($file, $isPkg = false, $default = null)
 	{
 		return new FileTemplate($file, false);
 	}

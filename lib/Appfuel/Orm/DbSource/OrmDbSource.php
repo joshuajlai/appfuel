@@ -251,8 +251,9 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
 		$select     = $this->getSelectBuilder();
 		
 		$sql = $select->build($spec, $isPrepared);
-		$request = $this->createRequest($sql, $type, $strategy);
-	
+        $request = $this->createRequest($sql, $type, $strategy);
+        $select->clear();
+
 		if (null !== $callback) {
 			$request->setCallback($callback);
 		}
@@ -279,6 +280,7 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
 		$values = next($data);
 
 		$request = $this->createRequest($sql, $type, $strategy, $values);
+        $select->clear();
 
 		if (null !== $callback) {
 			$request->setCallback($callback);
