@@ -11,11 +11,11 @@ g)	Both php and user startup tasks are defined in the config data as
 	an array of strings (fully qualified startup class names)
 h)	Appfuel comes with five php startup tasks:
 
-	1) Appfuel\Kernel\PHPIniStartup
-	2) Appfuel\Kernel\PHPPathStartup
-	3) Appfuel\Kernel\PHPAutoloaderStartup
-	4) Appfuel\Kernel\PHPTimezoneStartup
-	5) Appfuel\Kernel\PHPErrorStartup 
+	1) Appfuel\Kernel\Config\PHPIniTask
+	2) Appfuel\Kernel\Config\PHPPathStartup
+	3) Appfuel\Kernel\Config\PHPAutoloaderStartup
+	4) Appfuel\Kernel\Config\PHPTimezoneStartup
+	5) Appfuel\Kernel\Config\PHPErrorStartup 
 	   * this provides a readable interface to error reporting level but
 	     the same thing can be achieved with PHPIniStartup
 
