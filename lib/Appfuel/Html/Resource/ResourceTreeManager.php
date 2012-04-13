@@ -11,6 +11,7 @@
 namespace Appfuel\Html\Resource;
 
 use DomainException,
+	RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileReader,
@@ -174,6 +175,10 @@ class ResourceTreeManager
 
 		$pageName = self::createPkgName($page);
 		$pagePkg  = self::getPkg($pageName);
+		if (false === $pagePkg) {
+			$err = "-($page) manifest was not found ";
+			throw new DomainException($err);
+		}
 
 		$layers = $pagePkg->getLayers();
 		foreach ($layers as $layerName) {
@@ -206,10 +211,14 @@ class ResourceTreeManager
 		if (! self::isTree()) {
 			self::loadTree();
 		}
-
 		$pageName = self::createPkgName($page);
 		$pagePkg  = self::getPkg($pageName);
-		$layers   = $pagePkg->getLayers();
+		if (false === $pagePkg) {
+			$err = "-($page) manifest was not found ";
+			throw new DomainException($err);
+		}
+
+		$layers = $pagePkg->getLayers();
 
 		foreach ($layers as $layerName) {
 			$factory = self::loadFactory($layerName->getVendor());

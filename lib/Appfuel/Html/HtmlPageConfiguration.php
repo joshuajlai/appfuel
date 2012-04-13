@@ -41,7 +41,7 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 	 * @param	string	$url
 	 * @return	HtmlPageConfiguration
 	 */
-	public function __construct($url = null, $default = null)
+	public function __construct($url = null, $isBuild = true, $default = null)
 	{
 		if (null !== $url) {
 			$this->setResourceUrl($url);
@@ -85,8 +85,9 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		$page->setViewPkg($pkg);
 
 		$stack = new FileStack();
-		//$htmlPkg = ResourceTreeManager::resolvePage($pkg, $stack);
-		$htmlPkg = ResourceTreeManager::resolveBuildPage($pkg, $stack);
+		ResourceTreeManager::loadTree();
+		$htmlPkg = ResourceTreeManager::resolvePage($pkg, $stack);
+		//$htmlPkg = ResourceTreeManager::resolveBuildPage($pkg, $stack);
 		$url   = $this->getResourceUrl();
 		$js    = $stack->get('js', "$url/resource");
 
