@@ -740,4 +740,34 @@ class SqlSelectBuilder
 
 		$this->tplPath = $path;
 	}
+
+    /**
+     * Clear out any generated parts so this object can be reused.
+     *
+     * @return  SqlSelectBuilder
+     */
+    public function clear()
+    {
+        $this->data = array(
+            'keywords'	=> array(),
+            'columns'	=> array(),
+            'from'		=> null,
+            'joins'		=> array(),
+            'where'		=> null,
+            'group'		=> null,
+            'having'	=> null,
+            'order'		=> null,
+            'limit'		=> null,
+        );
+
+        $this->values = array(
+            'columns' => array(),
+            'joins'   => array(),
+            'where'   => array(),
+            'group'   => array(),
+            'having'  => array(),
+            'order'   => array(),
+            'limit'   => array(),
+        );
+    }
 }
