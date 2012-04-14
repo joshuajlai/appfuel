@@ -6,6 +6,7 @@
 		 convertErrorsToExceptions="true">
 <testsuites>
 	<testsuite name="Appfuel Tests">
+	<file>../lib/TestFuel/Unit/Kernel/Startup/StartupTaskTest.php</file>
 	<file>../lib/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
 	<file>../lib/TestFuel/Unit/Html/Resource/PkgTest.php</file>
 	<file>../lib/TestFuel/Unit/Html/Resource/ViewPkgTest.php</file>
