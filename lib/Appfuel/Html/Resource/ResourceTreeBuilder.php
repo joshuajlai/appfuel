@@ -117,8 +117,9 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
 
         $finder = new FileFinder(null, $isBasePath);
         $fileReader = new FileReader($finder);
+		
         $data = $fileReader->decodeJsonAt($path, true);
-        if (null === $data) {
+        if (! $data) {
             $err  = "could not decode package tree at -($path): ";
             $err .= "{$fileReader->getLastJsonError()}";
             throw new RunTimeException($err);
@@ -174,7 +175,7 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
 
 			if (! isset($data['type'])) {
 				$err  = 'every resource pkg must have a -(type) property ';
-				$err .= 'defined: none found';
+				$err .= "defined: none found for -($name)";
 				throw new DomainException($err);
 			}
 			$type = $data['type'];

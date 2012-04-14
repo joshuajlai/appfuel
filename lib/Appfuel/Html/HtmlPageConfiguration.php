@@ -123,6 +123,7 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		} else {
             $htmlPkg = ResourceTreeManager::resolvePage($pkg, $stack);
         }
+
 		$url   = $this->getResourceUrl();
 		$js    = $stack->get('js', "$url/resource");
 

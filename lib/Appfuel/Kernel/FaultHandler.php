@@ -67,6 +67,7 @@ class FaultHandler implements FaultHandlerInterface
 		if (empty($code)|| ! is_int($code)) {
 			$code = 500;
 		}
+		echo "<pre>", print_r($text, 1), "</pre>";exit;
 		$this->renderError($text, $code);
 		exit($code);
 	}

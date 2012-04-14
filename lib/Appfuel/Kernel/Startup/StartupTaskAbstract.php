@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Kernel\Startup;
 
-use InvalidArgumentException;
+use DomainException,
+	InvalidArgumentException;
 
 /**
  * The startup task is used to initialize on or more subsystems. It occurs
@@ -113,4 +114,35 @@ abstract class StartupTaskAbstract implements StartupTaskInterface
     {
         return $this->execute($params);
     }
-}
+
+	/**
+	 * We don't type hint array on params in order to provide a more readable
+	 * excecption
+	 *
+	 * @throws	DomainException
+	 * @param	array	$params		
+	 * @param	string	$msg	prepends to error msg
+	 * @return	true
+	 */
+	public function validateTaskKeys($params, $msg = '')
+	{
+		if (! is_string($msg)) {
+			$msg = '';		
+		}
+
+		if (! is_array($params) || empty($params)) {
+			$err = "$msg expecting an array of params: none given";
+			throw new DomainException(trim($err));			
+		}
+
+		$keys = $this->getRegistryKeys();
+		foreach ($keys as $key => $defaultValue) {
+			if (! array_key_exists($key, $params)) {
+				$err = "$msg key -($key) is required but not found";
+				throw new DomainException(trim($err));
+			}
+		}
+
+		return true;
+	}
+}	
