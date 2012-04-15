@@ -12,7 +12,12 @@ namespace TestFuel\Unit\Kernel\Startup;
 
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Kernel\Startup\TaskHandler;
+	Appfuel\Kernel\Mvc\MvcContext,
+	Appfuel\Kernel\Startup\TaskHandler,
+	Appfuel\Kernel\Startup\ConfigRegistry,
+	TestFuel\Functional\Kernel\Startup\TestTaskA,
+	TestFuel\Functional\Kernel\Startup\TestTaskB;
+	
 
 class TaskHandlerTest extends BaseTestCase
 {
@@ -20,16 +25,26 @@ class TaskHandlerTest extends BaseTestCase
 	 * Backup the existing status list
 	 * @var array
 	 */
-	protected $backup = array();
+	protected $statusBackup = array();
+
+	/**
+	 * Backup the existing config
+	 * @var array
+	 */
+	protected $configBackup = array();
 
 	/**
 	 * @return	null
 	 */
 	public function setUp()
 	{
-		$this->backup = TaskHandler::getStatusList();
+		$this->statusBackup = TaskHandler::getStatusList();
 		TaskHandler::clearStatusList();
+		
+		$this->configBackup = ConfigRegistry::getAll();
+		ConfigRegistry::clear();
 	}
+
 
 	/**
 	 * @return	null
@@ -37,9 +52,12 @@ class TaskHandlerTest extends BaseTestCase
 	public function tearDown()
 	{
 		TaskHandler::clearStatusList();
-		foreach ($this->backup as $key => $msg) {
+		foreach ($this->statusBackup as $key => $msg) {
 			TaskHandler::addStatus($key, $msg);
 		}
+
+		ConfigRegistry::clear();
+		ConfigRegistry::setAll($this->configBackup);
 	}
 
     /**
@@ -109,6 +127,217 @@ class TaskHandlerTest extends BaseTestCase
 	{
 		$this->setExpectedException('InvalidArgumentException');
 		TaskHandler::addStatus('', 'my message');
+	}
+
+	/**
+	 * @test
+	 * @return	TaskHandler
+	 */
+	public function createTaskHandler()
+	{
+		$handler = new TaskHandler();
+		$this->assertInstanceOf(
+			'Appfuel\Kernel\Startup\TaskHandlerInterface',
+			$handler
+		);
+
+		return $handler;
+	}
+
+	/**
+	 * @test
+	 * @depends	createTaskHandler
+	 * @return	null
+	 */
+	public function getTasksFromRegistryWhenEmpty(TaskHandler $handler)
+	{
+		$tasks = ConfigRegistry::get('startup-tasks', array());
+		$this->assertEquals(array(), $tasks);
+
+		$result = $handler->getTasksFromRegistry();
+		$this->assertEquals(array(), $result);
+	}
+
+	/**
+	 * @test
+	 * @depends	createTaskHandler
+	 * @return	null
+	 */
+	public function getTasksFromRegistry(TaskHandler $handler)
+	{
+		$tasks = array('my-class', 'your-class', 'our-class');
+		ConfigRegistry::add('startup-tasks', $tasks);
+		$result = $handler->getTasksFromRegistry();
+		$this->assertEquals($tasks, $result);
+	}
+
+	/**
+	 * @test
+	 * @depends	createTaskHandler
+	 * @return	null
+	 */
+	public function collectFromRegistry(TaskHandler $handler)
+	{
+		$data = array(
+			'param-a' => 'value-a',
+			'param-b' => 'value-b',
+			'param-c' => 'value-c',
+		);
+		ConfigRegistry::setAll($data);
+		
+		$collect = array(
+			'param-a' => null,
+			'param-c' => null,
+			'param-x' => 12345,
+			'param-y' => 'af-exclude-not-found'
+		);
+
+		$result = $handler->collectFromRegistry($collect);
+		$expected = array(
+			'param-a' => 'value-a',
+			'param-c' => 'value-c',
+			'param-x' => 12345
+		);
+		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * @test
+	 * @depends	createTaskHandler
+	 * @return	null
+	 */
+	public function kernelRunTasks(TaskHandler $handler)
+	{
+		$taskA = 'TestFuel\Functional\Kernel\Startup\TestTaskA';
+		$taskB =  'TestFuel\Functional\Kernel\Startup\TestTaskB';
+		$data = array(
+			'startup-tasks' => array($taskA, $taskB),
+			'test-a' => 'value-a',
+			'test-b' => 'value-b'
+		);
+		ConfigRegistry::setAll($data);
+
+		$ns = 'Appfuel\Kernel\Mvc';
+		$route = $this->getMock("$ns\MvcRouteDetailInterface");
+		$input = $this->getMock("$ns\AppInputInterface");
+		$context = new MvcContext('my-route', $input);
+
+		$this->assertNull($handler->kernelRunTasks($route, $context));
+	
+		$this->assertEquals('value-a', $context->get('test-a'));	
+		$this->assertEquals('value-b', $context->get('test-b'));
+
+		$msg = TaskHandler::getStatus($taskA);
+		$this->assertEquals('test-a has executed', $msg);
+
+		$msg = TaskHandler::getStatus($taskB);
+		$this->assertEquals('test-b has executed', $msg);
+	}
+
+	/**
+	 * @test
+	 * @depends	createTaskHandler
+	 * @return	null
+	 */
+	public function kernelRunTaskListNotArrayFailure(TaskHandler $handler)
+	{
+		$taskA = 'TestFuel\Functional\Kernel\Startup\TestTaskA';
+		$taskB =  'TestFuel\Functional\Kernel\Startup\TestTaskB';
+		$data = array(
+			'startup-tasks' => 'this needs to be an array',
+			'test-a' => 'value-a',
+			'test-b' => 'value-b'
+		);
+		ConfigRegistry::setAll($data);
+
+		$ns = 'Appfuel\Kernel\Mvc';
+		$route = $this->getMock("$ns\MvcRouteDetailInterface");
+		$input = $this->getMock("$ns\AppInputInterface");
+		$context = new MvcContext('my-route', $input);
+
+		$msg = 'tasks defined in the config registry must be in an array';
+		$this->setExpectedException('RunTimeException', $msg);
+		$this->assertNull($handler->kernelRunTasks($route, $context));
+	}
+
+	/**
+	 * @test
+	 * @depends	createTaskHandler
+	 * @return	null
+	 */
+	public function kernelRunTasksClassNotStringFailure(TaskHandler $handler)
+	{
+		$taskA = 'TestFuel\Functional\Kernel\Startup\TestTaskA';
+		$taskB = 'TestFuel\Functional\Kernel\Startup\TestTaskB';
+		$taskC = array(1,2,3);
+		$data = array(
+			'startup-tasks' => array($taskA, $taskB, $taskC),
+			'test-a' => 'value-a',
+			'test-b' => 'value-b'
+		);
+		ConfigRegistry::setAll($data);
+
+		$ns = 'Appfuel\Kernel\Mvc';
+		$route = $this->getMock("$ns\MvcRouteDetailInterface");
+		$input = $this->getMock("$ns\AppInputInterface");
+		$context = new MvcContext('my-route', $input);
+
+		$msg = 'task must be a non empty string at index -(2)';
+		$this->setExpectedException('RunTimeException', $msg);
+		$this->assertNull($handler->kernelRunTasks($route, $context));
+	}
+
+	/**
+	 * @test
+	 * @depends	createTaskHandler
+	 * @return	null
+	 */
+	public function kernelRunTasksClassInterfaceFailure(TaskHandler $handler)
+	{
+		$taskA = 'TestFuel\Functional\Kernel\Startup\TestTaskA';
+		$taskB = 'TestFuel\Functional\Kernel\Startup\TestTaskB';
+		$taskC = 'StdClass';
+		$data = array(
+			'startup-tasks' => array($taskA, $taskB, $taskC),
+			'test-a' => 'value-a',
+			'test-b' => 'value-b'
+		);
+		ConfigRegistry::setAll($data);
+
+		$ns = 'Appfuel\Kernel\Mvc';
+		$route = $this->getMock("$ns\MvcRouteDetailInterface");
+		$input = $this->getMock("$ns\AppInputInterface");
+		$context = new MvcContext('my-route', $input);
+
+		$ns  = 'Appfuel\Kernel\Startup\StartupTaskInterface'; 
+		$msg = "-(StdClass) must implement $ns";
+		$this->setExpectedException('RunTimeException', $msg);
+		$this->assertNull($handler->kernelRunTasks($route, $context));
+	}
+	/**
+	 * @test
+	 * @depends	createTaskHandler
+	 * @return	null
+	 */
+	public function runTask(TaskHandler $handler)
+	{
+		$taskA = new TestTaskA();
+		$taskB = new TestTaskB();
+
+		$data = array(
+			'test-a' => 'value-a',
+			'test-b' => 'value-b'
+		);
+		ConfigRegistry::setAll($data);
+
+		$this->assertNull($handler->runTask($taskA));
+			
+		$msg = TaskHandler::getStatus(get_class($taskA));
+		$this->assertEquals('test-a has executed', $msg);
+
+		$this->assertNull($handler->runTask($taskB));
+		$msg = TaskHandler::getStatus(get_class($taskB));
+		$this->assertEquals('test-b has executed', $msg);
 	}
 
 

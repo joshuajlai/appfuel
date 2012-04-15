@@ -48,15 +48,15 @@ class TaskHandler implements TaskHandlerInterface
 		}
 
 		foreach ($tasks as $index => $class) {
-			if (! is_string($task) || empty($task)) {
+			if (! is_string($class) || empty($class)) {
 				$err = "task must be a non empty string at index -($index)";
 				throw new RunTimeException($err);
 			}
 
 			$task = new $class();
 			if (! $task instanceof StartupTaskInterface) {
-				$err  = "task must -($class) must implement Appfuel\Kernel";
-				$err .= "\Startup\StartupTaskInterface";
+				$ns   = __NAMESPACE__;
+				$err  = "-($class) must implement $ns\StartupTaskInterface";
 				throw new RunTimeException($err);
 			}
 			$data = null;
@@ -66,12 +66,7 @@ class TaskHandler implements TaskHandlerInterface
 			}
 
 			$task->kernelExecute($data, $route, $context);
-			$status = $task->getStatus();
-			$statusMsg = 'task run but no status given';
-			if (null !== $status) {
-				$statusMsg = $status;
-			}
-			self::addStatus($class, $statusMsg);
+			$this->addTaskStatus($class, $task->getStatus());
 		}
 	}
 
@@ -91,14 +86,8 @@ class TaskHandler implements TaskHandlerInterface
 			$data = $this->collectFromRegistry($keys);
 		}
 
-		$task->execute($params);
-
-		$status = $task->getStatus();
-		$statusMsg = 'task run but no status given';
-		if (null !== $status) {
-				$statusMsg = $status;
-		}
-		self::addStatus($class, $statusMsg);
+		$task->execute($data);
+		$this->addTaskStatus(get_class($task), $task->getStatus());
 	}
 
 	/**
@@ -165,5 +154,14 @@ class TaskHandler implements TaskHandlerInterface
 		}
 
 		self::$list[$key] = $msg;
+	}
+
+	protected function addTaskStatus($class, $msg = null)
+	{
+		$status = 'task run but no status given';
+		if (null !== $msg) {
+			$status = $msg;
+		}
+		self::addStatus($class, $status);
 	}
 }

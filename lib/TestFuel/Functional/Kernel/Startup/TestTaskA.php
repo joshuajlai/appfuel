@@ -10,19 +10,21 @@
  */
 namespace TestFuel\Functional\Kernel\Startup;
 
-use Appfuel\Kernel\Startup\StartupTask;
+use Appfuel\Kernel\Startup\StartupTask,
+	Appfuel\Kernel\Mvc\MvcContextInterface,
+	Appfuel\Kernel\Mvc\MvcRouteDetailInterface;
 
 /**
  * Used to test the task handler
  */
-class MyStartupTask extends StartupTask
+class TestTaskA extends StartupTask
 {
 	/**
 	 * @return	MyStartupTask
 	 */
 	public function __construct()
 	{
-		parent::__construct(array('foo' => null));
+		parent::__construct(array('test-a' => null));
 	}
 
 	/**
@@ -34,7 +36,7 @@ class MyStartupTask extends StartupTask
 								  MvcRouteDetailInterface $route,
 								  MvcContextInterface $context)
 	{
-		$context->add('my-startup-task', 'foobar');
+		$context->add('test-a', 'value-a');
 		$this->execute($params);
 	}
 
@@ -45,6 +47,6 @@ class MyStartupTask extends StartupTask
 	 */
 	public function execute(array $params = null)
 	{
-		$this->setStatus('my startup has executed');	
+		$this->setStatus('test-a has executed');	
 	}
 }
