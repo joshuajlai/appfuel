@@ -211,6 +211,25 @@ class ConfigRegistryTest extends BaseTestCase
 			'param-c' => 'value-3',
 		);
 		$this->assertEquals($expected, $data);
+
+		$set  = array('param-a'=> null, 'param-c' => null, 'param-x' => 123);
+		$expected = array(
+			'param-a' => 'value-1',
+			'param-c' => 'value-3',
+			'param-x' => 123
+		);
+		$this->assertEquals($expected, ConfigRegistry::collect($set));
+
+		$set  = array(
+			'param-a'=> null, 
+			'param-c' => null, 
+			'param-x' => 'af-exclude-not-found'
+		);
+		$expected = array(
+			'param-a' => 'value-1',
+			'param-c' => 'value-3',
+		);
+		$this->assertEquals($expected, ConfigRegistry::collect($set));
 	}
 }
 
