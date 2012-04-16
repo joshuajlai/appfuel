@@ -19,7 +19,7 @@ use InvalidArgumentException,
  * the base url that serves up resources as well as toggling wether
  * the resources should be combo'd together or loaded individually.
  */
-class ViewStartupTask extends StartupTask 
+class ViewStartupTask extends StartupTaskAbstract
 {
 	/**
 	 * Assign the registry keys to be pulled from the kernel registry
