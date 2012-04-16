@@ -11,7 +11,8 @@
  */
 namespace Appfuel\View;
 
-use InvalidArgumentException,
+use DomainException,
+    InvalidArgumentException,
 	Appfuel\Kernel\Startup\StartupTaskAbstract;
 
 /**
