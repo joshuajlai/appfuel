@@ -11,7 +11,8 @@
  */
 namespace Appfuel\View;
 
-use InvalidArgumentException,
+use DomainException,
+    InvalidArgumentException,
 	Appfuel\Kernel\Startup\StartupTaskAbstract;
 
 /**
@@ -28,7 +29,7 @@ class ViewStartupTask extends StartupTaskAbstract
 	 */
 	public function __construct()
 	{
-		parent::__construct(array('clientside' => array()));
+		$this->setRegistryKeys(array('clientside' => array()));
 	}
 	
     /**
