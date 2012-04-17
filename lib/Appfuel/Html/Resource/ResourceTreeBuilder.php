@@ -161,8 +161,10 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
             }
 
             if (! isset($data['name'])) {
-				$err = 'every resource pkg must have a -(name) property ';
-				$err = 'defined: none found';
+                $pathName = $file->getPathName();
+				
+                $err  = 'every resource pkg must have a -(name) property ';
+                $err .= "file: -($pathName)";
 				throw new DomainException($err);
 			}
             $name = $data['name'];
