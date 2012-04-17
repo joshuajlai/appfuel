@@ -36,6 +36,11 @@ abstract class DomainModel implements DomainModelInterface
 	private $state = null;
 
 	/**
+	 * @var string
+	 */
+	private $domainKey = null;
+
+	/**
 	 * Marshalling is acting of building a domain from the datasource. Every
 	 * domain has the ability internally marshal already mapped data into its
 	 * member variables. This strict flag determines if the domain will throw
@@ -50,12 +55,26 @@ abstract class DomainModel implements DomainModelInterface
 	 * @param	scalar	$id	
 	 * @return	DomainModel
 	 */
-	public function __construct($id = null)
+	public function __construct($key, $id = null)
 	{
+		if (! is_string($key) || empty($key)) {
+			$err = "domain key must be a non empty string";
+			throw new InvalidArgumentException($key);
+		}
+		$this->domainKey = $key;
+
+		$this->setDomainState(new DomainState());
 		if ($id !== null) {
 			$this->setId($id);
 		}
-		$this->_setDomainState(new DomainState());
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getDomainKey()
+	{
+		return $this->domainKey;
 	}
 
 	/**
@@ -78,6 +97,7 @@ abstract class DomainModel implements DomainModelInterface
 			);
 		}
 		$this->id = $id;
+		$this->markDirty('id');
 		return $this;
 	}
 
@@ -96,7 +116,7 @@ abstract class DomainModel implements DomainModelInterface
 		$member{0} = strtolower($member{0});
 		
 		if ('set' === $prefix) {
-			$this->_markDirty($member);
+			$this->markDirty($member);
 			$this->$member = $args[0];
 			return $this;
 		}
@@ -109,7 +129,7 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return DomainState
 	 */
-	public function _getDomainState()
+	public function getDomainState()
 	{
 		return $this->state;
 	}
@@ -118,7 +138,7 @@ abstract class DomainModel implements DomainModelInterface
 	 * @param	DomainState $state
 	 * @return	DomainModel
 	 */
-	public function _setDomainState(DomainStateInterface $state)
+	public function setDomainState(DomainStateInterface $state)
 	{
 		$this->state = $state;
 		return $this;
@@ -127,7 +147,7 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return bool
 	 */
-	public function _isStrictMarshalling()
+	public function isStrictMarshalling()
 	{
 		return $this->isStrictMarshal;
 	}
@@ -135,7 +155,7 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return	DomainModel
 	 */
-	public function _enableStrictMarshalling()
+	public function enableStrictMarshalling()
 	{
 		$this->isStrictMarshal = true;
 		return $this;
@@ -144,7 +164,7 @@ abstract class DomainModel implements DomainModelInterface
 	/**
 	 * @return	DomainModel
 	 */
-	public function _disableStrictMarshalling()
+	public function disableStrictMarshalling()
 	{
 		$this->isStrictMarshal = false;
 		return $this;
@@ -162,19 +182,35 @@ abstract class DomainModel implements DomainModelInterface
 	 * @param	array	$data	member name names and values 
 	 * @return	DomainModel
 	 */
-	public function _marshal(array $data = null)
+	public function marshal(array $data = null)
 	{
-		$state = $this->_getDomainState();
-		$state->markMarshal($data);
 
 		if (empty($data)) {
 			return $this;
 		}
 		
+        if ($data === array_values($data)) {
+		    $err = "Only associated arrays can be marshaled";
+		    throw new runTimeException($err);
+		}
+		
 		$isStrict = $this->_isStrictMarshalling();
 		$err = "Failed domain marshal:";
+		$domainKey = $this->getDomainKey();
+		$init = array();
 		foreach ($data as $member => $value) {
+            if (false !== $pos = strpos($member, '.')) {
+                $parts = explode('.', $member, 2);
+                $key = current($parts);
+                $member    = next($parts);
+                if ($key !== $domainKey) {
+                    $err .= "domain key given -($key) does not match ";
+                    $err .= "-($domainKey)";
+                    throw new RunTimeException($err);
+                }
+            }
 			$setter = 'set' . ucfirst($member);
+			$init[$member] = $value;
 
 			try {
 				$this->$setter($value);
@@ -185,17 +221,20 @@ abstract class DomainModel implements DomainModelInterface
 				}
 			}
 		}
+		
+		$this->getDomainState()
+			 ->markMarshal($init)
+			 ->markClean();
 
-		$this->_markClean();
 		return $this;
 	}
 	
 	/**
 	 * @return	DomainModel
 	 */
-	public function _markNew()
+	public function markNew()
 	{
-		$this->_getDomainState()
+		$this->getDomainState()
 	         ->markNew();
 		
 		return $this;
@@ -205,26 +244,31 @@ abstract class DomainModel implements DomainModelInterface
 	 * @param	string	$member
 	 * @return	DomainModel
 	 */
-	public function _markDirty($member)
-	{
+	public function markDirty($member)
+	{	
 		if (! property_exists($this, $member)) {
 			throw new InvalidArgumentException(
 				"invalid markDirty ($member) does not exist"
 			);
 		}
-
-		$this->_getDomainState()
-			 ->markDirty($member);
-
+		
+		$state = $this->getDomainState();
+        if (is_null($state)) {
+            throw new InvalidArgumentException(
+				"unknown domain state for ($member) in {$this->getDomainKey()}"
+			);
+        }
+        $state->markDirty($member);
+        
 		return $this;
 	}
 
 	/**
 	 * @return	DomainModel
 	 */
-	public function _markDelete()
+	public function markDelete()
 	{
-		$this->_getDomainState()
+		$this->getDomainState()
 			 ->markDelete();
 		
 		return $this;
@@ -234,9 +278,9 @@ abstract class DomainModel implements DomainModelInterface
 	 * @param	string	$member 
 	 * @return	DomainModel
 	 */
-	public function _markClean($member = null)
+	public function markClean($member = null)
 	{
-		$this->_getDomainState()
+		$this->getDomainState()
 			 ->markClean($member);
 
 		return $this;

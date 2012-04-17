@@ -11,8 +11,11 @@
 namespace Appfuel\Filesystem;
 
 use SplFileInfo,
+    LogicException,
 	RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+    RecursiveIteratorIterator,
+    RecursiveDirectoryIterator;
 
 /**
  * Reads the contents of a file into memory
@@ -58,15 +61,86 @@ class FileWriter implements FileWriterInterface
 	/**
 	 * @param	string	$data
 	 * @param	string	$path
-	 * @param	string	$mode
-	 * @param	int		$length
-	 * @return	
+	 * @param	int	$flags
+	 * @return	int
 	 */
 	public function putContent($data, $path, $flags = 0)
 	{
 		$finder = $this->getFileFinder();
 		$full = $finder->getPath($path);
-
 		return file_put_contents($full, $data, $flags);
 	}
+
+	/**
+	 * @param	string	$src
+	 * @param	string	$dest
+	 * @return	bool
+	 */
+	public function copy($src, $dest)
+	{
+		$finder   = $this->getFileFinder();
+		$fullSrc  = $finder->getPath($src);
+		$fullDest = $finder->getPath($dest);
+
+		return copy($fullSrc, $fullDest);
+	}
+
+	/**
+	 * @param	string	$path 
+	 * @param	int		$mode
+	 * @param	bool	$isRecursive
+	 * @return	
+	 */
+	public function mkdir($path, $mode = null, $recursive = null)
+	{
+		$isRecursive = false;
+		if (true === $recursive) {
+			$isRecursive = true;
+		}
+
+		$finder = $this->getFileFinder();
+		$full   = $finder->getPath($path);
+		return mkdir($full, $mode, $isRecursive);
+	}
+
+    /**
+     * Recursively delete a directory and its contents
+     *
+     * @param   $path
+     * @return  bool
+     */
+    public function deleteTree($path, $leaveRoot = false)
+    {
+        $finder = $this->getFileFinder();
+        $target = $finder->getPath($path);
+        if (directory_separator === $target) {
+            $err = 'if you want to delete the root directory do it manually';
+            throw new logicexception($err);
+        }
+
+        if (! $finder->fileExists($target, false)) {
+            return false;
+        }
+        
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($target),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($iterator as $node) {
+            $fullpath =(string)$node;
+            if ($node->isDir()) {
+                rmdir($fullpath);
+            }
+            else {
+                unlink($fullpath);
+            }
+        }
+
+        if (false === $leaveRoot) {
+            rmdir($target);
+        }
+
+        return true;
+    }
 }

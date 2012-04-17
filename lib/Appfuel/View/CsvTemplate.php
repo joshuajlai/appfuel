@@ -10,26 +10,16 @@
  */
 namespace Appfuel\View;
 
-use Exception,
-	RunTimeException,
-	InvalidArgumentException,
-	Appfuel\View\Compositor\CsvCompositor;
-
 /**
- * The Csv Template operates like a standard template but uses a csv
- * compositor for rendering.  The usage for the csv template would be to 
- * load the final result set into the template instead of assigning one
- * record at a time.
+ * Convert data assignments into a comma separted list
  */
 class CsvTemplate extends ViewTemplate
 {
 	/**
-	 * @param	mixed	$file 
-	 * @param	array	$data
-	 * @return	CsvTemplate
+	 * @return	string
 	 */
-	public function __construct(array $data = null) 
+	public function build()
 	{
-	    parent::__construct($data, new CsvCompositor());
-    }
+		return ViewCompositor::composeCsv($this->getAll());
+	}
 }

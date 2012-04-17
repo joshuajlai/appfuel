@@ -16,7 +16,8 @@ use LogicException,
 	Appfuel\View\FileViewTemplate,
 	Appfuel\Orm\OrmCriteriaInterface,
 	Appfuel\DataSource\Db\DbSource,
-	Appfuel\DataSource\Db\DbResponseInterface;
+	Appfuel\DataSource\Db\DbResponseInterface,
+	Appfuel\Orm\DbSource\Sql\SqlSelectBuilder;
 
 /**
  */
@@ -35,11 +36,19 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
     protected $sqlFiles = array();
 
 	/**
+	 * Used to build select stmt using domain data
+	 * @var 
+	 */
+	protected $selectBuilder = null;
+
+
+	/**
 	 * @param	array	$paths
 	 * @return	DbSource
 	 */
 	public function __construct(array $paths = null, 
-								DbMapInterface $map = null)
+								DbMapInterface $map = null,
+								$selectBuilder = null)
 	{
 		if (null !== $paths) {
 			$this->loadSqlTemplatePaths($paths);
@@ -48,6 +57,19 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
 		if (null !== $map) {
 			$this->setDbMap($map);
 		}
+
+		if (null === $selectBuilder) {
+			$selectBuilder = new SqlSelectBuilder();
+		}
+		$this->selectBuilder = $selectBuilder;
+	}
+
+	/**
+	 * @return	SelectBuilderInterface
+	 */
+	public function getSelectBuilder()
+	{
+		return $this->selectBuilder;
 	}
 
     /**
@@ -194,6 +216,107 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
 		return $this->getResultset($this->execute($request));
 		
 	}
+
+	/**
+	 * @return	int | false
+	 */
+	public function getFoundRows()
+	{
+		$sql = 'SELECT FOUND_ROWS() AS total';
+		$request = $this->createRequest($sql, 'Query', 'read');
+		$result = $this->getResultset($this->execute($request));
+		if (! is_array($result)) {
+			return false;
+		}
+		$result = current($result);
+		if (! isset($result['total'])) {
+			return false;
+		}
+
+		return $result['total'];
+	}
+
+	/**
+	 * @param	array	$spec
+	 * @param	mixed	$callback	
+	 * @param	bool	$isAlias
+	 * @param	bool	$isMapBack
+	 * @return	OrmDbSource
+	 */
+	public function selectQuery(array $spec, $callback=null)
+	{
+		$type		= 'Query';
+		$isPrepared = false;
+		$strategy   = 'read';
+		$select     = $this->getSelectBuilder();
+		
+		$sql = $select->build($spec, $isPrepared);
+        $request = $this->createRequest($sql, $type, $strategy);
+        $select->clear();
+
+		if (null !== $callback) {
+			$request->setCallback($callback);
+		}
+
+		return $this->getResultset($this->execute($request));
+	}
+
+	/**
+	 * @param	array	$spec
+	 * @param	mixed	$callback	
+	 * @param	bool	$isAlias
+	 * @param	bool	$isMapBack
+	 * @return	OrmDbSource
+	 */
+	public function selectPrepared(array $spec, $callback = null)
+	{
+		$type		= 'PreparedStmt';
+		$isPrepared = true;
+		$strategy   = 'read';
+		$select     = $this->getSelectBuilder();
+		
+		$data = $select->build($spec, $isPrepared);
+		$sql = current($data);
+		$values = next($data);
+
+		$request = $this->createRequest($sql, $type, $strategy, $values);
+        $select->clear();
+
+		if (null !== $callback) {
+			$request->setCallback($callback);
+		}
+
+		return $this->getResultset($this->execute($request));
+	}
+
+	/**
+	 * @param	array	$spec
+	 * @param	mixed	$resultOptions
+	 * @param	bool	$isAlias
+	 * @param	bool	$isMapBack
+	 * @return	OrmDbSource
+	 */
+	public function selectMultiQuery(array $list, $resultOptions = null)
+	{
+		$type		= 'MultiQuery';
+		$isPrepared = false;
+		$strategy   = 'read';
+		$select     = $this->getSelectBuilder();
+		
+		$request = $this->createRequest(null, $type, $strategy);
+		foreach ($list as $spec) {
+			$sql = $select->build($spec,$isPrepared);
+			$request->addSql($sql);
+		}
+		
+	
+		if (null !== $options) {
+			$request->setMultiResultOptions($options);
+		}
+
+		return $this->getResultset($this->execute($request));
+	}
+
 
 	/**
 	 * @param	DbTableMapInterface $map

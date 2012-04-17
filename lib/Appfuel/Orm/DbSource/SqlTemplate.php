@@ -12,13 +12,12 @@ namespace Appfuel\Orm\DbSource;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Kernel\PathFinder,
-	Appfuel\Kernel\PathFinderInterface,
-	Appfuel\View\FileViewTemplate;
+	Appfuel\View\FileTemplate,
+	Appfuel\Filesystem\FileFinder;
 
 /**
  */
-class SqlTemplate extends FileViewTemplate
+class SqlTemplate extends FileTemplate
 {
 	/**
 	 * @param	mixed	$file 
@@ -26,18 +25,13 @@ class SqlTemplate extends FileViewTemplate
 	 * @param	PathFinderInterface	$pathFinder
 	 * @return	FileViewTemplate
 	 */
-	public function __construct($file, 
-								DbMapInterface $dbMap = null,
-								PathFinderInterface $pathFinder = null)
+	public function __construct($file, DbMapInterface $dbMap = null)
 	{
-		if (null === $pathFinder) {
-			$pathFinder = new PathFinder(self::getResourceDir());
-		}
 		if (null !== $dbMap) {
 			$this->setDbMap($dbMap);
 		}
-		$this->setFile($file);
-		$this->setViewCompositor(new SqlFileCompositor($pathFinder));
+		
+		parent::__construct($file);
 	}
 
 	/**
@@ -58,22 +52,19 @@ class SqlTemplate extends FileViewTemplate
      */
     public function build()
     {   
-        $compositor = $this->getViewCompositor();
-        if (! ($compositor instanceof SqlFileCompositorInterface)) {
-            $err  = 'build failed: when a template file is set the view ';
-            $err .= 'compositor must implement Appfuel\Orm\DbSource';
-            $err .= '\SqlFileCompositorInterface';
-            throw new RunTimeException($err);
+		$file = $this->getFile();
+        $finder = new FileFinder('resource');
+
+        $absolute = $finder->getPath($file);
+        if (! $finder->fileExists($absolute, false)) {
+            $err = "template file not found at -($absolute)";
+            throw new DomainException($err, 404);
         }
 
-        if ($this->templateCount() > 0) {
-            $this->buildTemplates();
-        }
-
-        $compositor->setFile($this->getFile());
+		$data = $this->getAll();
+        $compositor = new SqlFileCompositor();
 		$compositor->setDbMap($this->getDbMap());
-
-        return $compositor->compose($this->getAll());
+		return $compositor->compose($absolute, $data);
     }
 
 	/**

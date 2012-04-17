@@ -4,34 +4,38 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel\Mvc;
 
+use Appfuel\DataStructure\DictionaryInterface;
+
 /**
  */
-interface MvcRouteDetailInterface
+interface MvcRouteDetailInterface extends DictionaryInterface
 {
 	/**
-	 * Flag used to detemine if any acl checks need to be applied
 	 * @return	bool
 	 */
 	public function isPublicAccess();
-	
+
 	/**
-	 * @return bool
+	 * @return	bool
 	 */
 	public function isInternalOnlyAccess();
 
 	/**
-	 * Determine is a given acl code is allowed to dispatch this route. 
-	 * 
+	 * @return bool
+	 */
+	public function isIgnoreAcl();
+
+	/**
 	 * @param	string	$code
 	 * @return	bool
 	 */
-	public function isAccessAllowed($code);
+	public function isAccessAllowed($codes);
 
 	/**
 	 * @return	bool
@@ -61,10 +65,15 @@ interface MvcRouteDetailInterface
 	/**
 	 * @return	bool
 	 */
+	public function isSkipPostFilters();
+
+	/**
+	 * @return	bool
+	 */
 	public function isPostFilters();
 
 	/**
-	 * @return	array
+	 * @return array
 	 */
 	public function getPostFilters();
 
@@ -81,15 +90,72 @@ interface MvcRouteDetailInterface
 	/**
 	 * @return	bool
 	 */
-	public function isSkipPostFilters();
+	public function isIgnoreConfigStartupTasks();
+
+	public function isPrependStartupTasks();
 
 	/**
 	 * @return	bool
 	 */
-	public function isViewDetail();
+	public function isStartupTasks();
 
 	/**
 	 * @return	array
 	 */
-	public function getViewDetail();
+	public function getStartupTasks();
+
+	/**
+	 * @return	bool
+	 */
+	public function isExcludedStartupTasks();
+
+	/**
+	 * @return	array
+	 */
+	public function getExcludedStartupTasks();
+
+	/**
+	 * @return	bool
+	 */
+	public function isView();
+
+	/**
+	 * @return	bool
+	 */
+	public function isManualView();
+
+	/**
+	 * @return	bool
+	 */
+	public function isRawView();
+
+	/**
+	 * @return	string
+	 */
+	public function getRawView();
+
+	/**
+	 * @return	bool
+	 */
+	public function isViewPackage();
+
+	/**
+	 * @return	string
+	 */
+	public function getViewPackage();
+
+	/**
+	 * @return	array
+	 */
+	public function getViewParams();
+
+	/**
+	 * @return	string
+	 */
+	public function getActionName();
+
+	/**
+	 * @return	string
+	 */
+	public function getActionClass();
 }

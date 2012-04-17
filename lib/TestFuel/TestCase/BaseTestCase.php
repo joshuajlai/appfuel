@@ -11,27 +11,24 @@
 namespace TestFuel\TestCase;
 
 use StdClass,
+	RunTimeException,
 	TestFuel\Provider\StringProvider,
-	Appfuel\Kernel\PathFinder,
+	Appfuel\Filesystem\FileFinder,
 	Appfuel\Kernel\KernelRegistry,
+	Appfuel\Kernel\KernelStateInterface,
 	Appfuel\DataSource\Db\DbStartupTask,
-	PHPUnit_Extensions_OutputTestCase;
+	PHPUnit_Framework_TestCase;
 
 /**
  * All Appfuel test cases will extend this class which provides features like
  * path locations, backup/restore autoloader, backup/restore include paths. 
  */
-class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
+class BaseTestCase extends PHPUnit_Framework_TestCase
 {
-	/**
-	 * @var StringProvider
-	 */
-	protected $stringProvider = null;
-
 	/**
 	 * @var PathFinder
 	 */
-	protected $pathFinder = null;
+	protected $fileFinder = null;
 
     /**
      * @return  BaseTestCase
@@ -40,31 +37,30 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
                                 array $data = array(),
                                 $dataName = '')
     {
-		$this->pathFinder = new PathFinder('test');  
-		$this->stringProvider = new StringProvider();
+		$this->pathFinder = new FileFinder('test');  
         parent::__construct($name, $data, $dataName);
     }
 
 	/**
-	 * @return	StringProvider
-	 */
-	public function getStringProvider()
-	{
-		return $this->stringProvider;
-	}
-
-	/**
 	 * @return	PathFinder
 	 */
-	public function getPathFinder()
+	public function getFileFinder()
 	{
-		return $this->pathFinder;
+		return $this->fileFinder;
 	}
 
 	public function getTestFilesPath()
 	{
-		return $this->getPathFinder()
+		return $this->getFileFinder()
 					->getPath('files');
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getBasePath()
+	{
+		return AF_BASE_PATH;
 	}
 
 	/**
@@ -116,6 +112,11 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
     public function restoreKernelState()
     {
         $state = TestRegistry::getKernelState();
+		if (! $state instanceof KernelStateInterface) {
+			$err  = 'kernel state has not been set in the test registry ';
+			$err .= 'it is likely that the UnitTestStartup has not been run';
+			throw new RunTimeException($err);
+		}
         error_reporting($state->getErrorReporting());
         date_default_timezone_set($state->getDefaultTimezone());
         ini_set('error_display', $state->getDisplayError());
@@ -194,101 +195,4 @@ class BaseTestCase extends PHPUnit_Extensions_OutputTestCase
         $state = TestRegistry::getKernelState();
         set_include_path($state->getIncludePath());
 	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideEmptyStrings()
-	{
-		$provider = $this->getStringProvider();
-		return $provider->provideEmptyStrings();
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideNonEmptyStrings()
-	{
-		$provider = $this->getStringProvider();
-		return $provider->provideNonEmptyStrings();
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideNonEmptyStringsNoNumbers()
-	{
-		$provider = $this->getStringProvider();
-		return $provider->provideNonEmptyStrings(false);
-	}
-
-	/**
-	 * @return	array
-	 */	
-	public function provideAllStringsIncludingCastable()
-	{
-		$provider = $this->getStringProvider();
-		return $provider->provideAllStrings();
-		
-	}
-
-	/**
-	 * @return	array
-	 */	
-	public function provideEmptyNonEmptyAndToString()
-	{
-		$provider = $this->getStringProvider();
-		return $provider->provideEmptyNonEmptyAndToString();
-		
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideNoCastableStrings()
-	{
-		return $this->getStringProvider()
-					->provideNoCastableStrings();
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function provideInvalidStringsIncludeNull()
-	{
-		$provider = $this->getStringProvider();
-		$includeNull = true;
-		return $provider->provideStrictInvalidStrings($includeNull);
-	}
-
-    /**
-     * @return  array
-     */
-    public function provideInvalidStrings()
-    {
-        return array(
-            array(12345),
-            array(1.234),
-            array(true),
-            array(false),
-            array(array(1,2,3)),
-            array(new StdClass())
-        );
-    }
-
-    /**
-     * @return  array
-     */
-    public function provideInvalidArray()
-    {  
-        return array(
-            array(12345),
-            array(1.234),
-            array(true),
-            array(false),
-            array(''),
-            array('this is a string'),
-            array(new StdClass())
-        );
-    }
 }

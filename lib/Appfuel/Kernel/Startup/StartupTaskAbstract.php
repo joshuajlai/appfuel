@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Kernel\Startup;
 
-use InvalidArgumentException;
+use DomainException,
+	InvalidArgumentException;
 
 /**
  * The startup task is used to initialize on or more subsystems. It occurs
@@ -93,11 +94,55 @@ abstract class StartupTaskAbstract implements StartupTaskInterface
 	 */
 	public function addRegistryKey($label, $default = null)
 	{
-		if (empty($label) || !is_string($label) || !($label = trim($label))) {
+		if (! is_string($label) || empty($label)) {
 			$err = 'label must be a non empty string';
 			throw new InvalidArgumentException($err);
 		}
 
 		$this->keys[$label] = $default;
+	}
+
+    /**
+     * @param   array   $params
+     * @param   MvcRouteDetailInterface $route
+     * @param   MvcContextInterface $context
+     * @return  null
+     */
+    public function executeRouteContext(array $params = null,
+                                        MvcRouteDetailInterface $route,
+                                        MvcContextInterface $context)
+    {
+        return $this->execute($params);
+    }
+
+	/**
+	 * We don't type hint array on params in order to provide a more readable
+	 * excecption
+	 *
+	 * @throws	DomainException
+	 * @param	array	$params		
+	 * @param	string	$msg	prepends to error msg
+	 * @return	true
+	 */
+	public function validateTaskKeys($params, $msg = '')
+	{
+		if (! is_string($msg)) {
+			$msg = '';		
+		}
+
+		if (! is_array($params) || empty($params)) {
+			$err = "$msg expecting an array of params: none given";
+			throw new DomainException(trim($err));			
+		}
+
+		$keys = $this->getRegistryKeys();
+		foreach ($keys as $key => $defaultValue) {
+			if (! array_key_exists($key, $params)) {
+				$err = "$msg key -($key) is required but not found";
+				throw new DomainException(trim($err));
+			}
+		}
+
+		return true;
 	}
 }	

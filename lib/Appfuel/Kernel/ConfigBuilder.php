@@ -54,6 +54,21 @@ class ConfigBuilder implements ConfigBuilderInterface
 	 */
 	protected $mergeEnv = 'prod';
 
+    /**
+     * FileType
+     * The file type for the resulting config file
+     * @var string
+     */
+    protected $fileType = 'php';
+
+    /**
+     * File Name
+     * The resulting filename that the builder created.  This is for
+     * external programs to inspect, not alter.
+     * @var string
+     */
+    protected $fileName = null;
+
 	/**
 	 * @param	string	$env
 	 * @param	FileFinderInterface	$finder
@@ -138,6 +153,50 @@ class ConfigBuilder implements ConfigBuilderInterface
 		return $this->writer;
 	}
 
+    /**
+     * @param   string      $fileType
+     * @return  ConfigBuilder
+     */
+    public function setFileType($fileType)
+    {
+        $validFileTypes = array(
+            'php',
+            'json',
+        );
+        if (! in_array($fileType, $validFileTypes)) {
+            throw new DomainException(
+                'Unsupported file type requested'
+            );
+        }
+        $this->fileType = $fileType;
+    }
+    
+    /**
+     * @return  string
+     */
+    public function getFileType()
+    {
+        return $this->fileType;
+    }
+
+    /**
+     * @param   string      $fileName
+     * @return  ConfigBuilder
+     */
+    protected function setFileName($fileName)
+    {
+        $this->fileName = $fileName;
+        return $this;
+    }
+
+    /**
+     * @return  string
+     */
+    public function getFileName()
+    {
+        return $this->fileName;
+    }
+
 	/**
 	 * @throws	RunTimeException
 	 * @return	array
@@ -149,7 +208,7 @@ class ConfigBuilder implements ConfigBuilderInterface
 		$envFile = "$env.php";
 		
 		$isThrow = true;
-		return $reader->requireFile($envFile, $isThrow);
+		return $reader->import($envFile, $isThrow);
 	}
 
 	/**
@@ -161,7 +220,7 @@ class ConfigBuilder implements ConfigBuilderInterface
 		$reader  = $this->getFileReader();
 		
 		$isThrow = true;
-		return $reader->requireFile('production.php', $isThrow);
+		return $reader->import('production.php', $isThrow);
 	}
 
 	/**
@@ -184,14 +243,54 @@ class ConfigBuilder implements ConfigBuilderInterface
 			$data = $this->getProductionData();
 		}
 		$data = $this->mergeConfigurations();
-	
+        $type = $this->getFileType();
+        switch ($type) {
+            case 'json':
+                $fileName   = 'config.json';
+                $content    = $this->processJson($data);
+                break;
+            case 'php':
+                $fileName   = 'config.php';
+                $content    = $this->processPhp($data);
+                break;
+            default:
+                throw new RuntimeException(
+                    "Unexpected file type found during generate -($type)"
+                );
+        }
+
+        $this->setFileName($fileName);
+		$writer = $this->getFileWriter();
+		return $writer->putContent($content, $fileName);
+    }
+
+    /**
+     * Write the contents of the data array into a file as a php
+     * formatted array.
+     *
+     * @param   array   $data
+     * @return  bool
+     */
+    protected function processPhp(array $data)
+    {
 		$content = "<?php \n /* generated config file */ \n return ";
 		$content .= $this->printArray($data);
 		$content .= "\n?>";
 
-		$writer = $this->getFileWriter();
-		return $writer->putContent($content, 'config.php');
+        return $content;
 	}
+
+    /**
+     * Write the contents of the data array into a file as a json formatted
+     * object.
+     *
+     * @param   arary   $data
+     * @return  bool
+     */
+    protected function processJson(array $data)
+    {
+        return json_encode($data);
+    }
 
 	/**
 	 * @param	array	$array

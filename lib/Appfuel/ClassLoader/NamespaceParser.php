@@ -10,8 +10,6 @@
  */
 namespace Appfuel\ClassLoader;
 
-use Appfuel\Framework\Exception;
-
 /**
  * The Dependency loader will iterate through the namespace and file list. 
  * Each namespace is resolved and loaded with a require call. Each file is
@@ -20,52 +18,23 @@ use Appfuel\Framework\Exception;
 class NamespaceParser implements NamespaceParserInterface
 {
 	/**
-	 * File extension used in final parsed string
-	 * @var string
-	 */
-	protected $ext = '.php';
-
-	/**
-	 * @return	string
-	 */
-	public function getExtension()
-	{
-		return $this->ext;
-	}
-
-	/**
-	 * @param	string	$ext
-	 * @return	NamespaceParser
-	 */
-	public function setExtension($ext)
-	{
-		if (! is_string($ext)) {
-			throw new Exception("extension must be a string");
-		}
-
-		$this->ext = $ext;
-		return	$this;
-	}
-
-	/**
 	 * Resolve php namespace first otherwise resolve as pear name 
 	 *
 	 * @param	string	$string	
 	 * @return	string
 	 */	
-	public function parse($class, $isExtension = true)
+	static public function parse($class, $ext = '.php')
 	{
-		$ext  = $this->getExtension();
-		$path = $this->parseNs($class);
-		if (false === $path && false === ($path = $this->parsePear($class))) {
+		$path = self::parseNs($class);
+		if (false === $path && false === ($path = self::parsePear($class))) {
 			return false;
 		}
 
-		if (false === $isExtension) {
-			$ext = '';
+		if (is_string($ext) && ! empty($ext)) {
+			$path .= $ext;
 		}
 
-		return "{$path}{$ext}";
+		return $path;
 	}
 
 	/**
@@ -74,7 +43,7 @@ class NamespaceParser implements NamespaceParserInterface
 	 * @param	string	$class
 	 * @return	string | false on failure
 	 */
-	public function parseNs($class)
+	static public function parseNs($class)
 	{
 		if (empty($class) || ! is_string($class) || !($class = trim($class))) {
 			return false;
@@ -106,7 +75,7 @@ class NamespaceParser implements NamespaceParserInterface
 	 * @param	string	$class
 	 * @return	string | false on failure
 	 */
-	public function parsePear($class)
+	static public function parsePear($class)
 	{
 		if (empty($class) || ! is_string($class) || !($class = trim($class))) {
 			return false;

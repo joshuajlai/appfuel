@@ -10,39 +10,31 @@
  */
 namespace Appfuel\Filesystem;
 
+use DomainException,
+	RunTimeException,
+	InvalidArgumentException;
+
 /**
- * The file finder creates absolute paths with getPath. A path is broken up
- * into three sections
- *  
- * 1) base path: absolute path to the root directory of the application
- * 2) root path: relative path from the base path to the path specified in 
- *	  getPath. 
- * 3) relative path: relative path to file or directory given to getPath
- * 
- * Base, root and relative paths are concatenated to form the
- * absolute path to the file or directory. 
- * 
- * There is no interface for disabling the base path, this is an immutable 
- * property that should be implmented in the constructor. I feel adding the
- * constructor to the interface makes the design ridged so I leave it up to 
- * you to decide how to initialize the file finder. 
+ * Find files and directories without caring about the absolute path. Base path
+ * is used by default but can be disabled and the path used in the constructor
+ * will act as the root path for the method getPath
  */
 interface FileFinderInterface
 {
 	/**
-	 * 1) must be the same as AF_BASE_PATH
-	 * 2) should be set in the constructor and made immutable
-	 *	  (protected setter)
-	 * 3) do not trim the base path this is done in resolveRoot
-	 *
+	 * Appfuel sets this in the constructor ensuring it is the same path
+	 * as the constant AF_BASE_PATH. 
+	 * 
+	 * 1) An immutable string that represents the absolute path to the base
+	 *    path of the application
+	 * 
 	 * @return string
 	 */
 	public function getBasePath();
 
 	/**
-	 * Flag used to determine if the base path is set.
-	 * 1) constant AF_BASE_PATH must be defined AND
-	 *    the string stored as base path must be equal to the constant
+	 * Becase the base path is optional this method exists to check 
+	 * if it exits
 	 *
 	 * @return	bool
 	 */
@@ -54,100 +46,89 @@ interface FileFinderInterface
 	public function getRootPath();
 
 	/**
-	 * Root path acts as relative path when base path. When base path is 
-	 * not used if effectively acts like base path. 
-	 * 
-	 * 1) $path must be a string or an object that supports __toString 
-	 *	  anythingelse will throw an InvalidArgumentException
-	 * 2) $path will be casted to a string for objects
-	 * 3) when base path is used, $path can not contain base path
-	 *	  throw a RunTimeException if it does
-	 * 4) do not trim root path in any way here keep it original. All trim 
-	 *    operations are done with resolveRootPath
+	 * When base path exists then the root path acts as a relative point
+	 * to concatenate file paths onto. When base path is disabled root path
+	 * will act as a base path. This allows the FileFinder to use file paths
+	 * both in and out of the application path. 
 	 *
-	 * @throws	InvalidArgumentExceptions
-	 * @throws	RunTimeException
-	 * @param	string|object	$path 
-	 * @return	FileFinder
+	 * 1) $path must be a string or an object that implements __toString
+	 *    When this criteria fails throw a DomainException
+	 * 2) remove whitespaces from the $path
+	 * 3) $path is allowed to be an empty string
+	 * 4) remove DIRECTORY_SEPARATOR from the right side unless the only
+	 *    character is the DIRECTORY_SEPARATOR ex) '/'
+	 * 5) Ensure if base path exists then the root path does not include
+	 *    base path. 
+	 *    when this criteria fails throw a DomainExcepion
+	 *
+	 * @throws  DomainException
+	 * @return	FileFinderInterface
 	 */
 	public function setRootPath($path);
 
 	/**
-	 * Resolve base path and root path into a single string.
+	 * Creates an absolute path by resolving base path (when it exists) root
+	 * path and the path passed in as a parameter. When $isRelative is false
+	 * $path is considered an absolute path.
 	 * 
-	 * trim chars include: spaces, new lines, tabs and forward slashes
-	 * 
-	 * 1) when base path is not used and root path is '/' return '/'
-	 * 2) when base path is not used and root is not '/'  then
-	 *    trim the right side of root with trim chars. 
-	 * 3) always trim the right side of base for trim chars.
-	 * 4) concatenate base and root with a forward slash then right trim the 
-	 *    results with trim chars
-	 * 
+	 * 1) $path can be null only when $isRelative is true
+	 *    when outside this domain throw a DomainException
+	 * 2) $path can be a string or an object that implements __toString
+	 *    when outside this domain throw a DomainException
+	 * 3) when an object $path is casted to a string
+	 * 4) trim whitespaces from both left and right sides of $path
+	 *	  if after whitespace have been removed and $isRelative is false and
+	 *    $path is now empty throw a DomainException
+	 * 5) metadata chars .. are not allowed in any paths because the pose a
+	 *	  security risk when the are found throw an DomainException
+	 * 6) when $isRelative is true and $path contains the root path 
+	 *    throw an DomainException
+	 * 7) when $isRelative is false and $path is '/' return path
+	 * 8) when base path exists and root path exits resolve any conflicting
+	 *    directory separator and concatenate them togather then concatenate
+	 *    $path to the result and return. 
+	 *  
+	 * @throws	DomainException
+	 * @param	string	$path
+	 * @param	bool	$isRelative
 	 * @return	string
 	 */
-	public function getResolvedRootPath();
+	public function getPath($path = null, $isRelative = true);
 
 	/**
-	 * Create an absolute path with the path given plus base path and root path
-	 * when necessary
-	 *
-	 * trim chars include: spaces, new lines, tabs and forward slashes
-	 *
-	 * 1) If no path is given then path is an empty string
-	 * 2) A valid path is a string or an object that implements __toString
-	 *	  anything is should return false
-	 * 3) cast path into string
-	 * 4) resolve the root path using 'getResolvedRootPath'
-	 * 5) when path is empty return the resolved root
-	 * 6) when the resolved root is empty return path
-	 * 7) concatenate root and path with a forward slash
-	 *
-	 * @param	string	$path	relative path 
-	 * @return	string
-	 */
-	public function getPath($path = null);
-
-	/**
-	 * Resolve the path into an absolute and then check its existence
-	 * @param	string $path
+	 * @param	string	$path
+	 * @param	bool	$isRelative
 	 * @return	bool
 	 */
-	public function pathExists($path = null);
+	public function fileExists($path = null, $isRelative = true);
 
 	/**
 	 * @param	string $path
 	 * @return	bool
 	 */
-	public function fileExists($full);
-
-	/**
-	 * @param	string $path
-	 * @return	bool
-	 */
-	public function isWriteable($path = null);
+	public function isWriteable($path = null, $isRelative = true);
 
 	/**
 	 * @param	string	$path
 	 * @return	bool
 	 */
-	public function isReadable($path = null);
+	public function isReadable($path = null, $isRelative = true);
 
 	/**
 	 * @param	string	$path
 	 * @return	bool
 	 */
-	public function isFile($path = null);
+	public function isFile($path = null, $isRelative = true);
 
 	/**
 	 * @param	string	$path
 	 * @return	bool
 	 */
-	public function isDir($path = null);
+	public function isDir($path = null, $isRelative = true);
 
 	/**
 	 * @param	string	$path
 	 * @return	bool
 	 */
-	public function isLink($path = null);
+	public function isLink($path = null, $isRelative = true);
 }

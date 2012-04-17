@@ -19,17 +19,6 @@ use Appfuel\View\Compositor\ViewCompositorInterface;
 interface ViewInterface
 {
 	/**
-	 * @return	ViewCompositorInterface
-	 */
-	public function getViewCompositor();
-
-	/**
-	 * @param	ViewCompositorInterface $formatter
-	 * @return	ViewTemplate
-	 */
-	public function setViewCompositor(ViewCompositorInterface $compositor);
-    
-	/**
      * Determines if template has been added
      *
      * @param   scalar  $key    template identifier

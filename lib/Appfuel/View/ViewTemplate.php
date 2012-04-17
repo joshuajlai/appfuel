@@ -4,21 +4,18 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\View;
 
-use Exception,
-	RunTimeException,
-	InvalidArgumentException,
-	Appfuel\View\Compositor\TextCompositor,
-	Appfuel\View\Compositor\ViewCompositorInterface;
+use RunTimeException,
+	InvalidArgumentException;
 
 /**
  * The view template is the most basic of the templates. Holding all its data
- * in key/value pair it uses a formatter to convert it a string.
+ * in key/value pair it uses a static view compositor to compose the views
  */
 class ViewTemplate implements ViewInterface
 {
@@ -34,7 +31,6 @@ class ViewTemplate implements ViewInterface
 	 */
 	protected $templateBuild = array();
 
-
 	/**
 	 * Holds assignment until build time where they are passed into scope
 	 * @var array
@@ -42,46 +38,15 @@ class ViewTemplate implements ViewInterface
 	protected $assign = array();
 
 	/**
-	 * The formatter turns the assignments into a string. The compositor
-	 * is only reponsible for its own assignments
-	 * @var	ViewCompositorInterface
-	 */
-	protected $compositor = null;
-
-	/**
 	 * @param	mixed	$file 
 	 * @param	array	$data
 	 * @return	ViewTemplate
 	 */
-	public function __construct(array $data = null, 
-								ViewCompositorInterface $compositor = null)
+	public function __construct(array $data = null)
 	{
 		if (null !== $data) {
 			$this->load($data);
 		}
-
-		if (null === $compositor) {
-			$compositor = new TextCompositor();
-		}
-		$this->setViewCompositor($compositor);
-	}
-
-	/**
-	 * @return	ViewFormatterInterface
-	 */
-	public function getViewCompositor()
-	{
-		return $this->compositor;
-	}
-
-	/**
-	 * @param	ViewFormatterInterface $formatter
-	 * @return	ViewTemplate
-	 */
-	public function setViewCompositor(ViewCompositorInterface $compositor)
-	{
-		$this->compositor = $compositor;
-		return $this;
 	}
 
     /**
@@ -218,6 +183,33 @@ class ViewTemplate implements ViewInterface
 	 * @param	array	$data
 	 * @return	ViewTemplate
 	 */
+	public function setAssignments(array $data)
+	{
+		$this->clear();
+		$this->load($data);
+		return $this;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getAssignments()
+	{
+		return $this->getAll();
+	}
+
+	/**
+	 * @return	ViewTemplate
+	 */
+	public function clear()
+	{
+		$this->assign = array();
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	ViewTemplate
+	 */
 	public function load(array $data)
 	{
 		foreach ($data as $key => $value) {
@@ -241,9 +233,8 @@ class ViewTemplate implements ViewInterface
 	public function assign($key, $value)
 	{
         if (! is_scalar($key)) {
-			throw new InvalidArgumentException(
-				"Template assignment keys must be scalar "
-			);
+			$err = "Template assignment keys must be scalar ";
+			throw new InvalidArgumentException($err);
         }
 
 		if (false !== strpos($key, '.')) {
@@ -401,19 +392,11 @@ class ViewTemplate implements ViewInterface
 	 */
     public function build()
 	{
-		$compositor = $this->getViewCompositor();
-		if (! ($compositor instanceof ViewCompositorInterface)) {
-			$err  = 'build failed: can not build without a view compositor or ';
-			$err .= 'view compositor that does not implement a Appfuel\View';
-			$err .= '\Compositor\ViewCompositorInterface';
-			throw new RunTimeException($err);
-		}
-
 		if ($this->templateCount() > 0) {
 			$this->buildTemplates();
 		}
-
-		return $compositor->compose($this->getAll());
+		
+		return ViewCompositor::composeList($this->getAll());
 	}
 
 	/**

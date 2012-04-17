@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -29,11 +29,8 @@ class FileReader implements FileReaderInterface
      * @param	FileFinderInterface 
      * @return  FileReader
      */
-    public function __construct(FileFinderInterface $finder = null)
+    public function __construct(FileFinderInterface $finder)
     {
-		if (null === $finder) {
-			$finder = new FileFinder();
-		}
 		$this->setFileFinder($finder);
     }
 
@@ -45,10 +42,6 @@ class FileReader implements FileReaderInterface
 		return $this->finder;
 	}
 
-	/**
-	 * @param	FileFinderInterface		$finder
-	 * @return	FileReader
-	 */
 	public function setFileFinder(FileFinderInterface $finder)
 	{
 		$this->finder = $finder;
@@ -61,26 +54,97 @@ class FileReader implements FileReaderInterface
 	 * @param	string	$msg
 	 * @return	bool
 	 */
-	public function requireFile($path, $isThrow = false, $msg = '')
+	public function import($path, $isThrow = false, $msg = null, $code = null)
 	{
 		$finder = $this->getFileFinder();
-		$full = $finder->getPath($path);
-		if ($finder->fileExists($full)) {
+		$full   = $finder->getPath($path);
+		if ($finder->fileExists($full, false)) {
 			return require $full;
 		}
 
-		if (false === $isThrow) {
-			return false;
+		if (true === $isThrow) {
+			$this->throwException($full, $msg, $code);
 		}
 		
-		$err = "require failed: file not found at -($full)";
-		if (is_string($msg) && ! empty($msg)) {
-			$err = $msg;
-		}
-
-		throw new RunTimeException($err);
+		return false;
 	}
 	
+	/**
+	 * @param	string	$path
+	 * @param	bool	$throw
+	 * @param	string	$msg
+	 * @param	int		$code
+	 * @return	bool
+	 */
+	public function importOnce($path, $isThrow=false, $msg=null, $code=null)
+	{
+		$finder = $this->getFileFinder();
+		$full   = $finder->getPath($path);
+		if ($finder->fileExists($full, false)) {
+			return require_once $full;
+		}
+
+		if (true === $isThrow) {
+			$this->throwException($full, $msg, $code);
+		}
+		
+		return false;
+	}
+
+	/**
+	 * @param	string	$path
+	 * @param	bool	$isAssoc
+	 * @param	int		$depth
+	 * @param	int		$options
+	 * @return	array | object
+	 */
+	public function decodeJsonAt($path = null, $isAssoc = true, $depth = null)
+	{
+		$finder  = $this->getFileFinder();
+		$content = $this->getContent($path);
+		if (false === $content) {
+			return false;
+		}
+
+		$assoc = true;
+		if (false === $isAssoc) {
+			$assoc = false;
+		}
+
+		if (null === $depth) {
+			$depth = 512;
+		}
+		else if (! is_int($depth) || $depth < 0) {
+			$err = "json depth must be a positive integer";
+			throw new InvalidArgumentException($err);
+		}
+
+		return json_decode($content, $assoc, $depth);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getLastJsonError()
+	{
+		switch (json_last_error()) {
+			case JSON_ERROR_DEPTH:
+				$result = 'maximum stack depth exceeded';
+				break;
+			case JSON_ERROR_CTRL_CHAR:
+				$result = 'unexpected control char found';
+				break;
+			case JSON_ERROR_SYNTAX:
+				$result = 'syntax error, malformed JSON';
+				break;
+			case JSON_ERROR_NONE:
+			default:
+				$result = false;
+		}
+	
+		return $result;	
+	}
+
 	/**
 	 * @throws	InvalidArgumentException
 	 * @param	string	$path
@@ -89,10 +153,8 @@ class FileReader implements FileReaderInterface
 	 * @param	int		$max
 	 * @return	string | false when does not exist
 	 */
-	public function getContent($path, $isRel=true, $offset=null, $max=null)
+	public function getContent($path = null, $offset = null, $max = null)
 	{
-		$isRel = (false === $isRel) ? false : true;
-
 		$err = 'failed to get file contents: ';
 		if (null !== $offset && ! is_int($offset) || $offset < 0) {
 			$err .= 'offset must be a int that is greater than zero';
@@ -109,14 +171,9 @@ class FileReader implements FileReaderInterface
 			throw new InvalidArgumentException($err);
 		}
 
-		
-		$full   = $path;
 		$finder = $this->getFileFinder();
-		if (true === $isRel) {
-			$full = $finder->getPath($path);
-		}
-
-		if (! $finder->fileExists($full)) {
+		$full   = $finder->getPath($path);
+		if (! $finder->fileExists($full, false)) {
 			return false;
 		}
 
@@ -146,7 +203,7 @@ class FileReader implements FileReaderInterface
 
 		$finder = $this->getFileFinder();
 		$full   = $finder->getPath($path);
-		if (! $finder->fileExists($path)) {
+		if (! $finder->fileExists($full, false)) {
 			return false;
 		}
 
@@ -154,58 +211,25 @@ class FileReader implements FileReaderInterface
 	}
 
 	/**
-	 * @param	string	$path
-	 * @param	bool	$throw
-	 * @param	string	$msg
-	 * @return	bool
+	 * @param	string	
+	 * @param	string
+	 * @param	int	$code
+	 * @return	null
 	 */
-	public function requireOnceFile($path, $isThrow = true, $msg = '')
+	protected function throwException($path, $msg = null, $code = null)
 	{
-		$finder = $this->getFileFinder();
-		$full = $finder->getPath($path);
-		if ($finder->fileExists($full)) {
-			return require_once $full;
-		}
-
-		if (false === $isThrow) {
-			return false;
-		}
 		
-		$err = "require_once failed: file not found at -($full)";
+		$err = "require_once failed: file not found at -($path)";
 		if (is_string($msg) && ! empty($msg)) {
 			$err = $msg;
 		}
 
-		throw new RunTimeException($err);
-	}
-
-	/**
-	 * @param	string
-	 * @return	mixed
-	 */
-	public function includeFile($path)
-	{
-		$finder = $this->getFileFinder();
-		$full   = $finder->getPath($path);
-		if ($finder->fileExists($full)) {
-			return include $full;
+		$eCode = 404;
+		if (null !== $code) {
+			$eCode = $code;
 		}
-	
-		return false;
-	}
 
-	/**
-	 * @param	string
-	 * @return	mixed
-	 */
-	public function includeOnceFile($path)
-	{
-		$finder = $this->getFileFinder();
-		$full   = $finder->getPath($path);
-		if ($finder->fileExists($full)) {
-			return include_once $full;
-		}
-	
-		return false;
+
+		throw new RunTimeException($err, $eCode);
 	}
 }

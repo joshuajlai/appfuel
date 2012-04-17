@@ -39,15 +39,19 @@ interface MvcFrontInterface
 	 */
 	public function run(MvcContextInterface $context);
 
-	/**
-	 * @param	MvcContextInterface		$context
-	 * @return	MvcContextInterface
-	 */
-	public function runPreFilters(MvcContextInterface $context);
+    /**
+	 * @param	MvcRouteDetailInterface $detail
+     * @param   MvcContextInterface     $context
+     * @return  MvcContextInterface
+     */
+    public function runPreFilters(MvcRouteDetailInterface $detail,
+                                  MvcContextInterface $context);
 
 	/**
+	 * @param	MvcRouteDetailInterface $detail
 	 * @param	MvcContextInterface		$context
 	 * @return	MvcContextInterface
 	 */
-	public function runPostFilters(MvcContextInterface $context);
+	public function runPostFilters(MvcRouteDetailInterface $detail,
+								   MvcContextInterface $context);
 }

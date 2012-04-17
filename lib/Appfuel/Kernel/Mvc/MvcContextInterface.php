@@ -22,24 +22,9 @@ use Appfuel\DataStructure\DictionaryInterface;
 interface MvcContextInterface extends DictionaryInterface
 {
 	/**
-	 * @param	string	$strategy	console|ajax|html
-	 * @param	AppInputInterface	$input
-	 * @return	AppContext
-	 */
-	public function __construct($routeKey, 
-								MvcRouteDetailInterface $routeDetail,
-								AppInputInterface $input,
-								$view = null);
-
-	/**
 	 * @return	string
 	 */
 	public function getRouteKey();
-
-	/**
-	 * @return	RouteDetailInterface
-	 */
-	public function getRouteDetail();
 
 	/**
 	 * @return	ViewTemplateInterface
@@ -79,21 +64,6 @@ interface MvcContextInterface extends DictionaryInterface
 	 * @return	bool
 	 */
 	public function isAclCode($code);
-
-	/**
-	 * @return	bool
-	 */
-	public function isPublicAccess();
-
-	/**
-	 * @return	bool
-	 */
-	public function isInternalOnlyAccess();
-
-    /**
-     * @return  bool
-     */
-    public function isAccessAllowed();
 
 	/**
 	 * @return	int

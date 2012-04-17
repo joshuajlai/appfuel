@@ -13,6 +13,7 @@ namespace TestFuel\Unit\Filesystem;
 use StdClass,
 	SplFileInfo,
 	Appfuel\Filesystem\FileFinder,
+	Appfuel\Filesystem\FileFinderInterface,
 	TestFuel\TestCase\BaseTestCase;
 
 /**
@@ -20,34 +21,10 @@ use StdClass,
 class FileFinderTest extends BaseTestCase
 {
 	/**
-	 * System under test
-	 * @var FileFinder
+	 * Interface used to test against the FileFinder
+	 * @param	string
 	 */
-	protected $finder = null;
-
-	/**
-	 * @return null
-	 */
-	public function setUp()
-	{
-		$this->finder = new FileFinder();
-	}
-
-	/**
-	 * @return null
-	 */
-	public function tearDown()
-	{
-		$this->finder = null;
-	}
-
-	/**
-	 * @return	FileFinder
-	 */
-	public function getFinder()
-	{
-		return $this->finder;
-	}
+	protected $finderInterface = 'Appfuel\Filesystem\FileFinderInterface';
 
 	/**
 	 * @return	array
@@ -61,223 +38,349 @@ class FileFinderTest extends BaseTestCase
 			array(array(1,2,3)),
 			array(new StdClass()),
 			array(true),
-			array(false)
+			array(false),
 		);
 	}
 
 	/**
-	 * @return null
+	 * @return	string
 	 */
-	public function testInitialState()
+	public function getFinderInterface()
 	{
-		$finder = $this->getFinder();
-		$this->assertInstanceOf(
-			'Appfuel\Filesystem\FileFinderInterface',
-			$finder
-		);
+		return $this->finderInterface;
+	}
 
+	/**
+	 * This is required by the framework not just this module. The FileFinder
+	 * can work without this constant but since I have no way of dynamically
+	 * removing the constant I don't bother
+	 *
+	 * @test
+	 * @return	null
+	 */
+	public function basePathIsDefined()
+	{
 		$this->assertTrue(defined('AF_BASE_PATH'));
-		$this->assertEquals(AF_BASE_PATH, $finder->getBasePath());
-		$this->assertEquals('', $finder->getRootPath());
 	}
 	
 	/**
-	 * @depends	testInitialState
-	 * @return	null
+	 * @test
+	 * @depends	basePathIsDefined
+	 * @return	FileFinder
 	 */
-	public function testConstructorNoBasePath()
+	public function ensureInterfaceIsImplemented()
 	{
-		$path = '/usr/local/share/pear';
-		$finder = new FileFinder($path, false);
+		$finder = new FileFinder();
+		$this->assertInstanceOf($this->getFinderInterface(), $finder);
 
-		$this->assertNull($finder->getBasePath());
-		$this->assertEquals($path, $finder->getRootPath());
+		return $finder;
 	}
 
 	/**
-	 * @depends	testInitialState
-	 * @return	null
+	 * When created with no parameters: base path is enabled and root path
+	 * is an empty string. This finder can build absolulte paths for anything
+	 * below the applications base path
+	 *
+	 * @test
+	 * @depends	ensureInterfaceIsImplemented
+	 * @return	FileFinder
 	 */
-	public function testConstructorNoBasePathNoRootPath()
+	public function defaultFinder(FileFinderInterface $finder)
 	{
-		$finder = new FileFinder(null, false);
-		
-		$this->assertNull($finder->getBasePath());
+		$this->assertTrue($finder->isBasePath());
+		$this->assertEquals(AF_BASE_PATH, $finder->getBasePath());
+		$this->assertEquals('', $finder->getRootPath());
+
+		return $finder;
+	}
+
+	/**
+	 * Since the default is for the 2nd param is true this scenerio will 
+	 * be used rarely if ever
+	 *
+	 * @test
+	 * @depends	ensureInterfaceIsImplemented
+	 */
+	public function noRootWithBasePath()
+	{
+		$finder = new FileFinder(null, true);
+		$this->assertTrue($finder->isBasePath());
+		$this->assertEquals(AF_BASE_PATH, $finder->getBasePath());
 		$this->assertEquals('', $finder->getRootPath());
 	}
 
 	/**
-	 * @depends	testInitialState
+	 * When created with the first param as a path, then the finder will
+	 * create absolute paths for any paths below the root path. The absolute
+	 * path will still include base path.
+	 *
+	 * @test
+	 * @depends	ensureInterfaceIsImplemented
+	 * @return FileFinder
+	 */
+	public function defaultFinderWithRootPath()
+	{
+		$root = 'test/resource/testfuel';
+		$finder = new FileFinder($root);
+		$this->assertTrue($finder->isBasePath());
+		$this->assertEquals(AF_BASE_PATH, $finder->getBasePath());
+		$this->assertEquals($root, $finder->getRootPath());	
+
+		return $finder;
+	}
+
+	/**
+	 * @test
+	 * @depends	ensureInterfaceIsImplemented
+	 * @return	FileFinder
+	 */	
+	public function rootPathNoBasePath()
+	{
+		$root = '/usr/local/share/pear';
+		$finder = new fileFinder($root, false);
+		$this->assertFalse($finder->isBasePath());
+		$this->assertNull($finder->getBasePath());
+		$this->assertEquals($root, $finder->getRootPath());
+
+		return $finder;	
+	}
+
+	/**
+	 * @test
+	 * @depends	ensureInterfaceIsImplemented
+	 * @return	FileFinder
+	 */	
+	public function noRootPathNoBasePath()
+	{
+		$finder = new fileFinder(null, false);
+		$this->assertFalse($finder->isBasePath());
+		$this->assertNull($finder->getBasePath());
+		$this->assertEquals('', $finder->getRootPath());
+
+		return $finder;	
+	}
+
+
+	/**
+	 * The default finder has base path enabled which means when we 
+	 * set the root path it is always relative to the base path. Because
+	 * of this an empty string and '/' mean the same thing in this context
+	 *
+	 * @test
+	 * @depends defaultFinder
 	 * @return	null
 	 */
-	public function testSetRootPath()
+	public function basicRootPathSetter(FileFinderInterface $finder)
 	{
-		$finder = $this->getFinder();
-		
-		$root = 'resource/appfuel/sql';
-		$this->assertNotEquals($root, $finder->getRootPath());
+		$root = 'test/resource/testfuel';
 		$this->assertSame($finder, $finder->setRootPath($root));
 		$this->assertEquals($root, $finder->getRootPath());
 
 		$root = '';
 		$this->assertSame($finder, $finder->setRootPath($root));
 		$this->assertEquals($root, $finder->getRootPath());
-	}
-
-	/**
-	 * @depends	testInitialState
-	 * @return	null
-	 */
-	public function testSetRootPathEndingWithForwardSlash()
-	{
-		$finder = $this->getFinder();
-		
-		$root = 'resource/appfuel/sql/';
-		$this->assertSame($finder, $finder->setRootPath($root));
-		
-		$expected = ltrim($root, '/');
-		$this->assertEquals($expected, $finder->getRootPath());
 
 		$root = '/';
 		$this->assertSame($finder, $finder->setRootPath($root));
 		$this->assertEquals($root, $finder->getRootPath());
-	}
 
-	public function testGetResolvedRootPathNoBasePathNotRoot()
-	{
-		$finder = new FileFinder(null, false);
-		$this->assertEquals('', $finder->getResolvedRootPath());
+		/*
+		 * path separators that may conflict with other paths
+		 * are resolved with getPath when you get the root path
+		 * it is kept exactly how it was set
+		 */
+		$root = 'test/resource/testfuel/';
+		$this->assertSame($finder, $finder->setRootPath($root));
+		$this->assertEquals($root, $finder->getRootPath());
 	}
 
 	/**
-	 * @expectedException	InvalidArgumentException
+	 * @test
+	 * @depends	rootPathNoBasePath
+	 * @return	null
+	 */
+	public function rootPathSetterBasePathDisabled(FileFinderInterface $finder)
+	{
+		$root = '/usr/local/share/pear';
+		$this->assertSame($finder, $finder->setRootPath($root));
+		$this->assertEquals($root, $finder->getRootPath());
+	
+		$root = '/';
+		$this->assertSame($finder, $finder->setRootPath($root));
+		$this->assertEquals($root, $finder->getRootPath());
+
+		/* appfuel will make no assumption about your root path
+		 * actually being absolute. 
+		 */
+		$root = 'some/path';
+		$this->assertSame($finder, $finder->setRootPath($root));
+		$this->assertEquals($root, $finder->getRootPath());
+	}
+
+	/**
+	 * @test
+	 * @depends	noRootPathNoBasePath
+	 * @return	null
+	 */
+	public function rootPathEmptyWhenNoBasePath(FileFinderInterface $finder)
+	{
+		$this->setExpectedException('DomainException');
+		$finder->setRootPath('');
+	}
+
+	/**
+	 * @test
 	 * @dataProvider		provideNonStrings
-	 * @depends				testSetRootPath
+	 * @depends				ensureInterfaceIsImplemented
 	 * @return				null
 	 */
-	public function testSetRootPathNotString_Failure($path)
+	public function rootPathSettingFailures($path)
 	{
-		$finder = $this->getFinder();
+		$finder = new FileFinder();
+		$this->setExpectedException('DomainException');
 		$finder->setRootPath($path);
 	}
 
 	/**
-	 * @expectedException	RunTimeException
-	 * @depends				testSetRootPath
-	 * @return				null
-	 */
-	public function testSetRootPathWithBasePathWhenEnabled_Failure()
-	{
-		$path = AF_BASE_PATH . '/resource/appfuel/sql';
-		
-		$finder = $this->getFinder();
-		$finder->setRootPath($path);	
-	}
-
-	/**
-	 * With no relative root an no base path getPath will return any path
-	 * given to it
-	 *
-	 * @depends	testInitialState
+	 * @test
+	 * @depends defaultFinder
 	 * @return	null
 	 */
-	public function testGetPathNoNoBasePathRelativeRoot()
+	public function rootPathContainsBasePathFailure(FileFinderInterface $finder)
 	{
-		$finder = new FileFinder(null, false);
-		$this->assertEquals('', $finder->getRootPath());
-		$this->assertFalse($finder->isBasePath());
-		
-		$this->assertEquals('', $finder->getPath());
-
-		$path = '/usr/local/share/pear/somefile.php';
-		$this->assertEquals($path, $finder->getPath($path));
-	}
-
-	/**
-	 * @dataProvider		provideNonStrings
-	 * @depends				testSetRootPath
-	 * @return				null
-	 */
-	public function testGetPathInvalidString($path)
-	{
-		$finder = $this->getFinder();
-		$this->assertFalse($finder->getPath($path));
-	}
-
-	/**
-	 * @depends		testSetRootPath
-	 * @return		null
-	 */
-	public function testGetPathSplFileInfo()
-	{
-		$filePath  = 'path/to/myfile.php';
-		$path = new SplFileInfo($filePath);
-		$finder = $this->getFinder();
-		
-		$basePath = $finder->getBasePath();
-		$expected = "{$basePath}/$filePath";
-		$this->assertEquals($expected, $finder->getPath($path));
-
-		$relativeRoot = 'resource/appfuel/sql';
-		$finder->setRootPath($relativeRoot);
-		
-		$expected = "{$basePath}/{$relativeRoot}/{$filePath}";
-		$this->assertEquals($expected, $finder->getPath($path));
-	}
-
-	/**
-	 * @depends		testSetRootPath
-	 * @return		null
-	 */
-	public function testGetPathRelativeRootOnly()
-	{
-		$root   = 'resource/appfuel/sql';
-		$finder = new FileFinder($root, false);
-		$this->assertFalse($finder->isBasePath());
-
-		$this->assertEquals($root, $finder->getPath());
-	}
-
-	/**
-	 * @depends		testSetRootPath
-	 * @return		null
-	 */
-	public function testGetPathWithForwardSlash()
-	{
-		$root     = 'my/root/path';
-		$myPath   = '/test/path/file.php';
-		$finder   = $this->getFinder();
-		$basePath = $finder->getBasePath();
+		$root = AF_BASE_PATH . '/test/resource/testfuel';
+		$this->setExpectedException('DomainException');
 		$finder->setRootPath($root);
-
-		$expected = "$basePath/$root{$myPath}";
-		$result = $finder->getPath($myPath);
-		$this->assertEquals($expected, $finder->getPath($myPath));
 	}
 
 	/**
-	 * @depends		testSetRootPath
-	 * @return		null
+	 * @test
+	 * @depends defaultFinder
+	 * @return	null
 	 */
-	public function testGetPathRelativeRootIsForwardSlash()
+	public function rootPathSetterWithObject(FileFinderInterface $finder)
 	{
-		$finder = new FileFinder('/', false);
-		$this->assertEquals('/', $finder->getRootPath());
-		$this->assertEquals('/', $finder->getPath());
+		$root = 'my/path';
+		$path = new SplFileInfo($root);
+		$this->assertSame($finder, $finder->setRootPath($path));
+		$this->assertEquals($root, $finder->getRootPath());
 
-		$this->assertEquals('/my/path', $finder->getPath('my/path'));
+		$finder->setRootPath('');
 	}
 
 	/**
-	 * @depends		testSetRootPath
-	 * @return		null
+	 * @test
+	 * @depends	defaultFinder
+	 * @return	null
 	 */
-	public function testGetPathNoBasePathRootIsEmpty()
+	public function getPathUsingBasePath(FileFinderInterface $finder)
 	{
-		$finder = new FileFinder('', false);
-		$this->assertEquals('', $finder->getRootPath());
-		$this->assertEquals('', $finder->getPath());
+		/*
+		 * with no parameters get base will return the base url
+		 */
+		$this->assertEquals($this->getBasePath(), $finder->getPath());
 
-		$this->assertEquals('my/path', $finder->getPath('my/path'));
+		$relative = 'my/path';
+		$expected = AF_BASE_PATH . '/' . $relative;
+		$this->assertEquals($expected, $finder->getPath($relative));
+
+		/* leading directory separator is ignored */
+		$relative = '/my/path';
+		$this->assertEquals($expected, $finder->getPath($relative));
+
+		/* trailing directory separator is not ignored */
+		$relative  = '/my/path/';
+		$expected .= '/';
+		$this->assertEquals($expected, $finder->getPath($relative));
+
+		$relative = new SplFileInfo('my/path');
+		$expected = AF_BASE_PATH . '/' . $relative;
+		$this->assertEquals($expected, $finder->getPath($relative));
 	}
+
+	/**
+	 * @test
+	 * @depends	noRootPathNoBasePath
+	 * @return	null
+	 */
+	public function getPathNotUsingBasePath(FileFinderInterface $finder)
+	{
+		$path = '/user/local/share/pear';
+		$this->assertSame($path, $finder->getPath($path));
+		$this->assertSame($path, $finder->getPath($path, false));
+		
+		$file = new SplFileInfo($path);
+		$this->assertSame($path, $finder->getPath($file));
+		$this->assertSame($path, $finder->getPath($path, false));
+
+		$path = '/';
+		$this->assertSame($path, $finder->getPath($path));
+		$this->assertSame($path, $finder->getPath($path, false));
+
+		$this->assertEquals('', $finder->getPath(''));
+	}
+
+	/**
+	 * Here we use a file that is known to exist. At the following location:
+	 * <base-path>/test/resource/testfuel/test-file.txt is a file added to 
+	 * so that we could test file level operation. 
+	 *
+	 * @test
+	 * @return	null
+	 */
+	public function fileExistsBasePath()
+	{
+		$root = 'test/resource/testfuel';
+		$finder = new FileFinder($root);
+		$this->assertTrue($finder->fileExists('test-file.txt'));
+		$this->assertFalse($finder->fileExists('does-not-exist'));
+
+		$absolute = $this->getBasePath() . '/' . $root . '/test-file.txt';
+		$this->assertTrue($finder->fileExists($absolute, false));
+	}
+
+	/**
+	 * Here we use a known directory to test the isDir call. The directory is
+	 * located at: <base-path>/test/resource/testfuel
+	 *
+	 * @test
+	 * @return	null
+	 */
+	public function isDirBasePath()
+	{
+		$root = 'test/resource/testfuel';
+		$finder = new FileFinder($root);
+		$this->assertTrue($finder->isDir());
+		$this->assertFalse($finder->isDir('does-not-exist'));
+
+		/* exists but is not a directory */
+		$this->assertFalse($finder->isDir('test-file.txt'));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function isReadableBasePath()
+	{
+		$root = 'test/resource/testfuel';
+		$finder = new FileFinder($root);
+		$this->assertTrue($finder->isReadable('test-file.txt'));
+		$this->assertFalse($finder->isReadable('does-not-exist'));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function isFileBasePath()
+	{
+		$root = 'test/resource/testfuel';
+		$finder = new FileFinder($root);
+		$this->assertTrue($finder->isFile('test-file.txt'));
+		$this->assertFalse($finder->isFile());
+	}
+
+
+
 }

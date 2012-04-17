@@ -13,8 +13,8 @@ namespace Appfuel\Orm\DbSource;
 use LogicException,
 	RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Orm\OrmCriteriaInterface,
-	Appfuel\View\Compositor\FileCompositor;
+	Appfuel\View\FileCompositor,
+	Appfuel\Orm\OrmCriteriaInterface;
 
 /**
  */
@@ -126,7 +126,7 @@ class SqlFileCompositor
 	 */
 	public function isTableMap($key)
 	{
-		if (! $this->isDbMap()) {
+		if (! $this->isDbMap($key)) {
 			return false;
 		}
 
@@ -300,14 +300,10 @@ class SqlFileCompositor
 		}
 
 		$table  = $this->getTableMap($key);
-		$column = $table->mapColumn($member);
+		$column = $table->mapColumn($member, $this->isAlias());
 		if (false === $column) {
 			$err = "failed to map column: member -($member) does not exist";
 			throw new LogicException($err);
-		}
-
-		if (true === $this->isAlias()) {
-			$column = "{$table->getTableAlias()}.{$column}";
 		}
 
 		return $column;
@@ -347,14 +343,7 @@ class SqlFileCompositor
 		$alias  = '';
 		$table  = $this->getTableMap($key);
 		if (null === $list) {
-			if (true === $this->isAlias()) {
-				$alias = $table->getTableAlias();
-				$str = "{$alias}." . 
-						implode(", {$alias}.", $table->getAllColumns());
-			}
-			else  {
-				$str = implode(", ", $table->getAllColumns());
-			}
+            $str = implode(", ", $table->getAllColumns($this->isAlias()));
 			return $str;
 		}
 	

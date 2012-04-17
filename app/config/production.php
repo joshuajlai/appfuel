@@ -22,7 +22,6 @@ return array(
 	'test' => array(
 		'include-path-action'	=> 'append',
 		'include-path'			=> array(
-			'/usr/local/php/share/pear',
 			AF_BASE_PATH . '/test',
 			AF_BASE_PATH . '/test/classes',
 			AF_LIB_PATH 
@@ -33,9 +32,13 @@ return array(
 		),
         'db-scope' => array('af-tester'),
         'db' => array(
-            'af-tester' => array(
-                'adapter' => 'Appfuel\DataSource\Db\Mysql\Mysqli\MysqliConn',
-            ),
-        ),
+			'use'		=> array('af-tester'),
+			'default-connector' => 'af-tester',
+			'connectors' => array(
+				'af-tester' => array(
+					'adapter' => 'Appfuel\DataSource\Db\Mysql\Mysqli\MysqliConn',
+				),
+			),
+		),
 	),
 );

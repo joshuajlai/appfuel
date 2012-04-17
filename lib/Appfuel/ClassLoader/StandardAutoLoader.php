@@ -24,12 +24,6 @@ use InvalidArgumentException;
 class StandardAutoLoader implements AutoLoaderInterface
 {
 	/**
-	 * Used to parse the namespace into paths
-	 * @var NamespaceParserInterface
-	 */
-	protected $parser = null;
-
-	/**
 	 * List of paths to search in
 	 * @var array
 	 */
@@ -46,8 +40,7 @@ class StandardAutoLoader implements AutoLoaderInterface
 	 * @param	NamespaceParserInterface $parser
 	 * @return	StandardAutoLoader
 	 */
-	public function __construct($path = null, 
-								NamespaceParserInterface $parser = null)
+	public function __construct($path = null)
 	{
 		if (null !== $path && ! empty($path)) {
 			if (is_string($path)) {
@@ -61,29 +54,6 @@ class StandardAutoLoader implements AutoLoaderInterface
 				throw new InvalidArgumentException($err);
 			}
 		}
-
-		if (null === $parser) {
-			$parser = new NamespaceParser();
-		}
-		$this->setParser($parser);
-	}
-
-	/**
-	 * @return	NamespaceParserInterface
-	 */
-	public function getParser()
-	{
-		return $this->parser;
-	}
-
-	/**
-	 * @param	NamespaceParserInterface $parser
-	 * @return	StandardAutoLoader
-	 */
-	public function setParser(NamespaceParserInterface $parser)
-	{
-		$this->parser = $parser;
-		return $this;
 	}
 
 	/**
@@ -194,8 +164,7 @@ class StandardAutoLoader implements AutoLoaderInterface
 			return true;
         }
 
-		$parser = $this->getParser();
-		$path   = $parser->parse($class);
+		$path = NamespaceParser::parse($class);
 		if (false === $path) {
 			return false;
 		}

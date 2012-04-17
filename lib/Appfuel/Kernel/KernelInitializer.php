@@ -13,12 +13,15 @@ namespace Appfuel\Kernel;
 use RunTimeException,
 	InvalidArgumentException,
 	Appfuel\Kernel\Mvc\MvcFront,
+	Appfuel\Kernel\Mvc\MvcFactory,
 	Appfuel\Kernel\Mvc\MvcRouteManager,
+	Appfuel\Kernel\Mvc\MvcRouteDetailInterface,
 	Appfuel\Kernel\Mvc\InterceptChain,
 	Appfuel\Kernel\Mvc\InterceptChainInterface,
 	Appfuel\Kernel\Mvc\MvcDispatcher,
 	Appfuel\Kernel\Mvc\MvcDispatcherInterface,
 	Appfuel\Kernel\Mvc\MvcContextBuilder,
+	Appfuel\Kernel\Startup\StartupManager,
 	Appfuel\Kernel\Startup\StartupTaskInterface,
 	Appfuel\ClassLoader\DependencyLoader,
 	Appfuel\ClassLoader\StandardAutoLoader,
@@ -129,12 +132,7 @@ class KernelInitializer
 			 ->initAppfuelAutoLoader()
 			 ->initAppDependencies();
 
-		if ($this->isDomainMapEnabled()) {
-			$this->initDomainMap($domain);
-		}
-
-		$this->initRouteMap($route)
-			 ->runStartupTasks();
+		$this->initRouteMap($route);
 
 		return $this;
 	}
@@ -176,15 +174,15 @@ class KernelInitializer
 		if (isset($data['common']) && is_array($data['common'])) {
 			$common = $data['common'];
 			foreach ($common as $key => $value) {
-				if (! isset($config[$key]) || ! is_array($config[$key])) {
+				if (! array_key_exists($key, $config)) {
 					$config[$key] = $value;
+					continue;
 				}
-				else {
-					$config[$key] = array_merge(
-						$value,
-						$config[$key]
-					);
+
+				if (is_array($config[$key]) && is_array($value)) {
+					$config[$key] = array_merge($value, $config[$key]);
 				}
+
 			}
 		}
 
@@ -205,8 +203,7 @@ class KernelInitializer
 	public function initIncludePath()
 	{
 		$path   = KernelRegistry::getParam('include-path', array());
-		$action = KernelRegistry::getParam('include-action', 'replace');
-	
+		$action = KernelRegistry::getParam('include-path-action', 'replace');
 		if (empty($path)) {
 			$msg = 'include path not initialized';
 			self::$status['kernal:include-path'] = $msg;
@@ -354,32 +351,6 @@ class KernelInitializer
 	}
 
 	/**
-	 * The domain map is a decoupling of domain objects and their class names.
-	 * Keeping a map of domains keys => classname prevents developers to refer
-	 * to the domains by its key rather than its fully qualified domain 
-	 * classname. This feature is options and can be disabled with the call
-	 * KernelInitializer::disableDomainMap
-	 *
-	 * @param	null|string|array	$domains
-	 * @return	null
-	 */
-	public function initDomainMap($domains = null)
-	{
-		if (null === $domains || is_string($domains)) {
-			$map = $this->getData('domain', $domains);
-		}
-		else if (! empty($domains) && is_array($domains)) {
-			$map = $domains;
-		}
-
-		$max = count($map);
-		KernelRegistry::setDomainMap($map);
-
-		$result = "domain map intiailized with $max classes";
-		self::$status['kernal:domains'] = $result;
-	}
-
-	/**
 	 * A mapping of route keys to action controller namespaces is kept to 
 	 * simplify the uri's generated and used by the framework. This is not
 	 * optional and must used as part of the framework. In the uri the first
@@ -414,36 +385,33 @@ class KernelInitializer
 	 *  
 	 * @return	null
      */
-	public function runStartupTasks()
+	public function runStartupTasks(MvcRouteDetailInterface $route = null)
 	{
-		$err   = 'startup task init failure: '; 
-		$tasks = KernelRegistry::getParam('startup-tasks', array());
-		if (empty($tasks) || ! is_array($tasks)) {
+		$manager = new StartupManager();
+		$tasks   = $manager->getTasksFromRegistry();
+		if (null === $route) {
+			$manager->runTasks($tasks);
 			return $this;
 		}
 
-		foreach ($tasks as $taskClass) {
-			$task = new $taskClass();
-			if (! ($task instanceof StartupTaskInterface)) {
-				$err .= "task -($taskClass) does not implement Appfuel\Kernal";
-				$err .= "\StartupTaskInterface";
-				throw new RunTimeException($err);
-			}
-			$keys = $task->getRegistryKeys();
-			$params = array();
-			foreach ($keys as $key => $default) {
-				$value = KernelRegistry::getParam($key, $default);
-				$params[$key] = $value;
-			}
-			$task->execute($params);
-			$statusResult = $task->getStatus();
-			if (empty($statusResult) || ! is_string($statusResult)) {
-				$statusResult = 'status not reported';
-			}
-
-			self::$status[$taskClass] = $statusResult;
+		$routeTasks = $route->getStartupTasks();
+		if ($route->isIgnoreConfigStartupTasks()) {
+			$manager->runTasks($routeTasks);
+			return $this;
 		}
-	
+
+		if ($route->isExcludedStartupTasks()) {
+			$tasks = array_diff($tasks, $route->getExcludedStartupTasks());
+		}
+
+		if ($route->isPrependStartupTasks()) {
+			$tasks = array_merge($routeTasks, $tasks);
+		}
+		else {
+			$tasks = array_merge($tasks, $routeTasks);
+		}
+
+		$manager->runTasks($tasks);
 		return $this;
 	}
 
@@ -509,32 +477,6 @@ class KernelInitializer
 	}
 
 	/**
-	 * @return	bool
-	 */
-	public function isDomainMapEnabled()
-	{
-		return $this->isDomainMap;
-	}
-
-	/**
-	 * @return	KernelInitializer
-	 */
-	public function enableDomainMap()
-	{
-		$this->isDomainMap = true;
-		return $this;
-	}
-
-	/**
-	 * @return	KernelInitializer
-	 */
-	public function disableDomainMap()
-	{
-		$this->isDomainMap = false;
-		return $this;
-	}
-
-	/**
 	 * @param	MvcActionDispatcherInterface $dispatch,
 	 * @param	FilterManagerInterface $filterManager,
 	 * @param	OutputInterface $output
@@ -569,6 +511,13 @@ class KernelInitializer
 		return new MvcFront($dispatcher, $preChain, $postChain);
 	}
 
+	/**
+	 * @return	MvcFactory
+	 */
+	public function createMvcFactory()
+	{
+		return new MvcFactory();
+	}
 	/**
 	 * @param	string	$path	absolute path to config file
 	 * @return	null

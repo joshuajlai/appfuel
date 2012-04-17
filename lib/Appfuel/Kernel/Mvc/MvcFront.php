@@ -80,9 +80,16 @@ class MvcFront implements MvcFrontInterface
 	 */
 	public function run(MvcContextInterface $context)
 	{
-		$detail = $context->getRouteDetail();
+		$routeKey = $context->getRouteKey();
+		/*
+		 * Mark this as the current route. Allows you to tell the difference
+		 * between the initial route and one called by an mvc action
+		 */
+		$this->setCurrentRoute($routeKey);
+		$detail = $this->getRouteDetail($routeKey);
+
 		if (! $detail->isSkipPreFilters()) {
-			$context = $this->runPreFilters($context);
+			$context = $this->runPreFilters($detail, $context);
 		}
 
 		/*
@@ -95,14 +102,18 @@ class MvcFront implements MvcFrontInterface
 			$dispatcher = $this->getDispatcher();
 			$dispatcher->dispatch($context);
 
-			/**
-			 * Because pre filters can completely replace a context with
-			 * a new one we need to ask for the route detail again to make
-			 * sure we have the right one
+			/*
+			 * PreFilters have the ability to change the current route
+			 * so we grab it again just incase 
 			 */
-			$detail = $context->getRouteDetail();
+			$tmpRouteKey = $context->getRouteKey();
+			if ($tmpRouteKey !== $routeKey) {
+				$this->setCurrentRoute($tmpRouteKey);
+				$detail = $this->getRouteDetail($tmpRouteKey);
+			}
+
 			if (! $detail->isSkipPostFilters()) {
-				$context = $this->runPostFilters($context);
+				$context = $this->runPostFilters($detail, $context);
 			}
 		}
 
@@ -113,9 +124,9 @@ class MvcFront implements MvcFrontInterface
 	 * @param	MvcContextInterface		$context
 	 * @return	MvcContextInterface
 	 */
-	public function runPreFilters(MvcContextInterface $context)
+	public function runPreFilters(MvcRouteDetailInterface $detail,
+								  MvcContextInterface $context)
 	{
-		$detail = $context->getRouteDetail();
 		$chain  = $this->getPreChain();
 
 		if ($detail->isExcludedPreFilters()) {
@@ -133,9 +144,9 @@ class MvcFront implements MvcFrontInterface
 	 * @param	MvcContextInterface		$context
 	 * @return	MvcContextInterface
 	 */
-	public function runPostFilters(MvcContextInterface $context)
+	public function runPostFilters(MvcRouteDetailInterface $detail,
+								   MvcContextInterface $context)
 	{
-		$detail = $context->getRouteDetail();
 		$chain  = $this->getPostChain();
 
 		if ($detail->isExcludedPostFilters()) {
@@ -147,5 +158,22 @@ class MvcFront implements MvcFrontInterface
 		}
 
 		return $chain->applyFilters($context);
+	}
+
+	/**
+	 * @return	MvcRouteDetail
+	 */
+	protected function getRouteDetail($key)
+	{
+		return MvcRouteManager::getRouteDetail($key);
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	null
+	 */
+	protected function setCurrentRoute($key)
+	{
+		MvcRouteManager::setCurrentRouteKey($key);
 	}
 }

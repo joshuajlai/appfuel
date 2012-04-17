@@ -1,0 +1,22 @@
+{
+    "name": "my-test",
+    "type": "page",
+    "desc": "test view used to test the resource building",
+	"path": "page/test",
+	"htmldoc": "appfuel:htmldoc.yui3-test",
+	"theme": "appfuel:theme.my-theme",
+	"init": "mytest.pjs",
+	"markup": "mytest.phtml",
+	"layers": [
+		"yui3:layer.unittest",
+		"appfuel:layer.app-global"
+	],
+	"require": ["appfuel:pkg.mvc", "appfuel:pkg.kernel", "appfuel:pkg.blah"],
+	"src" : {
+		"dir" : "",
+		"files": {
+			"js" : ["page.js"]
+		}
+	}
+
+}
