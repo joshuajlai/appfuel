@@ -187,10 +187,11 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
 			}
 
             if (isset($packages[$type][$name])) {
-                $err = "can not build tree -($name) is already defined";
+                $info = $file->getPathInfo();
+                $err  = "can not build tree -($type, $name) is already ";
+				$err .= "defined -({$info->getPathName()})";
                 throw new RunTimeException($err);
             }
-
             $packages[$type][$name] = $data;
         }
 

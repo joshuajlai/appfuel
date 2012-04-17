@@ -27,42 +27,6 @@ class ThemePkg extends Pkg implements ThemePkgInterface
 	/**
 	 * @return	bool
 	 */
-	public function isCssFiles()
-	{
-		return $this->getSourceFileStack()
-					->isType('css');
-	}
-
-	/**
-	 * @param	string	$path	
-	 * @return	array
-	 */
-	public function getCssFiles($path = null)
-	{
-		return $this->getFiles('css', $path);
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isAssetFiles()
-	{
-		return $this->getSourceFileStack()
-					->isType('assets');
-	}
-
-	/**
-	 * @param	string	$path
-	 * @return	array
-	 */
-	public function getAssetFiles($path = null)
-	{
-		return $this->getFiles('assets', $path);
-	}
-
-	/**
-	 * @return	bool
-	 */
 	public function isRequiredPackages()
 	{
 		return false;

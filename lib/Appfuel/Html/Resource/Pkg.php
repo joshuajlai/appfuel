@@ -162,6 +162,75 @@ class Pkg implements PkgInterface
 		return $this->srcDir;
 	}
 
+    /**
+     * @return  bool
+     */
+    public function isJsFiles()
+    {
+        return $this->getSourceFileStack()
+                    ->isType('js');
+    }
+
+    /**
+     * @param   string  $path   
+     * @return  array
+     */    
+    public function getJsFiles($path = null)
+    {
+        return $this->getFiles('js', $path);    
+    }
+
+
+    /**
+     * @return  bool
+     */
+    public function isCssFiles()
+    {
+        return $this->getSourceFileStack()
+                    ->isType('css');
+    }
+
+    /**
+     * @param   string  $path   
+     * @return  array
+     */    
+    public function getCssFiles($path = null)
+    {
+        return $this->getFiles('css', $path);    
+    }
+
+    /**
+     * @return  bool     
+     */
+    public function isAssetFiles()    
+    { 
+        return $this->getSourceFileStack()
+                    ->isType('assets'); 
+    }
+
+    /**
+     * @param   string  $path
+     * @return  array
+     */    
+    public function getAssetFiles($path = null)
+    {
+        return $this->getFiles('assets', $path);
+    }
+
+    /**
+     * @param   string  $path
+     * @return  string
+     */
+    public function getAssetDir($path = null)
+    {
+		$srcPath = $this->getSourcePath();
+		if (is_string($path) && ! empty($path)) {
+			$srcPath = "$path/$srcPath";
+		}
+
+        return "$srcPath/assets";	
+    }
+
 	/**
 	 * @return	array
 	 */
