@@ -134,7 +134,7 @@ class BuildLayer extends MvcAction
 		$version    = $vendor->getVersion();
 		$pkgPath    = $vendor->getPackagePath();
         $buildDir   = "build/$vendorName/$version";
-		$themeDir   = "$buildDir/theme/$themeName";
+		$themeDir   = "$buildDir/theme/$themeName/css";
 		$pkg        = ResourceTreeManager::getPkg($themePkgName);
         $finder     = $reader->getFileFinder();
 
