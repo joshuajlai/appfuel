@@ -15,6 +15,8 @@ use Exception,
 	Appfuel\Filesystem\FileFinder,
     Appfuel\Filesystem\FileWriter,
     Appfuel\Filesystem\FileReader,
+    Appfuel\Filesystem\FileReaderInterface,
+    Appfuel\Filesystem\FileWriterInterface,
     Appfuel\Html\Resource\PkgName,
 	Appfuel\Html\Resource\PkgNameInterface,
     Appfuel\Html\Resource\FileStack,
@@ -40,39 +42,43 @@ class BuildLayer extends MvcAction
 			ResourceTreeManager::loadTree();
 		}
 
-		if ('_not_found_' !== $input->get('get', 'all', '_not_found_')) {
-			$this->buildAllPages();
-			$view->assign('result', 'build completed');
+ 		$finder = new FileFinder('resource');
+		$writer = new FileWriter($finder);
+		$reader = new FileReader($finder);
+        if (! $writer->deleteTree('build', true)) {
+            $err = "could not detete -({$finder->getPath('build')})";
+            throw new RunTimeException($err);
+        }
+
+ 		$list = ResourceTreeManager::getAllPageNames();
+		if (! is_array($list) || empty($list)) {
 			return;
 		}
 
-		$page = $input->get('get', 'page');
-		if ($page) {
-			$pkgName = $this->createPkgName($page, 'page failed: ');
-			$this->buildPage($pkgName);
+		foreach ($list as $pageName) {
+		    $pkg = ResourceTreeManager::getPkg($pageName);
+		    $layers = $pkg->getLayers(); 
+		    $pageStack = new FileStack();
+		    foreach ($layers as $layerName) {
+                $stack = new FileStack();
+		        $layer = ResourceTreeManager::loadLayer($layerName, $stack);
+			    $this->buildLayer($layer, $reader, $writer, $pageStack);
+		    }
+
+		    $this->buildLayer(
+                ResourceTreeManager::createPageLayer($pageName),
+                $reader,
+                $writer,
+                $pageStack
+            );
+
+		    $themeName = $pkg->getThemeName();
+		    if ($themeName) {
+			    $this->buildTheme($themeName, $reader, $writer, $pageStack);
+		    }
 		}
 
 		$view->assign('result', 'build completed');
-	}
-
-	/**
-	 * @return	null
-	 */
-	protected function buildAllLayers()
-	{
-		$list = ResourceTreeManager::getAllLayerNames();
-		foreach ($list as $name) {
-			$this->buildLayerByName($name);
-		}
-	}
-
-	protected function buildLayerByName(PkgNameInterface $name,
-										FileStackInterface $pageStack)
-	{
-		$stack = new FileStack();
-		$layer = ResourceTreeManager::loadLayer($name, $stack);
-
-		return $this->buildLayer($layer, $pageStack);
 	}
 
 	/**
@@ -80,6 +86,8 @@ class BuildLayer extends MvcAction
 	 * @return	int
 	 */
 	protected function buildLayer(ResourceLayerInterface $layer, 
+                                  FileReaderInterface $reader,
+                                  FileWriterInterface $writer,
 								  FileStackInterface $pageStack)
 	{
 		$stack        = $layer->getFileStack();
@@ -88,64 +96,26 @@ class BuildLayer extends MvcAction
 		$buildFile    = $layer->getBuildFile();
 		$jsBuildFile  = "$buildFile.js";
 		$cssBuildFile = "$buildFile.css";
-
-		$finder = new FileFinder('resource');
-		$writer = new FileWriter($finder);
-		$reader = new FileReader($finder);
-		$path   = $vendor->getPackagePath();	
-		
+        $finder       = $reader->getFileFinder();
+	
+        if (! $finder->isDir($buildDir)) {
+            if (! $writer->mkdir($buildDir, 0755, true)) {
+                $path = $finder->getPath($buildDir);
+                $err = "could not create dir at -({$path})";
+                throw new RunTimeException($err);
+            }
+        }
 
 		if ($layer->isJs()) {
-			$jsList  = $pageStack->diff('js', $layer->getAllJsSourcePaths());
-			$content = new ContentStack();
-			foreach ($jsList as $file) {
-				$text = $reader->getContent($file);
-				if (false === $text) {
-					$err = "could not read contents of file -($file)";
-					throw new RunTimeException($err);
-				}
-				$content->add($text);
-				$pageStack->add('js', $file);
-			}
-	
-			if (! $finder->isDir($buildDir)) {
-				if (! $writer->mkdir($buildDir, 0755, true)) {
-					$path = $finder->getPath($buildDir);
-					$err = "could not create dir at -({$path})";
-					throw new RunTimeException($err);
-				}
-			}
-
-			if ($content->count() > 0) {
-				$result = '';
-				foreach ($content as $data) {
-					$result .= $data . PHP_EOL;
-				}
-
-				$writer->putContent($result, $jsBuildFile);
-			}
+			$list   = $pageStack->diff('js', $layer->getAllJsSourcePaths());
+            $result = $this->makeString('js', $list, $reader, $pageStack);	
+			$writer->putContent($result, $jsBuildFile);
 		}
 
 		if ($layer->isCss()) {
-			$cssList  = $pageStack->diff('css', $layer->getAllCssSourcePaths());
-			$content = new ContentStack();
-			foreach ($cssList as $file) {
-				$text = $reader->getContent($file);
-				if (false === $text) {
-					$err = "could not read contents of file -($file)";
-					throw new RunTimeException($err);
-				}
-				$content->add($text);
-				$pageStack->add('css', $file);
-			}
-		
-			if ($content->count() > 0) {
-				$result = '';
-				foreach ($content as $data) {
-					$result .= $data . PHP_EOL;
-				}
-				$writer->putContent($result, $cssBuildFile);
-			}
+			$list   = $pageStack->diff('css', $layer->getAllCssSourcePaths());
+            $result = $this->makeString('css', $list, $reader, $pageStack);
+		    $writer->putContent($result, $cssBuildFile);
 		}
 	}
 
@@ -153,99 +123,89 @@ class BuildLayer extends MvcAction
 	 * @param	ThemePkgInterface $theme
 	 * @return	null
 	 */
-	protected function buildTheme(PkgNameInterface $themePkgName)
+	protected function buildTheme(PkgNameInterface $themePkgName,
+                                  FileReaderInterface $reader,
+                                  FileWriterInterface $writer,
+                                  FileStackInterface $pageStack)
 	{
 		$themeName  = $themePkgName->getName();
 		$vendorName = $themePkgName->getVendor();
 		$vendor     = ResourceTreeManager::loadVendor($vendorName);
 		$version    = $vendor->getVersion();
 		$pkgPath    = $vendor->getPackagePath();
-		$buildDir   = "build/$vendorName/$version/theme/$themeName";
+        $buildDir   = "build/$vendorName/$version";
+		$themeDir   = "$buildDir/theme/$themeName/css";
 		$pkg        = ResourceTreeManager::getPkg($themePkgName);
+        $finder     = $reader->getFileFinder();
 
-		$finder = new FileFinder('resource');
-		$reader = new FileReader($finder);
+        if (! $finder->isDir($themeDir)) {
+            if (! $writer->mkdir($themeDir, 0755, true)) {
+                $path = $finder->getPath($themeDir);
+                $err = "could not create dir at -({$path})";
+                throw new RunTimeException($err);
+            }
+        }
 
-		$cssBuildFile = "$buildDir/$themeName.css";
 		if ($pkg->isCssFiles()) {
-			$cssList = $pkg->getCssFiles($pkgPath);
-			$content = new ContentStack();
-			foreach ($cssList as $file) {
-				$text = $reader->getContent($file);
-				if (false === $text) {
-					$err = "could not read contents of file -($file)";
-					throw new RunTimeException($err);
-				}
-				$content->add($text);
-			}
-
-			$writer = new FileWriter($finder);
-			if (! $finder->isDir($buildDir)) {
-				if (! $writer->mkdir($buildDir, 0755, true)) {
-					$path = $finder->getPath($buildDir);
-					$err = "could not create dir at -({$path})";
-					throw new RunTimeException($err);
-				}
-			}
-
-
-			if ($content->count() > 0) {
-				$result = '';
-				foreach ($content as $data) {
-					$result .= $data . PHP_EOL;
-				}
-
-				$writer->putContent($result, $cssBuildFile);
-			}
+			$list   = $pkg->getCssFiles($pkgPath);
+            $result = $this->makeString('css', $list, $reader, $pageStack);	
+			$writer->putContent($result, "$themeDir/$themeName.css");
 		}
 
 		if ($pkg->isAssetFiles()) {
-			$assetList = $pkg->getAssetFiles();
-			foreach ($assetList as $file) {
+			$list = $pkg->getAssetFiles();
+            $assetBuildDir = "$buildDir/{$pkg->getAssetDir()}";
+            if (! $finder->isDir($assetBuildDir)) {
+                if (! $writer->mkdir($assetBuildDir, 0755, true)) {
+                    $path = $finder->getPath($assetBuildDir);
+                    $err = "could not create dir at -({$path})";
+                    throw new RunTimeException($err);
+                }
+            }
+
+			foreach ($list as $file) {
+                $themeDir = "$pkgPath/{$pkg->getPath()}";
 				$src  = "$pkgPath/$file";
-				$dest = "build/$vendorName/$version/$file";
-				$writer->copy($src, $dest);
+				$dest = "$buildDir/$file";
+				$result = $writer->copy($src, $dest);
 			}
 		}
 	}
 
-	/**
-	 * @return	null;
-	 */
-	protected function buildAllPages()
-	{
-		$list = ResourceTreeManager::getAllPageNames();
-		if (! is_array($list) || empty($list)) {
-			return;
-		}
 
-		foreach ($list as $pageName) {
-			$this->buildPage($pageName);
-		}
-	}
+    protected function makeString($type,
+                                  array $list,
+                                  FileReaderInterface $reader, 
+                                  FileStackInterface $pageStack)
+    {
 
-	/**
-	 * @param	string	$page
-	 * @return	null
-	 */
-	protected function buildPage(PkgNameInterface $pageName)
-	{
-		$pkg    = ResourceTreeManager::getPkg($pageName);
-		$layers = $pkg->getLayers(); 
-		$pageStack = new FileStack();
-		foreach ($layers as $layerName) {
-			$this->buildLayerByName($layerName, $pageStack);
-		}
+        if ('css' !== $type && 'js' !== $type) {
+            $err = 'can only convert js or css files';
+            throw new LogicException($err);
+        }
 
-		$layer = ResourceTreeManager::createPageLayer($pageName);
-		$this->buildLayer($layer, $pageStack);
+        $content = new ContentStack();
+        foreach ($list as $file) {
+            $text = $reader->getContent($file);
+            if (false === $text) {
+                $err = "could not read contents of file -($file)";
+                throw new RunTimeException($err);
+            }
+				
+            $content->add($text);
+			$pageStack->add($type, $file);
+        }
 
-		$themeName = $pkg->getThemeName();
-		if ($themeName) {
-			$this->buildTheme($themeName);
-		}
-	}
+        if ($content->count() > 0) {
+            $result = '';
+            foreach ($content as $data) {
+                $result .= $data . PHP_EOL;
+            }
+        }
 
+        return $result;
+    }
+                            
 	/**
 	 * @param	string	$name
 	 * @param	string	$msg

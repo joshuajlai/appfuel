@@ -254,7 +254,7 @@ class ResourceTreeManager
 		$vendor       = self::loadVendor($vendorName);
 		$version      = $vendor->getVersion();
 		$themeFile    = "build/$vendorName/$version/theme" . 
-						"/$themeName/$themeName.css";	
+						"/$themeName/css/$themeName.css";	
 			
 		$result->add('css', $themeFile);
 		return $htmlPkg;

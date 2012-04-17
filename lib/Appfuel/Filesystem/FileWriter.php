@@ -11,8 +11,11 @@
 namespace Appfuel\Filesystem;
 
 use SplFileInfo,
+    LogicException,
 	RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+    RecursiveIteratorIterator,
+    RecursiveDirectoryIterator;
 
 /**
  * Reads the contents of a file into memory
@@ -88,15 +91,56 @@ class FileWriter implements FileWriterInterface
 	 * @param	bool	$isRecursive
 	 * @return	
 	 */
-	public function mkdir($path, $mode = null, $isRecursive = null)
+	public function mkdir($path, $mode = null, $recursive = null)
 	{
-		$recursive = false;
-		if (true === $isRecursive) {
-			$recursive = true;
+		$isRecursive = false;
+		if (true === $recursive) {
+			$isRecursive = true;
 		}
 
 		$finder = $this->getFileFinder();
 		$full   = $finder->getPath($path);
-		return mkdir($full, $mode, $recursive);
+		return mkdir($full, $mode, $isRecursive);
 	}
+
+    /**
+     * Recursively delete a directory and its contents
+     *
+     * @param   $path
+     * @return  bool
+     */
+    public function deleteTree($path, $leaveRoot = false)
+    {
+        $finder = $this->getFileFinder();
+        $target = $finder->getPath($path);
+        if (directory_separator === $target) {
+            $err = 'if you want to delete the root directory do it manually';
+            throw new logicexception($err);
+        }
+
+        if (! $finder->fileExists($target, false)) {
+            return false;
+        }
+        
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($target),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($iterator as $node) {
+            $fullpath =(string)$node;
+            if ($node->isDir()) {
+                rmdir($fullpath);
+            }
+            else {
+                unlink($fullpath);
+            }
+        }
+
+        if (false === $leaveRoot) {
+            rmdir($target);
+        }
+
+        return true;
+    }
 }
