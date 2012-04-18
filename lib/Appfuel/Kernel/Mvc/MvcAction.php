@@ -117,10 +117,10 @@ class MvcAction implements MvcActionInterface
 
 	/**
 	 * @param	string	$routeKey
-	 * @param	MvcContextInterface $old
+	 * @param	MvcContextInterface $context
 	 * @return	MvcContextInterface
 	 */
-	public function callAsContext($routeKey, MvcContextInterface $context)
+	public function callWithContext($routeKey, MvcContextInterface $context)
 	{
 		$dispatcher = $this->getDispatcher();
 		
