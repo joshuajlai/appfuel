@@ -93,7 +93,11 @@ class Pkg implements PkgInterface
 	
 		if (isset($data['src']) && is_array($data['src'])) {
 			$this->initSource($data['src']);
-		}
+		} else {
+            $this->setSourceFileStack(
+                $this->createFileStack()
+            );
+        }
 
 		$this->srcPath = $this->path;
 		if (! empty($this->srcDir)) {
@@ -440,7 +444,7 @@ class Pkg implements PkgInterface
 	/**
 	 * @return	PackageFileList
 	 */
-	protected function createFileStack(array $files)
+	protected function createFileStack(array $files = null)
 	{
 		return new FileStack($files);
 	}

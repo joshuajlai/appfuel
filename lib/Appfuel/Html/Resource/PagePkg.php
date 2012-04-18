@@ -66,7 +66,7 @@ class PagePkg extends Pkg implements PagePkgInterface
 		if (isset($data['htmldoc'])) {
 			$docName = $data['htmldoc'];
 		}
-		$this->setHtmlDocName($docName, $vendor);
+        $this->setHtmlDocName($docName, $vendor);
 
 		if (isset($data['theme'])) {
 			$this->setThemeName($data['theme'], $vendor);
