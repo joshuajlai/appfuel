@@ -137,7 +137,9 @@ class HtmlPageConfiguration implements HtmlPageConfigurationInterface
 		}
 
 		$config = $htmlPkg->getHtmlConfig();
-		$this->apply($config, $page);
+        
+        $page->setViewPkgName($htmlPkg->getHtmlDocName());
+        $this->apply($config, $page);
 	}
 
 	/**
