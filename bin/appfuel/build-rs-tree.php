@@ -41,4 +41,6 @@ try {
     fwrite(STDERR, 'could not write resource tree: '. $e->getMessage() . "\n");
     exit;
 }
+
+echo "tree built\n";
 exit(0);
