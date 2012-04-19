@@ -231,7 +231,7 @@ class AppInput implements AppInputInterface
 			return false;
 		}
 
-		$isInt = ($isInt === false) ? false : true:
+		$isInt = ($isInt === false) ? false : true;
 		$format = "%s";
 		if (true === $isInt) {
 			$format = "%u";
