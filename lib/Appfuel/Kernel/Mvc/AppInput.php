@@ -203,14 +203,34 @@ class AppInput implements AppInputInterface
 	}
 
 	/**
-	 * @return	string | false when not set
+	 * Check for the direct ip address of the client machine, try for the 
+	 * forwarded address, check for the remote address. When none of these
+	 * return false
+	 * 
+	 * @return	int
 	 */
 	public function getIp()
 	{
-		if (! isset($_SERVER['REMOTE_ADDR'])) {
-			return null;
+		$client  = 'HTTP_CLIENT_IP';
+		$forward = 'HTTP_X_FORWARDED_FOR';
+		$remote  = 'HTTP_REMOTE'; 
+		if (isset($_SERVER[$client]) && is_string($_SERVER[$client])) {
+			$ip = $_SERVER[$client];
+		}
+		else if (isset($_SERVER[$forward]) && is_string($_SERVER[$forward])) {
+			$ip = $_SERVER[$forward];
+		}
+		else if (isset($_SERVER[$remote]) && is_string($_SERVER[$remote])) {
+			$ip = $_SERVER[$remote];
+		}
+		else {
+			$ip = false;
 		}
 
-		return $_SERVER['REMOTE_ADDR'];
+		if (false === $ip) {
+			return false;
+		}
+
+		return sprintf("%u", ip2long($ip));
 	}
 }
