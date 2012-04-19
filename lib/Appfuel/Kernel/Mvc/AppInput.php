@@ -209,11 +209,11 @@ class AppInput implements AppInputInterface
 	 * 
 	 * @return	int
 	 */
-	public function getIp()
+	public function getIp($isInt = true)
 	{
 		$client  = 'HTTP_CLIENT_IP';
 		$forward = 'HTTP_X_FORWARDED_FOR';
-		$remote  = 'HTTP_REMOTE'; 
+		$remote  = 'REMOTE_ADDR'; 
 		if (isset($_SERVER[$client]) && is_string($_SERVER[$client])) {
 			$ip = $_SERVER[$client];
 		}
@@ -231,6 +231,13 @@ class AppInput implements AppInputInterface
 			return false;
 		}
 
-		return sprintf("%u", ip2long($ip));
+		$isInt = ($isInt === false) ? false : true:
+		$format = "%s";
+		if (true === $isInt) {
+			$format = "%u";
+			$ip = ip2long($ip);
+		}
+
+		return sprintf($format, $ip);
 	}
 }

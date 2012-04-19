@@ -61,4 +61,11 @@ interface AppInputInterface
      * @return  array
      */
     public function getAll($type = null);
+
+	/**
+	 * @param	$bool	returnString
+	 * @return	string|int|false
+	 */
+	public function getIp($isInt = true);
+
 }
