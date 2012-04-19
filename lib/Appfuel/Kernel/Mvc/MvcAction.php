@@ -84,51 +84,21 @@ class MvcAction implements MvcActionInterface
 	}
 
 	/**
-	 * @param	string	$route
-	 * @param	string	$strategy
-	 * @return	null
-	 */
-	public function callEmpty($route)
-	{
-		$context = $this->getMvcFactory()
-						->createEmptyContext();
-		$this->getDispatcher()
-			 ->dispatch($context);
-		
-		return $context;
-	}
-
-	/**
-	 * Manually configure the dispatcher to call another mvc action. Note
-	 * the route is part of the uri, which can be a RequestUri or a string.
-	 * if the mvc action returns a context it will override the context passed
-	 * in.
-	 *
-	 * @param	MvcContextInterface $context
-	 * @return	MvcContextInterface
-	 */
-	public function call(MvcContextInterface $context)
-	{
-		$this->getDispatcher()
-			 ->dispatch($context);
-
-		return $context;
-	}
-
-	/**
 	 * @param	string	$routeKey
 	 * @param	MvcContextInterface $context
 	 * @return	MvcContextInterface
 	 */
 	public function callWithContext($routeKey, MvcContextInterface $context)
 	{
-		$dispatcher = $this->getDispatcher();
-		
 		$tmp = $this->getMvcFactory()
 					->createContext($routeKey, $context->getInput());
 
+		if ($context->isContextView()) {
+			$tmp->setView($context->getView());
+		}
+
 		$tmp->load($context->getAll());
-		$dispatcher->dispatch($tmp);
+		$this->dispatch($tmp);
 
 		/* transfer all assignments made by mvc action */
 		$context->load($tmp->getAll());
@@ -156,5 +126,15 @@ class MvcAction implements MvcActionInterface
 	protected function setMvcFactory(MvcFactoryInterface $factory)
 	{
 		$this->factory = $factory;
+	}
+
+	/**
+	 * @param	MvcContextInterface $context
+	 * @return	null
+	 */
+	protected function dispatch(MvcContextInterface $context)
+	{
+		return $this->getDispatcher()
+					->dispatch($context);
 	}
 }
