@@ -537,6 +537,16 @@ class PreparedStmt implements MysqliPreparedStmtInterface
 					->insert_id;
 	}
 
+    /**
+     * @return  bool
+     */
+    public function getAffectedRows()
+    {
+		$this->validateDriver('getAffectedRows');
+        return $this->getDriver()
+                    ->affected_rows;
+    }
+
 	/**
 	 * Resets a prepared statement on client and server to state after prepare.
 	 * It resets the statement on the server, data sent using 
