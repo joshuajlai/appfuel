@@ -167,6 +167,10 @@ class DbResponse implements DbResponseInterface
 		else {
 			$stack->addError($msg, $code);
 		}
+	
+		if ($this->isSuccessful()) {
+			$this->markFailure();
+		}
 
 		return $this;
 	}
