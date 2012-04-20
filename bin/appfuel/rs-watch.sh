@@ -45,8 +45,6 @@ fi
 
 echo "Watching $1 for changes..."
 
-echo "Build script $BUILD_EXEC"
-
 touch $TEMP_FILE
 
 while true; do
