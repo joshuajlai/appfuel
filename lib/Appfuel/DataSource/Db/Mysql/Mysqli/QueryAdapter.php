@@ -72,17 +72,19 @@ class QueryAdapter implements MysqliAdapterInterface
 			return $response;
 		}
             
-		$result		= new QueryResult($resultHandle);
-		$errorStack = $response->getErrorStack();
-        $data		= $result->fetchAllData($errorStack, $type, $filter); 
-        if (true === $data) {
-            $data = null;
-        }
-	
-		if (is_array($data)) {
-			$response->setResultSet($data);
+		$result	= new QueryResult($resultHandle);
+		$stack  = $response->getErrorStack();
+        $data	= $result->fetchAllData($stack, $type, $filter); 
+		if ($stack->isError()) {
+			$response->markFailure();
 		}
 
+		/*
+		 * setAffectedRows has the final way on whether the response is marked
+		 * as failure
+		 */
+		$response->setResultSet($data);
+		$response->setAffectedRows($driver->affected_rows);	
 		return $response;
 	}
 }
