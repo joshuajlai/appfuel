@@ -167,10 +167,7 @@ class DbResponse implements DbResponseInterface
 		else {
 			$stack->addError($msg, $code);
 		}
-	
-		if ($this->isSuccessful()) {
-			$this->markFailure();
-		}
+		$this->markFailure();
 
 		return $this;
 	}
@@ -258,7 +255,7 @@ class DbResponse implements DbResponseInterface
 	 */	
 	public function setResultSet($results)
 	{
-		$this->markSuccefull();
+		$this->markSuccessful();
 		if (true === $results) {
 			$results = array();
 		}
