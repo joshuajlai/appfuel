@@ -49,6 +49,24 @@ class FileReader implements FileReaderInterface
 	}
 
 	/**
+	 * @return	bool
+	 */
+	public function isBasePath()
+	{
+		return $this->getFileFinder()
+					->isBasePath();
+	}
+
+	/**
+	 * @return string | null when not set
+	 */
+	public function getBasePath()
+	{
+		return $this->getFileFinder()
+					->getPathPath();
+	}
+
+	/**
 	 * @param	string	$path
 	 * @param	bool	$throw
 	 * @param	string	$msg
