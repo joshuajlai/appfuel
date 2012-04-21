@@ -113,7 +113,7 @@ class FileWriter implements FileWriterInterface
     {
         $finder = $this->getFileFinder();
         $target = $finder->getPath($path);
-        if (directory_separator === $target) {
+        if (DIRECTORY_SEPARATOR === $target) {
             $err = 'if you want to delete the root directory do it manually';
             throw new logicexception($err);
         }
