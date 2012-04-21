@@ -167,6 +167,10 @@ class DbResponse implements DbResponseInterface
 		else {
 			$stack->addError($msg, $code);
 		}
+	
+		if ($this->isSuccessful()) {
+			$this->markFailure();
+		}
 
 		return $this;
 	}
@@ -252,8 +256,24 @@ class DbResponse implements DbResponseInterface
 	 * @param	array	$results
 	 * @return	DbResponse
 	 */	
-	public function setResultSet(array $results)
+	public function setResultSet($results)
 	{
+		$this->markSuccefull();
+		if (true === $results) {
+			$results = array();
+		}
+		else if (false === $results) {
+			$this->markFailure();
+			$results = array();
+		}
+		else if (! is_array($results)) {
+			$err  = 'resultset must be a bool true to indicate a successful ';
+			$err .= 'operation with no results returned, or false to ';
+			$err .= 'indicate the operation was not sucessful or an array ';
+			$err .= 'of data which indicates a successful operation with ';
+			$err .= 'with results returned';
+		}
+
 		$this->results = $results;
 		return $this;
 	}

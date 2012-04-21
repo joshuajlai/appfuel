@@ -62,7 +62,7 @@ interface DbResponseInterface extends Iterator, Countable
 	 * @param	array	$result
 	 * @return	DbResponseInterface
 	 */
-	public function setResultSet(array $results);
+	public function setResultSet($results);
 
 	/**
 	 * Allows you to add a result to the result set.
