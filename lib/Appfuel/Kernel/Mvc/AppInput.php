@@ -46,7 +46,7 @@ class AppInput implements AppInputInterface
 		if (null === $method || ! is_string($method)) {
 			$method = '';
 		}
-		$this->method = $method;
+		$this->method = strtolower($method);
 	
 		/*
 		 * Ensure each type exists as an array. because searching the
@@ -82,7 +82,7 @@ class AppInput implements AppInputInterface
      */
     public function isPost()
     {
-        return 'post' === strtolower($this->method);
+        return 'post' === $this->method;
     }
 
     /**
@@ -90,7 +90,7 @@ class AppInput implements AppInputInterface
      */
     public function isGet()
     {
-        return 'get' === strtolower($this->method);
+        return 'get' === $this->method;
     }
 
 	/**
@@ -98,7 +98,7 @@ class AppInput implements AppInputInterface
 	 */
 	public function isCli()
 	{
-		return 'cli' === strtolower($this->method);
+		return 'cli' === $this->method;
 	}
 
     /**
@@ -107,6 +107,16 @@ class AppInput implements AppInputInterface
     public function getMethod()
     {
         return $this->method;
+    }
+   
+    /**
+     * @param   string  $key 
+     * @param   mixed   $default
+     * @return  mixed
+     */
+    public function getParam($key, $default = null)
+    {
+        return $this->get($this->getMethod(), $key, $default);
     }
 
     /**
