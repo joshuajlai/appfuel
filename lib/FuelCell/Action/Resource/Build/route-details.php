@@ -12,6 +12,7 @@ return array(
 	'build-layer' => array(
 		'is-public'   => true,
 		'action-name' => 'BuildLayer',
+		'default-format' => 'json'
 	),
 );
 

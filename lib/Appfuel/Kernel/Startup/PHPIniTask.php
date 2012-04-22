@@ -15,7 +15,7 @@ use DomainException;
 /**
  * Calls ini_set on the key value pairs in the config registry
  */
-class PHPIniTask extends StartupTaskAbstract 
+class PHPIniTask extends StartupTask 
 {
 	/**
 	 * Set keys used to find the ini settings in the registry
@@ -24,7 +24,7 @@ class PHPIniTask extends StartupTaskAbstract
 	 */
 	public function __construct()
 	{
-		$this->setRegistryKeys(array('php-ini', null));
+		$this->setDataKeys(array('php-ini' => null));
 	}
 
 	/**

@@ -24,6 +24,12 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected $isPublic = false;
 
 	/**
+	 * Used to determine what view format will be used with this route
+	 * @var string
+	 */
+	protected $format = 'html';
+
+	/**
 	 * Class name of the mvc action used by the dispatching system
 	 * @var string
 	 */
@@ -184,7 +190,33 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 			$this->setActionClass($class);
 		}
 
+		if (isset($data['default-format'])) {
+			$this->setFormat($data['default-format']);
+		}
+
 		parent::__construct($params);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFormat()
+	{
+		return $this->format;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	public function setFormat($name)
+	{
+		if (! is_string($name)) {
+			$err = 'route format must be a string';
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->format = $name;
 	}
 
 	/**

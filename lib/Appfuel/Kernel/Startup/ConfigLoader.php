@@ -20,7 +20,9 @@ use DomainException,
 /**
  * Loads config data into the configuration registry. The data can be from a
  * php file that returns an array or a json file, the data can also be just 
- * an array.
+ * an array. A section can also be isolated and used as the config instead of
+ * of the whole config. If section is used and an array key 'common' exists
+ * the loader will try to merge common into the section. 
  */
 class ConfigLoader implements ConfigLoaderInterface
 {
@@ -36,7 +38,7 @@ class ConfigLoader implements ConfigLoaderInterface
 	public function __construct(FileReaderInterface $reader = null)
 	{
 		if (null === $reader) {
-			$reader = new FileReader(new FileFinder('app/config'));
+			$reader = new FileReader(new FileFinder());
 		}
 
 		$this->reader = $reader;

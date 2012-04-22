@@ -4,17 +4,17 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernel\Error;
+namespace Appfuel\Error;
 
 /**
  * Uses a defined mapping between labels to error constants. Those labels
  * are used in configuration and resolved and applied here.
  */
-class ErrorLevel implements ErrorLevelInterface
+class PHPErrorLevel implements PHPErrorLevelInterface
 {
     /**
      * Translation from constants to more easily usable names

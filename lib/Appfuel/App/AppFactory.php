@@ -8,16 +8,29 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernel\Mvc;
+namespace Appfuel;
 
 use RunTimeException,
+	Appfuel\Kernel\Mvc\AppInput,
+	Appfuel\Kernel\Mvc\AppInputInterface,
+	Appfuel\Kernel\Mvc\RequestUri,
+	Appfuel\Kernel\Mvc\RequestUriInterface,
+	Appfuel\Kernel\Mvc\MvcContext,
+	Appfuel\Kernel\Mvc\MvcContextInterface,
+	Appfuel\Kernel\Mvc\MvcRouteManager,
+	Appfuel\Kernel\Mvc\MvcDispatcher,
+	Appfuel\Kernel\Mvc\MvcDispatcherInterface,
+	Appfuel\Kernel\Mvc\InterceptChain,
+	Appfuel\Kernel\Mvc\InterceptChainInterface,
+	Appfuel\Kernel\Mvc\MvcFront,
 	Appfuel\View\ViewBuilder,
 	Appfuel\Kernel\Startup\TaskHandler,
 	Appfuel\Kernel\Startup\ConfigRegistry;
+
 /**
  * Create all object required to implement appfuels take on the mvc pattern
  */
-class MvcFactory implements MvcFactoryInterface
+class AppFactory implements AppFactoryInterface
 {	
 
     /**

@@ -47,27 +47,62 @@ class TaskHandler implements TaskHandlerInterface
 			throw new RunTimeException($err);
 		}
 
-		foreach ($tasks as $index => $class) {
-			if (! is_string($class) || empty($class)) {
-				$err = "task must be a non empty string at index -($index)";
-				throw new RunTimeException($err);
-			}
-
-			$task = new $class();
-			if (! $task instanceof StartupTaskInterface) {
-				$ns   = __NAMESPACE__;
-				$err  = "-($class) must implement $ns\StartupTaskInterface";
-				throw new RunTimeException($err);
-			}
-			$data = null;
-			$keys = $task->getDataKeys();
-			if (! empty($keys)) {
-				$data = $this->collectFromRegistry($keys);
-			}
-
+		foreach ($tasks as $className) {
+			$task = $this->createTask($className);
+			$data = $this->collectDataForTask($task);
 			$task->kernelExecute($data, $route, $context);
-			$this->addTaskStatus($class, $task->getStatus());
+			$this->addTaskStatus($className, $task->getStatus());
 		}
+	}
+
+	/**
+	 * @param	array	$list
+	 * @return	null
+	 */
+	public function runTasks(array $tasks)
+	{	
+		foreach ($tasks as $className) {
+			$task = $this->createTask($className);
+			$data = $this->collectDataForTask($task);
+			$task->Execute($this->collectDataForTask($task));
+			$this->addTaskStatus($className, $task->getStatus());
+		}
+	}
+
+	/**
+	 * @param	StartupTaskInterface $task
+	 * @return	array | null
+	 */
+	public function collectDataForTask(StartupTaskInterface $task)
+	{
+		$data = null;
+		$keys = $task->getDataKeys();
+		if (! empty($keys)) {
+			$data = $this->collectFromRegistry($keys);
+		}
+
+		return $data;
+	}
+
+	/**
+	 * @param	string	$className
+	 * @return	StartupTaskInterface | false
+	 */
+	public function createTask($className)
+	{
+		if (! is_string($className) || empty($className)) {
+			$err = "startup task class name must be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		$task = new $className();
+		if (! $task instanceof StartupTaskInterface) {
+			$ns   = __NAMESPACE__;
+			$err  = "-($class) must implement $ns\StartupTaskInterface";
+			throw new RunTimeException($err);
+		}
+
+		return $task;
 	}
 
 	/**

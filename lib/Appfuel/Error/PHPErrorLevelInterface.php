@@ -4,11 +4,11 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernel\Error;
+namespace Appfuel\Error;
 
 /**
  * Defined functionality aimed at easier usage of error_reporting function
@@ -36,7 +36,7 @@ namespace Appfuel\Kernel\Error;
  *  setLevel('all, -warning, -notice)	should be E_ALL & ~(E_WARNING|E_NOTICE)
  * 
  */
-interface ErrorLevelInterface
+interface PHPErrorLevelInterface
 {
 	/**
 	 * Enable all error levels

@@ -72,7 +72,7 @@ class FileReader implements FileReaderInterface
 	 * @param	string	$msg
 	 * @return	bool
 	 */
-	public function import($path, $isThrow = false, $msg = null, $code = null)
+	public function import($path=null, $isThrow=false, $msg=null, $code=null)
 	{
 		$finder = $this->getFileFinder();
 		$full   = $finder->getPath($path);
@@ -236,8 +236,7 @@ class FileReader implements FileReaderInterface
 	 */
 	protected function throwException($path, $msg = null, $code = null)
 	{
-		
-		$err = "require_once failed: file not found at -($path)";
+		$err = "require failed: file not found at -($path)";
 		if (is_string($msg) && ! empty($msg)) {
 			$err = $msg;
 		}

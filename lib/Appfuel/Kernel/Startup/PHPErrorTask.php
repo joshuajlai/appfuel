@@ -10,12 +10,13 @@
  */
 namespace Appfuel\Kernel\Startup;
 
-use DomainException;
+use DomainException,
+	Appfuel\Error\PHPErrorLevel;
 
 /**
  * Used when you want a more readable interface for setting php error level
  */
-class PHPErrorTask extends StartupTaskAbstract 
+class PHPErrorTask extends StartupTask 
 {
 	/**
 	 * Set keys used to find the ini settings in the registry
@@ -24,7 +25,7 @@ class PHPErrorTask extends StartupTaskAbstract
 	 */
 	public function __construct()
 	{
-		$this->setRegistryKeys(array(
+		$this->setDataKeys(array(
 			'php-display-errors'	=> 'off',
 			'php-error-level'		=> 'all, strict'
 		));
@@ -40,18 +41,31 @@ class PHPErrorTask extends StartupTaskAbstract
 			return;
 		}
 
-		$display = 'off';
-		if (isset($params['php-display-errors']) && 
-			is_string($params['php-display-errors']) &&
-			'on' === strtolower($params['php-display-errors'])) {
-			$display = 'on';
+		$status = '';
+		if (isset($params['php-display-errors'])) {
+			$display = $params['php-display-errors'];
+			if (! in_array($display, array('on', 'off'), true)) {
+				$err  = 'config setting for display errors can only be ';
+				$err .= '-(on, off)';
+				throw new DomainException($err);
+			}
+		
+			ini_set('display_errors', $display);
+			$status = "display_errors is set to -($display) ";
 		}
-		ini_set('display_errors', $display);
 
-		if (! isset($params['php-error-level'])) {
-			$this->setStatus("display errors: $display error level: not set");
-			return;
+		if (isset($params['php-error-level'])) {
+			$code = $params['php-error-level'];
+			if (! is_string($code) || empty($code)) {
+				$err = 'error level must be a non empty string';
+				throw new DomainException($err);
+			}
+			$errorLevel = new PHPErrorLevel();
+			$errorLevel->setLevel($code);
+
+			$status .= "level is set to -($code) ";
 		}
 
+		$this->setStatus($status);
 	}
 }

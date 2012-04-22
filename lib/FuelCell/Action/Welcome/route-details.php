@@ -12,6 +12,7 @@ return array(
 	'build-test' => array(
 		'is-public'   => true,
 		'action-name' => 'MyAction',
+		'default-format' => 'json',
 		'startup'     => array(
 			'exclude' => array(
 				'Wdl\Startup\Task\LegacyDbStartup',

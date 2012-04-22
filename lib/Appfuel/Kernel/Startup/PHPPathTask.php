@@ -13,9 +13,9 @@ namespace Appfuel\Kernel\Startup;
 use DomainException;
 
 /**
- * Calls ini_set on the key value pairs in the config registry
+ * set the php include path
  */
-class PHPIniTask extends StartupTaskAbstract 
+class PHPPathTask extends StartupTask
 {
 	/**
 	 * When no action is given paths will be appended to the existing paths
@@ -30,9 +30,9 @@ class PHPIniTask extends StartupTaskAbstract
 	 */
 	public function __construct()
 	{
-		$this->setRegistryKeys(array(
-			'include-path'		  => null,
-			'include-path-action' => $this->getDefaultAction(),
+		$this->setDataKeys(array(
+			'php-include-path'		  => null,
+			'php-include-path-action' => $this->getDefaultAction(),
 		));
 	}
 
@@ -79,39 +79,40 @@ class PHPIniTask extends StartupTaskAbstract
 	 */
 	public function execute(array $params = null)
 	{
-		if (empty($params) || ! isset($params['include-path'])) {
+		if (empty($params) || ! isset($params['php-include-path'])) {
 			return;
 		}
-		$paths = $params['include-path'];
+		$paths = $params['php-include-path'];
 
         /* a single path was passed in */
         if (is_string($paths) && ! empty($paths)) {
-            $pathString = $paths;
+            $path = $paths;
         } else if (is_array($paths) && ! empty($paths)) {
-            $pathString = implode(PATH_SEPARATOR, $paths);
+            $path= implode(PATH_SEPARATOR, $paths);
         } else {
-            $this->setStatus("no path was set: arg was not a string or array");
+			$err = 'include path can only be a string or an array of strings';
+			throw new DomainException($err);
         }
 
 		$action = $this->getDefaultAction();
-		if (isset($params['include-path-action'])) {
-			$action = $params['include-path-action'];
+		if (isset($params['php-include-path-action'])) {
+			$action = $params['php-include-path-action'];
 		}
 
-		if (! $this->validAction($action)) {
+		if (! $this->isValidAction($action)) {
 			$err = "action must be -(append, prepend, replace)";
 			throw new DomainException($err);
 		}
 
         $includePath = get_include_path();
         if ('append' === $action) {
-            $pathString = $includePath . PATH_SEPARATOR . $pathString;
+            $path = $includePath . PATH_SEPARATOR . $path;
         } else if ('prepend' === $action) {
-            $pathString .= PATH_SEPARATOR . $includePath;
+            $path .= PATH_SEPARATOR . $includePath;
         }
 
-        set_include_path($pathString);
+        set_include_path($path);
 
-		$this->setStatus("include path set with -($pathString)");
+		$this->setStatus("include path set with -($path)");
 	}
 }
