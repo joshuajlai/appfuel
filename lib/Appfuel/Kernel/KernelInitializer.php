@@ -12,6 +12,7 @@ namespace Appfuel\Kernel;
 
 use RunTimeException,
 	InvalidArgumentException,
+	Appfuel\Kernel\Startup\ConfigRegistry,
 	Appfuel\Kernel\Mvc\MvcFront,
 	Appfuel\Kernel\Mvc\MvcFactory,
 	Appfuel\Kernel\Mvc\MvcRouteManager,
@@ -128,9 +129,7 @@ class KernelInitializer
 		$this->initConfig($config, $section)
 			 ->initTimezone()
 			 ->initIncludePath()
-			 ->initFaultHandling()
-			 ->initAppfuelAutoLoader()
-			 ->initAppDependencies();
+			 ->initAppfuelAutoLoader();
 
 		$this->initRouteMap($route);
 
@@ -187,7 +186,7 @@ class KernelInitializer
 		}
 
 		$max  = count($config);
-		KernelRegistry::setParams($config);
+		ConfigRegistry::setAll($config);
 		self::$status['kernal:config'] = "config intialized with $max items";
 		return $this;
 	}
@@ -202,8 +201,8 @@ class KernelInitializer
 	 */
 	public function initIncludePath()
 	{
-		$path   = KernelRegistry::getParam('include-path', array());
-		$action = KernelRegistry::getParam('include-path-action', 'replace');
+		$path   = ConfigRegistry::get('include-path', array());
+		$action = ConfigRegistry::get('include-path-action', 'replace');
 		if (empty($path)) {
 			$msg = 'include path not initialized';
 			self::$status['kernal:include-path'] = $msg;
@@ -223,7 +222,7 @@ class KernelInitializer
 	public function initTimezone()
 	{
 		$defaultTz = 'America/Los_Angeles';
-		$tz = KernelRegistry::getParam('default-timezone', $defaultTz);
+		$tz = ConfigRegistry::get('default-timezone', $defaultTz);
 		if ('disabled' === $tz) {
 			return $this;
 		}
@@ -243,7 +242,7 @@ class KernelInitializer
 	 */
 	public function initAppfuelAutoloader()
 	{
-		$isAutoloader = KernelRegistry::getParam('enable-af-autoloader', true);
+		$isAutoloader = ConfigRegistry::get('enable-af-autoloader', true);
 		if (false == $isAutoloader) {
 			return $this;
 		}
@@ -480,6 +479,8 @@ class KernelInitializer
 		}
 	
 		$this->setDependencyLoader(new DependencyLoader());
+		$full = AF_LIB_PATH . '/Appfuel/Kernel/Startup/ConfigRegistry.php';
+		require $full;
 	}
 
 	/**

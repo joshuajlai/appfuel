@@ -15,8 +15,12 @@ use LogicException,
 	DomainException,
 	RunTimeException,
 	InvalidArgumentException,
+	Appfuel\View\ViewInterface,
 	Appfuel\ClassLoader\ManualClassLoader,
 	Appfuel\Kernel\Mvc\RequestUriInterface,
+	Appfuel\Kernel\Mvc\AppInputInterface,
+	Appfuel\Kernel\Mvc\MvcContextInterface,
+	Appfuel\Kernel\Mvc\MvcRouteDetailInterface,
 	Appfuel\Kernel\Startup\TaskHandler,
 	Appfuel\Kernel\Startup\TaskHandlerInterface,
 	Appfuel\Kernel\Startup\ConfigLoader,
@@ -148,6 +152,165 @@ class AppHandler
 	}
 
 	/**
+	 * @return	RequestUriInterface
+	 */
+	public function createUriFromServerSuperGlobal()
+	{
+		return $this->getAppFactory()
+					->createUriFromServerSuperGlobal();
+	}
+
+	/**
+	 * @return	AppInputInterface
+	 */
+	public function createInputFromSuperGlobals($uri)
+	{
+		return $this->getAppFactory()
+					->createInputFromSuperGlobals($uri);
+	}
+
+	/**
+	 * @param	array	$tasks
+	 * @return	AppRunner
+	 */
+	public function findRoute($key, $format = null)
+	{
+		$factory = $this->getAppFactory();
+
+		if ($key instanceof RequestUriInterface) {
+			$format = $key->getRouteFormat();
+			$key    = $key->getRouteKey();
+		}
+		else if (! is_string($key)) {
+			$err  = 'first param must be a string or an object that ';
+			$err .= 'implments Appfuel\Kernel\Mvc\RequestUriInterface';
+			throw new DomainException($err);
+		}
+
+		$route = $factory->createRouteDetail($key);
+		if (! empty($format)) {
+			$route->setFormat($format);
+		}
+
+		return $route;
+	}
+
+	/**
+	 * @param	string $key
+	 * @param	AppInputInterface   $input
+	 * @return	MvcContextInterface
+	 */
+	public function createContext($key, AppInputInterface $input)
+	{
+		return $this->getAppFactory()
+					->createContext($key, $input);
+	}
+
+	/**
+	 * @param	MvcRouteDetailInterface	$route
+	 * @param	MvcContextInterface		$context
+	 * @return	AppRunner
+	 */
+	public function initializeApp(MvcRouteDetailInterface $route, 
+								  MvcContextInterface $context)
+	{
+		$handler = $this->loadTaskHandler();
+		$handler->kernelRunTasks($route, $context);
+		return $this;
+	}
+
+	/**
+	 * @param	MvcRouteDetailInterface	$route
+	 * @param	MvcContextInterface		$context
+	 * @param	string					$format
+	 * @return	AppRunner
+	 */
+	public function setupView(MvcRouteDetailInterface $route, 
+							  MvcContextInterface $context, 
+							  $format = null)
+	{
+
+		if (empty($format)) {
+			$format = $route->getFormat();
+		}
+
+		$this->getAppFactory()
+			 ->createViewBuilder()
+			 ->setupView($context, $route, $format);
+
+		return $this;
+	}
+
+	public function composeView(MvcRouteDetailInterface $route,
+								MvcContextInterface $context)
+	{
+        if (! $route->isView()) {
+            return '';
+        }
+
+        $view = $context->getView();
+        if (is_string($view)) {
+            $result = $view;
+        }
+        else if ($view instanceof ViewInterface) {
+            $result = $view->build();
+        }
+        else if (is_callable(array($view, '__toString'))) {
+            $result =(string) $view;
+        }
+        else {
+            $err  = "view must be a string or an object the implements ";
+            $err .= "Appfuel\View\ViewInterface or an object thtat implemnts ";
+            $err .= "__toString";
+            throw new DomainException($err);
+        }
+	
+		return $result;
+	}
+
+	/**
+	 * @param	MvcRouteDetailInterface $route
+	 * @param	MvcContextInterface $context
+	 * @param	bool	$isHttp
+	 * @return	null
+	 */
+	public function outputHttpContext(MvcRouteDetailInterface $route, 
+									  MvcContextInterface $context,
+									  $version = '1.1')
+	{
+		$content = $this->composeView($route, $context);
+		$status  = $context->getExitCode();
+		$headers = $context->get('http-headers', null); 
+		if (! is_array($headers) || empty($headers)) {
+				$headers = null;
+		}
+		$factory = $this->getAppFactory();
+		$response = $factory->createHttpResponse(
+			$content, 
+			$status, 
+			$version, 
+			$headers
+		);
+
+		$output = $factory->createHttpOutput();
+		$output->render($response);
+	}
+
+	/**
+	 * @param	MvcContextInterface		$context
+	 * @return	AppRunner
+	 */
+	public function runAction(MvcContextInterface $context)
+	{
+		$this->getAppFactory()
+			 ->createFront()
+			 ->run($context);
+
+		return $this;
+	}
+
+
+	/**
 	 * @param	array	$tasks
 	 * @return	AppRunner
 	 */
@@ -166,38 +329,6 @@ class AppHandler
 		return $this;
 	}
 
-	/**
-	 * @return	RequestUriInterface
-	 */
-	public function createUriFromServerSuperGlobal()
-	{
-		return $this->getAppFactory()
-					->createUriFromServerSuperGlobal();
-	}
-
-	/**
-	 * @param	array	$tasks
-	 * @return	AppRunner
-	 */
-	public function findRoute($key)
-	{
-		$factory = $this->getAppFactory();
-		if (! is_string($key)) {
-			$err = 'route key must be a string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$parts  = explode('.', $key);
-		$key    = current($parts);
-		$format = strtolower(next($parts));
-
-		$route = $factory->createRouteDetail($key);
-		if (! empty($format)) {
-			$route->setFormat($format);
-		}
-
-		return $route;
-	}
 
 	/**
 	 * @return	array

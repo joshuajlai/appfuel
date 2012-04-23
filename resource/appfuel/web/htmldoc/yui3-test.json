@@ -1,7 +1,8 @@
 {
 	"name": "yui3-test",
 	"type": "htmldoc",
-	"markup": "htmldoc/doc.phtml",
+	"markup": "doc.phtml",
+	"path": "htmldoc",
 	"html": {
 		"attrs": {"lang": "eng"},
 		"head": {

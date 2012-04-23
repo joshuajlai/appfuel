@@ -33,6 +33,11 @@ class RequestUri implements RequestUriInterface
 	 * @var string
 	 */
 	protected $route = null;
+
+	/**
+	 * @var string
+	 */
+	protected $routeFormat = null;
 	
 	/**
 	 * These could be http get parameters or cli parameters, both are 
@@ -69,7 +74,8 @@ class RequestUri implements RequestUriInterface
 		
         $result = $this->parseUri($this->uri);
 
-        $this->route  = $result['route'];
+        $this->route  = $result['route-key'];
+		$this->routeFormat = $result['route-format'];
         $this->params = $result['params'];
         $this->paramString = $result['paramString'];
     }
@@ -88,6 +94,14 @@ class RequestUri implements RequestUriInterface
 	public function getRouteKey()
 	{
 		return $this->route;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getRouteFormat()
+	{
+		return $this->routeFormat;
 	}
 
 	/**
@@ -120,7 +134,8 @@ class RequestUri implements RequestUriInterface
         $uri = ltrim($uri, "'/'");
 		if (empty($uri)) {
 			return array(
-				'route'			=> '',
+				'route-key'		=> '',
+				'route-format'  => null,
 				'params'		=> array(),
 				'paramString'	=> ''
 			);
@@ -172,11 +187,11 @@ class RequestUri implements RequestUriInterface
 		/* no route found an no path to look for route */
 		if (empty($parts)) {
 			$route = trim(urldecode($route));
-			return array(
-				'route'			=> $route,
+			$result = array(
 				'params'		=> $params,
 				'paramString'	=> $prettyQuery
-			);	
+			);
+			return array_merge($result, $this->parseRouteKey($route));
 		}
 
 		/*
@@ -227,10 +242,24 @@ class RequestUri implements RequestUriInterface
 		
 		$params = array_merge($pathParams, $queryParams);	
 		$route  = trim(urldecode($route));
-        return array(
-            'route'         => $route,
+        $result = array(
             'params'        => $params,
             'paramString'   => $paramString
         );
+
+		return array_merge($result, $this->parseRouteKey($route));
     }
+
+	public function parseRouteKey($key)
+	{
+        $parts  = explode('.', $key);
+        $key    = current($parts);
+        $format = strtolower(next($parts));
+
+		return array(
+			'route-key'	   => $key,
+			'route-format' => $format
+		);
+	}
+
 }

@@ -21,18 +21,17 @@ $handler = new AppHandler($base);
 $handler->loadConfigFile('app/config/config.php', 'main')
         ->initializeFramework();
 
-$uri      = $handler->createUriFromServerSuperGlobal();
-$key      = $uri->getRouteKey(); 
-$route   = $handler->findRoute($key);
-echo "<pre>", print_r($route->getFormat(), 1), "</pre>";exit;
-$input   = $handler->loadRestfulInput();
-$context = $handler->createContext($route->getKey(), $input);
+$uri     = $handler->createUriFromServerSuperGlobal();
+$key     = $uri->getRouteKey();
+$format  = $uri->getRouteFormat();
+$route   = $handler->findRoute($uri);
+$input   = $handler->createInputFromSuperGlobals($uri);
+$context = $handler->createContext($key, $input);
 
-$handler->startupApp($route, $context)
-       ->setupView($route, $context)
-       ->processAction($context);
-        
-$view = $handler->composeView($context, $route);
-$headers = $context->get('http-headers', array());
-$handler->httpOutput($view, $headers);
-exit($runner->getExitCode());
+
+$handler->initializeApp($route, $context)
+		->setupView($route, $context, $format)
+		->runAction($context)
+		->outputHttpContext($route, $context);
+
+exit($context->getExitCode());

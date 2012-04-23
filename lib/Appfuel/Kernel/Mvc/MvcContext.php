@@ -95,8 +95,8 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 */
 	public function setViewFormat($format)
 	{
-		if (! is_string($format) || empty($format)) {
-			$err = 'view format must be a non empty string';
+		if (! is_string($format)) {
+			$err = 'view format must be a string';
 			throw new InvalidArgumentException($err);
 		}
 
@@ -238,7 +238,7 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	{
 		if (! is_string($key)) {
 			$err = 'route key must be a string';
-			throw new InvalidArgumentException($key);
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->routeKey = $key;

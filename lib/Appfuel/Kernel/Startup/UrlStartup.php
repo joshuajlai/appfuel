@@ -13,7 +13,7 @@ namespace Appfuel\Kernel\Startup;
 /**
  * Look for the server name and set the base url constant
  */
-class UrlStartup extends StartupTaskAbstract 
+class UrlStartup extends StartupTask 
 {
 	/**
 	 * @param	array	$params		config params 

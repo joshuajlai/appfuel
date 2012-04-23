@@ -11,6 +11,8 @@
 namespace Appfuel;
 
 use RunTimeException,
+	Appfuel\Http\HttpOutput,
+	Appfuel\Http\HttpResponse,
 	Appfuel\Kernel\Mvc\AppInput,
 	Appfuel\Kernel\Mvc\AppInputInterface,
 	Appfuel\Kernel\Mvc\RequestUri,
@@ -174,7 +176,7 @@ class AppFactory implements AppFactoryInterface
 								InterceptChainInterface $preChain  = null,
 								InterceptChainInterface $postChain = null)
 	{
-		$preList = ConfigRegistry::getParam('pre-filters', array());
+		$preList = ConfigRegistry::get('pre-filters', array());
 		if (null === $preChain) {
 			$preChain = new InterceptChain();
 		}
@@ -183,7 +185,7 @@ class AppFactory implements AppFactoryInterface
 			$preChain->loadFilters($preList);
 		}
 
-		$postList = ConfigRegistry::getParam('post-filters', array());
+		$postList = ConfigRegistry::get('post-filters', array());
 		if (null === $postChain) {
 			$postChain = new InterceptChain();
 		}
@@ -213,5 +215,21 @@ class AppFactory implements AppFactoryInterface
 	public function createTaskHandler()
 	{
 		return new TaskHandler();
+	}
+
+	public function createHttpResponse($data, 
+									   $status,
+									   $version = null,
+									   array $headers = null)
+	{
+		return new HttpResponse($data, $status, $version, $headers);
+	}
+
+	/**
+	 * @return	HttpOutputInterface
+	 */
+	public function createHttpOutput()
+	{
+		return new HttpOutput();
 	}
 }

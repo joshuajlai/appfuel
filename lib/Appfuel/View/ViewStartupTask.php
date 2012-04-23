@@ -13,14 +13,14 @@ namespace Appfuel\View;
 
 use DomainException,
     InvalidArgumentException,
-	Appfuel\Kernel\Startup\StartupTaskAbstract;
+	Appfuel\Kernel\Startup\StartupTask;
 
 /**
  * Allow configuration for the resource management.  This will configure
  * the base url that serves up resources as well as toggling wether
  * the resources should be combo'd together or loaded individually.
  */
-class ViewStartupTask extends StartupTaskAbstract
+class ViewStartupTask extends StartupTask
 {
 	/**
 	 * Assign the registry keys to be pulled from the kernel registry
@@ -29,7 +29,7 @@ class ViewStartupTask extends StartupTaskAbstract
 	 */
 	public function __construct()
 	{
-		$this->setRegistryKeys(array('clientside' => array()));
+		$this->setDataKeys(array('clientside' => array()));
 	}
 	
     /**
@@ -38,7 +38,6 @@ class ViewStartupTask extends StartupTaskAbstract
 	 */
 	public function execute(array $params = null)
 	{
-		$this->validateTaskKeys($params, "view build failure:");
         $data = $params['clientside'];
    
 		$scheme = 'http://';
