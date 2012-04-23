@@ -1,11 +1,12 @@
 <?php
 
 return array(
-	''			 => 'FuelCell\Action\Welcome',
-	'welcome'	 => 'FuelCell\Action\Welcome',
-	'build-layer'=> 'FuelCell\Action\Resource\Build',
-	'build-test' => 'welcome',
-	'test-a'     => 'welcome',
-	'test-b'     => 'welcome',
-    'test-c'     => 'welcome'
+	''				=> 'Fuelcell\Action\Welcome',
+	'welcome'		=> 'Fuelcell\Action\Welcome',
+	'cs-build'		=> 'Fuelcell\Action\Build',
+	'cs-buildtree'	=> 'cs-build',
+	'build-test'	=> 'welcome',
+	'test-a'		=> 'welcome',
+	'test-b'		=> 'welcome',
+    'test-c'		=> 'welcome'
 );

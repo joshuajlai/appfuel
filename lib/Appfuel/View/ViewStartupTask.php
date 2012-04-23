@@ -38,8 +38,11 @@ class ViewStartupTask extends StartupTask
 	 */
 	public function execute(array $params = null)
 	{
-        $data = $params['clientside'];
-   
+		if ('cli' === PHP_SAPI) {
+			return;
+		}
+
+        $data   = $params['clientside'];
 		$scheme = 'http://';
         if (isset($_SERVER['HTTPS'])) {
 			$scheme = 'https://';

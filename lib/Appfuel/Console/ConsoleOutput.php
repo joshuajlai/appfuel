@@ -49,13 +49,13 @@ class ConsoleOutput implements ConsoleOutputInterface
 			$err = 'data must be able to cast to a string';
 			throw new InvalidArgumentException($err);
 		}
-	
+
 		if (PHP_SAPI !== 'cli') {
 			echo $data, PHP_EOL;
 			return;
 		}
 
-		fwrite(STDOUT, (string)$data);
+		fwrite(STDOUT, $data);
 	}
 
 	/**

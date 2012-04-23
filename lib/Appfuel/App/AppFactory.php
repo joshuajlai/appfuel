@@ -8,11 +8,12 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel;
+namespace Appfuel\App;
 
 use RunTimeException,
 	Appfuel\Http\HttpOutput,
 	Appfuel\Http\HttpResponse,
+	Appfuel\Console\ConsoleOutput,
 	Appfuel\Kernel\Mvc\AppInput,
 	Appfuel\Kernel\Mvc\AppInputInterface,
 	Appfuel\Kernel\Mvc\RequestUri,
@@ -231,5 +232,10 @@ class AppFactory implements AppFactoryInterface
 	public function createHttpOutput()
 	{
 		return new HttpOutput();
+	}
+
+	public function createConsoleOutput()
+	{
+		return new ConsoleOutput();
 	}
 }

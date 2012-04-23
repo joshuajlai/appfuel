@@ -9,10 +9,11 @@
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 return array(
-	'build-layer' => array(
+	'cs-build' => array(
 		'is-public'   => true,
-		'action-name' => 'BuildLayer',
-		'default-format' => 'json'
+		'action-name' => 'ClientsideBuild',
+		'default-format' => 'text'
 	),
+	'cs-buildtree' => array('action-name' => 'ClientsideBuildTree')
 );
 

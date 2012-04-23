@@ -27,7 +27,7 @@ use Exception,
 	Appfuel\Kernel\Mvc\MvcAction,
 	Appfuel\Kernel\Mvc\MvcContextInterface;
 
-class BuildLayer extends MvcAction
+class ClientsideBuild extends MvcAction
 {
 	/**
 	 * @param	MvcContextInterface $context

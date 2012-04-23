@@ -8,8 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel;
-
+namespace Appfuel\App;
 
 use LogicException,
 	DomainException,
@@ -161,6 +160,16 @@ class AppHandler
 	}
 
 	/**
+	 * @param	string
+	 * @return	RequestUriInterface
+	 */
+	public function createUri($str)
+	{
+		return $this->getAppFactory()
+					->createUri($str);
+	}
+
+	/**
 	 * @return	AppInputInterface
 	 */
 	public function createInputFromSuperGlobals($uri)
@@ -294,6 +303,20 @@ class AppHandler
 
 		$output = $factory->createHttpOutput();
 		$output->render($response);
+	}
+
+	/**
+	 * @param	MvcContextInterface $context
+	 * @return	null
+	 */
+	public function outputConsoleContext(MvcRouteDetailInterface $route,
+										 MvcContextInterface $context)
+	{
+		$content = $this->composeView($route, $context);
+		$output  = $this->getAppFactory()
+						->createConsoleOutput();
+		
+		$output->render($content);
 	}
 
 	/**
