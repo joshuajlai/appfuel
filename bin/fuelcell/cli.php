@@ -28,12 +28,12 @@ if (count($argv) < 2) {
 	fwrite(STDERR, $err);
 	exit(1);
 }
-$uriStr  = $argv[1];
-$uri     = $handler->createUri($uriStr);
-$key     = $uri->getRouteKey();
 /*
  * default format for cli is text
  */
+$uriStr  = $argv[1];
+$uri     = $handler->createUri($uriStr);
+$key     = $uri->getRouteKey();
 $format  = $uri->getRouteFormat();
 if (empty($format)) {
 	$format = 'text';
