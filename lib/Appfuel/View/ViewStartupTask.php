@@ -50,7 +50,7 @@ class ViewStartupTask extends StartupTaskAbstract
         if (isset($data['is-cdn']) && true === $data['is-cdn']) {
 			if (! isset($data['cdn-url']) || 
 				! is_string($data['cdn-url']) ||
-				! empty($data['cdn-url'])) {
+				empty($data['cdn-url'])) {
 				$err = "cdn url is enbled but is not a string or is empty";
 				throw new DomainException($err);
 			}			
