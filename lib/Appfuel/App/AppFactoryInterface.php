@@ -47,7 +47,7 @@ interface AppFactoryInterface
 	 * @param	RequestUriInterface $uri 
 	 * @return	AppInput
 	 */
-	public function createInputFromSuperGlobals(RequestUriInterface $uri=null);
+	public function createRestInputFromBrowser(RequestUriInterface $uri=null);
 	
 	/**
 	 * @return	AppInput

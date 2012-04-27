@@ -172,10 +172,16 @@ class AppHandler
 	/**
 	 * @return	AppInputInterface
 	 */
-	public function createInputFromSuperGlobals($uri)
+	public function createRestInputFromBrowser($uri = null)
 	{
 		return $this->getAppFactory()
-					->createInputFromSuperGlobals($uri);
+					->createRestInputFromBrowser($uri);
+	}
+
+	public function createRestInputFromConsole($uri = null)
+	{
+		return $this->getAppFactory()
+					->createRestInputFromConsole($uri);
 	}
 
 	/**

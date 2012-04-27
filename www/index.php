@@ -25,7 +25,7 @@ $uri     = $handler->createUriFromServerSuperGlobal();
 $key     = $uri->getRouteKey();
 $format  = $uri->getRouteFormat();
 $route   = $handler->findRoute($uri);
-$input   = $handler->createInputFromSuperGlobals($uri);
+$input   = $handler->createRestInputFromBrowser($uri);
 $context = $handler->createContext($key, $input);
 $handler->initializeApp($route, $context)
 		->setupView($route, $context, $format)

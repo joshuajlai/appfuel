@@ -81,37 +81,71 @@ class AppFactory implements AppFactoryInterface
 		return new AppInput($method, $params);
 	}
 
+	public function createRestInputFromConsole(RequestUriInterface $uri = null)
+	{
+		if (PHP_SAPI !== 'cli') {
+			$err = 'php cli must be enabled';
+			throw new LogicException($err);
+		}
+
+		$getData = array();
+		if (null !== $uri) {
+			$getData = $uri->getParams();
+		}
+
+		$params = array(
+			'get' => $getData,
+			'cli' => $_SERVER['argv']
+		);
+		
+		return $this->createInput('cli', $params);
+	}
+
 	/**
 	 * @param	RequestUriInterface $uri 
 	 * @return	AppInput
 	 */
-	public function createInputFromSuperGlobals(RequestUriInterface $uri = null)
+	public function createRestInputFromBrowser(RequestUriInterface $uri = null)
 	{
-		$argvData = array();
-		$method   = 'get';
-		if (PHP_SAPI === 'cli') {
-			$method   = 'cli';
-			$argvData = $_SERVER['argv'];
-		}
-		else if (isset($_SERVER['REQUEST_METHOD']) &&
-				'post' === strtolower($_SERVER['REQUEST_METHOD'])) {
-				$method = 'post';
+		$key = 'REQUEST_METHOD';
+		if (! isset($_SERVER[$key]) || ! is_string($_SERVER[$key])) {
+				$err  = 'request method was not set or is set invalid in ';
+				$err .= "\$_SERVER[\'$key\']";
+				throw new LogicException($err);
 		}
 
-		if (null !== $uri) {
-			$getData = $uri->getParams();
+		$method = strtolower($_SERVER[$key]);
+		if ('post' === $method) {
+			$putKey = 'is-http-put';
+			$delKey = 'is-http-delete';
+			if (isset($_POST[$putKey]) && 'true' === $_POST[$putKey]) {
+				unset($_POST[$putKey]);
+				$method = 'put';
+			}
+			else if (isset($_POST[$delKey]) && 'true' === $_POST[$delKey]) {
+				unset($_POST[$delKey]);
+				$method = 'delete';
+			}
+			$data = $_POST;
+		}
+		else if ('get' === $method) {
+			if (null !== $uri) {
+				$data = $uri->getParams();
+			}
+			else {
+				$data  = $_GET;
+			}
 		}
 		else {
-			$getData = $_GET;
+			$err = 'only -(get, post) are supported for web browsers';
+			throw new DomainException($err);
 		}
 
 		$params = array(
-			'get'     => $getData,
-			'post'    => $_POST,
-			'files'   => $_FILES,
-			'cookie' => $_COOKIE,
+			$method   => $data,
+			'files'   => (isset($_FILES))   ? $_FILES	: array(),
+			'cookie'  => (isset($_COOKIE))  ? $_COOKIE	: array(),
 			'session' => (isset($_SESSION)) ? $_SESSION : array(),
-			'argv'    => $argvData,
 		);
 
 		return $this->createInput($method, $params);

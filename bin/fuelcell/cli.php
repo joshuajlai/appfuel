@@ -39,7 +39,7 @@ if (empty($format)) {
 	$format = 'text';
 }
 $route   = $handler->findRoute($uri);
-$input   = $handler->createInputFromSuperGlobals($uri);
+$input   = $handler->createRestInputFromConsole($uri);
 $context = $handler->createContext($key, $input);
 $handler->initializeApp($route, $context)
         ->setupView($route, $context, $format)        

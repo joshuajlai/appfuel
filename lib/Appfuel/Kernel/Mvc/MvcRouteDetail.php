@@ -344,6 +344,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		if (isset($data['is-ignore-acl']) && true === $data['is-ignore-acl']) {
 			$acl->ignoreAclAccess();
 		}
+
+		$map = array();
 		if (isset($data['acl-access'])) {
 			$acl->useAclForAllMethods();
 			$map = $data['acl-access'];
