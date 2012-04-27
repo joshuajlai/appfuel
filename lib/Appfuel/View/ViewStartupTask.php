@@ -40,12 +40,16 @@ class ViewStartupTask extends StartupTaskAbstract
 	{
 		$this->validateTaskKeys($params, "view build failure:");
         $data = $params['clientside'];
-   
+  
+        /* 
+         * detect nginx server variable which will list the encryption
+         * type.  If no encryption type is set, then this is ignored
+         */
 		$scheme = 'http://';
-        if (isset($_SERVER['HTTPS'])) {
+        if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']) {
 			$scheme = 'https://';
         } 
-      
+        
         $isCdn = false;
         if (isset($data['is-cdn']) && true === $data['is-cdn']) {
 			if (! isset($data['cdn-url']) || 
