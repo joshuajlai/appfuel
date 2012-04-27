@@ -15,7 +15,8 @@ fi
 
 TEMP_FILE=$TEMP_DIR/.rs-build
 PROGNAME=$(basename $0)
-SCRIPT_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+#SCRIPT_DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="/Users/evan/projects/wd-legacy/bin/appfuel"
 BUILD_EXEC=$SCRIPT_DIR/build-rs-tree.php
 
 function usage {
@@ -42,6 +43,10 @@ if [ $# != "1" ]; then
     usage
     error_exit "you must specify the directory you want to watch for changes in."
 fi
+
+echo "Running build..."
+
+$BUILD_EXEC
 
 echo "Watching $1 for changes..."
 
