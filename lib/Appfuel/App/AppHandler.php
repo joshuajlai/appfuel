@@ -253,7 +253,7 @@ class AppHandler
 	public function composeView(MvcRouteDetailInterface $route,
 								MvcContextInterface $context)
 	{
-        if (! $route->isView()) {
+        if ($route->isViewDisabled()) {
             return '';
         }
 

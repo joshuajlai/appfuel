@@ -80,6 +80,7 @@ class ViewCompositor implements ViewCompositorInterface
 			$err = "could not compose pkg -({$name->getName()}) not found";
 			throw new DomainException($err);
 		}
+
 		$vPath = ResourceTreeManager::getVendorPath($name->getVendor());
 		$path  = "$vPath/{$pkg->getMarkupFile()}";
 

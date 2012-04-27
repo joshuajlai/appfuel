@@ -88,7 +88,7 @@ class MvcFront implements MvcFrontInterface
 		$this->setCurrentRoute($routeKey);
 		$detail = $this->getRouteDetail($routeKey);
 
-		if (! $detail->isSkipPreFilters()) {
+		if (! $detail->isPreFilteringEnabled()) {
 			$context = $this->runPreFilters($detail, $context);
 		}
 
@@ -112,7 +112,7 @@ class MvcFront implements MvcFrontInterface
 				$detail = $this->getRouteDetail($tmpRouteKey);
 			}
 
-			if (! $detail->isSkipPostFilters()) {
+			if (! $detail->isPostFilteringEnabled()) {
 				$context = $this->runPostFilters($detail, $context);
 			}
 		}

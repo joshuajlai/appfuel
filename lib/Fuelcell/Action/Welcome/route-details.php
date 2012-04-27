@@ -13,6 +13,12 @@ return array(
 		'is-public'   => true,
 		'action-name' => 'MyAction',
 		'default-format' => 'json',
+		'acl-access-map' => array(
+			'post'   => array('admin', 'publisher', 'editor'),
+			'delete' => array('admin', 'publisher'),
+			'get'    => array('admin', 'publisher', 'editor'),
+			'put'    => array('admin')
+		),
 		'startup'     => array(
 			'exclude' => array(
 				'Wdl\Startup\Task\LegacyDbStartup',

@@ -44,7 +44,7 @@ class ViewBuilder implements ViewBuilderInterface
 			$format = '';
 		}
 
-		if ($route->isView() && ! $route->isManualView()) {
+		if (! $route->isViewDisabled() && ! $route->isManualView()) {
 			$context->setViewFormat($format);
 			$view = $this->createTemplate($format);
 			$context->setView($view);

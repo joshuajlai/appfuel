@@ -23,7 +23,6 @@ class RouteBuilder
 	static protected $default =  array(
 		'is-public'		=> false,
 		'is-internal'	=> false,
-		'acl-access'	=> array(),
 		'startup'		=> array(
 			'is-ignore-config' => false,
 			'is-prepend'	   => false,
@@ -38,11 +37,8 @@ class RouteBuilder
 			'include-post'  => array(),
 			'exclude-post'  => array(),
 		),
-		'is-view'		   => true,
 		'is-manual-view'   => false,
-		'raw-view'		   => null,
 		'view-pkg'		   => null,
-		'view-params'	   => array()
 	);
 
 	/**
