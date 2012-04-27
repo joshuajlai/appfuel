@@ -98,7 +98,9 @@ class MvcAction implements MvcActionInterface
 		}
 
 		$tmp->load($context->getAll());
-		$tmp->setViewFormat($context->getViewFormat());
+		if ('' !== trim($context->getViewFormat())) {
+		    $tmp->setViewFormat($context->getViewFormat());
+		}
 		$this->dispatch($tmp);
 
 		/* transfer all assignments made by mvc action */
