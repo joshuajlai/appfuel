@@ -444,16 +444,24 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	{
 		$action = $this->createRouteAction();
 			
-		if (isset($data['action-name'])) {
-			$action->setActionName($data['action-name']);
-		}
-		else if (isset($data['action-map'])) {
-			$action->setMap($data['action-map']);
-		}
-		else {
-			$err = 'must set action-name, action-class or restful-map';
+		if (! isset($data['action-name'])) {
+			$err  = 'the action name must be set in order for the dispatcher ';
+			$err .= 'to be able to create it';
 			throw new DomainException($err);
 		}
+		$name = $data['action-name'];
+		if (is_string($name)) {
+			$action->setActionName($name);
+		}
+		else if (is_array($name)) {
+			$action->setMap($name);
+		}
+		else {
+			$err  = 'key -(action-name) must be non empty string or an ';
+			$err .= 'array of method=>actionName mappings';
+			throw new DomainException($err);
+		}
+		
 
 		$this->action = $action;
 	}

@@ -9,7 +9,8 @@
  * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\App\AppHandler;
+use Appfuel\App\AppHandler,
+	Appfuel\Console\ConsoleArgList;
 
 $base = realpath(dirname(__FILE__) . '/../../');
 $file = "{$base}/lib/Appfuel/App/AppHandler.php";
@@ -28,6 +29,7 @@ if (count($argv) < 2) {
 	fwrite(STDERR, $err);
 	exit(1);
 }
+
 /*
  * default format for cli is text
  */

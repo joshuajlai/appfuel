@@ -11,9 +11,15 @@
 return array(
 	'cs-build' => array(
 		'is-public'   => true,
-		'action-name' => 'ClientsideBuild',
+		'action-name' => 'BuildClientsideResources',
 		'default-format' => 'text'
 	),
-	'cs-buildtree' => array('action-name' => 'ClientsideBuildTree')
+	'cs-buildtree' => array('action-name' => 'BuildClientsideTree'),
+	'config-build' => array(
+		'is-public' => true,
+		'action-name' => array(
+			'cli' => 'BuildConfig'
+		),
+	)
 );
 
