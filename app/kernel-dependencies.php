@@ -48,6 +48,7 @@ return array(
 	'\Appfuel\Kerenl\Startup\PHPIniTask'			=> 'Appfuel/Kernel/Startup/PHPIniTask.php',
 	'\Appfuel\Kerenl\Startup\PHPErrorTask'			=> 'Appfuel/Kernel/Startup/PHPErrorTask.php',
 	'\Appfuel\Kernel\Startup\PHPPathTask'			=> 'Appfuel/Kernel/Startup/PHPPathTask.php',
+	'\Appfuel\Kernel\Startup\FaultHandlerTask'		=> 'Appfuel/Kernel/Startup/FaultHandlerTask.php',
 	'\Appfuel\Kernel\Startup\PHPAutoloaderTask'		=> 'Appfuel/Kernel/Startup/PHPAutoloaderTask.php',
 	'\Appfuel\Kernel\Startup\PHPDefaultTimezoneTask'=> 'Appfuel/Kernel/Startup/PHPDefaultTimezoneTask.php',	
 	'\Appfuel\Kernel\Startup\DependencyLoaderTask'	=> 'Appfuel/Kernel/Startup/DependencyLoaderTask.php',

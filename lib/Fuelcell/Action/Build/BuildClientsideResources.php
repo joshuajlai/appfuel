@@ -27,7 +27,11 @@ use Exception,
 	Appfuel\Kernel\Mvc\MvcAction,
 	Appfuel\Kernel\Mvc\MvcContextInterface;
 
-class ClientsideBuild extends MvcAction
+/**
+ * Build javascript and css into concatenated files. Also move theme packages
+ * to their build locations
+ */
+class BuildClientsideResources extends MvcAction
 {
 	/**
 	 * @param	MvcContextInterface $context

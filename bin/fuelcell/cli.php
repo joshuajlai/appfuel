@@ -30,16 +30,13 @@ if (count($argv) < 2) {
 	exit(1);
 }
 
-/*
- * default format for cli is text
- */
-$uriStr  = $argv[1];
-$uri     = $handler->createUri($uriStr);
-$key     = $uri->getRouteKey();
-$format  = $uri->getRouteFormat();
+$uri    = $handler->createUri($argv[1]);
+$key    = $uri->getRouteKey();
+$format = $uri->getRouteFormat();
 if (empty($format)) {
 	$format = 'text';
 }
+
 $route   = $handler->findRoute($uri);
 $input   = $handler->createRestInputFromConsole($uri);
 $context = $handler->createContext($key, $input);

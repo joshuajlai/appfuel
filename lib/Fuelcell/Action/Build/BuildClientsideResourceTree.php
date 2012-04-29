@@ -17,7 +17,9 @@ use Exception,
 	Appfuel\Html\Resource\ResourceTreeWriter,
     Appfuel\Html\Resource\ResourceTreeBuilder;
 
-class ClientsideBuildTree extends MvcAction
+/**
+ * Build clientside intermediate tree
+class BuildClientsideResourceTree extends MvcAction
 {
 	/**
 	 * @param	MvcContextInterface $context

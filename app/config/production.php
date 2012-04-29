@@ -2,19 +2,22 @@
 
 return array(
 	'common' => array(
-		'include-path'		    => array(AF_BASE_PATH . '/lib'),
-		'include-path-action'	=> 'replace',
-		'base-path'				=> AF_BASE_PATH,
-		'enable-autoloader'		=> true,
-		'default-timezone'		=> 'America/Los_Angeles',
-		'display-errors'		=> 'on',
-		'error-reporting'		=> 'all, strict',
+		'php-include-path'			=> array(AF_BASE_PATH . '/lib'),
+		'php-include-path-action'	=> 'replace',
+		'base-path'					=> AF_BASE_PATH,
+		'fault-handler-class'	=> 'Appfuel\Kernel\FaultHandler',
+		'php-autoloader'		=> 'Appfuel\ClassLoader\StandardAutoLoader',
+		'php-default-timezone'	=> 'America/Los_Angeles',
+		'php-display-errors'	=> 'off',
+		'php-error-level'		=> 'all, strict',
 		'db'					=> array(),
 		'env'					=> 'production',
 	),
 
 	'main' => array(
-		'startup-tasks'		=> array(),
+		'startup-tasks'		=> array(
+			1 => 'Appfuel\View\ViewStartupTask',
+		),
 		'pre-filters'		=> array(),
 		'post-filters'		=> array(),
 	),

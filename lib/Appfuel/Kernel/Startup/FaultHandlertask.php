@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Kernel\Startup;
 
-use DomainException;
+use DomainException,
+	Appfuel\Kernel\FaultHandlerInterface;
 
 /**
  * register php error_handler and exception_handler
@@ -45,6 +46,7 @@ class FaultHandlerTask extends StartupTask
 				$err = "fault-handler-class must be a non empty string";
 				throw new DomainException($err);
 			}
+			
 			$handler = new $class();
 			if (! $handler instanceof FaultHandlerInterface) {
 				$err  = 'fault handler must implment -(Appfuel\Kernel';

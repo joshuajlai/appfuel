@@ -35,8 +35,8 @@ class PHPAutoloaderTask extends StartupTask
 		if (empty($params) || ! isset($params['php-autoloader'])) {
 			return;
 		}
-		$data = $params['php-autoloader'];
 
+		$data = $params['php-autoloader'];
 		if (is_string($data)) {
 			$loader = new $data();
 			if (! $loader instanceof AutoLoaderInterface) {

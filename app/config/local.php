@@ -2,7 +2,7 @@
 
 return array(
 	'common' => array(
-		'display-errors' => 'on',
+		'php-display-errors' => 'on',
 	),
 	'main' => array(
 		'startup-tasks'		=> array(

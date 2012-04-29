@@ -11,11 +11,16 @@
 namespace Fuelcell\Action\Build;
 
 use DomainException,
-	RunTimeException,
 	Appfuel\Kernel\Mvc\MvcAction,
 	Appfuel\Kernel\Mvc\MvcContextInterface,
 	Appfuel\Kernel\Startup\ConfigBuilder;
 
+/**
+ * This will take the config file specified by env merge it with config 
+ * data from the production env and then write the resulting file to 
+ * app/config/config.php. Each env config file is expected to return an
+ * associative array of config settings.
+ */
 class BuildConfig extends MvcAction
 {
 	/**
@@ -36,5 +41,4 @@ class BuildConfig extends MvcAction
 		$view = $context->getView();
 		$view->assign('result', "config was built for -($env)");
 	}
-
 }
