@@ -282,8 +282,8 @@ class TaskHandlerTest extends BaseTestCase
 		$input = $this->getMock("$ns\AppInputInterface");
 		$context = new MvcContext('my-route', $input);
 
-		$msg = 'task must be a non empty string at index -(2)';
-		$this->setExpectedException('RunTimeException', $msg);
+		$msg  = 'startup task class name must be a non empty string';
+		$this->setExpectedException('InvalidArgumentException', $msg);
 		$this->assertNull($handler->kernelRunTasks($route, $context));
 	}
 
@@ -309,7 +309,7 @@ class TaskHandlerTest extends BaseTestCase
 		$input = $this->getMock("$ns\AppInputInterface");
 		$context = new MvcContext('my-route', $input);
 
-		$ns  = 'Appfuel\Kernel\Startup\StartupTaskInterface'; 
+		$ns  = 'Appfuel\Kernel\StartupTaskInterface'; 
 		$msg = "-(StdClass) must implement $ns";
 		$this->setExpectedException('RunTimeException', $msg);
 		$this->assertNull($handler->kernelRunTasks($route, $context));

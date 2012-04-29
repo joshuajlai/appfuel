@@ -98,7 +98,7 @@ class TaskHandler implements TaskHandlerInterface
 		$task = new $className();
 		if (! $task instanceof StartupTaskInterface) {
 			$ns   = __NAMESPACE__;
-			$err  = "-($class) must implement $ns\StartupTaskInterface";
+			$err  = "-($className) must implement $ns\StartupTaskInterface";
 			throw new RunTimeException($err);
 		}
 

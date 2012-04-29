@@ -117,7 +117,7 @@ class ConfigLoaderTest extends BaseTestCase
 
 		$finder = $reader->getFileFinder();
 		$this->assertTrue($finder->isBasePath());
-		$this->assertEquals('app/config', $finder->getRootPath());
+		$this->assertEquals('', $finder->getRootPath());
 
 		return $loader;
 	}
