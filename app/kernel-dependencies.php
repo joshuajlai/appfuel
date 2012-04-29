@@ -9,8 +9,8 @@
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
 return array(
-	'\Appfuel\App\AppFactoryInterface'				=> 'Appfuel/App/AppFactoryInterface.php',
-	'\Appfuel\App\AppFactory'						=> 'Appfuel/App/AppFactory.php',
+	'\Appfuel\Kernel\AppFactoryInterface'			=> 'Appfuel/Kernel/AppFactoryInterface.php',
+	'\Appfuel\Kernel\AppFactory'					=> 'Appfuel/Kernel/AppFactory.php',
 	'\Appfuel\Error\PHPErrorLevelInterface'			=> 'Appfuel/Error/PHPErrorLevelInterface.php',
 	'\Appfuel\Error\PHPErrorLevel'					=> 'Appfuel/Error/PHPErrorLevel.php',
 	'\Appfuel\Error\ErrorInterface'					=> 'Appfuel/Error/ErrorInterface.php',

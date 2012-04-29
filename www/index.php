@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\App\AppHandler;
+use Appfuel\Kernel\AppHandler;
 
 $base = realpath(dirname(__FILE__) . '/../');
-$file = "{$base}/lib/Appfuel/App/AppHandler.php";
+$file = "{$base}/lib/Appfuel/Kernel/AppHandler.php";
 if (! file_exists($file)) {
     throw new LogicException("Could not find app runner at -($file)");
 }

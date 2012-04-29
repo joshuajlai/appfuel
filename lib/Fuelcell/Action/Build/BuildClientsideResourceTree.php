@@ -19,6 +19,7 @@ use Exception,
 
 /**
  * Build clientside intermediate tree
+ */
 class BuildClientsideResourceTree extends MvcAction
 {
 	/**
