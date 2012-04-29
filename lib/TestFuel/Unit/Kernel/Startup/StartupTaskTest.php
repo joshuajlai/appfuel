@@ -101,7 +101,7 @@ class StartupTaskTest extends BaseTestCase
 	 */
 	public function keysAreEmptyWhenConstructorIsEmpty(StartupTask $task)
 	{
-		$this->assertEquals(array(), $task->getDataKeys());
+		$this->assertEquals(array(), $task->getRegistryKeys());
 		return $task;
 	}
 
@@ -113,7 +113,7 @@ class StartupTaskTest extends BaseTestCase
 	public function keysWhenConstructHasArgs(StartupTask $task)
 	{
 		$keys = $this->getTaskKeys();
-		$this->assertEquals($keys, $task->getDataKeys());
+		$this->assertEquals($keys, $task->getRegistryKeys());
 	}
 
 	/**
@@ -121,32 +121,32 @@ class StartupTaskTest extends BaseTestCase
 	 * @depends	keysAreEmptyWhenConstructorIsEmpty
 	 * @return	StartupTask
 	 */
-	public function AddDataKeyNoDefault(StartupTask $task)
+	public function AddRegistryKeyNoDefault(StartupTask $task)
 	{
 		$key = 'my-key';
-		$this->assertSame($task, $task->addDataKey($key));
+		$this->assertSame($task, $task->addRegistryKey($key));
 
 		$expected = array($key => null);
-		$this->assertEquals($expected, $task->getDataKeys());
+		$this->assertEquals($expected, $task->getRegistryKeys());
 
 		$key = 'other-key';
-		$this->assertSame($task, $task->addDataKey($key));
+		$this->assertSame($task, $task->addRegistryKey($key));
 
 		$expected[$key] = null;
-		$this->assertEquals($expected, $task->getDataKeys());
+		$this->assertEquals($expected, $task->getRegistryKeys());
 
 		return $task;
 	}
 
 	/**
 	 * @test
-	 * @depends	AddDataKeyNoDefault
+	 * @depends	AddRegistryKeyNoDefault
 	 * @return	null
 	 */
-	public function clearKeyData(StartupTask $task)
+	public function clearKeyRegistry(StartupTask $task)
 	{
-		$this->assertSame($task, $task->clearDataKeys());
-		$this->assertEquals(array(), $task->getDataKeys());
+		$this->assertSame($task, $task->clearRegistryKeys());
+		$this->assertEquals(array(), $task->getRegistryKeys());
 
 		return $task;
 	}
@@ -154,31 +154,31 @@ class StartupTaskTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @depends	clearKeyData
+	 * @depends	clearKeyRegistry
 	 * @return	StartupTask
 	 */
-	public function AddDataKeyWithDefault(StartupTask $task)
+	public function AddRegistryKeyWithDefault(StartupTask $task)
 	{
 		$key = 'my-key';
 		$default = 12345;
-		$this->assertSame($task, $task->addDataKey($key, $default));
+		$this->assertSame($task, $task->addRegistryKey($key, $default));
 
 		$expected = array($key => $default);
-		$this->assertEquals($expected, $task->getDataKeys());
+		$this->assertEquals($expected, $task->getRegistryKeys());
 
 		$key = 'other-key';
 		$default = 'my custom default';
-		$this->assertSame($task, $task->addDataKey($key, $default));
+		$this->assertSame($task, $task->addRegistryKey($key, $default));
 
 		$expected[$key] = $default;
-		$this->assertEquals($expected, $task->getDataKeys());
+		$this->assertEquals($expected, $task->getRegistryKeys());
 
 		$key = 'another-key';
 		$default = null;
-		$this->assertSame($task, $task->addDataKey($key, $default));
+		$this->assertSame($task, $task->addRegistryKey($key, $default));
 
 		$expected[$key] = $default;
-		$this->assertEquals($expected, $task->getDataKeys());
+		$this->assertEquals($expected, $task->getRegistryKeys());
 
 
 		return $task;
@@ -189,68 +189,68 @@ class StartupTaskTest extends BaseTestCase
 	 * @dataProvider	provideInvalidStrings
 	 * @return			null
 	 */
-	public function addDataKeyFailures($key)
+	public function addRegistryKeyFailures($key)
 	{
 		$msg = 'label must be a non empty string';
 		$this->setExpectedException('InvalidArgumentException', $msg);
 		$task = new StartupTask();
-		$task->addDatakey($key);
+		$task->addRegistrykey($key);
 	}
 
 	/**
 	 * Load always appends onto the existing list
 	 * @test
-	 * @depends	clearKeyData
+	 * @depends	clearKeyRegistry
 	 * @return	StartupTask
 	 */
-	public function LoadDataKeysNoDefault(StartupTask $task)
+	public function LoadRegistryKeysNoDefault(StartupTask $task)
 	{
-		$task->clearDataKeys();
+		$task->clearRegistryKeys();
 		$keys = array('my-key', 'your-key', 'our-key');
-		$this->assertSame($task, $task->loadDataKeys($keys));
+		$this->assertSame($task, $task->loadRegistryKeys($keys));
 		
 		$expected = array(
 			'my-key'  => null,
 			'your-key' => null,
 			'our-key'  => null
 		);
-		$this->assertEquals($expected, $task->getDataKeys());
+		$this->assertEquals($expected, $task->getRegistryKeys());
 
 		$more = array('key-a', 'key-b');
-		$this->assertSame($task, $task->loadDataKeys($more));
+		$this->assertSame($task, $task->loadRegistryKeys($more));
 		
 		$expected['key-a'] = null;
 		$expected['key-b'] = null;
-		$this->assertEquals($expected, $task->getDataKeys());
+		$this->assertEquals($expected, $task->getRegistryKeys());
 		
 
-		$this->assertSame($task, $task->loadDataKeys(array()));
-		$this->assertEquals($expected, $task->getDataKeys());
+		$this->assertSame($task, $task->loadRegistryKeys(array()));
+		$this->assertEquals($expected, $task->getRegistryKeys());
 		return $task;
 	}
 
 	/**
 	 * @test
-	 * @depends	clearKeyData
+	 * @depends	clearKeyRegistry
 	 * @return	StartupTask
 	 */
-	public function LoadDataKeysWithDefault(StartupTask $task)
+	public function LoadRegistryKeysWithDefault(StartupTask $task)
 	{
-		$task->clearDataKeys();
+		$task->clearRegistryKeys();
 		$keys = array(
 			'my-key'   => 'value-a', 
 			'your-key' => 12345, 
 			'our-key'  => false
 		);
-		$this->assertSame($task, $task->loadDataKeys($keys));
-		$this->assertEquals($keys, $task->getDataKeys());
+		$this->assertSame($task, $task->loadRegistryKeys($keys));
+		$this->assertEquals($keys, $task->getRegistryKeys());
 
 		$more = array('key-a' => 1.23, 'key-b' => new StdClass());
-		$this->assertSame($task, $task->loadDataKeys($more));
+		$this->assertSame($task, $task->loadRegistryKeys($more));
 		
 		$keys['key-a'] = 1.23;
 		$keys['key-b'] = new StdClass();
-		$this->assertEquals($keys, $task->getDataKeys());
+		$this->assertEquals($keys, $task->getRegistryKeys());
 
 		return $task;
 	}
@@ -260,19 +260,19 @@ class StartupTaskTest extends BaseTestCase
 	 * @depends	createTaskNoArgs
 	 * @return	StartupTask
 	 */
-	public function setDataKeys(StartupTask $task)
+	public function setRegistryKeys(StartupTask $task)
 	{
-		$task->clearDataKeys();
+		$task->clearRegistryKeys();
 		$keys = array(
 			'my-key'   => 'value-a', 
 			'your-key' => 12345, 
 			'our-key'  => false
 		);
-		$task->loadDataKeys($keys);
+		$task->loadRegistryKeys($keys);
 		
 		$new = array('key-a' => 'value-a', 'key-b' => 'value-b');
-		$this->assertSame($task, $task->setDataKeys($new));
-		$this->assertEquals($new, $task->getDataKeys());
+		$this->assertSame($task, $task->setRegistryKeys($new));
+		$this->assertEquals($new, $task->getRegistryKeys());
 
 		return $task;
 	}
@@ -344,7 +344,7 @@ class StartupTaskTest extends BaseTestCase
 	 * @depends	testInterface
 	 * @return	null
 	 */
-	public function AddRegistryKeyWithDefault()
+	public function addRegistryKeyWithDefaults()
 	{
 		$this->assertEquals(array(), $this->task->getRegistryKeys());
 		

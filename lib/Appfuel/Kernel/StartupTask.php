@@ -46,7 +46,7 @@ class StartupTask implements StartupTaskInterface
 	public function __construct(array $keys = null)
 	{
 		if (null !== $keys) {
-			$this->loadDataKeys($keys);
+			$this->loadRegistryKeys($keys);
 		}
 	}
 
@@ -88,7 +88,7 @@ class StartupTask implements StartupTaskInterface
 		/* non associative arrays use the default as null */
 		if ($keys === array_values($keys)) {
 				foreach ($keys as $key) {
-					$this->addDataKey($key);
+					$this->addRegistryKey($key);
 				}
 		}
 		else {
