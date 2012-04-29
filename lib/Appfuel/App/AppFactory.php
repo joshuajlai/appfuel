@@ -14,6 +14,10 @@ use RunTimeException,
 	Appfuel\Http\HttpOutput,
 	Appfuel\Http\HttpResponse,
 	Appfuel\Console\ConsoleOutput,
+	Appfuel\View\ViewBuilder,
+	Appfuel\Kernel\TaskHandler,
+	Appfuel\Kernel\ConfigRegistry,
+	Appfuel\Kernel\Mvc\MvcFront,
 	Appfuel\Kernel\Mvc\AppInput,
 	Appfuel\Kernel\Mvc\AppInputInterface,
 	Appfuel\Kernel\Mvc\RequestUri,
@@ -24,11 +28,7 @@ use RunTimeException,
 	Appfuel\Kernel\Mvc\MvcDispatcher,
 	Appfuel\Kernel\Mvc\MvcDispatcherInterface,
 	Appfuel\Kernel\Mvc\InterceptChain,
-	Appfuel\Kernel\Mvc\InterceptChainInterface,
-	Appfuel\Kernel\Mvc\MvcFront,
-	Appfuel\View\ViewBuilder,
-	Appfuel\Kernel\Startup\TaskHandler,
-	Appfuel\Kernel\Startup\ConfigRegistry;
+	Appfuel\Kernel\Mvc\InterceptChainInterface;
 
 /**
  * Create all object required to implement appfuels take on the mvc pattern

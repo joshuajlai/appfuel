@@ -13,7 +13,7 @@ namespace Appfuel\View;
 
 use DomainException,
     InvalidArgumentException,
-	Appfuel\Kernel\Startup\StartupTask;
+	Appfuel\Kernel\StartupTask;
 
 /**
  * Allow configuration for the resource management.  This will configure

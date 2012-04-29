@@ -9,8 +9,7 @@
  * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\App\AppHandler,
-	Appfuel\Console\ConsoleArgList;
+use Appfuel\App\AppHandler;
 
 $base = realpath(dirname(__FILE__) . '/../../');
 $file = "{$base}/lib/Appfuel/App/AppHandler.php";

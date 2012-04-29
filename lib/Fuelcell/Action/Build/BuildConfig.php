@@ -11,9 +11,9 @@
 namespace Fuelcell\Action\Build;
 
 use DomainException,
+	Appfuel\Kernel\ConfigBuilder,
 	Appfuel\Kernel\Mvc\MvcAction,
-	Appfuel\Kernel\Mvc\MvcContextInterface,
-	Appfuel\Kernel\Startup\ConfigBuilder;
+	Appfuel\Kernel\Mvc\MvcContextInterface;
 
 /**
  * This will take the config file specified by env merge it with config 

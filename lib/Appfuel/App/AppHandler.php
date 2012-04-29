@@ -16,14 +16,14 @@ use LogicException,
 	InvalidArgumentException,
 	Appfuel\View\ViewInterface,
 	Appfuel\ClassLoader\ManualClassLoader,
+	Appfuel\Kernel\ConfigLoader,
+	Appfuel\Kernel\ConfigRegistry,
+	Appfuel\Kernel\TaskHandler,
+	Appfuel\Kernel\TaskHandlerInterface,
 	Appfuel\Kernel\Mvc\RequestUriInterface,
 	Appfuel\Kernel\Mvc\AppInputInterface,
 	Appfuel\Kernel\Mvc\MvcContextInterface,
 	Appfuel\Kernel\Mvc\MvcRouteDetailInterface,
-	Appfuel\Kernel\Startup\TaskHandler,
-	Appfuel\Kernel\Startup\TaskHandlerInterface,
-	Appfuel\Kernel\Startup\ConfigLoader,
-	Appfuel\Kernel\Startup\ConfigRegistry,
 	Appfuel\Kernel\Mvc\MvcFactory,
 	Appfuel\Kernel\Mvc\MvcFactoryInterface;
 
@@ -43,14 +43,14 @@ class AppHandler
 	 * @var array
 	 */
 	protected $fwTasks = array(
-		'Appfuel\Kernel\Startup\PHPIniTask',
-		'Appfuel\Kernel\Startup\PHPErrorTask',
-		'Appfuel\Kernel\Startup\PHPPathTask',
-		'Appfuel\Kernel\Startup\PHPDefaultTimezoneTask',
-		'Appfuel\Kernel\Startup\PHPAutoloaderTask',
-		'Appfuel\Kernel\Startup\FaultHandlerTask',
-		'Appfuel\Kernel\Startup\DependencyLoaderTask',
-		'Appfuel\Kernel\Startup\RouteListTask',
+		'Appfuel\Kernel\PHPIniTask',
+		'Appfuel\Kernel\PHPErrorTask',
+		'Appfuel\Kernel\PHPPathTask',
+		'Appfuel\Kernel\PHPDefaultTimezoneTask',
+		'Appfuel\Kernel\PHPAutoloaderTask',
+		'Appfuel\Kernel\FaultHandlerTask',
+		'Appfuel\Kernel\DependencyLoaderTask',
+		'Appfuel\Kernel\RouteListTask',
 	);
 
 	/**
