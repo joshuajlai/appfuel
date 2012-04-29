@@ -10,9 +10,14 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use InvalidArgumentException;
+use DomainException;
 
 /**
+ * As a sub system to the route detail, route access provides acl control
+ * to route. It determines if a route is public (no acl required) or internal
+ * (can only be called by an action and not by the front controller). Acl codes
+ * may also be directly mapped to input method used: appfuel supports 5 methods
+ * get, post, put, delete, cli. 
  */
 class RouteAccess implements RouteAccessInterface
 {
@@ -207,13 +212,12 @@ class RouteAccess implements RouteAccessInterface
 	{
 		if ($this->isAclForEachMethod()) {
 			if ($map === array_values($map)) {
-				$err  = "map must be an associative array of method => ";
-				$err .= "array(acl codes ...)";
+				$err  = "map must be an associative array ";
 				throw new DomainException($err);
 			}
 			foreach ($map as $method => $codes) {
 				if (! is_string($method) || empty($method)) {
-					$err  = "method the acl codes are mapped to must be a ";
+					$err  = "the method acl codes are mapped to must be a ";
 					$err .= "non empty string";
 					throw new DomainException($err);
 				}

@@ -8,11 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\Kernel\Startup;
+namespace TestFuel\Unit\Kernel;
 
 use StdClass,
 	Appfuel\Kernel\ConfigRegistry,
-	TestFuel\TestCase\BaseTestCase;
+	Testfuel\TestCase\BaseTestCase;
 
 class ConfigRegistryTest extends BaseTestCase
 {

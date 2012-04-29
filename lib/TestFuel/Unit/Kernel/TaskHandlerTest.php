@@ -8,15 +8,15 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\Kernel\Startup;
+namespace Testfuel\Unit\Kernel;
 
 use StdClass,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Kernel\Mvc\MvcContext,
 	Appfuel\Kernel\TaskHandler,
+	Appfuel\Kernel\Mvc\MvcContext,
 	Appfuel\Kernel\ConfigRegistry,
-	TestFuel\Functional\Kernel\Startup\TestTaskA,
-	TestFuel\Functional\Kernel\Startup\TestTaskB;
+	Testfuel\TestCase\BaseTestCase,
+	Testfuel\Functional\Kernel\Startup\TestTaskA,
+	Testfuel\Functional\Kernel\Startup\TestTaskB;
 	
 
 class TaskHandlerTest extends BaseTestCase

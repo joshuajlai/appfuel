@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\Kernel\Startup;
+namespace Testfuel\Unit\Kernel;
 
 use StdClass,
-	TestFuel\TestCase\BaseTestCase,
+	Testfuel\TestCase\BaseTestCase,
 	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileReader,
 	Appfuel\Kernel\ConfigLoader,

@@ -41,11 +41,13 @@ class AppInput implements AppInputInterface
 	 * @param	string	$rm			request method
      * @return	Request
      */
-    public function __construct($method = null, array $params = array())
+    public function __construct($method, array $params = array())
     {
-		if (null === $method || ! is_string($method)) {
-			$method = '';
+		if (! is_string($method) || empty($method)) {
+			$err = "method must be a non empty string";
+			throw new InvalidArgumentException($err);
 		}
+
 		$this->method = strtolower($method);
 	
 		/*
@@ -61,14 +63,14 @@ class AppInput implements AppInputInterface
 			}
 			
 			if (! is_array($params[$type])) {
-				$err .= "request param for -($type) must be an array";
+				$err = "request param for -($type) must be an array";
 				throw new InvalidArgumentException($err);
 			}
 			
 			/* make sure he the array of key value pairs have valid keys */
 			foreach ($params[$type] as $key => $value) {
 				if (strlen($key) === 0 || ! is_scalar($key)) {
-					$err .= "request param for -($type) key must not be empty";
+					$err = "request param for -($type) key must not be empty";
 					throw new InvalidArgumentException($err);
 				}
 			}

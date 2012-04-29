@@ -200,8 +200,8 @@ class BuildClientsideResources extends MvcAction
 			$pageStack->add($type, $file);
         }
 
+        $result = '';
         if ($content->count() > 0) {
-            $result = '';
             foreach ($content as $data) {
                 $result .= $data . PHP_EOL;
             }
