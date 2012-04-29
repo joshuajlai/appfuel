@@ -21,14 +21,6 @@ use DomainException,
 class RouteListTask extends StartupTask 
 {
 	/**
-	 * @return	RouteListTask
-	 */
-	public function __construct()
-	{
-		$this->setDataKeys(array());
-	}
-
-	/**
 	 * @param	array	$params		config params 
 	 * @return	null
 	 */

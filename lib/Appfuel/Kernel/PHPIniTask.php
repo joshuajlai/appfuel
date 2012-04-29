@@ -24,7 +24,7 @@ class PHPIniTask extends StartupTask
 	 */
 	public function __construct()
 	{
-		$this->setDataKeys(array('php-ini' => null));
+		$this->setRegistryKeys(array('php-ini' => null));
 	}
 
 	/**

@@ -11,8 +11,8 @@
 namespace TestFuel\Unit\Kernel\Startup;
 
 use StdClass,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Kernel\Startup\StartupTask;
+	Appfuel\Kernel\StartupTask,
+	TestFuel\TestCase\BaseTestCase;
 
 /**
  */
@@ -63,7 +63,7 @@ class StartupTaskTest extends BaseTestCase
 	{
 		$task = new StartupTask();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Startup\StartupTaskInterface',
+			'Appfuel\Kernel\StartupTaskInterface',
 			$task
 		);
 		return $task;
@@ -77,7 +77,7 @@ class StartupTaskTest extends BaseTestCase
 	{
 		$task = new StartupTask($this->getTaskKeys());
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Startup\StartupTaskInterface',
+			'Appfuel\Kernel\StartupTaskInterface',
 			$task
 		);
 

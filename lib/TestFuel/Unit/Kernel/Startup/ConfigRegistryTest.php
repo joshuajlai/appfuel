@@ -11,8 +11,8 @@
 namespace TestFuel\Unit\Kernel\Startup;
 
 use StdClass,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\Kernel\Startup\ConfigRegistry;
+	Appfuel\Kernel\ConfigRegistry,
+	TestFuel\TestCase\BaseTestCase;
 
 class ConfigRegistryTest extends BaseTestCase
 {

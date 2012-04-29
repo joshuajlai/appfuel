@@ -29,7 +29,7 @@ class ViewStartupTask extends StartupTask
 	 */
 	public function __construct()
 	{
-		$this->setDataKeys(array('clientside' => array()));
+		$this->setRegistryKeys(array('clientside' => array()));
 	}
 	
     /**

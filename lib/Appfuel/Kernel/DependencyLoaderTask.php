@@ -23,7 +23,7 @@ class DependencyLoaderTask extends StartupTask
 	 */
 	public function __construct()
 	{
-		$this->setDataKeys(array(
+		$this->setRegistryKeys(array(
 			'depend-files'	=> array(),
 			'depend-classes'=> array(),
 			'depend-lib-classes' => array()

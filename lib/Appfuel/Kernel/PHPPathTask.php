@@ -30,7 +30,7 @@ class PHPPathTask extends StartupTask
 	 */
 	public function __construct()
 	{
-		$this->setDataKeys(array(
+		$this->setRegistryKeys(array(
 			'php-include-path'		  => null,
 			'php-include-path-action' => $this->getDefaultAction(),
 		));

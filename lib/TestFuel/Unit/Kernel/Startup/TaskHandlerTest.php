@@ -13,8 +13,8 @@ namespace TestFuel\Unit\Kernel\Startup;
 use StdClass,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Kernel\Mvc\MvcContext,
-	Appfuel\Kernel\Startup\TaskHandler,
-	Appfuel\Kernel\Startup\ConfigRegistry,
+	Appfuel\Kernel\TaskHandler,
+	Appfuel\Kernel\ConfigRegistry,
 	TestFuel\Functional\Kernel\Startup\TestTaskA,
 	TestFuel\Functional\Kernel\Startup\TestTaskB;
 	
@@ -137,7 +137,7 @@ class TaskHandlerTest extends BaseTestCase
 	{
 		$handler = new TaskHandler();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Startup\TaskHandlerInterface',
+			'Appfuel\Kernel\TaskHandlerInterface',
 			$handler
 		);
 

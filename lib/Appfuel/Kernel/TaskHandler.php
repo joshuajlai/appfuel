@@ -76,7 +76,7 @@ class TaskHandler implements TaskHandlerInterface
 	public function collectDataForTask(StartupTaskInterface $task)
 	{
 		$data = null;
-		$keys = $task->getDataKeys();
+		$keys = $task->getRegistryKeys();
 		if (! empty($keys)) {
 			$data = $this->collectFromRegistry($keys);
 		}
@@ -116,7 +116,7 @@ class TaskHandler implements TaskHandlerInterface
 	public function runTask(StartupTaskInterface $task)
 	{
 		$data = null;
-		$keys = $task->getDataKeys();
+		$keys = $task->getRegistryKeys();
 		if (! empty($keys)) {
 			$data = $this->collectFromRegistry($keys);
 		}

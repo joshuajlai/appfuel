@@ -23,7 +23,7 @@ class PHPAutoloaderTask extends StartupTask
 	 */
 	public function __construct()
 	{
-		$this->setDataKeys(array('php-autoloader' => null));
+		$this->setRegistryKeys(array('php-autoloader' => null));
 	}
 
 	/**

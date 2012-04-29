@@ -22,7 +22,7 @@ class PHPDefaultTimezoneTask extends StartupTask
 	 */
 	public function __construct()
 	{
-		$this->setDataKeys(array('php-default-timezone'	=> null));
+		$this->setRegistryKeys(array('php-default-timezone'	=> null));
 	}
 
 	/**

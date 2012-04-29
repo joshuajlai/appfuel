@@ -10,8 +10,8 @@
  */
 namespace Appfuel\Kernel;
 
-use Appfuel\Kernel\Mvc\MvcContext,
-	Appfuel\Kernel\Mvc\MvcRouteDetail;
+use Appfuel\Kernel\Mvc\MvcContextInterface,
+	Appfuel\Kernel\Mvc\MvcRouteDetailInterface;
 
 /**
  * A strategy pattern used to encapsulates any logic needed to configure or 
@@ -28,14 +28,14 @@ interface  StartupTaskInterface
 	 *
 	 * @return	string
 	 */
-	//public function getStatus();
+	public function getStatus();
 
 	/**
 	 * List of keys to pull out of the registry
 	 *
 	 * @return	null|string|array
 	 */
-	//public function getRegistryKeys();
+	public function getRegistryKeys();
 
     /**
      * @param   array   $params
@@ -43,13 +43,13 @@ interface  StartupTaskInterface
      * @param   MvcContextInterface $context
      * @return  null
      */
-    //public function kernelExecute(array $params = null,
-    //                              MvcRouteDetailInterface $route,
-    //                              MvcContextInterface $context);
+    public function kernelExecute(array $params = null,
+                                  MvcRouteDetailInterface $route,
+                                  MvcContextInterface $context);
 
 	/**
 	 * @param	array	$params	
 	 * @return	null
 	 */
-	//public function execute(array $params = null);
+	public function execute(array $params = null);
 }

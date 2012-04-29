@@ -23,7 +23,7 @@ class FaultHandlerTask extends StartupTask
 	 */
 	public function __construct()
 	{
-		$this->setDataKeys(array(
+		$this->setRegistryKeys(array(
 			'php-error-handler'		=> null,
 			'php-exception-handler' => null,
 			'fault-handler-class'	=> null

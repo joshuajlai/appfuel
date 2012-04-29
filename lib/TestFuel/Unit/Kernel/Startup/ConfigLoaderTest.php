@@ -14,8 +14,8 @@ use StdClass,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileReader,
-	Appfuel\Kernel\Startup\ConfigLoader,
-	Appfuel\Kernel\Startup\ConfigRegistry;
+	Appfuel\Kernel\ConfigLoader,
+	Appfuel\Kernel\ConfigRegistry;
 
 /**
  */
@@ -79,7 +79,7 @@ class ConfigLoaderTest extends BaseTestCase
 	{
 		$loader = new ConfigLoader();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Startup\ConfigLoaderInterface',
+			'Appfuel\Kernel\ConfigLoaderInterface',
 			$loader
 		);
 
@@ -95,7 +95,7 @@ class ConfigLoaderTest extends BaseTestCase
 		$reader = new FileReader(new FileFinder('test/files/config')); 
 		$loader = new ConfigLoader($reader);
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\Startup\ConfigLoaderInterface',
+			'Appfuel\Kernel\ConfigLoaderInterface',
 			$loader
 		);
 

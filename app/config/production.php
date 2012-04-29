@@ -23,12 +23,15 @@ return array(
 	),
 	
 	'test' => array(
-		'include-path-action'	=> 'append',
-		'include-path'			=> array(
+		'php-include-path-action'	=> 'append',
+		'php-include-path'			=> array(
 			AF_BASE_PATH . '/test',
 			AF_BASE_PATH . '/test/classes',
 			AF_LIB_PATH 
 		),
+		'php-display-errors'	=> 'on',
+		'php-error-level'		=> 'all, strict',
+		'fault-handler-class'	=> 'Appfuel\Kernel\FaultHandler',
 		'startup-tasks'	=> array(
 			'Appfuel\DataSource\Db\DbStartupTask',
 			'TestFuel\UnitTestStartup',

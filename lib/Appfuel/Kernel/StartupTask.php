@@ -65,7 +65,7 @@ class StartupTask implements StartupTaskInterface
 	 *
 	 * @return	null|string|array
 	 */
-	public function getDataKeys()
+	public function getRegistryKeys()
 	{
 		return $this->keys;
 	}
@@ -73,7 +73,7 @@ class StartupTask implements StartupTaskInterface
 	/**
 	 * @return	StartupTask
 	 */
-	public function clearDataKeys()
+	public function clearRegistryKeys()
 	{
 		$this->keys = array();
 		return $this;
@@ -83,7 +83,7 @@ class StartupTask implements StartupTaskInterface
 	 * @param	array	$keys
 	 * @return	StartupTask
 	 */
-	public function loadDataKeys(array $keys)
+	public function loadRegistryKeys(array $keys)
 	{
 		/* non associative arrays use the default as null */
 		if ($keys === array_values($keys)) {
@@ -93,7 +93,7 @@ class StartupTask implements StartupTaskInterface
 		}
 		else {
 			foreach ($keys as $key => $default) {
-				$this->addDataKey($key, $default);
+				$this->addRegistryKey($key, $default);
 			}
 		}
 		return $this;
@@ -103,10 +103,10 @@ class StartupTask implements StartupTaskInterface
 	 * @param	array	$keys
 	 * @return	null
 	 */
-	public function setDataKeys(array $keys)
+	public function setRegistryKeys(array $keys)
 	{
-		$this->clearDataKeys();
-		$this->loadDataKeys($keys);
+		$this->clearRegistryKeys();
+		$this->loadRegistryKeys($keys);
 		return $this;
 	}
 
@@ -115,7 +115,7 @@ class StartupTask implements StartupTaskInterface
 	 * @param	mixed	$default
 	 * @return	null
 	 */
-	public function addDataKey($label, $default = null)
+	public function addRegistryKey($label, $default = null)
 	{
 		if (! is_string($label) || empty($label)) {
 			$err = 'label must be a non empty string';
@@ -157,7 +157,7 @@ class StartupTask implements StartupTaskInterface
 	 * @param	string	$msg	prepends to error msg
 	 * @return	true
 	 */
-	protected function validateDataKeys($params, $msg = '')
+	protected function validateRegistryKeys($params, $msg = '')
 	{
 		if (! is_string($msg)) {
 			$msg = '';		
@@ -168,7 +168,7 @@ class StartupTask implements StartupTaskInterface
 			throw new DomainException(trim($err));			
 		}
 
-		 $key = $this->checkKeys($this->getDataKeys(), $params);
+		 $key = $this->checkKeys($this->getRegistryKeys(), $params);
 		if (true !== $key) {
 			$err = "$msg key -($key) is required but not found";
 			throw new DomainException(trim($err));

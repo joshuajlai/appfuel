@@ -25,7 +25,7 @@ class PHPErrorTask extends StartupTask
 	 */
 	public function __construct()
 	{
-		$this->setDataKeys(array(
+		$this->setRegistryKeys(array(
 			'php-display-errors'	=> 'off',
 			'php-error-level'		=> 'all, strict'
 		));
