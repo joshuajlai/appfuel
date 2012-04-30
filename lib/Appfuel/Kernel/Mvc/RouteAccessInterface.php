@@ -11,6 +11,11 @@
 namespace Appfuel\Kernel\Mvc;
 
 /**
+ * Provides access details for a given route. Details include:
+ * 1) is the route public (no acl required)
+ * 2) is the route internal (only called by another action)
+ * 3) will the route ignore acl (mostly used by internal routes)
+ * 4) is acl for each method (get, post, put, delete and cli)
  */
 interface RouteAccessInterface
 {

@@ -13,6 +13,7 @@ namespace Appfuel\Kernel\Mvc;
 use DomainException;
 
 /**
+ * Controls which tasks are applied during startup
  */
 class RouteStartup implements RouteStartupInterface
 {
@@ -27,6 +28,12 @@ class RouteStartup implements RouteStartupInterface
 	 * @var bool
 	 */
 	protected $isIgnoreConfig = false;
+
+	/**
+	 * Determines is startup tasks should be run
+	 * @var bool
+	 */
+	protected $isStartupDisabled = false;
 
 	/**
 	 * List of task class names which are used during application startup
@@ -94,6 +101,32 @@ class RouteStartup implements RouteStartupInterface
 	}
 
 	/**
+	 * @return	RouteStartup
+	 */
+	public function enableStartup()
+	{
+		$this->isStartupDisabled = false;
+		return $this;
+	}
+
+	/**
+	 * @return	RouteStartup
+	 */
+	public function disableStartup()
+	{
+		$this->isStartupDisabled = true;
+		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isStartupDisabled()
+	{
+		return $this->isStartupDisabled;
+	}
+
+	/**
 	 * @return	bool
 	 */
 	public function isStartupTasks()
@@ -116,7 +149,7 @@ class RouteStartup implements RouteStartupInterface
 	public function setStartupTasks(array $list)
 	{
 		if (! $this->isValidTaskList($list)) {
-			$err = "startup tasks must be non empty string";
+			$err = "startup tasks must be non empty strings";
 			throw new DomainException($err);
 		}
 
@@ -147,11 +180,11 @@ class RouteStartup implements RouteStartupInterface
 	public function setExcludedStartupTasks(array $list)
 	{
 		if (! $this->isValidTaskList($list)) {
-			$err = "startup tasks must be non empty string";
+			$err = "startup tasks must be non empty strings";
 			throw new DomainException($err);
 		}
 
-		$this->tasks = $list;
+		$this->excludedTasks = $list;
 		return $this;
 	}
 

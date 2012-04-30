@@ -16,6 +16,7 @@
 	<file>../lib/Testfuel/Unit/Kernel/Mvc/AppInput_FailureTest.php</file>
 	<file>../lib/Testfuel/Unit/Kernel/Mvc/RequestUriTest.php</file>
 	<file>../lib/Testfuel/Unit/Kernel/Mvc/RouteAccessTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/Mvc/RouteStartupTest.php</file>
 
 	<file>../lib/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
 	<file>../lib/TestFuel/Unit/Html/Resource/PkgTest.php</file>

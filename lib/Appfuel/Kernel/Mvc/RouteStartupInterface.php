@@ -14,6 +14,10 @@ use DomainException,
     Appfuel\DataStructure\Dictionary;
 
 /**
+ * Allows control over which tasks are applied during application startup.
+ * Note: this does not include control over framework tasks. Tasks may be
+ * added or excluded. All tasks or just tasks defined in the config files
+ * may be disabled.
  */
 interface RouteStartupInterface
 {
@@ -46,6 +50,21 @@ interface RouteStartupInterface
 	 * @return	bool
 	 */
 	public function isIgnoreConfigStartupTasks();
+
+	/**
+	 * @return	RouteStartupInterface
+	 */
+	public function enableStartup();
+
+	/**
+	 * @return	RouteStartupInterface
+	 */
+	public function disableStartup();
+
+	/**
+	 * @return	bool
+	 */
+	public function isStartupDisabled();
 
 	/**
 	 * @return	bool
