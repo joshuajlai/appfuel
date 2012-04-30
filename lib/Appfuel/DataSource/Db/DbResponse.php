@@ -113,7 +113,7 @@ class DbResponse implements DbResponseInterface
         }
         else {
             $this->markSuccessful();
-            $this->affected = $rows;
+            $this->affected = $count;
         }
         
 		return $this;
