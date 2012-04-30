@@ -358,6 +358,10 @@ class ResourceTreeManager
                 $stack->addAfter($type, $name,  $afterName);
             }
         }
+
+        if ($pkg->isLang()) {
+            $stack->add("js-lang", $name);
+        }
 	}
 									
 

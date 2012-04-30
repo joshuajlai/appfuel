@@ -212,7 +212,9 @@ class Yui3Layer implements ResourceLayerInterface
 	 */
 	public function getAllJsSourcePaths()
 	{
-		return $this->getSourcePaths('js');
+        $js = $this->getSourcePaths('js');
+        $lang = $this->getSourcePaths('js-lang');
+        return array_merge($js, $lang);
 	}
 
 	/**
@@ -229,9 +231,15 @@ class Yui3Layer implements ResourceLayerInterface
 			return array();
 		}
 
+
 		$result = array();
-		foreach ($list as $name) {
-			$result[] = "$srcPath/$name/$name.$type";
+        foreach ($list as $name) {
+            if ('js-lang' === $type) {
+                $result[] = "$srcPath/$name/lang/{$name}_en.js";
+            }
+            else {
+                $result[] = "$srcPath/$name/$name.$type";
+            }
 		}
 
 		return $result;
