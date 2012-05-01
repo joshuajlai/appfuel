@@ -1,7 +1,7 @@
 {
 	"yui3" : {
 		"version": "3.4.1",
-		"path": "yui3",
+		"path": "yui3/build",
 		"tree-path": "resource/yui3/src/loader/js/yui3.json",
 		"layers": {
 			"fw-global": {

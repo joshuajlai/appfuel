@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -38,9 +38,13 @@ class ViewBuilder implements ViewBuilderInterface
 	 */
 	public function setupView(MvcContextInterface $context,
 							  MvcRouteDetailInterface $route,
-							 $format)
+							 $format = null)
 	{
-		if ($route->isView() && ! $route->isManualView()) {
+		if (null === $format) {
+			$format = '';
+		}
+
+		if (! $route->isViewDisabled() && ! $route->isManualView()) {
 			$context->setViewFormat($format);
 			$view = $this->createTemplate($format);
 			$context->setView($view);
@@ -106,8 +110,7 @@ class ViewBuilder implements ViewBuilderInterface
 			case 'json': $template = $this->createAjaxTemplate(); break;
 			case 'text': $template = $this->createViewTemplate(); break;
 			default: 
-				$err = "could not find template for format -($format)";
-				throw new DomainException($err, 404);
+				$template = $this->createViewTemplate();
 		}
 
 		return $template;

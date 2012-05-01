@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -88,7 +88,7 @@ class MvcFront implements MvcFrontInterface
 		$this->setCurrentRoute($routeKey);
 		$detail = $this->getRouteDetail($routeKey);
 
-		if (! $detail->isSkipPreFilters()) {
+		if (! $detail->isPreFilteringEnabled()) {
 			$context = $this->runPreFilters($detail, $context);
 		}
 
@@ -112,7 +112,7 @@ class MvcFront implements MvcFrontInterface
 				$detail = $this->getRouteDetail($tmpRouteKey);
 			}
 
-			if (! $detail->isSkipPostFilters()) {
+			if (! $detail->isPostFilteringEnabled()) {
 				$context = $this->runPostFilters($detail, $context);
 			}
 		}

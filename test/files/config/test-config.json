@@ -1,0 +1,23 @@
+{
+	"common" : {
+		"key-a" : "common-a",
+		"key-z" : "value-z"
+	},
+	"section-a" : {
+		"key-a" : "value-a",
+		"key-b" : 12345,
+		"key-c" : 1.2345,
+		"key-d" : true,
+		"key-e" : false,
+		"key-f" : [1,2,3],
+		"key-g" : {
+			"sub-key-a" : "value-a",
+			"sub-key-b" : "value-b"
+		}
+	},
+	"section-b" : {
+		"key-b" : "value-b",
+		"key-x" : "value-x",
+		"key-y" : ["a", "b","c"]
+	}
+}

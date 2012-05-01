@@ -2,12 +2,10 @@
 
 return array(
 	'common' => array(
-		'display-errors' => 'on',
+		'php-display-errors' => 'on',
 	),
 	'main' => array(
-		'startup-tasks'		=> array(
-			'Appfuel\Kernel\Startup\UrlStartup'
-		),
+		'startup-tasks'		=> array(),
 		'post-filters'		=> array(),
 	),
 	'test' => array(

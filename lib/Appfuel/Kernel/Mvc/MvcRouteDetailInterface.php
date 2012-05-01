@@ -40,7 +40,7 @@ interface MvcRouteDetailInterface extends DictionaryInterface
 	/**
 	 * @return	bool
 	 */
-	public function isSkipPreFilters();
+	public function isPreFilteringEnabled();
 
 	/**
 	 * @return	bool
@@ -65,7 +65,7 @@ interface MvcRouteDetailInterface extends DictionaryInterface
 	/**
 	 * @return	bool
 	 */
-	public function isSkipPostFilters();
+	public function isPostFilteringEnabled();
 
 	/**
 	 * @return	bool
@@ -117,22 +117,12 @@ interface MvcRouteDetailInterface extends DictionaryInterface
 	/**
 	 * @return	bool
 	 */
-	public function isView();
+	public function isViewDisabled();
 
 	/**
 	 * @return	bool
 	 */
 	public function isManualView();
-
-	/**
-	 * @return	bool
-	 */
-	public function isRawView();
-
-	/**
-	 * @return	string
-	 */
-	public function getRawView();
 
 	/**
 	 * @return	bool
@@ -145,17 +135,7 @@ interface MvcRouteDetailInterface extends DictionaryInterface
 	public function getViewPackage();
 
 	/**
-	 * @return	array
-	 */
-	public function getViewParams();
-
-	/**
 	 * @return	string
 	 */
 	public function getActionName();
-
-	/**
-	 * @return	string
-	 */
-	public function getActionClass();
 }

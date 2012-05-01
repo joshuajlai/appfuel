@@ -6,9 +6,17 @@
 		 convertErrorsToExceptions="true">
 <testsuites>
 	<testsuite name="Appfuel Tests">
-	<file>../lib/TestFuel/Unit/Kernel/Startup/StartupTaskTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Startup/ConfigRegistryTest.php</file>
-	<file>../lib/TestFuel/Unit/Kernel/Startup/TaskHandlerTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/ConfigBuilderTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/ConfigLoaderTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/ConfigRegistryTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/StartupTaskTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/TaskHandlerTest.php</file>
+	
+	<file>../lib/Testfuel/Unit/Kernel/Mvc/AppInputTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/Mvc/AppInput_FailureTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/Mvc/RequestUriTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/Mvc/RouteAccessTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/Mvc/RouteStartupTest.php</file>
 
 	<file>../lib/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
 	<file>../lib/TestFuel/Unit/Html/Resource/PkgTest.php</file>

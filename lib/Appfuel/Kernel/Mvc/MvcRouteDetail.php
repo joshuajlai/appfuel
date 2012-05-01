@@ -18,104 +18,31 @@ use InvalidArgumentException,
 class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 {
 	/**
-	 * Flag used to determine if this route is public and reqiures no acl check
-	 * @var	 bool
-	 */
-	protected $isPublic = false;
-
-	/**
-	 * Class name of the mvc action used by the dispatching system
-	 * @var string
-	 */
-	protected $actionName = 'Controller';
-
-	/**
-	 * Fully qualified namespace of the mvc action. By default this is the
-	 * combination of namespace and actionName 
-	 * @var string
-	 */
-	protected $actionClass = '';
-
-	/**
-	 * Flag used to detemine if the controller used by this route is internal.
-	 * Internal routes can not be executed by the front controller and thus
-	 * inaccessible from the outside
-	 * @var bool
-	 */
-	protected $isInternal = false;
-
-	/**
-	 * List of acl codes allowed to access this route
-	 * @var	array
-	 */
-	protected $aclCodes = array();
-
-	/**
-	 * Used when isPublic is false but you want anyone who as acl access to
-	 * pass through
-	 * @var bool
-	 */
-	protected $isIgnoreAcl = false;
-
-	/**
-	 * List of startup tasks to exclude or include
+	 * Used by the app handler to add, remove or skip startup tasks
 	 * @var array
 	 */
-	protected $startup = array(
-		'is-prepend' => false,
-		'is-ignore-config' => false,
-		'exclude' => array(),
-		'include' => array()
-	);
+	protected $startup = null;
 
 	/**
-	 * List of intercepting filters used by the front controller for 
-	 * this route
+	 * Used by the front controller to handle intercept filtering
 	 * @var array
 	 */
-	protected $filters = array(
-		'pre' => array(
-			'is-skip' => false,
-			'include' => array(),
-			'exclude' => array()
-		),
-		'post' => array(
-			'is-skip' => false,
-			'include' => array(),
-			'exclude' => array()
-		)
-	);
+	protected $intercept = null;
 
 	/**
-	 * Determines if the view is considered when processing the mvc action.
-	 * @var	bool
+	 * @var	 RouteAccess
 	 */
-	protected $isView = true;
+	protected $access = null;
 
 	/**
-	 * Determines if the framework needs to compose the view from the view data
-	 * @var bool
+	 * @var RouteView
 	 */
-	protected $isManualView = false;
+	protected $view = null;
 
 	/**
-	 * This string will represent the complete view
-	 * @var string 
-	 */	
-	protected $rawView = null;
-
-	/**
-	 * Name of the view package which represents the view for this route.
-	 * View packages are generally html pages
-	 * @var string
+	 * @var RouteAction
 	 */
-	protected $viewPkg = null;
-
-	/**
-	 * Holds custom parameters needed for manually build views or view data
-	 * @var array
-	 */
-	protected $viewParams = array();
+	protected $action = null;
 
 	/**
 	 * @param	array	$data
@@ -123,68 +50,38 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function __construct(array $data)
 	{
-		if (isset($data['is-public']) && true === $data['is-public']) {
-			$this->isPublic = true;
-		}
-
-		if (isset($data['is-internal']) && true === $data['is-internal']) {
-			$this->isInternal = true;
-		}
-
-		if (isset($data['acl-access'])) {
-			$this->setAclCodes($data['acl-access']);
-		}
-	
-		if (isset($data['is-ignore-acl']) && true === $data['is-ignore-acl']) {
-			$this->isIgnoreAcl = true;
-		}
-	
-		if (isset($data['intercept'])) {
-			$this->setInterceptingFilters($data['intercept']);
-		}
-	
-		if (isset($data['startup'])) {
-			$this->setStartup($data['startup']);
-		}
-
-		if (isset($data['is-view']) && false === $data['is-view']) {
-			$this->disableView();
-		}
-
-		if (isset($data['is-manual-view']) && 
-			true === $data['is-manual-view']) {
-			$this->enableManualView();
-		}
-
-		if (isset($data['raw-view'])) {
-			$this->setRawView($data['raw-view']);
-		}
-
-		if (isset($data['view-pkg'])) {
-			$this->setViewPackage($data['view-pkg']);
-		}
-
-		if (isset($data['view-params'])) {
-			$this->setViewParams($data['view-params']);
-		}
+		$this->initializeStartup($data);
+		$this->initializeIntercept($data);
+		$this->initializeAcl($data);
+		$this->initializeView($data);
+		$this->initializeAction($data);
 
 		$params = array();
 		if (isset($data['params']) && is_array($data['params'])) {
 			$params = $data['params'];
 		}
-
-		if (! isset($data['action-name'])) {
-			$err  = "action name must be defined. This is the class name of ";
-			$err .= "mvc action used by this route. key is -(action-name)";
-			throw new InvalidArgumentException($err);
-		}
-		$this->setActionName($data['action-name']);
-
-		if (isset($data['action-class'])) {
-			$this->setActionClass($class);
-		}
-
 		parent::__construct($params);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getFormat()
+	{
+		return $this->getRouteView()
+					->getFormat();
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	public function setFormat($name)
+	{
+		$this->getRouteView()
+			 ->setFormat($name);
+		
+		return $this;
 	}
 
 	/**
@@ -192,7 +89,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isPublicAccess()
 	{
-		return $this->isPublic;
+		return $this->getRouteAccess()
+					->isPublicAccess();
 	}
 
 	/**
@@ -200,7 +98,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isInternalOnlyAccess()
 	{
-		return $this->isInternal;
+		return $this->getRouteAccess()
+					->isInternalOnlyAccess();
 	}
 
 	/**
@@ -208,47 +107,28 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isIgnoreAcl()
 	{
-		return $this->isIgnoreAcl;
+		return $this->getRouteAccess()
+					->isIgnoreAcl();
 	}
 
 	/**
 	 * @param	string	$code
+	 * @param	string	$method
 	 * @return	bool
 	 */
-	public function isAccessAllowed($codes)
+	public function isAccessAllowed($codes, $method = null)
 	{
-		if ($this->isPublicAccess() || $this->isIgnoreAcl()) {
-			return true;
-		}
-		
-		if (is_string($codes)) {
-			$codes = array($codes);
-		}
-		else if (! is_array($codes)) {
-			return false;
-		}
-
-		$compare = array();
-		foreach ($codes as $code) {
-			if (is_string($code) && ! empty($code)) {
-				$compare[] = $code;
-			}
-		}
-
-		$result = array_intersect($this->aclCodes, $compare);
-		if (empty($result)) {
-			return false;
-		}
-
-		return true;
+		return $this->getRouteAccess()
+					->isAccessAllowed($codes, $method);
 	}
 
 	/**
 	 * @return	bool
 	 */
-	public function isSkipPreFilters()
+	public function isPreFilteringEnabled()
 	{
-		return $this->filters['pre']['is-skip'];
+		return $this->getRouteIntercept()
+					->isPreFilteringEnabled();
 	}
 
 	/**
@@ -256,8 +136,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isPreFilters()
 	{
-		$list = $this->filters['pre']['include'];
-		return is_array($list) && ! empty($list); 
+		return $this->getRouteIntercept()
+					->isPreFilters();
 	}
 
 	/**
@@ -265,7 +145,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function getPreFilters()
 	{
-		return $this->filters['pre']['include'];
+		return $this->getRouteIntercept()
+					->getPreFilters();
 	}
 
 	/**
@@ -273,8 +154,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isExcludedPreFilters()
 	{
-		$list = $this->filters['pre']['exclude'];
-		return is_array($list) && ! empty($list); 
+		return $this->getRouteIntercept()
+					->isExcludedPreFilters(); 
 	}
 
 	/**
@@ -282,15 +163,17 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function getExcludedPreFilters()
 	{
-		return $this->filters['pre']['exclude'];
+		return $this->getRouteIntercept()
+					->getExcludedPreFilters();
 	}
 
 	/**
 	 * @return	bool
 	 */
-	public function isSkipPostFilters()
+	public function isPostFilteringEnabled()
 	{
-		return $this->filters['post']['is-skip'];
+		return $this->getRouteIntercept()
+					->isPostFilteringEnabled();
 	}
 
 	/**
@@ -298,8 +181,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isPostFilters()
 	{
-		$list = $this->filters['post']['include'];
-		return is_array($list) && ! empty($list); 
+		return $this->getRouteIntercept()
+					->isPostFilters(); 
 	}
 
 	/**
@@ -307,7 +190,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function getPostFilters()
 	{
-		return $this->filters['post']['include'];
+		return $this->getRouteIntercept()
+					->getPostFilters();
 	}
 
 	/**
@@ -315,8 +199,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isExcludedPostFilters()
 	{
-		$list = $this->filters['post']['exclude'];
-		return is_array($list) && ! empty($list); 
+		return $this->getRouteIntercept()
+					->isExcludedPostFilters(); 
 	}
 
 	/**
@@ -324,7 +208,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function getExcludedPostFilters()
 	{
-		return $this->filters['post']['exclude'];
+		return $this->getRouteIntercept()
+					->getExcludedPostFilters();
 	}
 
 	/**
@@ -332,12 +217,17 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isIgnoreConfigStartupTasks()
 	{
-		return $this->startup['is-ignore-config'];
+		return $this->getRouteStartup()
+					->isIgnoreConfigStartupTasks();
 	}
 
+	/**
+	 * @return	bool
+	 */
 	public function isPrependStartupTasks()
 	{
-		return $this->startup['is-prepend'];
+		return $this->getRouteStartup()
+					->isPrependStartupTasks();
 	}
 
 	/**
@@ -345,7 +235,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isStartupTasks()
 	{
-		return ! empty($this->startup['include']);
+		return $this->getRouteStartup()
+					->isStartupTasks();
 	}
 
 	/**
@@ -353,7 +244,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function getStartupTasks()
 	{
-		return $this->startup['include'];
+		return $this->getRouteStartup()
+					->getStartupTasks();
 	}
 
 	/**
@@ -361,7 +253,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isExcludedStartupTasks()
 	{
-		return ! empty($this->startup['exclude']);
+		return $this->getRouteStartup()
+					->isExcludedStartupTasks();
 	}
 
 	/**
@@ -369,15 +262,17 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function getExcludedStartupTasks()
 	{
-		return $this->startup['exclude'];
+		return $this->getRouteStartup()
+					->getExcludedStartupTasks();
 	}
 
 	/**
 	 * @return	bool
 	 */
-	public function isView()
+	public function isViewDisabled()
 	{
-		return $this->isView;
+		return $this->getRouteView()
+					->isViewDisabled();
 	}
 
 	/**
@@ -385,23 +280,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isManualView()
 	{
-		return $this->isManualView;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isRawView()
-	{
-		return is_string($this->rawView);
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getRawView()
-	{
-		return $this->rawView;
+		return $this->getRouteView()
+					->isManualView();
 	}
 
 	/**
@@ -409,7 +289,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function isViewPackage()
 	{
-		return is_string($this->viewPkg) && ! empty($this->viewPkg);
+		return $this->getRouteView()
+					->isViewPackage();
 	}
 
 	/**
@@ -417,15 +298,8 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function getViewPackage()
 	{
-		return $this->viewPkg;
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getViewParams()
-	{
-		return $this->viewParams;	
+		return $this->getRouteView()
+					->getViewPackage();
 	}
 
 	/**
@@ -433,225 +307,242 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function getActionName()
 	{
-		return $this->actionName;
+		return $this->getRouteAction()
+					->getActionName();
 	}
 
 	/**
-	 * @return	string
+	 * @return	string | false
 	 */
-	public function getActionClass()
+	public function findActionName($method = null)
 	{
-		return $this->actionClass;
+		return $this->getRouteAction()
+					->findActionName($method);
 	}
 
-	/**
-	 * @param	mixed string | array
-	 * @return	null
-	 */
-	protected function setAclCodes($codes)
+	protected function initializeStartup(array $data)
 	{
-		if (is_string($codes)) {
-			$codes = array($codes);
-		}
-		else if (! is_array($codes)) {
-			$err = 'acl codes must be a string or an array of strings';
-			throw new InvalidArgumentException($err);
-		}
-
-		foreach ($codes as $code) {
-			if (! is_string($code)) {
-				$err = 'invalid acl code, all codes must be strings';
-				throw new InvalidArgumentException($err);
-			}
-		}
-
-		$this->aclCodes = $codes;
+		$startup = $this->createRouteStartup();
+		$this->startup = $startup;
 	}
 
 	/**
 	 * @param	array	$data
 	 * @return	null
 	 */
-	protected function setInterceptingFilters(array $data)
+	protected function initializeAcl(array $data)
 	{
+		$acl = $this->createRouteAccess();
+		if (isset($data['is-public']) && true === $data['is-public']) {
+			$acl->enablePublicAccess();
+		}
+
+		if (isset($data['is-internal']) && true === $data['is-internal']) {
+			$acl->enableInternalOnlyAccess();
+		}
+
+		if (isset($data['is-ignore-acl']) && true === $data['is-ignore-acl']) {
+			$acl->ignoreAclAccess();
+		}
+
+		$map = array();
+		if (isset($data['acl-access'])) {
+			$acl->useAclForAllMethods();
+			$map = $data['acl-access'];
+		}
+		else if (isset($data['acl-access-map'])) {
+			$acl->useAclForEachMethod();
+			$map = $data['acl-access-map'];
+		}
+		$acl->setAclMap($map);
+		$this->access = $acl;
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	null
+	 */
+	protected function initializeView(array $data)
+	{
+		$view = $this->createRouteView();
+		if (isset($data['is-view']) && false === $data['is-view']) {
+			$view->disableView();
+		}
+		else if (isset($data['is-manual-view']) && 
+				true === $data['is-manual-view']) {
+			$view->enableManualView();
+		}
+
+		if (isset($data['view-pkg'])) {
+			$view->setViewPackage($data['view-pkg']);
+		}
+
+		if (isset($data['default-format'])) {
+			$view->setFormat($data['default-format']);
+		}
+		$this->view = $view;
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	null
+	 */
+	protected function initializeIntercept(array $data)
+	{
+		$intercept = $this->createRouteIntercept();
+		$this->intercept = $intercept;
+		if (! isset($data['intercept'])) {
+			return;
+		}
+		$data = $data['intercept'];
 		if (isset($data['is-skip-pre']) && true === $data['is-skip-pre']) {
-			$this->filters['pre']['is-skip'] = true;
+			$intercept->disablePreFiltering();
 		}
 
 		if (isset($data['include-pre'])) {
-			$pre = $this->filterData($data['include-pre'], 'include-pre');
-			$this->filters['pre']['include'] = $pre;
+			$list = $data['include-pre'];
+			if (is_string($list)) {
+				$list = array($list);
+			}
+			$intercept->setPreFilters($list);
 		}
 
 		if (isset($data['exclude-pre'])) {
-			$pre = $this->filterData($data['exclude-pre'], 'exclude-pre');
-			$this->filters['pre']['exclude'] = $pre;
+			$list = $data['exclude-pre'];
+			if (is_string($list)) {
+				$list = array($list);
+			}
+			$intercept->setExcludedPreFilters($list);
 		}
 
-
 		if (isset($data['is-skip-post']) && true === $data['is-skip-post']) {
-			$this->filters['post']['is-skip'] = true;
+			$intercept->disablePostFiltering();
 		}
 
 		if (isset($data['include-post'])) {
-			$post = $this->filterData($data['include-post'], 'include-post');
-			$this->filters['post']['include'] = $post;
+			$list = $data['include-post'];
+			if (is_string($list)) {
+				$list = array($list);
+			}
+			$intercept->setPostFilters($list);
 		}
 
 		if (isset($data['exclude-post'])) {
-			$post = $this->filterData($data['exclude-post'], 'exclude-post');
-			$this->filters['post']['exclude'] = $post;
-		}
-	}
-
-	/**
-	 * @param	array	$list
-	 * @return	null
-	 */
-	protected function setStartup(array $data)
-	{
-		if (isset($data['include']) && is_array($data['include'])) {
-			$list = $data['include'];
-			foreach ($list as $task) {
-				if (! is_string($task) || empty($task)) {
-					$err = 'startup task to include must be a non empty string';
-					throw new InvalidArgumentException($err);
-				}
+			$list = $data['exclude-post'];
+			if (is_string($list)) {
+				$list = array($list);
 			}
-
-			$this->startup['include'] = $list;
-		}
-
-		if (isset($data['exclude']) && is_array($data['exclude'])) {
-			$list = $data['exclude'];
-			foreach ($list as $task) {
-				if (! is_string($task) || empty($task)) {
-					$err = 'startup task to exclude must be a non empty string';
-					throw new InvalidArgumentException($err);
-				}
-			}
-
-			$this->startup['exclude'] = $list;
-		}
-
-		if (isset($data['is-ignore-config']) &&
-			true === $data['is-ignore-config']) {
-			$this->startup['is-ignore-config'] = true;
-		}
-
-		if (isset($data['is-prepend']) && true === $data['is-prepend']) {
-			$this->startup['is-prepend'] = true;
+			$intercept->setExcludedPostFilters($list);
 		}
 	}
 
 	/**
 	 * @param	array	$data
-	 * @param	string	$type	array key where failure occured
-	 * @return	array
+	 * @return	null
 	 */
-	protected function filterData($data, $type)
+	protected function initializeAction(array $data)
 	{
-		if (is_string($data)) {
-			$data = array($data);
+		$action = $this->createRouteAction();
+			
+		if (! isset($data['action-name'])) {
+			$err  = 'the action name must be set in order for the dispatcher ';
+			$err .= 'to be able to create it';
+			throw new DomainException($err);
 		}
-		elseif (! is_array($data)) {
-			$err  = "invalid data structure for -($type), must be ";
-			$err .= "a string or an array of strings";
-			throw new InvalidArgumentException($err);
+		$name = $data['action-name'];
+		if (is_string($name)) {
+			$action->setActionName($name);
 		}
+		else if (is_array($name)) {
+			$action->setMap($name);
+		}
+		else {
+			$err  = 'key -(action-name) must be non empty string or an ';
+			$err .= 'array of method=>actionName mappings';
+			throw new DomainException($err);
+		}
+		
 
-		foreach ($data as $filter) {
-			if (! is_string($filter) || empty($filter)) {
-				$err  = 'invalid filter in list, all filters in the ';
-				$err .= 'array must be non empty strings';
-				throw new InvalidArgumentException($err);
-			}			
-		}
-
-		return $data;
+		$this->action = $action;
 	}
 
 	/**
-	 * @return	null
+	 * @return	RouteAction
 	 */
-	protected function disableView()
+	protected function getRouteAction()
 	{
-		$this->isView = false;
+		return $this->action;
 	}
 
 	/**
-	 * @return	null
+	 * @return	RouteAccess
 	 */
-	protected function enableManualView()
+	protected function getRouteAccess()
 	{
-		$this->isManualView = true;
+		return $this->access;
 	}
 
 	/**
-	 * @param	string | object $view
-	 * @return	null
+	 * @return	RouteAccess
 	 */
-	protected function setRawView($view)
+	protected function getRouteView()
 	{
-		if (! is_string($view) && 
-			! (is_object($view) && is_callable(array($view, '__toString')))) {
-			$err  = "raw view must be a string or an object that implements ";
-			$err .= "__toString";
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->rawView =(string) $view;
+		return $this->view;
 	}
 
 	/**
-	 * @param	string	$name
-	 * @return	null
+	 * @return	RouteIntercept
 	 */
-	protected function setViewPackage($name)
+	protected function getRouteIntercept()
 	{
-		if (! is_string($name) || empty($name)) {
-			$err = "package name must be non empty string";
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->viewPkg = $name;
-	}
-	
-	/**
-	 * @param	array $params
-	 * @return	null
-	 */
-	protected function setViewParams(array $params)
-	{
-		$this->viewParams = $params;
+		return $this->intercept;
 	}
 
 	/**
-	 * @param	string	$ns
-	 * @return	null
+	 * @return	RouteStartup
 	 */
-	protected function setActionName($className)
+	public function getRouteStartup()
 	{
-		if (! is_string($className)) {
-			$err = 'action class name must be a string';
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->actionName = $className;
+		return $this->startup;
 	}
 
 	/**
-	 * @param	string	$ns
-	 * @return	null
+	 * @return	RouteAccess
 	 */
-	protected function setActionClass($qualifiedNs)
+	protected function createRouteAccess()
 	{
-		if (! is_string($qualifiedNs) || empty($qualifiedNs)) {
-			$err  = 'the fully qualified namespace of an mvc action ';
-			$err .= 'must be a non empty string';
-			throw new InvalidArgumentException($err);
-		}
+		return new RouteAccess();
+	}
 
-		$this->actionClass = $qualifiedNs;
+	/**
+	 * @return	RouteView
+	 */
+	protected function createRouteView()
+	{
+		return new RouteView();
+	}
+
+	/**
+	 * @return	RouteIntercept
+	 */
+	protected function createRouteIntercept()
+	{
+		return new RouteIntercept();
+	}
+
+	/**
+	 * @return	RouteStartup
+	 */
+	protected function createRouteStartup()
+	{
+		return new RouteStartup();
+	}
+
+	/**
+	 * @return	RouteAction
+	 */
+	protected function createRouteAction()
+	{
+		return new RouteAction();
 	}
 }
