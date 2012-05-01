@@ -48,24 +48,6 @@ interface MvcActionInterface
 	public function process(MvcContextInterface $context);
 
 	/**
-	 * @param	string	$route
-	 * @param	string	$strategy
-	 * @return	null
-	 */
-	public function callEmpty($route);
-
-	/**
-	 * Manually configure the dispatcher to call another mvc action. Note
-	 * the route is part of the uri, which can be a RequestUri or a string.
-	 * if the mvc action returns a context it will override the context passed
-	 * in.
-	 *
-	 * @param	MvcContextInterface $context
-	 * @return	MvcContextInterface
-	 */
-	public function call(MvcContextInterface $context);
-
-	/**
 	 * Makes it appear as if the context was used in the action you just 
 	 * called. 
 	 * 

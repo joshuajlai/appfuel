@@ -46,7 +46,7 @@ class AppInput implements AppInputInterface
 		if (null === $method || ! is_string($method)) {
 			$method = '';
 		}
-		$this->method = $method;
+		$this->method = strtolower($method);
 	
 		/*
 		 * Ensure each type exists as an array. because searching the
@@ -82,7 +82,7 @@ class AppInput implements AppInputInterface
      */
     public function isPost()
     {
-        return 'post' === strtolower($this->method);
+        return 'post' === $this->method;
     }
 
     /**
@@ -90,7 +90,7 @@ class AppInput implements AppInputInterface
      */
     public function isGet()
     {
-        return 'get' === strtolower($this->method);
+        return 'get' === $this->method;
     }
 
 	/**
@@ -98,7 +98,7 @@ class AppInput implements AppInputInterface
 	 */
 	public function isCli()
 	{
-		return 'cli' === strtolower($this->method);
+		return 'cli' === $this->method;
 	}
 
     /**
@@ -107,6 +107,16 @@ class AppInput implements AppInputInterface
     public function getMethod()
     {
         return $this->method;
+    }
+   
+    /**
+     * @param   string  $key 
+     * @param   mixed   $default
+     * @return  mixed
+     */
+    public function getParam($key, $default = null)
+    {
+        return $this->get($this->getMethod(), $key, $default);
     }
 
     /**
@@ -203,14 +213,41 @@ class AppInput implements AppInputInterface
 	}
 
 	/**
-	 * @return	string | false when not set
+	 * Check for the direct ip address of the client machine, try for the 
+	 * forwarded address, check for the remote address. When none of these
+	 * return false
+	 * 
+	 * @return	int
 	 */
-	public function getIp()
+	public function getIp($isInt = true)
 	{
-		if (! isset($_SERVER['REMOTE_ADDR'])) {
-			return null;
+		$client  = 'HTTP_CLIENT_IP';
+		$forward = 'HTTP_X_FORWARDED_FOR';
+		$remote  = 'REMOTE_ADDR'; 
+		if (isset($_SERVER[$client]) && is_string($_SERVER[$client])) {
+			$ip = $_SERVER[$client];
+		}
+		else if (isset($_SERVER[$forward]) && is_string($_SERVER[$forward])) {
+			$ip = $_SERVER[$forward];
+		}
+		else if (isset($_SERVER[$remote]) && is_string($_SERVER[$remote])) {
+			$ip = $_SERVER[$remote];
+		}
+		else {
+			$ip = false;
 		}
 
-		return $_SERVER['REMOTE_ADDR'];
+		if (false === $ip) {
+			return false;
+		}
+
+		$isInt = ($isInt === false) ? false : true;
+		$format = "%s";
+		if (true === $isInt) {
+			$format = "%u";
+			$ip = ip2long($ip);
+		}
+
+		return sprintf($format, $ip);
 	}
 }

@@ -36,6 +36,15 @@ interface AppInputInterface
     public function getMethod();
 
     /**
+     * Should call getMethod then delegate to AppInput::get
+     *
+     * @param   string  $key 
+     * @param   mixed   $default
+     * @return  mixed
+     */
+    public function getParam($key, $default = null);
+
+    /**
      * Retreive a parameter based on its type. When the parameter key is not
 	 * found the default value is given instead. Parameters are seperated based
 	 * on type. The following are the types:
@@ -61,4 +70,11 @@ interface AppInputInterface
      * @return  array
      */
     public function getAll($type = null);
+
+	/**
+	 * @param	$bool	returnString
+	 * @return	string|int|false
+	 */
+	public function getIp($isInt = true);
+
 }

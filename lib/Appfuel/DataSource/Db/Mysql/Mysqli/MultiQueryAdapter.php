@@ -46,6 +46,7 @@ class MultiQueryAdapter implements MysqliAdapterInterface
         /* index for each query, this is mapped to the result keys */
         $idx  = 0;
         $data = array();
+		$totalAffected = 0;
         do {
 			$resultResponse = new DbResponse();
 
@@ -91,11 +92,21 @@ class MultiQueryAdapter implements MysqliAdapterInterface
 				 * merge a copy of the error items into the main response
 				 */
 				if ($stack->isError()) {
-					$mainResponse->getErrorStack()
+					$mainResponse->markFailure()
+								 ->getErrorStack()
 								 ->mergeStack($stack);
 				}
 
+				$affected = $driver->affected_rows;	
 				$resultResponse->setResultSet($dbReturn);
+				$resultResponse->setAffectedRows($affected);
+
+				/* cast so we can blindly add */
+				$affected =(int) $affected;
+				if ($affected > 0) {
+					$totalAffected += $affected;
+				}
+
 				$data[$resultKey]  = $resultResponse;
 			}
 
@@ -107,6 +118,7 @@ class MultiQueryAdapter implements MysqliAdapterInterface
         } while ($isMore);
 
 		$mainResponse->setResultSet($data);
+		$mainRespinse->setAffectedRows($totalAffected);
         return $mainResponse;
 	}
 
