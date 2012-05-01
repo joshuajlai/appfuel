@@ -1,0 +1,12 @@
+{
+    "name": "mvc",
+    "type": "pkg",
+    "desc": "appfuel mvc functionalilty",
+	"path": "pkg/mvc",
+    "src": {
+        "files": {
+            "js": ["js/front.js","js/controller.js", "js/domain.js"]
+        }
+    },
+	"require": ["appfuel:pkg.kernel"]
+}

@@ -1,0 +1,13 @@
+{
+    "name": "blah",
+    "type": "pkg",
+    "desc": "appfuel mvc functionalilty",
+	"path": "pkg/blah",
+    "src": {
+        "files": {
+            "js": ["js/blah1.js","js/blah2.js", "js/blah3.js"]
+        }
+    },
+
+	"require": ["appfuel:pkg.kernel"]
+}

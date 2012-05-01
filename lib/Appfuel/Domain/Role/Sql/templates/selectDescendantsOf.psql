@@ -1,0 +1,21 @@
+<?php
+	$type   = 't.ancestor';
+	$filter = 't.descendant';
+	if ('descendant' === $this->get('closure-type', 'descendant')) {
+		$type   = 't.descendant';
+		$filter = 't.ancestor';
+	}
+	
+?>
+SELECT 
+		r.role_id		AS id
+,		r.role_name		AS name
+,		r.role_code		AS authLevel
+,		r.role_desc		AS description
+
+FROM		roles AS r
+
+INNER JOIN	role_paths as t ON r.role_id = <?php echo $type ?>
+
+WHERE	<?php echo $filter, "="; $this->render('node-id'); ?>
+

@@ -1,0 +1,32 @@
+{
+	"yui3" : {
+		"version": "3.4.1",
+		"path": "yui3",
+		"tree-path": "/Users/rsb/dev/php/yui3/src/loader/js/yui3.json",
+		"layers": {
+			"fw-global": {
+				"filename": "global-framwork",
+				"pkg": [
+					"base", "node", "event", "event-hover", "cssbase",
+					"node-event-simulate", "array-extras", "arraysort", 
+					"recordset-base", "datasource-io", "datasource-jsonschema",
+					"io-base", "json", "plugin", "view", "widget"
+				]
+			},
+			"unittest": {
+				"filename": "yui3-unittest",
+				"pkg": ["intl", "console", "node", "test"]
+			}
+		}
+	},
+	"appfuel" : {
+		"version": "0.0.1",
+		"path": "appfuel/web",
+		"layers": {
+			"app-global": {
+				"filename": "global-app",
+				"pkg" : ["pkg.kernel", "pkg.mvc"]
+			}
+		}
+	}
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit backupGlobals="false" 
+		 bootstrap="bootstrap.php" 
+		 colors="true"
+		 convertErrorsToExceptions="true">
+<testsuites>
+	<testsuite name="Appfuel Tests">
+	<file>../lib/TestFuel/Unit/DataSource/Db/DbRegistryTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/DbFactoryTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/DbRequestTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/DbResponseTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/MysqliConnTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/MysqliQueryResultTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/QueryAdapterTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/PreparedStmtTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/PreparedAdapterTest.php</file>
+	<file>../lib/TestFuel/Unit/DataSource/Db/Mysql/Mysqli/MultiQueryAdapterTest.php</file>
+	</testsuite>
+</testsuites>
+</phpunit>

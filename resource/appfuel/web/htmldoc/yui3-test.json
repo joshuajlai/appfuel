@@ -1,0 +1,26 @@
+{
+	"name": "yui3-test",
+	"type": "htmldoc",
+	"markup": "htmldoc/doc.phtml",
+	"html": {
+		"attrs": {"lang": "eng"},
+		"head": {
+			"attrs": {"id":"head-id"},
+			"title": "yui test page",
+			"meta": [
+				{
+					"content":"text/html",
+					"http-equiv": "Content-Type",
+					"charset": "utf-8"
+				},
+				{
+					"name": "framework",
+					"content": "appfuel"
+				}
+			]
+		},
+		"body": {
+			"attrs": {"class": "yui3-skin-sam"}
+		}
+	}
+}

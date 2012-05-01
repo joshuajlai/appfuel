@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit backupGlobals="false" bootstrap="bootstrap.php" colors="true">
+<testsuites>
+	<testsuite name="Appfuel">
+    <file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteManagerTest.php</file>
+    <file>../lib/TestFuel/Unit/Kernel/Mvc/MvcViewDetailTest.php</file>
+    <file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteDetailTest.php</file>
+    <file>../lib/TestFuel/Unit/Kernel/Mvc/MvcRouteHandlerTest.php</file>
+    <file>../lib/TestFuel/Unit/Kernel/Mvc/MvcViewBuilderTest.php</file>
+    <file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
+    <file>../lib/TestFuel/Unit/Kernel/Mvc/InterceptFilterTest.php</file>
+    <file>../lib/TestFuel/Unit/View/Html/HtmlPageDetailTest.php</file>
+    <file>../lib/TestFuel/Unit/View/Html/HtmlPageTest.php</file>
+    <file>../lib/TestFuel/Unit/View/Html/HtmlPageBuilderTest.php</file>
+	</testsuite>
+</testsuites>
+</phpunit>

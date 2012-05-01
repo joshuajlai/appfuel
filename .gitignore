@@ -1,0 +1,5 @@
+app/config/config.php
+resource/build
+*.swp
+*.swo
+*~
