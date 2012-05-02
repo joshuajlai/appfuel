@@ -4,16 +4,16 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel\Mvc;
 
 /**
- * The front controller is used build the intialize context, run the pre
- * intercepting filters, dispatch to the mv action, handle any errors,
- * run post filters and output the results.
+ * Dispatch a context based on information found in the route detail and 
+ * context. This includes management of intercepting filters and by-pass
+ * dispatching for any exit code that in not between 200 - 299
  */
 class MvcFront implements MvcFrontInterface
 {	
@@ -88,7 +88,7 @@ class MvcFront implements MvcFrontInterface
 		$this->setCurrentRoute($routeKey);
 		$detail = $this->getRouteDetail($routeKey);
 
-		if (! $detail->isPreFilteringEnabled()) {
+		if ($detail->isPreFilteringEnabled()) {
 			$context = $this->runPreFilters($detail, $context);
 		}
 
@@ -154,7 +154,7 @@ class MvcFront implements MvcFrontInterface
 		}
 
 		if ($detail->isPostFilters()) {
-			$chain->loadFiltrs($detail->getPostFilters());	
+			$chain->loadFilters($detail->getPostFilters());	
 		}
 
 		return $chain->applyFilters($context);
