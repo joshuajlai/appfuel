@@ -68,7 +68,8 @@ class DependencyLoaderTask extends StartupTask
 					throw new DomainException($err);
 				}
 
-				ManualClassLoader::loadCollectionFromFile($file, $isLibPath);
+                $full = AF_BASE_PATH . DIRECTORY_SEPARATOR . $file;
+				ManualClassLoader::loadCollectionFromFile($full, $isLibPath);
 			}
 
 			$nbr = count($list);
@@ -106,7 +107,6 @@ class DependencyLoaderTask extends StartupTask
 
 			$msg .= "$nbr classes were proccessed as dependencies: ";
 		}
-
 
 		$this->setStatus($msg);
 	}

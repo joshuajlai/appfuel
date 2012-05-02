@@ -34,7 +34,23 @@ class ManualClassLoader
 			return true;    
 		}
 
-		if (! is_string($file) || false !== strpos($file, '../')) {
+        $libPath = '';
+        if (is_array($file)) {
+            $filePath = current($file);
+            $libPath  = next($file);
+            if (! is_string($filePath) || ! is_string($libPath)) {
+                $err = "library path and file path must be strings";
+                throw new DomainException($err);
+            }
+            
+            $file = AF_BASE_PATH . DIRECTORY_SEPARATOR;
+            if (! empty($libPath)) {
+                $file .= $libPath     . DIRECTORY_SEPARATOR;
+            }
+            $file .= $filePath;
+            $isLibPath = false;
+        }
+        else if (! is_string($file)) {
 			$err = 'file path must be a string with no -(../) chars ';
 			throw new DomainException($err);
 		}

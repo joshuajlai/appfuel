@@ -107,42 +107,52 @@ class AppFactory implements AppFactoryInterface
 	 */
 	public function createRestInputFromBrowser(RequestUriInterface $uri = null)
 	{
-		$key = 'REQUEST_METHOD';
-		if (! isset($_SERVER[$key]) || ! is_string($_SERVER[$key])) {
-				$err  = 'request method was not set or is set invalid in ';
-				$err .= "\$_SERVER[\'$key\']";
-				throw new LogicException($err);
+        if (isset($_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'])) {
+            $method = $_SERVER['HTTP_X_HTTP_METHOD_OVERRIDE'];
+        }
+        else if (isset($_SERVER['REQUEST_METHOD'])) {
+            $method = $_SERVER['REQUEST_METHOD'];
+        }
+		else {
+		    $err = 'http request method was not set';
+			throw new LogicException($err);
 		}
 
-		$method = strtolower($_SERVER[$key]);
-		if ('post' === $method) {
-			$putKey = 'is-http-put';
-			$delKey = 'is-http-delete';
-			if (isset($_POST[$putKey]) && 'true' === $_POST[$putKey]) {
-				unset($_POST[$putKey]);
-				$method = 'put';
-			}
-			else if (isset($_POST[$delKey]) && 'true' === $_POST[$delKey]) {
-				unset($_POST[$delKey]);
-				$method = 'delete';
-			}
-			$data = $_POST;
-		}
-		else if ('get' === $method) {
-			if (null !== $uri) {
-				$data = $uri->getParams();
-			}
-			else {
-				$data  = $_GET;
-			}
+        if (! is_string($method) || empty($method)) {
+            $err = "http method must be a non empty string";
+            throw new DomainException($err);
+        }
+		$method = strtolower($method);
+        $valid  = array('get', 'put', 'post', 'delete');
+        if (! in_array($method, $valid, true)) {
+            $err  = "invalid http method: must be one of the following ";
+            $err .= "-(get, put, post, delete)";
+            throw new DomainException($err);
+        }
+
+        $get    = array();
+        $put    = array();
+        $post   = array();
+        $delete = array();
+        
+        switch ($method) {
+            case 'post'  : $post   = $_POST; break;
+            case 'put'   : $put    = $_POST; break;
+            case 'delete': $delete = $_POST; break;
+        }   
+			
+        if (null !== $uri) {
+			$get = $uri->getParams();
 		}
 		else {
-			$err = 'only -(get, post) are supported for web browsers';
-			throw new DomainException($err);
+			$get = $_GET;
 		}
-
+		
 		$params = array(
-			$method   => $data,
+            'get'     => $get,
+			'post'    => $post,
+            'put'     => $put,
+            'delete'  => $delete,
 			'files'   => (isset($_FILES))   ? $_FILES	: array(),
 			'cookie'  => (isset($_COOKIE))  ? $_COOKIE	: array(),
 			'session' => (isset($_SESSION)) ? $_SESSION : array(),

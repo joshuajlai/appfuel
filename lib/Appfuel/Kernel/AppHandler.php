@@ -331,11 +331,11 @@ class AppHandler
 	 */
 	public function runAction(MvcContextInterface $context)
 	{
-		$this->getAppFactory()
-			 ->createFront()
-			 ->run($context);
+		$context = $this->getAppFactory()
+			            ->createFront()
+			            ->run($context);
 
-		return $this;
+		return $context;
 	}
 
 
