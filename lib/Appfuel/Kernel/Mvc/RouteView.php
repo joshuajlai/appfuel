@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -13,6 +13,9 @@ namespace Appfuel\Kernel\Mvc;
 use InvalidArgumentException;
 
 /**
+ * Controls view settings like disabling the view or telling the framework
+ * you will handle the view manually, what the default format for the view is
+ * and in the case of html pages what what does this view use.
  */
 class RouteView implements RouteViewInterface
 {
@@ -60,6 +63,7 @@ class RouteView implements RouteViewInterface
 		}
 
 		$this->format = $name;
+		return $this;
 	}
 
 	/**
@@ -137,11 +141,20 @@ class RouteView implements RouteViewInterface
 	public function setViewPackage($name)
 	{
 		if (! is_string($name) || empty($name)) {
-			$err = "package name must be non empty string";
+			$err = "package name must be a non empty string";
 			throw new InvalidArgumentException($err);
 		}
 
 		$this->viewPkg = $name;
+		return $this;
+	}
+
+	/**
+	 * @return	RouteView
+	 */
+	public function clearViewPackage()
+	{
+		$this->viewPkg = null;
 		return $this;
 	}
 }

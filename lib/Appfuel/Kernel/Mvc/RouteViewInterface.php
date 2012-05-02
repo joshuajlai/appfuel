@@ -72,4 +72,9 @@ interface RouteViewInterface
 	 * @return	null
 	 */
 	public function setViewPackage($name);
+	
+	/**
+	 * @return RouteView
+	 */
+	public function clearViewPackage();
 }
