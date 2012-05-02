@@ -4,15 +4,16 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel\Mvc;
 
-use InvalidArgumentException;
+use DomainException;
 
 /**
+ * Controls which pre and post intercept filters are applied
  */
 class RouteIntercept implements RouteInterceptInterface
 {
@@ -32,7 +33,7 @@ class RouteIntercept implements RouteInterceptInterface
 	 * Framework will skip all pre filters if this is true
 	 * @var bool
 	 */
-	protected $isPreFilter = false;
+	protected $isPreFilter = true;
 
 	/**
 	 * List of intercept filters used after the action is processed
@@ -50,7 +51,7 @@ class RouteIntercept implements RouteInterceptInterface
 	 * Framework will skip all post filters if this is true
 	 * @var bool
 	 */
-	protected $isPostFilter = false;
+	protected $isPostFilter = true;
 
 	/**
 	 * @return	RouteInterceptChain
