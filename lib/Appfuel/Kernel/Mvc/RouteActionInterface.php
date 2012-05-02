@@ -4,8 +4,8 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel\Mvc;
@@ -18,36 +18,21 @@ use DomainException,
 interface RouteActionInterface
 {
 	/**
-	 * @return	RouteAction
-	 */
-	public function enableStrict();
-
-	/**
-	 * @return	RouteAction
-	 */
-	public function disableStrict();
-
-	/**
-	 * @return bool
-	 */
-	public function isStrict();
-
-	/**
 	 * @param	string	$method 
 	 * @return	string | false
 	 */
-	public function findActionName($method = null);
+	public function findAction($method = null);
 
 	/**
 	 * @return	string
 	 */
-	public function getActionName();
+	public function getName();
 
 	/**
 	 * @param	string	$name
 	 * @return	RouteAction
 	 */
-	public function setActionName($name);
+	public function setName($name);
 
 	/**
 	 * @param	string	$method

@@ -4,8 +4,8 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel\Mvc;
@@ -317,7 +317,7 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	public function findActionName($method = null)
 	{
 		return $this->getRouteAction()
-					->findActionName($method);
+					->findAction($method);
 	}
 
 	protected function initializeStartup(array $data)
@@ -451,7 +451,7 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		}
 		$name = $data['action-name'];
 		if (is_string($name)) {
-			$action->setActionName($name);
+			$action->setName($name);
 		}
 		else if (is_array($name)) {
 			$action->setMap($name);

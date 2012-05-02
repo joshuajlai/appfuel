@@ -19,6 +19,7 @@
 	<file>../lib/Testfuel/Unit/Kernel/Mvc/RouteStartupTest.php</file>
 	<file>../lib/Testfuel/Unit/Kernel/Mvc/RouteInterceptTest.php</file>
 	<file>../lib/Testfuel/Unit/Kernel/Mvc/RouteViewTest.php</file>
+	<file>../lib/Testfuel/Unit/Kernel/Mvc/RouteActionTest.php</file>
 
 	<file>../lib/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
 	<file>../lib/TestFuel/Unit/Html/Resource/PkgTest.php</file>

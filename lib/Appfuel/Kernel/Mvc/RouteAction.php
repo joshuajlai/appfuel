@@ -4,8 +4,8 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel\Mvc;
@@ -14,6 +14,8 @@ use DomainException,
 	InvalidArgumentException;
 
 /**
+ * Maps the input method (http[get,post,put,delete] or cli)
+ * to a concrete MvcAction.
  */
 class RouteAction implements RouteActionInterface
 {
@@ -29,45 +31,13 @@ class RouteAction implements RouteActionInterface
 	protected $map = array();
 
 	/**
-	 * Should fail if no name is found in the map
-	 * @var bool
-	 */
-	protected $isStrict = true;
-
-	/**
-	 * @return	RouteAction
-	 */
-	public function enableStrict()
-	{
-		$this->isStrict = true;
-		return $this;
-	}
-
-	/**
-	 * @return	RouteAction
-	 */
-	public function disableStrict()
-	{
-		$this->isStrict = false;
-		return $this;
-	}
-
-	/**
-	 * @return bool
-	 */
-	public function isStrict()
-	{
-		return $this->isStrict;
-	}
-
-	/**
 	 * @param	string	$method 
 	 * @return	string | false
 	 */
-	public function findActionName($method = null)
+	public function findAction($method = null)
 	{
 		if ($this->isMapEmpty()) {
-			$name = $this->getActionName();
+			$name = $this->getName();
 		}
 		else {
 			$name = $this->getNameInMap($method);
@@ -79,7 +49,7 @@ class RouteAction implements RouteActionInterface
 	/**
 	 * @return	string
 	 */
-	public function getActionName()
+	public function getName()
 	{	
 		return $this->name;
 	}
@@ -88,14 +58,23 @@ class RouteAction implements RouteActionInterface
 	 * @param	string	$name
 	 * @return	RouteAction
 	 */
-	public function setActionName($name)
+	public function setName($name)
 	{
 		if (! is_string($name) || empty($name)) {
 			$err = "action name must be a non empty string";
-			throw new InvalidArgumentException($name);
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->name = $name;
+		return $this;
+	}
+
+	/**
+	 * @return	RouteAction
+	 */
+	public function clearName()
+	{
+		$this->name = null;
 		return $this;
 	}
 
@@ -136,12 +115,12 @@ class RouteAction implements RouteActionInterface
 	{
 		foreach ($map as $method => $action) {
 			if (! is_string($method) || empty($method)) {
-				$err = "action map method must be non empty string";
+				$err = "action map method must be a non empty string";
 				throw new DomainException($err);
 			}
 
 			if (! is_string($action) || empty($action)) {
-				$err = "action map action must be non empty string";
+				$err = "action map action must be a non empty string";
 				throw new DomainException($err);
 			}
 		}
@@ -150,4 +129,12 @@ class RouteAction implements RouteActionInterface
 		return $this;
 	}
 
+	/**
+	 * @return	RouteAction
+	 */
+	public function clearMap()
+	{
+		$this->map = array();
+		return $this;
+	}
 }
