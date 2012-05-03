@@ -46,7 +46,7 @@ class BuildLayer extends MvcAction
 		$writer = new FileWriter($finder);
 		$reader = new FileReader($finder);
         if (! $writer->deleteTree('build', true)) {
-            $err = "could not detete -({$finder->getPath('build')})";
+            $err = "could not delete -({$finder->getPath('build')})";
             throw new RunTimeException($err);
         }
 
