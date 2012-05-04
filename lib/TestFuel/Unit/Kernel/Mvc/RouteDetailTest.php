@@ -185,7 +185,7 @@ class RouteDetailTest extends BaseTestCase
 			'access' => array(
 				'is-public'		=> true,
 				'is-internal'	=> true,
-				'is-ignore'		=> true,
+				'is-ignore-acl'	=> true,
 				'acl-access'    => array(
 					'get'   => array('admin', 'editor', 'guest'),
 					'put'	=> array('admin', 'editor'),
