@@ -55,6 +55,21 @@ class TaskHandler implements TaskHandlerInterface
 		}
 	}
 
+    public function runTasksFromRegistry()
+    {
+		$tasks = $this->getTasksFromRegistry();
+		if (! is_array($tasks)) {
+			$err = 'tasks defined in the config registry must be in an array';
+			throw new RunTimeException($err);
+		}
+
+		foreach ($tasks as $className) {
+			$task = $this->createTask($className);
+			$task->execute($this->collectDataForTask($task));
+			$this->addTaskStatus($className, $task->getStatus());
+		}
+    }
+
 	/**
 	 * @param	array	$list
 	 * @return	null
@@ -63,8 +78,7 @@ class TaskHandler implements TaskHandlerInterface
 	{	
 		foreach ($tasks as $className) {
 			$task = $this->createTask($className);
-			$data = $this->collectDataForTask($task);
-			$task->Execute($this->collectDataForTask($task));
+			$task->execute($this->collectDataForTask($task));
 			$this->addTaskStatus($className, $task->getStatus());
 		}
 	}
