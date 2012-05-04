@@ -8,66 +8,28 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\Http\HttpOutput,
-    Appfuel\Http\HttpResponse,
-    Appfuel\Kernel\KernelInitializer,
-	Appfuel\Kernel\Mvc\MvcFactoryInterface,
-	Appfuel\Kernel\Mvc\MvcRouteDetailInterface;
+use Appfuel\Kernel\AppHandler;
 
 $base = realpath(dirname(__FILE__) . '/../');
-$file = "{$base}/lib/Appfuel/Kernel/KernelInitializer.php";
+$file = "{$base}/lib/Appfuel/Kernel/AppHandler.php";
 if (! file_exists($file)) {
-    throw new LogicException("Could not find kernel initializer file at $file");
+    throw new LogicException("Could not find app runner at -($file)");
 }
 require_once $file;
 
-$init    = new KernelInitializer($base);
-$factory = $init->initialize('main')
-                ->createMvcFactory();
+$handler = new AppHandler($base);
+$handler->loadConfigFile('app/config/config.php', 'main')
+        ->initializeFramework();
 
-if (! $factory instanceof MvcFactoryInterface) {
-    $err = "mvc factory must implment Appfuel\Kernel\Mvc\MvcFactoryInterface";
-    throw new LogicException($err);
-}
+$uri     = $handler->createUriFromServerSuperGlobal();
+$key     = $uri->getRouteKey();
+$format  = $uri->getRouteFormat();
+$route   = $handler->findRoute($uri);
+$input   = $handler->createRestInputFromBrowser($uri);
+$context = $handler->createContext($key, $input);
+$handler->initializeApp($route, $context)
+		->setupView($route, $context, $format)
+		->runAction($context)
+		->outputHttpContext($route, $context);
 
-/*
- * parse view format out of the route key: takes the form route-key.format
- * ex) my-route-key.json 
- */
-$uri    = $factory->createUriFromServerSuperGlobal();
-$key    = $uri->getRouteKey();
-$parts  = explode('.', $key);
-$key    = current($parts);
-$format = strtolower(next($parts));
-if (empty($format)) {
-	$format = 'html';
-}
-
-$input = $factory->createInputFromSuperGlobals($uri);
-$route = $factory->createRouteDetail($key);
-if (! $route instanceof MvcRouteDetailInterface) {
-    $err = "could not resolve route detail for -({$key})";
-    throw new LogicException($err);
-}
-
-$context = $factory->createContext($key, $input);
-$init->runStartupTasks($route);
-
-$viewBuilder = $factory->createViewBuilder();
-$viewBuilder->setupView($context, $route, $format);
-
-$front   = $factory->createFront();
-$context = $front->run($context);
-$content = $viewBuilder->composeView($context, $route, $format);
-
-$code    = $context->getExitCode();
-$headers = $context->get('http-headers', array());
-if (! is_array($headers) || empty($headers)) {
-    $headers = null;
-}
-
-$response = new HttpResponse($content, $code, null, $headers);
-$output   = new HttpOutput();
-$output->render($response);
-
-exit($code);
+exit($context->getExitCode());

@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -26,20 +26,19 @@ class MvcDispatcher implements MvcDispatcherInterface
 	 */
 	public function dispatch(MvcContextInterface $context)
 	{
-		$key     = $context->getRouteKey();
-		$detail  = $this->getRouteDetail($key);
+		$key    = $context->getRouteKey();
+		$detail = $this->getRouteDetail($key);
 		if (! $detail instanceof MvcRouteDetailInterface) {
-			$err  = "failed to dispatch: route -({$context->getRouteKey()}) ";
+			$err  = "failed to dispatch: route -($key) ";
 			$err .= "not found ";
 			throw new RunTimeException($err, 404);
 		}
 
-        $class = $detail->getActionClass();
-		if (empty($class)) {
-			$namespace = $this->getNamespace($key);
-			$class     = $namespace . '\\' . $detail->getActionName();
-		}
-
+		$input  = $context->getInput();
+		$method = $input->getMethod();
+		$name   = $detail->findActionName($input->getMethod());
+		$ns     = $this->getNamespace($key);
+		$class  = "$ns\\$name";
 		$action = new $class();
         if (! ($action instanceof MvcActionInterface)) {
             $err  = 'mvc action does not implement Appfuel\Kernel\Mvc\Mvc';
@@ -50,7 +49,7 @@ class MvcDispatcher implements MvcDispatcherInterface
 		/*
 		 * Any acl codes are checked againt the route detail's acl access
 		 */
-		if (! $detail->isAccessAllowed($context->getAclCodes())) {
+		if (! $detail->isAccessAllowed($context->getAclCodes(), $method)) {
 			$err = 'user request is not allowed: insufficient permissions';
 			throw new RunTimeException($err);
 		}
@@ -59,10 +58,46 @@ class MvcDispatcher implements MvcDispatcherInterface
 	}
 
 	/**
+	 * @param	MvcRouteDetailInterface $detail
+	 * @param	string	$key
+	 * @return	MvcActionInterface
+	 */
+	protected function createAction(MvcRouteDetailInterface $detail, $key)
+	{
+        $class = $detail->getActionClass();
+		if (empty($class)) {
+
+		}
+		
+		return new $class();
+	}
+
+	/**
+	 * @param	MvcRouteDetailInterface $detail
+	 * @param	string	$method
+	 * @param	string	$key
+	 * @return	MvcActionInterface
+	 */
+	protected function createRestAction(MvcRouteDetailInterface $detail, 
+										$method, 
+										$key)
+	{
+		$name   = $detail->getRestAction($method);
+		if (false === $class) {
+			$err  = "http method $method is not supported ";
+			$err .= "by route -($key)";
+			throw new RunTimeException($err, 404);
+		}
+		$ns    = $this->getNamespace($key);
+		$class = "$ns\\$name";
+		return new $class();  
+	}
+
+	/**
 	 * @param	string	$key
 	 * @return	MvcRouteDetailInterface
 	 */
-	public function getRouteDetail($key)
+	protected function getRouteDetail($key)
 	{
 		return MvcRouteManager::getRouteDetail($key);
 	}
@@ -71,7 +106,7 @@ class MvcDispatcher implements MvcDispatcherInterface
 	 * @param	string	$key
 	 * @return	string | false
 	 */
-	public function getNamespace($key)
+	protected function getNamespace($key)
 	{
 		return MvcRouteManager::getNamespace($key);
 	}

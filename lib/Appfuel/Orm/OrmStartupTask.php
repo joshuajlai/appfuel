@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -12,13 +12,13 @@ namespace Appfuel\Orm;
 
 use RunTimeException,
 	InvalidArgumentException,
-	Appfuel\Kernel\Startup\StartupTaskAbstract;
+	Appfuel\Kernel\StartupTask;
 
 /**
  * Assign the domain map which is a listing of domain key => namespace,
  * to the orm manager which is responsible for creating db maps and repo's 
  */
-class OrmStartupTask extends StartupTaskAbstract 
+class OrmStartupTask extends StartupTask 
 {
 	/**
 	 * Assign the registry keys to be pulled from the kernel registry
