@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -95,8 +95,8 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	 */
 	public function setViewFormat($format)
 	{
-		if (! is_string($format) || empty($format)) {
-			$err = 'view format must be a non empty string';
+		if (! is_string($format)) {
+			$err = 'view format must be a string';
 			throw new InvalidArgumentException($err);
 		}
 
@@ -238,7 +238,7 @@ class MvcContext extends Dictionary implements MvcContextInterface
 	{
 		if (! is_string($key)) {
 			$err = 'route key must be a string';
-			throw new InvalidArgumentException($key);
+			throw new InvalidArgumentException($err);
 		}
 
 		$this->routeKey = $key;

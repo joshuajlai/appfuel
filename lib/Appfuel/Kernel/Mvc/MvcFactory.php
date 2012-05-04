@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -12,7 +12,8 @@ namespace Appfuel\Kernel\Mvc;
 
 use RunTimeException,
 	Appfuel\View\ViewBuilder,
-	Appfuel\Kernel\KernelRegistry;
+	Appfuel\Kernel\Startup\TaskHandler,
+	Appfuel\Kernel\Startup\ConfigRegistry;
 /**
  * Create all object required to implement appfuels take on the mvc pattern
  */
@@ -160,7 +161,7 @@ class MvcFactory implements MvcFactoryInterface
 								InterceptChainInterface $preChain  = null,
 								InterceptChainInterface $postChain = null)
 	{
-		$preList = KernelRegistry::getParam('pre-filters', array());
+		$preList = ConfigRegistry::getParam('pre-filters', array());
 		if (null === $preChain) {
 			$preChain = new InterceptChain();
 		}
@@ -169,7 +170,7 @@ class MvcFactory implements MvcFactoryInterface
 			$preChain->loadFilters($preList);
 		}
 
-		$postList = KernelRegistry::getParam('post-filters', array());
+		$postList = ConfigRegistry::getParam('post-filters', array());
 		if (null === $postChain) {
 			$postChain = new InterceptChain();
 		}
@@ -191,5 +192,13 @@ class MvcFactory implements MvcFactoryInterface
 	public function createDispatcher()
 	{
 		return new MvcDispatcher();
+	}
+
+	/**	
+	 * @return	TaskHandler
+	 */
+	public function createTaskHandler()
+	{
+		return new TaskHandler();
 	}
 }

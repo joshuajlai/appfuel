@@ -126,17 +126,6 @@ class AppInput_FailureTest extends BaseTestCase
 	}
 
 	/**
-	 * Any string thats not cli, get, or post
-	 *
-	 * @expectedException	InvalidArgumentException
-	 * @return	null
-	 */
-	public function testConstructorMethodNotCliGetPost()
-	{
-		$input = new AppInput('getter');
-	}
-
-	/**
 	 * @dataProvider		provideInvalidParams
 	 * @expectedException	InvalidArgumentException
 	 * @return	null

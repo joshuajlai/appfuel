@@ -10,7 +10,7 @@
  */
 namespace TestFuel\Functional\Kernel\Startup;
 
-use Appfuel\Kernel\Startup\StartupTask,
+use Appfuel\Kernel\StartupTask,
 	Appfuel\Kernel\Mvc\MvcContextInterface,
 	Appfuel\Kernel\Mvc\MvcRouteDetailInterface;
 

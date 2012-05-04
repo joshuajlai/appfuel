@@ -13,14 +13,14 @@ namespace Appfuel\View;
 
 use DomainException,
     InvalidArgumentException,
-	Appfuel\Kernel\Startup\StartupTaskAbstract;
+	Appfuel\Kernel\StartupTask;
 
 /**
  * Allow configuration for the resource management.  This will configure
  * the base url that serves up resources as well as toggling wether
  * the resources should be combo'd together or loaded individually.
  */
-class ViewStartupTask extends StartupTaskAbstract
+class ViewStartupTask extends StartupTask
 {
 	/**
 	 * Assign the registry keys to be pulled from the kernel registry
@@ -38,13 +38,11 @@ class ViewStartupTask extends StartupTaskAbstract
 	 */
 	public function execute(array $params = null)
 	{
-		$this->validateTaskKeys($params, "view build failure:");
-        $data = $params['clientside'];
-  
-        /* 
-         * detect nginx server variable which will list the encryption
-         * type.  If no encryption type is set, then this is ignored
-         */
+		if ('cli' === PHP_SAPI) {
+			return;
+		}
+        $data   = $params['clientside'];
+		
 		$scheme = 'http://';
         if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']) {
 			$scheme = 'https://';

@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -23,7 +23,6 @@ class RouteBuilder
 	static protected $default =  array(
 		'is-public'		=> false,
 		'is-internal'	=> false,
-		'acl-access'	=> array(),
 		'startup'		=> array(
 			'is-ignore-config' => false,
 			'is-prepend'	   => false,
@@ -38,11 +37,8 @@ class RouteBuilder
 			'include-post'  => array(),
 			'exclude-post'  => array(),
 		),
-		'is-view'		   => true,
 		'is-manual-view'   => false,
-		'raw-view'		   => null,
 		'view-pkg'		   => null,
-		'view-params'	   => array()
 	);
 
 	/**
