@@ -463,6 +463,12 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected function initializeView(array $data)
 	{
 		$view = $this->createRouteView();
+		$this->view = $view;
+		
+		if (isset($data['view'])) {
+			$data = $data['view'];	
+		}
+
 		if (isset($data['is-view']) && false === $data['is-view']) {
 			$view->disableView();
 		}
@@ -478,7 +484,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		if (isset($data['default-format'])) {
 			$view->setFormat($data['default-format']);
 		}
-		$this->view = $view;
 	}
 
 	/**
@@ -488,12 +493,16 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected function initializeAction(array $data)
 	{
 		$action = $this->createRouteAction();
-			
+		if (isset($data['action'])) {
+			$data = $data['action'];
+		}
+	
 		if (! isset($data['action-name'])) {
 			$err  = 'the action name must be set in order for the dispatcher ';
 			$err .= 'to be able to create it';
 			throw new DomainException($err);
 		}
+
 		$name = $data['action-name'];
 		if (is_string($name)) {
 			$action->setName($name);

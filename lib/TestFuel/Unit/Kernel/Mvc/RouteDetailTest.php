@@ -179,7 +179,7 @@ class RouteDetailTest extends BaseTestCase
 	 * @test
 	 * @return	MvcRouteDetail
 	 */
-	public function routeDetailAccessMappedNew()
+	public function routeDetailAccessMapped()
 	{
 		$spec = array(
 			'access' => array(
@@ -224,26 +224,107 @@ class RouteDetailTest extends BaseTestCase
 		$result = $detail->isAccessAllowed('admin', 'delete');
 		$this->assertTrue($result);
 
-
-
 	}
-/*		$spec = array(
 
+	/**
+	 * @test
+	 * @return	MvcRouteDetail
+	 */
+	public function routeDetailAccessNotMapped()
+	{
+		$spec = array(
 			'access' => array(
-				'is-public'	  => false,
-				'is-internal' => true,
-				'map' => array(
-					'get'	 => 'MyGetAction',
-					'put'	 => 'MyPutAction',
-					'post'	 => 'MyPostAction',
-					'delete' => 'MyDeleteAction',
-					'cli'    => 'MyCliAction',
-				),
+				'is-public'		=> false,
+				'is-internal'	=> false,
+				'is-ignore'		=> false,
+				'acl-access'    => array('admin', 'publisher', 'editor'),
 			),
-			'view' => array(
-
-			)
-			
+			'action-name' => 'MyAction',
 		);
-*/
+		$detail = $this->createRouteDetail($spec);
+
+		/* route access */
+		$this->assertFalse($detail->isPublicAccess());
+		$this->assertFalse($detail->isInternalOnlyAccess());
+		$this->assertFalse($detail->isAclAccessIgnored());
+		
+		$result = $detail->isAccessAllowed($spec['access']['acl-access']);
+		$this->assertTrue($result);
+		$this->assertTrue($detail->isAccessAllowed('admin'));
+		$this->assertTrue($detail->isAccessAllowed('publisher'));
+		$this->assertTrue($detail->isAccessAllowed('editor'));
+		$this->assertFalse($detail->isAccessAllowed('guest'));
+	}
+
+	/**
+	 * @test
+	 * @return	MvcRouteDetail
+	 */
+	public function routeDetailAccessBackwardsCompatibleNotMapped()
+	{
+		$spec = array(
+			'is-public'		=> false,
+			'is-internal'	=> false,
+			'is-ignore'		=> false,
+			'acl-access'    => array('admin', 'publisher', 'editor'),
+			'action-name' => 'MyAction',
+		);
+		$detail = $this->createRouteDetail($spec);
+
+		/* route access */
+		$this->assertFalse($detail->isPublicAccess());
+		$this->assertFalse($detail->isInternalOnlyAccess());
+		$this->assertFalse($detail->isAclAccessIgnored());
+		
+		$result = $detail->isAccessAllowed($spec['acl-access']);
+		$this->assertTrue($result);
+		$this->assertTrue($detail->isAccessAllowed('admin'));
+		$this->assertTrue($detail->isAccessAllowed('publisher'));
+		$this->assertTrue($detail->isAccessAllowed('editor'));
+		$this->assertFalse($detail->isAccessAllowed('guest'));
+	}
+
+	/**
+	 * @test
+	 * @return	MvcRouteDetail
+	 */
+	public function routeViewIsView()
+	{
+		$spec = array(
+			'view' => array(
+				'is-view'			=> false,
+				'view-pkg'			=> 'appfuel:page.my-page',
+				'default-format'	=> 'html'
+			),
+			'action-name' => 'MyAction'
+		);
+		$detail = $this->createRouteDetail($spec);
+
+		$this->assertTrue($detail->isViewDisabled());
+		$this->assertTrue($detail->isViewPackage());
+		$this->assertEquals('appfuel:page.my-page', $detail->getViewPackage());
+		$this->assertEquals('html', $detail->getFormat());
+	}
+
+	/**
+	 * @test
+	 * @return	MvcRouteDetail
+	 */
+	public function routeViewManualView()
+	{
+		$spec = array(
+			'view' => array(
+				'is-manual-view'	=> true,
+				'view-pkg'			=> 'appfuel:page.my-page',
+				'default-format'	=> 'html'
+			),
+			'action-name' => 'MyAction'
+		);
+		$detail = $this->createRouteDetail($spec);
+
+		$this->assertTrue($detail->isManualView());
+		$this->assertTrue($detail->isViewPackage());
+		$this->assertEquals('appfuel:page.my-page', $detail->getViewPackage());
+		$this->assertEquals('html', $detail->getFormat());
+	}
 }
