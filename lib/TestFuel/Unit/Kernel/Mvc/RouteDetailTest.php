@@ -307,6 +307,8 @@ class RouteDetailTest extends BaseTestCase
 	}
 
 	/**
+	 * is-view must be true in order to set is-manual-view
+	 *
 	 * @test
 	 * @return	MvcRouteDetail
 	 */
@@ -326,5 +328,30 @@ class RouteDetailTest extends BaseTestCase
 		$this->assertTrue($detail->isViewPackage());
 		$this->assertEquals('appfuel:page.my-page', $detail->getViewPackage());
 		$this->assertEquals('html', $detail->getFormat());
+	}
+
+	/**
+	 * @test
+	 * @return	MvcRouteDetail
+	 */
+	public function routeAction()
+	{
+		$spec = array(
+			'action' => array(
+				'map' => array(
+					'get'  => 'GetAction',
+					'put'  => 'PutAction',
+					'post' => 'PostAction',
+					'delete' => 'DeleteAction'
+				),
+			)
+		);
+		$detail = $this->createRouteDetail($spec);
+		$this->assertEquals('GetAction', $detail->findActionName('get'));
+		$this->assertEquals('PutAction', $detail->findActionName('put'));
+		$this->assertEquals('PostAction', $detail->findActionName('post'));
+		$this->assertEquals('DeleteAction', $detail->findActionName('delete'));
+		$this->assertFalse($detail->findActionName('clii'));
+		
 	}
 }
