@@ -4,8 +4,8 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel\Mvc;
@@ -210,45 +210,13 @@ class RouteAccess implements RouteAccessInterface
 	 */
 	public function setAclMap(array $map)
 	{
-		if ($this->isAclForEachMethod()) {
-			if ($map === array_values($map)) {
-				$err  = "map must be an associative array ";
-				throw new DomainException($err);
-			}
-			foreach ($map as $method => $codes) {
-				if (! is_string($method) || empty($method)) {
-					$err  = "the method acl codes are mapped to must be a ";
-					$err .= "non empty string";
-					throw new DomainException($err);
-				}
-				
-				if (! is_array($codes)) {
-					$err = "list of codes for -($method) must be an array";
-					throw new DomainException($err);
-				}
-				foreach ($codes as $code) {
-					if (! is_string($code) || empty($code)) {
-						$err  = "acl code for -($method) must be a non empty ";
-						$err .= "string";
-						throw new DomainException($err);
-					}
-				}
-			}
+		if ($map !== array_values($map)) {
+			$this->validateMappedAclCodes($map);
+			$this->useAclForEachMethod();
 		}
 		else {
-			if ($map !== array_values($map)) {
-				$err = "when the acl map applies to all methods it must not ";
-				$err = "be an associative array";
-				throw new DomainException($err);
-			}
-
-			foreach ($map as $code) {
-				if (! is_string($code) || empty($code)) {
-					$err = "all acl codes must be non empty strings";
-					throw new DomainException($err);
-				}
-			}
-
+			$this->validateAclCodes($map);
+			$this->useAclForAllMethods();
 		}
 
 		$this->map = $map;
@@ -261,5 +229,42 @@ class RouteAccess implements RouteAccessInterface
 	public function getAclMap()
 	{
 		return $this->map;
+	}
+
+	protected function validateAclCodes(array $codes)
+	{
+		foreach ($codes as $code) {
+			if (! is_string($code) || empty($code)) {
+				$err = "all acl codes must be non empty strings";
+				throw new DomainException($err);
+			}
+		}
+
+		return true;
+	}
+
+	protected function validateMappedAclCodes(array $map)
+	{
+		foreach ($map as $method => $codes) {
+			if (! is_string($method) || empty($method)) {
+				$err  = "the method acl codes are mapped to must be a ";
+				$err .= "non empty string";
+				throw new DomainException($err);
+			}
+			
+			if (! is_array($codes)) {
+				$err = "list of codes for -($method) must be an array";
+				throw new DomainException($err);
+			}
+			foreach ($codes as $code) {
+				if (! is_string($code) || empty($code)) {
+					$err  = "acl code for -($method) must be a non empty ";
+					$err .= "string";
+					throw new DomainException($err);
+				}
+			}
+		}
+
+		return true;
 	}
 }

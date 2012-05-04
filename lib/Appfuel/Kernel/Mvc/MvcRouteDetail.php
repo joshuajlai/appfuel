@@ -10,10 +10,13 @@
  */
 namespace Appfuel\Kernel\Mvc;
 
-use InvalidArgumentException,
+use DomainException,
     Appfuel\DataStructure\Dictionary;
 
 /**
+ * Facade made of RouteAccess for acl, RouteStartup for app tasks,
+ * RouteIntercept for intercepting filters, RouteView for view data
+ * and routeAction for Action info
  */
 class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 {
@@ -64,6 +67,70 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	}
 
 	/**
+	 * @return	bool
+	 */
+	public function isIgnoreConfigStartupTasks()
+	{
+		return $this->getRouteStartup()
+					->isIgnoreConfigStartupTasks();
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isPrependStartupTasks()
+	{
+		return $this->getRouteStartup()
+					->isPrependStartupTasks();
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isStartupDisabled()
+	{
+		return $this->getRouteStartup()
+					->isStartupDisabled();
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isStartupTasks()
+	{
+		return $this->getRouteStartup()
+					->isStartupTasks();
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getStartupTasks()
+	{
+		return $this->getRouteStartup()
+					->getStartupTasks();
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isExcludedStartupTasks()
+	{
+		return $this->getRouteStartup()
+					->isExcludedStartupTasks();
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getExcludedStartupTasks()
+	{
+		return $this->getRouteStartup()
+					->getExcludedStartupTasks();
+	}
+
+
+	/**
 	 * @return string
 	 */
 	public function getFormat()
@@ -105,10 +172,10 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	/**
 	 * @return bool
 	 */
-	public function isIgnoreAcl()
+	public function isAclAccessIgnored()
 	{
 		return $this->getRouteAccess()
-					->isIgnoreAcl();
+					->isAclAccessIgnored();
 	}
 
 	/**
@@ -215,60 +282,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	/**
 	 * @return	bool
 	 */
-	public function isIgnoreConfigStartupTasks()
-	{
-		return $this->getRouteStartup()
-					->isIgnoreConfigStartupTasks();
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isPrependStartupTasks()
-	{
-		return $this->getRouteStartup()
-					->isPrependStartupTasks();
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isStartupTasks()
-	{
-		return $this->getRouteStartup()
-					->isStartupTasks();
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getStartupTasks()
-	{
-		return $this->getRouteStartup()
-					->getStartupTasks();
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isExcludedStartupTasks()
-	{
-		return $this->getRouteStartup()
-					->isExcludedStartupTasks();
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getExcludedStartupTasks()
-	{
-		return $this->getRouteStartup()
-					->getExcludedStartupTasks();
-	}
-
-	/**
-	 * @return	bool
-	 */
 	public function isViewDisabled()
 	{
 		return $this->getRouteView()
@@ -308,7 +321,7 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	public function getActionName()
 	{
 		return $this->getRouteAction()
-					->getActionName();
+					->getName();
 	}
 
 	/**
@@ -320,67 +333,40 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 					->findAction($method);
 	}
 
+	/**
+	 * @param	array	$data
+	 * @return	null
+	 */
 	protected function initializeStartup(array $data)
 	{
 		$startup = $this->createRouteStartup();
 		$this->startup = $startup;
-	}
+		if (! isset($data['startup'])) {
+			return;
+		}
+		$data = $data['startup'];
 
-	/**
-	 * @param	array	$data
-	 * @return	null
-	 */
-	protected function initializeAcl(array $data)
-	{
-		$acl = $this->createRouteAccess();
-		if (isset($data['is-public']) && true === $data['is-public']) {
-			$acl->enablePublicAccess();
+		if (isset($data['is-disabled']) && true === $data['is-disabled']) {
+			$startup->disableStartup();
 		}
 
-		if (isset($data['is-internal']) && true === $data['is-internal']) {
-			$acl->enableInternalOnlyAccess();
+		if (isset($data['is-prepended']) && true === $data['is-prepended']) {
+			$startup->prependStartupTasks();
+		}
+		
+		if (isset($data['is-config-ignored']) && 
+			true === $data['is-config-ignored']) {
+			$startup->ignoreConfigStartupTasks();
 		}
 
-		if (isset($data['is-ignore-acl']) && true === $data['is-ignore-acl']) {
-			$acl->ignoreAclAccess();
+		if (isset($data['tasks'])) {
+			$startup->setStartupTasks($data['tasks']);
 		}
 
-		$map = array();
-		if (isset($data['acl-access'])) {
-			$acl->useAclForAllMethods();
-			$map = $data['acl-access'];
-		}
-		else if (isset($data['acl-access-map'])) {
-			$acl->useAclForEachMethod();
-			$map = $data['acl-access-map'];
-		}
-		$acl->setAclMap($map);
-		$this->access = $acl;
-	}
-
-	/**
-	 * @param	array	$data
-	 * @return	null
-	 */
-	protected function initializeView(array $data)
-	{
-		$view = $this->createRouteView();
-		if (isset($data['is-view']) && false === $data['is-view']) {
-			$view->disableView();
-		}
-		else if (isset($data['is-manual-view']) && 
-				true === $data['is-manual-view']) {
-			$view->enableManualView();
+		if (isset($data['excluded-tasks'])) {
+			$startup->setExcludedStartupTasks($data['excluded-tasks']);
 		}
 
-		if (isset($data['view-pkg'])) {
-			$view->setViewPackage($data['view-pkg']);
-		}
-
-		if (isset($data['default-format'])) {
-			$view->setFormat($data['default-format']);
-		}
-		$this->view = $view;
 	}
 
 	/**
@@ -389,11 +375,13 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	protected function initializeIntercept(array $data)
 	{
+		/* store first so defaults are used when no data is found */
 		$intercept = $this->createRouteIntercept();
 		$this->intercept = $intercept;
 		if (! isset($data['intercept'])) {
 			return;
 		}
+
 		$data = $data['intercept'];
 		if (isset($data['is-skip-pre']) && true === $data['is-skip-pre']) {
 			$intercept->disablePreFiltering();
@@ -434,6 +422,63 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 			}
 			$intercept->setExcludedPostFilters($list);
 		}
+	}
+
+
+	/**
+	 * @param	array	$data
+	 * @return	null
+	 */
+	protected function initializeAcl(array $data)
+	{
+		$acl = $this->createRouteAccess();
+		$this->access = $acl;
+		if (isset($data['access'])) {
+			$data = $data['access'];	
+		}
+
+		if (isset($data['is-public']) && true === $data['is-public']) {
+			$acl->enablePublicAccess();
+		}
+
+		if (isset($data['is-internal']) && true === $data['is-internal']) {
+			$acl->enableInternalOnlyAccess();
+		}
+
+		if (isset($data['is-ignore']) && true === $data['is-ignore']) { 
+			$acl->ignoreAclAccess();
+		}
+
+		$map = array();
+		if (isset($data['acl-access'])) {
+			$map = $data['acl-access'];
+			$acl->setAclMap($map);	
+		}
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	null
+	 */
+	protected function initializeView(array $data)
+	{
+		$view = $this->createRouteView();
+		if (isset($data['is-view']) && false === $data['is-view']) {
+			$view->disableView();
+		}
+		else if (isset($data['is-manual-view']) && 
+				true === $data['is-manual-view']) {
+			$view->enableManualView();
+		}
+
+		if (isset($data['view-pkg'])) {
+			$view->setViewPackage($data['view-pkg']);
+		}
+
+		if (isset($data['default-format'])) {
+			$view->setFormat($data['default-format']);
+		}
+		$this->view = $view;
 	}
 
 	/**

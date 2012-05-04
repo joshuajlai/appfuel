@@ -4,8 +4,8 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace TestFuel\Unit\Kernel\Mvc;
@@ -154,21 +154,6 @@ class RouteAccessTest extends BaseTestCase
 	 * @depends	createRouteAccess
 	 * @return	RouteAccess
 	 */
-	public function setAclMapNoMethodsAssocArrayFailure(RouteAccess $access)
-	{
-		$this->setExpectedException('DomainException');
-		$map = array('put' => array('admin', 'publisher'));
-		$access->setAclMap($map);
-	}
-
-	/**
-	 * Since this acl map is for all methods it should be an indexed 
-	 * array of strings not an associative array
-	 *
-	 * @test
-	 * @depends	createRouteAccess
-	 * @return	RouteAccess
-	 */
 	public function setAclMapCodeNotStringFailure(RouteAccess $access)
 	{
 		$msg = 'all acl codes must be non empty strings';
@@ -202,20 +187,6 @@ class RouteAccessTest extends BaseTestCase
 		$this->assertEmpty($access->getAclMap());
 	
 		return $access;
-	}
-
-	/**
-	 * @test
-	 * @depends	createRouteAccess
-	 * @return	RouteAccess
-	 */
-	public function setAclMapMethodsNotAssocArrayFailure(RouteAccess $access)
-	{
-		$map = array('admin', 'publisher');
-		$msg = 'map must be an associative array';
-		$this->setExpectedException('DomainException', $msg);		
-		$access->useAclForEachMethod();
-		$access->setAclMap($map);
 	}
 
 	/**
