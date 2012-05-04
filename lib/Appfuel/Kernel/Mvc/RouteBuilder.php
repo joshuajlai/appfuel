@@ -113,7 +113,7 @@ class RouteBuilder
 				$list[$key] = $detail;
 			}
 			else if (is_string($data)) {
-				if ($mainKey === $data || array_key_exists($data,$keys)) {
+				if ($mainKey === $data || in_array($data,$keys, true)) {
 					$list[$key] = $data;
 				}
 				else {
