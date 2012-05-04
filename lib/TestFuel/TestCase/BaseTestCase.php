@@ -14,7 +14,7 @@ use StdClass,
 	RunTimeException,
 	TestFuel\Provider\StringProvider,
 	Appfuel\Filesystem\FileFinder,
-	Appfuel\Kernel\KernelRegistry,
+	Appfuel\Kernel\ConfigRegistry,
 	Appfuel\Kernel\KernelStateInterface,
 	Appfuel\DataSource\Db\DbStartupTask,
 	PHPUnit_Framework_TestCase;
@@ -72,36 +72,6 @@ class BaseTestCase extends PHPUnit_Framework_TestCase
 	{
         error_reporting(E_ALL | E_STRICT);
         ini_set('error_diplay', 'on');
-		$this->clearKernelRegistry();
-	}
-
-	/**
-	 * @return null
-	 */
-	public function tearDown()
-	{
-		$this->restoreKernelState();
-		$this->restoreKernelRegistry();
-	}
-
-	/**
-	 * @return null
-	 */
-	public function clearKernelRegistry()
-	{
-		KernelRegistry::clear();
-	}
-
-	/**
-	 * Restore all the kernel registry settings with the settings backup 
-	 * that occured in the UnitTestStartup strategy
-	 *
-	 * @return	null
-	 */
-	public function restoreKernelRegistry()
-	{
-		KernelRegistry::setParams(TestRegistry::getKernelParams());
-		KernelRegistry::setDomainMap(TestRegistry::getKernelDomainMap());
 	}
 
     /**

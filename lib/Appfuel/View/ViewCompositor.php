@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -80,6 +80,7 @@ class ViewCompositor implements ViewCompositorInterface
 			$err = "could not compose pkg -({$name->getName()}) not found";
 			throw new DomainException($err);
 		}
+
 		$vPath = ResourceTreeManager::getVendorPath($name->getVendor());
 		$path  = "$vPath/{$pkg->getMarkupFile()}";
 

@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -46,24 +46,6 @@ interface MvcActionInterface
 	 * @return	null
 	 */
 	public function process(MvcContextInterface $context);
-
-	/**
-	 * @param	string	$route
-	 * @param	string	$strategy
-	 * @return	null
-	 */
-	public function callEmpty($route);
-
-	/**
-	 * Manually configure the dispatcher to call another mvc action. Note
-	 * the route is part of the uri, which can be a RequestUri or a string.
-	 * if the mvc action returns a context it will override the context passed
-	 * in.
-	 *
-	 * @param	MvcContextInterface $context
-	 * @return	MvcContextInterface
-	 */
-	public function call(MvcContextInterface $context);
 
 	/**
 	 * Makes it appear as if the context was used in the action you just 

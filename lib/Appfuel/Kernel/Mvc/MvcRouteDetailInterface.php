@@ -4,8 +4,8 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel\Mvc;
@@ -19,6 +19,42 @@ interface MvcRouteDetailInterface extends DictionaryInterface
 	/**
 	 * @return	bool
 	 */
+	public function isIgnoreConfigStartupTasks();
+
+	/**
+	 * @return bool
+	 */
+	public function isPrependStartupTasks();
+
+	/**
+	 * @return	bool
+	 */
+	public function isStartupDisabled();
+
+	/**
+	 * @return	bool
+	 */
+	public function isStartupTasks();
+
+	/**
+	 * @return	array
+	 */
+	public function getStartupTasks();
+
+	/**
+	 * @return	bool
+	 */
+	public function isExcludedStartupTasks();
+
+	/**
+	 * @return	array
+	 */
+	public function getExcludedStartupTasks();
+
+
+	/**
+	 * @return	bool
+	 */
 	public function isPublicAccess();
 
 	/**
@@ -29,7 +65,7 @@ interface MvcRouteDetailInterface extends DictionaryInterface
 	/**
 	 * @return bool
 	 */
-	public function isIgnoreAcl();
+	public function isAclAccessIgnored();
 
 	/**
 	 * @param	string	$code
@@ -40,7 +76,7 @@ interface MvcRouteDetailInterface extends DictionaryInterface
 	/**
 	 * @return	bool
 	 */
-	public function isSkipPreFilters();
+	public function isPreFilteringEnabled();
 
 	/**
 	 * @return	bool
@@ -65,7 +101,7 @@ interface MvcRouteDetailInterface extends DictionaryInterface
 	/**
 	 * @return	bool
 	 */
-	public function isSkipPostFilters();
+	public function isPostFilteringEnabled();
 
 	/**
 	 * @return	bool
@@ -90,49 +126,12 @@ interface MvcRouteDetailInterface extends DictionaryInterface
 	/**
 	 * @return	bool
 	 */
-	public function isIgnoreConfigStartupTasks();
-
-	public function isPrependStartupTasks();
-
-	/**
-	 * @return	bool
-	 */
-	public function isStartupTasks();
-
-	/**
-	 * @return	array
-	 */
-	public function getStartupTasks();
-
-	/**
-	 * @return	bool
-	 */
-	public function isExcludedStartupTasks();
-
-	/**
-	 * @return	array
-	 */
-	public function getExcludedStartupTasks();
-
-	/**
-	 * @return	bool
-	 */
-	public function isView();
+	public function isViewDisabled();
 
 	/**
 	 * @return	bool
 	 */
 	public function isManualView();
-
-	/**
-	 * @return	bool
-	 */
-	public function isRawView();
-
-	/**
-	 * @return	string
-	 */
-	public function getRawView();
 
 	/**
 	 * @return	bool
@@ -145,17 +144,7 @@ interface MvcRouteDetailInterface extends DictionaryInterface
 	public function getViewPackage();
 
 	/**
-	 * @return	array
-	 */
-	public function getViewParams();
-
-	/**
 	 * @return	string
 	 */
 	public function getActionName();
-
-	/**
-	 * @return	string
-	 */
-	public function getActionClass();
 }

@@ -4,7 +4,7 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
+ * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -41,12 +41,14 @@ class AppInput implements AppInputInterface
 	 * @param	string	$rm			request method
      * @return	Request
      */
-    public function __construct($method = null, array $params = array())
+    public function __construct($method, array $params = array())
     {
-		if (null === $method || ! is_string($method)) {
-			$method = '';
+		if (! is_string($method) || empty($method)) {
+			$err = "method must be a non empty string";
+			throw new InvalidArgumentException($err);
 		}
-		$this->method = $method;
+
+		$this->method = strtolower($method);
 	
 		/*
 		 * Ensure each type exists as an array. because searching the
@@ -61,14 +63,14 @@ class AppInput implements AppInputInterface
 			}
 			
 			if (! is_array($params[$type])) {
-				$err .= "request param for -($type) must be an array";
+				$err = "request param for -($type) must be an array";
 				throw new InvalidArgumentException($err);
 			}
 			
 			/* make sure he the array of key value pairs have valid keys */
 			foreach ($params[$type] as $key => $value) {
 				if (strlen($key) === 0 || ! is_scalar($key)) {
-					$err .= "request param for -($type) key must not be empty";
+					$err = "request param for -($type) key must not be empty";
 					throw new InvalidArgumentException($err);
 				}
 			}
@@ -82,7 +84,7 @@ class AppInput implements AppInputInterface
      */
     public function isPost()
     {
-        return 'post' === strtolower($this->method);
+        return 'post' === $this->method;
     }
 
     /**
@@ -90,7 +92,7 @@ class AppInput implements AppInputInterface
      */
     public function isGet()
     {
-        return 'get' === strtolower($this->method);
+        return 'get' === $this->method;
     }
 
 	/**
@@ -98,7 +100,7 @@ class AppInput implements AppInputInterface
 	 */
 	public function isCli()
 	{
-		return 'cli' === strtolower($this->method);
+		return 'cli' === $this->method;
 	}
 
     /**
@@ -107,6 +109,16 @@ class AppInput implements AppInputInterface
     public function getMethod()
     {
         return $this->method;
+    }
+   
+    /**
+     * @param   string  $key 
+     * @param   mixed   $default
+     * @return  mixed
+     */
+    public function getParam($key, $default = null)
+    {
+        return $this->get($this->getMethod(), $key, $default);
     }
 
     /**
@@ -203,14 +215,41 @@ class AppInput implements AppInputInterface
 	}
 
 	/**
-	 * @return	string | false when not set
+	 * Check for the direct ip address of the client machine, try for the 
+	 * forwarded address, check for the remote address. When none of these
+	 * return false
+	 * 
+	 * @return	int
 	 */
-	public function getIp()
+	public function getIp($isInt = true)
 	{
-		if (! isset($_SERVER['REMOTE_ADDR'])) {
-			return null;
+		$client  = 'HTTP_CLIENT_IP';
+		$forward = 'HTTP_X_FORWARDED_FOR';
+		$remote  = 'REMOTE_ADDR'; 
+		if (isset($_SERVER[$client]) && is_string($_SERVER[$client])) {
+			$ip = $_SERVER[$client];
+		}
+		else if (isset($_SERVER[$forward]) && is_string($_SERVER[$forward])) {
+			$ip = $_SERVER[$forward];
+		}
+		else if (isset($_SERVER[$remote]) && is_string($_SERVER[$remote])) {
+			$ip = $_SERVER[$remote];
+		}
+		else {
+			$ip = false;
 		}
 
-		return $_SERVER['REMOTE_ADDR'];
+		if (false === $ip) {
+			return false;
+		}
+
+		$isInt = ($isInt === false) ? false : true;
+		$format = "%s";
+		if (true === $isInt) {
+			$format = "%u";
+			$ip = ip2long($ip);
+		}
+
+		return sprintf($format, $ip);
 	}
 }

@@ -64,6 +64,7 @@ class PreparedStmtAdapter implements MysqliAdapterInterface
          * no results are needed
          */
         if ($isOrganized && ! $stmt->isResultset()) {
+            $response->setAffectedRows($stmt->getAffectedRows());
             return $response;
         }
 
@@ -74,7 +75,8 @@ class PreparedStmtAdapter implements MysqliAdapterInterface
 		if (is_array($data)) {
 			$response->setResultSet($data);
 		}
-		
+
+        $response->setAffectedRows($stmt->getAffectedRows());
 		return $response;
 	}
 }

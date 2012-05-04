@@ -24,9 +24,7 @@ use InvalidArgumentException,
 class DbResponse implements DbResponseInterface
 {
 	/**
-	 * Used by insert update and delete operations that do not have any
-	 * result set
-	 *
+     * Flag used to determine if the sql operation was successful, mostly by writes
 	 * @var bool
 	 */
 	protected $status = null;
@@ -43,6 +41,12 @@ class DbResponse implements DbResponseInterface
 	 */
 	protected $errorStack = null;
 
+    /**
+     * Number of rows affected by the sql operation that generated this response
+     * @var int
+     */
+    protected $affected = 0;
+
 	/**
 	 * @param	ErrorStackInterface	$stack
 	 * @return	DbResponse
@@ -55,6 +59,24 @@ class DbResponse implements DbResponseInterface
 		$this->errorStack = $stack;
 	}
 
+    /**
+     * @return  bool
+     */
+    public function markSuccessful()
+    {
+        $this->status = true;
+        return $this;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function markFailure()
+    {
+        $this->status = false;
+        return $this;
+    }
+
 	/**
 	 * @return	bool | null when not used
 	 */
@@ -63,20 +85,47 @@ class DbResponse implements DbResponseInterface
 		return $this->status;
 	}
 
+    /**
+     * @return  bool
+     */
+    public function isSuccessful()
+    {
+        return true === $this->status;
+    }
+
+    /**
+     * @return  bool
+     */
+    public function isFailure()
+    {
+        return false === $this->status;
+    }
+
 	/**
 	 * @param	bool	$result
 	 * @return	DbResponse
 	 */
-	public function setStatus($result)
+	public function setAffectedRows($count)
 	{
-		if (! is_bool($result)) {
-			$err = 'status must use a boolean value';
-			throw new InvalidArgumentException($result);
-		}
-
-		$this->status = $result;
-		return $response;
+        if (false === $count || null === $count || $count < 0) {
+            $this->markFailure();
+            $this->affected = -1;
+        }
+        else {
+            $this->markSuccessful();
+            $this->affected = $count;
+        }
+        
+		return $this;
 	}
+
+    /**
+     * @return  int
+     */
+    public function getAffectedRows()
+    {
+        return $this->affected;
+    }
 
 	/**
 	 * @return	ErrorStackInterface
@@ -118,6 +167,7 @@ class DbResponse implements DbResponseInterface
 		else {
 			$stack->addError($msg, $code);
 		}
+		$this->markFailure();
 
 		return $this;
 	}
@@ -203,8 +253,24 @@ class DbResponse implements DbResponseInterface
 	 * @param	array	$results
 	 * @return	DbResponse
 	 */	
-	public function setResultSet(array $results)
+	public function setResultSet($results)
 	{
+		$this->markSuccessful();
+		if (true === $results) {
+			$results = array();
+		}
+		else if (false === $results) {
+			$this->markFailure();
+			$results = array();
+		}
+		else if (! is_array($results)) {
+			$err  = 'resultset must be a bool true to indicate a successful ';
+			$err .= 'operation with no results returned, or false to ';
+			$err .= 'indicate the operation was not sucessful or an array ';
+			$err .= 'of data which indicates a successful operation with ';
+			$err .= 'with results returned';
+		}
+
 		$this->results = $results;
 		return $this;
 	}
