@@ -119,7 +119,7 @@ class FileWriter implements FileWriterInterface
         }
 
         if (! $finder->fileExists($target, false)) {
-            return false;
+            return true;
         }
         
         $iterator = new RecursiveIteratorIterator(
