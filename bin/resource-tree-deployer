@@ -1,0 +1,33 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
+ */
+use Appfuel\Kernel\AppHandler,
+    Appfuel\Html\Resource\ResourceTreeDeployer;
+
+require 'cli-header.php';
+
+$builder = new ResourceTreeBuilder();
+
+try {
+	$builder->buildTree();
+} catch (Exception $e) {
+	fwrite(STDERR, $e->getMessage() . "\n");
+	exit(1);
+}
+
+$writer = new ResourceTreeWriter();
+if (false === $writer->writeTree($tree)) {
+	$err = "could not write tree to -($full)\n";
+	fwrite(STDERR, $err);
+	exit(1);
+}
+
+exit(0);

@@ -5,13 +5,14 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\Kernel\AppHandler;
+use Appfuel\Kernel\AppHandler,
+	Appfuel\Kernel\ConfigBuilder;
 
-$base = realpath(dirname(__FILE__) . '/../../');
+$base = realpath(dirname(__FILE__) . '/../');
 $file = "{$base}/lib/Appfuel/Kernel/AppHandler.php";
 if (! file_exists($file)) {
     $err = "Could not find kernel initializer file at $file";
@@ -19,33 +20,40 @@ if (! file_exists($file)) {
 }
 require $file;
 
+$config = array(
+	'php-error-level'			=> 'all strict',
+	'php-include-path'			=> array($base),
+	'php-include-path-replace'	=> 'replace',
+	'php-display-errors'		=> 'on',
+	'php-autoloader'			=> 'Appfuel\ClassLoader\StandardAutoloader',
+	'fault-handler-class'		=> 'Appfuel\Kernel\FaultHandler',
+	'php-default-timezone'		=> 'America/Los_Angeles'
+);
+
 $handler = new AppHandler($base);
-$handler->loadConfigFile('app/config/config.php', 'main')
-        ->initializeFramework();
+$handler->setConfigData($config)
+		->initializeFramework();
 
 if (count($argv) < 2) {
-	$err = "fuelcell cli must have a route as its first argument \n";
+	$err = "config builder must have the env name as the first argument \n";
 	fwrite(STDERR, $err);
 	exit(1);
 }
 
-$uri    = $handler->createUri($argv[1]);
-$key    = $uri->getRouteKey();
-$format = $uri->getRouteFormat();
-if (empty($format)) {
-	$format = 'text';
+$env = $argv[1];
+if (! is_string($env) || empty($env)) {
+	fwrite(STDERR, "env name must be a non empty string \n");
+	exit(1);
 }
 
-$route   = $handler->findRoute($uri);
-$input   = $handler->createRestInputFromConsole($uri);
-$context = $handler->createContext($key, $input);
-$handler->initializeApp($route, $context)
-        ->setupView($route, $context, $format)        
-		->runAction($context)
-        ->outputConsoleContext($route, $context);
-
-$code = $context->getExitCode();
-if ($code >= 200 || $code < 300) {
-	$code = 0;
+$builder = new ConfigBuilder($env);
+$finder  = $builder->getFileFinder();
+$full    = $finder->getPath('config.php');
+if (false === $builder->generateConfigFile()) {
+	$err    = "could not build config data to -($full) for -($env)\n";
+	fwrite(STDERR, $err);
+	exit(1); 
 }
-exit($context->getExitCode());
+
+fwrite(STDOUT, "config file for -($env) was written to -($full) \n");
+exit(0);
