@@ -1,0 +1,47 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
+ */
+use Appfuel\Kernel\AppHandler,
+    Appfuel\Html\Resource\ResourceTreeDeployer;
+
+require 'cli-header.php';
+
+/* rebuild tree */
+$cmd = AF_BASE_PATH . '/bin/build-resource-tree';
+if (! file_exists($cmd)) {
+	$err = "could not find file at -($cmd) \n";
+	fwrite(STDERR, $err);
+	exit(1);
+}
+
+if ($isVerbose) {
+	$cmd .= ' -v';
+}
+$output = array();
+$result = null;
+exec($cmd,  $output, $result);
+if (0 !== $result) {
+	$msg = implode(' ', $result);
+	fwrite(STDERR, "$msg\n");
+	exit($result);
+}
+
+$deployer = new ResourceTreeDeployer();
+if (false === $deployer->deploy()) {
+	fwrite(STDERR, "resource deployment failure: {$deployer->getError()} \n");
+	exit(1);
+}
+
+if ($isVerbose) {
+	$status = $deployer->getStatus();
+	fwrite(STDOUT, $status . "\n");
+}
+exit(0);

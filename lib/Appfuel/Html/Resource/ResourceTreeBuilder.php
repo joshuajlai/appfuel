@@ -26,6 +26,11 @@ use DomainException,
 class ResourceTreeBuilder implements ResourceTreeBuilderInterface
 {
 	/**
+	 * @var string
+	 */
+	protected $error = null;
+
+	/**
 	 * Default location of the json file that describes all the vendors
 	 * @var string
 	 */
@@ -43,10 +48,15 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
 		}
 		else if (! is_string($path) || empty($path)) {
 			$err = 'path to vendors json file must be a non empty string';
-			throw new InvalidArgumentException($path);
+			$this->setError($err);
+			return false;
 		}
 
 		$list = $this->createVendorList(new FileFinder($path, $isBasePath));
+		if (false === $list) {
+			return false;
+		}
+
 		return $this->processVendorList($list);
 	}
 
@@ -59,7 +69,8 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
 		if (! $finder->fileExists()) {
 			$err  = "failed to create vendor list: file not found at ";
 			$err .= "-({$finder->getPath()})";
-			throw new DomainException($err);
+			$this->setError($err);
+			return false;
 		}
 		$reader = new FileReader($finder);
 
@@ -67,7 +78,8 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
 		if (null === $vendors) {
 			$err = "error processing json: -({$reader->getLastJsonError()} at ";
 			$err .= "{$finder->getPath()})";
-            throw new RunTimeException($err);
+			$this->setError($err);
+			return false;
 		}
 
 		return $vendors;
@@ -83,7 +95,8 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
         foreach ($vendors as $key => $data) {
             if (! is_string($key) || empty($key)) {
                 $err  = "invalid list format: vendor key must be a string";
-                throw new RunTimeException($err);
+				$this->setError($err);
+				return false;
             }
 
             $tree[$key] = $data;
@@ -96,8 +109,10 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
             else {
                 $err  = "could not build tree: path to package tree not found ";
                 $err .= "or path to package dir not found";
-                throw new RunTimeException($err);
+				$this->setError($err);
+				return false;
             }
+
             $tree[$key]['list'] = $list;
         }
 
@@ -122,7 +137,8 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
         if (! $data) {
             $err  = "could not decode package tree at -($path): ";
             $err .= "{$fileReader->getLastJsonError()}";
-            throw new RunTimeException($err);
+			$this->setError($err);
+			return false;
         }
 
         return $data;
@@ -157,42 +173,47 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
                 $dir  = $info->getFileName();
                 $err  = "error parsing the manfiest json file for -($dir): ";
                 $err .= "{$fileReader->getLastJsonError()}";
-                throw new RunTimeException($err);
+				$this->setError($err);
+				return false;
             }
 
             if (! isset($data['name'])) {
                 $pathName = $file->getPathName();
-				
                 $err  = 'every resource pkg must have a -(name) property ';
                 $err .= "file: -($pathName)";
-				throw new DomainException($err);
+				$this->setError($err);
+				return false;
 			}
             $name = $data['name'];
 			
             if (! is_string($name) || empty($name)) {
                 $err  = "property -(name) must be a none empty string ";
                 $err .= "-({$file->getPathInfo()->getFileName()})";
-                throw new RunTimeException($err);
+				$this->setError($err);
+				return false;
             }
 
 			if (! isset($data['type'])) {
 				$err  = 'every resource pkg must have a -(type) property ';
 				$err .= "defined: none found for -($name)";
-				throw new DomainException($err);
+				$this->setError($err);
+				return false;
 			}
 			$type = $data['type'];
 
 			if (! is_string($type) || empty($type)) {
 				$err  = "appfuel resource -($name) json must have a type ";
 				$err .= "property as which is a non empty string ";
-				throw new DomainException($err);				
+				$this->setError($err);
+				return false;
 			}
 
             if (isset($packages[$type][$name])) {
                 $info = $file->getPathInfo();
                 $err  = "can not build tree -($type, $name) is already ";
 				$err .= "defined -({$info->getPathName()})";
-                throw new RunTimeException($err);
+				$this->setError($err);
+				return false;
             }
             $packages[$type][$name] = $data;
         }
@@ -206,5 +227,30 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
 	public function getDefaultVendorFile()
 	{
 		return $this->defaultVendorFile;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isError()
+	{
+		return ! empty($this->error);	
+	}
+
+	/**
+	 * @return	string | null when not set
+	 */
+	public function getError()
+	{
+		return $this->error;
+	}
+
+	/**
+	 * @param	string	$msg
+	 * @return	null
+	 */
+	protected function setError($msg)
+	{
+		$this->error = $msg;
 	}
 }

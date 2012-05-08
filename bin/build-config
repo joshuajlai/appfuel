@@ -16,7 +16,8 @@ $base = realpath(dirname(__FILE__) . '/../');
 $file = "{$base}/lib/Appfuel/Kernel/AppHandler.php";
 if (! file_exists($file)) {
     $err = "Could not find kernel initializer file at $file";
-    throw new LogicException($err);
+	fwrite(STDERR, $err);
+	exit(1);
 }
 require $file;
 
@@ -34,6 +35,19 @@ $handler = new AppHandler($base);
 $handler->setConfigData($config)
 		->initializeFramework();
 
+$isVerbose = false;
+
+/* when -v is found capture it then remove it from argv 
+ * so env will always be the first argumment regardless
+ * of where the option is set
+ */
+$index = array_search('-v', $argv, true);
+if (false !== $index) {
+	$isVerbose = true;
+	unset($argv[$index]);
+	$argv = array_values($argv);
+}
+
 if (count($argv) < 2) {
 	$err = "config builder must have the env name as the first argument \n";
 	fwrite(STDERR, $err);
@@ -50,10 +64,13 @@ $builder = new ConfigBuilder($env);
 $finder  = $builder->getFileFinder();
 $full    = $finder->getPath('config.php');
 if (false === $builder->generateConfigFile()) {
-	$err    = "could not build config data to -($full) for -($env)\n";
+	$err = "could not build config data to -($full) for -($env)\n";
 	fwrite(STDERR, $err);
 	exit(1); 
 }
 
-fwrite(STDOUT, "config file for -($env) was written to -($full) \n");
+if (true === $isVerbose) {
+	fwrite(STDOUT, "config file for -($env) was written to -($full) \n");
+}
+
 exit(0);

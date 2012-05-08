@@ -20,3 +20,16 @@ require $file;
 $handler = new \Appfuel\Kernel\AppHandler($base);
 $handler->loadConfigFile('app/config/config.php', 'main')
         ->initializeFramework();
+
+/* when -v is found capture it then remove it from argv 
+ * so env will always be the first argumment regardless
+ * of where the option is set
+ */
+$isVerbose = false;
+$index     = array_search('-v', $argv, true);
+if (false !== $index) {
+    $isVerbose = true;
+    unset($argv[$index]);
+    $argv = array_values($argv);
+	unset($index);
+}
