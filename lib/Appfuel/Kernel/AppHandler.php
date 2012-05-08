@@ -125,6 +125,18 @@ class AppHandler
 	}
 
 	/**
+	 * @param	array	$data
+	 * @return	AppHandler
+	 */
+	public function setConfigData(array $data)
+	{	
+		$this->createConfigLoader()
+			 ->set($data);
+
+		return $this;
+	}
+
+	/**
 	 * @return	AppFactoryInterface
 	 */
 	public function getAppFactory()

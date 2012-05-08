@@ -1,0 +1,76 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
+ */
+use Appfuel\Kernel\AppHandler,
+	Appfuel\Kernel\ConfigBuilder;
+
+$base = realpath(dirname(__FILE__) . '/../');
+$file = "{$base}/lib/Appfuel/Kernel/AppHandler.php";
+if (! file_exists($file)) {
+    $err = "Could not find kernel initializer file at $file";
+	fwrite(STDERR, $err);
+	exit(1);
+}
+require $file;
+
+$config = array(
+	'php-error-level'			=> 'all strict',
+	'php-include-path'			=> array($base),
+	'php-include-path-replace'	=> 'replace',
+	'php-display-errors'		=> 'on',
+	'php-autoloader'			=> 'Appfuel\ClassLoader\StandardAutoloader',
+	'fault-handler-class'		=> 'Appfuel\Kernel\FaultHandler',
+	'php-default-timezone'		=> 'America/Los_Angeles'
+);
+
+$handler = new AppHandler($base);
+$handler->setConfigData($config)
+		->initializeFramework();
+
+$isVerbose = false;
+
+/* when -v is found capture it then remove it from argv 
+ * so env will always be the first argumment regardless
+ * of where the option is set
+ */
+$index = array_search('-v', $argv, true);
+if (false !== $index) {
+	$isVerbose = true;
+	unset($argv[$index]);
+	$argv = array_values($argv);
+}
+
+if (count($argv) < 2) {
+	$err = "config builder must have the env name as the first argument \n";
+	fwrite(STDERR, $err);
+	exit(1);
+}
+
+$env = $argv[1];
+if (! is_string($env) || empty($env)) {
+	fwrite(STDERR, "env name must be a non empty string \n");
+	exit(1);
+}
+
+$builder = new ConfigBuilder($env);
+$finder  = $builder->getFileFinder();
+$full    = $finder->getPath('config.php');
+if (false === $builder->generateConfigFile()) {
+	$err = "could not build config data to -($full) for -($env)\n";
+	fwrite(STDERR, $err);
+	exit(1); 
+}
+
+if (true === $isVerbose) {
+	fwrite(STDOUT, "config file for -($env) was written to -($full) \n");
+}
+
+exit(0);

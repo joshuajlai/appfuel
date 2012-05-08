@@ -4,11 +4,11 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace FuelCell\Action\Build;
+namespace Appfuel\Html\Resource;
 
 use Exception,
 	RunTimeException,
@@ -16,32 +16,30 @@ use Exception,
     Appfuel\Filesystem\FileWriter,
     Appfuel\Filesystem\FileReader,
     Appfuel\Filesystem\FileReaderInterface,
-    Appfuel\Filesystem\FileWriterInterface,
-    Appfuel\Html\Resource\PkgName,
-	Appfuel\Html\Resource\PkgNameInterface,
-    Appfuel\Html\Resource\FileStack,
-	Appfuel\Html\Resource\FileStackInterface,
-    Appfuel\Html\Resource\ContentStack,
-    Appfuel\Html\Resource\ResourceTreeManager,
-	Appfuel\Html\Resource\ResourceLayerInterface,
-	Appfuel\Kernel\Mvc\MvcAction,
-	Appfuel\Kernel\Mvc\MvcContextInterface;
+    Appfuel\Filesystem\FileWriterInterface;
 
 /**
  * Build javascript and css into concatenated files. Also move theme packages
  * to their build locations
  */
-class BuildClientsideResources extends MvcAction
+class ResourceTreeDeployer
 {
+	/**
+	 * @var string
+	 */
+	protected $error = null;
+
+	/**
+	 * @var string
+	 */
+	protected $status = null;
+
 	/**
 	 * @param	MvcContextInterface $context
 	 * @return	null
 	 */
-	public function process(MvcContextInterface $context)
+	public function deploy()
 	{
-		$input = $context->getInput();
-		$view  = $context->getView();
-
 		if (! ResourceTreeManager::isTree()) {
 			ResourceTreeManager::loadTree();
 		}
@@ -51,40 +49,79 @@ class BuildClientsideResources extends MvcAction
 		$reader = new FileReader($finder);
         if (! $writer->deleteTree('build', true)) {
             $err = "could not delete -({$finder->getPath('build')})";
-            throw new RunTimeException($err);
+			$this->setError($err);
+			return false;
         }
 
  		$list = ResourceTreeManager::getAllPageNames();
 		if (! is_array($list) || empty($list)) {
-			return;
+			$this->setStatus("no pages in the tree to build");
+			return true;
 		}
 
+		$status = '';
 		foreach ($list as $pageName) {
-		    $pkg = ResourceTreeManager::getPkg($pageName);
+			$status .= $pageName->getName() . ' ';
+
+			try {
+				$pkg = ResourceTreeManager::getPkg($pageName);
+			} catch (Exception $e) {
+				$this->setError($e->getMessage());
+				return false;
+			}
+
 		    $layers = $pkg->getLayers(); 
 		    $pageStack = new FileStack();
 		    foreach ($layers as $layerName) {
                 $stack = new FileStack();
-		        $layer = ResourceTreeManager::loadLayer($layerName, $stack);
-			    $this->buildLayer($layer, $reader, $writer, $pageStack);
+				try {
+					$layer = ResourceTreeManager::loadLayer($layerName, $stack);
+				} catch (Exception $e) {
+					$this->setError($e->getMessage());
+					return false;
+				}			    
+
+				if (! $this->buildLayer($layer, $reader, $writer, $pageStack)) {
+					return false;
+				}
 		    }
 
-		    $this->buildLayer(
-                ResourceTreeManager::createPageLayer($pageName),
-                $reader,
-                $writer,
-                $pageStack
-            );
+		    if (! $this->buildLayer(
+					ResourceTreeManager::createPageLayer($pageName),
+					$reader,
+					$writer,
+					$pageStack)) {
+				return false;
+			}
 
 		    $themeName = $pkg->getThemeName();
 		    if ($themeName) {
-			    $this->buildTheme($themeName, $reader, $writer, $pageStack);
+				if (!$this->buildTheme($themeName,$reader,$writer,$pageStack)) {
+					return false;
+				}
 		    }
 		}
 
-		$view->assign('result', 'build completed');
+		$this->setStatus("the following pages have been built: $status");
+		return true;
 	}
 
+	/**
+	 * @return	string | null when not set
+	 */
+	public function getStatus()
+	{
+		return $this->status;
+	}
+
+	/**
+	 * @return	string | null when not set
+	 */
+	public function getError()
+	{
+		return $this->error;
+	}
+ 
 	/**
 	 * @param	ResourceLayerInterface $layer
 	 * @return	int
@@ -106,7 +143,8 @@ class BuildClientsideResources extends MvcAction
             if (! $writer->mkdir($buildDir, 0755, true)) {
                 $path = $finder->getPath($buildDir);
                 $err = "could not create dir at -({$path})";
-                throw new RunTimeException($err);
+				$this->setError($err);
+				return false;
             }
         }
 
@@ -121,6 +159,8 @@ class BuildClientsideResources extends MvcAction
             $result = $this->makeString('css', $list, $reader, $pageStack);
 		    $writer->putContent($result, $cssBuildFile);
 		}
+
+		return true;
 	}
 
 	/**
@@ -146,14 +186,20 @@ class BuildClientsideResources extends MvcAction
             if (! $writer->mkdir($themeDir, 0755, true)) {
                 $path = $finder->getPath($themeDir);
                 $err = "could not create dir at -({$path})";
-                throw new RunTimeException($err);
+				$this->setError($err);
+				return false;
             }
         }
 
 		if ($pkg->isCssFiles()) {
-			$list   = $pkg->getCssFiles($pkgPath);
-            $result = $this->makeString('css', $list, $reader, $pageStack);	
-			$writer->putContent($result, "$themeDir/$themeName.css");
+			$list = $pkg->getCssFiles($pkgPath);
+			$cssFilename = "$themeDir/$themeName.css";
+            $result = $this->makeString('css', $list, $reader, $pageStack);
+			if (false === $result) {
+				$this->setError("could not concatenate $cssFilename");
+				return false;
+			}
+			$writer->putContent($result, "$cssFilename");
 		}
 
 		if ($pkg->isAssetFiles()) {
@@ -163,7 +209,8 @@ class BuildClientsideResources extends MvcAction
                 if (! $writer->mkdir($assetBuildDir, 0755, true)) {
                     $path = $finder->getPath($assetBuildDir);
                     $err = "could not create dir at -({$path})";
-                    throw new RunTimeException($err);
+					$this->setError($err);
+					return false;
                 }
             }
 
@@ -174,9 +221,18 @@ class BuildClientsideResources extends MvcAction
 				$result = $writer->copy($src, $dest);
 			}
 		}
+
+		return true;
 	}
 
 
+	/**
+	 * @param	string	$type
+	 * @param	array	$list
+	 * @param	FileReaderInterface	$reader
+	 * @param	FileStackInterface	$pageStack
+	 * @return	string
+	 */
     protected function makeString($type,
                                   array $list,
                                   FileReaderInterface $reader, 
@@ -185,7 +241,8 @@ class BuildClientsideResources extends MvcAction
 
         if ('css' !== $type && 'js' !== $type) {
             $err = 'can only convert js or css files';
-            throw new LogicException($err);
+			$this->setError($err);
+			return false;
         }
 
         $content = new ContentStack();
@@ -193,7 +250,8 @@ class BuildClientsideResources extends MvcAction
             $text = $reader->getContent($file);
             if (false === $text) {
                 $err = "could not read contents of file -($file)";
-                throw new RunTimeException($err);
+				$this->setError($err);
+				return false;
             }
 				
             $content->add($text);
@@ -209,21 +267,22 @@ class BuildClientsideResources extends MvcAction
 
         return $result;
     }
-                            
+    
 	/**
-	 * @param	string	$name
-	 * @param	string	$msg
-	 * @return	PkgName
+	 * @param	string	$err
+	 * @return	null
 	 */
-	protected function createPkgName($name, $msg)
+	protected function setError($msg)
 	{
-		try {
-			$pkgName = new PkgName($name);
-		} catch (Exception $e) {
-			$err = $msg . $e->getMessage();
-			throw new RunTimeException($err);
-		}
+		$this->error = $msg;
+	}
 
-		return $pkgName;
+	/**
+	 * @param	string	$msg
+	 * @return	null
+	 */
+	protected function setStatus($msg)
+	{
+		$this->status = $msg;
 	}
 }
