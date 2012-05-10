@@ -103,6 +103,49 @@ class FileWriter implements FileWriterInterface
 		return mkdir($full, $mode, $isRecursive);
 	}
 
+	/**
+	 * @param	string	$src
+	 * @param	string	$dest
+	 * @return	bool
+	 */
+	public function copyTree($src, $dest)
+	{
+        $finder = $this->getFileFinder();
+		$src    = $finder->getPath($src);
+		$dest   = $finder->getPath($dest);
+	
+        $iterator = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($src),
+            RecursiveIteratorIterator::SELF_FIRST
+        );
+
+		if (! is_dir($dest) && false === mkdir($dest)) {
+			$err = "copy tree failed: could not create root directory -($dest)";
+			throw new RunTimeException($err);
+		}
+
+        foreach ($iterator as $node) {
+            $srcPath  =(string)$node;
+			$destPath = str_replace($src, $dest, $srcPath);
+            if ($node->isDir()) {
+				if (! is_dir($destPath) && false === mkdir($destPath)) {
+					$err  = "copy tree failed: could not create directory at ";
+					$err .= "-($destPath)";
+					throw new RunTimeException($err);
+				}
+            }
+            else {
+				if (false === copy($srcPath, $destPath)) {
+					$err  = "copy tree failed: could not copy -($srcPath) to ";
+					$err .= "-($destPath)";
+					throw new RunTimeException($err);
+				}
+            }
+        }
+		
+		return true;
+	}
+
     /**
      * Recursively delete a directory and its contents
      *
