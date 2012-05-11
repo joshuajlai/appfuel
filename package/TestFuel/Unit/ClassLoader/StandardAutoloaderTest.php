@@ -305,7 +305,7 @@ class StandardAutoLoaderTest extends BaseTestCase
 	public function testLoadClass()
 	{
 		$class = 'TestFuel\Fake\ClassLoader\LoadMe';
-		$this->loader->addPath(AF_LIB_PATH);
+		$this->loader->addPath(AF_CODE_PATH);
 		$this->assertNotContains($class, get_declared_classes());
 		
 		$this->clearAutoloaders();
@@ -330,7 +330,7 @@ class StandardAutoLoaderTest extends BaseTestCase
 	{
 		$class     = 'Appfuel\ClassLoader\StandardAutoLoader';
 		$interface = 'Appfuel\ClassLoader\AutoLoaderInterface';
-		$this->loader->addPath(AF_LIB_PATH);
+		$this->loader->addPath(AF_CODE_PATH);
 		$this->assertContains($class, get_declared_classes());
 		$this->assertContains($interface, get_declared_interfaces());
 		
@@ -361,7 +361,7 @@ class StandardAutoLoaderTest extends BaseTestCase
 		$this->assertNotContains($class, get_declared_classes());
 		$this->clearAutoloaders();
 	
-		$this->loader->addPath(AF_LIB_PATH);
+		$this->loader->addPath(AF_CODE_PATH);
 		$this->loader->register();
 	
 		$result = $this->loader->loadClass($class);
