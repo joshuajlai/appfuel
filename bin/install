@@ -1,0 +1,57 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Appfuel
+ * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
+ *
+ * @package     Appfuel
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @license     http://www.apache.org/licenses/LICENSE-2.0
+ */ 
+use Appfuel\Kernel\AppHandler,
+    Appfuel\Filesystem\FileFinder,
+    Appfuel\Filesystem\FileWriter;
+
+require 'cli-header.php';
+
+if (count($argv) < 2) {
+    $err  = "installer must have the absolute path to where the appfuel ";
+    $err .= "source code will be installed to as the first argument \n";
+    fwrite(STDERR, $err);
+    exit(1);
+}
+
+/* source files */
+$src  = AF_LIB_PATH . '/Appfuel';
+$dest = $argv[1];
+if (! is_string($dest) || empty($dest)) {
+    $err  = "the absolute path to the directory of your projects source code ";
+    $err .= "must be a non empty string";
+    fwrite(STDERR, $err);
+    exit(1);
+}
+
+$finder = new FileFinder(null, false);
+if (! $finder->isWritable($dest) || ! $finder->isDir($dest)) {
+    $err = "install path -($dest) is not a directory or is not writable\n";
+    fwrite(STDERR, $err);
+    exit(1);
+}
+
+if (! $finder->isWritable($src) || ! $finder->isDir($src)) {
+	$err = "appfuel source directory is not a directory or not writable\n";
+	fwrite(STDERR, $err);
+	exit(1);
+}
+
+$writer = new FileWriter($finder);
+$writer->copyTree($src, "$dest/Appfuel");
+
+/*
+ * this variabled is defined in cli-header
+ */
+if ($isVerbose) {
+	fwrite(STDOUT, "appfuel source was copied to $dest/Appfuel\n");
+}
+exit(0);

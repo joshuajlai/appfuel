@@ -106,7 +106,7 @@ interface FileFinderInterface
 	 * @param	string $path
 	 * @return	bool
 	 */
-	public function isWriteable($path = null, $isRelative = true);
+	public function isWritable($path = null, $isRelative = true);
 
 	/**
 	 * @param	string	$path
