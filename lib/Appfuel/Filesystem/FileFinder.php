@@ -151,7 +151,7 @@ class FileFinder implements FileFinderInterface
 	 * @param	string $path
 	 * @return	bool
 	 */
-	public function isWriteable($path = null, $isRelative = true)
+	public function isWritable($path = null, $isRelative = true)
 	{
 		if (is_writable($this->getPath($path, $isRelative))) {
 			return true;
