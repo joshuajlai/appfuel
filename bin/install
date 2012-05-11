@@ -23,7 +23,7 @@ if (count($argv) < 2) {
 }
 
 /* source files */
-$src  = AF_LIB_PATH . '/Appfuel';
+$src  = AF_CODE_PATH . '/Appfuel';
 $dest = $argv[1];
 if (! is_string($dest) || empty($dest)) {
     $err  = "the absolute path to the directory of your projects source code ";

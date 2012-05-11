@@ -13,7 +13,8 @@ use Appfuel\Kernel\AppHandler,
 	Appfuel\Kernel\ConfigBuilder;
 
 $base = realpath(dirname(__FILE__) . '/../');
-$file = "{$base}/lib/Appfuel/Kernel/AppHandler.php";
+$src  = 'package';
+$file = "{$base}/{$src}/Appfuel/Kernel/AppHandler.php";
 if (! file_exists($file)) {
     $err = "Could not find kernel initializer file at $file";
 	fwrite(STDERR, $err);
