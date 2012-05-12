@@ -2,7 +2,7 @@
 
 return array(
 	'common' => array(
-		'php-include-path'			=> array(AF_BASE_PATH . '/lib'),
+		'php-include-path'			=> array(AF_CODE_PATH),
 		'php-include-path-action'	=> 'replace',
 		'base-path'					=> AF_BASE_PATH,
 		'fault-handler-class'	=> 'Appfuel\Kernel\FaultHandler',
@@ -24,11 +24,7 @@ return array(
 	
 	'test' => array(
 		'php-include-path-action'	=> 'append',
-		'php-include-path'			=> array(
-			AF_BASE_PATH . '/test',
-			AF_BASE_PATH . '/test/classes',
-			AF_LIB_PATH 
-		),
+		'php-include-path'			=> array(AF_BASE_PATH . '/test'),
 		'php-display-errors'	=> 'on',
 		'php-error-level'		=> 'all, strict',
 		'fault-handler-class'	=> 'Appfuel\Kernel\FaultHandler',

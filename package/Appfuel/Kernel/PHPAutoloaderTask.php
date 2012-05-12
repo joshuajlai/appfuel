@@ -4,13 +4,14 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel;
 
 use DomainException,
+	RunTimeException,
 	Appfuel\ClassLoader\AutoLoaderInterface;
 
 /**
@@ -36,6 +37,13 @@ class PHPAutoloaderTask extends StartupTask
 			return;
 		}
 
+		if (! defined('AF_CODE_PATH')) {
+			$err  = "the absolute path to the directory where all php ";
+			$err .= "namespaces are found must be defined in a constant ";
+			$err .= "named AF_CODE_PATH";
+			throw new RunTimeException($err);
+		}
+
 		$data = $params['php-autoloader'];
 		if (is_string($data)) {
 			$loader = new $data();
@@ -45,7 +53,7 @@ class PHPAutoloaderTask extends StartupTask
 				throw new DomainException($err);
 			}
 
-			$loader->addPath(AF_LIB_PATH);
+			$loader->addPath(AF_CODE_PATH);
 			$loader->register();
 			$this->setStatus("autoloader class  -($data) registered");
 		}

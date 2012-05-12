@@ -4,8 +4,8 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Kernel;
@@ -71,7 +71,7 @@ class AppHandler
 	 * @param	array	$libDir		name of the directory php libraries live
 	 * @return	HttpResponse
 	 */
-	public function __construct($base, $libDir = 'lib')
+	public function __construct($base, $pkgDir = 'package')
 	{
         if (! defined('AF_BASE_PATH')) {
             define('AF_BASE_PATH', $base);
@@ -84,24 +84,19 @@ class AppHandler
 			throw new DomainException($err);
 		}
 
-		if (null === $libDir) {
-			$libDir = 'lib';
-		}
-
-		if (! is_string($libDir)) {
-			$err  = 'directory where the main php classes are kept must ';
-			$err .= 'be a string';
+		if (! is_string($pkgDir)) {
+			$err  = 'directory where the php code lives must be a string';
 			throw new InvalidArgumentException($err);
 		}
 	
-		$libPath = $base . DIRECTORY_SEPARATOR . $libDir;
-		if (! defined('AF_LIB_PATH')) {
-			define('AF_LIB_PATH', $libPath);
+		$pkgPath = $base . DIRECTORY_SEPARATOR . $pkgDir;
+		if (! defined('AF_CODE_PATH')) {
+			define('AF_CODE_PATH', $pkgPath);
 		}
 
-		if (! $this->isValidDirectory(AF_LIB_PATH)) {
+		if (! $this->isValidDirectory(AF_CODE_PATH)) {
 			$err  = 'lib path must a valid directory under AF_BASE_PATH ';
-			$err .= ' -(' . AF_LIB_PATH . ')';
+			$err .= ' -(' . AF_CODE_PATH . ')';
 			throw new DomainException($err);
 		}
 		$file = $this->getKernelDependencyPath();
@@ -517,17 +512,17 @@ class AppHandler
 			throw new DomainException($err);
 		}
 
-		if (! defined('AF_LIB_PATH')) {
-			$err  = 'can not load kernel dependencies when AF_LIB_PATH is ';
+		if (! defined('AF_CODE_PATH')) {
+			$err  = 'can not load kernel dependencies when AF_CODE_PATH is ';
 			$err .= 'not defined';
 			throw new LogicException($err);
 		}
 
 		$loaderClass = 'Appfuel\ClassLoader\ManualClassLoader';
 		if (! class_exists($loaderClass, false)) {
-			$loaderFile = AF_LIB_PATH   . DIRECTORY_SEPARATOR . 
-						  'Appfuel'     . DIRECTORY_SEPARATOR .
-						  'ClassLoader' . DIRECTORY_SEPARATOR .
+			$loaderFile = AF_CODE_PATH   . DIRECTORY_SEPARATOR . 
+						  'Appfuel'      . DIRECTORY_SEPARATOR .
+						  'ClassLoader'  . DIRECTORY_SEPARATOR .
 						  'ManualClassLoader.php';
 			if (! file_exists($loaderFile)) {
 				$err  = "manual class loader is require to load kernel ";

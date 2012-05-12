@@ -23,7 +23,7 @@ class ManualClassLoader
 	 * @param	string	$path	absolute path to php file
 	 * @return	bool
 	 */
-	static public function loadClass($name, $file, $isLibPath = true)
+	static public function loadClass($name, $file, $isPkgPath = true)
 	{
 		if (! is_string($name) || empty($name)) {
 			$err = 'class name must be a none empty string';
@@ -34,34 +34,34 @@ class ManualClassLoader
 			return true;    
 		}
 
-        $libPath = '';
+        $pkgPath = '';
         if (is_array($file)) {
             $filePath = current($file);
-            $libPath  = next($file);
-            if (! is_string($filePath) || ! is_string($libPath)) {
-                $err = "library path and file path must be strings";
+            $pkgPath  = next($file);
+            if (! is_string($filePath) || ! is_string($pkgPath)) {
+                $err = "path to php code and file path must be strings";
                 throw new DomainException($err);
             }
             
             $file = AF_BASE_PATH . DIRECTORY_SEPARATOR;
-            if (! empty($libPath)) {
-                $file .= $libPath     . DIRECTORY_SEPARATOR;
+            if (! empty($pkgPath)) {
+                $file .= $pkgPath     . DIRECTORY_SEPARATOR;
             }
             $file .= $filePath;
-            $isLibPath = false;
+            $isPkgPath = false;
         }
         else if (! is_string($file)) {
 			$err = 'file path must be a string with no -(../) chars ';
 			throw new DomainException($err);
 		}
 
-		if (true === $isLibPath) {
-			if (! defined('AF_LIB_PATH')) {
+		if (true === $isPkgPath) {
+			if (! defined('AF_CODE_PATH')) {
 				$err = 'lib path is needed but not defined';
 				throw new LogicException($err);
 			}
 			
-			$file = AF_LIB_PATH . DIRECTORY_SEPARATOR . $file;
+			$file = AF_CODE_PATH . DIRECTORY_SEPARATOR . $file;
 		}
 
 		if (! file_exists($file)) {
@@ -80,7 +80,7 @@ class ManualClassLoader
 	 * @param	bool	$isLibPath
 	 * @return	true
 	 */
-	static public function loadCollectionFromFile($path, $isLibPath = true)
+	static public function loadCollectionFromFile($path, $isPkgPath = true)
 	{
         if (! file_exists($path)) {
             $err = "could not find dependency file at -($path)";
@@ -94,7 +94,7 @@ class ManualClassLoader
 			throw new DomainException($err);
 		}
 
-		return self::loadCollection($list, $isLibPath);
+		return self::loadCollection($list, $isPkgPath);
 	}
 
 	/**
@@ -103,10 +103,10 @@ class ManualClassLoader
 	 * @param	bool	$isLibPath
 	 * @return	true
 	 */
-	static public function loadCollection(array $list, $isLibPath = true)
+	static public function loadCollection(array $list, $isPkgPath = true)
 	{
 		foreach ($list as $name => $path) {
-			self::loadClass($name, $path, $isLibPath);
+			self::loadClass($name, $path, $isPkgPath);
 		}
 
 		return true;

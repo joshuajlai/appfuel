@@ -9,13 +9,15 @@
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 $base = realpath(dirname(__FILE__) . '/../');
-$file = "{$base}/lib/Appfuel/Kernel/AppHandler.php";
+$src  = 'package';
+$file = "{$base}/{$src}/Appfuel/Kernel/AppHandler.php";
 if (! file_exists($file)) {
     $err = "Could not find kernel initializer file at $file";
 	fwrite(STDERR, $err);
 	exit(1);
 }
 require $file;
+unset($file);
 
 $handler = new \Appfuel\Kernel\AppHandler($base);
 $handler->loadConfigFile('app/config/config.php', 'main')
