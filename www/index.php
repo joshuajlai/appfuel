@@ -8,20 +8,21 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\Kernel\AppHandler;
+use Appfuel\App\AppHandlerInterface;
 
-$base = realpath(dirname(__FILE__) . '/../');
-$src  = 'package';
-$file = "{$base}/{$src}/Appfuel/Kernel/AppHandler.php";
-if (! file_exists($file)) {
-    throw new LogicException("Could not find app runner at -($file)");
+$header = realpath(dirname(__FILE__) . '/../app/app-header.php');
+if (! file_exists($header)) {
+	$err = "could not find the app header script";
+	throw new RunTimeException($err);
 }
-require_once $file;
-
-$handler = new AppHandler($base);
-$handler->loadConfigFile('app/config/config.php', 'main')
-        ->initializeFramework();
-
+$configKey = 'web';
+require $header;
+if (! isset($handler) || ! $handler instanceof AppHandlerInterface) {
+    $err  = "app handler was not created or does not implement Appfuel\Kernel";
+    $err .= "\AppHandlerInterface";
+    throw new LogicException($err);
+}
+echo "<pre>", print_r($handler, 1), "</pre>";exit;
 $uri     = $handler->createUriFromServerSuperGlobal();
 $key     = $uri->getRouteKey();
 $format  = $uri->getRouteFormat();

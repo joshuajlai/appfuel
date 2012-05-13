@@ -4,13 +4,20 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
 return array(
-	'\Appfuel\Kernel\AppFactoryInterface'			=> 'Appfuel/Kernel/AppFactoryInterface.php',
-	'\Appfuel\Kernel\AppFactory'					=> 'Appfuel/Kernel/AppFactory.php',
+	'\Appfuel\App\AppDetailInterface'				=> 'Appfuel/App/AppDetailInterface.php',
+	'\Appfuel\App\AppDetail'						=> 'Appfuel/App/AppDetail.php',
+	'\Appfuel\App\AppHandlerInterface'				=> 'Appfuel/App/AppHandlerInterface.php',
+	'\Appfuel\App\AppHandler'						=> 'Appfuel/App/AppHandler.php',
+	'\Appfuel\App\AppFactoryInterface'				=> 'Appfuel/App/AppFactoryInterface.php',
+	'\Appfuel\App\AppFactory'						=> 'Appfuel/App/AppFactory.php',
+	'\Appfuel\Config\ConfigRegistry'				=> 'Appfuel/Config/ConfigRegistry.php',
+	'\Appfuel\Config\ConfigLoaderInterface'			=> 'Appfuel/Config/ConfigLoaderInterface.php',
+	'\Appfuel\Config\ConfigLoader'					=> 'Appfuel/Config/ConfigLoader.php',
 	'\Appfuel\Error\PHPErrorLevelInterface'			=> 'Appfuel/Error/PHPErrorLevelInterface.php',
 	'\Appfuel\Error\PHPErrorLevel'					=> 'Appfuel/Error/PHPErrorLevel.php',
 	'\Appfuel\Error\ErrorInterface'					=> 'Appfuel/Error/ErrorInterface.php',
@@ -38,9 +45,6 @@ return array(
 	'\Appfuel\ClassLoader\NamespaceParser'			=> 'Appfuel/ClassLoader/NamespaceParser.php',
 	'\Appfuel\Kernel\FaultHandlerInterface'			=> 'Appfuel/Kernel/FaultHandlerInterface.php',
 	'\Appfuel\Kernel\FaultHandler'					=> 'Appfuel/Kernel/FaultHandler.php',
-	'\Appfuel\Kernel\ConfigRegistry'				=> 'Appfuel/Kernel/ConfigRegistry.php',
-	'\Appfuel\Kernel\ConfigLoaderInterface'			=> 'Appfuel/Kernel/ConfigLoaderInterface.php',
-	'\Appfuel\Kernel\ConfigLoader'					=> 'Appfuel/Kernel/ConfigLoader.php',
 	'\Appfuel\Kernel\TaskHandlerInterface'			=> 'Appfuel/Kernel/TaskHandlerInterface.php',
 	'\Appfuel\Kernel\TaskHandler'					=> 'Appfuel/Kernel/TaskHandler.php',
 	'\Appfuel\Kernel\StartupTaskInterface'			=> 'Appfuel/Kernel/StartupTaskInterface.php',

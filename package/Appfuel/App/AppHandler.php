@@ -8,7 +8,7 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Kernel;
+namespace Appfuel\App;
 
 use LogicException,
 	DomainException,
@@ -16,8 +16,7 @@ use LogicException,
 	InvalidArgumentException,
 	Appfuel\View\ViewInterface,
 	Appfuel\ClassLoader\ManualClassLoader,
-	Appfuel\Kernel\ConfigLoader,
-	Appfuel\Kernel\ConfigRegistry,
+	Appfuel\Config\ConfigRegistry,
 	Appfuel\Kernel\TaskHandler,
 	Appfuel\Kernel\TaskHandlerInterface,
 	Appfuel\Kernel\Mvc\RequestUriInterface,
@@ -33,9 +32,9 @@ use LogicException,
 class AppHandler implements AppHandlerInterface
 {
 	/**
-	 * @var AppStructureInterface
+	 * @var AppDetailInterface
 	 */
-	protected $structure = null;
+	protected $detail = null;
 
 	/**
 	 * @var TaskHandlerInterface
@@ -55,20 +54,22 @@ class AppHandler implements AppHandlerInterface
 	 * @param	array	$libDir		name of the directory php libraries live
 	 * @return	HttpResponse
 	 */
-	public function __construct(AppStructureInterface $structure, 
-								array $tasks = null)
+	public function __construct(AppDetailInterface $detail, array $tasks = null)
 	{
-		define('AF_CODE_PATH', $structure->getPackage());
-		$this->structure = $structure;
+		define('AF_CODE_PATH', $detail->getPackage());
+		$this->detail = $detail;
 		if (null !== $tasks) {
 			$this->initializeFramework();
 			$this->runTasks($tasks);
 		}
 	}
 
-	public function getAppStructure()
+	/**
+	 * @return	AppDetailInterface
+	 */
+	public function getAppDetail()
 	{
-		return $this->appStructure;
+		return $this->detail;
 	}
 	
 	/**
@@ -287,7 +288,7 @@ class AppHandler implements AppHandlerInterface
 
 	public function initializeFramework()
 	{
-		$default = 'Appfuel\Kernel\AppFactory';
+		$default = 'Appfuel\App\AppFactory';
 		$class   = ConfigRegistry::get('app-factory-class', $default);
 		if (! is_string($class) || empty($class)) {
 			$err = "app factory class must be a non empty string";

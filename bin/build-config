@@ -9,20 +9,17 @@
  * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\Kernel\AppHandler,
+use Appfuel\Kernel\AppHandlerInterface,
 	Appfuel\Kernel\ConfigBuilder;
 
-$base = realpath(dirname(__FILE__) . '/../');
-$src  = 'package';
-$file = "{$base}/{$src}/Appfuel/Kernel/AppHandler.php";
-if (! file_exists($file)) {
-    $err = "Could not find kernel initializer file at $file";
-	fwrite(STDERR, $err);
-	exit(1);
+$base   = realpath(__DIR__ . "/../");
+$header = "$base/app/app-header.php";
+if (! file_exists($header)) {
+    $err = "could not find the app header script";
+    throw new RunTimeException($err);
 }
-require $file;
 
-$config = array(
+$configData = array(
 	'php-error-level'			=> 'all strict',
 	'php-include-path'			=> array($base),
 	'php-include-path-replace'	=> 'replace',
@@ -31,8 +28,14 @@ $config = array(
 	'fault-handler-class'		=> 'Appfuel\Kernel\FaultHandler',
 	'php-default-timezone'		=> 'America/Los_Angeles'
 );
+require $header;
+if (! isset($handler) || ! $handler instanceof AppHandlerInterface) {
+	$err  = "app handler was not created or does not implement Appfuel\Kernel";
+	$err .= "\AppHandlerInterface";
+	throw new LogicException($err);
+}
+echo "\n", print_r($handler,1), "\n";exit;
 
-$handler = new AppHandler($base);
 $handler->setConfigData($config)
 		->initializeFramework();
 
