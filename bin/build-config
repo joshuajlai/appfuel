@@ -9,8 +9,9 @@
  * @copyright   2009-2011 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-use Appfuel\Kernel\AppHandlerInterface,
-	Appfuel\Kernel\ConfigBuilder;
+use Appfuel\Config\ConfigBuilder,
+	Appfuel\Console\ArgSpec,
+	Appfuel\App\AppHandlerInterface;
 
 $base   = realpath(__DIR__ . "/../");
 $header = "$base/app/app-header.php";
@@ -34,13 +35,19 @@ if (! isset($handler) || ! $handler instanceof AppHandlerInterface) {
 	$err .= "\AppHandlerInterface";
 	throw new LogicException($err);
 }
-echo "\n", print_r($handler,1), "\n";exit;
-
-$handler->setConfigData($config)
-		->initializeFramework();
-
+$appDetail = $handler->getAppDetail();
 $isVerbose = false;
 
+$spec = array(
+	'name'  => 'verbose',
+	'short' => 'v',
+	'long'  => 'verbose',
+	'help'  => 'shows all the output',
+	'required' => false,
+);
+$argSpec = new ArgSpec($spec);
+
+echo "\n", print_r($argSpec,1), "\n";exit;
 /* when -v is found capture it then remove it from argv 
  * so env will always be the first argumment regardless
  * of where the option is set
@@ -63,11 +70,12 @@ if (! is_string($env) || empty($env)) {
 	fwrite(STDERR, "env name must be a non empty string \n");
 	exit(1);
 }
-
+$path = $appDetail->getConfig();
+echo "\n", print_r($path,1), "\n";exit;
 $builder = new ConfigBuilder($env);
 $finder  = $builder->getFileFinder();
 $full    = $finder->getPath('config.php');
-if (false === $builder->generateConfigFile()) {
+if (false === $builder->generateConfigFile($files)) {
 	$err = "could not build config data to -($full) for -($env)\n";
 	fwrite(STDERR, $err);
 	exit(1); 

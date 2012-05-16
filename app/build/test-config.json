@@ -1,0 +1,9 @@
+{
+	"php-include-path":			["/Users/rsb/dev/php/appfuel/package"],
+	"php-include-path-action":	"append",
+    "fault-handler-class":		"Appfuel\\Kernel\\FaultHandler",
+    "php-autoloader":			"Appfuel\\ClassLoader\\StandardAutoLoader",
+    "php-default-timezone":		"America/Los_Angeles",
+    "php-display-errors":		"on",
+    "php-error-level":			"all, strict"
+}

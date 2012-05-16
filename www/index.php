@@ -22,7 +22,7 @@ if (! isset($handler) || ! $handler instanceof AppHandlerInterface) {
     $err .= "\AppHandlerInterface";
     throw new LogicException($err);
 }
-echo "<pre>", print_r($handler, 1), "</pre>";exit;
+
 $uri     = $handler->createUriFromServerSuperGlobal();
 $key     = $uri->getRouteKey();
 $format  = $uri->getRouteFormat();

@@ -6,9 +6,10 @@
 		 convertErrorsToExceptions="true">
 <testsuites>
 	<testsuite name="Appfuel Tests">
-	<file>../package/Testfuel/Unit/Kernel/ConfigBuilderTest.php</file>
-	<file>../package/Testfuel/Unit/Kernel/ConfigLoaderTest.php</file>
-	<file>../package/Testfuel/Unit/Kernel/ConfigRegistryTest.php</file>
+	<file>../package/Testfuel/Unit/Config/ConfigBuilderTest.php</file>
+	<file>../package/Testfuel/Unit/Config/ConfigLoaderTest.php</file>
+	<file>../package/Testfuel/Unit/Config/ConfigRegistryTest.php</file>
+
 	<file>../package/Testfuel/Unit/Kernel/StartupTaskTest.php</file>
 	<file>../package/Testfuel/Unit/Kernel/TaskHandlerTest.php</file>
 	

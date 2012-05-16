@@ -9,20 +9,16 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license    http://www.opensource.org/licenses/bsd-license.php  BSD License
  */
-use Appfuel\Kernel\AppHandler;
+use Appfuel\App\AppHandlerInterface;
 
-$base = realpath(dirname(__FILE__) . '/../');
-$src  = 'package';
-$file = "{$base}/{$src}/Appfuel/Kernel/AppHandler.php";
-if (! file_exists($file)) {    
-	throw new LogicException("Could not find app runner at -($file)");
+$header = realpath(__DIR__ . '/../app/app-header.php');
+if (! file_exists($header)) {
+    $err = "could not find the app header script";
+    throw new RunTimeException($err);
 }
-require $file;
+$configKey = 'test';
+require $header;
+if (! isset($handler) || ! $handler instanceof AppHandlerInterface) {
+    $err  = "app handler was not created or does not implement Appfuel\Kernel";    $err .= "\AppHandlerInterface";    throw new LogicException($err);
+}
 
-$handler = new AppHandler($base);
-$handler->loadConfigFile('app/config/config.php', 'test')   
-		->initializeFramework();
-
-unset($file);
-unset($base);
-unset($src);

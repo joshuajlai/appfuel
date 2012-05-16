@@ -4,8 +4,8 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Testfuel\Unit\Kernel;
@@ -13,7 +13,7 @@ namespace Testfuel\Unit\Kernel;
 use StdClass,
 	Appfuel\Kernel\TaskHandler,
 	Appfuel\Kernel\Mvc\MvcContext,
-	Appfuel\Kernel\ConfigRegistry,
+	Appfuel\Config\ConfigRegistry,
 	Testfuel\TestCase\BaseTestCase,
 	Testfuel\Functional\Kernel\Startup\TestTaskA,
 	Testfuel\Functional\Kernel\Startup\TestTaskB;

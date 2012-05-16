@@ -4,18 +4,18 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Testfuel\Unit\Kernel;
+namespace Testfuel\Unit\Config;
 
 use StdClass,
 	Testfuel\TestCase\BaseTestCase,
 	Appfuel\Filesystem\FileFinder,
 	Appfuel\Filesystem\FileReader,
-	Appfuel\Kernel\ConfigLoader,
-	Appfuel\Kernel\ConfigRegistry;
+	Appfuel\Config\ConfigLoader,
+	Appfuel\Config\ConfigRegistry;
 
 /**
  */
@@ -79,7 +79,7 @@ class ConfigLoaderTest extends BaseTestCase
 	{
 		$loader = new ConfigLoader();
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\ConfigLoaderInterface',
+			'Appfuel\Config\ConfigLoaderInterface',
 			$loader
 		);
 
@@ -95,7 +95,7 @@ class ConfigLoaderTest extends BaseTestCase
 		$reader = new FileReader(new FileFinder('test/files/config')); 
 		$loader = new ConfigLoader($reader);
 		$this->assertInstanceOf(
-			'Appfuel\Kernel\ConfigLoaderInterface',
+			'Appfuel\Config\ConfigLoaderInterface',
 			$loader
 		);
 
@@ -255,216 +255,5 @@ class ConfigLoaderTest extends BaseTestCase
 		$this->assertFalse(ConfigRegistry::exists('key-a'));
 		$this->assertFalse(ConfigRegistry::exists('key-b'));
 		$this->assertTrue(ConfigRegistry::exists('key-c'));
-	}
-
-	/**
-	 * @test
-	 * @depends	createConfigLoaderDefaultReader
-	 * @return	null
-	 */
-	public function getSectionNoCommon(ConfigLoader $loader)
-	{
-		$data = array(
-			'my-section' => array(
-				'key-a' => 'value-a',
-				'key-b' => 'value-b'
-			),
-			'your-section' => array(
-				'key-x' => 12345
-			)
-		);
-
-		$result = $loader->getSection($data, 'my-section');
-		$this->assertEquals($data['my-section'], $result);
-	}
-
-	/**
-	 * @test
-	 * @depends	createConfigLoaderDefaultReader
-	 * @return	null
-	 */
-	public function getSectionNothingInCommon(ConfigLoader $loader)
-	{
-		$data = array(
-			'common' => array(
-				'key-z'  => 'value-z',
-				'key-xx' => 12345
-			),
-			'my-section' => array(
-				'key-a' => 'value-a',
-				'key-b' => 'value-b'
-			),
-			'your-section' => array(
-				'key-x' => 12345
-			)
-		);
-
-		$result = $loader->getSection($data, 'my-section');
-
-		$expected = $data['my-section'];
-		$expected['key-z']  = 'value-z';
-		$expected['key-xx'] = 12345;
-
-		$this->assertEquals($expected, $result);
-	}
-
-	/**
-	 * @test
-	 * @depends	createConfigLoaderDefaultReader
-	 * @return	null
-	 */
-	public function getSectionCommonScalar(ConfigLoader $loader)
-	{
-		$data = array(
-			'common' => array(
-				'key-a'  => 'common-a',
-				'key-xx' => 12345
-			),
-			'my-section' => array(
-				'key-a' => 'value-a',
-				'key-b' => 'value-b'
-			),
-			'your-section' => array(
-				'key-x' => 12345
-			)
-		);
-
-		$result = $loader->getSection($data, 'my-section');
-
-		$expected = $data['my-section'];
-		$expected['key-xx'] = 12345;
-
-		$this->assertEquals($expected, $result);
-	}
-
-	/**
-	 * @test
-	 * @depends	createConfigLoaderDefaultReader
-	 * @return	null
-	 */
-	public function getSectionCommonAssocArray(ConfigLoader $loader)
-	{
-		$data = array(
-			'common' => array(
-				'key-a'  => array(
-					'sub-a' => 'a',
-					'sub-b' => 'b'
-				),
-				'key-xx' => 12345
-			),
-			'my-section' => array(
-				'key-a' => array(
-					'sub-c' => 321
-				),
-				'key-b' => 'value-b'
-			),
-			'your-section' => array(
-				'key-x' => 12345
-			)
-		);
-
-		$result = $loader->getSection($data, 'my-section');
-		
-		$expected = $data['my-section'];
-		$expected['key-xx'] = 12345;
-		$expected['key-a'] = array(
-			'sub-a' => 'a',
-			'sub-b' => 'b',
-			'sub-c' => 321
-		);
-
-		$this->assertEquals($expected, $result);
-	}
-
-	/**
-	 * @test
-	 * @depends	createConfigLoaderDefaultReader
-	 * @return	null
-	 */
-	public function getSectionNoSectionExistsFailure(ConfigLoader $loader)
-	{
-		$data = array(
-			'my-section' => array(
-				'key-b' => 'value-b'
-			),
-			'your-section' => array(
-				'key-x' => 12345
-			)
-		);
-
-		$this->setExpectedException('DomainException');
-		$result = $loader->getSection($data, 'no-section');
-		
-	}
-
-	/**
-	 * @test
-	 * @depends	createConfigLoaderDefaultReader
-	 * @return	null
-	 */
-	public function getSectionEmptyNameFailure(ConfigLoader $loader)
-	{
-		$data = array(
-			'my-section' => array(
-				'key-b' => 'value-b'
-			),
-			'your-section' => array(
-				'key-x' => 12345
-			)
-		);
-
-		$this->setExpectedException('InvalidArgumentException');
-		$result = $loader->getSection($data, '');
-	}
-
-	/**
-	 * @test
-	 * @depends	createConfigLoaderDefaultReader
-	 * @return	null
-	 */
-	public function getSectionNameNotAStringFailure(ConfigLoader $loader)
-	{
-		$data = array(
-			'my-section' => array(
-				'key-b' => 'value-b'
-			),
-			'your-section' => array(
-				'key-x' => 12345
-			)
-		);
-
-		$this->setExpectedException('InvalidArgumentException');
-		$result = $loader->getSection($data, 12345);
-	}
-
-	/**
-	 * @test
-	 * @depends	getReaderWithTestReader
-	 * @return	ConfigLoader
-	 */
-	public function loadFileDataNoSectionReplaceTrue(ConfigLoader $loader)
-	{
-		$file = $this->getConfigPHPFilename();
-		$this->assertNull($loader->loadFile($file));
-
-		$data = $loader->getFileData($file);
-		$this->assertEquals($data, ConfigRegistry::getAll());
-		return $loader;
-	}
-
-	/**
-	 * @test
-	 * @depends	getReaderWithTestReader
-	 * @return	ConfigLoader
-	 */
-	public function loadFileDataSectionReplaceTrue(ConfigLoader $loader)
-	{
-		$file = $this->getConfigPHPFilename();
-		$this->assertNull($loader->loadFile($file, 'section-b'));
-
-		$data = $loader->getFileData($file);
-		$section = $loader->getSection($data, 'section-b');
-		$this->assertEquals($section, ConfigRegistry::getAll());
-		return $loader;
 	}
 }
