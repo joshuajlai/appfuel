@@ -11,7 +11,8 @@
 namespace Appfuel\Console;
 
 
-use DomainException;
+use DomainException,
+	InvalidArgumentException;
 
 /**
  */
@@ -52,7 +53,7 @@ class ArgSpec
 	 * Flag used to determine if this argument has a parameter
 	 * @var bool
 	 */
-	protected $isParam = false;
+	protected $isParams = false;
 
 	/**
 	 * Flag used by the console input to determine if this arg is required
@@ -82,18 +83,18 @@ class ArgSpec
 		$shortOpt = null;
 		if (isset($data['short'])) {
 			$shortOpt = $data['short'];
-			$this->setShortText($shortOpt);
+			$this->setShortOption($shortOpt);
 		}
 		
 		$longOpt = null;
 		if (isset($data['long'])) {
 			$longOpt = $data['long'];
-			$this->setLongText($longOpt);
+			$this->setLongOption($longOpt);
 		}
 
-		if (! $this->isShortOption() || ! $this->isLongOption()) {
+		if (! $this->isShortOption() && ! $this->isLongOption()) {
 			$err  = "This argument spec must have at least one of the ";
-			$err .= "following: -(short-opt,long-opt)";
+			$err .= "following options set: -(short,long)";
 			throw new DomainException($err);
 		}
 
@@ -134,7 +135,7 @@ class ArgSpec
 	 */
 	public function getShortOption()
 	{
-		return $this->shortOption;
+		return $this->shortOpt;
 	}
 
 	/**
@@ -162,7 +163,48 @@ class ArgSpec
 	}
 
 	/**
+	 * @return string
+	 */
+	public function getErrorText()
+	{
+		return $this->errorText;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isHelpText()
+	{
+		return ! empty($this->helpText);
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getHelpText()
+	{
+		return $this->helpText;
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function isRequired()
+	{
+		return $this->isRequired;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isParamsAllowed()
+	{
+		return $this->isParams;
+	}
+
+	/**
 	 * @param	string	$name
+	 * @return	null
 	 */
 	protected function setName($name)
 	{
@@ -176,19 +218,21 @@ class ArgSpec
 
 	/**
 	 * @param	string	$name
+	 * @return	null
 	 */
 	protected function setShortOption($char)
 	{
-		if (! is_string($text) || strlen($char) !== 1) {
+		if (! is_string($char) || strlen($char) !== 1) {
 			$err = "short option must be a single character";
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->shortOpt = $name;
+		$this->shortOpt = $char;
 	}
 
 	/**
 	 * @param	string	$name
+	 * @return	null
 	 */
 	protected function setLongOption($text)
 	{
@@ -199,6 +243,34 @@ class ArgSpec
 
 		$this->longOpt = $text;
 	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setErrorText($text)
+	{
+		if (! is_string($text)) {
+			throw new InvalidArgumentException("error text must be a string");
+		}
+
+		$this->errorText = $text;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setHelpText($text)
+	{
+		if (! is_string($text)) {
+			throw new InvalidArgumentException("help text must be a string");
+		}
+
+		$this->helpText = $text;
+	}
+
+
 
 
 
