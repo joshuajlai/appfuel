@@ -19,7 +19,13 @@ use Appfuel\Kernel\AppHandler,
 require 'cli-header.php';
 
 $builder = new ResourceTreeBuilder();
-$tree    = $builder->buildTree();
+$tree = $builder->buildTree();
+if (false === $tree) {
+	$err = $build->getError();
+	fwrite(STDERR, "$err\n");
+	exit(1);
+}
+
 $writer  = new ResourceTreeWriter();
 if (false === $writer->writeTree($tree)) {
 	$err = "could not write tree to -($full)\n";

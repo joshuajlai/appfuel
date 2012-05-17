@@ -112,6 +112,10 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
 				$this->setError($err);
 				return false;
             }
+			
+			if (false === $list) {
+				return false;
+			}
 
             $tree[$key]['list'] = $list;
         }
