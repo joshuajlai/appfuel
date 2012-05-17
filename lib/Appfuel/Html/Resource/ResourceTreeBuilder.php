@@ -113,6 +113,10 @@ class ResourceTreeBuilder implements ResourceTreeBuilderInterface
 				return false;
             }
 
+			if (false === $tree) {
+				return false;
+			}
+
             $tree[$key]['list'] = $list;
         }
 
