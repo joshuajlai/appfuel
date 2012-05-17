@@ -65,7 +65,7 @@ class ArgSpec
 	 * List of delimiters allowed to separate a parameter from this argument
 	 * @var array
 	 */
-	protected $paramDelim = array('', ' ', '=');
+	protected $paramDelims = array('', ' ', '=');
 
 	/**
 	 * @param	array	$data
@@ -93,7 +93,7 @@ class ArgSpec
 		}
 
 		if (! $this->isShortOption() && ! $this->isLongOption()) {
-			$err  = "This argument spec must have at least one of the ";
+			$err  = "-($name) cmust have at least one of the ";
 			$err .= "following options set: -(short,long)";
 			throw new DomainException($err);
 		}
@@ -117,8 +117,8 @@ class ArgSpec
 			$this->enableArgParams();
 		}
 
-		if (isset($data['param-delim'])) {
-			$this->setParamDelims($data['param-delims']);
+		if (isset($data['param-delims'])) {
+			$this->setParamDelimiters($data['param-delims']);
 		}
 	}
 
@@ -203,6 +203,14 @@ class ArgSpec
 	}
 
 	/**
+	 * @return	array
+	 */
+	public function getParamDelimiters()
+	{
+		return $this->paramDelims;
+	}
+
+	/**
 	 * @param	string	$name
 	 * @return	null
 	 */
@@ -222,7 +230,9 @@ class ArgSpec
 	 */
 	protected function setShortOption($char)
 	{
-		if (! is_string($char) || strlen($char) !== 1) {
+		if (! is_string($char) || 
+			! ($char = trim($char)) ||
+			strlen($char) !== 1) {
 			$err = "short option must be a single character";
 			throw new InvalidArgumentException($err);
 		}
@@ -270,8 +280,35 @@ class ArgSpec
 		$this->helpText = $text;
 	}
 
+	/**
+	 * @return null
+	 */
+	protected function markAsRequired()
+	{
+		$this->isRequired = true;
+	}
 
+	/**
+	 * @return null
+	 */
+	protected function enableArgParams()
+	{
+		$this->isParams = true;
+	}
 
+	/**
+	 * @param	array	$delims
+	 * @return	null
+	 */
+	protected function setParamDelimiters(array $delims)
+	{
+		foreach ($delims as $delim) {
+			if (! is_string($delim)) {
+				$err = "parameter delimiter must be a string";
+				throw new DomainException($err);
+			}
+		}
 
-
+		$this->paramDelims = $delims;
+	}
 }
