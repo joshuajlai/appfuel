@@ -14,8 +14,6 @@ use StdClass,
 	Appfuel\Console\ArgSpec,
 	Testfuel\TestCase\BaseTestCase;
 
-/**
- */
 class ArgSpecTest extends BaseTestCase
 {
 	/**
@@ -367,9 +365,4 @@ class ArgSpecTest extends BaseTestCase
 		$this->setExpectedException('DomainException', $msg);
 		$spec = new ArgSpec($data);
 	}
-
-
-
-
-
 }

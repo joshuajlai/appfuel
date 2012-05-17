@@ -10,7 +10,7 @@
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 use Appfuel\Config\ConfigBuilder,
-	Appfuel\Console\ArgSpec,
+	Appfuel\Console\CliParser,
 	Appfuel\App\AppHandlerInterface;
 
 $base   = realpath(__DIR__ . "/../");
@@ -39,15 +39,21 @@ $appDetail = $handler->getAppDetail();
 $isVerbose = false;
 
 $spec = array(
-	'name'  => 'verbose',
-	'short' => 'v',
-	'long'  => 'verbose',
-	'help'  => 'shows all the output',
-	'required' => false,
+	'verbose' => array(
+		'short' => 'v',
+		'long'  => 'verbose',
+	),
+	'env' => array(
+		'short' => 'e',
+		'long'  => 'env',
+		'error' => 'environment is used to find the config file to build',
+		'allow-params' => true,
+	)	
 );
-$argSpec = new ArgSpec($spec);
+$parser = new CliParser();
+$result = $parser->parse($argv, $spec);
 
-echo "\n", print_r($argSpec,1), "\n";exit;
+echo "\n", print_r($result,1), "\n";exit;
 /* when -v is found capture it then remove it from argv 
  * so env will always be the first argumment regardless
  * of where the option is set
