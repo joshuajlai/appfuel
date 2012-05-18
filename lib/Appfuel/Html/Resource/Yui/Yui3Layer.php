@@ -38,6 +38,17 @@ class Yui3Layer implements ResourceLayerInterface
 	protected $filename = null;
 
 	protected $pkgList = array();
+    /**
+     * Flag used to determine if js files should be used in this layer
+     * @var bool
+     */
+    protected $isJs = true;
+
+    /**
+     * Flag used to determine if css files should be used in this layer
+     * @var bool
+     */
+    protected $isCss = true;
 
 	/**
 	 * @param	array $data	
@@ -141,22 +152,56 @@ class Yui3Layer implements ResourceLayerInterface
 		return is_string($this->filename) && ! empty($this->filename);
 	}
 
+    /**
+     * @return AppfuelLayer
+     */
+    public function disableCss()
+    {
+        $this->isCss = false;
+        return $this;
+    }
+
+    /**
+     * @return AppfuelLayer
+     */
+    public function enableCss()
+    {
+        $this->isCss = true;
+        return $this;
+    }
+
 	/**
 	 * @return bool
 	 */
 	public function isCss()
 	{
-		return $this->getFileStack()
-					->isType('css');
+		return $this->isCss;
 	}
+
+    /**
+     * @return AppfuelLayer
+     */
+    public function disableJs()
+    {
+        $this->isJs = false;
+        return $this;
+    }
+
+    /**
+     * @return AppfuelLayer
+     */
+    public function enableJs()
+    {
+        $this->isJs = true;
+        return $this;
+    }
 
 	/**
 	 * @return bool
 	 */
 	public function isJs()
 	{
-		return $this->getFileStack()
-					->isType('js');
+		return $this->isJs;
 	}
 
     /**

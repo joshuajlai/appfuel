@@ -224,8 +224,13 @@ class ResourceTreeManager
 		foreach ($layers as $layerName) {
 			$factory = self::loadFactory($layerName->getVendor());
 			$layer   = self::getPkg($layerName);
-			$result->add('js', $layer->getJsFile());
-			$result->add('css', $layer->getCssFile());
+            if ($layer->isJs()) {
+			    $result->add('js', $layer->getJsFile());
+            }
+        
+            if ($layer->isCss()) {
+			    $result->add('css', $layer->getCssFile());
+            }
 		}
 		
 		$layer = self::createPageLayer($pageName);
@@ -397,7 +402,14 @@ class ResourceTreeManager
 			}
 	
 			$pkg = $factory->createLayer($name, self::loadVendor($vendor));
-		
+	        if (isset($data['is-css']) && false === $data['is-css']) {
+                $pkg->disableCss();
+            }
+
+            if (isset($data['is-js']) && false === $data['is-js']) {
+                $pkg->disableJs();
+            }
+
 			$pkg->setFilename($data['filename'])
 				->setPackages($data['pkg']);
 
