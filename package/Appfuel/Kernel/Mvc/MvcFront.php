@@ -112,7 +112,7 @@ class MvcFront implements MvcFrontInterface
 				$detail = $this->getRouteDetail($tmpRouteKey);
 			}
 
-			if (! $detail->isPostFilteringEnabled()) {
+			if ($detail->isPostFilteringEnabled()) {
 				$context = $this->runPostFilters($detail, $context);
 			}
 		}
