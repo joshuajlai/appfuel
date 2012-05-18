@@ -23,38 +23,70 @@ class CliParser
 	 * @return	array
 	 */
 	public function parse(array $args, array $spec)
-	{
-		$out = array();
-		$cmd = array_shift($args);
-		foreach ($args as $arg) {
-			if ('--' === substr($arg, 0, 2)) {
-				$eqPos = strpos($arg, '=');
-				if (false === $eqPos) {
-					$key = substr($arg, 2);
-					$out[$key] = isset($out[$key])? $out[$key] : true;
+    {
+        $out = array(
+            'cmd'   => null,
+            'long'  => array(),
+            'short' => array(),
+            'args'  => array()
+        );
+        $out['cmd'] = array_shift($args);
+
+		$max = count($args);
+		$pattern = '/^--?.+/';
+		for ($i = 0; $i < $max; $i++) {
+			$str  = $args[$i];
+			$len  = strlen($str);
+			$next = isset($args[$i +1]) ? $args[$i + 1]: null;
+			if ($len > 2 && '--' === substr($str, 0, 2)) {
+				$str   = substr($str, 2);
+				$parts = explode('=', $str);
+				$key   = current($parts);
+				$value = next($parts);
+				$out['long'][$key] = true;
+
+				if (count($parts) === 1 &&
+					isset($next) && 
+					preg_match($pattern, $next) === 0) {
+						$out['long'][$key] = $next;
+						unset($args[$i+1]);
+						$i++;
 				}
-				else {
-					$key = substr($arg, 2, $eqPos - 2);
-					$out[$key] = substr($arg, $eqPos+1);
+				else if (count($parts) === 2) {
+					$out['long'][$key] = $value;
 				}
 			}
-			else if ('-' === substr($arg, 0, 1)) {
-				if ('=' === substr($arg, 2, 1)) {
-					$key = substr($arg, 1, 1);
-					$out[$key] = substr($arg, 3);
-				}
-				else {
-					$chars = str_split(substr($arg, 1));
-					foreach ($chars as $char) {
-						$out[$char] = isset($out[$char])? $out[$char] : true;
-					}
+			/* a double dash and space tells the parser to stop parsing 
+			 * options
+			 */
+			else if ($len === 2 && '--' === $str) {
+				unset($args[$i]);
+				break;
+			}
+			else if ($len === 2 && '-' === $str[0]) {
+				$key = $str[1];
+				$out['short'][$key] = true;
+				if (isset($next) && preg_match($pattern, $next) === 0) {
+					$out['short'][$key] = $next;
+					unset($args[$i+1]);
+					$i++;
 				}
 			}
-			else {
-				$result[] = $arg;
+			else if ($len > 1 && '-' === $str[0]) {
+				$argLen = strlen($str);
+				for($j = 1; $j < $argLen; $j++) {
+					$out['short'][$str[$j]] = true;
+				}
+			}
+		}    
+
+		$args = array_values($args);
+		for($i = count($args) -1; $i >= 0; $i--) {
+			if (preg_match($pattern, $args[$i]) === 0) {
+				$out['args'][] = $args[$i];
 			}
 		}
-
-		echo "\n", print_r($out,1), "\n";exit;
-	}
+		$out['args'] = array_reverse($out['args']);
+        echo "\n", print_r($out,1), "\n";exit;
+    }
 }
