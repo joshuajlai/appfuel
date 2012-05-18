@@ -223,15 +223,9 @@ class ResourceTreeManager
 
 		foreach ($layers as $layerName) {
 			$factory = self::loadFactory($layerName->getVendor());
-			$stack   = $factory->createFileStack();
-			$layer   = self::loadLayer($layerName, $stack);
-			if ($layer->isJs()) {
-				$result->add('js', $layer->getJsFile());
-			}
-	
-			if ($layer->isCss()) {
-				$result->add('css', $layer->getCssFile());
-			}
+		    $layer   = self::getPkg($layerName);
+			$result->add('js', $layer->getJsFile());
+	        $result->add('css', $layer->getCssFile());
 		}
 		
 		$layer = self::createPageLayer($pageName);

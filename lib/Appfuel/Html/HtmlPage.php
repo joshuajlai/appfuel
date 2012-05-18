@@ -571,7 +571,7 @@ class HtmlPage extends FileTemplate implements HtmlPageInterface
 	 * @param	HtmlTagInterface	$body
 	 * @return	string
 	 */
-	protected function buildView(GenericTagInterface $body)
+	public function buildView(GenericTagInterface $body)
 	{	
 		if (! $this->isView()) {
 			return '';
