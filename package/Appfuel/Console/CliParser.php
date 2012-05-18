@@ -37,6 +37,11 @@ class CliParser
 		for ($i = 0; $i < $max; $i++) {
 			$str  = $args[$i];
 			$len  = strlen($str);
+
+			/*
+			 * Used for either long or short option. When a value is delimited
+			 * by a space, that value will be found as the next item in argv
+			 */
 			$next = isset($args[$i +1]) ? $args[$i + 1]: null;
 			if ($len > 2 && '--' === substr($str, 0, 2)) {
 				$str   = substr($str, 2);
@@ -87,6 +92,7 @@ class CliParser
 			}
 		}
 		$out['args'] = array_reverse($out['args']);
-        echo "\n", print_r($out,1), "\n";exit;
+
+		return $out;
     }
 }
