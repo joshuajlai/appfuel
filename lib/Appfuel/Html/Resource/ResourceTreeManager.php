@@ -223,9 +223,9 @@ class ResourceTreeManager
 
 		foreach ($layers as $layerName) {
 			$factory = self::loadFactory($layerName->getVendor());
-		    $layer   = self::getPkg($layerName);
+			$layer   = self::getPkg($layerName);
 			$result->add('js', $layer->getJsFile());
-	        $result->add('css', $layer->getCssFile());
+			$result->add('css', $layer->getCssFile());
 		}
 		
 		$layer = self::createPageLayer($pageName);
