@@ -326,6 +326,44 @@ class ArgParserTest extends BaseTestCase
 		return $parser;
 	}
 
-
-
+	/**
+	 * @test
+	 * @depends	singleArg
+	 * @return	ArgParser
+	 */
+	public function shortLongAndArgs(ArgParser $parser)
+	{
+		$data = array(
+			'./my-cmd', 
+			'arg1', 
+			'-s', 
+			'--long',
+			'-abc',
+			'--long-value=value',
+			'-e',
+			'value-e',
+			'arg2',
+			'arg3',
+			'--long-other',
+			'other-value'
+		);
+		$expected = $this->createResult(array(
+			'cmd' => './my-cmd',
+			'short' => array(
+				's' => true,
+				'a' => true,
+				'b' => true,
+				'c' => true,
+				'e' => 'value-e',
+			),
+			'long' => array(
+				'long' => true,
+				'long-value' => 'value',
+				'long-other' => 'other-value'
+			),
+			'args' => array('arg1', 'arg2', 'arg3')
+		));
+		$this->assertEquals($expected, $parser->parse($data));
+		return $parser;
+	}
 }
