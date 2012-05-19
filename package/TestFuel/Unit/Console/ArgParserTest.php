@@ -366,4 +366,40 @@ class ArgParserTest extends BaseTestCase
 		$this->assertEquals($expected, $parser->parse($data));
 		return $parser;
 	}
+
+	/**
+	 * The -- by itself tells the parser to stop processing any more options
+	 * and treat everything else as an argument
+	 *
+	 * @test
+	 * @depends	shortLongAndArgs
+	 * @return	ArgParser
+	 */
+	public function shortLongEndOfArgs(ArgParser $parser)
+	{
+		$data = array(
+			'./my-cmd', 
+			'arg1', 
+			'-abc', 
+			'--long=long-value',
+			'--',
+			'/some/path',
+			'--long=value',
+			'-a'
+		);
+	
+		$expected = $this->createResult(array(
+			'cmd' => './my-cmd',
+			'short' => array(
+				'a' => true,
+				'b' => true,
+				'c' => true,
+			),
+			'long' => array(
+				'long' => 'long-value',
+			),
+			'args' => array('arg1', '/some/path', '--long=value', '-a')
+		));	
+		$this->assertEquals($expected, $parser->parse($data));
+	}
 }
