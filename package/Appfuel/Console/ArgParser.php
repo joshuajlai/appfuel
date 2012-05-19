@@ -14,15 +14,21 @@ namespace Appfuel\Console;
 use InvalidArgumentException;
 
 /**
+ * Parse long, short options and arguments from the command line
  */
-class CliParser
+class ArgParser implements ArgParserInterface
 {
 
 	/**
-	 * @param	array	$list
+	 * when parsing long option and short options along with their values
+	 * are revoved from the args array so that the only thing remaining are
+	 * the arguments. When a -- is used with a space it tells the parser to
+	 * stop parsing any long/short options and treat everything as an arg
+	 *
+	 * @param	array	$args
 	 * @return	array
 	 */
-	public function parse(array $args, array $spec)
+	public function parse(array $args)
     {
         $out = array(
             'cmd'   => null,
@@ -34,6 +40,7 @@ class CliParser
 
 		$max = count($args);
 		$pattern = '/^--?.+/';
+		$isOptionsEnd = false;
 		for ($i = 0; $i < $max; $i++) {
 			$str  = $args[$i];
 			$len  = strlen($str);
@@ -55,10 +62,12 @@ class CliParser
 					preg_match($pattern, $next) === 0) {
 						$out['long'][$key] = $next;
 						unset($args[$i+1]);
+						unset($args[$i]);
 						$i++;
 				}
 				else if (count($parts) === 2) {
 					$out['long'][$key] = $value;
+					unset($args[$i]);
 				}
 			}
 			/* a double dash and space tells the parser to stop parsing 
@@ -66,6 +75,7 @@ class CliParser
 			 */
 			else if ($len === 2 && '--' === $str) {
 				unset($args[$i]);
+				$isOptionsEnd = true;
 				break;
 			}
 			else if ($len === 2 && '-' === $str[0]) {
@@ -74,6 +84,7 @@ class CliParser
 				if (isset($next) && preg_match($pattern, $next) === 0) {
 					$out['short'][$key] = $next;
 					unset($args[$i+1]);
+					unset($args[$i]);
 					$i++;
 				}
 			}
@@ -82,16 +93,25 @@ class CliParser
 				for($j = 1; $j < $argLen; $j++) {
 					$out['short'][$str[$j]] = true;
 				}
+				unset($args[$i]);
 			}
 		}    
 
 		$args = array_values($args);
-		for($i = count($args) -1; $i >= 0; $i--) {
-			if (preg_match($pattern, $args[$i]) === 0) {
-				$out['args'][] = $args[$i];
-			}
+		$max  = count($args) - 1;
+
+		if (true === $isOptionsEnd) {
+			$out['args'] = $args;
 		}
-		$out['args'] = array_reverse($out['args']);
+		else {
+			for($i = $max; $i >= 0; $i--) {
+				if (preg_match($pattern, $args[$i]) === 0) {
+					$out['args'][] = $args[$i];
+				}
+			}
+			$out['args'] = array_reverse($out['args']);
+		}
+
 
 		return $out;
     }

@@ -10,7 +10,7 @@
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
 use Appfuel\Config\ConfigBuilder,
-	Appfuel\Console\CliParser,
+	Appfuel\Console\ArgParser,
 	Appfuel\App\AppHandlerInterface;
 
 $base   = realpath(__DIR__ . "/../");
@@ -50,8 +50,9 @@ $spec = array(
 		'allow-params' => true,
 	)	
 );
-$parser = new CliParser();
-$result = $parser->parse($argv, $spec);
+
+$parser = new ArgParser();
+$result = $parser->parse($argv);
 
 echo "\n", print_r($result,1), "\n";exit;
 /* when -v is found capture it then remove it from argv 
