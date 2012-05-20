@@ -45,13 +45,6 @@ interface AppHandlerInterface
 	public function createUri($str);
 
 	/**
-	 * @return	AppInputInterface
-	 */
-	public function createRestInputFromBrowser($uri = null);
-
-	public function createRestInputFromConsole($uri = null);
-
-	/**
 	 * @param	array	$tasks
 	 * @return	AppRunner
 	 */
@@ -111,7 +104,7 @@ interface AppHandlerInterface
 	 * @param	array	$tasks
 	 * @return	AppRunner
 	 */
-	public function initializeFramework();
+	public function initialize(array $taks = null);
 	public function runTasks(array $tasks);
 
 	/**
@@ -124,14 +117,4 @@ interface AppHandlerInterface
 	 * @return	AppRunner
 	 */
 	public function setTaskHandler(TaskHandlerInterface $handler);
-
-	/**
-	 * @return	TaskHandlerInterface
-	 */
-	public function loadTaskHandler();
-
-	/**
-	 * @return	TaskHandlerInterface
-	 */
-	public function createTaskHandler();
 }

@@ -17,13 +17,11 @@ use LogicException,
 	Appfuel\View\ViewInterface,
 	Appfuel\ClassLoader\ManualClassLoader,
 	Appfuel\Config\ConfigRegistry,
-	Appfuel\Kernel\TaskHandler,
 	Appfuel\Kernel\TaskHandlerInterface,
 	Appfuel\Kernel\Mvc\RequestUriInterface,
 	Appfuel\Kernel\Mvc\AppInputInterface,
 	Appfuel\Kernel\Mvc\MvcContextInterface,
 	Appfuel\Kernel\Mvc\MvcRouteDetailInterface,
-	Appfuel\Kernel\Mvc\MvcFactory,
 	Appfuel\Kernel\Mvc\MvcFactoryInterface;
 
 /**
@@ -32,16 +30,20 @@ use LogicException,
 class AppHandler implements AppHandlerInterface
 {
 	/**
+	 * Holds the details of the top level directory structure as well as
+	 * the location of config files and environments
 	 * @var AppDetailInterface
 	 */
 	protected $detail = null;
 
 	/**
+	 * Used to run individual startup startegies
 	 * @var TaskHandlerInterface
 	 */
 	protected $taskHandler = null;
 
 	/**
+	 * Used to create objects needed by the application infrastructure
 	 * @var AppFactoryInterface
 	 */
 	protected $factory = null;
@@ -50,18 +52,13 @@ class AppHandler implements AppHandlerInterface
 	 * Ensure base path and library paths are correct. Setup Contants.
 	 * Load Kernel Dependencies
 	 *
-	 * @param	string	$base		absolute path to root dir of the app
-	 * @param	array	$libDir		name of the directory php libraries live
-	 * @return	HttpResponse
+	 * @param	AppDetailInterface	
+	 * @return	AppHandler
 	 */
-	public function __construct(AppDetailInterface $detail, array $tasks = null)
+	public function __construct(AppDetailInterface $detail)
 	{
-		define('AF_CODE_PATH', $detail->getPackage());
 		$this->detail = $detail;
-		if (null !== $tasks) {
-			$this->initializeFramework();
-			$this->runTasks($tasks);
-		}
+
 	}
 
 	/**
@@ -72,6 +69,43 @@ class AppHandler implements AppHandlerInterface
 		return $this->detail;
 	}
 	
+	/**
+	 * Create the app factory and task handler and define constants
+	 * @param	array	$tasks 
+	 * @return	null
+	 */
+	public function initialize(array $tasks = null)
+	{
+		$default = 'Appfuel\App\AppFactory';
+		$class   = ConfigRegistry::get('app-factory-class', $default);
+		if (! is_string($class) || empty($class)) {
+			$err = "app factory class must be a non empty string";
+			throw new DomainException($err);
+		}
+
+		if (! class_exists($class, false)) {
+			$err  = "the app factory class should be added to the ";
+			$err .= "kernel dependency file because it is needed before the ";
+			$err .= "the autoloader is in use";
+			throw new LogicException($err);
+		}
+
+		$factory = new $class();
+		if (! $factory instanceof AppFactoryInterface) {
+			$err  = "app factory -($class) must implment Appfuel\Kernel";
+			$err .= "\AppFactoryInterface";
+			throw new LogicException($err);
+		}
+
+		$handler = $factory->createTaskHandler();
+		$this->factory = $factory;
+		$this->setTaskHandler($handler);
+
+		if (null !== $tasks) {
+			$this->runTasks($tasks);
+		}
+	}
+
 	/**
 	 * @return	AppFactoryInterface
 	 */
@@ -126,10 +160,14 @@ class AppHandler implements AppHandlerInterface
 					->createRestInputFromBrowser($uri);
 	}
 
-	public function createRestInputFromConsole($uri = null)
+	/**
+	 * @param	array	$data
+	 * @return	AppInputInterface
+	 */
+	public function createConsoleInput(array $data)
 	{
 		return $this->getAppFactory()
-					->createRestInputFromConsole($uri);
+					->createConsoleInput($data);
 	}
 
 	/**
@@ -286,39 +324,13 @@ class AppHandler implements AppHandlerInterface
 		return $context;
 	}
 
-	public function initializeFramework()
-	{
-		$default = 'Appfuel\App\AppFactory';
-		$class   = ConfigRegistry::get('app-factory-class', $default);
-		if (! is_string($class) || empty($class)) {
-			$err = "app factory class must be a non empty string";
-			throw new DomainException($err);
-		}
-
-		if (! class_exists($class, false)) {
-			$err  = "the app factory class should be added to the ";
-			$err .= "kernel dependency file because it is needed before the ";
-			$err .= "the autoloader is in use";
-			throw new LogicException($err);
-		}
-
-		$factory = new $class();
-		if (! $factory instanceof AppFactoryInterface) {
-			$err  = "app factory -($class) must implment Appfuel\Kernel";
-			$err .= "\AppFactoryInterface";
-			throw new LogicException($err);
-		}
-
-		$this->factory = $factory;
-	}
-
 	/**
 	 * @param	array	$tasks
 	 * @return	AppRunner
 	 */
 	public function runTasks(array $tasks)
 	{
-		$this->loadTaskHandler()
+		$this->getTaskHandler()
 			 ->runTasks($tasks);
 
 		return $this;
@@ -342,26 +354,4 @@ class AppHandler implements AppHandlerInterface
 		return $this;	
 	}
 
-	/**
-	 * @return	TaskHandlerInterface
-	 */
-	public function loadTaskHandler()
-	{
-		$handler = $this->getTaskHandler();
-		if (! $handler instanceof TaskHandlerInterface) {
-			$handler = $this->createTaskHandler();
-			$this->setTaskHandler($handler);
-		}
-
-		return $handler;
-	}
-
-	/**
-	 * @return	TaskHandlerInterface
-	 */
-	public function createTaskHandler()
-	{
-		return	$this->getAppFactory()
-					 ->createTaskHandler();
-	}
 }

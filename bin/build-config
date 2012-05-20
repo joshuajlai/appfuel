@@ -51,6 +51,8 @@ $spec = array(
 	)	
 );
 
+$input = $handler->createConsoleInput($_SERVER['argv']);
+echo "\n", print_r($handler,1), "\n";exit;
 $parser = new ArgParser();
 $result = $parser->parse($argv);
 

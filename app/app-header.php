@@ -10,7 +10,8 @@
  */
 use Appfuel\App\AppDetail,
 	Appfuel\App\AppHandler,
-	Appfuel\Config\ConfigLoader;
+	Appfuel\Config\ConfigLoader,
+	Appfuel\Config\ConfigRegistry;
 
 $sep  = DIRECTORY_SEPARATOR;
 $base = realpath(__DIR__ . '/../');
@@ -32,7 +33,7 @@ if (! file_exists($file)) {
 $list = require $file;
 
 /*
- * determine the script requiring this one has classes to be be manually
+ * determine if the calling script has classes to be be manually
  * loaded into memory and add them to the end of the kernel's list
  */
 if (isset($dependList) && is_array($dependList)) {
@@ -61,6 +62,8 @@ unset($file, $list, $dependList, $class, $asbsolute, $err);
  */
 $loader = new ConfigLoader();
 $detail = new AppDetail($base);
+define('AF_CODE_PATH', $detail->getPackage());
+
 if (isset($configData)) {
 	$loader->set($configData);
 }
@@ -103,5 +106,8 @@ if (isset($fwTasks) && is_array($fwTasks)) {
 			break;			
 	}
 }
-$handler = new AppHandler($detail, $tasks);
+
+$handler = new AppHandler($detail);
+$handler->initialize($tasks);
+
 unset($tasks, $detail, $loader);

@@ -13,12 +13,12 @@ namespace Appfuel\App;
 use RunTimeException,
 	Appfuel\Http\HttpOutput,
 	Appfuel\Http\HttpResponse,
+	Appfuel\Console\ArgParser,
 	Appfuel\Console\ConsoleOutput,
 	Appfuel\View\ViewBuilder,
 	Appfuel\Kernel\TaskHandler,
 	Appfuel\Kernel\ConfigRegistry,
 	Appfuel\Kernel\Mvc\MvcFront,
-	Appfuel\Kernel\Mvc\AppInput,
 	Appfuel\Kernel\Mvc\AppInputInterface,
 	Appfuel\Kernel\Mvc\RequestUri,
 	Appfuel\Kernel\Mvc\RequestUriInterface,
@@ -81,24 +81,22 @@ class AppFactory implements AppFactoryInterface
 		return new AppInput($method, $params);
 	}
 
-	public function createRestInputFromConsole(RequestUriInterface $uri = null)
+	/**
+	 * @param	array $data
+	 * @return	AppInput
+	 */
+	public function createConsoleInput(array $data)
 	{
-		if (PHP_SAPI !== 'cli') {
-			$err = 'php cli must be enabled';
-			throw new LogicException($err);
-		}
+		$parser = $this->createCliArgParser();
+		return $this->createInput('cli', $parser->parse($data));
+	}
 
-		$getData = array();
-		if (null !== $uri) {
-			$getData = $uri->getParams();
-		}
-
-		$params = array(
-			'get' => $getData,
-			'cli' => $_SERVER['argv']
-		);
-		
-		return $this->createInput('cli', $params);
+	/**
+	 * @return	CliParser
+	 */
+	public function createCliArgParser()
+	{
+		return new ArgParser();
 	}
 
 	/**
@@ -147,7 +145,6 @@ class AppFactory implements AppFactoryInterface
 		else {
 			$get = $_GET;
 		}
-		
 		$params = array(
             'get'     => $get,
 			'post'    => $post,
