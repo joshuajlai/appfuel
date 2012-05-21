@@ -41,7 +41,7 @@ class TaskHandler implements TaskHandlerInterface
 	public function kernelRunTasks(MvcRouteDetailInterface $route, 
 								   MvcContextInterface $context)
 	{
-		if ($route->isStartupDisabled()) {
+		if ($route->isStartupDisabled()) {  
 			return;
 		}
 
@@ -72,7 +72,7 @@ class TaskHandler implements TaskHandlerInterface
 				$tasks = array_merge($routeTasks, $tasks);
 			}
 			else {
-				$task = array_merge($tasks, $routeTasks);
+				$tasks = array_merge($tasks, $routeTasks);
 			}
 		}
 		
