@@ -13,6 +13,7 @@ namespace Appfuel\Validate;
 use InvalidArgumentException;
 
 /**
+ * Value object used to determine how a field is validated/filtered 
  */
 class FieldSpec implements FieldSpecInterface
 {
@@ -59,6 +60,25 @@ class FieldSpec implements FieldSpecInterface
 		}
 		$field = $data['field'];
 		$this->setFieldName($field);
+
+		if (isset($data['location'])) {
+			$this->setLocation($data['location']);
+		}
+
+		if (! isset($data['filter'])) {
+			$err  = "field -($field) must have a filter defined with key ";
+			$err .= "-(filter)";
+			throw new DomainException($err);
+		}
+		$this->setFilter($data['filter']);
+
+		if (isset($data['params'])) {
+			$this->setParams($data['params']);
+		}
+
+		if (isset($data['error'])) {
+			$this->setError($data['error']);
+		}
 	}
 
 	/**
@@ -67,6 +87,38 @@ class FieldSpec implements FieldSpecInterface
 	public function getFieldName()
 	{
 		return $this->field;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getLocation()
+	{
+		return $this->location;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getFilter()
+	{
+		return $this->filter;
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getParams()
+	{
+		return $this->params;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getErrors()
+	{
+		return $this->error;
 	}
 
 	/**
@@ -82,5 +134,57 @@ class FieldSpec implements FieldSpecInterface
 		}
 
 		$this->field = $name;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setLocation($loc)
+	{
+		if (! is_string($name)) {
+			$err  = "the location of the field must be a string ";
+			$err .= "string";
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->location = $name;
+	}
+
+	/**
+	 * @param	string	$name
+	 * @return	null
+	 */
+	protected function setFilter($name)
+	{
+		if (! is_string($name) || empty($name)) {
+			$err  = "the filter name must be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->filter = $name;
+	}
+
+	/**
+	 * @param	array	$params	
+	 * @return	null
+	 */
+	protected function setParams(array $params)
+	{
+		$this->params = $params;
+	}
+
+	/**
+	 * @param	string	$text
+	 * @return	null
+	 */
+	protected function setError($text)
+	{
+		if (! is_string($text)) {
+			$err = "error message must be a string";
+			throw new InvalidArgumentException($err);
+		}
+		
+		$this->error = $text;
 	}
 }
