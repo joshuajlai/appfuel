@@ -41,12 +41,41 @@ class TaskHandler implements TaskHandlerInterface
 	public function kernelRunTasks(MvcRouteDetailInterface $route, 
 								   MvcContextInterface $context)
 	{
-		$tasks = $this->getTasksFromRegistry();
-		if (! is_array($tasks)) {
-			$err = 'tasks defined in the config registry must be in an array';
-			throw new RunTimeException($err);
+		if ($route->isStartupDisabled()) {
+			return;
 		}
 
+		$tasks = array();
+		if (! $route->isIgnoreConfigStartupTasks()) {
+			$tasks = $this->getTasksFromRegistry();
+			if (! is_array($tasks)) {
+				$err = 'tasks defined in config registry must be in an array';
+				throw new RunTimeException($err);
+			}
+
+			if ($route->isExcludedStartupTasks()) {
+				$excluded = $route->getExcludedStartupTasks();
+				foreach ($excluded as $exclude) {
+					foreach ($tasks as $index => $target) {
+						if ($exclude === $target) {
+							unset($tasks[$index]);
+						}
+					}
+				}
+				$tasks = array_values($tasks);
+			}
+		}
+
+		if ($route->isStartupTasks()) {
+			$routeTasks = $route->getStartupTasks();
+			if ($route->isPrependStartupTasks()) {
+				$tasks = array_merge($routeTasks, $tasks);
+			}
+			else {
+				$task = array_merge($tasks, $routeTasks);
+			}
+		}
+		
 		foreach ($tasks as $className) {
 			$task = $this->createTask($className);
 			$data = $this->collectDataForTask($task);
