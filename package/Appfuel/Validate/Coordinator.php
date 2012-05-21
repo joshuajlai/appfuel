@@ -4,14 +4,13 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Validate;
 
-use InvalidArgumentException,
-	Appfuel\DataStructure\DictionaryInterface;
+use InvalidArgumentException;
 
 /**
  * Handle the movement or raw and clean data as well as handling text. The 
@@ -84,7 +83,8 @@ class Coordinator implements CoordinatorInterface
      */
     public function getClean($field, $default = null)
     {
-		if (empty($field) || ! is_scalar($field) ||
+		if (empty($field) || 
+			! is_scalar($field) ||
 			! array_key_exists($field, $this->clean)) {
 			return $default;
 		}
