@@ -11,7 +11,7 @@
 namespace Testfuel\Unit\Console;
 
 use StdClass,
-	Appfuel\Console\ArgSpec,
+	Appfuel\Validate\FieldSpec,
 	Testfuel\TestCase\BaseTestCase;
 
 class FieldSpecTest extends BaseTestCase
@@ -40,5 +40,30 @@ class FieldSpecTest extends BaseTestCase
 			array(array(1,2,3)),
 			array(new StdClass()),
 		);
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	FieldSpec
+	 */
+	public function createFieldSpec(array $data)
+	{
+		return new FieldSpec($data);
+	}
+
+	/**
+	 * @test
+	 * @return	FieldSpec
+	 */
+	public function minimalFieldSpec()
+	{
+		$data = array(
+			'field'  => 'id',
+			'filter' => 'int',
+			
+		);
+		$spec = $this->createFieldSpec($data);
+		$this->assertInstanceOf('Appfuel\Validate\FieldSpecInterface', $spec);
+		$this->assertEquals($data['field'], $spec->getFieldName());
 	}
 }
