@@ -20,17 +20,17 @@ interface FieldSpecInterface
 	/**
 	 * @return	string
 	 */
-	public function getFieldName();
-
-	/**
-	 * @return	string
-	 */
-	public function getLocation();
+	public function getField();
 
 	/**
 	 * @return	string
 	 */
 	public function getFilter();
+
+	/**
+	 * @return	string
+	 */
+	public function getLocation();
 
 	/**
 	 * @return	array
@@ -40,5 +40,5 @@ interface FieldSpecInterface
 	/**
 	 * @return	string
 	 */
-	public function getErrors();
+	public function getError();
 }

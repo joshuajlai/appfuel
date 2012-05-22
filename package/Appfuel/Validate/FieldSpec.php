@@ -10,7 +10,8 @@
  */
 namespace Appfuel\Validate;
 
-use InvalidArgumentException;
+use DomainException,
+	InvalidArgumentException;
 
 /**
  * Value object used to determine how a field is validated/filtered 
@@ -59,7 +60,7 @@ class FieldSpec implements FieldSpecInterface
 			throw new DomainException($err);
 		}
 		$field = $data['field'];
-		$this->setFieldName($field);
+		$this->setField($field);
 
 		if (isset($data['location'])) {
 			$this->setLocation($data['location']);
@@ -84,7 +85,7 @@ class FieldSpec implements FieldSpecInterface
 	/**
 	 * @return	string
 	 */
-	public function getFieldName()
+	public function getField()
 	{
 		return $this->field;
 	}
@@ -116,7 +117,7 @@ class FieldSpec implements FieldSpecInterface
 	/**
 	 * @return	string
 	 */
-	public function getErrors()
+	public function getError()
 	{
 		return $this->error;
 	}
@@ -125,11 +126,10 @@ class FieldSpec implements FieldSpecInterface
 	 * @param	string	$name
 	 * @return	null
 	 */
-	protected function setFieldName($name)
+	protected function setField($name)
 	{
 		if (! is_string($name) || empty($name)) {
-			$err  = "the field name you are validating must be a non empty ";
-			$err .= "string";
+			$err  = "field must be a non empty string";
 			throw new InvalidArgumentException($err);
 		}
 
@@ -140,30 +140,30 @@ class FieldSpec implements FieldSpecInterface
 	 * @param	string	$name
 	 * @return	null
 	 */
-	protected function setLocation($loc)
+	protected function setFilter($name)
 	{
-		if (! is_string($name)) {
-			$err  = "the location of the field must be a string ";
-			$err .= "string";
+		if (! is_string($name) || empty($name)) {
+			$err  = "the filter must be a non empty string";
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->location = $name;
+		$this->filter = $name;
 	}
 
 	/**
 	 * @param	string	$name
 	 * @return	null
 	 */
-	protected function setFilter($name)
+	protected function setLocation($loc)
 	{
-		if (! is_string($name) || empty($name)) {
-			$err  = "the filter name must be a non empty string";
+		if (! is_string($loc)) {
+			$err  = "the location of the field must be a string";
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->filter = $name;
+		$this->location = $loc;
 	}
+
 
 	/**
 	 * @param	array	$params	
