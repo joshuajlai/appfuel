@@ -21,7 +21,7 @@ use InvalidArgumentException,
  * errors back to the coordinator or adds the now clean data into the 
  * coordinators clean datasource.
  */
-class Validator implements FieldValidatorInterface
+class SingleFieldValidator implements SingleFieldValidatorInterface
 {
 	/**
 	 * Name of the field in the source we are looking to validate. The source
@@ -40,21 +40,13 @@ class Validator implements FieldValidatorInterface
 	 * @param	CoordinatorInterface
 	 * @return	Controller
 	 */
-	public function __construct($field, 
-								FilterInterface $filter = null,
-								array $params = null, 
-								$error = null)
+	public function __construct($field)
 	{
 		if (empty($field) || ! is_scalar($field)) {
-			throw new InvalidArgumentException(
-				"Field must be a non empty scalar"
-			);
+			$err = "field must be a non empty scalar";
+			throw new InvalidArgumentException($err);
 		}
-
 		$this->field = $field;
-		if (null !== $filter) {
-			$this->addFilter($filter, $params, $error);
-		}
 	}
 
 	/**

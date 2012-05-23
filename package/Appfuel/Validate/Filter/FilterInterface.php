@@ -10,23 +10,19 @@
  */
 namespace Appfuel\Validate\Filter;
 
-use Appfuel\DataStructure\DictionaryInterface;
-
 /**
  * Filter raw input into a known clean value
  */
 interface FilterInterface
 {
+	/**
+	 * Unique key used to indicate a filter failure
+	 */
+	const FAILURE = '__AF_FILTER_FAILURE__';
+
     /**
      * @return mixed | special token string on failure
      */
-	public function filter($raw, DictionaryInterface $params);
+	public function filter($raw, array $params);
 
-	/**
-	 * Returns a string stoken not likely to occur in a typical value to 
-	 * indicate a failure has occured
-	 *
-	 * @return	string
-	 */
-	public function isFailure();
 }

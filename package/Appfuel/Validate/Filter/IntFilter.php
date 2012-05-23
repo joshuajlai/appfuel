@@ -8,22 +8,19 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Validate\Filter\PHPFilter;
+namespace Appfuel\Validate\Filter;
 
-use Appfuel\Validate\Filter\ValidateFilter,
-	Appfuel\DataStructure\DictionaryInterface;
 
 /**
  * Create the filter from the name given. In this case the 
  */
-class IntFilter extends ValidateFilter
+class IntFilter extends FilterInterface
 {
 	/**
 	 * @return	string
 	 */	
-	public function filter($raw, DictionaryInterface $params)
+	public function filter($raw, array $params = null)
 	{
-		$this->clearFailure();
 		$default = $params->get('default', null);
 		$options = array('options' => array());
 		if (null !== $default) {
@@ -49,8 +46,7 @@ class IntFilter extends ValidateFilter
 		
 		$result = filter_var($raw, FILTER_VALIDATE_INT, $options);
 		if (false === $result) {
-			$this->enableFailure();
-			return null;
+			return FilterInterface::FAILURE;
 		}
 
 		return $result;

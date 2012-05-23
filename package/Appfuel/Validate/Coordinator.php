@@ -10,14 +10,13 @@
  */
 namespace Appfuel\Validate;
 
-use InvalidArgumentException;
+use InvalidArgumentException,
+	Appfuel\Error\ErrorStack,
+	Appfuel\Error\ErrorStackInterface;
 
 /**
- * Handle the movement or raw and clean data as well as handling text. The 
- * coordinator is used by the Validator; sets the source (raw data) into the 
- * coordinator. The Test has the coordinator passed into it for which is can 
- * retreive raw data and set clean data for criterion/criteria that pass and
- * errors for thoses that fail.
+ * Coordinates the movement of data. This includes raw fields, clean or 
+ * filtered fields and all errors.
  */
 class Coordinator implements CoordinatorInterface
 {
@@ -35,19 +34,20 @@ class Coordinator implements CoordinatorInterface
 
     /**
      * Error message used when criteria fails
-     * @var array
+     * @var ErrorStackInterface
      */
-    protected $errors = array();
+    protected $errors = null;
 
     /**
-     * @param   mixed   $source   data source used for validation
+     * @param   ErrorStackInterface $stack
      * @return  Coordinator
      */
-    public function __construct($source = null)
-    {   
-        if (! empty($source)) {
-            $this->setSource($source);
-        }
+    public function __construct(ErrorStackInterface $stack = null)
+    {
+		if (null === $stack) {
+			$stack = new ErrorStack();
+		}
+		$this->setErrorStack($stack);
     }
 
     /**
@@ -59,17 +59,16 @@ class Coordinator implements CoordinatorInterface
     }
 
     /**
-	 * @throws	Appfuel\Framework\Exception
+	 * @throws	InvalidArgumentException
      * @param   string  $field
      * @param   mixed   $value
      * @return  Coordinator
      */
     public function addClean($field, $value)
     {
-        if (empty($field) || ! is_scalar($field)) {
-            throw new InvalidArgumentException(
-				"Can not add to clean field must be scalar"
-			);
+        if (! is_scalar($field) || empty($field)) {
+			$err = "Can not add to clean field must be scalar";
+            throw new InvalidArgumentException($err);
         }
 
         $this->clean[$field] = $value;
@@ -83,9 +82,7 @@ class Coordinator implements CoordinatorInterface
      */
     public function getClean($field, $default = null)
     {
-		if (empty($field) || 
-			! is_scalar($field) ||
-			! array_key_exists($field, $this->clean)) {
+		if (! is_scalar($field) || ! array_key_exists($field, $this->clean)) {
 			return $default;
 		}
 
@@ -106,32 +103,36 @@ class Coordinator implements CoordinatorInterface
      * @param   mixed
      * @return  Validator
      */
-    public function setSource($source)
+    public function setSource(array $source)
     {
-        if ($source instanceof DictionaryInterface) {
-            $source = $source->getAll();
-        }
-        else if (! is_array($source)) {
-            throw new InvalidArgumentException(
-				"Datasource must be an array or dictionary"
-			);
-        }
-
         $this->source = $source;
         return $this;
     }
 
 	/**
-	 * Key that is not likely to a value in the raw data. This is used so
+	 * Key that is not likely to be a value in the raw data. This is used so
 	 * we can know the difference between a key that does not exist in the 
 	 * raw source and one that exists but has a value of null or false, the
 	 * values that are normally returned when a key is not found
 	 *
 	 * @return	string
 	 */
-	public function rawKeyNotFound()
+	public function rawFieldNotFound()
 	{
-		return '___AF_RAW_KEY_NOT_FOUND___';
+		return '___AF_FIELD_NOT_FOUND___';
+	}
+
+	/**
+	 * @param	scalar	$field
+	 * @return	bool
+	 */
+	public function isRaw($field)
+	{
+		if (! is_scalar($field) || ! array_key_exists($field, $this->source)) {
+			return false;
+		}
+
+		return true;
 	}
 
     /**
@@ -140,9 +141,8 @@ class Coordinator implements CoordinatorInterface
      */
     public function getRaw($field)
     {
-        if (empty($field) || ! is_scalar($field) || 
-				! array_key_exists($field, $this->source)) {
-            return $this->rawKeyNotFound();
+        if (! $this->isRaw($field)) {
+            return self::FIELD_NOT_FOUND;
         }
 
         return $this->source[$field];
@@ -153,75 +153,29 @@ class Coordinator implements CoordinatorInterface
      * @param   string  $txt
      * @return  FilterValidator
      */
-    public function addError($field, $txt)
+    public function addError($msg, $code = 500)
     {
-        if (empty($field) || ! is_scalar($field)) {
-            throw new InvalidArgumentException(
-				"Error key must be a non empty scalar"
-			);
-        }
-
-		if (! $this->isFieldError($field)) {
-			$this->errors[$field] = $this->createError($field, $txt);
-			return $this;
-		}
-
-        $error = $this->errors[$field];
-		$error->add($txt);
+		$this->getErrorStack()
+			 ->addError($msg, $code);
+	
         return $this;
     }
 
 	/**
-	 * Determines if an error exists for a particular field
-	 * 
-	 * @param	string	$field
-	 * @return	bool
+	 * @return	ErrorStackInterface
 	 */
-	public function isFieldError($field)
+	public function getErrorStack()
 	{
-		if (array_key_exists($field, $this->errors) && 
-				$this->errors[$field] instanceof ErrorInterface) {
-			return true;
-		}
-
-		return false;
+		return $this->errorStack;
 	}
 
 	/**
-	 * @return		string | array | null if not found
-	 */
-	public function getError($field)
-	{
-		if (empty($field) || ! is_scalar($field) || 
-				! array_key_exists($field, $this->errors)) {
-			return null;
-		}
-
-		return $this->errors[$field];
-	}
-
-    /**
-     * @return bool
-     */
-    public function isError()
-    {
-        return count($this->errors) > 0;
-    }
-
-    /**
-     * @return string
-     */
-    public function getErrors()
-    {
-        return $this->errors;
-    }
-
-	/**
+	 * @param	ErrorStackInterface $stack
 	 * @return	Coordinator
 	 */
-	public function clearErrors()
+	public function setErrorStack(ErrorStackInterface $stack)
 	{
-		$this->errors = array();
+		$this->errors = $stack;
 		return $this;
 	}
 
@@ -233,18 +187,10 @@ class Coordinator implements CoordinatorInterface
 	 */	
 	public function reset()
 	{
-		$this->clearErrors();
 		$this->clean = array();
 		$this->raw   = array();
+		$this->getErrorStack()
+			 ->clear();
 	}
 
-	/**
-	 * @param	string	$field
-	 * @param	string	$msg
-	 * @return	Error
-	 */
-	protected function createError($field, $msg)
-	{
-		return new Error($field, $msg);
-	}
 }

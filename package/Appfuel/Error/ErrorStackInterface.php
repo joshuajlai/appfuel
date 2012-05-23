@@ -17,14 +17,14 @@ interface ErrorStackInterface
 {
 	/**
 	 * @param	ErrorInterface	$error
-	 * @return	ErrorStack	
+	 * @return	ErrorStackInterface
 	 */
 	public function addErrorItem(ErrorInterface $error);
 
 	/**
 	 * @param	string	$text	
 	 * @param	scalar	$code
-	 * @return	ErrorStack
+	 * @return	ErrorStackInterface
 	 */
 	public function addError($msg, $code = null);
 
@@ -39,4 +39,10 @@ interface ErrorStackInterface
 	 * @return	ErrorInterface | false when no error exists
 	 */
 	public function getLastError();
+
+	/**
+	 * Clears all errors out of the stack
+	 * @return	ErrorStackInterface
+	 */
+	public function clear();
 }

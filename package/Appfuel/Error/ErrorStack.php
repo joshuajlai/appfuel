@@ -173,6 +173,15 @@ class ErrorStack implements ErrorStackInterface, Countable, Iterator
     }
 
 	/**
+	 * @return	ErrorStack
+	 */
+	public function clear()
+	{
+		$this->errors = array();
+		return $this;
+	}
+
+	/**
 	 * @param	string	
 	 * @param	scalar	$code
 	 * @return	AppfuelError

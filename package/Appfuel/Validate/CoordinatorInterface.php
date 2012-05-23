@@ -16,6 +16,13 @@ namespace Appfuel\Validate;
  */
 interface CoordinatorInterface
 {
+	/**
+	 * Value used to indicate a raw field was not found. This allows you to
+	 * use getRaw and trust that a null or false  is the legitimate return 
+	 * value and not a failure case.
+	 */
+	const FIELD_NOT_FOUND = '___AF_FIELD_NOT_FOUND___';
+
     /**
      * @return array
      */

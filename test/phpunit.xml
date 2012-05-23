@@ -27,6 +27,7 @@
 	<file>../package/Testfuel/Unit/Console/ArgParserTest.php</file>
 	
 	<file>../package/Testfuel/Unit/Validate/FieldSpecTest.php</file>
+	<file>../package/Testfuel/Unit/Validate/FilterSpecTest.php</file>
 
 	<file>../package/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
 	<file>../package/TestFuel/Unit/Html/Resource/PkgTest.php</file>
