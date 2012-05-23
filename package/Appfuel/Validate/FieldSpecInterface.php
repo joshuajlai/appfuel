@@ -25,17 +25,12 @@ interface FieldSpecInterface
 	/**
 	 * @return	string
 	 */
-	public function getFilter();
+	public function getLocation();
 
 	/**
 	 * @return	string
 	 */
-	public function getLocation();
-
-	/**
-	 * @return	array
-	 */
-	public function getParams();
+	public function getFilters();
 
 	/**
 	 * @return	string

@@ -59,16 +59,25 @@ class FieldSpecTest extends BaseTestCase
 	{
 		$data = array(
 			'field'  => 'id',
-			'filter' => 'int',
+			'filters' => array(
+				'int' => array(
+					'params' => array('max' => 100),
+					'error'  => 'invalid integer'
+				)
+			),
 			
 		);
 		$spec = $this->createFieldSpec($data);
 		$this->assertInstanceOf('Appfuel\Validate\FieldSpecInterface', $spec);
 		$this->assertEquals($data['field'], $spec->getField());
-		$this->assertEquals($data['filter'], $spec->getFilter());
-		$this->assertEquals(array(), $spec->getParams());
 		$this->assertNull($spec->getLocation());
 
+		$filters = $spec->getFilters();
+		$this->assertInternalType('array', $filters);
+		$this->assertEquals(1, count($filters));
+		
+		$filter = current($filters);
+		$this->assertInstanceOf('Appfuel\Validate\FilterSpec', $filter);
 		return $data;
 	}
 
@@ -82,22 +91,6 @@ class FieldSpecTest extends BaseTestCase
 		$data['location'] = 'post';
 		$spec = $this->createFieldSpec($data);
 		$this->assertEquals('post', $spec->getLocation());
-	}
-
-	/**
-	 * @test
-	 * @depends	minimal
-	 * @return	null
-	 */
-	public function params(array $data)
-	{
-		$data['params'] = array(
-			'param-a' => 'value-a',
-			'param-b' => 'value-b',
-			'param-c' => 'value-c' 
-		);
-		$spec = $this->createFieldSpec($data);
-		$this->assertEquals($data['params'], $spec->getParams());
 	}
 
 	/**
@@ -120,9 +113,7 @@ class FieldSpecTest extends BaseTestCase
 	{
 		$data = array(
 			'filter' => 'int',
-			'params' => array('a', 'b', 'c'),
 			'location' => 'post',
-			
 		);
 		$msg = 'validation field must be defined with key -(field)';
 		$this->setExpectedException('DomainException', $msg);
@@ -139,9 +130,7 @@ class FieldSpecTest extends BaseTestCase
 		$data = array(
 			'field'  => $field,
 			'filter' => 'my-filter',
-			'params' => array('a', 'b', 'c'),
 			'location' => 'post',
-			
 		);
 		$msg  = 'field must be a non empty string';
 		$this->setExpectedException('InvalidArgumentException', $msg);
@@ -156,32 +145,11 @@ class FieldSpecTest extends BaseTestCase
 	{
 		$data = array(
 			'field' => 'my-field',
-			'params' => array('a', 'b', 'c'),
 			'location' => 'post',
-			
 		);
-		$msg  = 'field -(my-field) must have a filter defined with ';
-		$msg .= 'key -(filter)';
+		$msg  = 'field -(my-field) must have one or more filters defined with ';
+		$msg .= 'key -(filters)';
 		$this->setExpectedException('DomainException', $msg);
-		$spec = $this->createFieldSpec($data);
-	}
-
-	/**
-	 * @test
-	 * @dataProvider	provideInvalidStringsWithEmpty
-	 * @return	null
-	 */
-	public function invalidFilterFailure($filter)
-	{
-		$data = array(
-			'field'  => 'my-field',
-			'filter' => $filter,
-			'params' => array('a', 'b', 'c'),
-			'location' => 'post',
-			
-		);
-		$msg  = 'filter must be a non empty string';
-		$this->setExpectedException('InvalidArgumentException', $msg);
 		$spec = $this->createFieldSpec($data);
 	}
 
@@ -194,10 +162,8 @@ class FieldSpecTest extends BaseTestCase
 	{
 		$data = array(
 			'field'    => 'my-field',
-			'filter'   => 'my-filter',
+			'filters'  => array('my-filter' => array('params' => array())),
 			'location' => $location,
-			'params' => array('a', 'b', 'c'),
-			
 		);
 		$msg  = 'the location of the field must be a string';
 		$this->setExpectedException('InvalidArgumentException', $msg);
@@ -213,11 +179,9 @@ class FieldSpecTest extends BaseTestCase
 	{
 		$data = array(
 			'field'    => 'my-field',
-			'filter'   => 'my-filter',
+			'filters'  => array('my-filter' => array('params' => array())),
 			'location' => 'get',
-			'params' => array('a', 'b', 'c'),
 			'error'  => $error
-			
 		);
 		$msg  = 'error message must be a string';
 		$this->setExpectedException('InvalidArgumentException', $msg);

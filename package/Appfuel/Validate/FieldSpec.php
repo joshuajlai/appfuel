@@ -31,19 +31,13 @@ class FieldSpec implements FieldSpecInterface
 	protected $location = null;
 
 	/**
-	 * Name of the filters to be used against this field
+	 * List of filter specifications
 	 * @var	string
 	 */
-	protected $filter = null;
+	protected $filters = array();
 
 	/**
-	 * Parameters needed by filter
-	 * @var array
-	 */
-	protected $params = array();
-
-	/**
-	 * Error given back when filter fails
+	 * Error to be prefixed to the aggregation of filter errors
 	 * @var string
 	 */
 	protected $error = null;
@@ -66,16 +60,12 @@ class FieldSpec implements FieldSpecInterface
 			$this->setLocation($data['location']);
 		}
 
-		if (! isset($data['filter'])) {
-			$err  = "field -($field) must have a filter defined with key ";
-			$err .= "-(filter)";
+		if (! isset($data['filters'])) {
+			$err  = "field -($field) must have one or more filters defined ";
+			$err .= "with key -(filters)";
 			throw new DomainException($err);
 		}
-		$this->setFilter($data['filter']);
-
-		if (isset($data['params'])) {
-			$this->setParams($data['params']);
-		}
+		$this->setFilters($data['filters']);
 
 		if (isset($data['error'])) {
 			$this->setError($data['error']);
@@ -101,17 +91,9 @@ class FieldSpec implements FieldSpecInterface
 	/**
 	 * @return	string
 	 */
-	public function getFilter()
+	public function getFilters()
 	{
-		return $this->filter;
-	}
-
-	/**
-	 * @return	array
-	 */
-	public function getParams()
-	{
-		return $this->params;
+		return $this->filters;
 	}
 
 	/**
@@ -140,14 +122,13 @@ class FieldSpec implements FieldSpecInterface
 	 * @param	string	$name
 	 * @return	null
 	 */
-	protected function setFilter($name)
+	protected function setFilters(array $list)
 	{
-		if (! is_string($name) || empty($name)) {
-			$err  = "the filter must be a non empty string";
-			throw new InvalidArgumentException($err);
+		$result = array();
+		foreach ($list as $name => $data) {
+			$data['name'] = $name;
+			$this->filters[] = $this->createFilterSpec($data);
 		}
-
-		$this->filter = $name;
 	}
 
 	/**
@@ -164,16 +145,6 @@ class FieldSpec implements FieldSpecInterface
 		$this->location = $loc;
 	}
 
-
-	/**
-	 * @param	array	$params	
-	 * @return	null
-	 */
-	protected function setParams(array $params)
-	{
-		$this->params = $params;
-	}
-
 	/**
 	 * @param	string	$text
 	 * @return	null
@@ -186,5 +157,14 @@ class FieldSpec implements FieldSpecInterface
 		}
 		
 		$this->error = $text;
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	FilterSpec
+	 */
+	protected function createFilterSpec(array $data)
+	{
+		return new FilterSpec($data);
 	}
 }
