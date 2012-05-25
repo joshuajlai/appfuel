@@ -13,12 +13,7 @@ namespace Appfuel\Validate;
 /**
  * Validator used to run filters against a single field
  */
-interface FieldValidatorInterface
+interface ValidatorInterface
 {
-	/**
-	 * Return the name of the field we are validating against
-	 *
-	 * @return	string
-	 */
-	public function getField();
+	public function isValid(CoordinatorInterface $coord);
 }

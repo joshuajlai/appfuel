@@ -87,6 +87,7 @@ $tasks = array(
     'Appfuel\Kernel\FaultHandlerTask',
     'Appfuel\Kernel\DependencyLoaderTask',
     'Appfuel\Kernel\RouteListTask',
+	'Appfuel\Validate\ValidationStartupTask'
 );
 
 if (! isset($taskAction) || ! is_string($taskAction) || empty($taskAction)) {

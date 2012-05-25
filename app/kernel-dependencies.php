@@ -57,6 +57,7 @@ return array(
 	'\Appfuel\Kernel\PHPDefaultTimezoneTask'		=> 'Appfuel/Kernel/PHPDefaultTimezoneTask.php',	
 	'\Appfuel\Kernel\DependencyLoaderTask'			=> 'Appfuel/Kernel/DependencyLoaderTask.php',
 	'\Appfuel\Kernel\Startup\RouteListTask'			=> 'Appfuel/Kernel/RouteListTask.php',
+	'\Appfuel\Validate\ValidationStartupTask'		=> 'Appfuel/Validate/ValidationStartupTask.php',
 	'\Appfuel\Log\LogPriorityInterface'				=> 'Appfuel/Log/LogPriorityInterface.php',
 	'\Appfuel\Log\LogEntryInterface'				=> 'Appfuel/Log/LogEntryInterface.php',
 	'\Appfuel\Log\LogAdapterInterface'				=> 'Appfuel/Log/LogAdapterInterface.php',

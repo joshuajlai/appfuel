@@ -20,7 +20,7 @@ use RunTimeException,
  * a set of one or more rules to be applied to a single field and have errors
  * associated to that field.
  */
-class Controller implements ControllerInterface
+class ValidationHandler implements ValidationHandlerInterface
 {
 	/**
 	 * Used to handle the movement of data and errors between the 
@@ -39,44 +39,24 @@ class Controller implements ControllerInterface
 	 * @param	CoordinatorInterface
 	 * @return	Controller
 	 */
-	public function __construct(CoordinatorInterface $coord = null,
-								FilterFactoryInterface $factory = null)
+	public function __construct(CoordinatorInterface $coord = null)
 	{
 		if (null === $coord) {
 			$coord = $this->createCoordinator();
 		}
 		$this->setCoordinator($coord);
-
-		if (null === $factory) {
-			$factory = $this->createFilterFactory();
-		}
-		$this->setFilterFactory($factory);
 	}
 
 	/**
-	 * @param	string	$field		field used to filter on
-	 * @param	string	$fltr		text used when filter fails
-	 * @param	string	$params		name of the filter need for field
-	 * @param	array	$err		list of optional parameter for filter
-	 * @return	Controller
+	 * @param	FieldSpecInterfaace $field	field used to filter on
+	 * @return	ValidationHandler
 	 */	
-	public function addFilter($field, $fltr, array $params = null, $err = null)
+	public function addSingleFieldValidator(SingleFieldSpecInterface $spec)
 	{	
-		$errmsg = "addFilter failed: ";
-		if (empty($field) || ! is_string($field)) {
-			$errmsg .= "field must be a non empty string";
-			throw new InvalidArgumentException($errmsg);
-		}
 
-		if (is_string($fltr)) {
-			$filterFactory = $this->getFilterFactory();
-			$fltr = $filterFactory->createFilter($fltr);
-		}
-		else if (! $fltr instanceof FilterInterface) {
-			$errmsg .= " filter must be a string or implement the ";
-			$errmsg .= "Appfuel\Framework\Validator\Filter\FilterInterface";
-			throw new InvalidArgumentException($errmsg);
-		}
+		$field   = $spec->getField();
+		$filters = $spec->getFilters();
+		$class   = $spec->getValidator();	
 
 		if (isset($this->validators[$field])) {
 			$validator = $this->validators[$field];

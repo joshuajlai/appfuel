@@ -63,9 +63,7 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 	 * @param	string			$error		text used when filter fails
 	 * @return	Validate
 	 */	
-	public function addFilter(FilterInterface $filter, 
-							  array $params = null,
-							 $error = null)
+	public function addFilter(FieldSpecInterface $spec)
 	{
 		$this->filters[] = array(
 			'filter' => $filter, 
@@ -113,9 +111,6 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 			if (isset($list['params']) && is_array($list['params'])) {
 				$params = $list['params'];
 			}
-
-			/* all filters require a dictionary even if empty */
-			$params = new Dictionary($params);
 
 			$error  = $filter->getDefaultError();
 			if (isset($list['error']) && is_string($list['error'])) {
