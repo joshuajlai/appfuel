@@ -31,10 +31,59 @@ interface ValidationManagerInterface
 	 * @return	string | false
 	 */
 	static public function mapValidator($key);
+	
+	/**
+	 * @param	string	$key
+	 * @param	ValidatorInterface $validator
+	 * @return	null
+	 */
+	static public function addValidatorToCache($key, ValidatorInterface $val);
+
+	/**
+	 * @param	string	$key
+	 * @return	ValidatorInterface | false
+	 */
+	static public function getValidatorFromCache($key);
 
 	/**
 	 * @param	string $key
 	 * @return	mixed
 	 */
 	static public function getValidator($key);
+
+	/**
+	 * @return	array
+	 */
+	static public function getFilterMap();
+
+	/**
+	 * @param	array	$map
+	 * @return	null
+	 */
+	static public function setFilterMap(array $map);
+
+	/**
+	 * @param	string	$key
+	 * @param	ValidatorInterface	$validator
+	 * @return	null
+	 */
+	static public function addFilterToCache($key, FilterInterface $filter);
+
+	/**
+	 * @param	string	$key
+	 * @return	ValidatorInterface | false
+	 */
+	static public function getFilterFromCache($key);
+
+	/**
+	 * @param	string $key
+	 * @return	mixed
+	 */
+	static public function getFilter($key);
+
+	/**
+	 * @param	string	$key
+	 * @return	string | false
+	 */
+	static public function mapFilter($key);
 }

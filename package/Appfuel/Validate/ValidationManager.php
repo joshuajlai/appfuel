@@ -90,21 +90,21 @@ class ValidationManager implements ValidationManagerInterface
 	 * @param	ValidatorInterface	$validator
 	 * @return	null
 	 */
-	public function addValidatorToCache($key, ValidatorInterface $validator)
+	static public function addValidatorToCache($key, ValidatorInterface $val)
 	{
 		if (! self::isValidKey($key)) {
 			$err = "validator key must be a non empty string";
 			throw new InvalidArgumentException($err);
 		}
 
-		self::$cache['validator'][$key] = $validator;
+		self::$cache['validator'][$key] = $val;
 	}
 
 	/**
 	 * @param	string	$key
 	 * @return	ValidatorInterface | false
 	 */
-	public function getValidatorFromCache($key)
+	static public function getValidatorFromCache($key)
 	{
 		if (! self::isValidKey($key)) {
 			$err = "validator key must be a non empty string";
@@ -173,6 +173,74 @@ class ValidationManager implements ValidationManagerInterface
 		}
 
 		self::$filterMap = $map;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @param	ValidatorInterface	$validator
+	 * @return	null
+	 */
+	static public function addFilterToCache($key, FilterInterface $filter)
+	{
+		if (! self::isValidKey($key)) {
+			$err = "filter key must be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		self::$cache['filter'][$key] = $filter;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	ValidatorInterface | false
+	 */
+	static public function getFilterFromCache($key)
+	{
+		if (! self::isValidKey($key)) {
+			$err = "filter key must be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		if (! isset(self::$cache['filter'][$key])) {
+			return false;
+		}
+
+		return self::$cache['filter'][$key];
+	}
+
+	/**
+	 * @param	string $key
+	 * @return	mixed
+	 */
+	static public function getFilter($key)
+	{
+		$filter = self::getFilterFromCache($key);
+		if ($filter instanceof FilterInterface) {
+			return $filter;
+		}
+			
+		$class = self::mapFilter($key);
+		if (false === $class) {
+			$err = "filter -($key) is not mapped";
+			throw new DomainException($err);
+		}
+		$filter = new $class();
+		self::addFilterToCache($key, $filter);
+
+		return $filter;
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	string | false
+	 */
+	static public function mapFilter($key)
+	{
+		if (! is_string($key) || ! isset(self::$filterMap[$key])) {
+			return false;
+		}
+
+		return self::$filterMap[$key];
 	}
 
 	/**
