@@ -60,24 +60,6 @@ class TaskHandlerTest extends BaseTestCase
 		ConfigRegistry::setAll($this->configBackup);
 	}
 
-    /**
-     * @return  array
-     */
-    public function provideInvalidStrings()
-    {
-        return array(
-            array(0),
-            array(1),
-            array(100),
-            array(-1),
-            array(-100),
-            array(1.2),
-            array(array()),
-            array(array(1,2,3)),
-            array(new StdClass())
-        );
-    }
-
 	/**
 	 * @test
 	 * @return	null
@@ -339,7 +321,4 @@ class TaskHandlerTest extends BaseTestCase
 		$msg = TaskHandler::getStatus(get_class($taskB));
 		$this->assertEquals('test-b has executed', $msg);
 	}
-
-
-
 }

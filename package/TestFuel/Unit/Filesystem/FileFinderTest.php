@@ -27,22 +27,6 @@ class FileFinderTest extends BaseTestCase
 	protected $finderInterface = 'Appfuel\Filesystem\FileFinderInterface';
 
 	/**
-	 * @return	array
-	 */
-	public function provideNonStrings()
-	{
-		return array(
-			array(1),
-			array(-1),
-			array(0),
-			array(array(1,2,3)),
-			array(new StdClass()),
-			array(true),
-			array(false),
-		);
-	}
-
-	/**
 	 * @return	string
 	 */
 	public function getFinderInterface()
@@ -230,7 +214,7 @@ class FileFinderTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @dataProvider		provideNonStrings
+	 * @dataProvider		provideInvalidStrings
 	 * @depends				ensureInterfaceIsImplemented
 	 * @return				null
 	 */
@@ -380,7 +364,4 @@ class FileFinderTest extends BaseTestCase
 		$this->assertTrue($finder->isFile('test-file.txt'));
 		$this->assertFalse($finder->isFile());
 	}
-
-
-
 }

@@ -25,32 +25,6 @@ class ArgSpecTest extends BaseTestCase
 	/**
 	 * @return	array
 	 */
-	public function provideInvalidStringsWithEmpty()
-	{
-		$result = $this->provideInvalidStrings();
-		$result[] = array('');
-		return $result;
-	}
-
-	/**
-	 * @return	array	
-	 */
-	public function provideInvalidStrings()
-	{
-		return array(
-			array(12345),
-			array(1.234),
-			array(0),
-			array(true),
-			array(false),
-			array(array(1,2,3)),
-			array(new StdClass()),
-		);
-	}
-
-	/**
-	 * @return	array
-	 */
 	public function provideInvalidShort()
 	{
 		return array(
@@ -226,7 +200,7 @@ class ArgSpecTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @dataProvider	provideInvalidStringsWithEmpty
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
 	 * @return			null
 	 */
 	public function nameFailure($name)
@@ -262,7 +236,7 @@ class ArgSpecTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @dataProvider	provideInvalidStringsWithEmpty
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
 	 * @return			null
 	 */
 	public function shortOptNotStringFailure($opt)
@@ -280,7 +254,7 @@ class ArgSpecTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @dataProvider	provideInvalidStringsWithEmpty
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
 	 * @return			null
 	 */
 	public function longOptFailure($opt)

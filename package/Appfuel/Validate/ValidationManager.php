@@ -73,6 +73,14 @@ class ValidationManager implements ValidationManagerInterface
 	}
 
 	/**
+	 * @return	null
+	 */
+	static public function clearValidatorMap()
+	{
+		self::$validatorMap = array();
+	}
+
+	/**
 	 * @param	string	$key
 	 * @return	string | false
 	 */
@@ -116,6 +124,14 @@ class ValidationManager implements ValidationManagerInterface
 		}
 
 		return self::$cache['validator'][$key];
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function clearValidatorCache()
+	{
+		self::$cache['validator'] = array();
 	}
 
 	/**
@@ -176,6 +192,14 @@ class ValidationManager implements ValidationManagerInterface
 	}
 
 	/**
+	 * @return	null
+	 */
+	static public function clearFilterMap()
+	{
+		self::$filterMap = array();
+	}
+
+	/**
 	 * @param	string	$key
 	 * @param	ValidatorInterface	$validator
 	 * @return	null
@@ -206,6 +230,14 @@ class ValidationManager implements ValidationManagerInterface
 		}
 
 		return self::$cache['filter'][$key];
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function clearFilterCache()
+	{
+		self::$cache['filter'] = array();
 	}
 
 	/**
@@ -241,6 +273,17 @@ class ValidationManager implements ValidationManagerInterface
 		}
 
 		return self::$filterMap[$key];
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function clear()
+	{
+		self::clearValidatorMap();
+		self::clearValidatorCache();
+		self::clearFilterMap();
+		self::clearFilterCache();
 	}
 
 	/**

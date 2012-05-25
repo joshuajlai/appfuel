@@ -17,21 +17,6 @@ use StdClass,
 class RouteViewTest extends BaseTestCase
 {
 	/**
-	 * @return	array
-	 */
-	public function provideInvalidString()
-	{
-		return array(
-			array(12345),
-			array(1.234),
-			array(true),
-			array(false),
-			array(array(1,2,3)),
-			array(new StdClass()),
-		);
-	}
-
-	/**
 	 * @test
 	 * @return RouteIntercept
 	 */
@@ -77,7 +62,7 @@ class RouteViewTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @dataProvider	provideInvalidString
+	 * @dataProvider	provideInvalidStrings
 	 * @return			null
 	 */
 	public function setFormatFailure($format)
@@ -146,7 +131,7 @@ class RouteViewTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @dataProvider	provideInvalidString
+	 * @dataProvider	provideInvalidStrings
 	 * @return			null
 	 */
 	public function setViewPackageFailure($pkg)
@@ -168,6 +153,4 @@ class RouteViewTest extends BaseTestCase
 		$this->setExpectedException('InvalidArgumentException', $msg);
 		$view->setViewPackage('');
 	}
-
-
 }

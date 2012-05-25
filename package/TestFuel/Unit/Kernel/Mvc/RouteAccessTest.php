@@ -19,25 +19,6 @@ use StdClass,
 class RouteAccessTest extends BaseTestCase
 {
 	/**
-	 * @return	array
-	 */
-	public function provideInvalidStrings()
-	{
-		return array(
-			array(true),
-			array(false),
-			array(12345),
-			array(0),
-			array(1),
-			array(-1),
-			array(1.234),
-			array(array()),
-			array(array(1,2,3)),
-			array(new StdClass())
-		);
-	}
-
-	/**
 	 * @test
 	 * @return RouteAccess
 	 */

@@ -17,31 +17,6 @@ use StdClass,
 
 class FilterSpecTest extends BaseTestCase
 {
-	/**
-	 * @return	array
-	 */
-	public function provideInvalidStringsWithEmpty()
-	{
-		$result = $this->provideInvalidStrings();
-		$result[] = array('');
-		return $result;
-	}
-
-	/**
-	 * @return	array	
-	 */
-	public function provideInvalidStrings()
-	{
-		return array(
-			array(12345),
-			array(1.234),
-			array(0),
-			array(true),
-			array(false),
-			array(array(1,2,3)),
-			array(new StdClass()),
-		);
-	}
 
 	/**
 	 * @param	array	$data
@@ -120,7 +95,7 @@ class FilterSpecTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @dataProvider	provideInvalidStringsWithEmpty
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
 	 * @return	null
 	 */
 	public function invalidFieldFailure($field)

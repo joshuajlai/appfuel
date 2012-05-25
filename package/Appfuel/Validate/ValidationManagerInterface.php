@@ -27,6 +27,11 @@ interface ValidationManagerInterface
 	static public function setValidatorMap(array $map);
 
 	/**
+	 * @return	null
+	 */
+	static public function clearValidatorMap();
+
+	/**
 	 * @param	string	$key
 	 * @return	string | false
 	 */
@@ -46,6 +51,11 @@ interface ValidationManagerInterface
 	static public function getValidatorFromCache($key);
 
 	/**
+	 * @return	null
+	 */
+	static public function clearValidatorCache();
+
+	/**
 	 * @param	string $key
 	 * @return	mixed
 	 */
@@ -55,6 +65,11 @@ interface ValidationManagerInterface
 	 * @return	array
 	 */
 	static public function getFilterMap();
+
+	/**
+	 * @return	null
+	 */
+	static public function clearFilterMap();
 
 	/**
 	 * @param	array	$map
@@ -76,6 +91,11 @@ interface ValidationManagerInterface
 	static public function getFilterFromCache($key);
 
 	/**
+	 * @return	null
+	 */
+	static public function clearFilterCache();
+
+	/**
 	 * @param	string $key
 	 * @return	mixed
 	 */
@@ -86,4 +106,10 @@ interface ValidationManagerInterface
 	 * @return	string | false
 	 */
 	static public function mapFilter($key);
+
+	/**
+	 * Clears the validator map, validator cache, filter map and fitler cache
+	 * @return	null
+	 */
+	static public function clear();
 }

@@ -16,28 +16,4 @@ namespace TestFuel\Provider;
  */
 interface StringProviderInterface
 {
-	/**
-	 * @return	array
-	 */
-	public function provideAllStrings();
-
-	/**
-	 * @return	array
-	 */
-	public function provideNumericStrings();
-
-	/**
-	 * @return	array
-	 */
-	public function provideEmptyStrings();
-
-	/**
-	 * @return	array
-	 */
-	public function provideNonEmptyStrings($isNumeric = true);
-
-	/**
-	 * @return	array
-	 */
-	public function provideStrictInvalidStrings($isNull = true);
 }

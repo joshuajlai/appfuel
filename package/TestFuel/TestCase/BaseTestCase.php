@@ -165,4 +165,19 @@ class BaseTestCase extends PHPUnit_Framework_TestCase
         $state = TestRegistry::getKernelState();
         set_include_path($state->getIncludePath());
 	}
+
+	/**
+	 * @param	array	$more
+	 * @param	bool	$isEmpty
+	 * @return	array
+	 */
+	public function provideInvalidStrings()
+	{
+		return StringProvider::getInvalidStrings();
+	}
+
+	public function provideInvalidStringsIncludeEmpty()
+	{
+		return StringProvider::getInvalidStrings(true);
+	}
 }

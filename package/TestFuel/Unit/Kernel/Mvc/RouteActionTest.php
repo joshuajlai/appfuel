@@ -210,7 +210,4 @@ class RouteActionTest extends BaseTestCase
 		$this->assertFalse($action->findAction('post'));
 		
 	}
-
-
-
 }
