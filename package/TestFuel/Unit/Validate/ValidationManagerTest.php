@@ -192,6 +192,48 @@ class ValidationManagerTest extends BaseTestCase
 
 	/**
 	 * @test
+	 * @depends	validatorCache
+	 * @return	
+	 */
+	public function getValidatorWhenCacheIsPopulated()
+	{
+		$key = 'my-validator';
+		$validator = $this->getMock('Appfuel\Validate\ValidatorInterface');
+		ValidationManager::addValidatorToCache($key, $validator);
+
+		$result = ValidationManager::getValidator($key);
+		$this->assertSame($validator, $result);
+	}
+
+	/**
+	 * @test
+	 * @depends	validatorMap
+	 * @return	null
+	 */
+	public function getValidatorNoCache()
+	{
+		$map = array(
+			'my-validator' => 'Testfuel\Functional\Validate\MockValidator'
+		);
+		ValidationManager::setValidatorMap($map);
+
+		$result = ValidationManager::getValidator('my-validator');
+		$this->assertInstanceof($map['my-validator'], $result);
+	}
+
+	/**
+	 * @test
+	 * @return
+	 */
+	public function getValidatorNoClassMapped()
+	{
+		$msg = 'validator -(not-found) is not mapped';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationManager::getValidator('not-found');
+	}
+
+	/**
+	 * @test
 	 * @dataProvider	provideInvalidStringsIncludeEmpty
 	 * @return	null
 	 */
@@ -356,6 +398,45 @@ class ValidationManagerTest extends BaseTestCase
 		ValidationManager::addFilterToCache($key, $filter);
 	}
 
+	/**
+	 * @test
+	 * @depends	filterCache
+	 * @return	
+	 */
+	public function getFilterWhenCacheIsPopulated()
+	{
+		$key = 'my-filter';
+		$filter = $this->getMock('Appfuel\Validate\Filter\FilterInterface');
+		ValidationManager::addFilterToCache($key, $filter);
 
+		$result = ValidationManager::getFilter($key);
+		$this->assertSame($filter, $result);
+	}
 
+	/**
+	 * @test
+	 * @depends	validatorMap
+	 * @return	null
+	 */
+	public function getFilterNoCache()
+	{
+		$map = array(
+			'my-filter' => 'Testfuel\Functional\Validate\MockFilter'
+		);
+		ValidationManager::setFilterMap($map);
+
+		$result = ValidationManager::getFilter('my-filter');
+		$this->assertInstanceof($map['my-filter'], $result);
+	}
+
+	/**
+	 * @test
+	 * @return
+	 */
+	public function getFilterNoClassMapped()
+	{
+		$msg = 'filter -(not-found) is not mapped';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationManager::getFilter('not-found');
+	}
 }
