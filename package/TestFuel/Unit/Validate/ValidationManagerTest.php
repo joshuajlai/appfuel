@@ -155,6 +155,55 @@ class ValidationManagerTest extends BaseTestCase
 		$this->setExpectedException('DomainException', $msg);
 		ValidationManager::setValidatorMap($map, $msg);
 	}
+
+	/**
+	 * @test
+	 * @return	
+	 */
+	public function validatorCache()
+	{
+		$key = 'my-validator';
+		$result = ValidationManager::getValidatorFromCache($key);
+		$this->assertFalse($result);
+
+		$validator = $this->getMock('Appfuel\Validate\ValidatorInterface');
+		
+		$result = ValidationManager::addValidatorToCache($key, $validator);
+		$this->assertNull($result);
+		
+		$result = ValidationManager::getValidatorFromCache($key);
+		$this->assertSame($validator, $result);
+
+		$key2 = 'other-validator';
+		$result = ValidationManager::getValidatorFromCache($key2);
+		$this->assertFalse($result);
+
+
+		$validator2 = $this->getMock('Appfuel\Validate\ValidatorInterface');
+		$result = ValidationManager::addValidatorToCache($key2, $validator2);
+		$this->assertNull($result);
+	
+		$result = ValidationManager::getValidatorFromCache($key);
+		$this->assertSame($validator, $result);
+
+		$result = ValidationManager::getValidatorFromCache($key2);
+		$this->assertSame($validator2, $result);
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return	null
+	 */
+	public function addValidatorToCacheFailure($key)
+	{
+		$msg = "validator key must be a non empty string";
+		$this->setExpectedException('InvalidArgumentException', $msg);
+		$validator = $this->getMock('Appfuel\Validate\ValidatorInterface');
+		ValidationManager::addValidatorToCache($key, $validator);
+	}
+
+
 	/**
 	 * @test
 	 * @return	null
@@ -260,4 +309,53 @@ class ValidationManagerTest extends BaseTestCase
 		$this->setExpectedException('DomainException', $msg);
 		ValidationManager::setFilterMap($map, $msg);
 	}
+
+	/**
+	 * @test
+	 * @return	
+	 */
+	public function filterCache()
+	{
+		$key = 'my-filter';
+		$result = ValidationManager::getFilterFromCache($key);
+		$this->assertFalse($result);
+
+		$filter = $this->getMock('Appfuel\Validate\Filter\FilterInterface');
+		
+		$result = ValidationManager::addFilterToCache($key, $filter);
+		$this->assertNull($result);
+		
+		$result = ValidationManager::getFilterFromCache($key);
+		$this->assertSame($filter, $result);
+
+		$key2 = 'other-key';
+		$result = ValidationManager::getFilterFromCache($key2);
+		$this->assertFalse($result);
+
+		$filter2 = $this->getMock('Appfuel\Validate\Filter\FilterInterface');
+		$result = ValidationManager::addFilterToCache($key2, $filter2);
+		$this->assertNull($result);
+		
+		$result = ValidationManager::getFilterFromCache($key);
+		$this->assertSame($filter, $result);
+		
+		$result = ValidationManager::getFilterFromCache($key2);
+		$this->assertSame($filter2, $result);
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return	null
+	 */
+	public function addFilterToCacheFailure($key)
+	{
+		$msg = "filter key must be a non empty string";
+		$this->setExpectedException('InvalidArgumentException', $msg);
+		$filter = $this->getMock('Appfuel\Validate\Filter\FilterInterface');
+		ValidationManager::addFilterToCache($key, $filter);
+	}
+
+
+
 }

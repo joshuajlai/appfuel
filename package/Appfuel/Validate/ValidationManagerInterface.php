@@ -10,6 +10,8 @@
  */
 namespace Appfuel\Validate;
 
+use Appfuel\Validate\Filter\FilterInterface;
+
 /**
  * Creates validators and filters based on a static map.
  */

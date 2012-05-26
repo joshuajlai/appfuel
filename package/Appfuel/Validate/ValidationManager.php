@@ -10,7 +10,9 @@
  */
 namespace Appfuel\Validate;
 
-use DomainException;
+use DomainException,
+	InvalidArgumentException,
+	Appfuel\Validate\Filter\FilterInterface;
 
 /**
  * Creates validators and filters based on a static map.
@@ -114,12 +116,8 @@ class ValidationManager implements ValidationManagerInterface
 	 */
 	static public function getValidatorFromCache($key)
 	{
-		if (! self::isValidKey($key)) {
-			$err = "validator key must be a non empty string";
-			throw new InvalidArgumentException($err);
-		}
-
-		if (! isset(self::$cache['validator'][$key])) {
+		if (! self::isValidKey($key) || 
+			! isset(self::$cache['validator'][$key])) {
 			return false;
 		}
 
@@ -220,12 +218,8 @@ class ValidationManager implements ValidationManagerInterface
 	 */
 	static public function getFilterFromCache($key)
 	{
-		if (! self::isValidKey($key)) {
-			$err = "filter key must be a non empty string";
-			throw new InvalidArgumentException($err);
-		}
-
-		if (! isset(self::$cache['filter'][$key])) {
+		if (! self::isValidKey($key) ||
+			! isset(self::$cache['filter'][$key])) {
 			return false;
 		}
 
