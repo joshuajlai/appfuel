@@ -44,8 +44,43 @@ class ValidationManagerTest extends BaseTestCase
 		ValidationManager::setFilterMap($this->filterMapBk);
 	}
 
-	public function testOne()
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function validatorMap()
 	{
-		$this->assertTrue(true);
+		$this->assertEquals(array(), ValidationManager::getValidatorMap());
+		
+		$map = array(
+			'single-field' => 'Appfuel\Validate\SingleFieldValidator',
+			'dual-field'   => 'Appfuel\Validate\DualFieldValidator',
+			'multi-field'  => 'Appfuel\Validate\MulitFiledValidator'
+		);
+		$this->assertNull(ValidationManager::setValidatorMap($map));
+		$this->assertEquals($map, ValidationManager::getValidatorMap());
+
+		$this->assertEquals(
+			$map['single-field'], 
+			ValidationManager::mapValidator('single-field')
+		);
+
+		$this->assertEquals(
+			$map['dual-field'], 
+			ValidationManager::mapValidator('dual-field')
+		);
+
+		$this->assertEquals(
+			$map['multi-field'], 
+			ValidationManager::mapValidator('multi-field')
+		);
+
+		$this->assertFalse(ValidationManager::mapValidator('no-match'));
+
+		$this->assertNull(ValidationManager::clearValidatorMap());
+		$this->assertEquals(array(), ValidationManager::getValidatorMap());
+
+
 	}
+
 }

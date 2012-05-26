@@ -15,5 +15,7 @@ namespace Appfuel\Validate;
  */
 interface ValidatorInterface
 {
+
+
 	public function isValid(CoordinatorInterface $coord);
 }
