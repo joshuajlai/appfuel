@@ -79,8 +79,67 @@ class ValidationManagerTest extends BaseTestCase
 
 		$this->assertNull(ValidationManager::clearValidatorMap());
 		$this->assertEquals(array(), ValidationManager::getValidatorMap());
-
-
 	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function validatorMapNotAssociativeArrayFailure()
+	{
+		$map = array('field1', 'field2', 'field3');
+
+		$msg  = 'validator map must be an associative array of key to ';
+		$msg .= 'validator class name mappings';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationManager::setValidatorMap($map);
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function validatorMapEmptyKeyFailure()
+	{
+		$map = array(
+			'field1' => 'SomeClass',
+			'' => 'OtherClass'
+		);
+		$msg = 'validator key must be a non empty string';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationManager::setValidatorMap($map, $msg);
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function validatorMapIntegerKeyFailure()
+	{
+		$map = array(
+			'field1' => 'SomeClass',
+			1234 => 'OtherClass'
+		);
+		$msg = 'validator key must be a non empty string';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationManager::setValidatorMap($map, $msg);
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function validatorMapEmptyClassFailure()
+	{
+		$map = array(
+			'field1' => 'SomeClass',
+			'field2' => ''
+		);
+		$msg = 'validator class must be a non empty string';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationManager::setValidatorMap($map, $msg);
+	}
+
+
 
 }
