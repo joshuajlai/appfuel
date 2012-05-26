@@ -172,7 +172,7 @@ class ValidationManager implements ValidationManagerInterface
 	{
 		if ($map === array_values($map)) {
 			$err  = "filter map must be an associative array of key ";
-			$err .= "to validator class name mappings";
+			$err .= "to filter class name mappings";
 			throw new DomainException($err);
 		}
 
