@@ -23,7 +23,7 @@ interface FilterInterface
     /**
      * @return mixed | special token string on failure
      */
-	public function filter($raw, array $params);
+	public function filter($raw);
 
 	/**
 	 * @param	FilterSpecInterface		$spec
