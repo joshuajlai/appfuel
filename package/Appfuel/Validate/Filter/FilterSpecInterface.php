@@ -10,11 +10,6 @@
  */
 namespace Appfuel\Validate\Filter;
 
-use DomainException,
-	InvalidArgumentException,
-	Appfuel\DataStructure\Dictionary,
-	Appfuel\DataStructure\DictionaryInterface;
-
 /**
  * Value object used to hold information about a filter
  */
@@ -28,12 +23,7 @@ interface FilterSpecInterface
 	/**
 	 * @return	array
 	 */
-	public function getParams();
-
-	/**
-	 * @return	bool
-	 */
-	public function isParams();
+	public function getOptions();
 
 	/**
 	 * @return	string

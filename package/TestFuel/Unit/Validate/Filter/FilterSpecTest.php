@@ -44,7 +44,7 @@ class FilterSpecTest extends BaseTestCase
 		$this->assertNull($spec->getError());
 		$this->assertInstanceOf(
 			'Appfuel\DataStructure\DictionaryInterface',
-			$spec->getParams()
+			$spec->getOptions()
 		);
 		return $data;
 	}
@@ -54,17 +54,17 @@ class FilterSpecTest extends BaseTestCase
 	 * @depends	minimal
 	 * @return	null
 	 */
-	public function params(array $data)
+	public function options(array $data)
 	{
-		$data['params'] = array(
+		$data['options'] = array(
 			'param-a' => 'value-a',
 			'param-b' => 'value-b',
 			'param-c' => 'value-c' 
 		);
 		$spec = $this->createFilterSpec($data);
 
-		$expected = new Dictionary($data['params']);
-		$this->assertEquals($expected, $spec->getParams());
+		$expected = new Dictionary($data['options']);
+		$this->assertEquals($expected, $spec->getOptions());
 	}
 
 	/**
@@ -103,7 +103,7 @@ class FilterSpecTest extends BaseTestCase
 	{
 		$data = array(
 			'name'  => $field,
-			'params' => array('a', 'b', 'c'),
+			'options' => array('a', 'b', 'c'),
 		);
 		$msg  = 'filter name must be a non empty string';
 		$this->setExpectedException('InvalidArgumentException', $msg);
@@ -119,7 +119,7 @@ class FilterSpecTest extends BaseTestCase
 	{
 		$data = array(
 			'name'    => 'my-filter',
-			'params' => array('a', 'b', 'c'),
+			'options' => array('a', 'b', 'c'),
 			'error'  => $error
 			
 		);

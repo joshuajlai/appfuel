@@ -30,7 +30,7 @@ class FilterSpec implements FilterSpecInterface
      * List of paramters needed to run the filter
 	 * @var DictionaryInterface
 	 */
-	protected $params = null;
+	protected $options = null;
 
 	/**
 	 * Error given back when filter fails
@@ -50,11 +50,11 @@ class FilterSpec implements FilterSpecInterface
 		}
 		$this->setName($data['name']);
 
-		$params = array();
-		if (isset($data['params'])) {
-			$params = $data['params'];
+		$options = array();
+		if (isset($data['options'])) {
+			$options = $data['options'];
 		}
-		$this->setParams($params);
+		$this->setOptions($options);
 
 		if (isset($data['error'])) {
 			$this->setError($data['error']);
@@ -72,17 +72,9 @@ class FilterSpec implements FilterSpecInterface
 	/**
 	 * @return	array
 	 */
-	public function getParams()
+	public function getOptions()
 	{
-		return $this->params;
-	}
-
-	/**
-	 * @return	bool
-	 */
-	public function isParams()
-	{
-		return $this->params instanceof DictionaryInterface;
+		return $this->options;
 	}
 
 	/**
@@ -111,17 +103,17 @@ class FilterSpec implements FilterSpecInterface
 	 * @param	array	$params	
 	 * @return	null
 	 */
-	protected function setParams($params)
+	protected function setOptions($opts)
 	{
-		if (is_array($params)) {
-			$params = new Dictionary($params);
+		if (is_array($opts)) {
+			$opts = new Dictionary($opts);
 		}
-		else if (! $params instanceof DictionaryInterface) {
+		else if (! $opts instanceof DictionaryInterface) {
 			$err  = "parameters must be an array or an object that implements ";
 			$err .= "Appfuel\DataStructure\DictionaryInterface";
 			throw new DomainException($err);
 		}
-		$this->params = $params;
+		$this->options = $opts;
 	}
 
 	/**

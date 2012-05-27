@@ -173,7 +173,7 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 		$error   = $this->getError();
 		$error   = (! empty($error)) ? "$error " : '';
 		foreach ($filters as $filter) {
-			$clean = $filter->filter($raw, $params);
+			$clean = $filter->filter($raw);
 			if (FilterInterface::FILTER_FAILURE === $clean) {
 				$coord->addError("$error{$filter->getError()}");
 				$isError = true;

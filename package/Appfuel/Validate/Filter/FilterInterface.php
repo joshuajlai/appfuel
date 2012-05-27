@@ -25,4 +25,9 @@ interface FilterInterface
      */
 	public function filter($raw, array $params);
 
+	/**
+	 * @param	FilterSpecInterface		$spec
+	 * @return	FilterInterface
+	 */
+	//public function loadSpec(FilterSpecInterface $spec);
 }
