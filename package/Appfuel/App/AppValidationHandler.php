@@ -8,12 +8,17 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuele@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Validate;
+namespace Appfuel\App;
 
 use RunTimeException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+	Appfuel\Validate\CoordinatorInterface,
+	Appfuel\Validate\ValidationHandlerInterface,
 
 /**
+ * This is a Facade that unifies all the validation subsystems allowing
+ * a set of one or more rules to be applied to a single field and have errors
+ * associated to that field.
  */
 class ValidationHandler implements ValidationHandlerInterface
 {
@@ -40,12 +45,6 @@ class ValidationHandler implements ValidationHandlerInterface
 			$coord = ValidationManager::createCoordinator();
 		}
 		$this->setCoordinator($coord);
-	}
-
-	public function loadSpec(FieldSpecInterface $spec)
-	{
-		$key = $spec->getValidator();
-		$validator = ValidationManager::getValidator($key);
 	}
 
 	/**
@@ -117,6 +116,7 @@ class ValidationHandler implements ValidationHandlerInterface
 		return $this->getCoordinator()
 					->getClean($field, $default);
 	}
+
 
 	/**
 	 * @param	mixed	$raw	data used to validate with filters

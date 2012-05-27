@@ -15,7 +15,8 @@ use DomainException,
 	Appfuel\Validate\Filter\FilterInterface;
 
 /**
- * Creates validators and filters based on a static map.
+ * Holds all validators and filters. Also encapsulates create these objects
+ * using a mapping system to create theme.
  */
 class ValidationManager implements ValidationManagerInterface
 {
@@ -32,12 +33,62 @@ class ValidationManager implements ValidationManagerInterface
 	static protected $filterMap = array();
 
 	/**
+	 * Qualified class name of coordinator that should be used in place
+	 * of the appfuel coordinator
+	 * @var string
+	 */
+	static protected $coordinator = null;
+
+	/**
 	 * @var array
 	 */	
 	static protected $cache = array(
 		'validator' => array(),
 		'filter'    => array()
 	);
+
+	/**
+	 * @return	string
+	 */
+	public function getCoordinatorClass()
+	{
+		return self::$coordinator;
+	}
+
+	/**
+	 * @param	string	$class
+	 * @return	null
+	 */
+	public function setCoordinatorClass($class)
+	{
+		if (! is_string($class) || empty($class)) {
+			$err = "coordinator class must be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		self::$coordinator = $class;
+	}
+
+	/**
+	 * @return	CoordinatorInterface
+	 */
+	public function createCoordinator()
+	{
+		$class = self::getCoordintor();
+		if ($class) {
+			$coord = new $class();
+			if (! $coord instanceof CoordinatorInterface) {
+				$err  = "coordinator -($class) does not implment -(Appfuel";
+				$err .= "\Validate\CoordinateInterface)";
+				throw new DomainException($err);
+			}
+		}
+		else {
+			$coord = new Coordinator();
+		}
+
+		return $coord;
+	}
 
 	/**
 	 * @return	array

@@ -11,15 +11,10 @@
 namespace Appfuel\Validate;
 
 use InvalidArgumentException,
-	Appfuel\DataStructure\Dictionary,
 	Appfuel\Validate\Filter\FilterInterface,
 	Appfuel\Validate\FieldValidatorInterface;
 
 /**
- * During validation the validator grab the field from the coordinators raw
- * source, runs it through a list of filters and sanitizers and either reports
- * errors back to the coordinator or adds the now clean data into the 
- * coordinators clean datasource.
  */
 class SingleFieldValidator implements SingleFieldValidatorInterface
 {
@@ -37,17 +32,9 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 	protected $filters = array();
 
 	/**
-	 * @param	CoordinatorInterface
-	 * @return	Controller
+	 * @var string
 	 */
-	public function __construct($field)
-	{
-		if (empty($field) || ! is_scalar($field)) {
-			$err = "field must be a non empty scalar";
-			throw new InvalidArgumentException($err);
-		}
-		$this->field = $field;
-	}
+	protected $error = null;
 
 	/**
 	 * @return	string
@@ -58,20 +45,26 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 	}
 
 	/**
-	 * @param	FilterInterface	$filter		name of the filter need for field
-	 * @param	array			$params		optional parameters
-	 * @param	string			$error		text used when filter fails
-	 * @return	Validate
-	 */	
-	public function addFilter(FieldSpecInterface $spec)
+	 * @param	string	$name
+	 * @return	SingleFieldValidator
+	 */
+	public function setField($name)
 	{
-		$this->filters[] = array(
-			'filter' => $filter, 
-			'params' => $params,
-			'error'  => $error
-		);
+		if (! is_string($name) || empty($name)) {
+			$err = "field must be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
 
-		return $this;	
+		$this->field = $name;
+		return $this;
+	}
+
+	/**
+	 * @return	SingleFieldValidator
+	 */
+	public function clearField()
+	{
+		$this->field = null;
 	}
 
 	/**
@@ -80,6 +73,26 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 	public function getFilters()
 	{
 		return $this->filters;
+	}
+
+	/**
+	 * @param	FilterInterface $filter
+	 * @return	SingleFieldValidator
+	 */
+	public function addFilter(FilterInterface $filter)
+	{
+		$this->filters[] = $filter;
+		return $this;
+	}
+
+	/**
+	 * @param	SingleFieldSpecInterface $spec
+	 * @return	SingleFieldValidator
+	 */
+	public function loadSpec(SingleFieldSpecInterface $spec)
+	{
+		$this->setField($spec->getField());
+		
 	}
 
 	/**
@@ -136,5 +149,15 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 
 		$coord->addClean($field, $clean);
 		return true;
+	}
+
+	/**
+	 * @return	null
+	 */
+	public function clear()
+	{
+		$this->clearField();
+		$this->filters = array();
+		$this->error   = null;
 	}
 }

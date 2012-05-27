@@ -30,6 +30,8 @@
 	<file>../package/Testfuel/Unit/Validate/FieldSpecTest.php</file>
 	<file>../package/Testfuel/Unit/Validate/FilterSpecTest.php</file>
 	<file>../package/Testfuel/Unit/Validate/ValidationManagerTest.php</file>
+	<file>../package/Testfuel/Unit/Validate/SingleFieldValidatorTest.php</file>
+	
 	<file>../package/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
 	<file>../package/TestFuel/Unit/Html/Resource/PkgTest.php</file>
 	<file>../package/TestFuel/Unit/Html/Resource/ViewPkgTest.php</file>
