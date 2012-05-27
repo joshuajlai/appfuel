@@ -8,10 +8,10 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Testfuel\Unit\Validate;
+namespace Testfuel\Unit\Validate\Filter;
 
 use StdClass,
-	Appfuel\Validate\FilterSpec,
+	Appfuel\Validate\Filter\FilterSpec,
 	Appfuel\DataStructure\Dictionary,
 	Testfuel\TestCase\BaseTestCase;
 
@@ -38,7 +38,8 @@ class FilterSpecTest extends BaseTestCase
 			
 		);
 		$spec = $this->createFilterSpec($data);
-		$this->assertInstanceOf('Appfuel\Validate\FilterSpecInterface', $spec);
+		$interface = 'Appfuel\Validate\Filter\FilterSpecInterface';
+		$this->assertInstanceOf($interface, $spec);
 		$this->assertEquals($data['name'], $spec->getName());
 		$this->assertNull($spec->getError());
 		$this->assertInstanceOf(

@@ -51,7 +51,7 @@ class FieldSpecTest extends BaseTestCase
 		$this->assertEquals(1, count($filters));
 		
 		$filter = current($filters);
-		$this->assertInstanceOf('Appfuel\Validate\FilterSpec', $filter);
+		$this->assertInstanceOf('Appfuel\Validate\Filter\FilterSpec', $filter);
 		return $data;
 	}
 

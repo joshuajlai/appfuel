@@ -11,7 +11,8 @@
 namespace Appfuel\Validate;
 
 use DomainException,
-	InvalidArgumentException;
+	InvalidArgumentException,
+	Appfuel\Validate\Filter\FilterSpec;
 
 /**
  * Value object used to determine how a field is validated/filtered 

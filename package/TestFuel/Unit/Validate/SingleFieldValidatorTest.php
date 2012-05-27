@@ -48,7 +48,7 @@ class SingleFieldValidatorTest extends BaseTestCase
 		$this->assertSame($validator, $validator->setField('my-field'));
 		$this->assertEquals('my-field', $validator->getField());
 
-		$this->assertNull($validator->clearField());
+		$this->assertSame($validator, $validator->clearField());
 		$this->assertNull($validator->getField());
 	}
 
@@ -64,4 +64,56 @@ class SingleFieldValidatorTest extends BaseTestCase
 		$validator = $this->createSingleFieldValidator();
 		$validator->setField($name);
 	}
+
+	/**
+	 * @test
+	 * @depends	validatorInterface
+	 * @return	SingleFieldValidator
+	 */
+	public function filters(SingleFieldValidator $validator)
+	{
+		$this->assertEquals(array(), $validator->getFilters());
+
+		$filter1 = $this->getMock("Appfuel\Validate\Filter\FilterInterface");
+		$filter2 = $this->getMock("Appfuel\Validate\Filter\FilterInterface");
+		$filter3 = $this->getMock("Appfuel\Validate\Filter\FilterInterface");
+		$this->assertSame($validator, $validator->addFilter($filter1));
+		$this->assertSame($validator, $validator->addFilter($filter2));
+		$this->assertSame($validator, $validator->addFilter($filter3));
+
+		$expected = array($filter1, $filter2, $filter3);
+		$this->assertEquals($expected, $validator->getFilters());
+
+		$this->assertSame($validator, $validator->clearFilters());
+	}
+
+	/**
+	 * @test
+	 * @depends	validatorInterface
+	 */	
+	public function error(SingleFieldValidator $validator)
+	{
+		$this->assertNull($validator->getError());
+		$this->assertSame($validator, $validator->setError('my error text'));
+		$this->assertEquals('my error text', $validator->getError());
+
+		$this->assertSame($validator, $validator->clearError());
+		$this->assertNull($validator->getError());
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStrings
+	 * @return			null
+	 */
+	public function errorFailure($text)
+	{
+		$msg = 'error text must be a string';
+		$this->setExpectedException('InvalidArgumentException', $msg);
+		$validator = $this->createSingleFieldValidator();
+		$validator->setError($text);
+	}
+
+
+
 }
