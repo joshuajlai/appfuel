@@ -37,6 +37,14 @@ class ValidationFilter implements FilterInterface
 	protected $error = null;
 
 	/**
+	 * Since the default value can be anything we use the failure token as
+	 * a way to determine when it has been set
+	 *
+	 * @var mixed
+	 */
+	protected $default = FilterInterface::DEFAULT_NOT_SET;
+	
+	/**
 	 * @param	FilterSpecInterface $spec
 	 * @return	ValidationFilter
 	 */
@@ -89,6 +97,52 @@ class ValidationFilter implements FilterInterface
 	}
 
 	/**
+	 * @return	mixed
+	 */
+	public function getDefault()
+	{
+		return $this->default;
+	}
+
+	/**
+	 * @param	mixed	$value
+	 * @return	ValidationFilter
+	 */
+	public function setDefault($value)
+	{
+		$this->default = $value;
+		return $this;
+	}
+
+	/**
+	 * We use the a unique token which is replace when set, to determine
+	 * if the default value has be set
+	 *
+	 * @return	bool
+	 */
+	public function isDefault()
+	{
+		return $this->default !== $this->getDefaultNotSetToken();
+	}
+
+	/**
+	 * @return	ValidationFilter
+	 */
+	public function clearDefault()
+	{
+		$this->default = $this->getDefaultNotSetToken();
+		return $this;
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getDefaultNotSetToken()
+	{
+		return FilterInterface::DEFAULT_NOT_SET;
+	}
+
+	/**
 	 * @return	DictionaryInterface
 	 */
 	public function getOptions()
@@ -103,6 +157,9 @@ class ValidationFilter implements FilterInterface
 	public function setOptions(DictionaryInterface $options)
 	{
 		$this->options = $options;
+
+		$default = $options->get('default', $this->getDefaultNotSetToken());
+		$this->setDefault($default);
 		return $this;
 	}
 	
@@ -179,6 +236,23 @@ class ValidationFilter implements FilterInterface
 	}
 
 	/**
+	 * @return	bool
+	 */
+	public function isFailure($result)
+	{
+		return $result === $this->getFailureToken();
+	}
+
+	/**
+	 * @return	mixed
+	 */
+	public function getFailure()
+	{
+		$isDefault = $this->isDefault();
+		return ($isDefault) ? $this->getDefault() : $this->getFailureToken(); 
+	}
+
+	/**
 	 * Can not have a abstract method and a defined interface. The interface 
 	 * is more important so we forego the abstract class and throw a 
 	 * LogicException instead
@@ -189,5 +263,16 @@ class ValidationFilter implements FilterInterface
 	public function filter($raw)
 	{
 		throw new LogicException("should be extended");
+	}
+
+	/**
+	 * @return	ValidationFilter
+	 */
+	public function clear()
+	{
+		$this->clearName()
+			 ->clearOptions()
+			 ->clearDefault()
+			 ->clearError();
 	}
 }

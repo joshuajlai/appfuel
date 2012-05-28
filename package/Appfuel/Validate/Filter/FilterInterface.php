@@ -20,6 +20,11 @@ interface FilterInterface
 	 */
 	const FAILURE = '__AF_FILTER_FAILURE__';
 
+	/**
+	 * Unique key used to indicate the default value has not been set
+	 */
+	const DEFAULT_NOT_SET = '__AF_DEFAULT_NOT_SET__';
+
     /**
      * @return mixed | special token string on failure
      */

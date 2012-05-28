@@ -22,18 +22,17 @@ class IntFilter extends ValidationFilter
 	 */	
 	public function filter($raw)
 	{
-		$fail  = $this->getFailureToken();
-		$clean = $this->filterVar($raw, $fail);
-		if ($fail === $clean) {
-			return $fail;
+		$clean = $this->filterVar($raw);
+		if ($this->isFailure($clean)) {
+			return $this->getFailure();
 		} 
 
 		/*
 		 * implments options like in or not-in
 		 */
-		$clean = $this->filterSet($clean, $fail);
-		if ($fail === $clean) {
-			return $fail;
+		$clean = $this->filterSet($clean);
+		if ($this->isFailure($clean)) {
+			return $this->getFailure();
 		}
 
 		return $clean;
@@ -46,7 +45,7 @@ class IntFilter extends ValidationFilter
 	 * @param	string	
 	 * return	mixed
 	 */
-	public function filterVar($raw, $failToken)
+	public function filterVar($raw)
 	{
 		$opts = array();
 		if (null !== ($default = $this->getOption('default'))) {
@@ -68,22 +67,24 @@ class IntFilter extends ValidationFilter
 			$options['flags'] = FILTER_FLAG_ALLOW_HEX;
 		}
 		
-		$clean = filter_var($raw, FILTER_VALIDATE_INT, $options);
-		if (false === $clean) {
-			return $failToken;
-		}
-
-		return $clean;
+		$clean = filter_var($raw, FILTER_VALIDATE_INT, $opts);
+		
+		return (false === $clean) ? $this->getFailureToken() : $clean;
 	}
-
-	public function filterSet($raw, $failToken)
+	
+	/**
+	 * @param	mixed	$raw
+	 * @return	mixed
+	 */
+	public function filterSet($raw)
 	{
 		$set = $this->getOption('in');
 		if (is_array($set)) {
 			if (in_array($raw, $set, true)) {
 				return $raw;
 			}
-			return $failToken;
+
+			return $this->getFailureToken();
 		}
 
 		$set = $this->getOption('not-in');
@@ -91,7 +92,8 @@ class IntFilter extends ValidationFilter
 			if (! in_array($raw, $set, true)) {
 				return $raw;
 			}
-			return $failToken;
+
+			return $this->getFailureToken();
 		}
 
 		return $raw;
