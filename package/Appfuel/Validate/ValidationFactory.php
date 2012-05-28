@@ -18,7 +18,7 @@ use DomainException,
  * Holds all validators and filters. Also encapsulates create these objects
  * using a mapping system to create theme.
  */
-class ValidationManager implements ValidationManagerInterface
+class ValidationFactory implements ValidationFactoryInterface
 {
 	/**
 	 * List of key to class name mappings used to create validators
@@ -40,17 +40,9 @@ class ValidationManager implements ValidationManagerInterface
 	static protected $coordinator = null;
 
 	/**
-	 * @var array
-	 */	
-	static protected $cache = array(
-		'validator' => array(),
-		'filter'    => array()
-	);
-
-	/**
 	 * @return	string
 	 */
-	public function getCoordinatorClass()
+	static public function getCoordinatorClass()
 	{
 		return self::$coordinator;
 	}
@@ -59,7 +51,7 @@ class ValidationManager implements ValidationManagerInterface
 	 * @param	string	$class
 	 * @return	null
 	 */
-	public function setCoordinatorClass($class)
+	static public function setCoordinatorClass($class)
 	{
 		if (! is_string($class) || empty($class)) {
 			$err = "coordinator class must be a non empty string";
@@ -72,7 +64,7 @@ class ValidationManager implements ValidationManagerInterface
 	/**
 	 * @return	CoordinatorInterface
 	 */
-	public function createCoordinator()
+	static public function createCoordinator()
 	{
 		$class = self::getCoordintor();
 		if ($class) {
@@ -88,6 +80,14 @@ class ValidationManager implements ValidationManagerInterface
 		}
 
 		return $coord;
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function clearCoordinatorClass()
+	{
+		self::$coordinator = null;
 	}
 
 	/**
@@ -147,60 +147,22 @@ class ValidationManager implements ValidationManagerInterface
 	}
 
 	/**
-	 * @param	string	$key
-	 * @param	ValidatorInterface	$validator
-	 * @return	null
-	 */
-	static public function addValidatorToCache($key, ValidatorInterface $val)
-	{
-		if (! self::isValidKey($key)) {
-			$err = "validator key must be a non empty string";
-			throw new InvalidArgumentException($err);
-		}
-
-		self::$cache['validator'][$key] = $val;
-	}
-
-	/**
-	 * @param	string	$key
-	 * @return	ValidatorInterface | false
-	 */
-	static public function getValidatorFromCache($key)
-	{
-		if (! self::isValidKey($key) || 
-			! isset(self::$cache['validator'][$key])) {
-			return false;
-		}
-
-		return self::$cache['validator'][$key];
-	}
-
-	/**
-	 * @return	null
-	 */
-	static public function clearValidatorCache()
-	{
-		self::$cache['validator'] = array();
-	}
-
-	/**
 	 * @param	string $key
 	 * @return	mixed
 	 */
-	static public function getValidator($key)
+	static public function createValidator($key)
 	{
-		$validator = self::getValidatorFromCache($key);
-		if ($validator instanceof ValidatorInterface) {
-			return $validator;
-		}
-			
 		$class = self::mapValidator($key);
 		if (false === $class) {
 			$err = "validator -($key) is not mapped";
 			throw new DomainException($err);
 		}
 		$validator = new $class();
-		self::addValidatorToCache($key, $validator);
+		if (! $validator instanceof ValidatorInterface) {
+			$err  = "validator -($key, $class) must implement -(Appfuel";
+			$err .= "\Validate\ValidatorInterface)";
+			throw new DomainException($err);
+		}
 
 		return $validator;
 	}
@@ -249,60 +211,22 @@ class ValidationManager implements ValidationManagerInterface
 	}
 
 	/**
-	 * @param	string	$key
-	 * @param	ValidatorInterface	$validator
-	 * @return	null
-	 */
-	static public function addFilterToCache($key, FilterInterface $filter)
-	{
-		if (! self::isValidKey($key)) {
-			$err = "filter key must be a non empty string";
-			throw new InvalidArgumentException($err);
-		}
-
-		self::$cache['filter'][$key] = $filter;
-	}
-
-	/**
-	 * @param	string	$key
-	 * @return	ValidatorInterface | false
-	 */
-	static public function getFilterFromCache($key)
-	{
-		if (! self::isValidKey($key) ||
-			! isset(self::$cache['filter'][$key])) {
-			return false;
-		}
-
-		return self::$cache['filter'][$key];
-	}
-
-	/**
-	 * @return	null
-	 */
-	static public function clearFilterCache()
-	{
-		self::$cache['filter'] = array();
-	}
-
-	/**
 	 * @param	string $key
 	 * @return	mixed
 	 */
-	static public function getFilter($key)
+	static public function createFilter($key)
 	{
-		$filter = self::getFilterFromCache($key);
-		if ($filter instanceof FilterInterface) {
-			return $filter;
-		}
-			
 		$class = self::mapFilter($key);
 		if (false === $class) {
 			$err = "filter -($key) is not mapped";
 			throw new DomainException($err);
 		}
 		$filter = new $class();
-		self::addFilterToCache($key, $filter);
+		if (! $filter instanceof FilterInterface) {
+			$err  = "filter -($key, $class) must implement -(Appfuel\Validate";
+			$err .= "\Filter\FilterInterface)";
+			throw new DomainException($err);
+		}
 
 		return $filter;
 	}
@@ -325,10 +249,9 @@ class ValidationManager implements ValidationManagerInterface
 	 */
 	static public function clear()
 	{
+		self::clearCoordinatorClass();
 		self::clearValidatorMap();
-		self::clearValidatorCache();
 		self::clearFilterMap();
-		self::clearFilterCache();
 	}
 
 	/**

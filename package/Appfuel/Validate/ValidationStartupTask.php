@@ -50,11 +50,15 @@ class ValidationStartupTask extends StartupTask
 		
 		$map = $reader->import();
 		if (isset($map['validators']) && is_array($map['validators'])) {
-			ValidationManager::setValidatorMap($map['validators']);
+			ValidationFactory::setValidatorMap($map['validators']);
 		}
 
 		if (isset($map['filters']) && is_array($map['filters'])) {
-			ValidationManager::setFilterMap($map['filters']);
+			ValidationFactory::setFilterMap($map['filters']);
+		}
+
+		if (isset($map['coordinator'])) {
+			ValidationFactory::setCoordinatorClass($map['coordinator']);
 		}
 		
     }

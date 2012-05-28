@@ -13,6 +13,7 @@ namespace Testfuel\Unit\Validate\Filter;
 use StdClass,
 	Testfuel\TestCase\BaseTestCase,
 	Appfuel\DataStructure\Dictionary,
+	Appfuel\Validate\Filter\FilterSpec,
 	Appfuel\Validate\Filter\FilterInterface,
 	Appfuel\Validate\Filter\ValidationFilter;
 
@@ -180,6 +181,26 @@ class ValidationFilterTest extends BaseTestCase
 			FilterInterface::FAILURE, 
 			$filter->getFailureToken()
 		);
+	}
+
+	/**
+	 * @test
+	 * @depends	filterInterface
+	 * @return	null
+	 */
+	public function loadSpec(ValidationFilter $filter)
+	{
+		$data = array(
+			'name'    => 'int',
+			'options' => array(
+				'min' => 100,
+				'max' => 200
+			),
+			'error' => 'this is an error'
+		);
+		$spec = new FilterSpec($data);
+		$this->assertSame($filter, $filter->loadSpec($spec));
+		$this->assertEquals('int', $filter->getName());
 	}
 
 }
