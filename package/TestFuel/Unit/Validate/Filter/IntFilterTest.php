@@ -314,69 +314,23 @@ class IntFilterTest extends BaseTestCase
 	}
 
 	/**
-	 * @return null
+	 * @test
+	 * @depends	validationFilter
+	 * @return	null
 	 */
-	public function estOptionAllowOctalWithDefault()
+	public function filterAllowHex(IntFilter $filter)
 	{
-		$params = new Dictionary(
-			array('allow-octal' => true,'default' => 0755)
-		);
-
-		$raw = '0889';
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals(0755, $result);
-
-		$raw = 0555;
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals($raw, $result);
-	}
-
-	/**
-	 * @return null
-	 */
-	public function estOptionAllowHex()
-	{
-		$params = new Dictionary(array('allow-hex' => true));
-		$raw    = 0xfff;
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals($raw, $result);
-
-		$raw    = 0xABC;
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals($raw, $result);
-
-		$raw    = 0x123;
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals($raw, $result);
-
-		$raw    = 0xddd;
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals($raw, $result);
-
-		$raw    = 0x000;
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals($raw, $result);
-
-		$raw    = 0xffffff;
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals($raw, $result);
-
-		$raw    = 0x12345;
-		$result = $this->filter->filter($raw, $params);
-		$this->assertEquals($raw, $result);
-
-		$raw    = 0x2;
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals($raw, $result);
+		$options = new Dictionary(array('allow-hex' => true));
+		$filter->setOptions($options);
+		
+		$this->assertEquals(0xfff, $filter->filter(0xfff));
+		$this->assertEquals(0xABC, $filter->filter(0xabc));
+		$this->assertEquals(0x123, $filter->filter(0x123));
+		$this->assertEquals(0xddd, $filter->filter(0xddd));
+		$this->assertEquals(0x000, $filter->filter(0x000));
+		$this->assertEquals(0xffffff, $filter->filter(0xffffff));
+		$this->assertEquals(0x12345, $filter->filter(0x12345));
+		$this->assertEquals(0x2, $filter->filter(0x2));
 
 		/* 
 		 * php wont hold an invalid hex. it silently trucates the digits
@@ -384,33 +338,7 @@ class IntFilterTest extends BaseTestCase
 		 * the full incorrect integer into the filter
 		 */
 		$raw = '0xjjj';	
-		$result = $this->filter->filter($raw, $params);
-		$this->assertTrue($this->filter->isFailure());
-		$this->assertNull($result);
-	}
-
-	/**
-	 * @return null
-	 */
-	public function estOptionAllowDefaultWithDefault()
-	{
-		$params = new Dictionary(
-			array('allow-hex' => true,'default' => 0x123)
-		);
-
-		$raw = '0889';
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals(0x123, $result);
-
-		$raw = '0xjjzz';
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals(0x123, $result);
-
-		$raw = 0xfff;
-		$result = $this->filter->filter($raw, $params);
-		$this->assertFalse($this->filter->isFailure());
-		$this->assertEquals(0xfff, $result);
+		$fail = $filter->getFailureToken();
+		$this->assertEquals($fail, $filter->filter($raw));
 	}
 }
