@@ -21,7 +21,6 @@ class EmailFilter extends ValidationFilter
 	 */	
 	public function filter($raw)
 	{
-		$this->clearFailure();
 		$options = array('options' => array());
 		if ($this->isDefault()) {
 			$options['options']['default'] = $this->getDefault();

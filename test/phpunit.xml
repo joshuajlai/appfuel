@@ -34,6 +34,7 @@
 	<file>../package/Testfuel/Unit/Validate/Filter/ValidationFilterTest.php</file>
 	<file>../package/Testfuel/Unit/Validate/Filter/IntFilterTest.php</file>
 	<file>../package/Testfuel/Unit/Validate/Filter/BoolFilterTest.php</file>
+	<file>../package/Testfuel/Unit/Validate/Filter/EmailFilterTest.php</file>
 	
 	<file>../package/TestFuel/Unit/Filesystem/FileFinderTest.php</file>
 	<file>../package/TestFuel/Unit/Html/Resource/PkgTest.php</file>
