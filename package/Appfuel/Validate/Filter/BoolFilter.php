@@ -10,7 +10,6 @@
  */
 namespace Appfuel\Validate\Filter;
 
-
 /**
  * Filters bool values: 
  * true is considered "1", "on" and "yes", true, 1
@@ -42,6 +41,12 @@ class BoolFilter extends ValidationFilter
 		return $clean;
 	}
 
+	/**
+	 * uses php's filter_var to clean boolean values
+	 *
+	 * @param	mixed	$raw
+	 * @return	bool | string
+	 */
 	protected function filterVar($raw)
 	{
 		if (is_bool($raw)) {
@@ -62,6 +67,8 @@ class BoolFilter extends ValidationFilter
 	}
 
 	/**
+	 * Allows for a custom map of true and false values
+     *
 	 * @param	mixed	$raw	
 	 * @param	array	$map
 	 * @return	mixed

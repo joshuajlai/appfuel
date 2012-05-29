@@ -4,55 +4,48 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Validate\Filter\PHPFilter;
-
-use Appfuel\Validate\Filter\ValidateFilter,
-	Appfuel\DataStructure\DictionaryInterface;
+namespace Appfuel\Validate\Filter;
 
 /**
  * Filters ip values: 
  */
-class IpFilter extends ValidateFilter
+class IpFilter extends ValidationFilter
 {
 	/**
-	 * @param	mixed				$raw	input to filter
-	 * @param	DictionaryInteface	$params		used to control filtering
-	 * @return	mixed | failedFilterToken 
+	 * @param	mixed	$raw
+	 * @return	mixed 
 	 */	
-	public function filter($raw, DictionaryInterface $params)
+	public function filter($raw)
 	{
-		$this->clearFailure();
-		$default = $params->get('default', null);
 		$options = array('options' => array());
-		if (null !== $default) {
-			$options['options']['default'] = $default;
+		if ($this->isDefault()) {
+			$options['options']['default'] = $this->getDefault();
 		}
 		
-		if ($params->get('ipv4', false)) {
+		if ($this->getOption('ipv4', false)) {
 			$options['flags'] = FILTER_FLAG_IPV4;
 		}
 
-		if ($params->get('ipv6', false)) {
+		if ($this->getOption('ipv6', false)) {
 			$options['flags'] = FILTER_FLAG_IPV6;
 		}
 
-		if ($params->get('no-private-ranges', false)) {
+		if ($this->getOption('no-private-ranges', false)) {
 			$options['flags'] = FILTER_FLAG_NO_PRIV_RANGE;
 		}
 
-		if ($params->get('no-reserved-ranges', false)) {
+		if ($this->getOption('no-reserved-ranges', false)) {
 			$options['flags'] = FILTER_FLAG_NO_RES_RANGE;
 		}
 
 		$result = filter_var($raw, FILTER_VALIDATE_IP, $options);
 
 		if (! $result) {
-			$this->enableFailure();
-			return null;
+			$result = $this->getFailureToken();
 		}
 
 		return $result;

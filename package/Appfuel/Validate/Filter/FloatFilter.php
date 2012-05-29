@@ -4,33 +4,29 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Validate\Filter\PHPFilter;
-
-use Appfuel\Validate\Filter\ValidateFilter,
-	Appfuel\DataStructure\DictionaryInterface;
+namespace Appfuel\Validate\Filter;
 
 /**
  * Validate floating point numbers with native php filter_var function
  */
-class FloatFilter extends ValidateFilter
+class FloatFilter extends ValidationFilter
 {
 	/**
-	 * @return	string
+	 * @param	mixed	$raw
+	 * @return	mixed
 	 */	
-	public function filter($raw, DictionaryInterface $params)
+	public function filter($raw)
 	{
-		$this->clearFailure();
-		$default = $params->get('default', null);
 		$options = array('options' => array());
-		if (null !== $default) {
-			$options['options']['default'] = $default;
+		if ($this->isDefault()) {
+			$options['options']['default'] = $this->getDefault();
 		}
 
-		$decimal = $params->get('decimal-sep', false);
+		$decimal = $this->getOption('decimal-sep', false);
 		if (is_string($decimal) && ! empty($decimal)) {
 			$options['options']['decimal'] = $decimal;
 		}
@@ -38,24 +34,23 @@ class FloatFilter extends ValidateFilter
 		/*
 		 * allow the use of thousand marker
 		 */
-		if ($params->get('allow-thousands', false)) {
+		if ($this->getOption('allow-thousands', false)) {
 			$options['flags'] = FILTER_FLAG_ALLOW_THOUSAND;
 		}
 
 		/* will bitwise or the flag if it exists */
-		if ($params->get('allow-fractions', false)) {
-			if (! isset($options['flag'])) {
+		if ($this->getOption('allow-fractions', false)) {
+			if (! isset($options['flags'])) {
 				$options['flags'] = FILTER_FLAG_ALLOW_FRACTION;
 			}
 			else {
-				$options['flag'] |= FILTER_FLAG_ALLOW_FRACTION;
+				$options['flags'] |= FILTER_FLAG_ALLOW_FRACTION;
 			}
 		}
 		
 		$result = filter_var($raw, FILTER_VALIDATE_FLOAT, $options);
 		if (false === $result) {
-			$this->enableFailure();
-			return null;
+			$result = $this->getFailureToken();
 		}
 
 		return $result;

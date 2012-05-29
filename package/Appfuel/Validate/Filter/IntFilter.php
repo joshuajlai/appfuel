@@ -10,8 +10,6 @@
  */
 namespace Appfuel\Validate\Filter;
 
-use Appfuel\DataStructure\DictionaryInterface;
-
 /**
  * Create the filter from the name given. In this case the 
  */
@@ -37,7 +35,6 @@ class IntFilter extends ValidationFilter
 
 		return $clean;
 	}
-
 
 	/**
 	 * Use php filter_var for basic validation

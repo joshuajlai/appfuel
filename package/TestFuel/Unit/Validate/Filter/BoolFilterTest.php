@@ -206,7 +206,7 @@ class BoolFilterTest extends FilterBaseTest
 	 * @depends	filterInterface
 	 * @return	null
 	 */
-	public function filterCustomMapTrueNotMapped(BoolFilter $filter)
+	public function filterStrictCustomMapTrueNotMapped(BoolFilter $filter)
 	{
 		$options = $this->createOptions(array(
 			'strict' => true,
@@ -219,6 +219,31 @@ class BoolFilterTest extends FilterBaseTest
 		$fail = $filter->getFailureToken();
 		$this->assertEquals($fail, $filter->filter('first-truth'));
 		$this->assertEquals($fail, $filter->filter('second-truth'));
+		$this->assertEquals($fail, $filter->filter('some-other-value'));
+	}
+
+	/**
+	 * No false values will match because no false map was found
+	 * @test
+	 * @depends	filterInterface
+	 * @return	null
+	 */
+	public function filterStrictCustomMapFalseNotMapped(BoolFilter $filter)
+	{
+		$options = $this->createOptions(array(
+			'strict' => true,
+			'map' => array(
+				'true'  => array('first-truth', 'second-truth'),
+				'worng-false-key' => array('my-false', 'your-false')
+			),
+		));
+		$filter->setOptions($options);
+
+		$fail = $filter->getFailureToken();
+		$this->assertTrue($filter->filter('first-truth'));
+		$this->assertTrue($filter->filter('second-truth'));
+		$this->assertEquals($fail, $filter->filter('my-false'));
+		$this->assertEquals($fail, $filter->filter('your-false'));
 		$this->assertEquals($fail, $filter->filter('some-other-value'));
 	}
 }
