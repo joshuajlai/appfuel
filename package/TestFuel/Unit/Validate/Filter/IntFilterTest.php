@@ -11,20 +11,18 @@
 namespace TestFuel\Unit\Validate\Filter;
 
 use StdClass,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\DataStructure\Dictionary,
 	Appfuel\Validate\Filter\IntFilter;
 
 /**
  * Test the controller's ability to add rules or filters to fields and 
  * validate or sanitize those fields
  */
-class IntFilterTest extends BaseTestCase
+class IntFilterTest extends FilterBaseTest
 {
 	/**
 	 * @return	IntFilter
 	 */
-	public function createIntFilter()
+	public function createFilter()
 	{
 		return new IntFilter();
 	}
@@ -78,15 +76,9 @@ class IntFilterTest extends BaseTestCase
 	 * @test
 	 * @return	IntFilter
 	 */
-	public function validationFilter()
+	public function filterInterface()
 	{
-		$filter = $this->createIntFilter();
-		$interface = 'Appfuel\Validate\Filter\FilterInterface';
-		$parent = 'Appfuel\Validate\Filter\ValidationFilter';
-		$this->assertInstanceof($interface, $filter);
-		$this->assertInstanceof($parent, $filter);
-
-		return $filter;
+		return parent::filterInterface();
 	}
 	
 	/**
@@ -96,7 +88,7 @@ class IntFilterTest extends BaseTestCase
 	 */
 	public function filterWithNoOptions($int)
 	{
-		$filter = $this->createIntFilter();
+		$filter = $this->createFilter();
 		$result = $filter->filter($int);
 		$this->assertEquals($int, $result);
 	}
@@ -108,7 +100,7 @@ class IntFilterTest extends BaseTestCase
 	 */
 	public function filterInvalidWithNoOptions($int)
 	{
-		$filter = $this->createIntFilter();
+		$filter = $this->createFilter();
 		$result = $filter->filter($int);
 		$this->assertEquals($filter->getFailureToken(), $result);
 	}
@@ -120,19 +112,19 @@ class IntFilterTest extends BaseTestCase
 	 */
 	public function filterCastableWithNoOptions($raw, $expected)
 	{
-		$filter = $this->createIntFilter();
+		$filter = $this->createFilter();
 		$result = $filter->filter($raw);
 		$this->assertEquals($expected, $result);
 	}
 	
 	/**
 	 * @test
-	 * @depends	validationFilter
+	 * @depends	filterInterface
 	 * @return null
 	 */
 	public function filterRangeMin(IntFilter $filter)
 	{
-		$opts = new Dictionary(array('min'=>2));
+		$opts = $this->createOptions(array('min'=>2));
 		$filter->setOptions($opts);
 
 		$this->assertEquals(2, $filter->filter(2));
@@ -150,12 +142,12 @@ class IntFilterTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @depends	validationFilter
+	 * @depends	filterInterface
 	 * @return null
 	 */
 	public function filterRangeMax(IntFilter $filter)
 	{
-		$opts = new Dictionary(array('max' => 10));
+		$opts = $this->createOptions(array('max' => 10));
 		$filter->setOptions($opts);
 
 		$this->assertEquals(0, $filter->filter(0));
@@ -174,12 +166,12 @@ class IntFilterTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @depends	validationFilter
+	 * @depends	filterInterface
 	 * @return null
 	 */
 	public function filterRangeMinMax(IntFilter $filter)
 	{
-		$opts = new Dictionary(array('min' => 8, 'max' => 10));
+		$opts = $this->createOptions(array('min' => 8, 'max' => 10));
 		$filter->setOptions($opts);
 
 		$this->assertEquals(8, $filter->filter(8));
@@ -197,13 +189,13 @@ class IntFilterTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @depends	validationFilter
+	 * @depends	filterInterface
 	 * @return	null
 	 */
 	public function filterWithDefault(IntFilter $filter)
 	{
 		$default = 22;
-		$opts = new Dictionary(array(
+		$opts = $this->createOptions(array(
 			'default' => $default,
 			'min'     => 22,
 			'max'	  => 24,
@@ -227,12 +219,12 @@ class IntFilterTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @depends	validationFilter
+	 * @depends	filterInterface
 	 * @return	null
 	 */
 	public function filterWithIn(IntFilter $filter)
 	{
-		$opts = new Dictionary(array(
+		$opts = $this->createOptions(array(
 			'in' => array(99, 44, 33),
 		));
 		$filter->setOptions($opts);
@@ -256,12 +248,12 @@ class IntFilterTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @depends	validationFilter
+	 * @depends	filterInterface
 	 * @return	null
 	 */
 	public function filterWithNotIn(IntFilter $filter)
 	{
-		$opts = new Dictionary(array(
+		$opts = $this->createOptions(array(
 			'not-in' => array(99, 44, 33),
 		));
 		$filter->setOptions($opts);
@@ -286,12 +278,12 @@ class IntFilterTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @depends	validationFilter
+	 * @depends	filterInterface
 	 * @return	null
 	 */
 	public function filterAllowOctal(IntFilter $filter)
 	{
-		$options = new Dictionary(array('allow-octal' => true));
+		$options = $this->createOptions(array('allow-octal' => true));
 		$filter->setOptions($options);
 
 		$this->assertEquals(0,  $filter->filter(0));
@@ -315,12 +307,12 @@ class IntFilterTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @depends	validationFilter
+	 * @depends	filterInterface
 	 * @return	null
 	 */
 	public function filterAllowHex(IntFilter $filter)
 	{
-		$options = new Dictionary(array('allow-hex' => true));
+		$options = $this->createOptions(array('allow-hex' => true));
 		$filter->setOptions($options);
 		
 		$this->assertEquals(0xfff, $filter->filter(0xfff));

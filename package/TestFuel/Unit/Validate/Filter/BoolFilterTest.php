@@ -11,31 +11,20 @@
 namespace TestFuel\Unit\Validate\Filter;
 
 use StdClass,
-	TestFuel\TestCase\BaseTestCase,
-	Appfuel\DataStructure\Dictionary,
 	Appfuel\Validate\Filter\BoolFilter;
 
 /**
  * Test bool filter which wraps php filter var
  */
-class BoolFilterTest extends BaseTestCase
+class BoolFilterTest extends FilterBaseTest
 {
 
 	/**
 	 * @return	BoolFilter
 	 */
-	public function createBoolFilter()
+	public function createFilter()
 	{
 		return new BoolFilter();
-	}
-
-	/**
-	 * @param	array	$data
-	 * @return	Dictionary
-	 */
-	public function createOptions(array $data)
-	{
-		return new Dictionary($data);
 	}
 
 	/**
@@ -103,14 +92,7 @@ class BoolFilterTest extends BaseTestCase
 	 */
 	public function filterInterface()
 	{
-		$filter = $this->createBoolFilter();
-		$interface = 'Appfuel\Validate\Filter\FilterInterface';
-		$parent    = 'Appfuel\Validate\Filter\ValidationFilter';
-
-		$this->assertInstanceOf($interface, $filter);
-		$this->assertInstanceOf($parent, $filter);
-
-		return $filter;
+		return parent::filterInterface();
 	}
 
 	/**
@@ -123,7 +105,7 @@ class BoolFilterTest extends BaseTestCase
 	 */
 	public function filterWithOnlyTrue($raw)
 	{
-		$filter = $this->createBoolFilter();
+		$filter = $this->createFilter();
 		$this->assertTrue($filter->filter($raw));
 	}
 
@@ -136,7 +118,7 @@ class BoolFilterTest extends BaseTestCase
 	 */
 	public function filterWithNonTrueValues($raw)
 	{
-		$filter = $this->createBoolFilter();
+		$filter = $this->createFilter();
 		$this->assertFalse($filter->filter($raw));
 	}
 
@@ -150,7 +132,7 @@ class BoolFilterTest extends BaseTestCase
 	public function filterTrueWithStrictTrue($raw)
 	{
 		$options = $this->createOptions(array('strict' => true));
-		$filter = $this->createBoolFilter();
+		$filter = $this->createFilter();
 		$filter->setOptions($options);
 	
 		$this->assertTrue($filter->filter($raw));
@@ -166,7 +148,7 @@ class BoolFilterTest extends BaseTestCase
 	public function filterFalseWithStrict($raw)
 	{
 		$options = $this->createOptions(array('strict' => true));
-		$filter  = $this->createBoolFilter();
+		$filter  = $this->createFilter();
 		$filter->setOptions($options);
 
 		$this->assertFalse($filter->filter($raw));
@@ -239,7 +221,4 @@ class BoolFilterTest extends BaseTestCase
 		$this->assertEquals($fail, $filter->filter('second-truth'));
 		$this->assertEquals($fail, $filter->filter('some-other-value'));
 	}
-
-
-
 }
