@@ -4,14 +4,12 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace Appfuel\Validate\Filter\PHPFilter;
+namespace Appfuel\Validate\Filter;
 
-use Appfuel\Validate\Filter\ValidateFilter,
-	Appfuel\DataStructure\DictionaryInterface;
 
 /**
  * Filters bool values: 
@@ -20,34 +18,79 @@ use Appfuel\Validate\Filter\ValidateFilter,
  * false is "0", "off", "no" and "" and failure token is returned for all
  * other values not true or false.
  */
-class BoolFilter extends ValidateFilter
+class BoolFilter extends ValidationFilter
 {
 	/**
-	 * @param	mixed				$raw	input to filter
-	 * @param	DictionaryInteface	$params		used to control filtering
-	 * @return	mixed | failedFilterToken 
+	 * @param	mixed	$raw	input to filter
+	 * @return	mixed
 	 */	
-	public function filter($raw, DictionaryInterface $params)
+	public function filter($raw)
 	{
-		$this->clearFailure();
 
-		$default = $params->get('default', null);
-		$options = array('options' => array());
-		if (null !== $default) {
-			$options['options']['default'] = $default;
+		$map = $this->getOption('map');
+		if (is_array($map) && ! empty($map)) {
+			$clean = $this->filterMap($raw, $map);
+		}
+		else {
+			$clean = $this->filterVar($raw);
+		}
+
+		if ($this->isFailure($clean)) {
+			return $this->getFailure();
+		}
+
+		return $clean;
+	}
+
+	protected function filterVar($raw)
+	{
+		if (is_bool($raw)) {
+			return $raw;
+		}
+
+		$opts = array('options' => array());
+		if ($this->isDefault()) {
+			$opts['options']['default'] = $this->getDefault();
 		}
 		
-		if ($params->get('strict', false)) {
-			$options['flags'] = FILTER_NULL_ON_FAILURE;
+		if (true === $this->getOption('strict', false)) {
+			$opts['flags'] = FILTER_NULL_ON_FAILURE;
 		}
 
-		$result = filter_var($raw, FILTER_VALIDATE_BOOLEAN, $options);
+		$clean = filter_var($raw, FILTER_VALIDATE_BOOLEAN, $opts);
+		return (null === $clean) ? $this->getFailureToken() : $clean;
+	}
 
-		if (null === $result) {
-			$this->enableFailure();
-			return null;
+	/**
+	 * @param	mixed	$raw	
+	 * @param	array	$map
+	 * @return	mixed
+	 */
+	protected function filterMap($raw, array $map)
+	{
+		if (! isset($map['true']) || ! is_array($map['true'])) {
+			return $this->getFailureToken();
+		}
+		$truthy = $map['true'];
+
+		if (in_array($raw, $truthy, true)) {
+			return true;
+		}
+		
+		$isStrict = $this->getOption('strict', false);
+		if (! $isStrict) {
+			return false;
 		}
 
-		return $result;
+		if (! isset($map['false']) || ! is_array($map['false'])) {
+			return $this->getFailureToken();
+		}
+		$falsey = $map['false'];
+		
+		if (in_array($raw, $falsey, true)) {
+			return false;
+		}
+
+		return $this->getFailureToken();
 	}
 }
