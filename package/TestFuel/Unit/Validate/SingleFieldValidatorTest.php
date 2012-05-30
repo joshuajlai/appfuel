@@ -12,10 +12,40 @@ namespace Testfuel\Unit\Validate;
 
 use StdClass,
 	Testfuel\TestCase\BaseTestCase,
+	Appfuel\Validate\FieldSpec,
+	Appfuel\Validate\ValidationFactory,
 	Appfuel\Validate\SingleFieldValidator;
 
 class SingleFieldValidatorTest extends BaseTestCase
 {
+    /**
+     * @var array
+     */
+    protected $validatorMapBk = array();
+
+    /**
+     * @var array
+     */
+    protected $filterMapBk = array();
+
+
+    /**
+     * @return  null
+     */
+    public function setUp()
+    {
+        $this->validatorMapBk = ValidationFactory::getValidatorMap();
+        $this->filterMapBk = ValidationFactory::getFilterMap();
+        ValidationFactory::clear();
+    }
+
+    public function tearDown()
+    {
+        ValidationFactory::clear();
+        ValidationFactory::setValidatorMap($this->validatorMapBk);
+        ValidationFactory::setFilterMap($this->filterMapBk);
+    }
+
 	/**
 	 * @param	array	$data
 	 * @return	SingleFieldValidator
@@ -114,6 +144,50 @@ class SingleFieldValidatorTest extends BaseTestCase
 		$validator->setError($text);
 	}
 
+	/**
+	 * @test
+	 * @depends	validatorInterface
+	 * @return null
+	 */
+	public function loadSpec(SingleFieldValidator $validator)
+	{
+		$map = array(
+			'int' => 'Appfuel\Validate\Filter\IntFilter'
+		);
+		ValidationFactory::setFilterMap($map);
 
+		$data = array(
+			'field' => 'my-field',
+			'filters' => array(
+				'int' => array(
+					'options' => array(
+						'max' => 100,
+						'min' => 1,
+					),
+					'error' => 'integer failed',
+				),
+			),
+			'error' => 'my field errors:',
+		);
+		$spec = new FieldSpec($data);
+		$this->assertSame($validator, $validator->loadSpec($spec));
+		$this->assertEquals($data['field'], $validator->getField());
+		
+		$filters = $validator->getFilters();
+		$this->assertInternalType('array', $filters);
+		$this->assertEquals(1, count($filters));
+
+		$filter = current($filters);
+		$this->assertInstanceOf('Appfuel\Validate\Filter\IntFilter', $filter);
+		$this->assertEquals('int', $filter->getName());
+		$this->assertEquals('integer failed', $filter->getError());
+		
+		$options = $filter->getOptions();
+		$this->assertInstanceof('Appfuel\DataStructure\Dictionary', $options);
+		$this->assertEquals(100, $options->get('max'));
+		$this->assertEquals(1, $options->get('min'));
+
+		$this->assertEquals('my field errors:', $validator->getError());
+	}
 
 }

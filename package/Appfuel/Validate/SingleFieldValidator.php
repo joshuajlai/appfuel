@@ -15,6 +15,8 @@ use InvalidArgumentException,
 	Appfuel\Validate\FieldValidatorInterface;
 
 /**
+ * Validate that a single field will pass successfully through one or more 
+ * filters.
  */
 class SingleFieldValidator implements SingleFieldValidatorInterface
 {
@@ -131,13 +133,13 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 	 * @param	SingleFieldSpecInterface $spec
 	 * @return	SingleFieldValidator
 	 */
-	public function loadSpec(SingleFieldSpecInterface $spec)
+	public function loadSpec(FieldSpecInterface $spec)
 	{
 		$this->setField($spec->getField());
 		
 		$filters = $spec->getFilters();
 		foreach ($filters as $filterSpec) {
-			$filter = ValidationManager::getFilter($filterSpec->getName());
+			$filter = ValidationFactory::createFilter($filterSpec->getName());
 			$filter->loadSpec($filterSpec);
 			$this->addFilter($filter);
 		}
@@ -165,6 +167,7 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 		$field = $this->getField();
 		$raw = $coord->getRaw($this->getField());
 		if (CoordinatorInterface::FIELD_NOT_FOUND === $raw) {
+			$coord->addError("could not find field -($field) in source");
 			return false;
 		}
 		
@@ -174,7 +177,7 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 		$error   = (! empty($error)) ? "$error " : '';
 		foreach ($filters as $filter) {
 			$clean = $filter->filter($raw);
-			if (FilterInterface::FILTER_FAILURE === $clean) {
+			if ($filter->isFailure($clean)) {
 				$coord->addError("$error{$filter->getError()}");
 				$isError = true;
 				continue;
