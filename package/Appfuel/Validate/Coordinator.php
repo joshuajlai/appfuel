@@ -103,24 +103,11 @@ class Coordinator implements CoordinatorInterface
      * @param   mixed
      * @return  Validator
      */
-    public function setSource(array $source)
+    public function setSource($source)
     {
         $this->source = $source;
         return $this;
     }
-
-	/**
-	 * Key that is not likely to be a value in the raw data. This is used so
-	 * we can know the difference between a key that does not exist in the 
-	 * raw source and one that exists but has a value of null or false, the
-	 * values that are normally returned when a key is not found
-	 *
-	 * @return	string
-	 */
-	public function rawFieldNotFound()
-	{
-		return '___AF_FIELD_NOT_FOUND___';
-	}
 
 	/**
 	 * @param	scalar	$field
@@ -142,11 +129,19 @@ class Coordinator implements CoordinatorInterface
     public function getRaw($field)
     {
         if (! $this->isRaw($field)) {
-            return self::FIELD_NOT_FOUND;
+            return $this->getFieldNotFoundToken();
         }
 
         return $this->source[$field];
     }
+
+	/**
+	 * @return	string
+	 */
+	public function getFieldNotFoundToken()
+	{
+		return CoordinatorInterface::FIELD_NOT_FOUND;
+	}
 
     /**
 	 * @param	string	$field	the field this error is for
@@ -162,11 +157,20 @@ class Coordinator implements CoordinatorInterface
     }
 
 	/**
+	 * @return	bool
+	 */
+	public function isError()
+	{
+		return $this->getErrorStack()
+					->isError();
+	}
+
+	/**
 	 * @return	ErrorStackInterface
 	 */
 	public function getErrorStack()
 	{
-		return $this->errorStack;
+		return $this->errors;
 	}
 
 	/**
@@ -185,12 +189,11 @@ class Coordinator implements CoordinatorInterface
 	 *
 	 * @return null
 	 */	
-	public function reset()
+	public function clear()
 	{
-		$this->clean = array();
-		$this->raw   = array();
+		$this->clean  = array();
+		$this->source = array();
 		$this->getErrorStack()
 			 ->clear();
 	}
-
 }

@@ -13,6 +13,7 @@ namespace Testfuel\Unit\Validate;
 use StdClass,
 	Testfuel\TestCase\BaseTestCase,
 	Appfuel\Validate\FieldSpec,
+	Appfuel\Validate\Coordinator,
 	Appfuel\Validate\ValidationFactory,
 	Appfuel\Validate\SingleFieldValidator;
 
@@ -188,6 +189,41 @@ class SingleFieldValidatorTest extends BaseTestCase
 		$this->assertEquals(1, $options->get('min'));
 
 		$this->assertEquals('my field errors:', $validator->getError());
+
+		return $validator;
+	}
+
+	/**
+	 * @test
+	 * @depends	loadSpec
+	 * @return	SingleFieldValidator
+	 */
+	public function testIsValid(SingleFieldValidator $validator)
+	{
+		$map = array('int' => 'Appfuel\Validate\Filter\IntFilter');
+		ValidationFactory::setFilterMap($map);
+
+		$coord  = new Coordinator();
+		$source = array('my-field' => 99);
+		$coord->setSource($source);
+
+		$this->assertFalse($coord->isError());
+		$this->assertTrue($validator->isValid($coord)); 
+		$this->assertEquals(99, $coord->getClean('my-field'));
+
+		$source['my-field'] = 101;
+		$coord->clear();
+		$coord->setSource($source);
+
+		$this->assertFalse($coord->isError());
+		$this->assertFalse($validator->isValid($coord)); 
+		$this->assertTrue($coord->isError());
+
+		$error = 'my field errors: integer failed';
+		$stack = $coord->getErrorStack();
+		$this->assertInstanceOf('Appfuel\Error\ErrorStack', $stack);
+
+		$this->assertEquals($error, $stack->getMessage());
 	}
 
 }

@@ -65,7 +65,7 @@ interface CoordinatorInterface
 	 *
 	 * @return	string
 	 */
-	public function rawKeyNotFound();
+	public function getFieldNotFoundToken();
     
 	/**
 	 * @param	string	$field
@@ -82,5 +82,5 @@ interface CoordinatorInterface
     /**
      * @return string
      */
-    public function getErrors();
+    public function getErrorStack();
 }
