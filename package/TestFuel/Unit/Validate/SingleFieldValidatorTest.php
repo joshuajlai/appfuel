@@ -121,33 +121,6 @@ class SingleFieldValidatorTest extends BaseTestCase
 	/**
 	 * @test
 	 * @depends	validatorInterface
-	 */	
-	public function error(SingleFieldValidator $validator)
-	{
-		$this->assertNull($validator->getError());
-		$this->assertSame($validator, $validator->setError('my error text'));
-		$this->assertEquals('my error text', $validator->getError());
-
-		$this->assertSame($validator, $validator->clearError());
-		$this->assertNull($validator->getError());
-	}
-
-	/**
-	 * @test
-	 * @dataProvider	provideInvalidStrings
-	 * @return			null
-	 */
-	public function errorFailure($text)
-	{
-		$msg = 'error text must be a string';
-		$this->setExpectedException('InvalidArgumentException', $msg);
-		$validator = $this->createSingleFieldValidator();
-		$validator->setError($text);
-	}
-
-	/**
-	 * @test
-	 * @depends	validatorInterface
 	 * @return null
 	 */
 	public function loadSpec(SingleFieldValidator $validator)
@@ -167,8 +140,7 @@ class SingleFieldValidatorTest extends BaseTestCase
 					),
 					'error' => 'integer failed',
 				),
-			),
-			'error' => 'my field errors:',
+			)
 		);
 		$spec = new FieldSpec($data);
 		$this->assertSame($validator, $validator->loadSpec($spec));
@@ -187,8 +159,6 @@ class SingleFieldValidatorTest extends BaseTestCase
 		$this->assertInstanceof('Appfuel\DataStructure\Dictionary', $options);
 		$this->assertEquals(100, $options->get('max'));
 		$this->assertEquals(1, $options->get('min'));
-
-		$this->assertEquals('my field errors:', $validator->getError());
 
 		return $validator;
 	}
@@ -219,7 +189,7 @@ class SingleFieldValidatorTest extends BaseTestCase
 		$this->assertFalse($validator->isValid($coord)); 
 		$this->assertTrue($coord->isError());
 
-		$error = 'my field errors: integer failed';
+		$error = 'integer failed';
 		$stack = $coord->getErrorStack();
 		$this->assertInstanceOf('Appfuel\Error\ErrorStack', $stack);
 

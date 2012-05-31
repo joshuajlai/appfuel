@@ -37,6 +37,11 @@ class ValidationFilter implements FilterInterface
 	protected $error = null;
 
 	/**
+	 * @var scalar
+	 */
+	protected $errorCode = 500;
+
+	/**
 	 * Since the default value can be anything we use the failure token as
 	 * a way to determine when it has been set
 	 *
@@ -61,6 +66,9 @@ class ValidationFilter implements FilterInterface
 			$this->setError($error);
 		}
 
+		/* do not need to check because the spec has default value */
+		$this->setErrorCode($spec->getErrorCode());
+		
 		return $this;
 	}
 
@@ -224,6 +232,29 @@ class ValidationFilter implements FilterInterface
 	public function clearError()
 	{
 		$this->error = null;
+		return $this;
+	}
+
+	/**
+	 * @return	scalar
+	 */
+	public function getErrorCode()
+	{
+		return $this->errorCode;
+	}
+
+	/**
+	 * @param	scalar	$code
+	 * @return	ValidationFilter
+	 */
+	public function setErrorCode($code)
+	{
+		if (! is_scalar($code)) {
+			$err = "error code must be a scalar value";
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->errorCode = $code;
 		return $this;
 	}
 

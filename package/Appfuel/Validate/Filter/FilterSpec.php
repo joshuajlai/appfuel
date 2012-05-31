@@ -39,6 +39,11 @@ class FilterSpec implements FilterSpecInterface
 	protected $error = null;
 
 	/**
+	 * @var scalar
+	 */
+	protected $errorCode = 500;
+
+	/**
 	 * @param	array	$data
 	 * @return	FieldSpec
 	 */
@@ -58,6 +63,10 @@ class FilterSpec implements FilterSpecInterface
 
 		if (isset($data['error'])) {
 			$this->setError($data['error']);
+		}
+
+		if (isset($data['error-code'])) {
+			$this->setErrorCode($data['error-code']);
 		}
 	}
 
@@ -83,6 +92,14 @@ class FilterSpec implements FilterSpecInterface
 	public function getError()
 	{
 		return $this->error;
+	}
+
+	/**
+	 * @return	scalar
+	 */
+	public function getErrorCode()
+	{
+		return $this->errorCode;
 	}
 
 	/**
@@ -128,5 +145,19 @@ class FilterSpec implements FilterSpecInterface
 		}
 		
 		$this->error = $text;
+	}
+
+	/**
+	 * @param	scalar	$code
+	 * @return	null
+	 */
+	protected function setErrorCode($code)
+	{
+		if (! is_scalar($code)) {
+			$err = "error code must be a scalar value";
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->errorCode = $code;
 	}
 }

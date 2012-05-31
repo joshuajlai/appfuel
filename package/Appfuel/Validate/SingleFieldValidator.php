@@ -34,11 +34,6 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 	protected $filters = array();
 
 	/**
-	 * @var string
-	 */
-	protected $error = null;
-
-	/**
 	 * @return	string
 	 */
 	public function getField()
@@ -98,38 +93,6 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 	}
 
 	/**
-	 * @return	string
-	 */
-	public function getError()
-	{
-		return $this->error;
-	}
-
-	/**
-	 * @param	string	$text
-	 * @return	SingleFieldValidator
-	 */
-	public function setError($text)
-	{
-		if (! is_string($text)) {
-			$err = "error text must be a string";
-			throw new InvalidArgumentException($err);
-		}
-
-		$this->error = $text;
-		return $this;
-	}
-
-	/**
-	 * @return	SingleFieldValidator
-	 */
-	public function clearError()
-	{
-		$this->error = null;
-		return $this;
-	}
-
-	/**
 	 * @param	SingleFieldSpecInterface $spec
 	 * @return	SingleFieldValidator
 	 */
@@ -173,12 +136,10 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 		
 		$isError = false;
 		$filters = $this->getFilters();
-		$error   = $this->getError();
-		$error   = (! empty($error)) ? "$error " : '';
 		foreach ($filters as $filter) {
 			$clean = $filter->filter($raw);
 			if ($filter->isFailure($clean)) {
-				$coord->addError("$error{$filter->getError()}");
+				$coord->addError($filter->getError(), $filter->getErrorCode());
 				$isError = true;
 				continue;
 			}
@@ -204,6 +165,5 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 	{
 		$this->clearField();
 		$this->clearFilters();
-		$this->clearError();
 	}
 }
