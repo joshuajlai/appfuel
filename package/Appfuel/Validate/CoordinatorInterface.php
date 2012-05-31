@@ -4,8 +4,8 @@
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
  * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
+ * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license		http://www.apache.org/licenses/LICENSE-2.0
  */
 namespace Appfuel\Validate;
@@ -31,7 +31,7 @@ interface CoordinatorInterface
     /**
      * @param   string  $label
      * @param   mixed   $value
-     * @return  Coordinator
+     * @return  CoordinatorInterface
      */
     public function addClean($field, $value);
 
@@ -42,22 +42,32 @@ interface CoordinatorInterface
      */
     public function getClean($field, $default = null);
 
+	/**
+	 * @return	CoordinatorInterface
+	 */
+	public function clearClean();
+
     /**
      * @return array
      */
     public function getSource();
 
     /**
-     * @param   mixed
-     * @return  Validator
+     * @param   array	$source
+     * @return  CoordinatorInterface
      */
-    public function setSource($source);
+    public function setSource(array $source);
 
     /**
      * @param   string  $field
      * @return  mixed
      */
     public function getRaw($field);
+
+	/**
+	 * @return	CoordinatorInterface
+	 */
+	public function clearSource();
 
 	/**
 	 * Returns a special token string to indicate that the raw key was

@@ -45,7 +45,7 @@ class Coordinator implements CoordinatorInterface
     public function __construct(ErrorStackInterface $stack = null)
     {
 		if (null === $stack) {
-			$stack = new ErrorStack();
+			$stack = $this->createErrorStack();
 		}
 		$this->setErrorStack($stack);
     }
@@ -66,8 +66,8 @@ class Coordinator implements CoordinatorInterface
      */
     public function addClean($field, $value)
     {
-        if (! is_scalar($field) || empty($field)) {
-			$err = "Can not add to clean field must be scalar";
+        if (! $this->isValidKey($field)) {
+			$err = "can not add field to the clean source, invalid key";
             throw new InvalidArgumentException($err);
         }
 
@@ -82,12 +82,22 @@ class Coordinator implements CoordinatorInterface
      */
     public function getClean($field, $default = null)
     {
-		if (! is_scalar($field) || ! array_key_exists($field, $this->clean)) {
+		if (! $this->isValidKey($field) || 
+			! array_key_exists($field, $this->clean)) {
 			return $default;
 		}
 
         return $this->clean[$field];
     }
+
+	/**
+	 * @return	Coordinator
+	 */
+	public function clearClean()
+	{
+		$this->clean = array();
+		return $this;
+	}
 
     /**
      * @return array
@@ -103,24 +113,11 @@ class Coordinator implements CoordinatorInterface
      * @param   mixed
      * @return  Validator
      */
-    public function setSource($source)
+    public function setSource(array $source)
     {
         $this->source = $source;
         return $this;
     }
-
-	/**
-	 * @param	scalar	$field
-	 * @return	bool
-	 */
-	public function isRaw($field)
-	{
-		if (! is_scalar($field) || ! array_key_exists($field, $this->source)) {
-			return false;
-		}
-
-		return true;
-	}
 
     /**
      * @param   string  $key
@@ -128,12 +125,22 @@ class Coordinator implements CoordinatorInterface
      */
     public function getRaw($field)
     {
-        if (! $this->isRaw($field)) {
-            return $this->getFieldNotFoundToken();
-        }
+		if (! $this->isValidKey($field) ||
+			! array_key_exists($field, $this->source)) {
+			return $this->getFieldNotFoundToken();
+		}
 
         return $this->source[$field];
     }
+
+	/**
+	 * @return	Coordinator
+	 */
+	public function clearSource()
+	{
+		$this->source = array();
+		return $this;
+	}
 
 	/**
 	 * @return	string
@@ -184,6 +191,17 @@ class Coordinator implements CoordinatorInterface
 	}
 
 	/**
+	 * @return	Coordinator
+	 */
+	public function clearErrors()
+	{
+		$this->getErrorStack()
+			 ->clear();
+
+		return $this;
+	}
+
+	/**
 	 * This is used when you want to re-use the coordinator for the same fields
 	 * but a new set of raw input
 	 *
@@ -191,9 +209,29 @@ class Coordinator implements CoordinatorInterface
 	 */	
 	public function clear()
 	{
-		$this->clean  = array();
-		$this->source = array();
-		$this->getErrorStack()
-			 ->clear();
+		$this->clearClean();
+		$this->clearSource();
+		$this->clearErrors();
+	}
+
+	/**
+	 * @return	ErrorStack
+	 */
+	protected function createErrorStack()
+	{
+		return new ErrorStack();
+	}
+
+	/**
+	 * @param	mixed	$key
+	 * @return	bool
+	 */
+	protected function isValidKey($key)
+	{
+		if (! (is_string($key) || is_numeric($key)) || strlen($key) === 0) {
+			return false;
+		}
+
+		return true;
 	}
 }

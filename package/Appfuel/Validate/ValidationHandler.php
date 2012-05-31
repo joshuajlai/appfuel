@@ -37,24 +37,9 @@ class ValidationHandler implements ValidationHandlerInterface
 	public function __construct(CoordinatorInterface $coord = null)
 	{
 		if (null === $coord) {
-			$coord = ValidationManager::createCoordinator();
+			$coord = ValidationFactory::createCoordinator();
 		}
 		$this->setCoordinator($coord);
-	}
-
-	public function loadSpec(FieldSpecInterface $spec)
-	{
-		$key = $spec->getValidator();
-		$validator = ValidationManager::getValidator($key);
-	}
-
-	/**
-	 * @param	CoordinatorInterface
-	 * @return	null
-	 */
-	public function setCoordinator(CoordinatorInterface $coord)
-	{
-		$this->coord = $coord;
 	}
 
 	/**
@@ -66,11 +51,60 @@ class ValidationHandler implements ValidationHandlerInterface
 	}
 
 	/**
+	 * @param	CoordinatorInterface
+	 * @return	ValidationHandler
+	 */
+	public function setCoordinator(CoordinatorInterface $coord)
+	{
+		$this->coord = $coord;
+	}
+
+	/**
+	 * @return	ValidationHandler
+	 */
+	public function clearCoordinator()
+	{
+		$this->coordinator = null;
+		return $this;
+	}
+
+	/**
+	 * @param	FieldSpecInterface	$spec
+	 * @return	ValidationHandler
+	 */
+	public function loadSpec(FieldSpecInterface $spec)
+	{
+		$key = $spec->getValidator();
+		$validator = ValidationFactory::createValidator($validator);
+		$validator->loadSpec($spec);
+		$this->addValidator($validator);
+	}
+
+	/**
+	 * @param	ValidatorInterface	$validator
+	 * @return	ValidationHandler
+	 */
+	public function addValidator(ValidatorInterface $validator)
+	{
+		$this->validators[] = $validator;
+		return $this;
+	}
+
+	/**
 	 * @return	array
 	 */
 	public function getValidators()
 	{
 		return $this->validators;
+	}
+
+	/**
+	 * @return	ValidationHandler
+	 */
+	public function clearValidators()
+	{
+		$this->validators = array();
+		return $this;
 	}
 
 	/**
@@ -133,15 +167,15 @@ class ValidationHandler implements ValidationHandlerInterface
 		$coord->reset();
 		$coord->setSource($raw);
 		
-		$failureCount  = 0;
+		$failed = 0;
 		$validators = $this->getValidators();
-		foreach ($validators as $field => $validator) {
+		foreach ($validators as $validator) {
 			if (! $validator->isValid($coord)) {
-				$failureCount++;
+				$failed++;
 			}
 		}
 
-		if ($failureCount > 0) {
+		if ($failed > 0) {
 			return false;
 		}
 
