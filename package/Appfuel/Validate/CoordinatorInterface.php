@@ -90,7 +90,18 @@ interface CoordinatorInterface
     public function isError();
 
     /**
-     * @return string
+     * @return ErrorStackInterface
      */
     public function getErrorStack();
+
+	/**
+	 * @return	CoordinatorInterface
+	 */
+	public function clearErrors();
+
+	/**
+	 * @return	CoordinatorInterface
+	 */
+	public function clear();
+
 }
