@@ -11,38 +11,32 @@
 namespace Appfuel\Validate;
 
 use DomainException,
-	InvalidArgumentException,
-	Appfuel\Validate\Filter\FilterSpec;
+	InvalidArgumentException;
 
 /**
- * Value object used to determine how a field is validated/filtered 
+ * This is the base specification that all other specs must extend from. 
+ * The field details has been left out because it is to be describe by more
+ * specific specifications like UnaryFieldSpec or BinaryFieldSpec
  */
 class FieldSpec implements FieldSpecInterface
 {
 	/**
-	 * Name of the field to be validated
-	 * @var string
-	 */
-	protected $field = null;
-
-	/**
-	 * Location of the field ex) get,post,put,delete,cli (long, short, args)
-	 * @var string
-	 */
-	protected $location = null;
-
-	/**
-	 * List of filter specifications
+	 * List of filter specifications used by the validator
 	 * @var	string
 	 */
 	protected $filters = array();
 
 	/**
-	 * Error to be prefixed to the aggregation of filter errors
+	 * Key used to create the validator that will execute this specification
 	 * @var string
 	 */
-	protected $error = null;
+	protected $validator = null;
 
+	/**
+	 * Key used to create the filter specification
+	 * @var string
+	 */
+	protected $filterSpec = 'filter-spec';
 
 	/**
 	 * @param	array	$data
@@ -50,15 +44,14 @@ class FieldSpec implements FieldSpecInterface
 	 */
 	public function __construct(array $data)
 	{
-		if (! isset($data['field'])) {
-			$err = "validation field must be defined with key -(field)";
+		if (! isset($data['validator'])) {
+			$err = "validator name is required but not set, key -(validator)";
 			throw new DomainException($err);
 		}
-		$field = $data['field'];
-		$this->setField($field);
+		$this->setValidator($data['validator']);
 
-		if (isset($data['location'])) {
-			$this->setLocation($data['location']);
+		if (isset($data['filter-spec'])) {
+			$this->setField($data['filter-spec']);
 		}
 
 		if (! isset($data['filters'])) {
@@ -67,26 +60,6 @@ class FieldSpec implements FieldSpecInterface
 			throw new DomainException($err);
 		}
 		$this->setFilters($data['filters']);
-
-		if (isset($data['error'])) {
-			$this->setError($data['error']);
-		}
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getField()
-	{
-		return $this->field;
-	}
-
-	/**
-	 * @return	string
-	 */
-	public function getLocation()
-	{
-		return $this->location;
 	}
 
 	/**
@@ -100,23 +73,31 @@ class FieldSpec implements FieldSpecInterface
 	/**
 	 * @return	string
 	 */
-	public function getError()
+	public function getValidator()
 	{
-		return $this->error;
+		return $this->validator;
 	}
 
 	/**
-	 * @param	string	$name
+	 * @return	string
+	 */
+	public function getFilterSpec()
+	{
+		return $this->filterSpec;
+	}
+
+	/**
+	 * @param	string	$key
 	 * @return	null
 	 */
-	protected function setField($name)
+	protected function setFilterSpec($key)
 	{
-		if (! is_string($name) || empty($name)) {
-			$err  = "field must be a non empty string";
+		if (! is_string($key) || empty($key)) {
+			$err  = "key used to id the filter spec must be a non empty string";
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->field = $name;
+		$this->filterSpec = $key;
 	}
 
 	/**
@@ -136,28 +117,14 @@ class FieldSpec implements FieldSpecInterface
 	 * @param	string	$name
 	 * @return	null
 	 */
-	protected function setLocation($loc)
+	protected function setValidator($name)
 	{
-		if (! is_string($loc)) {
-			$err  = "the location of the field must be a string";
+		if (! is_string($name) || empty($name)) {
+			$err  = "the name of the validator must be a non empty string";
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->location = $loc;
-	}
-
-	/**
-	 * @param	string	$text
-	 * @return	null
-	 */
-	protected function setError($text)
-	{
-		if (! is_string($text)) {
-			$err = "error message must be a string";
-			throw new InvalidArgumentException($err);
-		}
-		
-		$this->error = $text;
+		$this->validator = $name;
 	}
 
 	/**
@@ -166,6 +133,7 @@ class FieldSpec implements FieldSpecInterface
 	 */
 	protected function createFilterSpec(array $data)
 	{
-		return new FilterSpec($data);
+		$key = $this->getFilterSpec();
+		return ValidationFactory::createFilterSpec($key, $data);
 	}
 }

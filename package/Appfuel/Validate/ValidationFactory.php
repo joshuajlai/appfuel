@@ -12,6 +12,7 @@ namespace Appfuel\Validate;
 
 use DomainException,
 	InvalidArgumentException,
+	Appfuel\Validate\Filter\FilterSpec,
 	Appfuel\Validate\Filter\FilterInterface;
 
 /**
@@ -27,6 +28,12 @@ class ValidationFactory implements ValidationFactoryInterface
 	static protected $validatorMap = array();
 
 	/**
+	 * List of key to class mappings used to create filter specifications
+	 * @var array
+	 */
+	static protected $filterSpecMap = array();
+	
+	/**
 	 * List of key to class name mappings used to create filters
 	 * @var array
 	 */
@@ -38,6 +45,7 @@ class ValidationFactory implements ValidationFactoryInterface
 	 * @var string
 	 */
 	static protected $coordinator = null;
+
 
 	/**
 	 * @return	string
@@ -242,6 +250,11 @@ class ValidationFactory implements ValidationFactoryInterface
 		}
 
 		return self::$filterMap[$key];
+	}
+
+	static public function createFilterSpec($key, $data)
+	{
+		return new FilterSpec($data);
 	}
 
 	/**

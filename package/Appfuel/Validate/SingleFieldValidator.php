@@ -107,11 +107,6 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 			$this->addFilter($filter);
 		}
 
-		$error = $spec->getError();
-		if (! empty($error)) {
-			$this->setError($error);
-		}
-
 		return $this;
 	}
 

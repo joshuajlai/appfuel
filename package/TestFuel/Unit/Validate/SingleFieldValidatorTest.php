@@ -12,7 +12,7 @@ namespace Testfuel\Unit\Validate;
 
 use StdClass,
 	Testfuel\TestCase\BaseTestCase,
-	Appfuel\Validate\FieldSpec,
+	Appfuel\Validate\UnaryFieldSpec,
 	Appfuel\Validate\Coordinator,
 	Appfuel\Validate\ValidationFactory,
 	Appfuel\Validate\SingleFieldValidator;
@@ -142,7 +142,7 @@ class SingleFieldValidatorTest extends BaseTestCase
 				),
 			)
 		);
-		$spec = new FieldSpec($data);
+		$spec = new UnaryFieldSpec($data);
 		$this->assertSame($validator, $validator->loadSpec($spec));
 		$this->assertEquals($data['field'], $validator->getField());
 		

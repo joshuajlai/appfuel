@@ -10,25 +10,17 @@
  */
 namespace Appfuel\Validate;
 
-use InvalidArgumentException;
-
 /**
- * Value object used to determine how a field is validated/filtered 
  */
-interface FieldSpecInterface
+interface UnaryFieldSpecInterface extends FieldSpecInterface
 {
 	/**
 	 * @return	string
 	 */
-	public function getFilterSpec();
-
+	public function getField();
+	
 	/**
 	 * @return	string
 	 */
-	public function getFilters();
-
-	/**
-	 * @return	string
-	 */
-	public function getValidator();
+	public function getLocation();
 }
