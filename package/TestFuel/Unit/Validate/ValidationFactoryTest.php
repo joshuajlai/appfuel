@@ -17,31 +17,23 @@ use StdClass,
 class ValidationFactoryTest extends BaseTestCase
 {
 	/**
-	 * @var array
-	 */
-	protected $validatorMapBk = array();
-
-	/**
-	 * @var array
-	 */
-	protected $filterMapBk = array();
-
-
-	/**
 	 * @return	null
 	 */
 	public function setUp()
 	{
-		$this->validatorMapBk = ValidationFactory::getValidatorMap();
-		$this->filterMapBk = ValidationFactory::getFilterMap();
+		parent::setUp();
+		$this->backupValidationMap();
 		ValidationFactory::clear();
 	}
 
+	/**
+	 * @return	null
+	 */
 	public function tearDown()
 	{
+		parent::tearDown();
 		ValidationFactory::clear();
-		ValidationFactory::setValidatorMap($this->validatorMapBk);
-		ValidationFactory::setFilterMap($this->filterMapBk);
+		$this->restoreValidationMap();
 	}
 
 	/**
