@@ -18,6 +18,16 @@ use InvalidArgumentException;
 interface FieldSpecInterface
 {
 	/**
+	 * @return string
+	 */
+	public function getField();
+
+	/**
+	 * @return string
+	 */
+	public function getLocation();
+
+	/**
 	 * @return	string
 	 */
 	public function getFilterSpec();

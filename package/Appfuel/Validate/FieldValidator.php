@@ -11,14 +11,13 @@
 namespace Appfuel\Validate;
 
 use InvalidArgumentException,
-	Appfuel\Validate\Filter\FilterInterface,
-	Appfuel\Validate\FieldValidatorInterface;
+	Appfuel\Validate\Filter\FilterInterface;
 
 /**
  * Validate that a single field will pass successfully through one or more 
  * filters.
  */
-class SingleFieldValidator implements SingleFieldValidatorInterface
+class FieldValidator implements FieldValidatorInterface
 {
 	/**
 	 * Name of the field in the source we are looking to validate. The source
@@ -123,7 +122,7 @@ class SingleFieldValidator implements SingleFieldValidatorInterface
 	public function isValid(CoordinatorInterface $coord)
 	{
 		$field = $this->getField();
-		$raw = $coord->getRaw($this->getField());
+		$raw = $coord->getRaw($field);
 		if (CoordinatorInterface::FIELD_NOT_FOUND === $raw) {
 			$coord->addError("could not find field -($field) in source");
 			return false;

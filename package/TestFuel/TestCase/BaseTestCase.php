@@ -14,9 +14,9 @@ use StdClass,
 	RunTimeException,
 	TestFuel\Provider\StringProvider,
 	Appfuel\Filesystem\FileFinder,
-	Appfuel\Kernel\ConfigRegistry,
 	Appfuel\Kernel\KernelStateInterface,
 	Appfuel\DataSource\Db\DbStartupTask,
+	Appfuel\Validate\ValidationFactory,
 	PHPUnit_Framework_TestCase;
 
 /**
@@ -29,6 +29,16 @@ class BaseTestCase extends PHPUnit_Framework_TestCase
 	 * @var PathFinder
 	 */
 	protected $fileFinder = null;
+
+	/**
+	 * back of the static validation map the validation factory uses to create
+	 * its objects
+	 * @var array	
+	 */
+	protected $bkValidation = array(
+		'validator' => array(),
+		'filter'    => array()
+	);
 
     /**
      * @return  BaseTestCase
@@ -72,6 +82,29 @@ class BaseTestCase extends PHPUnit_Framework_TestCase
 	{
         error_reporting(E_ALL | E_STRICT);
         ini_set('error_diplay', 'on');
+	}
+
+	/**
+	 * @return	BaseTestCase
+	 */
+	public function backupValidationMap()
+	{
+		$this->bkValidation['validator'] = ValidationFactory::getValidatorMap();
+		$this->bkValidation['filter'] = ValidationFactory::getFilterMap();
+	}
+
+	/**
+	 * @return	BaseTestCase
+	 */
+	public function restoreValidationMap()
+	{
+		$vmap = $this->bkValidation['validator'];
+		ValidationFactory::setValidatorMap($vmap);
+
+		$fmap = $this->bkValidation['validator'];
+		ValidationFactory::setFilterMap($vmap);
+
+		return $this;
 	}
 
     /**

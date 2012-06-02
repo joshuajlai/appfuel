@@ -13,89 +13,72 @@ namespace Appfuel\Validate;
 use DomainException,
 	InvalidArgumentException,
 	Appfuel\Validate\Filter\FilterSpec,
-	Appfuel\Validate\Filter\FilterInterface;
+	Appfuel\Validate\Filter\FilterInterface,
+	Appfuel\Validate\Filter\FilterSpecInterface;
 
 /**
- * Holds all validators and filters. Also encapsulates create these objects
- * using a mapping system to create theme.
+ * Mappings for validator and filters which decouple the validations 
+ * classes from the validaton handlers.
  */
-class ValidationFactory implements ValidationFactoryInterface
+class ValidationFactory
 {
 	/**
-	 * List of key to class name mappings used to create validators
-	 * @var	array
-	 */
-	static protected $validatorMap = array();
-
-	/**
-	 * List of key to class mappings used to create filter specifications
 	 * @var array
 	 */
-	static protected $filterSpecMap = array();
-	
-	/**
-	 * List of key to class name mappings used to create filters
-	 * @var array
-	 */
-	static protected $filterMap = array();
+	static protected $map = array(
+		'validator' => array(
+			'field-validator' => 'Appfuel\Validate\FieldValidator',
+			'field-spec'      => 'Appfuel\Validate\FieldSpec',
+			'coordinator'	  => 'Appfuel\Validate\Coodinator',
+		),
+
+		'filter' => array(
+			'int'			=> 'Appfuel\Validate\Filter\IntFilter',
+			'bool'			=> 'Appfuel\Validate\Filter\BoolFilter',
+			'string'		=> 'Appfuel\Validate\Filter\StringFilter',
+			'email'			=> 'Appfuel\Validate\Filter\EmailFilter',
+	        'regex'			=> 'Appfuel\Validate\Filter\RegexFilter',
+			'ip'			=> 'Appfuel\Validate\Filter\IpFilter',
+			'float'			=> 'Appfuel\Validate\Filter\FloatFilter',
+			'filter-spec'	=> 'Appfuel\Validate\Filter\FilterSpec',
+		),
+	);
 
 	/**
-	 * Qualified class name of coordinator that should be used in place
-	 * of the appfuel coordinator
-	 * @var string
+	 * @return	array
 	 */
-	static protected $coordinator = null;
-
-
-	/**
-	 * @return	string
-	 */
-	static public function getCoordinatorClass()
+	static public function getMap()
 	{
-		return self::$coordinator;
+		return self::$map;	
 	}
 
 	/**
-	 * @param	string	$class
+	 * @param	array	$map	
 	 * @return	null
 	 */
-	static public function setCoordinatorClass($class)
+	static public function setMap(array $map)
 	{
-		if (! is_string($class) || empty($class)) {
-			$err = "coordinator class must be a non empty string";
-			throw new InvalidArgumentException($err);
+		if (! isset($map['validator']) || ! is_array($map['validator'])) {
+			$err = "the validator mapping is missing: key -(validator)";
+			throw new DomainException($err);
 		}
-
-		self::$coordinator = $class;
+		self::setValidatorMap($map['validator']);
+		
+		if (! isset($map['filter']) || ! is_array($map['filter'])) {
+			$err = "the filter mapping is missing: key -(filter)";
+			throw new DomainException($err);
+		}
+		self::setFilterMap($map['filter']);	
 	}
 
 	/**
-	 * @return	CoordinatorInterface
-	 */
-	static public function createCoordinator()
-	{
-		$class = self::getCoordintor();
-		if ($class) {
-			$coord = new $class();
-			if (! $coord instanceof CoordinatorInterface) {
-				$err  = "coordinator -($class) does not implment -(Appfuel";
-				$err .= "\Validate\CoordinateInterface)";
-				throw new DomainException($err);
-			}
-		}
-		else {
-			$coord = new Coordinator();
-		}
-
-		return $coord;
-	}
-
-	/**
+	 * @param	array	$map
 	 * @return	null
 	 */
-	static public function clearCoordinatorClass()
+	static public function setValidatorMap(array $map)
 	{
-		self::$coordinator = null;
+		self::validateMap($map, 'validator');
+		self::$map['validator'] = $map;	
 	}
 
 	/**
@@ -103,34 +86,7 @@ class ValidationFactory implements ValidationFactoryInterface
 	 */
 	static public function getValidatorMap()
 	{
-		return self::$validatorMap;	
-	}
-
-	/**
-	 * @param	array	$map	
-	 * @return	null
-	 */
-	static public function setValidatorMap(array $map)
-	{
-		if ($map === array_values($map)) {
-			$err  = "validator map must be an associative array of key ";
-			$err .= "to validator class name mappings";
-			throw new DomainException($err);
-		}
-
-		foreach ($map as $key => $value) {
-			if (! is_string($key) || empty($key)) {
-				$err = "validator key must be a non empty string";
-				throw new DomainException($err);
-			}
-
-			if (! is_string($value) || empty($value)) {
-				$err = "validator class must be a non empty string";
-				throw new DomainException($err);
-			}
-		}
-
-		self::$validatorMap = $map;
+		return	self::$map['validator'];
 	}
 
 	/**
@@ -138,49 +94,7 @@ class ValidationFactory implements ValidationFactoryInterface
 	 */
 	static public function clearValidatorMap()
 	{
-		self::$validatorMap = array();
-	}
-
-	/**
-	 * @param	string	$key
-	 * @return	string | false
-	 */
-	static public function mapValidator($key)
-	{
-		if (! is_string($key) || ! isset(self::$validatorMap[$key])) {
-			return false;
-		}
-
-		return self::$validatorMap[$key];
-	}
-
-	/**
-	 * @param	string $key
-	 * @return	mixed
-	 */
-	static public function createValidator($key)
-	{
-		$class = self::mapValidator($key);
-		if (false === $class) {
-			$err = "validator -($key) is not mapped";
-			throw new DomainException($err);
-		}
-		$validator = new $class();
-		if (! $validator instanceof ValidatorInterface) {
-			$err  = "validator -($key, $class) must implement -(Appfuel";
-			$err .= "\Validate\ValidatorInterface)";
-			throw new DomainException($err);
-		}
-
-		return $validator;
-	}
-
-	/**
-	 * @return	array
-	 */
-	static public function getFilterMap()
-	{
-		return self::$filterMap;
+		self::$map['validator'] = array();
 	}
 
 	/**
@@ -189,25 +103,36 @@ class ValidationFactory implements ValidationFactoryInterface
 	 */
 	static public function setFilterMap(array $map)
 	{
-		if ($map === array_values($map)) {
-			$err  = "filter map must be an associative array of key ";
-			$err .= "to filter class name mappings";
+		self::validateMap($map, 'filter');
+		self::$map['filter'] = $map;	
+	}
+
+	/**
+	 * @param	string	$key
+	 * @param	string	$class
+	 * @return	null
+	 */
+	static public function addToFilter($key, $class)
+	{
+		if (! is_string($key) || empty($key)) {
+			$err = "key in filter category must be a non empty string";
 			throw new DomainException($err);
 		}
 
-		foreach ($map as $key => $value) {
-			if (! is_string($key) || empty($key)) {
-				$err = "filter key must be a non empty string";
-				throw new DomainException($err);
-			}
-
-			if (! is_string($value) || empty($value)) {
-				$err = "filter class must be a non empty string";
-				throw new DomainException($err);
-			}
+		if (! is_string($class) || empty($class)) {
+			$err = "class in filter category must be a non empty string";
+			throw new DomainException($err);
 		}
 
-		self::$filterMap = $map;
+		self::$map['filter'][$key] = $class;
+	}
+
+	/**
+	 * @return	array
+	 */
+	static public function getFilterMap()
+	{
+		return self::$map['filter'];
 	}
 
 	/**
@@ -215,24 +140,116 @@ class ValidationFactory implements ValidationFactoryInterface
 	 */
 	static public function clearFilterMap()
 	{
-		self::$filterMap = array();
+		self::$map['filter'] = array();
+	}
+
+	/**
+	 * @param	string	$name
+	 * @param	string	$key
+	 * @return	mixed
+	 */
+	static public function create($name, $key)
+	{
+		$class = self::map($name, $key);
+		if (false === $class) {
+			$err = "could not create object: could not map -($name, $key)";
+			throw new DomainException($err);
+		}
+
+		return new $class();
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	string | false
+	 */
+	static public function map($name, $key)
+	{
+		if (! is_string($name) ||
+			! is_string($key) ||
+			! isset(self::$map[$name]) ||
+			! isset(self::$map[$name][$key])) {
+			return false;
+		}
+
+		return self::$map[$name][$key];
+	}
+
+	/**
+	 * @param	array	$map
+	 * @param	string	$name	name of the map to validate
+	 * @return
+	 */
+	static protected function validateMap(array $map, $name)
+	{
+		if ($map === array_values($map)) {
+			$err  = "-($name) map must be an associative array of key ";
+			$err .= "to class name mappings";
+			throw new DomainException($err);
+		}
+
+		foreach ($map as $key => $value) {
+			if (! is_string($key) || empty($key)) {
+				$err = "-($name) key must be a non empty string";
+				throw new DomainException($err);
+			}
+
+			if (! is_string($value) || empty($value)) {
+				$err = "-($name) class must be a non empty string";
+				throw new DomainException($err);
+			}
+		}
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	CoordinatorInterface
+	 */
+	static public function createCoordinator($key = null)
+	{
+		if (null === $key) {
+			return new Coordinator();
+		}
+
+		$coord = self::create('validator', $key);
+		if (! $coord instanceof CoordinatorInterface) {
+			$class = get_class($coord);
+			$iface = 'Appfuel\Validate\CoordinatorInterface';
+			$err   = "coordinator -($key,$class) does not implment -($iface)";
+			throw new DomainException($err);
+		}
+
+		return $coord;
 	}
 
 	/**
 	 * @param	string $key
 	 * @return	mixed
 	 */
-	static public function createFilter($key)
+	static public function createValidator($key = null)
 	{
-		$class = self::mapFilter($key);
-		if (false === $class) {
-			$err = "filter -($key) is not mapped";
+		$validator = self::create('validator', $key);
+		if (! $validator instanceof ValidatorInterface) {
+			$class = get_class($validator);
+			$iface = 'Appfuel\Validate\ValidatorInterface';
+			$err  = "validator -($key, $class) must implement -($iface)";
 			throw new DomainException($err);
 		}
-		$filter = new $class();
+
+		return $validator;
+	}
+
+	/**
+	 * @param	string $key
+	 * @return	Filter\FilterInterface
+	 */
+	static public function createFilter($key)
+	{
+		$filter = self::create('filter', $key);
 		if (! $filter instanceof FilterInterface) {
-			$err  = "filter -($key, $class) must implement -(Appfuel\Validate";
-			$err .= "\Filter\FilterInterface)";
+			$class = get_class($filter);
+			$iface = 'Appfuel\Validate\Filter\FilterInterface';
+			$err   = "filter -($key, $class) must implement -($iface)";
 			throw new DomainException($err);
 		}
 
@@ -240,21 +257,29 @@ class ValidationFactory implements ValidationFactoryInterface
 	}
 
 	/**
+	 * @param	array	$data
 	 * @param	string	$key
-	 * @return	string | false
+	 * @return	Filter\FilterSpecInterface
 	 */
-	static public function mapFilter($key)
+	static public function createFilterSpec(array $data, $key = null)
 	{
-		if (! is_string($key) || ! isset(self::$filterMap[$key])) {
-			return false;
+		if (null === $key) {
+			return new FilterSpec($data);
+		}
+		$class = self::map('filter', $key);
+		if (false === $class) {
+			$err = "could not map filter with -($key)";
+			throw new DomainException($err);
 		}
 
-		return self::$filterMap[$key];
-	}
+		$filter = new $class($data);
+		if (! $filter instanceof FilterSpecInterface) {
+			$iface = 'Appfuel\Validate\Filter\FilterSpecInterface';
+			$err   = "filter spec -($key, $class) must implement -($iface)";
+			throw new DomainException($err);
+		}
 
-	static public function createFilterSpec($key, $data)
-	{
-		return new FilterSpec($data);
+		return $filter;
 	}
 
 	/**
@@ -262,7 +287,6 @@ class ValidationFactory implements ValidationFactoryInterface
 	 */
 	static public function clear()
 	{
-		self::clearCoordinatorClass();
 		self::clearValidatorMap();
 		self::clearFilterMap();
 	}

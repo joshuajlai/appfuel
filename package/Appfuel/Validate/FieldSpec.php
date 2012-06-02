@@ -20,6 +20,18 @@ use DomainException,
  */
 class FieldSpec implements FieldSpecInterface
 {
+    /**     
+	 * Name of the field to be validated
+	 * @var string
+     */    
+	protected $field = null;    
+	
+	/**     
+	 * Location of the field ex) get, post or a method getter or property     
+	 * @var string     
+	 */    
+	protected $location = null;
+
 	/**
 	 * List of filter specifications used by the validator
 	 * @var	string
@@ -36,7 +48,7 @@ class FieldSpec implements FieldSpecInterface
 	 * Key used to create the filter specification
 	 * @var string
 	 */
-	protected $filterSpec = 'filter-spec';
+	protected $filterSpec = null;
 
 	/**
 	 * @param	array	$data
@@ -44,14 +56,23 @@ class FieldSpec implements FieldSpecInterface
 	 */
 	public function __construct(array $data)
 	{
-		if (! isset($data['validator'])) {
-			$err = "validator name is required but not set, key -(validator)";
-			throw new DomainException($err);
+        if (! isset($data['field'])) {
+            $err = "validation field must be defined with key -(field)";
+            throw new DomainException($err);
+        }
+        $field = $data['field'];
+        $this->setField($field);
+
+        if (isset($data['location'])) {
+            $this->setLocation($data['location']);
+        }
+
+		if (isset($data['validator'])) {
+			$this->setValidator($data['validator']);
 		}
-		$this->setValidator($data['validator']);
 
 		if (isset($data['filter-spec'])) {
-			$this->setField($data['filter-spec']);
+			$this->setFilterSpec($data['filter-spec']);
 		}
 
 		if (! isset($data['filters'])) {
@@ -61,6 +82,22 @@ class FieldSpec implements FieldSpecInterface
 		}
 		$this->setFilters($data['filters']);
 	}
+
+    /**
+     * @return  string
+     */
+    public function getField()
+    {
+        return $this->field;
+    }
+
+    /**
+     * @return  string
+     */
+    public function getLocation()
+    {
+        return $this->location;
+    }
 
 	/**
 	 * @return	string
@@ -86,6 +123,34 @@ class FieldSpec implements FieldSpecInterface
 		return $this->filterSpec;
 	}
 
+    /**
+     * @param   string  $name
+     * @return  null
+     */
+    protected function setField($name)
+    {
+        if (! is_string($name) || empty($name)) {
+            $err  = "field must be a non empty string";
+            throw new InvalidArgumentException($err);
+        }
+
+        $this->field = $name;
+    }
+
+    /**
+     * @param   string  $name
+     * @return  null
+     */
+    protected function setLocation($loc)
+    {
+        if (! is_string($loc)) {
+            $err  = "the location of the field must be a string";
+            throw new InvalidArgumentException($err);
+        }
+
+        $this->location = $loc;
+    }
+
 	/**
 	 * @param	string	$key
 	 * @return	null
@@ -93,7 +158,7 @@ class FieldSpec implements FieldSpecInterface
 	protected function setFilterSpec($key)
 	{
 		if (! is_string($key) || empty($key)) {
-			$err  = "key used to id the filter spec must be a non empty string";
+			$err  = "filter spec key must be a non empty string";
 			throw new InvalidArgumentException($err);
 		}
 
@@ -134,6 +199,6 @@ class FieldSpec implements FieldSpecInterface
 	protected function createFilterSpec(array $data)
 	{
 		$key = $this->getFilterSpec();
-		return ValidationFactory::createFilterSpec($key, $data);
+		return ValidationFactory::createFilterSpec($data, $key);
 	}
 }

@@ -12,10 +12,29 @@ namespace Testfuel\Unit\Validate;
 
 use StdClass,
 	Appfuel\Validate\FieldSpec,
+	Appfuel\Validate\ValidationFactory,
 	Testfuel\TestCase\BaseTestCase;
 
 class FieldSpecTest extends BaseTestCase
 {
+	/**
+	 * @return null
+	 */
+	public function setUp()
+	{
+		parent::setUp();
+		$this->backupValidationMap();
+	}
+
+	/**
+	 * @return null
+	 */
+	public function tearDown()
+	{
+		parent::tearDown();
+		$this->restoreValidationMap();
+	}
+
 	/**
 	 * @param	array	$data
 	 * @return	FieldSpec
@@ -43,8 +62,12 @@ class FieldSpecTest extends BaseTestCase
 		);
 		$spec = $this->createFieldSpec($data);
 		$this->assertInstanceOf('Appfuel\Validate\FieldSpecInterface', $spec);
+
 		$this->assertEquals($data['field'], $spec->getField());
 		$this->assertNull($spec->getLocation());
+
+		$this->assertNull($spec->getValidator());
+		$this->assertNull($spec->getFilterSpec());
 
 		$filters = $spec->getFilters();
 		$this->assertInternalType('array', $filters);
@@ -62,9 +85,10 @@ class FieldSpecTest extends BaseTestCase
 	 */
 	public function location(array $data)
 	{
-		$data['location'] = 'post';
+		$key = 'post';
+		$data['location'] = $key;
 		$spec = $this->createFieldSpec($data);
-		$this->assertEquals('post', $spec->getLocation());
+		$this->assertEquals($key, $spec->getLocation());
 	}
 
 	/**
@@ -72,11 +96,27 @@ class FieldSpecTest extends BaseTestCase
 	 * @depends	minimal
 	 * @return	null
 	 */
-	public function error(array $data)
+	public function filterSpec(array $data)
 	{
-		$data['error'] = 'some error message';
+		$key = 'my-spec';	
+		$class = 'Appfuel\Validate\Filter\FilterSpec';
+		ValidationFactory::addToFilter($key, $class);
+		$data['filter-spec'] = $key;
 		$spec = $this->createFieldSpec($data);
-		$this->assertEquals($data['error'], $spec->getError());
+		$this->assertEquals($key, $spec->getFilterSpec());
+	}
+
+	/**
+	 * @test
+	 * @depends	minimal
+	 * @return	null
+	 */
+	public function validatorKey(array $data)
+	{
+		$key = 'my-validator';
+		$data['validator'] = $key;
+		$spec = $this->createFieldSpec($data);
+		$this->assertEquals($key, $spec->getValidator());
 	}
 
 	/**
@@ -146,19 +186,39 @@ class FieldSpecTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @dataProvider	provideInvalidStrings
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
 	 * @return	null
 	 */
-	public function invalidErrorFailure($error)
+	public function invalidValidatorFailure($validator)
 	{
 		$data = array(
-			'field'    => 'my-field',
-			'filters'  => array('my-filter' => array('params' => array())),
-			'location' => 'get',
-			'error'  => $error
+			'field'     => 'my-field',
+			'filters'   => array('my-filter' => array('params' => array())),
+			'validator' => $validator
 		);
-		$msg  = 'error message must be a string';
+
+		$msg  = 'the name of the validator must be a non empty string';
 		$this->setExpectedException('InvalidArgumentException', $msg);
 		$spec = $this->createFieldSpec($data);
 	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return	null
+	 */
+	public function invalidFilterSpecFailure($filterSpec)
+	{
+		$data = array(
+			'field'       => 'my-field',
+			'filters'     => array('my-filter' => array('params' => array())),
+			'filter-spec' => $filterSpec
+		);
+
+		$msg  = 'filter spec key must be a non empty string';
+		$this->setExpectedException('InvalidArgumentException', $msg);
+		$spec = $this->createFieldSpec($data);
+	}
+
+
 }
