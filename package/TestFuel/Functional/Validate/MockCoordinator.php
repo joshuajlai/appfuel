@@ -10,12 +10,11 @@
  */
 namespace Testfuel\Functional\Validate;
 
-use Appfuel\Validate\FieldValidator;
+use Appfuel\Validate\Coordinator;
 
 /**
- * Used only in testing to prove this object can be created and used by
- * the ValidationFactory
+ * Used to test the ValidationFactory can map and create objects that
+ * implement the correct interfaces that are not appfuel's.
  */
-class MockValidator extends FieldValidator
-{
-}
+class MockCoordinator extends Coordinator 
+{}

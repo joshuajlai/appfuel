@@ -77,8 +77,19 @@ class ValidationFactory
 	 */
 	static public function setValidatorMap(array $map)
 	{
-		self::validateMap($map, 'validator');
-		self::$map['validator'] = $map;	
+		self::clearValidatorMap();
+		self::loadValidatorMap($map);
+	}
+
+	/**
+	 * @param	array	$map
+	 * @return	null
+	 */
+	static public function loadValidatorMap(array $map)
+	{
+		foreach ($map as $key => $class) {
+			self::addToValidatorMap($key, $class);
+		}
 	}
 
 	/**
@@ -98,13 +109,44 @@ class ValidationFactory
 	}
 
 	/**
+	 * @param	string	$key
+	 * @param	string	$class
+	 * @return	null
+	 */
+	static public function addToValidatorMap($key, $class)
+	{
+		if (! is_string($key) || empty($key)) {
+			$err = "key in validator category must be a non empty string";
+			throw new DomainException($err);
+		}
+
+		if (! is_string($class) || empty($class)) {
+			$err = "class in validator category must be a non empty string";
+			throw new DomainException($err);
+		}
+
+		self::$map['validator'][$key] = $class;
+	}
+
+	/**
 	 * @param	array	$map
 	 * @return	null
 	 */
 	static public function setFilterMap(array $map)
 	{
-		self::validateMap($map, 'filter');
-		self::$map['filter'] = $map;	
+		self::clearFilterMap();
+		self::loadFilterMap($map);
+	}
+
+	/**
+	 * @param	array	$map
+	 * @return	null
+	 */
+	static public function loadFilterMap(array $map)
+	{
+		foreach ($map as $key => $class) {
+			self::addToFilterMap($key, $class);
+		}
 	}
 
 	/**
@@ -112,7 +154,7 @@ class ValidationFactory
 	 * @param	string	$class
 	 * @return	null
 	 */
-	static public function addToFilter($key, $class)
+	static public function addToFilterMap($key, $class)
 	{
 		if (! is_string($key) || empty($key)) {
 			$err = "key in filter category must be a non empty string";
@@ -176,32 +218,6 @@ class ValidationFactory
 	}
 
 	/**
-	 * @param	array	$map
-	 * @param	string	$name	name of the map to validate
-	 * @return
-	 */
-	static protected function validateMap(array $map, $name)
-	{
-		if ($map === array_values($map)) {
-			$err  = "-($name) map must be an associative array of key ";
-			$err .= "to class name mappings";
-			throw new DomainException($err);
-		}
-
-		foreach ($map as $key => $value) {
-			if (! is_string($key) || empty($key)) {
-				$err = "-($name) key must be a non empty string";
-				throw new DomainException($err);
-			}
-
-			if (! is_string($value) || empty($value)) {
-				$err = "-($name) class must be a non empty string";
-				throw new DomainException($err);
-			}
-		}
-	}
-
-	/**
 	 * @param	string	$key
 	 * @return	CoordinatorInterface
 	 */
@@ -226,7 +242,7 @@ class ValidationFactory
 	 * @param	string $key
 	 * @return	mixed
 	 */
-	static public function createValidator($key = null)
+	static public function createValidator($key)
 	{
 		$validator = self::create('validator', $key);
 		if (! $validator instanceof ValidatorInterface) {
@@ -303,4 +319,32 @@ class ValidationFactory
 
 		return true;
 	}
+
+	/**
+	 * @param	array	$map
+	 * @param	string	$name	name of the map to validate
+	 * @return
+	 */
+	static protected function validateMap(array $map, $name)
+	{
+		if ($map === array_values($map)) {
+			$err  = "-($name) map must be an associative array of key ";
+			$err .= "to class name mappings";
+			throw new DomainException($err);
+		}
+
+		foreach ($map as $key => $value) {
+			if (! is_string($key) || empty($key)) {
+				$err = "-($name) key must be a non empty string";
+				throw new DomainException($err);
+			}
+
+			if (! is_string($value) || empty($value)) {
+				$err = "-($name) class must be a non empty string";
+				throw new DomainException($err);
+			}
+		}
+	}
+
+
 }

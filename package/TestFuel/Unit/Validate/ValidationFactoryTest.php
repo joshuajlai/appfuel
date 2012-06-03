@@ -40,34 +40,88 @@ class ValidationFactoryTest extends BaseTestCase
 	 * @test
 	 * @return	null
 	 */
-	public function validatorMap()
+	public function addToValidatorMap()
 	{
-		$this->assertEquals(array(), ValidationFactory::getValidatorMap());
+		$key = 'key-a';
+		$class = 'ClassA';
+		$this->assertNull(ValidationFactory::addToValidatorMap($key, $class));
+
+		$expected = array($key => $class);
+		$this->assertEquals($expected, ValidationFactory::getValidatorMap());
+
+		$key2 = 'key-b';
+		$class2 = 'ClassB';
+		$this->assertNull(ValidationFactory::addToValidatorMap($key2, $class2));
 		
+		$expected[$key2] = $class2;
+		$this->assertEquals($expected, ValidationFactory::getValidatorMap());
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return			null
+	 */
+	public function addToValidatorMapKeyFailure($key)
+	{
+		$msg = 'key in validator category must be a non empty string';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationFactory::addToValidatorMap($key, 'ClassA');
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return			null
+	 */
+	public function addToValidatorMapClassFailure($class)
+	{
+		$msg = 'class in validator category must be a non empty string';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationFactory::addToValidatorMap('key-a', $class);
+	}
+
+
+	/**
+	 * Load operation always appends more data onto the list while set will
+	 * clear the list before loading it.
+	 *
+	 * @test
+	 * @depends	addToValidatorMap
+	 * @return	null
+	 */
+	public function loadValidatorMap()
+	{
 		$map = array(
-			'single-field' => 'Appfuel\Validate\SingleFieldValidator',
-			'dual-field'   => 'Appfuel\Validate\DualFieldValidator',
-			'multi-field'  => 'Appfuel\Validate\MulitFiledValidator'
+			'key-a' => 'ClassA',
+			'key-b' => 'ClassB'
 		);
-		$this->assertNull(ValidationFactory::setValidatorMap($map));
+		$this->assertNull(ValidationFactory::loadValidatorMap($map));
 		$this->assertEquals($map, ValidationFactory::getValidatorMap());
 
-		$this->assertEquals(
-			$map['single-field'], 
-			ValidationFactory::mapValidator('single-field')
+		$map2 = array(
+			'key-c' => 'ClassC',
+			'key-d' => 'ClassD'
 		);
+		$this->assertNull(ValidationFactory::loadValidatorMap($map2));
 
-		$this->assertEquals(
-			$map['dual-field'], 
-			ValidationFactory::mapValidator('dual-field')
+		$expected = array_merge($map, $map2);
+		$this->assertEquals($expected, ValidationFactory::getValidatorMap());
+	}
+
+	/**
+	 * @test
+	 * @depends	loadValidatorMap
+	 * @return	null
+	 */
+	public function clearValidatorMap()
+	{
+		$map = array(
+			'key-a' => 'ClassA',
+			'key-b' => 'ClassB'
 		);
-
-		$this->assertEquals(
-			$map['multi-field'], 
-			ValidationFactory::mapValidator('multi-field')
-		);
-
-		$this->assertFalse(ValidationFactory::mapValidator('no-match'));
+		ValidationFactory::loadValidatorMap($map);
+		$this->assertEquals($map, ValidationFactory::getValidatorMap());
 
 		$this->assertNull(ValidationFactory::clearValidatorMap());
 		$this->assertEquals(array(), ValidationFactory::getValidatorMap());
@@ -75,116 +129,84 @@ class ValidationFactoryTest extends BaseTestCase
 
 	/**
 	 * @test
+	 * @depends	clearValidatorMap
 	 * @return	null
 	 */
-	public function validatorMapNotAssociativeArrayFailure()
-	{
-		$map = array('field1', 'field2', 'field3');
-
-		$msg  = 'validator map must be an associative array of key to ';
-		$msg .= 'validator class name mappings';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::setValidatorMap($map);
-	}
-
-	/**
-	 * @test
-	 * @return	null
-	 */
-	public function validatorMapEmptyKeyFailure()
+	public function setValidatorMap()
 	{
 		$map = array(
-			'field1' => 'SomeClass',
-			'' => 'OtherClass'
+			'key-a' => 'ClassA',
+			'key-b' => 'ClassB'
 		);
-		$msg = 'validator key must be a non empty string';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::setValidatorMap($map, $msg);
+		$this->assertNull(ValidationFactory::setValidatorMap($map));
+		$this->assertEquals($map, ValidationFactory::getValidatorMap());
+
+		$map2 = array(
+			'key-c' => 'ClassC',
+			'key-d' => 'ClassD'
+		);
+		$this->assertNull(ValidationFactory::setValidatorMap($map2));
+		$this->assertEquals($map2, ValidationFactory::getValidatorMap());
 	}
 
 	/**
 	 * @test
 	 * @return	null
 	 */
-	public function validatorMapIntegerKeyFailure()
+	public function addToFilterMap()
 	{
-		$map = array(
-			'field1' => 'SomeClass',
-			1234 => 'OtherClass'
-		);
-		$msg = 'validator key must be a non empty string';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::setValidatorMap($map, $msg);
-	}
+		$key = 'key-a';
+		$class = 'ClassA';
+		$this->assertNull(ValidationFactory::addToFilterMap($key, $class));
 
-	/**
-	 * @test
-	 * @return	null
-	 */
-	public function validatorMapEmptyClassFailure()
-	{
-		$map = array(
-			'field1' => 'SomeClass',
-			'field2' => ''
-		);
-		$msg = 'validator class must be a non empty string';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::setValidatorMap($map, $msg);
-	}
+		$expected = array($key => $class);
+		$this->assertEquals($expected, ValidationFactory::getFilterMap());
 
-	/**
-	 * @test
-	 * @dataProvider	provideInvalidStrings
-	 * @return	null
-	 */
-	public function validatorMapNonStringClassFailure($class)
-	{
-		$map = array(
-			'filter1' => 'SomeClass',
-			'filter2' => $class
-		);
-		$msg = 'validator class must be a non empty string';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::setValidatorMap($map, $msg);
-	}
-
-	/**
-	 * @test
-	 * @return
-	 */
-	public function createValidatorNoClassMapped()
-	{
-		$msg = 'validator -(not-found) is not mapped';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::createValidator('not-found');
-	}
-
-	/**
-	 * @test
-	 * @return	null
-	 */
-	public function filterMap()
-	{
-		$this->assertEquals(array(), ValidationFactory::getFilterMap());
+		$key2 = 'key-b';
+		$class2 = 'ClassB';
+		$this->assertNull(ValidationFactory::addToFilterMap($key2, $class2));
 		
+		$expected[$key2] = $class2;
+		$this->assertEquals($expected, ValidationFactory::getFilterMap());
+	}
+
+	/**
+	 * @test
+	 * @depends	addToFilterMap
+	 * @return	null
+	 */
+	public function loadFilterMap()
+	{
 		$map = array(
-			'int'     => 'Appfuel\Validate\Filter\IntFilter',
-			'string'  => 'Appfuel\Validate\Filter\StringFilter',
-			'bool'	  => 'Appfuel\Validate\Filter\BoolFilter'
+			'key-a' => 'ClassA',
+			'key-b' => 'ClassB'
 		);
-		$this->assertNull(ValidationFactory::setFilterMap($map));
+		$this->assertNull(ValidationFactory::loadFilterMap($map));
 		$this->assertEquals($map, ValidationFactory::getFilterMap());
 
-		$result = ValidationFactory::mapFilter('int');
-		$this->assertEquals($map['int'], $result);
+		$map2 = array(
+			'key-c' => 'ClassC',
+			'key-d' => 'ClassD'
+		);
+		$this->assertNull(ValidationFactory::loadFilterMap($map2));
 
-		$result = ValidationFactory::mapFilter('string');
-		$this->assertEquals($map['string'], $result);
+		$expected = array_merge($map, $map2);
+		$this->assertEquals($expected, ValidationFactory::getFilterMap());
+	}
 
-		$result = ValidationFactory::mapFilter('bool');
-		$this->assertEquals($map['bool'], $result);
-
-		$this->assertFalse(ValidationFactory::mapValidator('no-match'));
+	/**
+	 * @test
+	 * @depends	loadFilterMap
+	 * @return	null
+	 */
+	public function clearFilterMap()
+	{
+		$map = array(
+			'key-a' => 'ClassA',
+			'key-b' => 'ClassB'
+		);
+		ValidationFactory::loadFilterMap($map);
+		$this->assertEquals($map, ValidationFactory::getFilterMap());
 
 		$this->assertNull(ValidationFactory::clearFilterMap());
 		$this->assertEquals(array(), ValidationFactory::getFilterMap());
@@ -192,103 +214,271 @@ class ValidationFactoryTest extends BaseTestCase
 
 	/**
 	 * @test
+	 * @depends	clearFilterMap
 	 * @return	null
 	 */
-	public function filterMapNotAssociativeArrayFailure()
-	{
-		$map = array('filter1', 'filter2', 'filter3');
-
-		$msg  = 'filter map must be an associative array of key to ';
-		$msg .= 'filter class name mappings';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::setFilterMap($map);
-	}
-
-	/**
-	 * @test
-	 * @return	null
-	 */
-	public function filterMapEmptyKeyFailure()
+	public function setFilterMap()
 	{
 		$map = array(
-			'filter' => 'SomeClass',
-			'' => 'OtherClass'
+			'key-a' => 'ClassA',
+			'key-b' => 'ClassB'
 		);
-		$msg = 'filter key must be a non empty string';
+		$this->assertNull(ValidationFactory::setFilterMap($map));
+		$this->assertEquals($map, ValidationFactory::getFilterMap());
+
+		$map2 = array(
+			'key-c' => 'ClassC',
+			'key-d' => 'ClassD'
+		);
+		$this->assertNull(ValidationFactory::setFilterMap($map2));
+		$this->assertEquals($map2, ValidationFactory::getFilterMap());
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return			null
+	 */
+	public function addToFilterMapKeyFailure($key)
+	{
+		$msg = 'key in filter category must be a non empty string';
 		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::setFilterMap($map, $msg);
+		ValidationFactory::addToFilterMap($key, 'ClassA');
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return			null
+	 */
+	public function addToFilterMapClassFailure($class)
+	{
+		$msg = 'class in filter category must be a non empty string';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationFactory::addToFilterMap('key-a', $class);
 	}
 
 	/**
 	 * @test
 	 * @return	null
 	 */
-	public function filterMapIntegerKeyFailure()
+	public function validationMap()
 	{
 		$map = array(
-			'filter1' => 'SomeClass',
-			1234 => 'OtherClass'
+			'validator' => array(
+				'key-a' => 'ClassA',
+				'key-b' => 'ClassB',
+			),
+			'filter' => array(
+				'key-c' => 'ClassC',
+				'key-d' => 'ClassD'
+			),
 		);
-		$msg = 'filter key must be a non empty string';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::setFilterMap($map, $msg);
+		$expected = array('validator' => array(), 'filter' => array());
+		$this->assertEquals($expected, ValidationFactory::getMap());
+		$this->assertNull(ValidationFactory::setMap($map));
+
+		$this->assertEquals($map, ValidationFactory::getMap());
+		$this->assertNull(ValidationFactory::clear());
+		$this->assertEquals($expected, ValidationFactory::getMap());
 	}
 
 	/**
 	 * @test
+	 * @depends	validationMap
 	 * @return	null
 	 */
-	public function filterMapEmptyClassFailure()
+	public function map()
 	{
 		$map = array(
-			'filter1' => 'SomeClass',
-			'filter2' => ''
+			'validator' => array(
+				'key-a' => 'ClassA',
+				'key-b' => 'ClassB',
+			),
+			'filter' => array(
+				'key-c' => 'ClassC',
+				'key-d' => 'ClassD'
+			),
 		);
-		$msg = 'filter class must be a non empty string';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::setFilterMap($map, $msg);
+		ValidationFactory::setMap($map);
+
+		$this->assertEquals(
+			'ClassA', 
+			ValidationFactory::map('validator', 'key-a')
+		);
+
+		$this->assertEquals(
+			'ClassB', 
+			ValidationFactory::map('validator', 'key-b')
+		);
+
+		$this->assertEquals(
+			'ClassC', 
+			ValidationFactory::map('filter', 'key-c')
+		);
+
+		$this->assertEquals(
+			'ClassD', 
+			ValidationFactory::map('filter', 'key-d')
+		);
+
+		$this->assertFalse(ValidationFactory::map('no-category', 'key-b'));
 	}
 
 	/**
 	 * @test
-	 * @dataProvider	provideInvalidStrings
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return			null
+	 */
+	public function mapCategoryFailures($cat)
+	{
+		$map = array(
+			'validator' => array(
+				'key-a' => 'ClassA',
+				'key-b' => 'ClassB',
+			),
+			'filter' => array(
+				'key-c' => 'ClassC',
+				'key-d' => 'ClassD'
+			),
+		);
+		ValidationFactory::setMap($map);
+
+		$this->assertFalse(ValidationFactory::map($cat, 'key-b'));
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return			null
+	 */
+	public function mapKeyFailures($key)
+	{
+		$map = array(
+			'validator' => array(
+				'key-a' => 'ClassA',
+				'key-b' => 'ClassB',
+			),
+			'filter' => array(
+				'key-c' => 'ClassC',
+				'key-d' => 'ClassD'
+			),
+		);
+		ValidationFactory::setMap($map);
+
+		$this->assertFalse(ValidationFactory::map('filter', $key));
+	}
+
+	/**
+	 * @test
+	 * @depends	map
 	 * @return	null
 	 */
-	public function filterMapNonStringClassFailure($class)
+	public function create()
 	{
 		$map = array(
-			'filter1' => 'SomeClass',
-			'filter2' => $class
+			'validator' => array(
+				'key-a' => 'StdClass',
+			),
+			'filter' => array(
+				'key-b' => 'StdClass',
+			),
 		);
-		$msg = 'filter class must be a non empty string';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::setFilterMap($map, $msg);
+		ValidationFactory::setMap($map);
+
+		$obj = ValidationFactory::create('validator', 'key-a');
+		$this->assertInstanceOf('StdClass', $obj);
+	
+		$obj = ValidationFactory::create('filter', 'key-b');
+		$this->assertInstanceOf('StdClass', $obj);
 	}
 
 	/**
 	 * @test
-	 * @depends	validatorMap
+	 * @depends	create
 	 * @return	null
 	 */
-	public function createFilterNoCache()
+	public function createNotMappedFailure()
 	{
-		$map = array(
-			'my-filter' => 'Testfuel\Functional\Validate\MockFilter'
-		);
-		ValidationFactory::setFilterMap($map);
-
-		$result = ValidationFactory::getFilter('my-filter');
-		$this->assertInstanceof($map['my-filter'], $result);
+		$msg = 'could not create object: could not map -(validator, not-there)';
+		$this->setExpectedException('DomainException', $msg);
+		$obj = ValidationFactory::create('validator', 'not-there');
 	}
 
 	/**
 	 * @test
-	 * @return
+	 * @depends	create
+	 * @return	null
 	 */
-	public function getFilterNoClassMapped()
+	public function createCoordinatorNoKey()
 	{
-		$msg = 'filter -(not-found) is not mapped';
-		$this->setExpectedException('DomainException', $msg);
-		ValidationFactory::getFilter('not-found');
+		$obj = ValidationFactory::createCoordinator();
+		$this->assertInstanceOf('Appfuel\Validate\Coordinator', $obj);
 	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createCoordinatorWithKey()
+	{
+		$key   = 'coordinator';
+		$class = 'Testfuel\Functional\Validate\MockCoordinator';
+		ValidationFactory::addToValidatorMap($key, $class);
+ 
+		$obj = ValidationFactory::createCoordinator($key);
+		$this->assertInstanceOf($class, $obj);
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createCoordinatorWithKeyObjFailure()
+	{
+		$key   = 'coordinator';
+		$class = 'StdClass';
+		ValidationFactory::addToValidatorMap($key, $class);
+
+		$msg  = 'coordinator -(coordinator,stdClass) does not implment '; 
+		$msg .= '-(Appfuel\Validate\CoordinatorInterface)';
+		$this->setExpectedException('DomainException', $msg); 
+		$obj = ValidationFactory::createCoordinator($key);
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createValidator()
+	{
+		$key   = 'field-validator';
+		$class = 'Testfuel\Functional\Validate\MockValidator';
+		ValidationFactory::addToValidatorMap($key, $class);
+ 
+		$obj = ValidationFactory::createValidator($key);
+		$this->assertInstanceOf($class, $obj);
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createValidatorWithKeyObjFailure()
+	{
+		$key   = 'field-validator';
+		$class = 'StdClass';
+		ValidationFactory::addToValidatorMap($key, $class);
+
+		$msg  = 'validator -(field-validator, stdClass) must implement ';
+		$msg .= '-(Appfuel\Validate\ValidatorInterface)';
+		$this->setExpectedException('DomainException', $msg); 
+		$obj = ValidationFactory::createValidator($key);
+	}
+
+
 }

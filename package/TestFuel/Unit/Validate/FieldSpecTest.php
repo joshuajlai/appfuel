@@ -100,7 +100,7 @@ class FieldSpecTest extends BaseTestCase
 	{
 		$key = 'my-spec';	
 		$class = 'Appfuel\Validate\Filter\FilterSpec';
-		ValidationFactory::addToFilter($key, $class);
+		ValidationFactory::addToFilterMap($key, $class);
 		$data['filter-spec'] = $key;
 		$spec = $this->createFieldSpec($data);
 		$this->assertEquals($key, $spec->getFilterSpec());

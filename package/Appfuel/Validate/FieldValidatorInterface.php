@@ -42,7 +42,7 @@ interface FieldValidatorInterface extends ValidatorInterface
      * @param   FilterInterface $filter
      * @return  FieldValidatorInterface
      */
-    public function addFilter(FilterInterface $filter);l
+    public function addFilter(FilterInterface $filter);
 
     /**
      * @return  FieldValidatorInterface
