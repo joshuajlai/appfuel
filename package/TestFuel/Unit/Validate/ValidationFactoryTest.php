@@ -480,5 +480,99 @@ class ValidationFactoryTest extends BaseTestCase
 		$obj = ValidationFactory::createValidator($key);
 	}
 
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createFilter()
+	{
+		$key   = 'my-int';
+		$class = 'Testfuel\Functional\Validate\MockFilter';
+		ValidationFactory::addToFilterMap($key, $class);
+ 
+		$obj = ValidationFactory::createFilter($key);
+		$this->assertInstanceOf($class, $obj);
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createFilterObjFailure()
+	{
+		$key   = 'my-int';
+		$class = 'StdClass';
+		ValidationFactory::addToFilterMap($key, $class);
+
+		$msg  = 'filter -(my-int, stdClass) must implement ';
+		$msg .= '-(Appfuel\Validate\Filter\FilterInterface)';
+		$this->setExpectedException('DomainException', $msg); 
+		$obj = ValidationFactory::createFilter($key);
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createDefaultFilterSpec()
+	{	
+		$data = array(
+			'name' => 'int',
+			'options' => array('max' => 100),
+			'error' => 'my error'
+		);
+		$class = 'Appfuel\Validate\Filter\FilterSpec';
+		$obj = ValidationFactory::createFilterSpec($data);
+		$this->assertInstanceOf($class, $obj);
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createFilterSpecWithKey()
+	{
+		$key   = 'my-spec';
+		$class = 'Testfuel\Functional\Validate\MockFilterSpec';
+		ValidationFactory::addToFilterMap($key, $class);
+ 
+		$data = array(
+			'name' => 'int',
+			'options' => array('max' => 100),
+			'error' => 'my error'
+		);
+		$obj = ValidationFactory::createFilterSpec($data, $key);
+		$this->assertInstanceOf($class, $obj);
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createFilterSpecObjFailure()
+	{
+		$key   = 'my-spec';
+		$class = 'StdClass';
+		ValidationFactory::addToFilterMap($key, $class);
+
+		$data = array(
+			'name' => 'int',
+			'options' => array('max' => 100),
+			'error' => 'my error'
+		);
+
+		$msg  = 'filter spec -(my-spec, StdClass) must implement ';
+		$msg .= '-(Appfuel\Validate\Filter\FilterSpecInterface)';
+		$this->setExpectedException('DomainException', $msg); 
+		
+		$obj = ValidationFactory::createFilterSpec($data, $key);
+	}
+
+
 
 }
