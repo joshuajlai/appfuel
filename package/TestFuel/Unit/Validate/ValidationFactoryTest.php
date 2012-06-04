@@ -40,6 +40,115 @@ class ValidationFactoryTest extends BaseTestCase
 	 * @test
 	 * @return	null
 	 */
+	public function addToHandlerMap()
+	{
+		$key = 'key-a';
+		$class = 'ClassA';
+		$this->assertNull(ValidationFactory::addToHandlerMap($key, $class));
+
+		$expected = array($key => $class);
+		$this->assertEquals($expected, ValidationFactory::getHandlerMap());
+
+		$key2 = 'key-b';
+		$class2 = 'ClassB';
+		$this->assertNull(ValidationFactory::addToHandlerMap($key2, $class2));
+		
+		$expected[$key2] = $class2;
+		$this->assertEquals($expected, ValidationFactory::getHandlerMap());
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return			null
+	 */
+	public function addToHandlerMapKeyFailure($key)
+	{
+		$msg = 'key in handler category must be a non empty string';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationFactory::addToHandlerMap($key, 'ClassA');
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return			null
+	 */
+	public function addToHandlerMapClassFailure($class)
+	{
+		$msg = 'class in handler category must be a non empty string';
+		$this->setExpectedException('DomainException', $msg);
+		ValidationFactory::addToHandlerMap('key-a', $class);
+	}
+
+	/**
+	 * @test
+	 * @depends	addToHandlerMap
+	 * @return	null
+	 */
+	public function loadHandlerMap()
+	{
+		$map = array(
+			'key-a' => 'ClassA',
+			'key-b' => 'ClassB'
+		);
+		$this->assertNull(ValidationFactory::loadHandlerMap($map));
+		$this->assertEquals($map, ValidationFactory::getHandlerMap());
+
+		$map2 = array(
+			'key-c' => 'ClassC',
+			'key-d' => 'ClassD'
+		);
+		$this->assertNull(ValidationFactory::loadHandlerMap($map2));
+
+		$expected = array_merge($map, $map2);
+		$this->assertEquals($expected, ValidationFactory::getHandlerMap());
+	}
+
+	/**
+	 * @test
+	 * @depends	loadHandlerMap
+	 * @return	null
+	 */
+	public function clearHandlerMap()
+	{
+		$map = array(
+			'key-a' => 'ClassA',
+			'key-b' => 'ClassB'
+		);
+		ValidationFactory::loadHandlerMap($map);
+		$this->assertEquals($map, ValidationFactory::getHandlerMap());
+
+		$this->assertNull(ValidationFactory::clearHandlerMap());
+		$this->assertEquals(array(), ValidationFactory::getHandlerMap());
+	}
+
+	/**
+	 * @test
+	 * @depends	clearHandlerMap
+	 * @return	null
+	 */
+	public function setHandlerMap()
+	{
+		$map = array(
+			'key-a' => 'ClassA',
+			'key-b' => 'ClassB'
+		);
+		$this->assertNull(ValidationFactory::setHandlerMap($map));
+		$this->assertEquals($map, ValidationFactory::getHandlerMap());
+
+		$map2 = array(
+			'key-c' => 'ClassC',
+			'key-d' => 'ClassD'
+		);
+		$this->assertNull(ValidationFactory::setHandlerMap($map2));
+		$this->assertEquals($map2, ValidationFactory::getHandlerMap());
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
 	public function addToValidatorMap()
 	{
 		$key = 'key-a';
@@ -80,7 +189,6 @@ class ValidationFactoryTest extends BaseTestCase
 		$this->setExpectedException('DomainException', $msg);
 		ValidationFactory::addToValidatorMap('key-a', $class);
 	}
-
 
 	/**
 	 * Load operation always appends more data onto the list while set will
@@ -273,8 +381,15 @@ class ValidationFactoryTest extends BaseTestCase
 				'key-c' => 'ClassC',
 				'key-d' => 'ClassD'
 			),
+			'handler' => array(
+				'key-e' => 'ClassE'
+			),
 		);
-		$expected = array('validator' => array(), 'filter' => array());
+		$expected = array(
+			'handler'   => array(),
+			'validator' => array(), 
+			'filter'	=> array()
+		);
 		$this->assertEquals($expected, ValidationFactory::getMap());
 		$this->assertNull(ValidationFactory::setMap($map));
 
@@ -299,6 +414,9 @@ class ValidationFactoryTest extends BaseTestCase
 				'key-c' => 'ClassC',
 				'key-d' => 'ClassD'
 			),
+			'handler' => array(
+				'key-e' => 'ClassE'
+			),
 		);
 		ValidationFactory::setMap($map);
 
@@ -320,6 +438,11 @@ class ValidationFactoryTest extends BaseTestCase
 		$this->assertEquals(
 			'ClassD', 
 			ValidationFactory::map('filter', 'key-d')
+		);
+
+		$this->assertEquals(
+			'ClassE', 
+			ValidationFactory::map('handler', 'key-e')
 		);
 
 		$this->assertFalse(ValidationFactory::map('no-category', 'key-b'));
@@ -383,6 +506,9 @@ class ValidationFactoryTest extends BaseTestCase
 			'filter' => array(
 				'key-b' => 'StdClass',
 			),
+			'handler' => array(
+				'key-c' => 'StdClass',
+			),
 		);
 		ValidationFactory::setMap($map);
 
@@ -390,6 +516,9 @@ class ValidationFactoryTest extends BaseTestCase
 		$this->assertInstanceOf('StdClass', $obj);
 	
 		$obj = ValidationFactory::create('filter', 'key-b');
+		$this->assertInstanceOf('StdClass', $obj);
+		
+		$obj = ValidationFactory::create('handler', 'key-c');
 		$this->assertInstanceOf('StdClass', $obj);
 	}
 
@@ -403,6 +532,72 @@ class ValidationFactoryTest extends BaseTestCase
 		$msg = 'could not create object: could not map -(validator, not-there)';
 		$this->setExpectedException('DomainException', $msg);
 		$obj = ValidationFactory::create('validator', 'not-there');
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createHandlerNoKey()
+	{
+		$obj = ValidationFactory::createHandler();
+		$this->assertInstanceOf('Appfuel\Validate\ValidationHandler', $obj);
+
+		$coord = $this->getMock('Appfuel\Validate\CoordinatorInterface');
+		$obj = ValidationFactory::createHandler(null, $coord);
+		$this->assertInstanceOf('Appfuel\Validate\ValidationHandler', $obj);
+		$this->assertSame($coord, $obj->getCoordinator());
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createHandlerWithKey()
+	{
+		$key   = 'handler';
+		$class = 'Testfuel\Functional\Validate\MockHandler';
+		ValidationFactory::addToHandlerMap($key, $class);
+ 
+		$obj = ValidationFactory::createHandler($key);
+		$this->assertInstanceOf($class, $obj);
+		
+		$coord = $this->getMock('Appfuel\Validate\CoordinatorInterface');
+		$obj = ValidationFactory::createHandler($key, $coord);
+		$this->assertInstanceOf($class, $obj);
+		$this->assertSame($coord, $obj->getCoordinator());
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createHandlerWithKeyObjFailure()
+	{
+		$key   = 'handler';
+		$class = 'StdClass';
+		ValidationFactory::addToHandlerMap($key, $class);
+		
+		$msg  = 'handler -(handler,StdClass) does not implment ';
+		$msg .= '-(Appfuel\Validate\ValidationHandlerInterface)';
+		$this->setExpectedException('DomainException', $msg); 
+		$obj = ValidationFactory::createHandler($key);
+	}
+
+	/**
+	 * @test
+	 * @depends	create
+	 * @return	null
+	 */
+	public function createHandlerNotMappedFailure()
+	{
+		$key = 'handler';
+		$msg  = 'could not map validation handler with -(handler)';
+		$this->setExpectedException('DomainException', $msg); 
+		$obj = ValidationFactory::createHandler($key);
 	}
 
 	/**

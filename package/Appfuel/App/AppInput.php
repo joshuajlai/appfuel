@@ -11,7 +11,9 @@
 namespace Appfuel\App;
 
 use InvalidArgumentException,
-	Appfuel\DataStructure\Dictionary;
+	Appfuel\DataStructure\Dictionary,
+	Appfuel\Validate\ValidationFactory,
+	Appfuel\Validate\ValidationHandlerInterface;
 
 /**
  * Holds all the input for a given request to the application
@@ -25,25 +27,32 @@ class AppInput implements AppInputInterface
     protected $params = array();
 
     /**
-     * Method used for this request POST | GET
+     * Method used for this request get, post, put, delete or cli
      * @var string
      */
     protected $method = null;
+
+	/**
+	 * @var ValidationHandlerInterface
+	 */
+	protected $handler = null;
 
     /**
 	 * @param	string	$method	
 	 * @param	array	$params
      * @return	AppInput
      */
-    public function __construct($method, array $params = array())
+    public function __construct($method, 
+								array $params = array(),
+								ValidationHandlerInterface $handler = null)
     {
-		if (! is_string($method) || empty($method)) {
-			$err = "method must be a non empty string";
-			throw new InvalidArgumentException($err);
-		}
+		$this->setMethod($method);
+		$this->setParams($params);
 
-		$this->method = strtolower($method);
-		$this->params = $params;
+		if (null === $handler) {
+			$handler = ValidationFactory::createHandler();
+		}
+		$this->setValidationHandler($handler);
     }
 
     /**
@@ -337,5 +346,28 @@ class AppInput implements AppInputInterface
 		}
 
 		return sprintf($format, $ip);
+	}
+
+	/**
+	 * @param	string	$method
+	 * @return	null
+	 */
+	protected function setMethod($method)
+	{
+		if (! is_string($method) || empty($method)) {
+			$err = "input method must be a non empty string";
+			throw new InvalidArgumentException($err);
+		}
+
+		$this->method = strtolower($method);
+	}
+
+	/**
+	 * @param	array	$params
+	 * @return	null
+	 */
+	protected function setParams(array $params)
+	{
+		$this->params = $params;
 	}
 }

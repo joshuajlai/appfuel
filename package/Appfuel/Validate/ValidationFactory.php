@@ -26,6 +26,9 @@ class ValidationFactory
 	 * @var array
 	 */
 	static protected $map = array(
+		'handler' => array(
+			'general-handler' => 'Appfuel\Validate\ValidationHandler'
+		),
 		'validator' => array(
 			'field-validator' => 'Appfuel\Validate\FieldValidator',
 			'field-spec'      => 'Appfuel\Validate\FieldSpec',
@@ -58,17 +61,74 @@ class ValidationFactory
 	 */
 	static public function setMap(array $map)
 	{
-		if (! isset($map['validator']) || ! is_array($map['validator'])) {
-			$err = "the validator mapping is missing: key -(validator)";
-			throw new DomainException($err);
+		if (isset($map['handler'])) {
+			self::setHandlerMap($map['handler']);
 		}
-		self::setValidatorMap($map['validator']);
+
+		if (isset($map['validator'])) {
+			self::setValidatorMap($map['validator']);
+		}
 		
-		if (! isset($map['filter']) || ! is_array($map['filter'])) {
-			$err = "the filter mapping is missing: key -(filter)";
+		if (isset($map['filter'])) {
+			self::setFilterMap($map['filter']);	
+		}
+	}
+
+	/**
+	 * @param	array	$map
+	 * @return	null
+	 */
+	static public function setHandlerMap(array $map)
+	{
+		self::clearHandlerMap();
+		self::loadHandlerMap($map);
+	}
+
+	/**
+	 * @param	array	$map
+	 * @return	null
+	 */
+	static public function loadHandlerMap(array $map)
+	{
+		foreach ($map as $key => $class) {
+			self::addToHandlerMap($key, $class);
+		}
+	}
+
+	/**
+	 * @return	array
+	 */
+	static public function getHandlerMap()
+	{
+		return	self::$map['handler'];
+	}
+
+	/**
+	 * @param	string	$key
+	 * @param	string	$class
+	 * @return	null
+	 */
+	static public function addToHandlerMap($key, $class)
+	{
+		if (! is_string($key) || empty($key)) {
+			$err = "key in handler category must be a non empty string";
 			throw new DomainException($err);
 		}
-		self::setFilterMap($map['filter']);	
+
+		if (! is_string($class) || empty($class)) {
+			$err = "class in handler category must be a non empty string";
+			throw new DomainException($err);
+		}
+
+		self::$map['handler'][$key] = $class;
+	}
+
+	/**
+	 * @return	null
+	 */
+	static public function clearHandlerMap()
+	{
+		self::$map['handler'] = array();
 	}
 
 	/**
@@ -219,6 +279,32 @@ class ValidationFactory
 
 	/**
 	 * @param	string	$key
+	 * @return	ValidationHandlerInterface
+	 */
+	static public function createHandler($key = null, 
+										 CoordinatorInterface $coord = null)
+	{
+		if (null === $key) {
+			return new ValidationHandler($coord);
+		}
+
+		$class = self::map('handler', $key);
+		if (false === $class) {
+			$err = "could not map validation handler with -($key)";
+			throw new DomainException($err);
+		}
+		$handler = new $class($coord);
+		if (! $handler instanceof ValidationHandlerInterface) {
+			$iface = 'Appfuel\Validate\ValidationHandlerInterface';
+			$err   = "handler -($key,$class) does not implment -($iface)";
+			throw new DomainException($err);
+		}
+	
+		return $handler;
+	}
+
+	/**
+	 * @param	string	$key
 	 * @return	CoordinatorInterface
 	 */
 	static public function createCoordinator($key = null)
@@ -303,6 +389,7 @@ class ValidationFactory
 	 */
 	static public function clear()
 	{
+		self::clearHandlerMap();
 		self::clearValidatorMap();
 		self::clearFilterMap();
 	}
