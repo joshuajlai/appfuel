@@ -150,7 +150,8 @@ class AppInput implements AppInputInterface
 	 */
 	public function isShortOptFlag($opt)
 	{
-		if (! isset($this->params['short']) || 
+		if (! is_string($opt) ||
+			! isset($this->params['short']) || 
 			! isset($this->params['short'][$opt]) ||
 			true !== $this->params['short'][$opt]) {
 			return false;
@@ -288,7 +289,7 @@ class AppInput implements AppInputInterface
 			return false;
 		}
 
-        return $this->params[strtolower($type)];
+        return $this->params[$type];
     }
 
 	/**
@@ -297,12 +298,7 @@ class AppInput implements AppInputInterface
 	 */
 	public function isValidParamType($type)
 	{
-		if (empty($type) || ! is_string($type)) {
-			return false;
-		}
-
-		$type  = strtolower($type);
-		if (! isset($this->params[$type])) {
+		if (! is_string($type) || ! isset($this->params[$type])) {
 			return false;
 		}
 		
@@ -369,5 +365,14 @@ class AppInput implements AppInputInterface
 	protected function setParams(array $params)
 	{
 		$this->params = $params;
+	}
+
+	/**
+	 * @param	ValidationHandlerInterface $hndlr
+	 * @return	null
+	 */
+	protected function setValidationHandler(ValidationHandlerInterface $hndlr)
+	{
+		$this->handler = $hndlr;
 	}
 }

@@ -9,8 +9,6 @@
 	<file>../package/Testfuel/Unit/Kernel/StartupTaskTest.php</file>
 	<file>../package/Testfuel/Unit/Kernel/TaskHandlerTest.php</file>
 
-	<file>../package/Testfuel/Unit/Kernel/Mvc/AppInputTest.php</file>
-	<file>../package/Testfuel/Unit/Kernel/Mvc/AppInput_FailureTest.php</file>
 	<file>../package/Testfuel/Unit/Kernel/Mvc/RequestUriTest.php</file>
 	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteAccessTest.php</file>
 	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteStartupTest.php</file>
@@ -19,6 +17,7 @@
 	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteActionTest.php</file>
 	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteDetailTest.php</file>
 
+	<file>../package/Testfuel/Unit/App/AppInputTest.php</file>
 
 	<file>../package/Testfuel/Unit/Config/ConfigBuilderTest.php</file>
 	<file>../package/Testfuel/Unit/Config/ConfigLoaderTest.php</file>
