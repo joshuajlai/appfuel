@@ -14,7 +14,7 @@ use StdClass,
 	Testfuel\TestCase\BaseTestCase,
 	Appfuel\Validate\FieldSpec,
 	Appfuel\Validate\Coordinator,
-	Appfuel\Validate\eFieldValidator,
+	Appfuel\Validate\FieldValidator,
 	Appfuel\Validate\ValidationFactory;
 
 class FieldValidatorTest extends BaseTestCase
@@ -35,16 +35,16 @@ class FieldValidatorTest extends BaseTestCase
      */
     public function setUp()
     {
-        $this->validatorMapBk = ValidationFactory::getValidatorMap();
-        $this->filterMapBk = ValidationFactory::getFilterMap();
+		parent::setUp();
+		$this->backupValidationMap();
         ValidationFactory::clear();
     }
 
     public function tearDown()
     {
+		parent::tearDown();
         ValidationFactory::clear();
-        ValidationFactory::setValidatorMap($this->validatorMapBk);
-        ValidationFactory::setFilterMap($this->filterMapBk);
+		$this->restoreValidationMap();
     }
 
 	/**

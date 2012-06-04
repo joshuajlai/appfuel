@@ -57,14 +57,6 @@ class ValidationHandler implements ValidationHandlerInterface
 	public function setCoordinator(CoordinatorInterface $coord)
 	{
 		$this->coord = $coord;
-	}
-
-	/**
-	 * @return	ValidationHandler
-	 */
-	public function clearCoordinator()
-	{
-		$this->coordinator = null;
 		return $this;
 	}
 
@@ -74,10 +66,11 @@ class ValidationHandler implements ValidationHandlerInterface
 	 */
 	public function loadSpec(FieldSpecInterface $spec)
 	{
-		$key = $spec->getValidator();
-		$validator = ValidationFactory::createValidator($validator);
-		$validator->loadSpec($spec);
-		$this->addValidator($validator);
+		$validator = ValidationFactory::createValidator($spec->getValidator());
+
+		/* load spec returns the validator which feeds into the add */
+		$this->addValidator($validator->loadSpec($spec));
+		return $this;
 	}
 
 	/**
@@ -119,19 +112,18 @@ class ValidationHandler implements ValidationHandlerInterface
 	/**
 	 * @return array
 	 */
-	public function getErrors()
+	public function getErrorStack()
 	{
 		return $this->getCoordinator()
-					->getErrors();
+					->getErrorStack();
 	}
 
-	/**
-	 * @return	Error | null when no errors exist
-	 */
-	public function getError($field)
+	public function clearErrors()
 	{
-		return $this->getCoordinator()
-					->getError($field);
+		$this->getCoordinator()
+			 ->clearErrors();
+
+		return $this;
 	}
 
 	/**
@@ -152,6 +144,14 @@ class ValidationHandler implements ValidationHandlerInterface
 					->getClean($field, $default);
 	}
 
+	public function clearClean()
+	{
+		$this->getCoordinator()
+			 ->clearClean();
+
+		return $this;
+	}
+
 	/**
 	 * @param	mixed	$raw	data used to validate with filters
 	 * @return	bool
@@ -164,7 +164,7 @@ class ValidationHandler implements ValidationHandlerInterface
 		 * Clear any errors, clean and raw data. this allows filters to be
 		 * reused across multiple raw sources
 		 */
-		$coord->reset();
+		$coord->clearErrors();
 		$coord->setSource($raw);
 		
 		$failed = 0;

@@ -51,6 +51,14 @@ class BaseTestCase extends PHPUnit_Framework_TestCase
         parent::__construct($name, $data, $dataName);
     }
 
+    /**
+     * @return string
+     */
+    public function getErrorInterface()
+    {
+        return 'Appfuel\Error\ErrorInterface';
+    }
+
 	/**
 	 * @return	PathFinder
 	 */

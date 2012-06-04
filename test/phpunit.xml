@@ -30,7 +30,8 @@
 	<file>../package/Testfuel/Unit/Validate/FieldSpecTest.php</file>
 	<file>../package/Testfuel/Unit/Validate/CoordinatorTest.php</file>
 	<file>../package/Testfuel/Unit/Validate/ValidationFactoryTest.php</file>
-	<file>../package/Testfuel/Unit/Validate/SingleFieldValidatorTest.php</file>
+	<file>../package/Testfuel/Unit/Validate/FieldValidatorTest.php</file>
+	<file>../package/Testfuel/Unit/Validate/ValidationHandlerTest.php</file>
 	<file>../package/Testfuel/Unit/Validate/Filter/FilterSpecTest.php</file>
 	<file>../package/Testfuel/Unit/Validate/Filter/ValidationFilterTest.php</file>
 	<file>../package/Testfuel/Unit/Validate/Filter/IntFilterTest.php</file>
