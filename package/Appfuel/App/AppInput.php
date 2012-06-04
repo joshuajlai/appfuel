@@ -167,7 +167,8 @@ class AppInput implements AppInputInterface
 	 */
 	public function getShortOpt($opt, $default = null)
 	{
-		if (! isset($this->params['short']) || 
+		if (! is_string($opt) ||
+			! isset($this->params['short']) || 
 			! isset($this->params['short'][$opt])) {
 			return $default;
 		}
@@ -181,7 +182,8 @@ class AppInput implements AppInputInterface
 	 */
 	public function isLongOptFlag($opt)
 	{
-		if (! isset($this->params['long']) || 
+		if (! is_string($opt) ||
+			! isset($this->params['long']) || 
 			! isset($this->params['long'][$opt]) ||
 			true !== $this->params['long'][$opt]) {
 			return false;
@@ -197,7 +199,8 @@ class AppInput implements AppInputInterface
 	 */
 	public function getLongOpt($opt, $default = null)
 	{
-		if (! isset($this->params['long']) || 
+		if (! is_string($opt) ||
+			! isset($this->params['long']) || 
 			! isset($this->params['long'][$opt])) {
 			return $default;
 		}

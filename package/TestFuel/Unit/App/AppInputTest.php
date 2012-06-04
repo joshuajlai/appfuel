@@ -220,5 +220,30 @@ class AppInputTest extends BaseTestCase
 		$this->assertFalse($app->isShortOptFlag('not-there'));
 		$this->assertFalse($app->isShortOptFlag(123245));
 		$this->assertFalse($app->isShortOptFlag(true));
+		$this->assertFalse($app->isShortOptFlag(array(1,2,3)));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function isLongOptFlag()
+	{
+		$method = 'cli';
+		$params = array(
+			'long' => array(
+				'my-flag-a' => true,
+				'my-flag-b' => true,
+				'my-flag-c' => false
+			)
+		);
+		$app = $this->createAppInput($method, $params);
+		$this->assertTrue($app->isLongOptFlag('my-flag-a'));
+		$this->assertTrue($app->isLongOptFlag('my-flag-b'));
+		$this->assertFalse($app->isLongOptFlag('my-flag-c'));
+		$this->assertFalse($app->isLongOptFlag('not-there'));
+		$this->assertFalse($app->isLongOptFlag(123245));
+		$this->assertFalse($app->isLongOptFlag(true));
+		$this->assertFalse($app->isLongOptFlag(array(1,2,3)));
 	}
 }
