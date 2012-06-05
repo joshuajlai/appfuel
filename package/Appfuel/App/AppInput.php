@@ -233,7 +233,11 @@ class AppInput implements AppInputInterface
      */
 	public function get($type, $key, $default = null)
 	{
-		if (! $this->isValidParamType($type) || ! is_scalar($key)) {
+		if (! $this->isValidParamType($type)) {
+			return $default;
+		}
+
+		if (! is_string($key) || empty($key)) {
 			return $default;
 		}
 

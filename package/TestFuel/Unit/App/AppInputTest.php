@@ -54,23 +54,23 @@ class AppInputTest extends BaseTestCase
 	public function defaultGetConstructor()
 	{
 		$method = 'GET';
-		$app = $this->createAppInput($method);
-		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $app);
-		$this->assertTrue($app->isGet());
-		$this->assertFalse($app->isPost());
-		$this->assertFalse($app->isPut());
-		$this->assertFalse($app->isDelete());
-		$this->assertFalse($app->isCli());
-		$this->assertEquals('get', $app->getMethod());
+		$input = $this->createAppInput($method);
+		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $input);
+		$this->assertTrue($input->isGet());
+		$this->assertFalse($input->isPost());
+		$this->assertFalse($input->isPut());
+		$this->assertFalse($input->isDelete());
+		$this->assertFalse($input->isCli());
+		$this->assertEquals('get', $input->getMethod());
 
-		$this->assertEquals(array(), $app->getAll());
+		$this->assertEquals(array(), $input->getAll());
 
 		/*
 		 * params are categorized by method, however its the builders
 		 * responsibility to ensure param categories are available
 		 */
-		$this->assertFalse($app->getAll('get'));
-		$this->assertFalse($app->getAll('post'));
+		$this->assertFalse($input->getAll('get'));
+		$this->assertFalse($input->getAll('post'));
 	}
 
 	/**
@@ -80,17 +80,17 @@ class AppInputTest extends BaseTestCase
 	public function defaultPostConstructor()
 	{
 		$method = 'Post';
-		$app = $this->createAppInput($method);
-		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $app);
-		$this->assertTrue($app->isPost());
-		$this->assertFalse($app->isGet());
-		$this->assertFalse($app->isPut());
-		$this->assertFalse($app->isDelete());
-		$this->assertFalse($app->isCli());
-		$this->assertEquals('post', $app->getMethod());
+		$input = $this->createAppInput($method);
+		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $input);
+		$this->assertTrue($input->isPost());
+		$this->assertFalse($input->isGet());
+		$this->assertFalse($input->isPut());
+		$this->assertFalse($input->isDelete());
+		$this->assertFalse($input->isCli());
+		$this->assertEquals('post', $input->getMethod());
 
-		$this->assertEquals(array(), $app->getAll());
-		$this->assertFalse($app->getAll('post'));
+		$this->assertEquals(array(), $input->getAll());
+		$this->assertFalse($input->getAll('post'));
 	}
 
 	/**
@@ -100,17 +100,17 @@ class AppInputTest extends BaseTestCase
 	public function defaultPutConstructor()
 	{
 		$method = 'put';
-		$app = $this->createAppInput($method);
-		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $app);
-		$this->assertTrue($app->isPut());
-		$this->assertFalse($app->isGet());
-		$this->assertFalse($app->isPost());
-		$this->assertFalse($app->isDelete());
-		$this->assertFalse($app->isCli());
-		$this->assertEquals('put', $app->getMethod());
+		$input = $this->createAppInput($method);
+		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $input);
+		$this->assertTrue($input->isPut());
+		$this->assertFalse($input->isGet());
+		$this->assertFalse($input->isPost());
+		$this->assertFalse($input->isDelete());
+		$this->assertFalse($input->isCli());
+		$this->assertEquals('put', $input->getMethod());
 
-		$this->assertEquals(array(), $app->getAll());
-		$this->assertFalse($app->getAll('put'));
+		$this->assertEquals(array(), $input->getAll());
+		$this->assertFalse($input->getAll('put'));
 	}
 
 	/**
@@ -120,17 +120,17 @@ class AppInputTest extends BaseTestCase
 	public function defaultDeleteConstructor()
 	{
 		$method = 'delete';
-		$app = $this->createAppInput($method);
-		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $app);
-		$this->assertTrue($app->isDelete());
-		$this->assertFalse($app->isGet());
-		$this->assertFalse($app->isPost());
-		$this->assertFalse($app->isPut());
-		$this->assertFalse($app->isCli());
-		$this->assertEquals('delete', $app->getMethod());
+		$input = $this->createAppInput($method);
+		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $input);
+		$this->assertTrue($input->isDelete());
+		$this->assertFalse($input->isGet());
+		$this->assertFalse($input->isPost());
+		$this->assertFalse($input->isPut());
+		$this->assertFalse($input->isCli());
+		$this->assertEquals('delete', $input->getMethod());
 
-		$this->assertEquals(array(), $app->getAll());
-		$this->assertFalse($app->getAll('delete'));
+		$this->assertEquals(array(), $input->getAll());
+		$this->assertFalse($input->getAll('delete'));
 	}
 
 	/**
@@ -140,17 +140,17 @@ class AppInputTest extends BaseTestCase
 	public function defaultCliConstructor()
 	{
 		$method = 'cli';
-		$app = $this->createAppInput($method);
-		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $app);
-		$this->assertTrue($app->isCli());
-		$this->assertFalse($app->isGet());
-		$this->assertFalse($app->isPost());
-		$this->assertFalse($app->isPut());
-		$this->assertFalse($app->isDelete());
-		$this->assertEquals('cli', $app->getMethod());
+		$input = $this->createAppInput($method);
+		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $input);
+		$this->assertTrue($input->isCli());
+		$this->assertFalse($input->isGet());
+		$this->assertFalse($input->isPost());
+		$this->assertFalse($input->isPut());
+		$this->assertFalse($input->isDelete());
+		$this->assertEquals('cli', $input->getMethod());
 
-		$this->assertEquals(array(), $app->getAll());
-		$this->assertFalse($app->getAll('cli'));
+		$this->assertEquals(array(), $input->getAll());
+		$this->assertFalse($input->getAll('cli'));
 	}
 
 	/**
@@ -174,12 +174,12 @@ class AppInputTest extends BaseTestCase
 				'param6' => 'value-6'
 			)
 		);
-		$app = $this->createAppInput($method, $params);
-		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $app);
-		$this->assertEquals($params, $app->getAll());
-		$this->assertEquals($params['get'], $app->getAll('get'));
-		$this->assertEquals($params['post'], $app->getAll('post'));
-		$this->assertEquals($params['cli'], $app->getAll('cli'));
+		$input = $this->createAppInput($method, $params);
+		$this->assertInstanceOf('Appfuel\App\AppInputInterface', $input);
+		$this->assertEquals($params, $input->getAll());
+		$this->assertEquals($params['get'], $input->getAll('get'));
+		$this->assertEquals($params['post'], $input->getAll('post'));
+		$this->assertEquals($params['cli'], $input->getAll('cli'));
 	}
 
 	/**
@@ -192,8 +192,8 @@ class AppInputTest extends BaseTestCase
 	{
 		$method = 'cli';
 		$params = array('cmd' => './my-script');
-		$app = $this->createAppInput($method, $params);
-		$this->assertEquals($params['cmd'], $app->getCmd());	
+		$input = $this->createAppInput($method, $params);
+		$this->assertEquals($params['cmd'], $input->getCmd());	
 	}
 
 	/**
@@ -213,14 +213,38 @@ class AppInputTest extends BaseTestCase
 				'c' => false
 			)
 		);
-		$app = $this->createAppInput($method, $params);
-		$this->assertTrue($app->isShortOptFlag('a'));
-		$this->assertTrue($app->isShortOptFlag('b'));
-		$this->assertFalse($app->isShortOptFlag('c'));
-		$this->assertFalse($app->isShortOptFlag('not-there'));
-		$this->assertFalse($app->isShortOptFlag(123245));
-		$this->assertFalse($app->isShortOptFlag(true));
-		$this->assertFalse($app->isShortOptFlag(array(1,2,3)));
+		$input = $this->createAppInput($method, $params);
+		$this->assertTrue($input->isShortOptFlag('a'));
+		$this->assertTrue($input->isShortOptFlag('b'));
+		$this->assertFalse($input->isShortOptFlag('c'));
+		$this->assertFalse($input->isShortOptFlag('not-there'));
+		$this->assertFalse($input->isShortOptFlag(123245));
+		$this->assertFalse($input->isShortOptFlag(true));
+		$this->assertFalse($input->isShortOptFlag(array(1,2,3)));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function getShortOption()
+	{
+		$method = 'cli';
+		$params = array(
+			'short' => array(
+				'a' => 'value-a',
+				'b' => 1234,
+				'c' => 'value-c'
+			)
+		);
+		$input = $this->createAppInput($method, $params);
+		$this->assertEquals('value-a', $input->getShortOpt('a'));
+		$this->assertEquals(1234, $input->getShortOpt('b'));
+		$this->assertEquals('value-c', $input->getShortOpt('c'));
+		$this->assertNull($input->getShortOpt('z'));
+		$this->assertEquals('default', $input->getShortOpt('z', 'default'));
+		$this->assertNull($input->getShortOpt(true));
+		$this->assertNull($input->getShortOpt(array(1,2,3)));
 	}
 
 	/**
@@ -237,13 +261,156 @@ class AppInputTest extends BaseTestCase
 				'my-flag-c' => false
 			)
 		);
-		$app = $this->createAppInput($method, $params);
-		$this->assertTrue($app->isLongOptFlag('my-flag-a'));
-		$this->assertTrue($app->isLongOptFlag('my-flag-b'));
-		$this->assertFalse($app->isLongOptFlag('my-flag-c'));
-		$this->assertFalse($app->isLongOptFlag('not-there'));
-		$this->assertFalse($app->isLongOptFlag(123245));
-		$this->assertFalse($app->isLongOptFlag(true));
-		$this->assertFalse($app->isLongOptFlag(array(1,2,3)));
+		$input = $this->createAppInput($method, $params);
+		$this->assertTrue($input->isLongOptFlag('my-flag-a'));
+		$this->assertTrue($input->isLongOptFlag('my-flag-b'));
+		$this->assertFalse($input->isLongOptFlag('my-flag-c'));
+		$this->assertFalse($input->isLongOptFlag('not-there'));
+		$this->assertFalse($input->isLongOptFlag(123245));
+		$this->assertFalse($input->isLongOptFlag(true));
+		$this->assertFalse($input->isLongOptFlag(array(1,2,3)));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function getLongOpt()
+	{
+		$method = 'cli';
+		$params = array(
+			'long' => array(
+				'my-flag-a' => 'value-a',
+				'my-flag-b' => 12345,
+				'my-flag-c' => 'value-c'
+			)
+		);
+		$input = $this->createAppInput($method, $params);
+		$this->assertEquals('value-a', $input->getLongOpt('my-flag-a'));
+		$this->assertEquals(12345, $input->getLongOpt('my-flag-b'));
+		$this->assertEquals('value-c', $input->getLongOpt('my-flag-c'));
+
+		$this->assertNull($input->getLongOpt('none'));
+		$this->assertEquals('default', $input->getLongOpt('none', 'default'));
+		$this->assertNull($input->getLongOpt(true));
+		$this->assertNull($input->getLongOpt(array(1,2,3)));
+		$this->assertNull($input->getLongOpt(new StdClass()));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function getArgs()
+	{
+		$method = 'cli';
+		$params = array(
+			'args' => array('arg1', 'arg2', 'arg3')
+		);
+		$input = $this->createAppInput($method, $params);
+		$this->assertEquals($params['args'], $input->getArgs());
+
+		$params = array(
+			'not-args' => array('arg1', 'arg2', 'arg3')
+		);
+		$input = $this->createAppInput($method, $params);
+		$this->assertEquals(array(), $input->getArgs());
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function isValidParamType()
+	{
+		$method = 'cli';
+		$params = array(
+			'typeA' => array(
+				'param1' => 'value1'
+			),
+			'TYPEB' => array(
+				'param2' => 'value2'
+			),
+
+			'typec' => array(
+				'param3' => 'value3'
+			)
+		);
+		$input = $this->createAppInput($method, $params);
+		$this->assertTrue($input->isValidParamType('typeA'));
+		$this->assertTrue($input->isValidParamType('TYPEB'));
+		$this->assertTrue($input->isValidParamType('typec'));
+
+		$this->assertFalse($input->isValidParamType('typea'));
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStrings
+	 * @return	null
+	 */
+	public function isValidParamTypeNonString($type)
+	{
+		$method = 'cli';
+		$params = array(
+			'typeA' => array(
+				'param1' => 'value1'
+			),
+			'TYPEB' => array(
+				'param2' => 'value2'
+			),
+
+			'typec' => array(
+				'param3' => 'value3'
+			)
+		);
+		$input = $this->createAppInput($method, $params);
+		$this->assertFalse($input->isValidParamType($type));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function testGet()
+	{
+		$method = 'post';
+		$params = array(
+			'get' => array(
+				'param1' => 'value1',
+				'param2' => 12345,
+			),
+			'post' => array(
+				'param3' => 'value3'
+			),
+		);
+		$input = $this->createAppInput($method, $params);
+
+		$this->assertEquals('value1', $input->get('get', 'param1'));
+		$this->assertEquals(12345, $input->get('get', 'param2'));
+		$this->assertEquals('value3', $input->get('post', 'param3'));
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return	null
+	 */
+	public function testGetNotFound($key)
+	{
+		$method = 'post';
+		$params = array(
+			'get' => array(
+				'param1' => 'value1',
+				'param2' => 12345,
+			),
+			'post' => array(
+				'param3' => 'value3'
+			),
+		);
+		$input = $this->createAppInput($method, $params);
+
+		$this->assertNull($input->get('get', $key));
+		$this->assertEquals('default', $input->get('get', $key, 'default'));
 	}
 }
