@@ -10,7 +10,8 @@
  */
 namespace Appfuel\App;
 
-use InvalidArgumentException,
+use	DomainException,	
+	InvalidArgumentException,
 	Appfuel\DataStructure\Dictionary,
 	Appfuel\Validate\ValidationFactory,
 	Appfuel\Validate\ValidationHandlerInterface;
@@ -110,8 +111,7 @@ class AppInput implements AppInputInterface
      */
     public function getParam($key, $default = null)
     {
-		$method = $this->getMethod();
-		if ('cli' !== $method) {
+		if ($this->isCli()) {
 			return $this->get($method, $key, $default);
 		}
 
@@ -136,14 +136,25 @@ class AppInput implements AppInputInterface
 	 */
 	public function getCmd()
 	{
-		$result = false;
-		if (isset($this->params['cmd'])) {
-			$result = $this->params['cmd'];
+		if (! isset($this->params['args']['cmd'])) {
+			return false;
 		}
 
-		return $result;
+		return $this->params['args']['cmd'];
 	}
 	
+	/**
+	 * @return	array
+	 */
+	public function getArgs()
+	{
+		if (! isset($this->params['args']['list'])) {
+			return false;
+		}
+	
+		return $this->params['args']['list'];
+	}
+
 	/**
 	 * @param	string	$opt
 	 * @return	bool
@@ -208,18 +219,6 @@ class AppInput implements AppInputInterface
 		return $this->params['long'][$opt];
 	}
 
-	/**
-	 * @return	array
-	 */
-	public function getArgs()
-	{
-		if (! isset($this->params['args'])) {
-			return array();
-		}
-	
-		return $this->params['args'];
-	}
-
     /**
      * The params member is a general array that holds any or all of the
      * parameters for this request. This method will search on a particular
@@ -233,15 +232,15 @@ class AppInput implements AppInputInterface
      */
 	public function get($type, $key, $default = null)
 	{
-		if (! $this->isValidParamType($type)) {
+		if (! is_string($type) || empty($type)) {
 			return $default;
 		}
+		$type = strtolower($type);
 
 		if (! is_string($key) || empty($key)) {
 			return $default;
 		}
 
-		$type = strtolower($type);
         if (! array_key_exists($key, $this->params[$type])) {
             return $default;
         }
@@ -371,6 +370,21 @@ class AppInput implements AppInputInterface
 	 */
 	protected function setParams(array $params)
 	{
+		foreach ($params as $type => $data) {
+			if (! is_string($type) || empty($type)) {
+				$err = "param type must be a non empty string";
+				throw new DomainException($err);
+			}
+
+			if (! is_array($data)) {
+				$datatype = gettype($data);
+				$err = "data for -($type) must be an array: -($datatype) given";
+				throw new DomainException($err);
+			}
+
+			$type = strtolower($type);
+		}
+
 		$this->params = $params;
 	}
 

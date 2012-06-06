@@ -191,9 +191,33 @@ class AppInputTest extends BaseTestCase
 	public function getCmd()
 	{
 		$method = 'cli';
-		$params = array('cmd' => './my-script');
+		$params = array('args' => array('cmd' => './my-script'));
 		$input = $this->createAppInput($method, $params);
-		$this->assertEquals($params['cmd'], $input->getCmd());	
+		$this->assertEquals($params['args']['cmd'], $input->getCmd());
+
+		$params = array('args' => array('notcmd' => './my-script'));
+		$input = $this->createAppInput($method, $params);
+		$this->assertFalse($input->getCmd());
+
+		$input = $this->createAppInput($method, array());
+		$this->assertFalse($input->getCmd());
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function getArgs()
+	{
+		$method = 'cli';
+		$params['args']['list'] = array('arg1', 'arg2', 'arg3');
+		$input = $this->createAppInput($method, $params);
+		$this->assertEquals($params['args']['list'], $input->getArgs());
+
+		unset($params['args']['list']);
+		$params['args']['not-list'] = array('arg1', 'arg2', 'arg3');
+		$input = $this->createAppInput($method, $params);
+		$this->assertFalse($input->getArgs());
 	}
 
 	/**
@@ -301,26 +325,6 @@ class AppInputTest extends BaseTestCase
 	 * @test
 	 * @return	null
 	 */
-	public function getArgs()
-	{
-		$method = 'cli';
-		$params = array(
-			'args' => array('arg1', 'arg2', 'arg3')
-		);
-		$input = $this->createAppInput($method, $params);
-		$this->assertEquals($params['args'], $input->getArgs());
-
-		$params = array(
-			'not-args' => array('arg1', 'arg2', 'arg3')
-		);
-		$input = $this->createAppInput($method, $params);
-		$this->assertEquals(array(), $input->getArgs());
-	}
-
-	/**
-	 * @test
-	 * @return	null
-	 */
 	public function isValidParamType()
 	{
 		$method = 'cli';
@@ -387,6 +391,7 @@ class AppInputTest extends BaseTestCase
 		$input = $this->createAppInput($method, $params);
 
 		$this->assertEquals('value1', $input->get('get', 'param1'));
+		$this->assertEquals('value1', $input->get('Get', 'param1'));
 		$this->assertEquals(12345, $input->get('get', 'param2'));
 		$this->assertEquals('value3', $input->get('post', 'param3'));
 	}
@@ -396,7 +401,7 @@ class AppInputTest extends BaseTestCase
 	 * @dataProvider	provideInvalidStringsIncludeEmpty
 	 * @return	null
 	 */
-	public function testGetNotFound($key)
+	public function testGetKeyNotValid($key)
 	{
 		$method = 'post';
 		$params = array(
@@ -412,5 +417,81 @@ class AppInputTest extends BaseTestCase
 
 		$this->assertNull($input->get('get', $key));
 		$this->assertEquals('default', $input->get('get', $key, 'default'));
+	}
+
+	/**
+	 * @test
+	 * @dataProvider	provideInvalidStringsIncludeEmpty
+	 * @return	null
+	 */
+	public function testGetParamTypeInvalid($type)
+	{
+		$method = 'post';
+		$params = array(
+			'get' => array(
+				'param1' => 'value1',
+				'param2' => 12345,
+			),
+			'post' => array(
+				'param3' => 'value3'
+			),
+		);
+		$input = $this->createAppInput($method, $params);
+
+		$this->assertNull($input->get($type, 'param1'));
+		$this->assertEquals('default', $input->get($type, 'param1', 'default'));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function testCollect()
+	{
+		$method = 'post';
+		$params = array(
+			'post' => array(
+				'param1' => 'value1',
+				'param2' => 12345,
+				'param3' => 'value3',
+				'param4' => 'value4',
+				'param5' => 'value5'
+			),
+		);
+		$input = $this->createAppInput($method, $params);
+		$keys  = array('param1', 'param2', 'param5');
+	
+		$result = $input->collect('post', $keys);
+		$class  = 'Appfuel\DataStructure\Dictionary';
+		$this->assertInstanceOf($class, $result);
+		$expected = array(
+			'param1' => 'value1', 
+			'param2' => 12345, 
+			'param5' => 'value5'
+		);
+		$this->assertEquals($expected, $result->getAll());
+
+		
+		$result = $input->collect('post', $keys, true);
+		$this->assertEquals($expected, $result);
+
+		return $params;
+	}
+
+	/**
+	 * @test
+	 * @depends	testCollect
+	 * @return	null
+	 */
+	public function testCollectKeyNotFound(array $params)
+	{
+		$input = $this->createAppInput('post', $params);
+		$keys  = array('param1', new StdClass(), true, 'paramXX', 'param5');
+		$expected = array(
+			'param1' => 'value1', 
+			'param5' => 'value5'
+		);
+		$result = $input->collect('post', $keys, true);
+		$this->assertEquals($expected, $result);
 	}
 }
