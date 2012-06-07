@@ -63,7 +63,7 @@ class FieldSpecTest extends BaseTestCase
 		$spec = $this->createFieldSpec($data);
 		$this->assertInstanceOf('Appfuel\Validate\FieldSpecInterface', $spec);
 
-		$this->assertEquals($data['field'], $spec->getField());
+		$this->assertEquals(array($data['field']), $spec->getFields());
 		$this->assertNull($spec->getLocation());
 
 		$this->assertNull($spec->getValidator());
@@ -129,7 +129,8 @@ class FieldSpecTest extends BaseTestCase
 			'filter' => 'int',
 			'location' => 'post',
 		);
-		$msg = 'validation field must be defined with key -(field)';
+        $msg  = "must use -(field) or -(fields) to indicate fields for ";
+		$msg .= "the validator";
 		$this->setExpectedException('DomainException', $msg);
 		$spec = $this->createFieldSpec($data);
 	}
@@ -146,8 +147,7 @@ class FieldSpecTest extends BaseTestCase
 			'filter' => 'my-filter',
 			'location' => 'post',
 		);
-		$msg  = 'field must be a non empty string';
-		$this->setExpectedException('InvalidArgumentException', $msg);
+		$this->setExpectedException('DomainException');
 		$spec = $this->createFieldSpec($data);
 	}
 
@@ -161,8 +161,7 @@ class FieldSpecTest extends BaseTestCase
 			'field' => 'my-field',
 			'location' => 'post',
 		);
-		$msg  = 'field -(my-field) must have one or more filters defined with ';
-		$msg .= 'key -(filters)';
+		$msg  = 'must have one or more filters defined with key -(filters)';
 		$this->setExpectedException('DomainException', $msg);
 		$spec = $this->createFieldSpec($data);
 	}

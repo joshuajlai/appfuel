@@ -73,14 +73,14 @@ class FieldValidatorTest extends BaseTestCase
 	 * @test
 	 * @depends	validatorInterface
 	 */	
-	public function field(FieldValidator $validator)
+	public function fields(FieldValidator $validator)
 	{
-		$this->assertNull($validator->getField());
-		$this->assertSame($validator, $validator->setField('my-field'));
-		$this->assertEquals('my-field', $validator->getField());
+		$this->assertEquals(array(), $validator->getFields());
+		$this->assertSame($validator, $validator->addField('my-field'));
+		$this->assertEquals(array('my-field'), $validator->getFields());
 
-		$this->assertSame($validator, $validator->clearField());
-		$this->assertNull($validator->getField());
+		$this->assertSame($validator, $validator->clearFields());
+		$this->assertEquals(array(), $validator->getFields());
 	}
 
 	/**
@@ -93,7 +93,7 @@ class FieldValidatorTest extends BaseTestCase
 		$msg = 'field must be a non empty string';
 		$this->setExpectedException('InvalidArgumentException', $msg);
 		$validator = $this->createFieldValidator();
-		$validator->setField($name);
+		$validator->addField($name);
 	}
 
 	/**
@@ -144,7 +144,7 @@ class FieldValidatorTest extends BaseTestCase
 		);
 		$spec = new FieldSpec($data);
 		$this->assertSame($validator, $validator->loadSpec($spec));
-		$this->assertEquals($data['field'], $validator->getField());
+		$this->assertEquals(array($data['field']), $validator->getFields());
 		
 		$filters = $validator->getFilters();
 		$this->assertInternalType('array', $filters);
@@ -168,7 +168,7 @@ class FieldValidatorTest extends BaseTestCase
 	 * @depends	loadSpec
 	 * @return	FieldValidator
 	 */
-	public function testIsValid(FieldValidator $validator)
+	public function isValid(FieldValidator $validator)
 	{
 		$map = array('int' => 'Appfuel\Validate\Filter\IntFilter');
 		ValidationFactory::setFilterMap($map);

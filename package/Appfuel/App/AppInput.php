@@ -56,6 +56,14 @@ class AppInput implements AppInputInterface
 		$this->setValidationHandler($handler);
     }
 
+	/**
+	 * @return	ValidationHandlerInterface
+	 */
+	public function getValidationHandler()
+	{
+		return $this->handler;
+	}
+
     /**
      * @return bool
      */
@@ -309,6 +317,105 @@ class AppInput implements AppInputInterface
 		}
 		
 		return true;
+	}
+
+	/**
+	 * 
+	 * @param	array	$list
+	 * @return	bool
+	 */
+	public function isSatisfiedBy(array $list)
+	{
+		$handler = $this->getValidationHandler();
+		
+		$raw = array();
+		$notFound = '__AF_FIELD_NOT_FOUND__';
+		foreach ($list as $data) {
+			if (is_array($data)) {
+				$key = null;
+				if (isset($data['spec'])) {
+					$key = $data['spec'];
+				}
+				$spec = ValidationFactory::createFieldSpec($data, $key);
+				
+			}
+			else if ($data instanceof FieldSpecInterface) {
+				$spec = $data;
+			}
+			else {
+		
+				$err  = 'validation field specification must be an array ';
+				$err .= 'of an object that implements -(Appfuel\Validate';
+				$err .= '\FieldSpecInterface';
+				throw new DomainException($err);
+			}
+			$fields   = $spec->getFields();
+			$location = $spec->getLocation();
+			if (! is_string($location) || empty($location)) {
+				$err  = "in order for input validation to work the handler ";
+				$err .= "needs to know where the field is located -(location)";
+				$err .= " is missing or invalid: should be -(get,post,etc...)";
+				throw new DomainException($err);
+			}
+			foreach ($fields as $field) {
+				$rawValue = $this->get($location, $field, $notFound);
+				if ($rawValue !== $notFound) {
+					$raw[$field] = $rawValue;
+				}
+			}
+			$handler->loadSpec($spec);
+		}
+
+		return $handler->isSatisfiedBy($raw);
+	}
+
+	/**
+	 * @param	string	$key
+	 * @param	mixed	$default
+	 * @return	mixed
+	 */
+	public function getClean($key, $default = null)
+	{
+		return $this->getValidationHandler()
+					->getClean($key, $default);
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getAllClean()
+	{
+		return $this->getValidationHandler()
+					->getAllClean();
+	}
+
+	/**
+	 * @return	AppInput
+	 */
+	public function clearClean()
+	{
+		$this->getValidationHandler()
+					->clearClean();
+	
+		return $this;
+	}
+
+	/**
+	 * @return	ErrorStackInterface
+	 */
+	public function getErrorStack()
+	{
+		return $this->getValidationHandler()
+					->getErrorStack();
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isError()
+	{
+		return $this->getValidationHandler()
+					->isError();
 	}
 
 	/**

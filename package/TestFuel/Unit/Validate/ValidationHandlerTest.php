@@ -297,11 +297,11 @@ class ValidationHandlerTest extends BaseTestCase
 		$boolFilter->loadSpec($spec);
 
 		$validator1 = new FieldValidator();
-		$validator1->setField('my-int');
+		$validator1->addField('my-int');
 		$validator1->addFilter($intFilter);
 
 		$validator2 = new FieldValidator();
-		$validator2->setField('my-bool');
+		$validator2->addField('my-bool');
 		$validator2->addFilter($boolFilter);
 
 		$handler->addValidator($validator1)
@@ -350,11 +350,11 @@ class ValidationHandlerTest extends BaseTestCase
 		$boolFilter->loadSpec($spec);
 
 		$validator1 = new FieldValidator();
-		$validator1->setField('my-int');
+		$validator1->addField('my-int');
 		$validator1->addFilter($intFilter);
 
 		$validator2 = new FieldValidator();
-		$validator2->setField('my-bool');
+		$validator2->addField('my-bool');
 		$validator2->addFilter($boolFilter);
 
 		$handler->addValidator($validator1)

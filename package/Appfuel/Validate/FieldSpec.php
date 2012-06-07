@@ -22,9 +22,9 @@ class FieldSpec implements FieldSpecInterface
 {
     /**     
 	 * Name of the field to be validated
-	 * @var string
+	 * @var array
      */    
-	protected $field = null;    
+	protected $fields = array();    
 	
 	/**     
 	 * Location of the field ex) get, post or a method getter or property     
@@ -56,12 +56,17 @@ class FieldSpec implements FieldSpecInterface
 	 */
 	public function __construct(array $data)
 	{
-        if (! isset($data['field'])) {
-            $err = "validation field must be defined with key -(field)";
-            throw new DomainException($err);
-        }
-        $field = $data['field'];
-        $this->setField($field);
+        if (isset($data['fields']) && is_array($data['fields'])) {
+			$this->setFields($data['fields']);
+		}
+		else if (isset($data['field']) && is_string($data['field'])) {
+			$this->setFields(array($data['field']));
+		}
+		else {
+			$err  = "must use -(field) or -(fields) to indicate fields for ";
+			$err .= "the validator";
+			throw new DomainException($err);
+		}
 
         if (isset($data['location'])) {
             $this->setLocation($data['location']);
@@ -76,8 +81,7 @@ class FieldSpec implements FieldSpecInterface
 		}
 
 		if (! isset($data['filters'])) {
-			$err  = "field -($field) must have one or more filters defined ";
-			$err .= "with key -(filters)";
+			$err  = "must have one or more filters defined with key -(filters)";
 			throw new DomainException($err);
 		}
 		$this->setFilters($data['filters']);
@@ -86,9 +90,9 @@ class FieldSpec implements FieldSpecInterface
     /**
      * @return  string
      */
-    public function getField()
+    public function getFields()
     {
-        return $this->field;
+        return $this->fields;
     }
 
     /**
@@ -127,14 +131,16 @@ class FieldSpec implements FieldSpecInterface
      * @param   string  $name
      * @return  null
      */
-    protected function setField($name)
+    protected function setFields(array $list)
     {
-        if (! is_string($name) || empty($name)) {
-            $err  = "field must be a non empty string";
-            throw new InvalidArgumentException($err);
-        }
+		foreach ($list as $name) {
+			if (! is_string($name) || empty($name)) {
+				$err  = "field must be a non empty string";
+				throw new DomainException($err);
+			}
+		}
 
-        $this->field = $name;
+        $this->fields = $list;
     }
 
     /**

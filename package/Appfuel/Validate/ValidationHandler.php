@@ -66,10 +66,13 @@ class ValidationHandler implements ValidationHandlerInterface
 	 */
 	public function loadSpec(FieldSpecInterface $spec)
 	{
-		$validator = ValidationFactory::createValidator($spec->getValidator());
-
-		/* load spec returns the validator which feeds into the add */
-		$this->addValidator($validator->loadSpec($spec));
+		$key = $spec->getValidator();
+        if (! is_string($key) || empty($key)) {
+			$key = null;
+        }
+        $validator = ValidationFactory::createValidator($key);
+        $validator->loadSpec($spec);
+        $this->addValidator($validator);
 		return $this;
 	}
 
@@ -174,6 +177,7 @@ class ValidationHandler implements ValidationHandlerInterface
 				$failed++;
 			}
 		}
+		$this->clearValidators();
 
 		if ($failed > 0) {
 			return false;

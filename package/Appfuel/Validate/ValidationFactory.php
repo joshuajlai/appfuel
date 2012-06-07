@@ -328,8 +328,11 @@ class ValidationFactory
 	 * @param	string $key
 	 * @return	mixed
 	 */
-	static public function createValidator($key)
+	static public function createValidator($key = null)
 	{
+		if (null === $key) {
+			return new FieldValidator();
+		}
 		$validator = self::create('validator', $key);
 		if (! $validator instanceof ValidatorInterface) {
 			$class = get_class($validator);
@@ -340,6 +343,33 @@ class ValidationFactory
 
 		return $validator;
 	}
+
+	/**
+	 * @param	array	$data
+	 * @param	string	$key
+	 * @return	Filter\FilterSpecInterface
+	 */
+	static public function createFieldSpec(array $data, $key = null)
+	{
+		if (null === $key) {
+			return new FieldSpec($data);
+		}
+		$class = self::map('validator', $key);
+		if (false === $class) {
+			$err = "could not map field spec with -($key)";
+			throw new DomainException($err);
+		}
+
+		$spec = new $class($data);
+		if (! $spec instanceof FieldSpecInterface) {
+			$iface = 'Appfuel\Validate\FieldSpecInterface';
+			$err   = "field spec -($key, $class) must implement -($iface)";
+			throw new DomainException($err);
+		}
+
+		return $spec;
+	}
+
 
 	/**
 	 * @param	string $key
@@ -374,14 +404,14 @@ class ValidationFactory
 			throw new DomainException($err);
 		}
 
-		$filter = new $class($data);
-		if (! $filter instanceof FilterSpecInterface) {
+		$spec = new $class($data);
+		if (! $spec instanceof FilterSpecInterface) {
 			$iface = 'Appfuel\Validate\Filter\FilterSpecInterface';
 			$err   = "filter spec -($key, $class) must implement -($iface)";
 			throw new DomainException($err);
 		}
 
-		return $filter;
+		return $spec;
 	}
 
 	/**
@@ -432,6 +462,4 @@ class ValidationFactory
 			}
 		}
 	}
-
-
 }

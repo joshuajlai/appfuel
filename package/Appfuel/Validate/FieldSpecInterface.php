@@ -20,7 +20,7 @@ interface FieldSpecInterface
 	/**
 	 * @return string
 	 */
-	public function getField();
+	public function getFields();
 
 	/**
 	 * @return string

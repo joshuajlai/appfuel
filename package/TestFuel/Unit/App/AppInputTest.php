@@ -8,10 +8,11 @@
  * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
  * @license     http://www.apache.org/licenses/LICENSE-2.0
  */
-namespace TestFuel\Unit\Kernel\Mvc;
+namespace TestFuel\Unit\Validate;
 
 use StdClass,
 	Appfuel\App\AppInput,
+	Appfuel\Validate\ValidationFactory,
 	TestFuel\TestCase\BaseTestCase,
 	Appfuel\DataStructure\Dictionary;
 
@@ -376,7 +377,7 @@ class AppInputTest extends BaseTestCase
 	 * @test
 	 * @return	null
 	 */
-	public function testGet()
+	public function retrieveWitGet()
 	{
 		$method = 'post';
 		$params = array(
@@ -401,7 +402,7 @@ class AppInputTest extends BaseTestCase
 	 * @dataProvider	provideInvalidStringsIncludeEmpty
 	 * @return	null
 	 */
-	public function testGetKeyNotValid($key)
+	public function getKeyNotValid($key)
 	{
 		$method = 'post';
 		$params = array(
@@ -424,7 +425,7 @@ class AppInputTest extends BaseTestCase
 	 * @dataProvider	provideInvalidStringsIncludeEmpty
 	 * @return	null
 	 */
-	public function testGetParamTypeInvalid($type)
+	public function getParamTypeInvalid($type)
 	{
 		$method = 'post';
 		$params = array(
@@ -446,7 +447,7 @@ class AppInputTest extends BaseTestCase
 	 * @test
 	 * @return	null
 	 */
-	public function testCollect()
+	public function collect()
 	{
 		$method = 'post';
 		$params = array(
@@ -480,10 +481,10 @@ class AppInputTest extends BaseTestCase
 
 	/**
 	 * @test
-	 * @depends	testCollect
+	 * @depends	collect
 	 * @return	null
 	 */
-	public function testCollectKeyNotFound(array $params)
+	public function collectKeyNotFound(array $params)
 	{
 		$input = $this->createAppInput('post', $params);
 		$keys  = array('param1', new StdClass(), true, 'paramXX', 'param5');
@@ -493,5 +494,49 @@ class AppInputTest extends BaseTestCase
 		);
 		$result = $input->collect('post', $keys, true);
 		$this->assertEquals($expected, $result);
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function isSatifiedByOneField()
+	{
+		$boolClass = 'Appfuel\Validate\Filter\BoolFilter';
+		$intClass  = 'Appfuel\Validate\Filter\IntFilter';
+		$ipClass   = 'Appfuel\Validate\Filter\IpFilter';
+
+		ValidationFactory::addToValidatorMap('int', $intClass);
+
+		$params = array(
+			'get' => array(
+				'key-a' => 123,
+			),
+		);
+		$input = $this->createAppInput('post', $params);
+
+		$list = array(
+			array(
+				'field' => 'key-a',
+				'location' => 'get',
+				'filters' => array(
+					'int' => array(
+						'options' => array(
+							'min' => 100,
+							'max' => 124
+						),
+						'error' => 'integer must be between 100 and 124'
+					),
+				),
+			),
+		);
+
+		$this->assertTrue($input->isSatisfiedBy($list));
+		$this->assertFalse($input->isError());
+		
+		$stack = $input->getErrorStack();
+		$this->assertInstanceOf('Appfuel\Error\ErrorStack', $stack);
+		$this->assertFalse($stack->isError());
+		$this->assertEquals(123, $input->getClean('key-a'));
 	}
 }

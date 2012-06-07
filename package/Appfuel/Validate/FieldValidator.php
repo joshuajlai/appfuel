@@ -20,11 +20,11 @@ use InvalidArgumentException,
 class FieldValidator implements FieldValidatorInterface
 {
 	/**
-	 * Name of the field in the source we are looking to validate. The source
-	 * could be any super global or user created array of data
+	 * List of fields to be filtered. These fields are located in the 
+	 * coordinators raw source
 	 * @var string
 	 */
-	protected $field = null;
+	protected $fields = array();
 
 	/**
 	 * List of filters and sanitizers to run against the field's value
@@ -35,32 +35,35 @@ class FieldValidator implements FieldValidatorInterface
 	/**
 	 * @return	string
 	 */
-	public function getField()
+	public function getFields()
 	{
-		return $this->field;
+		return $this->fields;
 	}
 
 	/**
 	 * @param	string	$name
 	 * @return	SingleFieldValidator
 	 */
-	public function setField($name)
+	public function addField($name)
 	{
 		if (! is_string($name) || empty($name)) {
 			$err = "field must be a non empty string";
 			throw new InvalidArgumentException($err);
 		}
 
-		$this->field = $name;
+		if (! in_array($name, $this->fields, true)) {
+			$this->fields[] = $name;
+		}
+
 		return $this;
 	}
 
 	/**
 	 * @return	SingleFieldValidator
 	 */
-	public function clearField()
+	public function clearFields()
 	{
-		$this->field = null;
+		$this->fields = array();
 		return $this;
 	}
 
@@ -97,7 +100,10 @@ class FieldValidator implements FieldValidatorInterface
 	 */
 	public function loadSpec(FieldSpecInterface $spec)
 	{
-		$this->setField($spec->getField());
+		$fields = $spec->getFields();
+		foreach($fields as $field) {
+			$this->addField($field);
+		}
 		
 		$filters = $spec->getFilters();
 		foreach ($filters as $filterSpec) {
@@ -121,7 +127,30 @@ class FieldValidator implements FieldValidatorInterface
 	 */
 	public function isValid(CoordinatorInterface $coord)
 	{
-		$field = $this->getField();
+		$fields = $this->getFields();
+	
+		$isError = false;
+		foreach ($fields as $field) {
+			if (! $this->isValidField($field, $coord)) {
+				$isError = true;
+			}
+		}
+
+		$result = true;
+		if ($isError) {
+			$result = false;
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @param	string	$field
+	 * @param	CoordinatorInterface $coord
+	 * @return	bool
+	 */
+	public function isValidField($field, CoordinatorInterface $coord)
+	{
 		$raw = $coord->getRaw($field);
 		if (CoordinatorInterface::FIELD_NOT_FOUND === $raw) {
 			$coord->addError("could not find field -($field) in source");

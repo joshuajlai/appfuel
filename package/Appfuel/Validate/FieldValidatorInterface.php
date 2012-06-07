@@ -20,18 +20,18 @@ interface FieldValidatorInterface extends ValidatorInterface
 	/**
 	 * @return	string
 	 */
-	public function getField();
+	public function getFields();
 	
 	/**
 	 * @param	string	$name
 	 * @return	FieldValidatorInterface
 	 */
-	public function setField($name);
+	public function addField($name);
 
     /**
      * @return  FieldValidatorInterface
      */
-    public function clearField();
+    public function clearFields();
 
     /**
      * @return  array
