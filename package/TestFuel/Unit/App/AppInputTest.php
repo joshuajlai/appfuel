@@ -515,18 +515,16 @@ class AppInputTest extends BaseTestCase
 		);
 		$input = $this->createAppInput('post', $params);
 
-		$list = array(
-			array(
-				'field' => 'key-a',
-				'location' => 'get',
-				'filters' => array(
-					'int' => array(
-						'options' => array(
-							'min' => 100,
-							'max' => 124
-						),
-						'error' => 'integer must be between 100 and 124'
+		$list[] = array(
+			'field' => 'key-a',
+			'location' => 'get',
+			'filters' => array(
+				'int' => array(
+					'options' => array(
+						'min' => 100,
+						'max' => 124
 					),
+					'error' => 'integer must be between 100 and 124'
 				),
 			),
 		);
@@ -538,5 +536,180 @@ class AppInputTest extends BaseTestCase
 		$this->assertInstanceOf('Appfuel\Error\ErrorStack', $stack);
 		$this->assertFalse($stack->isError());
 		$this->assertEquals(123, $input->getClean('key-a'));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function isSatifiedByOneFieldFailure()
+	{
+		$ipClass   = 'Appfuel\Validate\Filter\IpFilter';
+
+		ValidationFactory::addToValidatorMap('ip', $ipClass);
+
+		$params = array(
+			'post' => array(
+				'key-a' => 'abc.168.1.1',
+			),
+		);
+		$input = $this->createAppInput('post', $params);
+
+		$list[] = array(
+			'field' => 'key-a',
+			'location' => 'post',
+			'filters' => array(
+				'ip' => array(
+					'error' => 'invalid ip for key-a'
+				),
+			),
+		);
+
+		$this->assertFalse($input->isSatisfiedBy($list));
+		$this->assertTrue($input->isError());
+		
+		$stack = $input->getErrorStack();
+		$this->assertInstanceOf('Appfuel\Error\ErrorStack', $stack);
+		$this->assertTrue($stack->isError());
+
+		/* error message with default code of 500 */
+		$this->assertEquals('invalid ip for key-a', $stack->getMessage());
+		$this->assertEquals(500, $stack->getCode());
+		$this->assertNull($input->getClean('key-a'));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function isSatifiedByManyFieldsOneValidator()
+	{
+		$intClass  = 'Appfuel\Validate\Filter\IntFilter';
+		ValidationFactory::addToValidatorMap('int', $intClass);
+
+		$params = array(
+			'get' => array(
+				'key-a' => 123,
+				'key-b' => 101,
+				'key-c' => 115
+			),
+		);
+		$input = $this->createAppInput('post', $params);
+
+		$list[] = array(
+			'fields' => array('key-a', 'key-b', 'key-c'),
+			'location' => 'get',
+			'filters' => array(
+				'int' => array(
+					'options' => array(
+						'min' => 100,
+						'max' => 124
+					),
+					'error' => 'integer must be between 100 and 124'
+				),
+			),
+		);
+	
+
+		$this->assertTrue($input->isSatisfiedBy($list));
+		$this->assertFalse($input->isError());
+		
+		$stack = $input->getErrorStack();
+		$this->assertInstanceOf('Appfuel\Error\ErrorStack', $stack);
+		$this->assertFalse($stack->isError());
+		$this->assertEquals(123, $input->getClean('key-a'));
+		$this->assertEquals(101, $input->getClean('key-b'));
+		$this->assertEquals(115, $input->getClean('key-c'));
+	}
+
+	/**
+	 * @test
+	 * @return	null
+	 */
+	public function isSatifiedByManyFieldsManyValidators()
+	{
+		$boolClass = 'Appfuel\Validate\Filter\BoolFilter';
+		$intClass  = 'Appfuel\Validate\Filter\IntFilter';
+		$ipClass   = 'Appfuel\Validate\Filter\IpFilter';
+
+		ValidationFactory::addToValidatorMap('int', $intClass);
+		ValidationFactory::addToValidatorMap('bool', $boolClass);
+		ValidationFactory::addToValidatorMap('ip', $ipClass);
+
+		$params = array(
+			'get' => array(
+				'key-a' => 123,
+				'key-b' => 101,
+				'key-c' => 115,
+				'key-g' => '10.0.0.4',
+			),
+			'post' => array(
+				'key-d' => 'on',
+				'key-e' => 'off',
+				'key-x' => 'not a bool',
+				'key-f' => '192.168.1.1',
+			),
+		);
+
+		$input = $this->createAppInput('post', $params);
+
+		$list = array(
+			array(
+				'fields' => array('key-a', 'key-b', 'key-c'),
+				'location' => 'get',
+				'filters' => array(
+					'int' => array(
+						'options' => array(
+							'min' => 100,
+							'max' => 124
+						),
+						'error' => 'integer must be between 100 and 124'
+					),
+				),
+			),
+			array(
+				'fields'	=> array('key-d', 'key-e', 'key-x'),
+				'location'	=> 'post',
+				'filters'	=> array(
+					'bool' => array(
+						'error' => 'key-d or key-e are not valid bools'
+					)
+				),
+			),
+			array(
+				'field'		=> 'key-f',
+				'location'	=> 'post',
+				'filters'	=> array(
+					'ip' => array(
+						'error' => 'key-d is not a valid ip'
+					)
+				),
+			),
+			array(
+				'field'		=> 'key-g',
+				'location'	=> 'get',
+				'filters'	=> array(
+					'ip' => array(
+						'error' => 'key-d is not a valid ip'
+					)
+				),
+			),
+		);
+	
+
+		$this->assertTrue($input->isSatisfiedBy($list));
+		$this->assertFalse($input->isError());
+		
+		$stack = $input->getErrorStack();
+		$this->assertInstanceOf('Appfuel\Error\ErrorStack', $stack);
+		$this->assertFalse($stack->isError());
+		$this->assertEquals(123, $input->getClean('key-a'));
+		$this->assertEquals(101, $input->getClean('key-b'));
+		$this->assertEquals(115, $input->getClean('key-c'));
+		$this->assertEquals(true, $input->getClean('key-d'));
+		$this->assertEquals(false,$input->getClean('key-e'));
+		$this->assertEquals(false,$input->getClean('key-x'));
+		$this->assertEquals('192.168.1.1', $input->getClean('key-f'));
+		$this->assertEquals('10.0.0.4', $input->getClean('key-g'));
 	}
 }

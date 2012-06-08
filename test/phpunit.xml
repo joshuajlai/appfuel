@@ -15,6 +15,7 @@
 	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteInterceptTest.php</file>
 	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteViewTest.php</file>
 	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteActionTest.php</file>
+	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteInputValidationTest.php</file>
 	<file>../package/Testfuel/Unit/Kernel/Mvc/RouteDetailTest.php</file>
 
 	<file>../package/Testfuel/Unit/App/AppInputTest.php</file>

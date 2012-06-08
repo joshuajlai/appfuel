@@ -48,6 +48,11 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected $action = null;
 
 	/**
+	 * @var RouteInputValidation
+	 */
+	protected $inputValidation = null;
+
+	/**
 	 * @param	array	$data
 	 * @return	MvcRouteDetail
 	 */
@@ -58,6 +63,7 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		$this->initializeAcl($data);
 		$this->initializeView($data);
 		$this->initializeAction($data);
+		$this->initializeInputValidation($data);
 
 		$params = array();
 		if (isset($data['params']) && is_array($data['params'])) {
@@ -525,6 +531,15 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		
 
 		$this->action = $action;
+	}
+
+	/**
+	 * @param	array	$data
+	 * @return	null
+	 */
+	protected function initializeInputValidation(array $data)
+	{
+
 	}
 
 	/**
