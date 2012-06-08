@@ -340,6 +340,42 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	}
 
 	/**
+	 * @return	bool
+	 */
+	public function isInputValidation()
+	{
+		return $this->getRouteInputValidation()
+					->isInputValidation();
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isThrowOnValidationFailure()
+	{
+		return $this->getRouteInputValidation()
+					->isThrowOnFailure();
+	}
+
+	/**
+	 * @return	scalar
+	 */
+	public function getValidationErrorCode()
+	{
+		return $this->getRouteInputValidation()
+					->getErrorCode();
+	}
+
+	/**
+	 * @return	array
+	 */
+	public function getValidationSpecList()
+	{
+		return $this->getRouteInputValidation()
+					->getSpecList();
+	}
+
+	/**
 	 * @param	array	$data
 	 * @return	null
 	 */
@@ -539,6 +575,29 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	protected function initializeInputValidation(array $data)
 	{
+		$input = $this->createRouteInputValidation();
+		$this->inputValidation = $input;
+		if (! isset($data['validation']) || ! is_array($data['validation'])) {
+			return ;
+		}
+		$data = $data['validation'];
+
+		if (isset($data['ignore']) && true === $data['ignore']) {
+			$input->ignoreInputValidation();
+		}
+
+		if (isset($data['throw-on-failure']) && 
+			false === $data['throw-on-failure']) {
+			$input->ignoreValidationFailure();
+		}
+
+		if (isset($data['error-code'])) {
+			$input->setErrorCode($data['error-code']);
+		}
+
+		if (isset($data['validate'])) {
+			$input->setSpecList($data['validate']);
+		}
 
 	}
 
@@ -583,6 +642,14 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	}
 
 	/**
+	 * @return	RouteInputValidation
+	 */
+	public function getRouteInputValidation()
+	{
+		return $this->inputValidation;
+	}
+
+	/**
 	 * @return	RouteAccess
 	 */
 	protected function createRouteAccess()
@@ -620,5 +687,13 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected function createRouteAction()
 	{
 		return new RouteAction();
+	}
+
+	/**
+	 * @return	RouteInputValidation
+	 */
+	protected function createRouteInputValidation()
+	{
+		return new RouteInputValidation();
 	}
 }

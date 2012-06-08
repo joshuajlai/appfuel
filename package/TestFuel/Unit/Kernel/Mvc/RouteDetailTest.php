@@ -93,6 +93,12 @@ class RouteDetailTest extends BaseTestCase
 		/* route action */
 		$this->assertEquals($name, $detail->getActionName());
 		$this->assertEquals($name, $detail->findActionName());
+
+		/* route validation */
+		$this->assertTrue($detail->isInputValidation());
+		$this->assertTrue($detail->isThrowOnValidationFailure());
+		$this->assertEquals(500, $detail->getValidationErrorCode());
+		$this->assertEquals(array(), $detail->getValidationSpecList());
 	}
 
 	/**
@@ -354,4 +360,43 @@ class RouteDetailTest extends BaseTestCase
 		$this->assertFalse($detail->findActionName('clii'));
 		
 	}
+
+	/**
+	 * @test
+	 * @return	MvcRouteDetail
+	 */
+	public function routeInputAction()
+	{
+		$spec = array(
+			'action-name' => 'blah',
+			'validation' => array(
+				'ignore'			=> true,
+				'throw-on-failure'  => false,
+				'error-code'		=> 404,
+				'validate' => array(
+					array(
+						'fields'     => array('field-a', 'field-b'),
+						'location'   => 'post',
+						'filters'  => array(
+							'int' => array(
+								'options' => array('max' => 100),
+								'error'   => 'some error message',
+							),
+						),
+					),
+				),		
+			)
+		);
+		$detail = $this->createRouteDetail($spec);
+		$this->assertFalse($detail->isInputValidation());
+		$this->assertFalse($detail->isThrowOnValidationFailure());
+		$this->assertEquals(404, $detail->getValidationErrorCode());
+		$this->assertEquals(
+			$spec['validation']['validate'], 
+			$detail->getValidationSpecList()
+		);
+		
+	}
+
+
 }
