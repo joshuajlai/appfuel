@@ -10,7 +10,8 @@
  */
 namespace Testfuel\Functional\Validate;
 
-use Appfuel\Validate\Filter\FilterInterface;
+use Appfuel\Validate\Filter\FilterInterface,
+	Appfuel\Validate\Filter\FilterSpecInterface;
 
 class MockFilter implements FilterInterface
 {
@@ -18,6 +19,10 @@ class MockFilter implements FilterInterface
 	 * @return	string
 	 */	
 	public function filter($raw, array $params = null)
+	{}
+
+	public function loadSpec(FilterSpecInterface $spec)
 	{
+		return $this;
 	}
 }

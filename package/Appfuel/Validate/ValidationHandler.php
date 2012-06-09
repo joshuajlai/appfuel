@@ -3,10 +3,9 @@
  * Appfuel
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuele@gmail.com>
- * @license		http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * For complete copywrite and license details see the LICENSE file distributed
+ * with this source code.
  */
 namespace Appfuel\Validate;
 
@@ -14,6 +13,8 @@ use RunTimeException,
 	InvalidArgumentException;
 
 /**
+ * The facade infront of the coordinator, validators and filters. It is the 
+ * public interface appfuel uses to validate any kind of input
  */
 class ValidationHandler implements ValidationHandlerInterface
 {
