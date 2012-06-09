@@ -3,15 +3,13 @@
  * Appfuel
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * For complete copywrite and license details see the LICENSE file distributed
+ * with this source code.
  */
 namespace Appfuel\Kernel\Mvc;
 
 use DomainException;
-
 /**
  * Specification used to control the automation of input validation by
  * the dispatcher
@@ -116,6 +114,14 @@ class RouteInputValidation implements RouteInputValidationInterface
 
 		$this->errorCode = $code;
 		return $this;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isSpecList()
+	{
+		return ! empty($this->specList);
 	}
 
 	/**

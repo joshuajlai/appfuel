@@ -397,6 +397,4 @@ class RouteDetailTest extends BaseTestCase
 		);
 		
 	}
-
-
 }

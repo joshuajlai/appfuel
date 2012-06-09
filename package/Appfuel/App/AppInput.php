@@ -401,6 +401,20 @@ class AppInput implements AppInputInterface
 	}
 
 	/**
+	 * @return	string
+	 */
+	public function getErrorString()
+	{
+		$stack = $this->getErrorStack();
+		$msg = '';
+		foreach ($stack as $error) {
+			$msg .= $error->getMessage() . ' ';
+		}
+
+		return trim($msg);
+	}
+
+	/**
 	 * @return	ErrorStackInterface
 	 */
 	public function getErrorStack()

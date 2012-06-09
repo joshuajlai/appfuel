@@ -3,94 +3,80 @@
  * Appfuel
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.code@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * For complete copywrite and license details see the LICENSE file distributed
+ * with this source code.
  */
 namespace Appfuel\Kernel\Mvc;
 
 use LogicException,
+	DomainException,
 	RunTimeException;
 
 /**
- * 
+ * Uses the route detail to find and create the mvc action controller based
+ * based on the input method (get, post, put, delete or cli). Validate acl 
+ * access with acl codes found in the context and the input method. Optionally,
+ * validate input parameters using a parameter specification found in the 
+ * route detail. Finally process the mvc action passing in the context.
  */
 class MvcDispatcher implements MvcDispatcherInterface
 {
 	/**
-	 * Dispatch a request a context using the fluent interface
-	 *
-	 * @param	AppContextInterface $context
-	 * @return	AppContextInterface
+	 * @param	MvcContextInterface $context
+	 * @return	null	
 	 */
 	public function dispatch(MvcContextInterface $context)
 	{
 		$key    = $context->getRouteKey();
 		$detail = $this->getRouteDetail($key);
+		$input  = $context->getInput();
+		$method = $input->getMethod();
+
 		if (! $detail instanceof MvcRouteDetailInterface) {
 			$err  = "failed to dispatch: route -($key) ";
 			$err .= "not found ";
 			throw new RunTimeException($err, 404);
 		}
 
-		$input  = $context->getInput();
-		$method = $input->getMethod();
-		$name   = $detail->findActionName($input->getMethod());
-		$ns     = $this->getNamespace($key);
-		$class  = "$ns\\$name";
-		$action = new $class();
+		$action = $this->createMvcAction($key, $method, $detail);
         if (! ($action instanceof MvcActionInterface)) {
             $err  = 'mvc action does not implement Appfuel\Kernel\Mvc\Mvc';
             $err .= 'ActionInterface';
             throw new LogicException($err);
         }
 
-		/*
-		 * Any acl codes are checked againt the route detail's acl access
-		 */
 		if (! $detail->isAccessAllowed($context->getAclCodes(), $method)) {
 			$err = 'user request is not allowed: insufficient permissions';
 			throw new RunTimeException($err);
+		}
+
+		if ($detail->isInputValidation() && $detail->isValidationSpecList()) {
+			if (! $input->isSatisfiedBy($detail->getValidationSpecList())) {
+				if ($detail->isThrowOnValidationError()) {
+					$errors = $input->getErrorString();
+					$code   = $detail->getValidationErrorCode();
+					throw new DomainException($errors, $code);
+				}
+			}
 		}
 
 		$action->process($context);
 	}
 
 	/**
-	 * @param	MvcRouteDetailInterface $detail
 	 * @param	string	$key
+	 * @param	MvcRouteDetailInterface $detail
 	 * @return	MvcActionInterface
 	 */
-	protected function createAction(MvcRouteDetailInterface $detail, $key)
+	protected function createMvcAction($key,
+									   $method, 
+									   MvcRouteDetailInterface $detail)
 	{
-        $class = $detail->getActionClass();
-		if (empty($class)) {
-
-		}
-		
+		$name   = $detail->findActionName($method);
+		$ns     = $this->getNamespace($key);
+		$class  = "$ns\\$name";
 		return new $class();
-	}
-
-	/**
-	 * @param	MvcRouteDetailInterface $detail
-	 * @param	string	$method
-	 * @param	string	$key
-	 * @return	MvcActionInterface
-	 */
-	protected function createRestAction(MvcRouteDetailInterface $detail, 
-										$method, 
-										$key)
-	{
-		$name   = $detail->getRestAction($method);
-		if (false === $class) {
-			$err  = "http method $method is not supported ";
-			$err .= "by route -($key)";
-			throw new RunTimeException($err, 404);
-		}
-		$ns    = $this->getNamespace($key);
-		$class = "$ns\\$name";
-		return new $class();  
 	}
 
 	/**

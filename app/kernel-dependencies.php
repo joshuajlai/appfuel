@@ -36,8 +36,6 @@ return array(
 	'\Appfuel\Console\ConsoleOutput'				=> 'Appfuel/Console/ConsoleOutput.php',
 	'\Appfuel\Http\HttpOutputInterface'				=> 'Appfuel/Http/HttpOutputInterface.php',
 	'\Appfuel\Http\HttpOutput'						=> 'Appfuel/Http/HttpOutput.php',
-	'\Appfuel\Kernel\Mvc\MvcFactoryInterface'		=> 'Appfuel/Kernel/Mvc/MvcFactoryInterface.php',
-	'\Appfuel\Kernel\Mvc\MvcFacoty'					=> 'Appfuel/Kernel/Mvc/MvcFactory.php',
 	'\Appfuel\Kernel\FaultHandlerInterface'			=> 'Appfuel/Kernel/FaultHandlerInterface.php',
 	'\Appfuel\ClassLoader\AutoLoaderInterface'		=> 'Appfuel/ClassLoader/AutoLoaderInterface.php',
 	'\Appfuel\ClassLoader\StandardAutoLoader'		=> 'Appfuel/ClassLoader/StandardAutoLoader.php',

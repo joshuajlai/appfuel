@@ -3,10 +3,9 @@
  * Appfuel
  * PHP 5.3+ object oriented MVC framework supporting domain driven design. 
  *
- * @package     Appfuel
- * @author      Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @copyright   2009-2010 Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
- * @license     http://www.apache.org/licenses/LICENSE-2.0
+ * Copyright (c) Robert Scott-Buccleuch <rsb.appfuel@gmail.com>
+ * For complete copywrite and license details see the LICENSE file distributed
+ * with this source code.
  */
 namespace Appfuel\Kernel\Mvc;
 
@@ -376,6 +375,15 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	}
 
 	/**
+	 * @return	bool
+	 */	
+	public function isValidationSpecList()
+	{
+		return $this->getRouteInputValidation()
+					->isSpecList();
+	}
+
+	/**
 	 * @param	array	$data
 	 * @return	null
 	 */
@@ -598,7 +606,6 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 		if (isset($data['validate'])) {
 			$input->setSpecList($data['validate']);
 		}
-
 	}
 
 	/**
