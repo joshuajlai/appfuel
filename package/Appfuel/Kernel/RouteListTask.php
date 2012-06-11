@@ -28,7 +28,7 @@ class RouteListTask extends StartupTask
 	{
 		$reader = new FileReader(new FileFinder('app'));
 		$map = $reader->import('routes.php', true);
-		MvcRouteManager::setRouteMap($map);
+		//MvcRouteManager::setRouteMap($map);
 
 		$total = count($map);
 		$this->setStatus("route map set with -($total) items");

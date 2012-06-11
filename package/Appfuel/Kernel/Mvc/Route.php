@@ -17,8 +17,20 @@ use DomainException,
  * RouteIntercept for intercepting filters, RouteView for view data
  * and routeAction for Action info
  */
-class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
+class Route extends Dictionary implements RouteInterface
 {
+	/**
+ 	 * Unique string used to identify the route
+	 * @var string
+	 */
+	protected $key = null;
+
+	/**
+	 * Regular expression needed to locate this route in the url
+	 * @var string
+	 */
+	protected $pattern = null;
+
 	/**
 	 * Used by the app handler to add, remove or skip startup tasks
 	 * @var array
@@ -57,6 +69,16 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	 */
 	public function __construct(array $data)
 	{
+		if (! isset($data['key'])) {
+			$err = "route key -(key) is missing and is required";
+			throw new DomainException($err);
+		}
+		$this->setKey($data['key']);
+
+		if (isset($data['pattern']) && is_string($data['pattern'])) {
+			$this->setPattern($data['pattern']);
+		}
+
 		$this->initializeStartup($data);
 		$this->initializeIntercept($data);
 		$this->initializeAcl($data);
@@ -69,6 +91,30 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 			$params = $data['params'];
 		}
 		parent::__construct($params);
+	}
+
+	/**
+	 * @return	string
+	 */
+	public function getRouteKey()
+	{
+		return $this->key;
+	}
+
+	/**
+	 * @return	string | null when not set
+	 */
+	public function getPattern()
+	{
+		return $this->pattern;
+	}
+
+	/**
+	 * @return	bool
+	 */
+	public function isPattern()
+	{
+		return is_string($this->pattern);
 	}
 
 	/**
@@ -643,7 +689,7 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	/**
 	 * @return	RouteStartup
 	 */
-	public function getRouteStartup()
+	protected function getRouteStartup()
 	{
 		return $this->startup;
 	}
@@ -651,7 +697,7 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	/**
 	 * @return	RouteInputValidation
 	 */
-	public function getRouteInputValidation()
+	protected function getRouteInputValidation()
 	{
 		return $this->inputValidation;
 	}
@@ -702,5 +748,33 @@ class MvcRouteDetail extends Dictionary implements MvcRouteDetailInterface
 	protected function createRouteInputValidation()
 	{
 		return new RouteInputValidation();
+	}
+
+	/**
+	 * @param	string	$key
+	 * @return	null
+	 */
+	protected function setKey($key)
+	{
+		if (! is_string($key)) {
+			$err = "route key -(key) must be a string";
+			throw new DomainException($err);
+		}
+
+		$this->key = $key;
+	}
+
+	/**
+	 * @param	string	$pattern
+	 * @return	null
+	 */
+	protected function setPattern($pattern)
+	{
+		if (! is_string($pattern)) {
+			$err = "regex pattern must be a string";
+			throw new DomainException($err);
+		}
+
+		$this->pattern = $pattern;
 	}
 }

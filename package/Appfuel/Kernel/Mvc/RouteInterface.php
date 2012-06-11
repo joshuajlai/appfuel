@@ -11,8 +11,23 @@ namespace Appfuel\Kernel\Mvc;
 
 use Appfuel\DataStructure\DictionaryInterface;
 
-interface MvcRouteDetailInterface extends DictionaryInterface
+interface RouteInterface extends DictionaryInterface
 {
+	/**
+	 * @return	string
+	 */
+	public function getKey();
+
+	/**
+	 * @return	bool
+	 */
+	public function isPattern();
+
+	/**
+	 * @return	string || null when not set
+	 */
+	public function getPattern();
+
 	/**
 	 * @return	bool
 	 */
