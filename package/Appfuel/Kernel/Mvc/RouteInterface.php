@@ -16,7 +16,7 @@ interface RouteInterface extends DictionaryInterface
 	/**
 	 * @return	string
 	 */
-	public function getKey();
+	public function getRouteKey();
 
 	/**
 	 * @return	bool
