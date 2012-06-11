@@ -198,10 +198,6 @@ class OrmDbSource extends DbSource implements OrmDbSourceInterface
 		}
 
 		$sql = $this->loadSql($key, $criteria); 
-		if ('findNodes' == $key) {
-            print_r($sql);
-            exit;
-        }
         $request = $this->createRequest($sql, $type, $strategy, $values);
 
 		if (null !== $callback) {
