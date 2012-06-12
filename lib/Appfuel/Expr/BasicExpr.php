@@ -155,7 +155,7 @@ class BasicExpr implements ExprInterface
 	 */
 	protected function isValid($op)
 	{		
-		if (empty($op)) {
+		if (null === $op) {
 			return false;
 		}
 
