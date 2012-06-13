@@ -11,7 +11,8 @@
 namespace Appfuel\Orm\DbSource;
 
 use RunTimeException,
-	InvalidArgumentException,
+	DomainException,
+    InvalidArgumentException,
 	Appfuel\View\FileTemplate,
 	Appfuel\Filesystem\FileFinder;
 
